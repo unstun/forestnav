@@ -24,7 +24,7 @@
 - **验收**：`python -c "from forest_n3p import configs; print('OK')"` 通过
 
 ### T02 RS 独立接口验证
-- [ ] **目标**：确认 pathplan 是否暴露独立的 RS 曲线生成 + 碰撞检测接口
+- [x] **目标**：确认 pathplan 是否暴露独立的 RS 曲线生成 + 碰撞检测接口
 - **具体步骤**：
   1. 阅读 `third_party/pathplan` 的 API，找 RS 相关函数
   2. 写一个测试脚本 `tests/test_rs_interface.py`：给定两个 SE(2) 位姿，生成 RS 曲线，检测是否无碰撞
@@ -243,3 +243,4 @@
 |------|------|------|
 | 2026-06-20 | 预注册 | 数字锁定，Contract v1 approved |
 | 2026-06-20 | T01 项目结构搭建 | 建立 `2_experiment/forest_n3p/` 骨架，迁入 DQN10 森林地图、PGM 加载、pathplan 和 forest_policy，新增默认配置与 import 兼容入口；`import pathplan` 与 `from forest_n3p import configs` 验证通过 |
+| 2026-06-20 | T02 RS 独立接口验证 | 新增 `forest_n3p.rs_utils`，封装 RS 曲线生成、曲线采样和 GridFootprintChecker 碰撞检测；新增 `tests/test_rs_interface.py`，验证自由空间可通行和障碍阻断可检测 |
