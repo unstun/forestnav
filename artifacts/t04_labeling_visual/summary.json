@@ -1,0 +1,104 @@
+{
+  "image": "artifacts/t04_labeling_visual/labeling_demo.png",
+  "planner_stats": {
+    "path_length": 26.0,
+    "cusps": 0,
+    "max_curvature": 0.0,
+    "expansions": 1,
+    "time": 0.1544802188873291,
+    "timed_out": false,
+    "remediations": [
+      "analytic_expansion"
+    ]
+  },
+  "teacher_trace_count": 261,
+  "label_success": true,
+  "failure_reason": null,
+  "path_length_m": 25.999999999999996,
+  "candidate_checks": 157,
+  "subgoals": [
+    [
+      10.0,
+      15.0,
+      0.0
+    ],
+    [
+      18.0,
+      15.0,
+      0.0
+    ],
+    [
+      26.0,
+      15.0,
+      0.0
+    ]
+  ],
+  "samples": [
+    {
+      "current_pose": [
+        2.0,
+        15.0,
+        0.0
+      ],
+      "subgoal_pose": [
+        10.0,
+        15.0,
+        0.0
+      ],
+      "delta_body": [
+        8.0,
+        0.0,
+        0.0
+      ],
+      "s_start_m": 0.0,
+      "s_subgoal_m": 8.0,
+      "rs_length_m": 8.0,
+      "rs_sample_count": 81,
+      "feature_dim": 41
+    },
+    {
+      "current_pose": [
+        10.0,
+        15.0,
+        0.0
+      ],
+      "subgoal_pose": [
+        18.0,
+        15.0,
+        0.0
+      ],
+      "delta_body": [
+        8.0,
+        0.0,
+        0.0
+      ],
+      "s_start_m": 8.0,
+      "s_subgoal_m": 16.0,
+      "rs_length_m": 8.0,
+      "rs_sample_count": 81,
+      "feature_dim": 41
+    },
+    {
+      "current_pose": [
+        18.0,
+        15.0,
+        0.0
+      ],
+      "subgoal_pose": [
+        26.0,
+        15.0,
+        0.0
+      ],
+      "delta_body": [
+        8.0,
+        0.0,
+        0.0
+      ],
+      "s_start_m": 16.0,
+      "s_subgoal_m": 24.0,
+      "rs_length_m": 8.0,
+      "rs_sample_count": 81,
+      "feature_dim": 41
+    }
+  ]
+}

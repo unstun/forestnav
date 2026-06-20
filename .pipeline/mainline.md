@@ -47,7 +47,7 @@
 - **参考**：设计文档 §4.3 特征设计表
 
 ### T04 标签提取实现（算法 1）
-- [ ] **目标**：实现前向贪心 RS 可达分段
+- [x] **目标**：实现前向贪心 RS 可达分段
 - **具体步骤**：
   1. 创建 `labeling.py`
   2. 实现算法 1：输入一条教师路径（弧长参数化），输出子目标序列和样本对
@@ -245,3 +245,4 @@
 | 2026-06-20 | T01 项目结构搭建 | 建立 `2_experiment/forest_n3p/` 骨架，迁入 DQN10 森林地图、PGM 加载、pathplan 和 forest_policy，新增默认配置与 import 兼容入口；`import pathplan` 与 `from forest_n3p import configs` 验证通过 |
 | 2026-06-20 | T02 RS 独立接口验证 | 新增 `forest_n3p.rs_utils`，封装 RS 曲线生成、曲线采样和 GridFootprintChecker 碰撞检测；新增 `tests/test_rs_interface.py`，验证自由空间可通行和障碍阻断可检测 |
 | 2026-06-20 | T03 特征提取实现 | 新增 `forest_n3p.features`，实现 41 维 ray-cast clearance profile、目标相对量、环带密度和运动学标志；新增 `tests/test_features.py` 与 `forest_n3p.scripts.visualize_features`，生成 3 张不同密度森林可视化图并完成目视验收 |
+| 2026-06-20 | T04 标签提取实现 | 新增 `forest_n3p.labeling`，实现前向贪心 Reeds-Shepp 无碰撞可达分段、车体系相对位姿标签和 41 维特征样本输出；新增 `tests/test_labeling.py` 与 `forest_n3p.scripts.visualize_labeling`，用 Hybrid A* 教师路径生成并可视化 3 个 SE(2) 子目标 |
