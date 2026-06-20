@@ -1,0 +1,25 @@
+{
+  "origin": "ai+local",
+  "reviewed": false,
+  "date": "2026-06-20",
+  "source_dir": ".pipeline/experiments/20260620_t14_candidate_6method_fullscale_md_dqn",
+  "source_records": ".pipeline/experiments/20260620_t14_candidate_6method_fullscale_md_dqn/records.csv",
+  "source_summary": ".pipeline/experiments/20260620_t14_candidate_6method_fullscale_md_dqn/summary.json",
+  "source_verdict": ".pipeline/experiments/20260620_t14_candidate_6method_fullscale_md_dqn/verdict.json",
+  "outputs": {
+    "method_bucket_deltas": ".pipeline/experiments/20260620_t14_failure_analysis/method_bucket_deltas.csv",
+    "paired_f_n3p_vs_vanilla": ".pipeline/experiments/20260620_t14_failure_analysis/paired_f_n3p_vs_vanilla.csv",
+    "failure_mode_counts": ".pipeline/experiments/20260620_t14_failure_analysis/failure_mode_counts.csv",
+    "distance_bin_deltas": ".pipeline/experiments/20260620_t14_failure_analysis/distance_bin_deltas.csv",
+    "worst_cases": ".pipeline/experiments/20260620_t14_failure_analysis/worst_cases.csv",
+    "md_dqn_failure_counts": ".pipeline/experiments/20260620_t14_failure_analysis/md_dqn_failure_counts.csv",
+    "analysis": ".pipeline/experiments/20260620_t14_failure_analysis/analysis.md"
+  },
+  "row_counts": {
+    "source_records": 1800,
+    "paired_rows": 300,
+    "method_bucket_delta_rows": 18,
+    "distance_bin_delta_rows": 12,
+    "worst_case_rows": 40
+  }
+}

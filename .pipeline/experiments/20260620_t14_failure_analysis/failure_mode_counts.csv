@@ -1,0 +1,4 @@
+bucket,paired_count,both_feasible_count,f_n3p_faster_count,f_n3p_regresses_vanilla_success_count,f_n3p_rescues_vanilla_failure_count,f_n3p_slower_count,fallback_f3_count,fallback_triggered_count,mean_time_delta_f_minus_v_s,median_time_delta_f_minus_v_s,median_time_delta_when_fallback_s,median_time_delta_when_no_fallback_s
+Easy,100,91,57,0,7,43,4,65,-0.1673501653689891,-0.012815087451599538,0.009280141443014145,-0.1496837956365198
+Complex,100,83,58,0,12,42,6,68,-0.28930615992750974,-0.0663798067253083,0.01013248402159661,-0.14651269977912307
+Extreme,100,82,40,0,8,60,13,84,-0.02236024571582675,0.057669194298796356,0.1131927688838914,-0.1490278443088755
