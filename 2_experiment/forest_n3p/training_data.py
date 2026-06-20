@@ -47,6 +47,7 @@ class TrainingDataConfig:
     teacher_timeout_s: float = 2.5
     teacher_wall_timeout_s: float = 4.0
     teacher_max_nodes: int = 15_000
+    label_wall_timeout_s: float = 4.0
     map_generation_wall_timeout_s: float = 30.0
     map_job_wall_timeout_s: float = 240.0
     max_query_sample_attempts: int = 800
@@ -403,20 +404,31 @@ def _run_map_job_impl(args: tuple[int, TrainingProfile, TrainingDataConfig]) -> 
                 )
             )
             label_attempted = True
-            label_result = extract_subgoal_labels(
-                grid_map,
-                footprint,
-                trace,
-                config=labeling_config,
-            )
-            label_success = bool(label_result.success)
-            label_failure_reason = label_result.failure_reason
-            label_sample_count = len(label_result.samples)
-            label_candidate_checks = int(label_result.candidate_checks)
-            total_segment_count = label_sample_count + 1 if label_success else 0
-            if label_success:
-                for sample_index, sample in enumerate(label_result.samples):
-                    sample_records.append(_raw_sample_from_label(sample, sample_index, gqid, map_id, query_id, profile, distance_bin))
+            try:
+                label_result = _run_with_wall_timeout(
+                    "label_extract",
+                    float(config.label_wall_timeout_s),
+                    lambda: extract_subgoal_labels(
+                        grid_map,
+                        footprint,
+                        trace,
+                        config=labeling_config,
+                    ),
+                )
+                label_success = bool(label_result.success)
+                label_failure_reason = label_result.failure_reason
+                label_sample_count = len(label_result.samples)
+                label_candidate_checks = int(label_result.candidate_checks)
+                total_segment_count = label_sample_count + 1 if label_success else 0
+                if label_success:
+                    for sample_index, sample in enumerate(label_result.samples):
+                        sample_records.append(_raw_sample_from_label(sample, sample_index, gqid, map_id, query_id, profile, distance_bin))
+            except WallTimeoutError as exc:
+                label_success = False
+                label_failure_reason = str(exc)
+                label_sample_count = 0
+                label_candidate_checks = 0
+                total_segment_count = 0
 
         query_records.append(
             TrainingQueryRecord(
@@ -635,6 +647,8 @@ def _validate_config(config: TrainingDataConfig) -> None:
         raise ValueError("total_sample_lower_bound must not exceed total_sample_target")
     if float(config.teacher_wall_timeout_s) <= float(config.teacher_timeout_s):
         raise ValueError("teacher_wall_timeout_s must exceed teacher_timeout_s")
+    if float(config.label_wall_timeout_s) <= 0.0:
+        raise ValueError("label_wall_timeout_s must be positive")
     if float(config.map_generation_wall_timeout_s) <= 0.0:
         raise ValueError("map_generation_wall_timeout_s must be positive")
     if float(config.map_job_wall_timeout_s) <= float(config.map_generation_wall_timeout_s):
@@ -648,6 +662,7 @@ def _run_with_wall_timeout(label: str, timeout_s: float, fn: Any) -> Any:
     if threading.current_thread() is not threading.main_thread():
         return fn()
 
+    started = time.monotonic()
     old_handler = signal.getsignal(signal.SIGALRM)
     old_timer = signal.getitimer(signal.ITIMER_REAL)
 
@@ -662,7 +677,9 @@ def _run_with_wall_timeout(label: str, timeout_s: float, fn: Any) -> Any:
         signal.setitimer(signal.ITIMER_REAL, 0.0)
         signal.signal(signal.SIGALRM, old_handler)
         if old_timer[0] > 0.0:
-            signal.setitimer(signal.ITIMER_REAL, old_timer[0], old_timer[1])
+            remaining = max(0.0, float(old_timer[0]) - (time.monotonic() - started))
+            if remaining > 0.0:
+                signal.setitimer(signal.ITIMER_REAL, remaining, old_timer[1])
 
 
 def _ratio(num: int, den: int) -> float | None:
@@ -733,6 +750,11 @@ def summarize_training_data(
         "label_failure_count": label_failure,
         "label_failure_rate": _ratio(label_failure, label_attempt),
         "label_failure_reasons": _count_reasons(item.label_failure_reason for item in queries if item.label_attempted and not item.label_success),
+        "label_wall_timeout_count": sum(
+            1
+            for item in queries
+            if item.label_failure_reason and item.label_failure_reason.startswith("label_extract_wall_timeout")
+        ),
         "total_samples": len(samples),
         "total_sample_target": int(config.total_sample_target),
         "total_sample_lower_bound": int(config.total_sample_lower_bound),
@@ -941,6 +963,7 @@ def render_training_data_report(payload: dict[str, Any]) -> str:
         f"teacher_timeout_s={config['teacher_timeout_s']}",
         f"teacher_wall_timeout_s={config['teacher_wall_timeout_s']}",
         f"teacher_max_nodes={config['teacher_max_nodes']}",
+        f"label_wall_timeout_s={config['label_wall_timeout_s']}",
         f"map_generation_wall_timeout_s={config['map_generation_wall_timeout_s']}",
         f"map_job_wall_timeout_s={config['map_job_wall_timeout_s']}",
         f"distance_bins={[(item['key'], item['min_distance_m'], item['max_distance_m']) for item in config['distance_bins']]}",
@@ -955,6 +978,7 @@ def render_training_data_report(payload: dict[str, Any]) -> str:
         f"| 标签尝试数 | {summary['label_attempt_count']} |",
         f"| 标签成功数 | {summary['label_success_count']} |",
         f"| 标签失败率 | {_fmt_rate(summary['label_failure_rate'])} |",
+        f"| 标签 wall-time 超时数 | {summary['label_wall_timeout_count']} |",
         f"| 特征数组形状 | {summary['feature_shape']} |",
         f"| 标签数组形状 | {summary['label_shape']} |",
         f"| 教师路径数 | {summary['teacher_path_count']} |",

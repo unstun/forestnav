@@ -181,6 +181,8 @@ def test_run_training_data_cli_accepts_scale_overrides() -> None:
             "1",
             "--teacher-wall-timeout-s",
             "7.5",
+            "--label-wall-timeout-s",
+            "2.5",
             "--map-generation-wall-timeout-s",
             "12",
             "--map-job-wall-timeout-s",
@@ -197,6 +199,7 @@ def test_run_training_data_cli_accepts_scale_overrides() -> None:
     assert args.distance_bins == "4:8,8:12"
     assert args.workers == 1
     assert args.teacher_wall_timeout_s == 7.5
+    assert args.label_wall_timeout_s == 2.5
     assert args.map_generation_wall_timeout_s == 12
     assert args.map_job_wall_timeout_s == 60
     assert args.total_sample_lower_bound == 5
