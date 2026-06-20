@@ -30,6 +30,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--allow-unreviewed-cutpoints", action="store_true")
     parser.add_argument("--allow-missing-md-dqn", action="store_true")
     parser.add_argument("--no-enforce-t14-scale", action="store_true")
+    parser.add_argument("--source-head", default=None)
     args = parser.parse_args(argv)
 
     config = MainEvaluationConfig(
@@ -53,7 +54,7 @@ def main(argv: list[str] | None = None) -> int:
     result = run_main_evaluation(
         args.output_dir,
         config=config,
-        source_head=_source_head(),
+        source_head=str(args.source_head) if args.source_head else _source_head(),
         command=" ".join(["python -m forest_n3p.scripts.run_main_evaluation", *_quote_args(raw_argv)]),
     )
     print(
