@@ -1,0 +1,277 @@
+{
+  "source_head": "ffae29b102bfebf6e6580ae292507a5ff1469c6f",
+  "execution_host": "ubuntu-OMEN-by-HP-Laptop-17-ck1xxx",
+  "command": "/home/ubuntu/ForestNav/2_experiment/forest_n3p/scripts/run_training_data_collection.py --output-dir 2_experiment/forest_n3p/datasets/t08_training_dataset --report-path .pipeline/experiments/20260620_t08_training_dataset.md --map-count 2000 --queries-per-map 40 --workers 22 --progress-every 5 --map-generation-wall-timeout-s 120 --map-job-wall-timeout-s 480",
+  "config": {
+    "seed": 20260620,
+    "map_count": 2000,
+    "queries_per_map": 40,
+    "width_cells": 300,
+    "height_cells": 300,
+    "resolution_m": 0.1,
+    "teacher_timeout_s": 2.5,
+    "teacher_wall_timeout_s": 4.0,
+    "teacher_max_nodes": 15000,
+    "label_wall_timeout_s": 4.0,
+    "query_process_wall_timeout_s": 12.0,
+    "map_generation_wall_timeout_s": 120.0,
+    "map_job_wall_timeout_s": 480.0,
+    "max_query_sample_attempts": 800,
+    "l_max_m": 8.0,
+    "l_min_m": 1.0,
+    "path_sample_step_m": 0.2,
+    "turning_radius_m": 1.0,
+    "wheelbase_m": 0.6,
+    "rs_sample_step_m": 0.1,
+    "total_sample_target": 100000,
+    "total_sample_lower_bound": 90000,
+    "min_samples_per_bucket": 10000,
+    "profiles": [
+      {
+        "name": "easy_d00",
+        "difficulty_bucket": "Easy",
+        "trunk_count": 40,
+        "trunk_gap_m": 1.35,
+        "trunk_gap_jitter": 0.2,
+        "bush_cluster_count": 0
+      },
+      {
+        "name": "easy_d01",
+        "difficulty_bucket": "Easy",
+        "trunk_count": 55,
+        "trunk_gap_m": 1.25,
+        "trunk_gap_jitter": 0.2,
+        "bush_cluster_count": 0
+      },
+      {
+        "name": "complex_d02",
+        "difficulty_bucket": "Complex",
+        "trunk_count": 70,
+        "trunk_gap_m": 1.15,
+        "trunk_gap_jitter": 0.22,
+        "bush_cluster_count": 0
+      },
+      {
+        "name": "extreme_d03",
+        "difficulty_bucket": "Extreme",
+        "trunk_count": 85,
+        "trunk_gap_m": 1.05,
+        "trunk_gap_jitter": 0.24,
+        "bush_cluster_count": 0
+      },
+      {
+        "name": "extreme_d04",
+        "difficulty_bucket": "Extreme",
+        "trunk_count": 100,
+        "trunk_gap_m": 0.95,
+        "trunk_gap_jitter": 0.25,
+        "bush_cluster_count": 0
+      },
+      {
+        "name": "extreme_d05",
+        "difficulty_bucket": "Extreme",
+        "trunk_count": 115,
+        "trunk_gap_m": 0.9,
+        "trunk_gap_jitter": 0.25,
+        "bush_cluster_count": 0
+      }
+    ],
+    "distance_bins": [
+      {
+        "key": "d08_12",
+        "order": 0,
+        "min_distance_m": 8.0,
+        "max_distance_m": 12.0
+      },
+      {
+        "key": "d12_16",
+        "order": 1,
+        "min_distance_m": 12.0,
+        "max_distance_m": 16.0
+      },
+      {
+        "key": "d16_20",
+        "order": 2,
+        "min_distance_m": 16.0,
+        "max_distance_m": 20.0
+      },
+      {
+        "key": "d20_inf",
+        "order": 3,
+        "min_distance_m": 20.0,
+        "max_distance_m": null
+      }
+    ]
+  },
+  "summary": {
+    "map_count": 2000,
+    "generated_map_count": 2000,
+    "map_generation_failure_count": 0,
+    "map_generation_failure_reasons": {},
+    "queries_per_map": 40,
+    "total_queries": 80000,
+    "teacher_success_count": 55575,
+    "teacher_success_rate": 0.6946875,
+    "teacher_failure_reasons": {
+      "timeout": 24297,
+      "open_set_exhausted": 122,
+      "query_child_error:ValueError:math domain error": 6
+    },
+    "teacher_wall_timeout_count": 0,
+    "query_process_wall_timeout_count": 0,
+    "label_attempt_count": 55575,
+    "label_success_count": 51803,
+    "label_failure_count": 3772,
+    "label_failure_rate": 0.06787224471434998,
+    "label_failure_reasons": {
+      "short_progress": 3513,
+      "no_reachable_candidate": 259
+    },
+    "label_wall_timeout_count": 0,
+    "total_samples": 100531,
+    "total_sample_target": 100000,
+    "total_sample_lower_bound": 90000,
+    "total_sample_pass": true,
+    "min_samples_per_bucket": 10000,
+    "sample_count_by_bucket": {
+      "Easy": 37386,
+      "Complex": 34183,
+      "Extreme": 28962
+    },
+    "bucket_coverage_pass": true,
+    "feature_shape": [
+      100531,
+      41
+    ],
+    "label_shape": [
+      100531,
+      3
+    ],
+    "array_shape_pass": true,
+    "teacher_path_count": 55575,
+    "teacher_path_pose_count": 8940545,
+    "acceptance_pass": true,
+    "by_bucket": {
+      "Easy": {
+        "query_count": 26680,
+        "teacher_success_count": 21300,
+        "teacher_success_rate": 0.7983508245877061,
+        "teacher_wall_timeout_count": 0,
+        "label_attempt_count": 21300,
+        "label_success_count": 20569,
+        "label_failure_count": 731,
+        "label_failure_rate": 0.03431924882629108,
+        "sample_count": 37386,
+        "median_teacher_time_s": 0.7490160465240479,
+        "p95_teacher_time_s": 2.504588174819946,
+        "median_teacher_expansions": 57.0,
+        "p95_teacher_expansions": 899.0499999999993
+      },
+      "Complex": {
+        "query_count": 26680,
+        "teacher_success_count": 18799,
+        "teacher_success_rate": 0.7046101949025487,
+        "teacher_wall_timeout_count": 0,
+        "label_attempt_count": 18799,
+        "label_success_count": 17599,
+        "label_failure_count": 1200,
+        "label_failure_rate": 0.0638331826160966,
+        "sample_count": 34183,
+        "median_teacher_time_s": 0.9770416021347046,
+        "p95_teacher_time_s": 2.5054317355155944,
+        "median_teacher_expansions": 161.0,
+        "p95_teacher_expansions": 1033.0
+      },
+      "Extreme": {
+        "query_count": 26640,
+        "teacher_success_count": 15476,
+        "teacher_success_rate": 0.580930930930931,
+        "teacher_wall_timeout_count": 0,
+        "label_attempt_count": 15476,
+        "label_success_count": 13635,
+        "label_failure_count": 1841,
+        "label_failure_rate": 0.11895838718014991,
+        "sample_count": 28962,
+        "median_teacher_time_s": 1.5974053144454956,
+        "p95_teacher_time_s": 2.5061018228530885,
+        "median_teacher_expansions": 428.0,
+        "p95_teacher_expansions": 1183.0
+      }
+    },
+    "by_distance_bin": {
+      "d08_12": {
+        "query_count": 20000,
+        "teacher_success_count": 16945,
+        "teacher_success_rate": 0.84725,
+        "teacher_wall_timeout_count": 0,
+        "label_attempt_count": 16945,
+        "label_success_count": 15902,
+        "label_failure_count": 1043,
+        "label_failure_rate": 0.06155208025966362,
+        "sample_count": 19733,
+        "median_teacher_time_s": 0.7293908596038818,
+        "p95_teacher_time_s": 2.5026560544967653,
+        "median_teacher_expansions": 38.5,
+        "p95_teacher_expansions": 741.0
+      },
+      "d12_16": {
+        "query_count": 20000,
+        "teacher_success_count": 14880,
+        "teacher_success_rate": 0.744,
+        "teacher_wall_timeout_count": 0,
+        "label_attempt_count": 14880,
+        "label_success_count": 13960,
+        "label_failure_count": 920,
+        "label_failure_rate": 0.06182795698924731,
+        "sample_count": 22677,
+        "median_teacher_time_s": 0.8835684061050415,
+        "p95_teacher_time_s": 2.5042165398597716,
+        "median_teacher_expansions": 115.0,
+        "p95_teacher_expansions": 850.0
+      },
+      "d16_20": {
+        "query_count": 20000,
+        "teacher_success_count": 13197,
+        "teacher_success_rate": 0.65985,
+        "teacher_wall_timeout_count": 0,
+        "label_attempt_count": 13197,
+        "label_success_count": 12250,
+        "label_failure_count": 947,
+        "label_failure_rate": 0.0717587330453891,
+        "sample_count": 28582,
+        "median_teacher_time_s": 1.0999276638031006,
+        "p95_teacher_time_s": 2.505655252933502,
+        "median_teacher_expansions": 223.0,
+        "p95_teacher_expansions": 1021.0
+      },
+      "d20_inf": {
+        "query_count": 20000,
+        "teacher_success_count": 10553,
+        "teacher_success_rate": 0.52765,
+        "teacher_wall_timeout_count": 0,
+        "label_attempt_count": 10553,
+        "label_success_count": 9691,
+        "label_failure_count": 862,
+        "label_failure_rate": 0.08168293376291103,
+        "sample_count": 29539,
+        "median_teacher_time_s": 2.0142122507095337,
+        "p95_teacher_time_s": 2.508425009250641,
+        "median_teacher_expansions": 548.5,
+        "p95_teacher_expansions": 1289.0499999999993
+      }
+    },
+    "parameter_status": "provisional_from_reviewed_false_T05_T06"
+  },
+  "files": {
+    "features_npy": "2_experiment/forest_n3p/datasets/t08_training_dataset/features.npy",
+    "labels_npy": "2_experiment/forest_n3p/datasets/t08_training_dataset/labels.npy",
+    "sample_query_indices_npy": "2_experiment/forest_n3p/datasets/t08_training_dataset/sample_query_indices.npy",
+    "teacher_paths_npz": "2_experiment/forest_n3p/datasets/t08_training_dataset/teacher_paths.npz",
+    "maps_csv": "2_experiment/forest_n3p/datasets/t08_training_dataset/maps.csv",
+    "queries_csv": "2_experiment/forest_n3p/datasets/t08_training_dataset/queries.csv",
+    "samples_csv": "2_experiment/forest_n3p/datasets/t08_training_dataset/samples.csv",
+    "summary_json": "2_experiment/forest_n3p/datasets/t08_training_dataset/summary.json",
+    "report_md": ".pipeline/experiments/20260620_t08_training_dataset.md",
+    "readme_md": "2_experiment/forest_n3p/datasets/t08_training_dataset/README.md"
+  }
+}
