@@ -79,7 +79,7 @@
 - **依赖**：T04
 
 ### T06 难度轴标定
-- [ ] **目标**：确定 Easy/Complex/Extreme 的密度切点
+- [x] **目标**：确定 Easy/Complex/Extreme 的密度切点
 - **需人工确认**
 - **具体步骤**：
   1. 在多种树密度下（从稀疏到密集，至少 8 个密度级）批量跑原版 Hybrid A*
@@ -247,3 +247,4 @@
 | 2026-06-20 | T03 特征提取实现 | 新增 `forest_n3p.features`，实现 41 维 ray-cast clearance profile、目标相对量、环带密度和运动学标志；新增 `tests/test_features.py` 与 `forest_n3p.scripts.visualize_features`，生成 3 张不同密度森林可视化图并完成目视验收 |
 | 2026-06-20 | T04 标签提取实现 | 新增 `forest_n3p.labeling`，实现前向贪心 Reeds-Shepp 无碰撞可达分段、车体系相对位姿标签和 41 维特征样本输出；新增 `tests/test_labeling.py` 与 `forest_n3p.scripts.visualize_labeling`，用 Hybrid A* 教师路径生成并可视化 3 个 SE(2) 子目标 |
 | 2026-06-20 | T05 标签预实验 | 新增 `forest_n3p.pilot_labeling` 与 `run_label_pilot`，在 `gpu3070ti-relay` 跑 20 张程序化森林地图 × 10 查询；默认 `L_min=1.5m` 标签失败率 23.6%，据失败原因降为 `L_min=1.0m` 后失败率 16.2%，报告与 CSV 写入 `.pipeline/experiments/20260620_t05_label_pilot_lmin1p0/`，需 Dr Sun 人工确认参数是否进入后续正式实验 |
+| 2026-06-20 | T06 难度轴标定 | 新增 `forest_n3p.difficulty_calibration` 与 `run_difficulty_calibration`，在 `gpu3070ti-relay` 用原版 Hybrid A* 跑 8 个密度级共 120 个查询、距离轴 90 个查询；按轴向单调切点得到密度 Easy≤55 trees / Complex=70 trees / Extreme≥85 trees，距离 Easy<12m / Complex=12–20m / Extreme≥20m，报告、CSV、`summary.json` 与预注册补充草案写入 `.pipeline/experiments/20260620_t06_difficulty_calibration/` 和 `.pipeline/contracts/v9-forest-n3p-t06-calibration-supplement.md`，需 Dr Sun 人工确认后才能作为后续正式桶依据 |
