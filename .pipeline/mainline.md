@@ -123,7 +123,7 @@
 - **依赖**：T05 预实验通过
 
 ### T09 KNN 库构建 + 在线推理实现
-- [ ] **目标**：构建 KNN 样本库 + 实现在线推理循环（算法 2）
+- [x] **目标**：构建 KNN 样本库 + 实现在线推理循环（算法 2）
 - **具体步骤**：
   1. Z 分数标准化训练集特征
   2. 用 scipy/sklearn 构建 KD 树
@@ -250,3 +250,4 @@
 | 2026-06-20 | T06 难度轴标定 | 新增 `forest_n3p.difficulty_calibration` 与 `run_difficulty_calibration`，在 `gpu3070ti-relay` 用原版 Hybrid A* 跑 8 个密度级共 120 个查询、距离轴 90 个查询；按轴向单调切点得到密度 Easy≤55 trees / Complex=70 trees / Extreme≥85 trees，距离 Easy<12m / Complex=12–20m / Extreme≥20m，报告、CSV、`summary.json` 与预注册补充草案写入 `.pipeline/experiments/20260620_t06_difficulty_calibration/` 和 `.pipeline/contracts/v9-forest-n3p-t06-calibration-supplement.md`，需 Dr Sun 人工确认后才能作为后续正式桶依据 |
 | 2026-06-20 | T07 RealMap 资产清点 | 新增 ROS PGM/YAML loader 与 `forest_n3p.scripts.realmap_inventory`；确认 DQN10 的 20 个 `realmap_a` NPZ 快照只有 1 个唯一数组哈希，复制 DQN9 原始 `map_a.pgm/yaml` 为 `dqn_realmap_a`，补入 BSD 许可 TurtleBot Willow Garage ROS 地图 `willow_garage_0p10`；两张地图均通过 `maps/pgm.py` 加载、起终点 known-free 校验与预览图生成，manifest 写入 `2_experiment/forest_n3p/assets/realmaps/manifest.json` |
 | 2026-06-20 | T08 大规模数据采集 | 新增 `forest_n3p.training_data` 与 `run_training_data_collection`，复用真实程序化森林生成、原版 Hybrid A* teacher、T04 RS 标签提取与 41 维特征管线；在 `gpu3070ti-relay` 跑 2000 张地图 × 40 查询，生成 100,531 个训练样本，Easy/Complex/Extreme 分别 37,386 / 34,183 / 28,962，标签失败率 6.8%，`acceptance_pass=true`；数据集写入 `2_experiment/forest_n3p/datasets/t08_training_dataset/`，报告写入 `.pipeline/experiments/20260620_t08_training_dataset.md` |
+| 2026-06-20 | T09 KNN 库构建 + 在线推理实现 | 新增 `forest_n3p.inference`、`build_knn_library` 和 `verify_inference`，对 T08 的 100,531×41 特征做 Z 分数标准化并构建 scikit-learn `KDTree` KNN 库；实现算法 2 在线循环、F1 近邻重试、F2 段内 Hybrid A*、F3 整题回退与无进展哨；5 个未见查询验收 `feasible_count=5/5`、碰撞复核全通过，KNN 库写入 `2_experiment/forest_n3p/models/t09_knn_library/`，报告和可视化写入 `.pipeline/experiments/20260620_t09_inference_verification/` |

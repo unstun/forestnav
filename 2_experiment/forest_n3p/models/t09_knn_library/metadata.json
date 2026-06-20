@@ -1,0 +1,188 @@
+{
+  "task": "T09",
+  "model": "KNN-KDTree",
+  "created_at_utc": "2026-06-20T20:30:26.084081+00:00",
+  "source_head": "332db6eb6d5b1ad4d4c5530d5b9c20e9f0b9a18f",
+  "command": "/Users/sun/tongbu/study/phdproject/ForestNav/2_experiment/forest_n3p/scripts/build_knn_library.py",
+  "source_dataset_dir": "2_experiment/forest_n3p/datasets/t08_training_dataset",
+  "feature_shape": [
+    100531,
+    41
+  ],
+  "label_shape": [
+    100531,
+    3
+  ],
+  "leaf_size": 40,
+  "zscore_epsilon": 1e-06,
+  "feature_mean_dtype": "float64",
+  "feature_std_dtype": "float64",
+  "normalized_training_dtype": "float32",
+  "sklearn_version": "1.9.0",
+  "source_summary": {
+    "map_count": 2000,
+    "generated_map_count": 2000,
+    "map_generation_failure_count": 0,
+    "map_generation_failure_reasons": {},
+    "queries_per_map": 40,
+    "total_queries": 80000,
+    "teacher_success_count": 55575,
+    "teacher_success_rate": 0.6946875,
+    "teacher_failure_reasons": {
+      "timeout": 24297,
+      "open_set_exhausted": 122,
+      "query_child_error:ValueError:math domain error": 6
+    },
+    "teacher_wall_timeout_count": 0,
+    "query_process_wall_timeout_count": 0,
+    "label_attempt_count": 55575,
+    "label_success_count": 51803,
+    "label_failure_count": 3772,
+    "label_failure_rate": 0.06787224471434998,
+    "label_failure_reasons": {
+      "short_progress": 3513,
+      "no_reachable_candidate": 259
+    },
+    "label_wall_timeout_count": 0,
+    "total_samples": 100531,
+    "total_sample_target": 100000,
+    "total_sample_lower_bound": 90000,
+    "total_sample_pass": true,
+    "min_samples_per_bucket": 10000,
+    "sample_count_by_bucket": {
+      "Easy": 37386,
+      "Complex": 34183,
+      "Extreme": 28962
+    },
+    "bucket_coverage_pass": true,
+    "feature_shape": [
+      100531,
+      41
+    ],
+    "label_shape": [
+      100531,
+      3
+    ],
+    "array_shape_pass": true,
+    "teacher_path_count": 55575,
+    "teacher_path_pose_count": 8940545,
+    "acceptance_pass": true,
+    "by_bucket": {
+      "Easy": {
+        "query_count": 26680,
+        "teacher_success_count": 21300,
+        "teacher_success_rate": 0.7983508245877061,
+        "teacher_wall_timeout_count": 0,
+        "label_attempt_count": 21300,
+        "label_success_count": 20569,
+        "label_failure_count": 731,
+        "label_failure_rate": 0.03431924882629108,
+        "sample_count": 37386,
+        "median_teacher_time_s": 0.7490160465240479,
+        "p95_teacher_time_s": 2.504588174819946,
+        "median_teacher_expansions": 57.0,
+        "p95_teacher_expansions": 899.0499999999993
+      },
+      "Complex": {
+        "query_count": 26680,
+        "teacher_success_count": 18799,
+        "teacher_success_rate": 0.7046101949025487,
+        "teacher_wall_timeout_count": 0,
+        "label_attempt_count": 18799,
+        "label_success_count": 17599,
+        "label_failure_count": 1200,
+        "label_failure_rate": 0.0638331826160966,
+        "sample_count": 34183,
+        "median_teacher_time_s": 0.9770416021347046,
+        "p95_teacher_time_s": 2.5054317355155944,
+        "median_teacher_expansions": 161.0,
+        "p95_teacher_expansions": 1033.0
+      },
+      "Extreme": {
+        "query_count": 26640,
+        "teacher_success_count": 15476,
+        "teacher_success_rate": 0.580930930930931,
+        "teacher_wall_timeout_count": 0,
+        "label_attempt_count": 15476,
+        "label_success_count": 13635,
+        "label_failure_count": 1841,
+        "label_failure_rate": 0.11895838718014991,
+        "sample_count": 28962,
+        "median_teacher_time_s": 1.5974053144454956,
+        "p95_teacher_time_s": 2.5061018228530885,
+        "median_teacher_expansions": 428.0,
+        "p95_teacher_expansions": 1183.0
+      }
+    },
+    "by_distance_bin": {
+      "d08_12": {
+        "query_count": 20000,
+        "teacher_success_count": 16945,
+        "teacher_success_rate": 0.84725,
+        "teacher_wall_timeout_count": 0,
+        "label_attempt_count": 16945,
+        "label_success_count": 15902,
+        "label_failure_count": 1043,
+        "label_failure_rate": 0.06155208025966362,
+        "sample_count": 19733,
+        "median_teacher_time_s": 0.7293908596038818,
+        "p95_teacher_time_s": 2.5026560544967653,
+        "median_teacher_expansions": 38.5,
+        "p95_teacher_expansions": 741.0
+      },
+      "d12_16": {
+        "query_count": 20000,
+        "teacher_success_count": 14880,
+        "teacher_success_rate": 0.744,
+        "teacher_wall_timeout_count": 0,
+        "label_attempt_count": 14880,
+        "label_success_count": 13960,
+        "label_failure_count": 920,
+        "label_failure_rate": 0.06182795698924731,
+        "sample_count": 22677,
+        "median_teacher_time_s": 0.8835684061050415,
+        "p95_teacher_time_s": 2.5042165398597716,
+        "median_teacher_expansions": 115.0,
+        "p95_teacher_expansions": 850.0
+      },
+      "d16_20": {
+        "query_count": 20000,
+        "teacher_success_count": 13197,
+        "teacher_success_rate": 0.65985,
+        "teacher_wall_timeout_count": 0,
+        "label_attempt_count": 13197,
+        "label_success_count": 12250,
+        "label_failure_count": 947,
+        "label_failure_rate": 0.0717587330453891,
+        "sample_count": 28582,
+        "median_teacher_time_s": 1.0999276638031006,
+        "p95_teacher_time_s": 2.505655252933502,
+        "median_teacher_expansions": 223.0,
+        "p95_teacher_expansions": 1021.0
+      },
+      "d20_inf": {
+        "query_count": 20000,
+        "teacher_success_count": 10553,
+        "teacher_success_rate": 0.52765,
+        "teacher_wall_timeout_count": 0,
+        "label_attempt_count": 10553,
+        "label_success_count": 9691,
+        "label_failure_count": 862,
+        "label_failure_rate": 0.08168293376291103,
+        "sample_count": 29539,
+        "median_teacher_time_s": 2.0142122507095337,
+        "p95_teacher_time_s": 2.508425009250641,
+        "median_teacher_expansions": 548.5,
+        "p95_teacher_expansions": 1289.0499999999993
+      }
+    },
+    "parameter_status": "provisional_from_reviewed_false_T05_T06"
+  },
+  "files": {
+    "knn_tree": "2_experiment/forest_n3p/models/t09_knn_library/knn_tree.pkl",
+    "feature_mean": "2_experiment/forest_n3p/models/t09_knn_library/feature_mean.npy",
+    "feature_std": "2_experiment/forest_n3p/models/t09_knn_library/feature_std.npy",
+    "labels": "2_experiment/forest_n3p/models/t09_knn_library/labels.npy",
+    "sample_query_indices": "2_experiment/forest_n3p/models/t09_knn_library/sample_query_indices.npy"
+  }
+}
