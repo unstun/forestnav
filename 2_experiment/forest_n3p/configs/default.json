@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "experiment": {
+    "name": "v9-forest-n3p",
+    "contract": ".pipeline/contracts/v9-forest-n3p.md",
+    "design": "2_experiment/v9_forest_n3p/design.md"
+  },
+  "map": {
+    "resolution_m": 0.1,
+    "width_m": 30.0,
+    "height_m": 30.0,
+    "width_cells": 300,
+    "height_cells": 300,
+    "procedural_forest": {
+      "tree_density_bucket": "pilot",
+      "trunk_radius_m_min": 0.15,
+      "trunk_radius_m_max": 0.35,
+      "trunk_gap_m": 1.0,
+      "trunk_gap_jitter": 0.25
+    }
+  },
+  "vehicle": {
+    "model": "ackermann",
+    "wheelbase_m": 0.6,
+    "minimum_turning_radius_m": 1.0,
+    "footprint": {
+      "type": "dual_circle_approximation",
+      "body_length_m": 0.924,
+      "body_width_m": 0.740,
+      "collision_padding_m": 0.0
+    }
+  },
+  "labeling": {
+    "L_max_m": 8.0,
+    "L_min_m": 1.5,
+    "path_sample_step_m": 0.1,
+    "discard_path_on_short_progress": true
+  },
+  "features": {
+    "dimension": 41,
+    "R_max_m": 10.0,
+    "n_ray": 32,
+    "ray_value_transform": "log1p",
+    "density_rings_m": [[0.0, 2.0], [2.0, 5.0], [5.0, 10.0]],
+    "motion_flag_default": 0
+  },
+  "teacher": {
+    "planner": "hybrid_a_star_with_reeds_shepp",
+    "analytic_expansion": true,
+    "N_seg": 2000
+  },
+  "inference": {
+    "predictor": "knn",
+    "knn_k": 1,
+    "fallback_knn_max_k": 5,
+    "no_progress_patience": 2,
+    "K_max_distance_multiplier": 2.0
+  },
+  "evaluation": {
+    "min_training_seeds": 5,
+    "queries_per_difficulty_bucket": 100,
+    "metrics": [
+      "planning_time_s",
+      "node_expansions",
+      "success_rate",
+      "path_length_inflation",
+      "direction_switches",
+      "minimum_clearance_m",
+      "collision_violations",
+      "fallback_rate",
+      "subgoal_reachability_rate"
+    ]
+  },
+  "notes": {
+    "status": "pilot defaults; Contract says these values must be calibrated before freezing",
+    "terminology": "Use SE(2) subgoal, Reeds-Shepp curve, Hybrid A*, occupancy grid map, ray-cast clearance profile."
+  }
+}
