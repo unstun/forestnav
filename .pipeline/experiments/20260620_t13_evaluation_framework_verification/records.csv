@@ -1,0 +1,9 @@
+query_id,method,difficulty_bucket,distance_bin_key,success,feasible,total_time_s,total_expansions,path_length_m,reference_path_length_m,path_inflation_ratio,direction_switches,mean_abs_curvature,min_clearance_m,collision_violation_count,fallback_f1_count,fallback_f2_count,fallback_f3_count,fallback_triggered,subgoal_reachable_count,subgoal_attempt_count,subgoal_reachability_rate,failure_reason,metadata
+synthetic_q1,f_n3p_knn,Easy,d08_12,True,True,0.8,11,4.0,4.0,0.0,0,0.0,1.4328108208586552,0,0,0,0,False,1,1,1.0,,{}
+synthetic_q1,vanilla_ha,Easy,d08_12,True,True,1.6,41,4.0,4.0,0.0,0,0.0,1.4328108208586552,0,0,0,0,False,,,,,{}
+synthetic_q2,f_n3p_knn,Easy,d08_12,True,True,1.1,12,4.0,4.0,0.0,0,0.0,1.4328108208586552,0,1,0,0,True,1,1,1.0,,{}
+synthetic_q2,vanilla_ha,Easy,d08_12,True,True,2.4,42,4.0,4.0,0.0,0,0.0,1.4328108208586552,0,0,0,0,False,,,,,{}
+synthetic_q3,f_n3p_knn,Complex,d08_12,True,True,1.4,13,4.0,4.0,0.0,0,0.0,1.4328108208586552,0,0,1,0,True,1,1,1.0,,{}
+synthetic_q3,vanilla_ha,Complex,d08_12,False,False,3.1,43,,4.0,,0,,,0,0,0,0,False,,,,,{}
+synthetic_q4,f_n3p_knn,Complex,d08_12,False,False,2.0,14,,4.0,,0,,,0,0,0,0,False,1,1,1.0,,{}
+synthetic_q4,vanilla_ha,Complex,d08_12,False,False,4.2,44,,4.0,,0,,,0,0,0,0,False,,,,,{}

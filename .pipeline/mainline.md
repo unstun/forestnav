@@ -168,7 +168,7 @@
 - **验收**：在 10 个查询上能产出路径
 
 ### T13 评测框架
-- [ ] **目标**：统一的评测脚本，计算全部 9 个指标
+- [x] **目标**：统一的评测脚本，计算全部 9 个指标
 - **具体步骤**：
   1. 创建 `evaluation.py`
   2. 实现全部指标计算：T, E, SR, 路径膨胀率, 方向切换, 最小安全裕量, 碰撞违例, 回退触发率, 子目标可达率
@@ -254,3 +254,4 @@
 | 2026-06-20 | T10 MLP 训练（消融用） | 新增 `forest_n3p.mlp` 与 `train_mlp`，训练 4 个 Linear 层的 MLP 消融模型（41→256→256→128→3，109,827 参数），使用 PyTorch `MSELoss` + Adam、90/10 train/val split 和 train-split Z 分数标准化；在 `gpu3070ti-relay` 的 RTX 3070 Ti 上训练，best_epoch=31、normalized val MSE=0.4016、val RMSE dx/dy/dtheta=1.352m/0.666m/0.181rad；checkpoint 与训练日志写入 `2_experiment/forest_n3p/models/t10_mlp_subgoal/`，训练报告写入 `.pipeline/experiments/20260620_t10_mlp_training.md`，MLP 接入在线推理 5-query smoke `feasible_count=5/5` |
 | 2026-06-20 | T11 基线实现：Voronoi waypoint HA* | 新增 `forest_n3p.baselines.voronoi_waypoint` 与 `verify_voronoi_waypoint`，用 EDT 安全裕量过滤后的中轴构建规则 waypoint 图，按 6m 间距放置 waypoint，并复用段内 Hybrid A* 逐段连接；10 个未见查询验收 `feasible_count=10/10`、碰撞复核全通过、平均 waypoint 数 2.6，正式报告与可视化写入 `.pipeline/experiments/20260620_t11_voronoi_waypoint_verification/` |
 | 2026-06-20 | T12 基线实现：瓶颈规则 waypoint | 新增 `forest_n3p.baselines.bottleneck_waypoint` 与 `verify_bottleneck_waypoint`，沿安全中轴路径读取 EDT 安全裕量，用 `find_peaks(-clearance)` 选择局部低谷作为瓶颈 waypoint，并在超长 skeleton 区间取最窄点作段长守卫；10 个未见查询验收 `feasible_count=10/10`、碰撞复核全通过、平均 waypoint 数 2.8，正式报告与可视化写入 `.pipeline/experiments/20260620_t12_bottleneck_waypoint_verification/` |
+| 2026-06-20 | T13 评测框架 | 新增 `forest_n3p.evaluation` 与 `verify_evaluation_framework`，统一 `EvaluationRun`/`EvaluationRecord`，计算 T/E/SR（基于无碰可行路径）/路径膨胀/方向切换/最小安全裕量/碰撞违例/fallback 触发率/子目标可达率，支持按 method+difficulty bucket 汇总 CSV/JSON、逐查询 Wilcoxon 与 Bootstrap SR CI；合成验证生成 8 条记录并写入 `.pipeline/experiments/20260620_t13_evaluation_framework_verification/`，全测试 40/40 通过 |

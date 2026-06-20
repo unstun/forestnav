@@ -1,0 +1,5 @@
+method,difficulty_bucket,count,success_count,success_rate,feasible_count,feasible_rate,median_time_s,p95_time_s,min_time_s,mean_time_s,median_expansions,p95_expansions,median_path_inflation_ratio,p95_path_inflation_ratio,mean_direction_switches,median_min_clearance_m,collision_violation_total,fallback_trigger_rate,fallback_f1_rate,fallback_f2_rate,fallback_f3_rate,subgoal_reachability_rate
+f_n3p_knn,Complex,2,1,0.5,1,0.5,1.7,1.97,1.4,1.7,13.5,13.95,0.0,0.0,0.0,1.4328108208586552,0,0.5,0.0,0.5,0.0,1.0
+f_n3p_knn,Easy,2,2,1.0,2,1.0,0.9500000000000001,1.085,0.8,0.9500000000000001,11.5,11.95,0.0,0.0,0.0,1.4328108208586552,0,0.5,0.5,0.0,0.0,1.0
+vanilla_ha,Complex,2,0,0.0,0,0.0,3.6500000000000004,4.1450000000000005,3.1,3.6500000000000004,43.5,43.95,,,0.0,,0,0.0,0.0,0.0,0.0,
+vanilla_ha,Easy,2,2,1.0,2,1.0,2.0,2.36,1.6,2.0,41.5,41.95,0.0,0.0,0.0,1.4328108208586552,0,0.0,0.0,0.0,0.0,
