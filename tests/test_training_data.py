@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import time
+
 import numpy as np
+import pytest
 
 from forest_n3p.training_data import (
     TrainingDataConfig,
@@ -8,7 +11,9 @@ from forest_n3p.training_data import (
     TrainingProfile,
     TrainingQueryRecord,
     TrainingSampleRecord,
+    WallTimeoutError,
     build_training_schedule,
+    _run_with_wall_timeout,
     summarize_training_data,
 )
 from forest_n3p.scripts.run_training_data_collection import parse_args
@@ -174,6 +179,10 @@ def test_run_training_data_cli_accepts_scale_overrides() -> None:
             "4:8,8:12",
             "--workers",
             "1",
+            "--teacher-wall-timeout-s",
+            "7.5",
+            "--map-generation-wall-timeout-s",
+            "12",
             "--total-sample-lower-bound",
             "5",
             "--min-samples-per-bucket",
@@ -185,5 +194,12 @@ def test_run_training_data_cli_accepts_scale_overrides() -> None:
     assert args.queries_per_map == 2
     assert args.distance_bins == "4:8,8:12"
     assert args.workers == 1
+    assert args.teacher_wall_timeout_s == 7.5
+    assert args.map_generation_wall_timeout_s == 12
     assert args.total_sample_lower_bound == 5
     assert args.min_samples_per_bucket == 1
+
+
+def test_wall_timeout_interrupts_slow_call() -> None:
+    with pytest.raises(WallTimeoutError, match="unit_slow_call_wall_timeout"):
+        _run_with_wall_timeout("unit_slow_call", 0.01, lambda: time.sleep(0.2))

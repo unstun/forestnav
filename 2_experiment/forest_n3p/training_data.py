@@ -4,8 +4,10 @@ import csv
 import json
 import math
 import os
+import signal
 import socket
 import subprocess
+import threading
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import asdict, dataclass, field
@@ -43,7 +45,9 @@ class TrainingDataConfig:
     height_cells: int = 300
     resolution_m: float = 0.1
     teacher_timeout_s: float = 2.5
+    teacher_wall_timeout_s: float = 10.0
     teacher_max_nodes: int = 15_000
+    map_generation_wall_timeout_s: float = 30.0
     max_query_sample_attempts: int = 800
     l_max_m: float = 8.0
     l_min_m: float = 1.0
@@ -168,6 +172,10 @@ class TrainingDataRun:
     summary: dict[str, Any]
 
 
+class WallTimeoutError(TimeoutError):
+    pass
+
+
 def default_training_profiles() -> tuple[TrainingProfile, ...]:
     """Default T08 profiles from the provisional T06 density cut points."""
     return (
@@ -248,12 +256,18 @@ def _run_map_job(args: tuple[int, TrainingProfile, TrainingDataConfig]) -> _MapJ
     failure_reason: str | None = None
     generated = False
     try:
-        grid, _start_xy, _goal_xy = generate_forest_grid(
-            params=make_forest_params(profile, config),
-            rng=map_rng,
-            footprint_clearance_m=footprint_clearance_m(resolution_m=float(config.resolution_m)),
+        grid, _start_xy, _goal_xy = _run_with_wall_timeout(
+            "map_generation",
+            float(config.map_generation_wall_timeout_s),
+            lambda: generate_forest_grid(
+                params=make_forest_params(profile, config),
+                rng=map_rng,
+                footprint_clearance_m=footprint_clearance_m(resolution_m=float(config.resolution_m)),
+            ),
         )
         generated = True
+    except WallTimeoutError as exc:
+        failure_reason = str(exc)
     except Exception as exc:  # noqa: BLE001 - dataset inventory records map failures.
         failure_reason = f"{type(exc).__name__}: {exc}"
 
@@ -333,12 +347,25 @@ def _run_map_job(args: tuple[int, TrainingProfile, TrainingDataConfig]) -> _MapJ
             )
             continue
 
-        path, stats = planner.plan(
-            AckermannState(*start),
-            AckermannState(*goal),
-            timeout=float(config.teacher_timeout_s),
-            max_nodes=int(config.teacher_max_nodes),
-        )
+        try:
+            path, stats = _run_with_wall_timeout(
+                "teacher_plan",
+                float(config.teacher_wall_timeout_s),
+                lambda: planner.plan(
+                    AckermannState(*start),
+                    AckermannState(*goal),
+                    timeout=float(config.teacher_timeout_s),
+                    max_nodes=int(config.teacher_max_nodes),
+                ),
+            )
+        except WallTimeoutError as exc:
+            path = []
+            stats = {
+                "time": float(config.teacher_wall_timeout_s),
+                "expansions": int(config.teacher_max_nodes),
+                "path_length": 0.0,
+                "failure_reason": str(exc),
+            }
         teacher_success = bool(path)
         teacher_failure_reason = None if teacher_success else str(stats.get("failure_reason", "unknown"))
         trace: list[Pose] = []
@@ -564,6 +591,34 @@ def _validate_config(config: TrainingDataConfig) -> None:
         raise ValueError("distance_bins must not be empty")
     if int(config.total_sample_lower_bound) > int(config.total_sample_target):
         raise ValueError("total_sample_lower_bound must not exceed total_sample_target")
+    if float(config.teacher_wall_timeout_s) <= float(config.teacher_timeout_s):
+        raise ValueError("teacher_wall_timeout_s must exceed teacher_timeout_s")
+    if float(config.map_generation_wall_timeout_s) <= 0.0:
+        raise ValueError("map_generation_wall_timeout_s must be positive")
+
+
+def _run_with_wall_timeout(label: str, timeout_s: float, fn: Any) -> Any:
+    timeout = float(timeout_s)
+    if timeout <= 0.0:
+        return fn()
+    if threading.current_thread() is not threading.main_thread():
+        return fn()
+
+    old_handler = signal.getsignal(signal.SIGALRM)
+    old_timer = signal.getitimer(signal.ITIMER_REAL)
+
+    def _handle_timeout(_signum: int, _frame: Any) -> None:
+        raise WallTimeoutError(f"{label}_wall_timeout:{timeout:.3f}s")
+
+    signal.signal(signal.SIGALRM, _handle_timeout)
+    signal.setitimer(signal.ITIMER_REAL, timeout)
+    try:
+        return fn()
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0.0)
+        signal.signal(signal.SIGALRM, old_handler)
+        if old_timer[0] > 0.0:
+            signal.setitimer(signal.ITIMER_REAL, old_timer[0], old_timer[1])
 
 
 def _ratio(num: int, den: int) -> float | None:
@@ -618,14 +673,22 @@ def summarize_training_data(
         "map_count": len(maps),
         "generated_map_count": sum(1 for item in maps if item.generated),
         "map_generation_failure_count": sum(1 for item in maps if not item.generated),
+        "map_generation_failure_reasons": _count_reasons(item.failure_reason for item in maps if not item.generated),
         "queries_per_map": int(config.queries_per_map),
         "total_queries": total_queries,
         "teacher_success_count": teacher_success,
         "teacher_success_rate": _ratio(teacher_success, total_queries),
+        "teacher_failure_reasons": _count_reasons(item.teacher_failure_reason for item in queries if not item.teacher_success),
+        "teacher_wall_timeout_count": sum(
+            1
+            for item in queries
+            if item.teacher_failure_reason and item.teacher_failure_reason.startswith("teacher_plan_wall_timeout")
+        ),
         "label_attempt_count": label_attempt,
         "label_success_count": label_success,
         "label_failure_count": label_failure,
         "label_failure_rate": _ratio(label_failure, label_attempt),
+        "label_failure_reasons": _count_reasons(item.label_failure_reason for item in queries if item.label_attempted and not item.label_success),
         "total_samples": len(samples),
         "total_sample_target": int(config.total_sample_target),
         "total_sample_lower_bound": int(config.total_sample_lower_bound),
@@ -666,6 +729,11 @@ def _summarize_subset(
         "query_count": total_queries,
         "teacher_success_count": teacher_success,
         "teacher_success_rate": _ratio(teacher_success, total_queries),
+        "teacher_wall_timeout_count": sum(
+            1
+            for item in queries
+            if item.teacher_failure_reason and item.teacher_failure_reason.startswith("teacher_plan_wall_timeout")
+        ),
         "label_attempt_count": label_attempt,
         "label_success_count": label_success,
         "label_failure_count": label_failure,
@@ -676,6 +744,14 @@ def _summarize_subset(
         "median_teacher_expansions": _percentile(expansions, 50.0),
         "p95_teacher_expansions": _percentile(expansions, 95.0),
     }
+
+
+def _count_reasons(reasons: Iterable[str | None]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for reason in reasons:
+        key = str(reason or "unknown")
+        counts[key] = counts.get(key, 0) + 1
+    return dict(sorted(counts.items(), key=lambda item: (-item[1], item[0])))
 
 
 def _percentile(values: Sequence[float], pct: float) -> float | None:
@@ -819,7 +895,9 @@ def render_training_data_report(payload: dict[str, Any]) -> str:
         f"L_max_m={config['l_max_m']}",
         f"L_min_m={config['l_min_m']}",
         f"teacher_timeout_s={config['teacher_timeout_s']}",
+        f"teacher_wall_timeout_s={config['teacher_wall_timeout_s']}",
         f"teacher_max_nodes={config['teacher_max_nodes']}",
+        f"map_generation_wall_timeout_s={config['map_generation_wall_timeout_s']}",
         f"distance_bins={[(item['key'], item['min_distance_m'], item['max_distance_m']) for item in config['distance_bins']]}",
         "```",
         "",
@@ -828,6 +906,7 @@ def render_training_data_report(payload: dict[str, Any]) -> str:
         "| 指标 | 数值 |",
         "|---|---:|",
         f"| 教师求解成功率 | {_fmt_rate(summary['teacher_success_rate'])} |",
+        f"| 教师 wall-time 超时数 | {summary['teacher_wall_timeout_count']} |",
         f"| 标签尝试数 | {summary['label_attempt_count']} |",
         f"| 标签成功数 | {summary['label_success_count']} |",
         f"| 标签失败率 | {_fmt_rate(summary['label_failure_rate'])} |",
@@ -856,6 +935,16 @@ def render_training_data_report(payload: dict[str, Any]) -> str:
     lines.extend(
         [
             "",
+            "## 失败原因",
+            "",
+            "### Teacher",
+            "",
+            *(_format_reason_counts(summary["teacher_failure_reasons"]) or ["- 无"]),
+            "",
+            "### Label",
+            "",
+            *(_format_reason_counts(summary["label_failure_reasons"]) or ["- 无"]),
+            "",
             "## 产物",
             "",
             f"- `features.npy`: `{payload['files']['features_npy']}`",
@@ -882,6 +971,10 @@ def _fmt_number(value: float | int | None) -> str:
     if isinstance(value, int):
         return str(value)
     return f"{float(value):.3f}"
+
+
+def _format_reason_counts(counts: dict[str, int]) -> list[str]:
+    return [f"- `{reason}`: {count}" for reason, count in counts.items()]
 
 
 def source_head() -> str:
