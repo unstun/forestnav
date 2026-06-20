@@ -9,6 +9,7 @@ from forest_n3p.rs_utils import (
     generate_reeds_shepp_path,
     sample_reeds_shepp_path,
 )
+from forest_n3p.third_party.pathplan.hybrid_a_star.reeds_shepp import reeds_shepp_shortest_path
 from pathplan import GridMap, TwoCircleFootprint
 
 
@@ -36,6 +37,13 @@ def test_reeds_shepp_generation_samples_to_goal() -> None:
     assert math.isclose(samples[-1].x, goal[0], abs_tol=1e-6)
     assert math.isclose(samples[-1].y, goal[1], abs_tol=1e-6)
     assert math.isclose(samples[-1].theta, goal[2], abs_tol=1e-6)
+
+
+def test_reeds_shepp_handles_near_zero_translation() -> None:
+    path = reeds_shepp_shortest_path((0.0, 0.0, 0.0), (1e-6, 0.0, 0.0), 1.0)
+
+    assert path is not None
+    assert math.isclose(path.total_length, 1e-6, rel_tol=1e-6, abs_tol=1e-9)
 
 
 def test_reeds_shepp_collision_free_on_empty_map() -> None:

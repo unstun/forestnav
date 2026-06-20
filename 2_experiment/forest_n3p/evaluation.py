@@ -188,19 +188,30 @@ def planner_run_from_path_stats(
     reference_path_length_m: float | None = None,
     metadata: dict[str, Any] | None = None,
 ) -> EvaluationRun:
-    poses = tuple(_clean_pose(pose.as_tuple() if hasattr(pose, "as_tuple") else pose) for pose in path)
+    raw_path = tuple(path)
+    trace_poses = tuple(stats.get("trace_poses") or ())
+    if trace_poses:
+        poses = tuple(_clean_pose(pose) for pose in trace_poses)
+        path_source = "trace_poses"
+    else:
+        poses = tuple(_clean_pose(pose.as_tuple() if hasattr(pose, "as_tuple") else pose) for pose in raw_path)
+        path_source = "planner_path"
+    run_metadata = dict(metadata or {})
+    run_metadata.setdefault("evaluation_path_source", path_source)
+    run_metadata.setdefault("planner_path_pose_count", len(raw_path))
+    run_metadata.setdefault("evaluation_path_pose_count", len(poses))
     return EvaluationRun(
         query_id=str(query_id),
         method=str(method),
         difficulty_bucket=str(difficulty_bucket),
         distance_bin_key=str(distance_bin_key),
-        success=bool(poses),
+        success=bool(raw_path) and stats.get("failure_reason") is None,
         path=poses,
         total_time_s=float(stats.get("time", math.nan)),
         total_expansions=int(stats.get("expansions", 0)),
         reference_path_length_m=reference_path_length_m,
         failure_reason=stats.get("failure_reason"),
-        metadata=metadata or {},
+        metadata=run_metadata,
     )
 
 

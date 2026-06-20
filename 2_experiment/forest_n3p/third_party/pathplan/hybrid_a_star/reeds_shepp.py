@@ -36,6 +36,13 @@ def _polar(x: float, y: float) -> Tuple[float, float]:
     return math.hypot(x, y), math.atan2(y, x)
 
 
+def _unit_interval_or_none(value: float, *, tol: float = 1e-9) -> Optional[float]:
+    value = float(value)
+    if value < -1.0 - tol or value > 1.0 + tol:
+        return None
+    return max(-1.0, min(1.0, value))
+
+
 def _lsl(x: float, y: float, phi: float) -> Tuple[bool, List[float], List[str]]:
     u, t = _polar(x - math.sin(phi), y - 1.0 + math.cos(phi))
     if 0.0 <= t <= math.pi:
@@ -89,8 +96,13 @@ def _lrl3(x: float, y: float, phi: float) -> Tuple[bool, List[float], List[str]]
     eta = y - 1.0 + math.cos(phi)
     u1, theta = _polar(zeta, eta)
     if u1 <= 4.0:
+        if u1 <= 1e-12:
+            return False, [], []
         u = math.acos(1.0 - (u1 * u1) * 0.125)
-        a = math.asin(2.0 * math.sin(u) / u1)
+        asin_arg = _unit_interval_or_none(2.0 * math.sin(u) / u1)
+        if asin_arg is None:
+            return False, [], []
+        a = math.asin(asin_arg)
         t = _mod2pi(-a + theta + math.pi / 2.0)
         v = _mod2pi(t - u - phi)
         return True, [t, u, -v], ["L", "R", "L"]
@@ -119,7 +131,10 @@ def _lrlr2(x: float, y: float, phi: float) -> Tuple[bool, List[float], List[str]
     u2 = (20.0 - u1 * u1) / 16.0
     if 0.0 <= u2 <= 1.0:
         u = math.acos(u2)
-        a = math.asin(2.0 * math.sin(u) / u1)
+        asin_arg = _unit_interval_or_none(2.0 * math.sin(u) / u1)
+        if asin_arg is None:
+            return False, [], []
+        a = math.asin(asin_arg)
         t = _mod2pi(theta + a + math.pi / 2.0)
         v = _mod2pi(t - phi)
         if t >= 0.0 and v >= 0.0:

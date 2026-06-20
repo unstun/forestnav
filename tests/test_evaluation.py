@@ -15,6 +15,7 @@ from forest_n3p.evaluation import (
     mean_abs_curvature,
     paired_wilcoxon_time,
     path_length,
+    planner_run_from_path_stats,
     summarize_by_method_bucket,
     write_evaluation_outputs,
 )
@@ -116,6 +117,39 @@ def test_collision_violations_make_successful_run_infeasible() -> None:
     assert not record.feasible
     assert record.collision_violation_count > 0
     assert record.min_clearance_m is not None and record.min_clearance_m < 0.0
+
+
+def test_planner_run_from_path_stats_prefers_dense_trace_for_evaluation() -> None:
+    sparse_path = ((4.0, 6.0, 0.0), (6.0, 6.0, 0.0))
+    trace_path = (
+        (4.0, 6.0, 0.0),
+        (4.0, 4.0, -math.pi / 2.0),
+        (6.0, 4.0, 0.0),
+        (6.0, 6.0, math.pi / 2.0),
+    )
+    run = planner_run_from_path_stats(
+        sparse_path,
+        {
+            "trace_poses": trace_path,
+            "time": 0.2,
+            "expansions": 7,
+        },
+        query_id="q_trace",
+        method="vanilla_ha",
+        difficulty_bucket="Easy",
+        distance_bin_key="d08_12",
+        reference_path_length_m=6.0,
+    )
+
+    record = evaluate_run(run, _blocked_map(), _footprint(), config=EvaluationConfig(path_sample_step_m=0.05))
+
+    assert run.path == trace_path
+    assert run.metadata["evaluation_path_source"] == "trace_poses"
+    assert run.metadata["planner_path_pose_count"] == 2
+    assert run.metadata["evaluation_path_pose_count"] == 4
+    assert record.feasible
+    assert record.collision_violation_count == 0
+    assert record.path_length_m == pytest.approx(6.0)
 
 
 def test_summary_and_statistical_tests_use_paired_queries(tmp_path) -> None:
