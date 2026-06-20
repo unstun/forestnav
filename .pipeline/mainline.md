@@ -138,7 +138,7 @@
 - **参考**：设计文档 §4.5 算法 2 伪代码
 
 ### T10 MLP 训练（消融用）
-- [ ] **目标**：训练 MLP 模型作为 KNN 的消融对照
+- [x] **目标**：训练 MLP 模型作为 KNN 的消融对照
 - **具体步骤**：
   1. 4 层全连接网络，输入 41 维，输出 3 维（Δx, Δy, Δθ）
   2. L2 损失，Adam 优化器
@@ -251,3 +251,4 @@
 | 2026-06-20 | T07 RealMap 资产清点 | 新增 ROS PGM/YAML loader 与 `forest_n3p.scripts.realmap_inventory`；确认 DQN10 的 20 个 `realmap_a` NPZ 快照只有 1 个唯一数组哈希，复制 DQN9 原始 `map_a.pgm/yaml` 为 `dqn_realmap_a`，补入 BSD 许可 TurtleBot Willow Garage ROS 地图 `willow_garage_0p10`；两张地图均通过 `maps/pgm.py` 加载、起终点 known-free 校验与预览图生成，manifest 写入 `2_experiment/forest_n3p/assets/realmaps/manifest.json` |
 | 2026-06-20 | T08 大规模数据采集 | 新增 `forest_n3p.training_data` 与 `run_training_data_collection`，复用真实程序化森林生成、原版 Hybrid A* teacher、T04 RS 标签提取与 41 维特征管线；在 `gpu3070ti-relay` 跑 2000 张地图 × 40 查询，生成 100,531 个训练样本，Easy/Complex/Extreme 分别 37,386 / 34,183 / 28,962，标签失败率 6.8%，`acceptance_pass=true`；数据集写入 `2_experiment/forest_n3p/datasets/t08_training_dataset/`，报告写入 `.pipeline/experiments/20260620_t08_training_dataset.md` |
 | 2026-06-20 | T09 KNN 库构建 + 在线推理实现 | 新增 `forest_n3p.inference`、`build_knn_library` 和 `verify_inference`，对 T08 的 100,531×41 特征做 Z 分数标准化并构建 scikit-learn `KDTree` KNN 库；实现算法 2 在线循环、F1 近邻重试、F2 段内 Hybrid A*、F3 整题回退与无进展哨；5 个未见查询验收 `feasible_count=5/5`、碰撞复核全通过，KNN 库写入 `2_experiment/forest_n3p/models/t09_knn_library/`，报告和可视化写入 `.pipeline/experiments/20260620_t09_inference_verification/` |
+| 2026-06-20 | T10 MLP 训练（消融用） | 新增 `forest_n3p.mlp` 与 `train_mlp`，训练 4 个 Linear 层的 MLP 消融模型（41→256→256→128→3，109,827 参数），使用 PyTorch `MSELoss` + Adam、90/10 train/val split 和 train-split Z 分数标准化；在 `gpu3070ti-relay` 的 RTX 3070 Ti 上训练，best_epoch=31、normalized val MSE=0.4016、val RMSE dx/dy/dtheta=1.352m/0.666m/0.181rad；checkpoint 与训练日志写入 `2_experiment/forest_n3p/models/t10_mlp_subgoal/`，训练报告写入 `.pipeline/experiments/20260620_t10_mlp_training.md`，MLP 接入在线推理 5-query smoke `feasible_count=5/5` |

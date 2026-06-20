@@ -69,11 +69,17 @@ class VerificationRecord:
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Verify T09 F-N3P inference on unseen forest queries.")
+    parser = argparse.ArgumentParser(description="Verify F-N3P inference on unseen forest queries.")
+    parser.add_argument("--predictor", choices=("knn", "mlp"), default="knn")
     parser.add_argument(
         "--library-dir",
         type=Path,
         default=Path("2_experiment/forest_n3p/models/t09_knn_library"),
+    )
+    parser.add_argument(
+        "--mlp-model-dir",
+        type=Path,
+        default=Path("2_experiment/forest_n3p/models/t10_mlp_subgoal"),
     )
     parser.add_argument(
         "--output-dir",
@@ -105,12 +111,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     command = args.command or " ".join(sys.argv)
-    library = KnnSubgoalLibrary.load(args.library_dir)
-    records = run_verification(args, library)
+    predictor = _load_predictor(args)
+    records = run_verification(args, predictor)
     payload = write_outputs(
         records,
         args,
-        library,
+        predictor,
         source_head_value=args.source_head or source_head(),
         execution_host=args.execution_host or socket.gethostname(),
         command=command,
@@ -122,7 +128,7 @@ def main() -> int:
     return 0 if payload["summary"]["acceptance_pass"] else 2
 
 
-def run_verification(args: argparse.Namespace, library: KnnSubgoalLibrary) -> list[VerificationRecord]:
+def run_verification(args: argparse.Namespace, predictor: Any) -> list[VerificationRecord]:
     config = TrainingDataConfig(
         seed=int(args.seed),
         map_count=int(args.query_count),
@@ -161,7 +167,7 @@ def run_verification(args: argparse.Namespace, library: KnnSubgoalLibrary) -> li
             footprint,
             start,
             goal,
-            library,
+            predictor,
             config=inference_config,
         )
         checker = GridFootprintChecker(grid_map, footprint, theta_bins=inference_config.theta_bins)
@@ -207,7 +213,7 @@ def run_verification(args: argparse.Namespace, library: KnnSubgoalLibrary) -> li
 def write_outputs(
     records: list[VerificationRecord],
     args: argparse.Namespace,
-    library: KnnSubgoalLibrary,
+    predictor: Any,
     *,
     source_head_value: str,
     execution_host: str,
@@ -224,7 +230,7 @@ def write_outputs(
     success_count = sum(1 for record in records if record.success)
     collision_free_count = sum(1 for record in records if record.collision_free)
     summary = {
-        "task": "T09",
+        "task": "T10" if args.predictor == "mlp" else "T09",
         "query_count": len(records),
         "success_count": int(success_count),
         "collision_free_count": int(collision_free_count),
@@ -242,8 +248,9 @@ def write_outputs(
         "source_head": source_head_value,
         "execution_host": execution_host,
         "command": command,
-        "library_dir": str(args.library_dir),
-        "library_metadata": library.metadata,
+        "predictor": str(args.predictor),
+        "predictor_dir": str(args.mlp_model_dir if args.predictor == "mlp" else args.library_dir),
+        "predictor_metadata": getattr(predictor, "metadata", {}),
         "config": vars(args),
         "summary": summary,
         "records_csv": str(records_csv),
@@ -258,19 +265,20 @@ def write_outputs(
 def render_report(payload: dict[str, Any]) -> str:
     summary = payload["summary"]
     status = "pass" if summary["acceptance_pass"] else "needs_review"
+    task = summary.get("task", "T09")
     lines = [
         "---",
         "date: 2026-06-20",
         f"status: {status}",
         "origin: ai+experiment",
         "reviewed: false",
-        "task: T09",
+        f"task: {task}",
         "contract: .pipeline/contracts/v9-forest-n3p.md",
         f"source_head: {payload['source_head']}",
         f"execution_host: {payload['execution_host']}",
         "---",
         "",
-        "# T09 KNN 在线推理验收报告",
+        f"# F-N3P {payload['predictor'].upper()} 在线推理验收报告",
         "",
         "## 结论",
         "",
@@ -279,15 +287,17 @@ def render_report(payload: dict[str, Any]) -> str:
         f"- 验收阈值: >= {summary['min_successes']} / {summary['query_count']}",
         f"- F1/F2/F3 触发计数: {summary['used_f1_total']} / {summary['used_f2_total']} / {summary['used_f3_total']}",
         "",
-        "参数说明：本次继承 T08 数据集，T05 的 `L_min=1.0m` 与 T06 难度切点仍为 `reviewed:false`；因此本报告证明 T09 工程闭环可运行，不代表论文参数最终冻结。",
+        f"参数说明：本次继承 T08 数据集，T05 的 `L_min=1.0m` 与 T06 难度切点仍为 `reviewed:false`；因此本报告证明 `{payload['predictor']}` predictor 已接入在线推理循环，不代表论文参数最终冻结。",
         "",
-        "## KNN 库",
+        "## 预测器",
         "",
-        f"- 目录: `{payload['library_dir']}`",
-        f"- 模型: `{payload['library_metadata'].get('model')}`",
-        f"- 特征形状: `{payload['library_metadata'].get('feature_shape')}`",
-        f"- 标签形状: `{payload['library_metadata'].get('label_shape')}`",
-        f"- scikit-learn: `{payload['library_metadata'].get('sklearn_version')}`",
+        f"- predictor: `{payload['predictor']}`",
+        f"- 目录: `{payload['predictor_dir']}`",
+        f"- 模型: `{payload['predictor_metadata'].get('model')}`",
+        f"- 特征形状: `{payload['predictor_metadata'].get('feature_shape')}`",
+        f"- 标签形状: `{payload['predictor_metadata'].get('label_shape')}`",
+        f"- scikit-learn: `{payload['predictor_metadata'].get('sklearn_version', 'N/A')}`",
+        f"- torch: `{payload['predictor_metadata'].get('torch_version', 'N/A')}`",
         "",
         "## 查询明细",
         "",
@@ -321,6 +331,16 @@ def render_report(payload: dict[str, Any]) -> str:
         ]
     )
     return "\n".join(lines)
+
+
+def _load_predictor(args: argparse.Namespace) -> Any:
+    if args.predictor == "knn":
+        return KnnSubgoalLibrary.load(args.library_dir)
+    if args.predictor == "mlp":
+        from forest_n3p.mlp import MlpSubgoalPredictor
+
+        return MlpSubgoalPredictor.load(args.mlp_model_dir, device="cpu")
+    raise ValueError(f"unsupported predictor: {args.predictor}")
 
 
 def _generate_case_map(

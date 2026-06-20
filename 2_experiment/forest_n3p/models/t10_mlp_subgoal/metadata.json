@@ -1,0 +1,60 @@
+{
+  "task": "T10",
+  "model": "MLP",
+  "created_at_utc": "2026-06-20T20:45:34.593064+00:00",
+  "source_head": "eb20358+dirty",
+  "execution_host": "ubuntu-OMEN-by-HP-Laptop-17-ck1xxx",
+  "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.train_mlp --epochs 200 --batch-size 4096 --patience 30 --device auto",
+  "source_dataset_dir": "2_experiment/forest_n3p/datasets/t08_training_dataset",
+  "feature_shape": [
+    100531,
+    41
+  ],
+  "label_shape": [
+    100531,
+    3
+  ],
+  "train_count": 90478,
+  "val_count": 10053,
+  "parameter_count": 109827,
+  "best_epoch": 31,
+  "best_val_loss": 0.40157643158578354,
+  "best_metrics": {
+    "val_rmse_dx_m": 1.3521115186462023,
+    "val_rmse_dy_m": 0.6655806403819235,
+    "val_rmse_dtheta_rad": 0.18073923895725863,
+    "val_l2_delta_mean": 1.1250928257557646
+  },
+  "epochs_ran": 61,
+  "device": "cuda",
+  "torch_version": "2.12.1+cu130",
+  "config": {
+    "seed": 20260620,
+    "input_dim": 41,
+    "hidden_dims": [
+      256,
+      256,
+      128
+    ],
+    "output_dim": 3,
+    "val_fraction": 0.1,
+    "batch_size": 4096,
+    "epochs": 200,
+    "learning_rate": 0.001,
+    "weight_decay": 1e-05,
+    "patience": 30,
+    "min_delta": 1e-06,
+    "num_workers": 0,
+    "zscore_epsilon": 1e-06,
+    "device": "auto"
+  },
+  "files": {
+    "checkpoint": "2_experiment/forest_n3p/models/t10_mlp_subgoal/checkpoint.pt",
+    "train_log_csv": "2_experiment/forest_n3p/models/t10_mlp_subgoal/train_log.csv",
+    "split_indices_npz": "2_experiment/forest_n3p/models/t10_mlp_subgoal/split_indices.npz",
+    "feature_mean": "2_experiment/forest_n3p/models/t10_mlp_subgoal/feature_mean.npy",
+    "feature_std": "2_experiment/forest_n3p/models/t10_mlp_subgoal/feature_std.npy",
+    "label_mean": "2_experiment/forest_n3p/models/t10_mlp_subgoal/label_mean.npy",
+    "label_std": "2_experiment/forest_n3p/models/t10_mlp_subgoal/label_std.npy"
+  }
+}

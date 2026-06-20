@@ -8,7 +8,7 @@ import time
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Protocol
 
 import numpy as np
 from sklearn import __version__ as sklearn_version
@@ -43,6 +43,17 @@ class NeighborPrediction:
     distance: float
     delta_body: Pose
     subgoal_pose: Pose
+
+
+class SubgoalPredictor(Protocol):
+    def query(
+        self,
+        feature: np.ndarray,
+        *,
+        current_pose: Pose,
+        k: int,
+    ) -> tuple[NeighborPrediction, ...]:
+        """Return one or more candidate subgoals for the online loop."""
 
 
 @dataclass(frozen=True)
@@ -296,7 +307,7 @@ def run_forest_n3p(
     footprint: TwoCircleFootprint,
     start: Pose,
     goal: Pose,
-    library: KnnSubgoalLibrary,
+    predictor: SubgoalPredictor,
     *,
     config: InferenceConfig | None = None,
 ) -> InferenceResult:
@@ -321,6 +332,7 @@ def run_forest_n3p(
     previous_distance = _xy_distance(current, final_goal)
     stall_count = 0
     max_steps = max(1, int(math.ceil((2.0 * previous_distance) / max(float(cfg.l_min_m), 1e-9))))
+    predictor_label = _predictor_label(predictor)
 
     for step_index in range(max_steps):
         direct = _try_rs(grid_map, footprint, current, final_goal, cfg)
@@ -357,7 +369,7 @@ def run_forest_n3p(
             )
 
         feature = extract_features(grid_map, current, final_goal, config=cfg.feature_config).vector
-        neighbors = library.query(feature, current_pose=current, k=int(cfg.k_neighbors))
+        neighbors = predictor.query(feature, current_pose=current, k=int(cfg.k_neighbors))
         chosen: NeighborPrediction | None = None
         first_prediction = neighbors[0] if neighbors else None
         for candidate in neighbors:
@@ -433,7 +445,7 @@ def run_forest_n3p(
             steps.append(
                 InferenceStepRecord(
                     step_index=step_index,
-                    mode="knn_segment",
+                    mode=f"{predictor_label}_segment",
                     current_pose=current,
                     target_pose=chosen.subgoal_pose,
                     neighbor_rank=int(chosen.rank),
@@ -578,6 +590,18 @@ def _make_planner(grid_map: GridMap, footprint: TwoCircleFootprint, cfg: Inferen
         theta_bins=int(cfg.theta_bins),
         collision_padding=cfg.collision_padding,
     )
+
+
+def _predictor_label(predictor: SubgoalPredictor) -> str:
+    explicit = getattr(predictor, "name", None)
+    if explicit:
+        return str(explicit)
+    metadata = getattr(predictor, "metadata", None)
+    if isinstance(metadata, dict):
+        model = metadata.get("model")
+        if isinstance(model, str) and model:
+            return model.lower().replace("-", "_").replace(" ", "_")
+    return predictor.__class__.__name__.replace("Subgoal", "").replace("Library", "").lower() or "predictor"
 
 
 def _try_rs(
