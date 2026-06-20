@@ -1,0 +1,23 @@
+	Command being timed: "python -m forest_n3p.scripts.run_main_evaluation --output-dir .pipeline/experiments/20260620_t14_candidate_6method_fullscale_md_dqn --queries-per-bucket 100 --seed-count 5 --queries-per-map 5 --methods f_n3p_knn,vanilla_ha,n3p_k1,voronoi_waypoint,bottleneck_waypoint,md_dqn --distance-bins 8:12,12:16,16:20,20: --allow-unreviewed-cutpoints --bootstrap-resamples 5000 --md-dqn-source-dir /home/ubuntu/DQN10/2_experiment --md-dqn-checkpoint /home/ubuntu/DQN10/2_experiment/ugv_dqn/outputs/2026-05-12_train_load_external_demo_smoke/models/realmap_a/mlp-dqn.pt --md-dqn-algo mlp-dqn --md-dqn-device cpu --md-dqn-max-steps 600"
+	User time (seconds): 2528.30
+	System time (seconds): 5.48
+	Percent of CPU this job got: 204%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 20:40.54
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 956940
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 692194
+	Voluntary context switches: 17421
+	Involuntary context switches: 328434
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 1472
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
