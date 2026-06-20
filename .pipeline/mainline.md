@@ -34,7 +34,7 @@
 - **验收**：测试脚本通过，能独立调用 RS 生成和碰撞检测
 
 ### T03 特征提取实现
-- [ ] **目标**：实现 41 维手工特征提取
+- [x] **目标**：实现 41 维手工特征提取
 - **具体步骤**：
   1. 创建 `features.py`
   2. 实现射线投射距离剖面（32 维）：从当前位姿向 32 个方向发射射线，记录到最近障碍的距离，取 log(1+d)
@@ -244,3 +244,4 @@
 | 2026-06-20 | 预注册 | 数字锁定，Contract v1 approved |
 | 2026-06-20 | T01 项目结构搭建 | 建立 `2_experiment/forest_n3p/` 骨架，迁入 DQN10 森林地图、PGM 加载、pathplan 和 forest_policy，新增默认配置与 import 兼容入口；`import pathplan` 与 `from forest_n3p import configs` 验证通过 |
 | 2026-06-20 | T02 RS 独立接口验证 | 新增 `forest_n3p.rs_utils`，封装 RS 曲线生成、曲线采样和 GridFootprintChecker 碰撞检测；新增 `tests/test_rs_interface.py`，验证自由空间可通行和障碍阻断可检测 |
+| 2026-06-20 | T03 特征提取实现 | 新增 `forest_n3p.features`，实现 41 维 ray-cast clearance profile、目标相对量、环带密度和运动学标志；新增 `tests/test_features.py` 与 `forest_n3p.scripts.visualize_features`，生成 3 张不同密度森林可视化图并完成目视验收 |
