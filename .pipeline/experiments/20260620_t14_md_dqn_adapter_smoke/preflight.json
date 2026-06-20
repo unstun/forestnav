@@ -1,0 +1,21 @@
+{
+  "ok_to_run": true,
+  "blocking_issues": [],
+  "warnings": [
+    "T06 cutpoint supplement is not reviewed:true: .pipeline/contracts/v9-forest-n3p-t06-calibration-supplement.md",
+    "md_dqn skipped: md_dqn_source_dir is not set and FORESTNAV_MD_DQN_SOURCE_DIR is not defined; expected a DQN10 2_experiment directory containing ugv_dqn",
+    "T14 formal scale is not satisfied: queries_per_bucket=1, seed_count=1"
+  ],
+  "available_methods": [
+    "f_n3p_knn",
+    "vanilla_ha",
+    "n3p_k1",
+    "voronoi_waypoint",
+    "bottleneck_waypoint"
+  ],
+  "unavailable_methods": {
+    "md_dqn": "md_dqn_source_dir is not set and FORESTNAV_MD_DQN_SOURCE_DIR is not defined; expected a DQN10 2_experiment directory containing ugv_dqn"
+  },
+  "cutpoint_supplement_reviewed": false,
+  "t14_scale_satisfied": false
+}

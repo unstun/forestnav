@@ -43,6 +43,7 @@ def test_smoke_main_evaluation_writes_outputs(tmp_path: Path) -> None:
     assert len(result.queries) == 3
     assert len(result.records) == 3
     assert result.verdict["status"] == "candidate_or_smoke"
+    assert result.verdict["method_exception_total"] == 0
     assert result.output_paths["records_csv"].exists()
     assert result.output_paths["summary_json"].exists()
     assert result.output_paths["queries_csv"].exists()

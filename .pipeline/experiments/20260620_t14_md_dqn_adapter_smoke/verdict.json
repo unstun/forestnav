@@ -1,0 +1,55 @@
+{
+  "status": "candidate_or_smoke",
+  "formal_acceptance": false,
+  "record_count": 15,
+  "query_count": 3,
+  "method_count": 5,
+  "queries_per_bucket": {
+    "Easy": 1,
+    "Complex": 1,
+    "Extreme": 1
+  },
+  "seed_count": 1,
+  "collision_violation_total": 0,
+  "method_exception_total": 0,
+  "preflight_warnings": [
+    "T06 cutpoint supplement is not reviewed:true: .pipeline/contracts/v9-forest-n3p-t06-calibration-supplement.md",
+    "md_dqn skipped: md_dqn_source_dir is not set and FORESTNAV_MD_DQN_SOURCE_DIR is not defined; expected a DQN10 2_experiment directory containing ugv_dqn",
+    "T14 formal scale is not satisfied: queries_per_bucket=1, seed_count=1"
+  ],
+  "preflight_unavailable_methods": {
+    "md_dqn": "md_dqn_source_dir is not set and FORESTNAV_MD_DQN_SOURCE_DIR is not defined; expected a DQN10 2_experiment directory containing ugv_dqn"
+  },
+  "bucket_verdicts": {
+    "Complex": {
+      "status": "fail",
+      "median_time_reduction": 0.004519139151909601,
+      "success_drop_pp": 0.0,
+      "median_path_inflation_ratio": -0.009282663175089412,
+      "checks": {
+        "median_time_reduction_ge_50pct": false,
+        "success_drop_le_2pp": true,
+        "median_path_inflation_le_5pct": true,
+        "collision_violations_zero": true
+      }
+    },
+    "Extreme": {
+      "status": "pass",
+      "median_time_reduction": 0.9980360297558183,
+      "success_drop_pp": 0.0,
+      "median_path_inflation_ratio": 2.220446049250313e-16,
+      "checks": {
+        "median_time_reduction_ge_50pct": true,
+        "success_drop_le_2pp": true,
+        "median_path_inflation_le_5pct": true,
+        "collision_violations_zero": true
+      }
+    }
+  },
+  "contract_thresholds": {
+    "median_time_reduction_min": 0.5,
+    "success_drop_pp_max": 2.0,
+    "path_inflation_max": 0.05
+  },
+  "note": "candidate_or_smoke means this run is not sufficient for marking T14 complete; use reviewed T06 cutpoints, all official methods, >=100 queries per bucket, and >=5 seeds for formal acceptance"
+}

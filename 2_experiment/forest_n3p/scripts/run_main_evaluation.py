@@ -21,6 +21,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--methods", default=",".join(MainEvaluationConfig().methods))
     parser.add_argument("--distance-bins", default="8:12,12:16,16:20,20:")
     parser.add_argument("--bootstrap-resamples", type=int, default=5_000)
+    parser.add_argument("--md-dqn-source-dir", type=Path, default=None)
+    parser.add_argument("--md-dqn-checkpoint", type=Path, default=None)
+    parser.add_argument("--md-dqn-algo", default="cnn-dqn")
+    parser.add_argument("--md-dqn-device", default="cpu")
+    parser.add_argument("--md-dqn-max-steps", type=int, default=600)
     parser.add_argument("--allow-unreviewed-cutpoints", action="store_true")
     parser.add_argument("--allow-missing-md-dqn", action="store_true")
     parser.add_argument("--no-enforce-t14-scale", action="store_true")
@@ -33,6 +38,11 @@ def main(argv: list[str] | None = None) -> int:
         queries_per_map=int(args.queries_per_map),
         methods=tuple(part.strip() for part in str(args.methods).split(",") if part.strip()),
         distance_bins=parse_distance_bins(str(args.distance_bins)),
+        md_dqn_source_dir=args.md_dqn_source_dir,
+        md_dqn_checkpoint_path=args.md_dqn_checkpoint,
+        md_dqn_algo=str(args.md_dqn_algo),
+        md_dqn_device=str(args.md_dqn_device),
+        md_dqn_max_steps=int(args.md_dqn_max_steps),
         allow_unreviewed_cutpoints=bool(args.allow_unreviewed_cutpoints),
         allow_missing_md_dqn=bool(args.allow_missing_md_dqn),
         enforce_t14_scale=not bool(args.no_enforce_t14_scale),

@@ -15,6 +15,11 @@ from forest_n3p.baselines.bottleneck_waypoint import (
     BottleneckWaypointConfig,
     plan_bottleneck_waypoint,
 )
+from forest_n3p.baselines.md_dqn_adapter import (
+    MdDqnAdapterConfig,
+    check_md_dqn_adapter,
+    plan_md_dqn,
+)
 from forest_n3p.baselines.voronoi_waypoint import (
     VoronoiWaypointConfig,
     plan_voronoi_waypoint,
@@ -52,7 +57,7 @@ OFFICIAL_T14_METHODS = (
     "md_dqn",
 )
 
-IMPLEMENTED_METHODS = frozenset(OFFICIAL_T14_METHODS[:-1])
+IMPLEMENTED_METHODS = frozenset(OFFICIAL_T14_METHODS)
 
 
 @dataclass(frozen=True)
@@ -81,6 +86,11 @@ class MainEvaluationConfig:
     full_fallback_timeout_s: float = 2.5
     full_fallback_max_nodes: int = 15_000
     k_neighbors: int = 5
+    md_dqn_source_dir: Path | None = None
+    md_dqn_checkpoint_path: Path | None = None
+    md_dqn_algo: str = "cnn-dqn"
+    md_dqn_device: str = "cpu"
+    md_dqn_max_steps: int = 600
     bootstrap_resamples: int = 5_000
     bootstrap_seed: int = 20260620
 
@@ -99,6 +109,8 @@ class MainEvaluationConfig:
             raise ValueError("distance_bins must not be empty")
         if int(self.k_neighbors) <= 0:
             raise ValueError("k_neighbors must be positive")
+        if int(self.md_dqn_max_steps) <= 0:
+            raise ValueError("md_dqn_max_steps must be positive")
 
 
 @dataclass(frozen=True)
@@ -177,15 +189,16 @@ def preflight_main_evaluation(config: MainEvaluationConfig) -> PreflightReport:
             issues.append(f"KNN library is incomplete under {config.knn_library_dir}: {', '.join(missing)}")
 
     if "md_dqn" in config.methods:
-        reason = (
-            "no ForestNav GridMap/SE(2) MD-DQN adapter or v9 checkpoint is registered; "
-            "DQN10 contains an old UGV environment rollout, not a direct T14 planner API"
-        )
-        unavailable["md_dqn"] = reason
-        if config.allow_missing_md_dqn:
-            warnings.append(f"md_dqn skipped: {reason}")
-        else:
-            issues.append(f"md_dqn unavailable: {reason}")
+        md_dqn_availability = check_md_dqn_adapter(_md_dqn_config(config))
+        reason = md_dqn_availability.reason
+        if not md_dqn_availability.available and reason is not None:
+            unavailable["md_dqn"] = reason
+        elif not md_dqn_availability.available:
+            unavailable["md_dqn"] = "unknown MD-DQN adapter availability failure"
+        if "md_dqn" in unavailable and config.allow_missing_md_dqn:
+            warnings.append(f"md_dqn skipped: {unavailable['md_dqn']}")
+        elif "md_dqn" in unavailable:
+            issues.append(f"md_dqn unavailable: {unavailable['md_dqn']}")
 
     t14_scale = int(config.queries_per_bucket) >= 100 and int(config.seed_count) >= 5
     if not t14_scale:
@@ -198,7 +211,7 @@ def preflight_main_evaluation(config: MainEvaluationConfig) -> PreflightReport:
         else:
             warnings.append(msg)
 
-    available = tuple(method for method in config.methods if method in IMPLEMENTED_METHODS)
+    available = tuple(method for method in config.methods if method in IMPLEMENTED_METHODS and method not in unavailable)
     return PreflightReport(
         ok_to_run=not issues,
         blocking_issues=tuple(issues),
@@ -442,6 +455,37 @@ def _run_method(
             },
         )
 
+    if method == "md_dqn":
+        result = plan_md_dqn(
+            grid_map,
+            footprint,
+            query.start,
+            query.goal,
+            config=_md_dqn_config(cfg),
+        )
+        return planner_run_from_result(
+            result,
+            query_id=query.query_id,
+            method=method,
+            difficulty_bucket=query.difficulty_bucket,
+            distance_bin_key=query.distance_bin_key,
+            reference_path_length_m=reference_path_length_m,
+            metadata={
+                "profile_name": query.profile_name,
+                "map_seed": query.map_seed,
+                "query_seed": query.query_seed,
+                "md_dqn_source_dir": str(cfg.md_dqn_source_dir) if cfg.md_dqn_source_dir is not None else None,
+                "md_dqn_checkpoint_path": (
+                    str(cfg.md_dqn_checkpoint_path) if cfg.md_dqn_checkpoint_path is not None else None
+                ),
+                "md_dqn_algo": str(cfg.md_dqn_algo),
+                "md_dqn_device": str(cfg.md_dqn_device),
+                "md_dqn_max_steps": int(cfg.md_dqn_max_steps),
+                "md_dqn_rollout_steps": int(result.rollout_steps),
+                "md_dqn_reached": bool(result.reached),
+            },
+        )
+
     raise ValueError(f"unsupported method at runtime: {method}")
 
 
@@ -493,6 +537,17 @@ def _inference_config(cfg: MainEvaluationConfig, *, k_neighbors: int) -> Inferen
         segment_max_nodes=int(cfg.segment_max_nodes),
         full_fallback_timeout_s=float(cfg.full_fallback_timeout_s),
         full_fallback_max_nodes=int(cfg.full_fallback_max_nodes),
+    )
+
+
+def _md_dqn_config(cfg: MainEvaluationConfig) -> MdDqnAdapterConfig:
+    return MdDqnAdapterConfig(
+        source_dir=cfg.md_dqn_source_dir,
+        checkpoint_path=cfg.md_dqn_checkpoint_path,
+        algo=str(cfg.md_dqn_algo),
+        device=str(cfg.md_dqn_device),
+        seed=int(cfg.seed),
+        max_steps=int(cfg.md_dqn_max_steps),
     )
 
 
@@ -554,10 +609,16 @@ def _build_verdict(
         }
 
     collision_total = sum(int(row.collision_violation_count) for row in records)
+    method_exception_total = sum(
+        1
+        for row in records
+        if row.failure_reason is not None and "exception" in str(row.failure_reason).lower()
+    )
     expected_formal = bool(preflight.t14_scale_satisfied and not preflight.unavailable_methods and preflight.cutpoint_supplement_reviewed)
     formal_acceptance = bool(
         expected_formal
         and collision_total == 0
+        and method_exception_total == 0
         and all(item.get("status") == "pass" for item in bucket_verdicts.values())
     )
     return {
@@ -569,6 +630,7 @@ def _build_verdict(
         "queries_per_bucket": _count_by_attr(queries, "difficulty_bucket"),
         "seed_count": len({query.seed_index for query in queries}),
         "collision_violation_total": collision_total,
+        "method_exception_total": method_exception_total,
         "preflight_warnings": list(preflight.warnings),
         "preflight_unavailable_methods": dict(preflight.unavailable_methods),
         "bucket_verdicts": bucket_verdicts,
@@ -682,6 +744,7 @@ def _write_report(
         f"- query_count: {verdict['query_count']}",
         f"- record_count: {verdict['record_count']}",
         f"- methods: {', '.join(preflight.available_methods)}",
+        f"- method_exception_total: {verdict['method_exception_total']}",
         f"- queries_per_bucket_config: {cfg.queries_per_bucket}",
         f"- seed_count_config: {cfg.seed_count}",
         "",
