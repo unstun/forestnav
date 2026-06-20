@@ -95,7 +95,7 @@
 - **依赖**：T01
 
 ### T07 RealMap 资产清点
-- [ ] **目标**：确认可用的真实 SLAM 地图
+- [x] **目标**：确认可用的真实 SLAM 地图
 - **具体步骤**：
   1. 找到 DQN10 中的 RealMap 资产路径
   2. 检查格式兼容性（pgm/yaml）
@@ -248,3 +248,4 @@
 | 2026-06-20 | T04 标签提取实现 | 新增 `forest_n3p.labeling`，实现前向贪心 Reeds-Shepp 无碰撞可达分段、车体系相对位姿标签和 41 维特征样本输出；新增 `tests/test_labeling.py` 与 `forest_n3p.scripts.visualize_labeling`，用 Hybrid A* 教师路径生成并可视化 3 个 SE(2) 子目标 |
 | 2026-06-20 | T05 标签预实验 | 新增 `forest_n3p.pilot_labeling` 与 `run_label_pilot`，在 `gpu3070ti-relay` 跑 20 张程序化森林地图 × 10 查询；默认 `L_min=1.5m` 标签失败率 23.6%，据失败原因降为 `L_min=1.0m` 后失败率 16.2%，报告与 CSV 写入 `.pipeline/experiments/20260620_t05_label_pilot_lmin1p0/`，需 Dr Sun 人工确认参数是否进入后续正式实验 |
 | 2026-06-20 | T06 难度轴标定 | 新增 `forest_n3p.difficulty_calibration` 与 `run_difficulty_calibration`，在 `gpu3070ti-relay` 用原版 Hybrid A* 跑 8 个密度级共 120 个查询、距离轴 90 个查询；按轴向单调切点得到密度 Easy≤55 trees / Complex=70 trees / Extreme≥85 trees，距离 Easy<12m / Complex=12–20m / Extreme≥20m，报告、CSV、`summary.json` 与预注册补充草案写入 `.pipeline/experiments/20260620_t06_difficulty_calibration/` 和 `.pipeline/contracts/v9-forest-n3p-t06-calibration-supplement.md`，需 Dr Sun 人工确认后才能作为后续正式桶依据 |
+| 2026-06-20 | T07 RealMap 资产清点 | 新增 ROS PGM/YAML loader 与 `forest_n3p.scripts.realmap_inventory`；确认 DQN10 的 20 个 `realmap_a` NPZ 快照只有 1 个唯一数组哈希，复制 DQN9 原始 `map_a.pgm/yaml` 为 `dqn_realmap_a`，补入 BSD 许可 TurtleBot Willow Garage ROS 地图 `willow_garage_0p10`；两张地图均通过 `maps/pgm.py` 加载、起终点 known-free 校验与预览图生成，manifest 写入 `2_experiment/forest_n3p/assets/realmaps/manifest.json` |

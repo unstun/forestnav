@@ -1,0 +1,94 @@
+{
+  "schema": "forest_n3p_realmap_inventory_v1",
+  "generated_at_utc": "2026-06-20T14:24:02.171973+00:00",
+  "usable_map_count": 2,
+  "acceptance": "pass_two_maps_load_and_preview",
+  "loader": "forest_n3p.maps.pgm.load_pgm_yaml_map",
+  "maps": [
+    {
+      "id": "dqn_realmap_a",
+      "pgm": "2_experiment/forest_n3p/assets/realmaps/dqn_realmap_a/map.pgm",
+      "yaml": "2_experiment/forest_n3p/assets/realmaps/dqn_realmap_a/map.yaml",
+      "preview": "2_experiment/forest_n3p/assets/realmaps/dqn_realmap_a/preview.png",
+      "source": {
+        "label": "DQN9 original PGM/YAML + DQN10 realmap_a lineage",
+        "local_source_pgm": "/Users/sun/tongbu/study/phdproject/dqn/DQN9/realmap/map_a.pgm",
+        "local_source_yaml": "/Users/sun/tongbu/study/phdproject/dqn/DQN9/realmap/map_a.yaml",
+        "dqn10_fallback_maps": "/Users/sun/tongbu/study/phdproject/dqn/DQN10/3_paper/results/exp1.2_core_comparison/final_t10_sr_long.2/20260316_135403/maps"
+      },
+      "resolution_m": 0.1,
+      "origin": [
+        -35.894,
+        -3.89355,
+        0.0
+      ],
+      "width_cells": 410,
+      "height_cells": 129,
+      "loader_obstacle_cells": 28550,
+      "loader_free_cells": 24340,
+      "ros_known_free_cells": 24340,
+      "ros_occupied_cells": 28550,
+      "ros_unknown_cells": 0,
+      "start_xy": [
+        34,
+        29
+      ],
+      "goal_xy": [
+        371,
+        109
+      ],
+      "endpoint_clearance_m": null,
+      "pgm_sha256": "60af6b37fce3fcdc7b8a8e70d2677710c962fad185a40c94e65684e99ab842a3",
+      "loader_grid_sha256": "b7aa11d982ac18bf172f5769bc40c03a6fc5a8057fa80b6b09e0bd27ffe86597",
+      "load_check": "ok"
+    },
+    {
+      "id": "willow_garage_0p10",
+      "pgm": "2_experiment/forest_n3p/assets/realmaps/willow_garage_0p10/map.pgm",
+      "yaml": "2_experiment/forest_n3p/assets/realmaps/willow_garage_0p10/map.yaml",
+      "preview": "2_experiment/forest_n3p/assets/realmaps/willow_garage_0p10/preview.png",
+      "source": {
+        "label": "TurtleBot navigation Willow Garage map",
+        "source_page": "https://github.com/turtlebot/turtlebot_apps/tree/indigo/turtlebot_navigation/maps",
+        "pgm_url": "https://raw.githubusercontent.com/turtlebot/turtlebot_apps/indigo/turtlebot_navigation/maps/willow-2010-02-18-0.10.pgm",
+        "yaml_url": "https://raw.githubusercontent.com/turtlebot/turtlebot_apps/indigo/turtlebot_navigation/maps/willow-2010-02-18-0.10.yaml",
+        "license": "BSD per turtlebot_navigation/package.xml"
+      },
+      "resolution_m": 0.1,
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "width_cells": 566,
+      "height_cells": 608,
+      "loader_obstacle_cells": 234921,
+      "loader_free_cells": 109207,
+      "ros_known_free_cells": 109207,
+      "ros_occupied_cells": 544,
+      "ros_unknown_cells": 234377,
+      "start_xy": [
+        381,
+        222
+      ],
+      "goal_xy": [
+        253,
+        36
+      ],
+      "endpoint_clearance_m": 0.8393799066543579,
+      "pgm_sha256": "d7644ea5eabbbc77dcb6f136774f9b159a6514151f9c411bbd6c383f592bd6e0",
+      "loader_grid_sha256": "dfc9030d73b3ead3e13243ec13ca5ca6aa5f880a01c1c46698856228d138f3ec",
+      "load_check": "ok"
+    }
+  ],
+  "dqn10_duplicate_check": {
+    "npz_count": 20,
+    "unique_array_hashes": 1,
+    "hash_counts": {
+      "b7aa11d982ac18bf172f5769bc40c03a6fc5a8057fa80b6b09e0bd27ffe86597": 20
+    },
+    "examples": {
+      "b7aa11d982ac18bf172f5769bc40c03a6fc5a8057fa80b6b09e0bd27ffe86597": "/Users/sun/tongbu/study/phdproject/dqn/DQN10/3_paper/results/exp1.2_core_comparison/final_t10_sr_long.2/20260316_135403/maps/realmap_a__grid_y0_bottom.npz"
+    }
+  }
+}
