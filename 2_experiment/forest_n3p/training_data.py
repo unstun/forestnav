@@ -45,7 +45,7 @@ class TrainingDataConfig:
     height_cells: int = 300
     resolution_m: float = 0.1
     teacher_timeout_s: float = 2.5
-    teacher_wall_timeout_s: float = 10.0
+    teacher_wall_timeout_s: float = 4.0
     teacher_max_nodes: int = 15_000
     map_generation_wall_timeout_s: float = 30.0
     max_query_sample_attempts: int = 800

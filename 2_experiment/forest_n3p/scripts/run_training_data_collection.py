@@ -25,7 +25,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--width-cells", type=int, default=300)
     parser.add_argument("--height-cells", type=int, default=300)
     parser.add_argument("--teacher-timeout-s", type=float, default=2.5)
-    parser.add_argument("--teacher-wall-timeout-s", type=float, default=10.0)
+    parser.add_argument("--teacher-wall-timeout-s", type=float, default=4.0)
     parser.add_argument("--teacher-max-nodes", type=int, default=15_000)
     parser.add_argument("--map-generation-wall-timeout-s", type=float, default=30.0)
     parser.add_argument("--max-query-sample-attempts", type=int, default=800)
