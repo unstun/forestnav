@@ -28,6 +28,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--teacher-wall-timeout-s", type=float, default=4.0)
     parser.add_argument("--teacher-max-nodes", type=int, default=15_000)
     parser.add_argument("--label-wall-timeout-s", type=float, default=4.0)
+    parser.add_argument("--query-process-wall-timeout-s", type=float, default=12.0)
     parser.add_argument("--map-generation-wall-timeout-s", type=float, default=30.0)
     parser.add_argument("--map-job-wall-timeout-s", type=float, default=240.0)
     parser.add_argument("--max-query-sample-attempts", type=int, default=800)
@@ -58,6 +59,7 @@ def main() -> int:
         teacher_wall_timeout_s=float(args.teacher_wall_timeout_s),
         teacher_max_nodes=int(args.teacher_max_nodes),
         label_wall_timeout_s=float(args.label_wall_timeout_s),
+        query_process_wall_timeout_s=float(args.query_process_wall_timeout_s),
         map_generation_wall_timeout_s=float(args.map_generation_wall_timeout_s),
         map_job_wall_timeout_s=float(args.map_job_wall_timeout_s),
         max_query_sample_attempts=int(args.max_query_sample_attempts),

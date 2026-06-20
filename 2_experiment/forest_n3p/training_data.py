@@ -3,7 +3,9 @@ from __future__ import annotations
 import csv
 import json
 import math
+import multiprocessing as mp
 import os
+import queue
 import signal
 import socket
 import subprocess
@@ -48,6 +50,7 @@ class TrainingDataConfig:
     teacher_wall_timeout_s: float = 4.0
     teacher_max_nodes: int = 15_000
     label_wall_timeout_s: float = 4.0
+    query_process_wall_timeout_s: float = 12.0
     map_generation_wall_timeout_s: float = 30.0
     map_job_wall_timeout_s: float = 240.0
     max_query_sample_attempts: int = 800
@@ -158,6 +161,22 @@ class _MapJobResult:
     queries: tuple[TrainingQueryRecord, ...]
     samples: tuple[_RawSample, ...]
     paths: tuple[_PathRecord, ...]
+
+
+@dataclass(frozen=True)
+class _QueryChildResult:
+    teacher_success: bool
+    teacher_failure_reason: str | None
+    teacher_time_s: float
+    teacher_expansions: int
+    teacher_path_length_m: float
+    trace: tuple[Pose, ...]
+    label_attempted: bool
+    label_success: bool
+    label_failure_reason: str | None
+    label_samples: tuple[LabelSample, ...]
+    total_segment_count: int
+    label_candidate_checks: int
 
 
 @dataclass(frozen=True)
@@ -366,69 +385,35 @@ def _run_map_job_impl(args: tuple[int, TrainingProfile, TrainingDataConfig]) -> 
             )
             continue
 
-        try:
-            path, stats = _run_with_wall_timeout(
-                "teacher_plan",
-                float(config.teacher_wall_timeout_s),
-                lambda: planner.plan(
-                    AckermannState(*start),
-                    AckermannState(*goal),
-                    timeout=float(config.teacher_timeout_s),
-                    max_nodes=int(config.teacher_max_nodes),
-                ),
-            )
-        except WallTimeoutError as exc:
-            path = []
-            stats = {
-                "time": float(config.teacher_wall_timeout_s),
-                "expansions": int(config.teacher_max_nodes),
-                "path_length": 0.0,
-                "failure_reason": str(exc),
-            }
-        teacher_success = bool(path)
-        teacher_failure_reason = None if teacher_success else str(stats.get("failure_reason", "unknown"))
-        trace: list[Pose] = []
-        label_attempted = False
-        label_success = False
-        label_failure_reason: str | None = None
-        label_sample_count = 0
-        total_segment_count = 0
-        label_candidate_checks = 0
+        child_result = _run_query_child_with_timeout(
+            planner=planner,
+            grid_map=grid_map,
+            footprint=footprint,
+            start=start,
+            goal=goal,
+            config=config,
+            labeling_config=labeling_config,
+        )
+        teacher_success = bool(child_result.teacher_success)
+        teacher_failure_reason = child_result.teacher_failure_reason
+        trace = list(child_result.trace)
+        label_attempted = child_result.label_attempted
+        label_success = child_result.label_success
+        label_failure_reason = child_result.label_failure_reason
+        label_sample_count = len(child_result.label_samples)
+        total_segment_count = child_result.total_segment_count
+        label_candidate_checks = child_result.label_candidate_checks
 
         if teacher_success:
-            trace = _teacher_trace(path, stats)
             path_records.append(
                 _PathRecord(
                     global_query_id=gqid,
                     poses=np.asarray(trace, dtype=np.float32),
                 )
             )
-            label_attempted = True
-            try:
-                label_result = _run_with_wall_timeout(
-                    "label_extract",
-                    float(config.label_wall_timeout_s),
-                    lambda: extract_subgoal_labels(
-                        grid_map,
-                        footprint,
-                        trace,
-                        config=labeling_config,
-                    ),
-                )
-                label_success = bool(label_result.success)
-                label_failure_reason = label_result.failure_reason
-                label_sample_count = len(label_result.samples)
-                label_candidate_checks = int(label_result.candidate_checks)
-                total_segment_count = label_sample_count + 1 if label_success else 0
-                if label_success:
-                    for sample_index, sample in enumerate(label_result.samples):
-                        sample_records.append(_raw_sample_from_label(sample, sample_index, gqid, map_id, query_id, profile, distance_bin))
-            except WallTimeoutError as exc:
-                label_success = False
-                label_failure_reason = str(exc)
-                label_sample_count = 0
-                label_candidate_checks = 0
-                total_segment_count = 0
+            if label_success:
+                for sample_index, sample in enumerate(child_result.label_samples):
+                    sample_records.append(_raw_sample_from_label(sample, sample_index, gqid, map_id, query_id, profile, distance_bin))
 
         query_records.append(
             TrainingQueryRecord(
@@ -447,9 +432,9 @@ def _run_map_job_impl(args: tuple[int, TrainingProfile, TrainingDataConfig]) -> 
                 euclidean_distance_m=float(math.hypot(float(goal[0]) - float(start[0]), float(goal[1]) - float(start[1]))),
                 teacher_success=teacher_success,
                 teacher_failure_reason=teacher_failure_reason,
-                teacher_time_s=float(stats.get("time", 0.0)),
-                teacher_expansions=int(stats.get("expansions", 0)),
-                teacher_path_length_m=float(stats.get("path_length", 0.0)),
+                teacher_time_s=float(child_result.teacher_time_s),
+                teacher_expansions=int(child_result.teacher_expansions),
+                teacher_path_length_m=float(child_result.teacher_path_length_m),
                 teacher_path_pose_count=len(trace),
                 label_attempted=label_attempted,
                 label_success=label_success,
@@ -490,6 +475,176 @@ def _failed_map_job_result(
         failure_reason=failure_reason,
     )
     return _MapJobResult(map_record=map_record, queries=(), samples=(), paths=())
+
+
+def _run_query_child_with_timeout(
+    *,
+    planner: Any,
+    grid_map: GridMap,
+    footprint: TwoCircleFootprint,
+    start: Pose,
+    goal: Pose,
+    config: TrainingDataConfig,
+    labeling_config: LabelingConfig,
+) -> _QueryChildResult:
+    ctx = mp.get_context("fork")
+    result_queue: mp.Queue[Any] = ctx.Queue(maxsize=1)
+    process = ctx.Process(
+        target=_query_child_main,
+        args=(result_queue, planner, grid_map, footprint, start, goal, config, labeling_config),
+    )
+    process.start()
+    timeout_s = float(config.query_process_wall_timeout_s)
+    try:
+        process.join(timeout_s)
+    except BaseException:
+        if process.is_alive():
+            process.terminate()
+            process.join(timeout=1.0)
+            if process.is_alive():
+                process.kill()
+                process.join(timeout=1.0)
+        result_queue.close()
+        raise
+    if process.is_alive():
+        process.terminate()
+        process.join(timeout=1.0)
+        if process.is_alive():
+            process.kill()
+            process.join(timeout=1.0)
+        result_queue.close()
+        return _query_failure_result(f"query_process_wall_timeout:{timeout_s:.3f}s", timeout_s)
+
+    try:
+        status, payload = result_queue.get(timeout=1.0)
+    except queue.Empty:
+        result_queue.close()
+        return _query_failure_result(f"query_process_no_result:exitcode={process.exitcode}", 0.0)
+    finally:
+        result_queue.close()
+
+    if status == "ok":
+        return payload
+    return _query_failure_result(str(payload), 0.0)
+
+
+def _query_child_main(
+    result_queue: mp.Queue[Any],
+    planner: Any,
+    grid_map: GridMap,
+    footprint: TwoCircleFootprint,
+    start: Pose,
+    goal: Pose,
+    config: TrainingDataConfig,
+    labeling_config: LabelingConfig,
+) -> None:
+    try:
+        result = _plan_and_label_query(planner, grid_map, footprint, start, goal, config, labeling_config)
+        result_queue.put(("ok", result))
+    except Exception as exc:  # noqa: BLE001 - child failure is experimental metadata.
+        result_queue.put(("error", f"query_child_error:{type(exc).__name__}:{exc}"))
+
+
+def _plan_and_label_query(
+    planner: Any,
+    grid_map: GridMap,
+    footprint: TwoCircleFootprint,
+    start: Pose,
+    goal: Pose,
+    config: TrainingDataConfig,
+    labeling_config: LabelingConfig,
+) -> _QueryChildResult:
+    try:
+        path, stats = _run_with_wall_timeout(
+            "teacher_plan",
+            float(config.teacher_wall_timeout_s),
+            lambda: planner.plan(
+                AckermannState(*start),
+                AckermannState(*goal),
+                timeout=float(config.teacher_timeout_s),
+                max_nodes=int(config.teacher_max_nodes),
+            ),
+        )
+    except WallTimeoutError as exc:
+        return _query_failure_result(str(exc), float(config.teacher_wall_timeout_s))
+
+    teacher_success = bool(path)
+    if not teacher_success:
+        return _QueryChildResult(
+            teacher_success=False,
+            teacher_failure_reason=str(stats.get("failure_reason", "unknown")),
+            teacher_time_s=float(stats.get("time", 0.0)),
+            teacher_expansions=int(stats.get("expansions", 0)),
+            teacher_path_length_m=float(stats.get("path_length", 0.0)),
+            trace=(),
+            label_attempted=False,
+            label_success=False,
+            label_failure_reason=None,
+            label_samples=(),
+            total_segment_count=0,
+            label_candidate_checks=0,
+        )
+
+    trace = tuple(_teacher_trace(path, stats))
+    try:
+        label_result = _run_with_wall_timeout(
+            "label_extract",
+            float(config.label_wall_timeout_s),
+            lambda: extract_subgoal_labels(
+                grid_map,
+                footprint,
+                trace,
+                config=labeling_config,
+            ),
+        )
+        label_success = bool(label_result.success)
+        label_samples = tuple(label_result.samples)
+        return _QueryChildResult(
+            teacher_success=True,
+            teacher_failure_reason=None,
+            teacher_time_s=float(stats.get("time", 0.0)),
+            teacher_expansions=int(stats.get("expansions", 0)),
+            teacher_path_length_m=float(stats.get("path_length", 0.0)),
+            trace=trace,
+            label_attempted=True,
+            label_success=label_success,
+            label_failure_reason=label_result.failure_reason,
+            label_samples=label_samples,
+            total_segment_count=len(label_samples) + 1 if label_success else 0,
+            label_candidate_checks=int(label_result.candidate_checks),
+        )
+    except WallTimeoutError as exc:
+        return _QueryChildResult(
+            teacher_success=True,
+            teacher_failure_reason=None,
+            teacher_time_s=float(stats.get("time", 0.0)),
+            teacher_expansions=int(stats.get("expansions", 0)),
+            teacher_path_length_m=float(stats.get("path_length", 0.0)),
+            trace=trace,
+            label_attempted=True,
+            label_success=False,
+            label_failure_reason=str(exc),
+            label_samples=(),
+            total_segment_count=0,
+            label_candidate_checks=0,
+        )
+
+
+def _query_failure_result(reason: str, time_s: float) -> _QueryChildResult:
+    return _QueryChildResult(
+        teacher_success=False,
+        teacher_failure_reason=reason,
+        teacher_time_s=float(time_s),
+        teacher_expansions=0,
+        teacher_path_length_m=0.0,
+        trace=(),
+        label_attempted=False,
+        label_success=False,
+        label_failure_reason=None,
+        label_samples=(),
+        total_segment_count=0,
+        label_candidate_checks=0,
+    )
 
 
 def _raw_sample_from_label(
@@ -649,6 +804,8 @@ def _validate_config(config: TrainingDataConfig) -> None:
         raise ValueError("teacher_wall_timeout_s must exceed teacher_timeout_s")
     if float(config.label_wall_timeout_s) <= 0.0:
         raise ValueError("label_wall_timeout_s must be positive")
+    if float(config.query_process_wall_timeout_s) <= max(float(config.teacher_wall_timeout_s), float(config.label_wall_timeout_s)):
+        raise ValueError("query_process_wall_timeout_s must exceed teacher and label wall timeouts")
     if float(config.map_generation_wall_timeout_s) <= 0.0:
         raise ValueError("map_generation_wall_timeout_s must be positive")
     if float(config.map_job_wall_timeout_s) <= float(config.map_generation_wall_timeout_s):
@@ -744,6 +901,11 @@ def summarize_training_data(
             1
             for item in queries
             if item.teacher_failure_reason and item.teacher_failure_reason.startswith("teacher_plan_wall_timeout")
+        ),
+        "query_process_wall_timeout_count": sum(
+            1
+            for item in queries
+            if item.teacher_failure_reason and item.teacher_failure_reason.startswith("query_process_wall_timeout")
         ),
         "label_attempt_count": label_attempt,
         "label_success_count": label_success,
@@ -964,6 +1126,7 @@ def render_training_data_report(payload: dict[str, Any]) -> str:
         f"teacher_wall_timeout_s={config['teacher_wall_timeout_s']}",
         f"teacher_max_nodes={config['teacher_max_nodes']}",
         f"label_wall_timeout_s={config['label_wall_timeout_s']}",
+        f"query_process_wall_timeout_s={config['query_process_wall_timeout_s']}",
         f"map_generation_wall_timeout_s={config['map_generation_wall_timeout_s']}",
         f"map_job_wall_timeout_s={config['map_job_wall_timeout_s']}",
         f"distance_bins={[(item['key'], item['min_distance_m'], item['max_distance_m']) for item in config['distance_bins']]}",
@@ -975,6 +1138,7 @@ def render_training_data_report(payload: dict[str, Any]) -> str:
         "|---|---:|",
         f"| 教师求解成功率 | {_fmt_rate(summary['teacher_success_rate'])} |",
         f"| 教师 wall-time 超时数 | {summary['teacher_wall_timeout_count']} |",
+        f"| 查询子进程 wall-time 超时数 | {summary['query_process_wall_timeout_count']} |",
         f"| 标签尝试数 | {summary['label_attempt_count']} |",
         f"| 标签成功数 | {summary['label_success_count']} |",
         f"| 标签失败率 | {_fmt_rate(summary['label_failure_rate'])} |",
