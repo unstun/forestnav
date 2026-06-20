@@ -1,0 +1,9 @@
+[shell_environment_policy]
+inherit = "core"
+
+[shell_environment_policy.set]
+GIT_AUTHOR_EMAIL = "claude@forestnav.local"
+GIT_AUTHOR_NAME = "Claude Code"
+
+[features]
+goals = true

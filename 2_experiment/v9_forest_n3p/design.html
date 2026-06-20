@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F-N3P 设计稿 v1.1 — 学习子目标序列加速密林 Hybrid A*</title>
+<style>
+  :root{
+    --ink:#1a2330; --sub:#5a6a7e; --line:#dde4ec; --bg:#f6f8fb; --card:#ffffff;
+    --accent:#0f62fe; --accent-soft:#e8f0ff; --ok:#0e8345; --ok-soft:#e6f4ec;
+    --warn:#b45309; --warn-soft:#fdf3e1; --risk:#b3261e; --risk-soft:#fdecea;
+    --mono:"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+  .wrap{max-width:1020px;margin:0 auto;padding:32px 24px 80px}
+  header.hero{background:linear-gradient(135deg,#0d1b2a 0%,#1b3a5b 60%,#235d3a 100%);
+       color:#fff;border-radius:16px;padding:36px 36px 30px;margin-bottom:28px}
+  header.hero h1{margin:0 0 10px;font-size:25px;line-height:1.4}
+  header.hero .sub{color:#c9d6e4;font-size:14px}
+  .chips{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);
+        border-radius:999px;padding:3px 12px;font-size:12.5px;color:#eef4fa}
+  h2{font-size:19px;margin:42px 0 14px;padding-left:12px;border-left:4px solid var(--accent)}
+  h3{font-size:15.5px;margin:22px 0 8px;color:var(--ink)}
+  p{margin:8px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+        padding:20px 22px;margin:14px 0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13.5px;background:#fff}
+  th{background:#eef2f7;text-align:left;padding:8px 10px;border:1px solid var(--line);
+     font-weight:600;white-space:nowrap}
+  td{padding:8px 10px;border:1px solid var(--line);vertical-align:top}
+  tr:nth-child(even) td{background:#fafbfd}
+  .badge{display:inline-block;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:600;white-space:nowrap}
+  .b-same{background:var(--ok-soft);color:var(--ok)}
+  .b-diff{background:var(--accent-soft);color:var(--accent)}
+  .b-mix{background:var(--warn-soft);color:var(--warn)}
+  .b-risk{background:var(--risk-soft);color:var(--risk)}
+  code,.mono{font-family:var(--mono);font-size:12.5px;background:#eef2f7;
+       border-radius:4px;padding:1px 5px}
+  pre{font-family:var(--mono);font-size:12.5px;line-height:1.65;background:#0d1b2a;
+      color:#dce8f5;border-radius:10px;padding:16px 18px;overflow-x:auto}
+  /* pipeline 流程图 */
+  .flow{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+  .step{display:flex;align-items:flex-start;gap:12px;background:#fff;
+        border:1px solid var(--line);border-left:4px solid var(--accent);
+        border-radius:10px;padding:10px 14px}
+  .step.offline{border-left-color:#235d3a}
+  .step .no{font-family:var(--mono);font-weight:700;color:var(--sub);min-width:24px}
+  .arrow{color:var(--sub);text-align:center;font-size:13px;line-height:1}
+  .loopbox{border:2px dashed #9db4ce;border-radius:12px;padding:12px 14px;margin-top:6px}
+  .loopbox .ttl{font-size:12.5px;color:var(--sub);margin-bottom:6px;font-weight:600}
+  .note{font-size:13px;color:var(--sub)}
+  .callout{border-radius:10px;padding:12px 16px;margin:12px 0;font-size:14px}
+  .callout.ok{background:var(--ok-soft);border:1px solid #bfe3cd}
+  .callout.warn{background:var(--warn-soft);border:1px solid #f0ddb4}
+  .callout.risk{background:var(--risk-soft);border:1px solid #f3c4c0}
+  .callout.info{background:var(--accent-soft);border:1px solid #c5d8fb}
+  .kpi{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0}
+  .kpi .k{background:#fff;border:1px solid var(--line);border-radius:10px;
+          padding:8px 14px;font-size:13px}
+  var,i.m{font-style:italic;font-family:Georgia,"Times New Roman",serif}
+  footer{margin-top:48px;color:var(--sub);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>F-N3P 设计稿 v1.1<br>学习预测子目标序列，加速密林 Hybrid A* 全局规划</h1>
+  <div class="sub">DQN10 · v9 方向 · 2026-06-12 设计会话 · 状态：<b>待 Dr Sun 审阅</b>（过审后立 Contract v9-forest-n3p）<br>
+  v1.1 增量：问题形式化 / 算法伪代码 / 指标精确口径 / 相关工作划界 / 术语库对齐——<b>D1–D6 决策与 Contract 草案数字一字未动</b></div>
+  <div class="chips">
+    <span class="chip">任务红线：整图输入 → 整条路输出（密林全局规划）</span>
+    <span class="chip">机制：自回归滚动回归 SE(2) 子目标</span>
+    <span class="chip">模型：手工特征 + KNN(k=1)</span>
+    <span class="chip">标签：解析扩展成功点 · 序列化</span>
+    <span class="chip">范围：程序化森林 + 真实地图泛化</span>
+    <span class="chip">术语库：.pipeline/terminology（F-N3P 章节已建）</span>
+  </div>
+</header>
+
+<h2>0. 一句话方案</h2>
+<div class="card">
+  <p><b>离线</b>：批量跑 Hybrid A*+Reeds-Shepp 拿成功路径，按「前向贪心 RS 可达分段」（Algorithm 1）切出子目标真值串，连同手工特征存进 KNN 库——<b>标签来自规划器自己，零人工标注</b>（主 claim 中 self-supervised 限定语的全部含义）。</p>
+  <p><b>在线</b>：从起点滚动问 KNN「下一个中间位姿在哪」（Algorithm 2），Hybrid A* 只在相邻子目标间做短段搜索（解析扩展第一枪命中率按构造极高），直到终点 RS 可直达。<b>学习承担长程分解决策，搜索保证段内运动学与车体碰撞可行</b>。</p>
+  <p class="note">论文主 claim（查重后收窄）：self-supervised learned route decomposition for Ackermann global planning on dense-forest prior occupancy maps——预测有序 SE(2) 子目标序列，Hybrid A* 保证段内可行性。禁写五类“首次”claim（查重报告 §5 列了反例）。</p>
+</div>
+
+<h2>1. 任务定位与红线</h2>
+<div class="card">
+  <p><b>任务（红线，不可动）</b>：阿克曼小车（轴距约 0.6 m）在密林先验占据图（0.1 m 分辨率，约 30×30 m）上做离线全局规划——整图 + 起终点输入，输出整条满足最小转弯半径与完整车体碰撞约束的无碰撞路径。</p>
+  <p><b>痛点（实测）</b>：vanilla Hybrid A* 长距离、密障碍下节点扩展爆炸，经常超时。</p>
+  <p><b>方法</b>：学习模块滚动预测“下一个中间位姿”，Hybrid A* 只做相邻位姿间的短段搜索并拼接——学习承担长程分解决策，搜索保证段内运动学可行。</p>
+  <div class="callout risk"><b>五禁 claim（查重报告 §5，均有反例）</b>：首次学习子目标 / 首次学习加速 HA* / 首次 waypoint 引导 HA* / 首次森林 learned subgoal / 首次越野农业 HA*——论文任何位置不得出现。</div>
+</div>
+
+<h2>2. 设计决策记录（2026-06-12，Dr Sun 拍板）</h2>
+<div class="card">
+<table>
+  <tr><th>#</th><th>决策点</th><th>选定</th><th>备注</th></tr>
+  <tr><td>D1</td><td>序列机制</td><td><b>纯自回归滚动</b>：每步回归下一个连续 SE(2) 子目标</td><td>放弃缝枚举混合方案；AI 曾推荐 A+C 并指出本配法学习难度风险，Dr Sun 知情后选 N3P 忠实路线</td></tr>
+  <tr><td>D2</td><td>输入表示</td><td><b>手工特征 + KNN/MLP</b></td><td>KNN(k=1) 主模型（输出必为库中真实位姿）；MLP 进 ablation</td></tr>
+  <tr><td>D3</td><td>v1 实验范围</td><td><b>程序化森林训练 + 未见图 + 真实地图测试</b></td><td>查重警告：只测程序化森林 → 增量风险偏高</td></tr>
+  <tr><td>D4</td><td>标签主规则</td><td><b>解析扩展成功点（N3P 原版规则序列化）</b></td><td>瓶颈规则 / 曲率边界进 ablation</td></tr>
+  <tr><td>D5</td><td>旧 DQN 去向</td><td>RL 基线（rollout 评测）</td><td>对应 N3P 论文里打 HOPE 的角色</td></tr>
+  <tr><td>D6</td><td>learned heuristic HA* 基线</td><td><b>optional</b></td><td>核验发现 GPT Pro 所引 Takahashi ICAPS19 疑似张冠李戴（原文仅 2D grid A*/D*）</td></tr>
+</table>
+</div>
+
+<h2>3. 方法总览与问题形式化</h2>
+
+<h3>3.1 系统流程</h3>
+<div class="grid2">
+  <div class="card">
+    <h3>离线管线（一次性）</h3>
+    <div class="flow">
+      <div class="step offline"><span class="no">①</span><span>程序化森林批量生成（多密度 × 多种子）<br><span class="note mono">maps/forest.py</span></span></div>
+      <div class="arrow">↓</div>
+      <div class="step offline"><span class="no">②</span><span>HA*+RS 全程求解，保留成功路径与搜索元数据<br><span class="note mono">third_party/pathplan</span></span></div>
+      <div class="arrow">↓</div>
+      <div class="step offline"><span class="no">③</span><span><b>前向贪心 RS 可达分段</b>（Algorithm 1）→ 子目标真值串 {g₁…g_K}</span></div>
+      <div class="arrow">↓</div>
+      <div class="step offline"><span class="no">④</span><span>逐子目标特征化 → 样本 (<b>f</b>(gᵢ), Δᵢ)，Δᵢ 在 gᵢ 车体系表达</span></div>
+      <div class="arrow">↓</div>
+      <div class="step offline"><span class="no">⑤</span><span>KNN 库构建（主） / MLP 训练（ablation）</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>在线推理（每个查询）</h3>
+    <div class="flow">
+      <div class="step"><span class="no">0</span><span>p ← 起点</span></div>
+      <div class="loopbox">
+        <div class="ttl">滚动循环（步数上限 <var>K</var><sub>max</sub>；与标签终止条件同构）</div>
+        <div class="flow">
+          <div class="step"><span class="no">1</span><span><b>停止判据</b>：RS(p→终点) 无碰可达？是 → 直连收尾 ✓</span></div>
+          <div class="step"><span class="no">2</span><span>特征提取 <b>f</b>(p; 终点, 局部图)</span></div>
+          <div class="step"><span class="no">3</span><span>KNN 查库 → 下一子目标 ĝ（世界系反变换）</span></div>
+          <div class="step"><span class="no">4</span><span>可行性校验 RS(p→ĝ)；失败 → fallback 阶梯 F1–F3</span></div>
+          <div class="step"><span class="no">5</span><span>段内 HA*(p→ĝ)，解析扩展优先，节点预算 <var>N</var><sub>seg</sub></span></div>
+          <div class="step"><span class="no">6</span><span>p ← ĝ，继续</span></div>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step"><span class="no">✓</span><span>拼接整条路径输出（v1 不做平滑后处理，与基线公平）</span></div>
+    </div>
+  </div>
+</div>
+<p class="note">学习模块只回答一个问题：“站在当前位姿、目标在那边、局部树障长这样——<b>下一个该到达的中间位姿在哪</b>”。与 N3P 的“预测一个准备位姿”同构，区别是滚动调用形成序列。</p>
+
+<h3>3.2 问题形式化</h3>
+<div class="card">
+  <p><b>环境</b>。工作区 <var>W</var> ⊂ ℝ² 按分辨率 <var>r</var> = 0.1 m 离散为栅格集 <var>G</var>，先验占据图 <var>M</var>: <var>G</var> → {0,1}，取 1 表示树障占据；占据区域记 Occ(<var>M</var>) ⊂ <var>W</var>。地图约 30×30 m，<b>离线已知</b>——“先验”是与 LSP 一类 unknown-environment 工作划界的关键属性（§7.1）。</p>
+  <p><b>车辆</b>。状态 <b>x</b> = (<b>p</b>, <var>θ</var>) ∈ SE(2)。阿克曼底盘，路径曲率约束 |<var>κ</var>| ≤ 1/<var>ρ</var><sub>min</sub>（<var>ρ</var><sub>min</sub> 由 pathplan 配置锁定，文中不出现裸数字）；车体足迹 <var>B</var>(<b>x</b>) 以双圆模型覆盖。</p>
+  <p><b>自由空间与可行路径</b>。<var>X</var><sub>free</sub> = {<b>x</b> ∈ SE(2) : <var>B</var>(<b>x</b>) ∩ Occ(<var>M</var>) = ∅}。可行路径 <var>τ</var>: [0,1] → <var>X</var><sub>free</sub>，分段光滑、曲率处处合规、允许有限次方向切换。</p>
+  <p><b>规划查询</b>。<var>q</var> = (<var>M</var>, <b>x</b><sub>s</sub>, <b>x</b><sub>g</sub>)，求可行 <var>τ</var>。求解质量两维：搜索代价（规划时间 <var>T</var>、节点扩展数 <var>E</var>）与路径质量（长度、方向切换、最小净空）。</p>
+  <p><b>RS 记号</b>。RS(<b>x</b>, <b>x</b>′) 为连接两位姿的最短 Reeds-Shepp 曲线，按构造满足曲率约束，可行性只剩无碰一项：RS<sub>free</sub>(<b>x</b>, <b>x</b>′) ⇔ 曲线全程位于 <var>X</var><sub>free</sub>（沿曲线按 <var>r</var> 级步长采样做双圆碰撞检查）。</p>
+</div>
+
+<h3>3.3 路线分解与学习目标</h3>
+<div class="card">
+  <p><b>路线分解</b>：给定 <var>q</var>，求有序子目标序列 (g₁, …, g_K)，gᵢ ∈ <var>X</var><sub>free</sub>，使相邻对段内可被低代价连接（理想情形 RS<sub>free</sub> 直连，一般情形预算 <var>N</var><sub>seg</sub> 内短段 HA*）。整条路径 <var>τ</var> = τ₀ ⊕ τ₁ ⊕ ⋯ ⊕ τ_K。</p>
+  <p><b>学习目标</b>：一步预测器 <var>π</var>: ℝ⁴¹ → ℝ³（实现为 KNN 查表）——输入特征 <b>f</b>(<b>x</b>; <b>x</b><sub>g</sub>, <var>M</var>)，输出车体系相对位姿 Δ̂ = (Δ<var>x</var>, Δ<var>y</var>, Δ<var>θ</var>)；世界系子目标 ĝ = <b>x</b> ⊕ Δ̂（SE(2) 复合）。序列由滚动展开生成：g<sub>i+1</sub> = gᵢ ⊕ <var>π</var>(<b>f</b>(gᵢ))。</p>
+  <p><b>监督来源</b>：教师路径（vanilla HA*+RS 成功解）经 Algorithm 1 切分出 (<b>f</b>(gᵢ), Δᵢ) 样本对——标签由规划器自产、零人工标注。这是 self-supervised 限定语的全部含义，不引申。</p>
+</div>
+
+<h3>3.4 符号表</h3>
+<div class="card">
+<table>
+  <tr><th>符号</th><th>含义</th><th>取值/默认</th></tr>
+  <tr><td><var>M</var>, <var>r</var>, <var>W</var></td><td>占据图 / 分辨率 / 工作区</td><td><var>r</var>=0.1 m，约 30×30 m</td></tr>
+  <tr><td><b>x</b>=(<b>p</b>,<var>θ</var>)</td><td>SE(2) 状态</td><td>—</td></tr>
+  <tr><td><var>ρ</var><sub>min</sub></td><td>最小转弯半径</td><td>pathplan 配置（spike 锁定）</td></tr>
+  <tr><td><var>B</var>(<b>x</b>)</td><td>车体足迹（双圆模型）</td><td>轴距约 0.6 m</td></tr>
+  <tr><td><var>X</var><sub>free</sub></td><td>自由位形空间</td><td>—</td></tr>
+  <tr><td>RS(·,·), RS<sub>free</sub></td><td>最短 RS 曲线 / 无碰判定</td><td>—</td></tr>
+  <tr><td><var>P</var>, <var>S</var></td><td>教师路径（弧长参数化）/ 总弧长</td><td>—</td></tr>
+  <tr><td>gᵢ, <var>K</var></td><td>子目标 / 子目标数</td><td>—</td></tr>
+  <tr><td><var>L</var><sub>max</sub>, <var>L</var><sub>min</sub></td><td>段长上界 / 单步推进下界</td><td>8 m / 1.5 m（pilot 调）</td></tr>
+  <tr><td><b>f</b> ∈ ℝ⁴¹</td><td>手工特征</td><td>§4.3</td></tr>
+  <tr><td><var>π</var>, Δ̂</td><td>预测器 / 车体系相对位姿</td><td>KNN(k=1)</td></tr>
+  <tr><td><var>D</var>, <var>N</var></td><td>样本库 / 库规模</td><td>估算 1.2×10⁵</td></tr>
+  <tr><td><var>K</var><sub>max</sub></td><td>滚动步数上限</td><td>⌈2‖<b>p</b><sub>s</sub>−<b>p</b><sub>g</sub>‖/<var>L</var><sub>min</sub>⌉</td></tr>
+  <tr><td><var>N</var><sub>seg</sub></td><td>段内节点预算</td><td>2 000（pilot 调）</td></tr>
+  <tr><td><var>R</var><sub>max</sub>, <var>n</var><sub>ray</sub></td><td>ray 截断半径 / 方向数</td><td>10 m / 32</td></tr>
+  <tr><td><var>E</var>, <var>T</var></td><td>节点扩展数 / 规划时间</td><td>指标（§5.4）</td></tr>
+</table>
+</div>
+
+<h2>4. 模块详设</h2>
+
+<div class="card">
+  <h3>4.1 场景与教师数据（复用清单，路径已核实存在）</h3>
+  <table>
+    <tr><th>组件</th><th>位置</th><th>用法</th></tr>
+    <tr><td>森林场景生成</td><td class="mono">maps/forest.py</td><td>多密度/多种子程序化生成，难度分档见 §5.1</td></tr>
+    <tr><td>HA*+RS 规划本体（含解析扩展）</td><td class="mono">third_party/pathplan</td><td>教师求解 + 在线段内连接，同一实现保证公平</td></tr>
+    <tr><td>批量示教管线</td><td class="mono">cli/build_baseline_demo_dataset.py 等</td><td>改造为“成功路径 + 搜索元数据”采集</td></tr>
+    <tr><td>真实地图载入</td><td class="mono">maps/pgm.py + RealMap 资产</td><td>仅测试，不进训练</td></tr>
+    <tr><td>评估框架</td><td class="mono">cli/benchmark_baselines.py、metrics.py</td><td>扩展指标列</td></tr>
+    <tr><td>双圆碰撞 + 前向仿真</td><td class="mono">forest_policy.py</td><td>RS 曲线碰撞校验复用</td></tr>
+    <tr><td>旧 MD-DQN</td><td class="mono">agents.py</td><td>RL 基线 rollout</td></tr>
+  </table>
+  <p><b>采集协议（v1.1 细化）</b>：每条教师求解记录 {地图种子与难度参数, <b>x</b><sub>s</sub>, <b>x</b><sub>g</sub>, 成功标志, 路径 <var>P</var>, 节点扩展数, 求解时间, 解析扩展命中位置}。失败查询保留计数（教师成功率是场景难度的校准量），但不产标签。</p>
+  <p class="note">工程确认项（实现前 spike）：pathplan 是否暴露独立的 RS steer + 碰撞检查接口（标签提取与可行性校验需要脱离完整 HA* 调用）。</p>
+</div>
+
+<div class="card">
+  <h3>4.2 标签提取：前向贪心 RS 可达分段（D4 的精确定义，Algorithm 1）</h3>
+  <pre>Algorithm 1  前向贪心 RS 可达分段（标签提取）
+输入: 教师路径 P:[0,S]→X_free（弧长参数化, P(0)=x_s, P(S)=x_g）
+输出: 子目标真值串 (g₁,…,g_K) 与样本集 {(f(gᵢ), Δᵢ)}
+ 1: g₀ ← P(0);  s₀ ← 0;  i ← 0
+ 2: while ¬( RS_free(gᵢ, x_g) ∧ len(RS(gᵢ, x_g)) ≤ L_max ):
+ 3:     Sᵢ ← { s ∈ (sᵢ, S] : RS_free(gᵢ, P(s)) ∧ len(RS(gᵢ, P(s))) ≤ L_max }
+ 4:     if Sᵢ = ∅ 或 max(Sᵢ) − sᵢ &lt; L_min:                ▷ 标签失败分支
+ 5:         失败计数 +1；丢弃整条 P；return ∅
+ 6:     s_{i+1} ← max(Sᵢ);   g_{i+1} ← P(s_{i+1})           ▷ 取最远 RS 可达点
+ 7:     Δᵢ ← g_{i+1} ⊖ gᵢ                                   ▷ gᵢ 车体系下表达
+ 8:     emit 样本 (f(gᵢ), Δᵢ);   i ← i+1
+ 9: K ← i      ▷ 终止时剩余段 RS 直连，不产样本（与在线停止判据同构）</pre>
+  <p><b>语义</b>：每个子目标都是<b>“从上一处一条解析曲线就能到”的最远点</b>——与 N3P“从此处可便宜解”语义一致。</p>
+  <p><b>构造性质</b>：对每个 i，RS<sub>free</sub>(gᵢ, g<sub>i+1</sub>) 按构造成立 ⇒ 教师分布内、静态同图条件下，在线段内连接的解析扩展第一枪即可命中，HA* 仅作保险。滚动预测偏离 gᵢ 后该性质退化为近似，退化程度由<b>子目标可达率</b>量化（§5.4），由可行性校验 + fallback 兜底（§4.6）。</p>
+  <p><b>参数语义</b>：<var>L</var><sub>max</sub>（8 m）防开阔区单段超出特征视距 <var>R</var><sub>max</sub>；<var>L</var><sub>min</sub>（1.5 m）v1.1 起形式化为“单步推进下界”（第 4 行）——推进不足判标签失败，防密集区碎段；失败处理策略是开放项（§8.6），标签失败率为 pilot 观测哨。</p>
+  <p><b>复杂度（离线一次性）</b>：第 3 行 max 谓词非单调、不能直接二分；按“<var>L</var><sub>max</sub> 弧长初始窗口、向远端扫描+按需细化”实现。单条路径 O((S/Δs)·c<sub>RS</sub>)，c<sub>RS</sub> 为一次 RS 生成+碰撞校验（约 len/<var>r</var> 个采样点）；可按地图并行。</p>
+  <div class="callout warn"><b>已知风险（AI 异议存档，D1 备注）</b>：此规则标签落点常在开阔地、由求解器副产物决定，与局部几何特征关联弱于瓶颈规则。若 KNN 学不动，Contract 内的标签 ablation（解析分段 vs 瓶颈 vs 曲率边界）会暴露问题，届时按数据切换主规则（须 Contract v2）。</div>
+</div>
+
+<div class="card">
+  <h3>4.3 特征设计（环境抽象——森林版必须重造的部分，<b>f</b> ∈ ℝ⁴¹，全部车体系）</h3>
+  <table>
+    <tr><th>组</th><th>定义</th><th>维</th><th>说明</th></tr>
+    <tr><td>终点距离</td><td>f₁ = log(1+‖<b>p</b><sub>g</sub>−<b>p</b>‖)</td><td>1</td><td>log 压缩长程距离</td></tr>
+    <tr><td>终点方位</td><td>(sin α, cos α)，α 为目标在车体系的方位角</td><td>2</td><td>sin/cos 表示回避角度回绕不连续</td></tr>
+    <tr><td>终点朝向差</td><td>(sin Δθ<sub>g</sub>, cos Δθ<sub>g</sub>)，Δθ<sub>g</sub> = θ<sub>g</sub>−θ 取主值</td><td>2</td><td>终段姿态对齐信号</td></tr>
+    <tr><td>净空轮廓</td><td>f<sub>5+j</sub> = log(1+ρⱼ)，ρⱼ = min(<var>R</var><sub>max</sub>, 沿车体系方向 φⱼ=2πj/32 至首个占据栅格的距离)，j=0…31</td><td>32</td><td>局部障碍布局的通用描述；树缝表现为相邻方向间的距离峰</td></tr>
+    <tr><td>密度统计</td><td>环带 [0,2) / [2,5) / [5,10) m 内占据栅格比例</td><td>3</td><td>粗粒度拥挤度</td></tr>
+    <tr><td>运动学</td><td>倒车标志 b ∈ {0,1}（v1 置 0）</td><td>1</td><td>预留</td></tr>
+  </table>
+  <p><b>度量</b>：训练集逐维 z-score 标准化（μ<sub>l</sub>, σ<sub>l</sub>），d(<b>f</b>, <b>f</b>′) = ‖(<b>f</b>−<b>f</b>′) ⊘ σ‖₂；v1 权重均匀，pilot 可上调终点组权重。</p>
+  <p><b>设计依据</b>：ray-cast 净空轮廓是“无缝枚举版”的局部几何描述——不显式检测树缝，但缝在轮廓上是方向上的距离峰，KNN 度量可感知。这组特征就是我方的“环境抽象”（对应 N3P 的 4 参数闭式抽象），也是贡献点之一。</p>
+  <p><b>已知局限</b>（与 §8.1 风险耦合）：<var>R</var><sub>max</sub> 视距外结构不可见——若标签落点超出视距相关性，KNN 召回退化；轮廓对小角度抖动敏感，由 log 压缩与标准化部分缓解，由误差容忍 ablation 实证。</p>
+  <div class="callout info"><b>术语警戒（术语库 C-10）</b>：ray-cast 是先验图上的几何查询，<b>与传感器无关</b>——写成“激光雷达/LiDAR 扫描”是事实错误；特征是手工几何量，写成“语义特征/嵌入/表征”同样错误。</div>
+</div>
+
+<div class="grid2">
+  <div class="card">
+    <h3>4.4 学习模块</h3>
+    <p><b>KNN(k=1) 主模型</b>：库 <var>D</var> = {(<b>f</b>ₙ, Δₙ)}；查询 π(<b>f</b>) = Δ<sub>n*</sub>，n* = argminₙ d(<b>f</b>, <b>f</b>ₙ)；反变换 ĝ = <b>x</b> ⊕ Δ̂。输出永远是教师数据中真实出现过的相对位姿（N3P 噪声免疫性质的保留形式）；注意它<b>不</b>保证在当前图无碰（样本可能来自他图），在线仍需可行性校验。</p>
+    <p><b>规模与开销</b>：估算 2 000 图 × ~10 查询 × ~6 段 ≈ 1.2×10⁵ 样本，41 维 float32 ≈ 20 MB（N3P 的 KNN 47.8 MB，量级无忧）。41 维下 KD-tree 增益有限（高维退化），但即便线性扫描也在毫秒级——实测值进 §5.4 计时。</p>
+    <p><b>MLP（ablation）</b>：4 层、~10⁵ 参数，回归 Δ；已知多模态平均风险（两缝样本均值落在缝间树干）——与 N3P 中 MLP 偶发不可行同源，论文可借此复刻其结论。</p>
+    <p class="note">DQN 打分器不进 v1（Dr Sun 已授权放弃，红线只在任务级）。旧 MD-DQN 只以 RL 基线身份出场。</p>
+  </div>
+  <div class="card">
+    <h3>4.6 Fallback 阶梯（完备性保障）</h3>
+    <table>
+      <tr><th>级</th><th>触发</th><th>动作</th></tr>
+      <tr><td>F1</td><td>RS(p→ĝ) 碰撞</td><td>取 KNN 第 2…k 近邻重试（k≤5）</td></tr>
+      <tr><td>F2</td><td>F1 全失败</td><td>段内 HA*(p→ĝ) 限预算；仍失败则 HA*(p→goal) 试探</td></tr>
+      <tr><td>F3</td><td>F2 失败 / 步数超限 / 连续 2 步无进展</td><td><b>整题回退 vanilla HA*</b>（N3P 同款兜底）</td></tr>
+    </table>
+    <div class="callout ok"><b>完备性论证（v1.1 显式化）</b>：记预算内 vanilla HA* 可解查询集为 Q<sub>v</sub>。F3 规定方法失败时整题运行同配置 vanilla HA*，故成功集 ⊇ Q<sub>v</sub>——继承 vanilla 的完备性级别，<b>不声称更强，也不声称最优性</b>。最坏开销 T ≤ T<sub>overhead</sub> + T<sub>vanilla</sub>；fallback 触发率高 ⇒ 时间收益消失 ⇒ 恰为 Contract 失败信号①，机制与判据闭环。</div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>4.5 在线推理循环（Algorithm 2）与开销分解</h3>
+  <pre>Algorithm 2  在线滚动推理
+输入: 查询 q=(M, x_s, x_g)，样本库 D
+输出: 可行路径 τ（方法解或 F3 回退解）
+ 1: p ← x_s;  τ ← ∅;  K_max ← ⌈2‖p_s−p_g‖/L_min⌉
+ 2: for step = 1..K_max:
+ 3:     if RS_free(p, x_g):  return τ ⊕ RS(p, x_g)          ▷ 停止判据
+ 4:     ĝ ← p ⊕ π(f(p))                                     ▷ KNN 预测 + 反变换
+ 5:     if ¬RS_free(p, ĝ):  ĝ ← F1(p)                       ▷ 第 2..k 近邻重试
+ 6:     if F1 全失败:  转 F2/F3（§4.6）
+ 7:     τ_seg ← HA*(p → ĝ | 解析扩展优先, 预算 N_seg)        ▷ 段内连接
+ 8:     if τ_seg 失败:  转 F2/F3（§4.6）
+ 9:     τ ← τ ⊕ τ_seg;   p ← ĝ
+10:     if ‖p − p_g‖ 连续 2 步不降:  转 F3                   ▷ 无进展哨
+11: 转 F3（步数超限）</pre>
+  <p class="note">停止判据与标签终止条件同构（都是“RS 可直达”）——机制与标签语义闭环。v1 不做输出平滑后处理，与基线公平。</p>
+  <table>
+    <tr><th>环节</th><th>次数上界</th><th>单次成本</th></tr>
+    <tr><td>特征提取</td><td><var>K</var><sub>max</sub></td><td><var>n</var><sub>ray</sub> 次栅格步进 O(<var>R</var><sub>max</sub>/<var>r</var>) + 环带统计 O((<var>R</var><sub>max</sub>/<var>r</var>)²)</td></tr>
+    <tr><td>KNN 查询</td><td><var>K</var><sub>max</sub></td><td>上界 O(d·N)，实测毫秒级（§4.4）</td></tr>
+    <tr><td>RS 可行性校验</td><td>k·<var>K</var><sub>max</sub></td><td>O(len/<var>r</var>) 采样碰撞检查</td></tr>
+    <tr><td>段内 HA*</td><td><var>K</var><sub>max</sub></td><td>≤ <var>N</var><sub>seg</sub> 次扩展；教师分布内典型为解析扩展直中</td></tr>
+    <tr><td>末段 RS 直连</td><td>1</td><td>O(len/<var>r</var>)</td></tr>
+  </table>
+  <div class="callout info"><b>与 vanilla 的对照机制</b>：vanilla HA* 扩展数随距离与密度急剧增长（实测痛点）；F-N3P 将其替换为“K 段 × 每段预算 <var>N</var><sub>seg</sub> 的搜索 + 常数级学习开销”。这是机制陈述、不作先验断言，由 §5.4 指标矩阵实证检验。</div>
+</div>
+
+<h2>5. 实验设计（v1 范围，D3）</h2>
+<div class="card">
+  <h3>5.1 场景矩阵与数据划分</h3>
+  <p><b>难度三轴（形式化）</b>：树密度 λ（单位面积树数）× 最窄缝宽与车宽之比 w<sub>min</sub>/w<sub>veh</sub> × 起终欧氏距离 d<sub>sg</sub>，对应 N3P Easy/Complex/Extreme 精神，至少 3×3 桶有效覆盖；<b>各轴切点待 pilot 标定</b>（§8.7），标定后写入 Contract，此处不预设数字。</p>
+  <p><b>数据划分</b>：训练 ~2 000 张程序化森林（多密度多种子）；验证 = 同分布新种子；测试 = ①未见同分布图 ②OOD 密度桶（外推）③真实 SLAM 占据图（RealMap 资产，仅测试）。<b>种子纪律</b>：学习模块 ≥5 种子；每桶 ≥100 评测场景；报 min/mean/median/P95（N3P 口径）。</p>
+  <h3>5.2 Baseline（查重报告底线 + 核验修正）</h3>
+  <table>
+    <tr><th>Baseline</th><th>角色</th><th>状态</th></tr>
+    <tr><td>vanilla HA*+RS</td><td>主对照（2D 启发式 DP 预计算计入计时，N3P 公平口径）</td><td>已有</td></tr>
+    <tr><td>N3P-style 单中间位姿</td><td>证明<b>“序列”</b>必要性（K=1 退化版，同特征同模型）</td><td>本方法退化版</td></tr>
+    <tr><td>Voronoi/skeleton waypoint HA*</td><td>规则分解对照（查重点名：缺它即判增量风险高）</td><td>需实现</td></tr>
+    <tr><td>hand-crafted 瓶颈 waypoint</td><td>证明<b>“学习”</b>必要性（medial-axis 窄道提取）</td><td>需实现</td></tr>
+    <tr><td>旧 MD-DQN rollout</td><td>RL 基线（对应 N3P 打 HOPE）</td><td>已有，需 v9 场景复评</td></tr>
+    <tr><td>learned heuristic HA*</td><td>optional（文献支点核验失败，D6）</td><td>待文献重查</td></tr>
+  </table>
+  <div class="callout ok"><b>公平性条款（v1.1 显式化）</b>：全部基线共用同一份 pathplan 实现、同一双圆碰撞模型、同一计时协议；规则 waypoint 基线的 waypoint 间连接同样用段内 HA*——把“分解点来自哪里”隔离为唯一自变量；RL 基线计时口径单独定义（沿 N3P：逐步出动作直到可接 RS）。</div>
+  <h3>5.3 Ablation</h3>
+  <p class="note">标签规则三选（解析分段/瓶颈/曲率边界）· KNN vs MLP · k 值 · 特征组消融（±密度组、±终点朝向差、ray 数 16/32/64）· L<sub>max</sub> · 子目标数固定 vs 可变 · fallback 逐级关闭 · 子目标加噪鲁棒性。</p>
+  <h3>5.4 指标精确定义（查重报告 §6 全集）</h3>
+  <table>
+    <tr><th>指标</th><th>定义与口径</th><th>出处</th></tr>
+    <tr><td>规划总时间 <var>T</var></td><td>收到查询至返回路径的 wall-clock，<b>含</b> 2D 启发式 DP 预计算、特征提取、KNN 查询、可行性校验、全部搜索与 fallback</td><td>N3P 公平口径</td></tr>
+    <tr><td>节点扩展数 <var>E</var></td><td>该查询全部 HA* 调用的扩展数之和（含 F2/F3）</td><td>N3P 口径</td></tr>
+    <tr><td>成功率 SR</td><td>预算内返回无碰可行路径的查询比例</td><td>查重 §6</td></tr>
+    <tr><td>路径长度</td><td>len(τ)；膨胀率 = len(τ)/len(τ<sub>vanilla</sub>) − 1，<b>仅在双方均成功的查询集上比较</b>，并同时报告各自 SR</td><td>查重 §6</td></tr>
+    <tr><td>曲率/方向切换</td><td>方向切换次数（N3P 口径）+ 平均绝对曲率</td><td>N3P</td></tr>
+    <tr><td>最小净空</td><td>min<sub><b>x</b>∈τ</sub> dist(B(<b>x</b>), Occ)</td><td>查重 §6</td></tr>
+    <tr><td>碰撞违例</td><td>返回路径上的双圆碰撞计数，应恒 0（sanity，非比较指标）</td><td>查重 §6</td></tr>
+    <tr><td>fallback 触发率</td><td>触发 F1/F2/F3 的查询比例，分级报告</td><td>查重 §6；Contract 失败信号①</td></tr>
+    <tr><td>子目标可达率</td><td>滚动各步 RS<sub>free</sub>(p, ĝ) 首验通过比例（按步统计）</td><td>查重 §6</td></tr>
+    <tr><td>OOD/真实图性能</td><td>上述全部指标在 OOD 桶与真实 SLAM 图上的复测</td><td>查重 §6</td></tr>
+  </table>
+  <h3>5.5 计时与统计协议（v1.1 新增）</h3>
+  <p><b>计时</b>：单线程、同机、负载隔离；DP 预计算按 N3P 口径计入每次查询；学习方开销全部计入——不允许出现“裸搜索时间”对比。<b>统计</b>：≥5 种子 × 每桶 ≥100 场景；主表报 median 与 P95，附 min/mean；种子间报中位数与极差。<b>显著性检验（建议项，草案）</b>：逐查询配对 Wilcoxon 符号秩（时间）+ bootstrap 置信区间（成功率差）——是否纳入由 Dr Sun 立约时定夺。</p>
+</div>
+
+<h2>6. 与 N3P 的逐项对比</h2>
+<div class="card">
+<table>
+  <tr><th>维度</th><th>N3P（泊车，ITSC 2026）</th><th>F-N3P（本设计）</th><th>判定</th></tr>
+  <tr><td>任务</td><td>泊车：终点附近单瓶颈机动</td><td>密林长距离全局规划：瓶颈分布全程</td><td><span class="badge b-diff">异 · 任务结构</span></td></tr>
+  <tr><td>学习预测什么</td><td><b>1 个</b>准备位姿</td><td><b>有序 SE(2) 子目标串</b>（滚动逐个出）</td><td><span class="badge b-diff">异 · 结构扩展</span></td></tr>
+  <tr><td>规划本体</td><td>Hybrid A* + Reeds-Shepp</td><td>同（同一份 pathplan 实现，公平对照）</td><td><span class="badge b-same">同</span></td></tr>
+  <tr><td>标签来源</td><td>成功路径中解析 RS 段起点</td><td>同语义的<b>序列化</b>：前向贪心 RS 可达分段</td><td><span class="badge b-mix">同源 · 序列化为新定义</span></td></tr>
+  <tr><td>环境抽象</td><td>4 参数闭式（车道宽/位宽/死端深/类型）</td><td>41 维手工特征（ray-cast 净空轮廓 + 终点 + 密度）</td><td><span class="badge b-diff">异 · 必须重造</span></td></tr>
+  <tr><td>模型</td><td>KNN(k=1) / 4 层 MLP，6 维输入</td><td>KNN(k=1) 主 / MLP ablation，41 维</td><td><span class="badge b-same">同哲学</span></td></tr>
+  <tr><td>训练环境</td><td>简化抽象环境，靠抽象桥接真实场景</td><td>直接在程序化森林训练（特征即抽象），真实地图仅测试</td><td><span class="badge b-diff">异 · 桥接方式</span></td></tr>
+  <tr><td>可行性保障</td><td>KNN 输出必为真实位姿；MLP 失败回退 HA*</td><td>同 + 三级 fallback（近邻重试→段内 HA*→整题回退）</td><td><span class="badge b-mix">同源 · 扩展</span></td></tr>
+  <tr><td>停止/终段</td><td>固定三阶段，终段解析入位</td><td>RS 可直达即收尾（与标签终止条件同构）</td><td><span class="badge b-same">同语义</span></td></tr>
+  <tr><td>实验纪律</td><td>公平计时、3 难度×3 任务、多指标、双版本 RL 基线</td><td>全盘继承 + ≥5 种子 + OOD 密度桶 + 真实地图 + 规则分解基线</td><td><span class="badge b-mix">同 · 加严</span></td></tr>
+  <tr><td>已知短板</td><td>未报多种子/方差；抽象在斜死端次优</td><td>多种子补上；特征失效模式靠 ablation 暴露</td><td><span class="badge b-diff">我们补强</span></td></tr>
+  <tr><td>审稿防线</td><td>——</td><td>必引划界：N3P / Waypoints Hybrid B*（Bonetti）/ LSP（Stein）/ Banzhaf；禁五类“首次”claim</td><td><span class="badge b-risk">查重约束</span></td></tr>
+</table>
+<p><b>一句话</b>：规划本体、标签哲学、简单模型、fallback 全部继承 N3P；<b>“单位姿→序列”的机制、森林环境抽象、分段标签的序列化定义、面向审稿的基线/泛化矩阵</b>是我们的增量。</p>
+</div>
+
+<h2>7. 相关工作与引用划界（v1.1 新增）</h2>
+<p class="note">核验状态：<span class="badge b-same">✅ 已核验/已精读</span> <span class="badge b-mix">⚠️ 存在性已核验、细节未读——论文引用前必须走引用核查四步</span> <span class="badge b-risk">❌ 支点失效</span>。本节只可作写作线索，引用以核验后的原文为准。</p>
+
+<div class="card">
+  <h3>7.1 三角防线（最危险近邻，必引必划界）</h3>
+  <table>
+    <tr><th>工作</th><th>它做什么（核验范围内）</th><th>划界（我方差异）</th><th>核验状态</th></tr>
+    <tr>
+      <td><b>N3P</b><br><span class="note mono">xue2026n3p · ITSC 2026</span></td>
+      <td>学习单个 preparatory pose，把泊车分解为准备—接近—入位三阶段，HA* 消费；摘要口径提速 &gt;80%</td>
+      <td>单位姿 → 有序序列；泊车单瓶颈 → 森林全程多瓶颈；4 参数闭式抽象 → 41 维手工特征。引用姿态是“继承并扩展”——标签自监督、KNN 哲学、公平计时均承自该文，不回避不贬低</td>
+      <td><span class="badge b-same">✅ 已精读（本地 PDF/MD）</span></td>
+    </tr>
+    <tr>
+      <td><b>Waypoints Hybrid B* / Roadmap Hybrid A*</b><br><span class="note mono">Bonetti2023_WaypointsHybrid</span></td>
+      <td>topological map 生成 waypoints 引导搜索；car-like、工业窄通道</td>
+      <td>waypoint 来自规则/拓扑图 vs 我方学习预测；结构化通道 vs 非结构化树缝。算法名是 <b>B*</b>（查重报告笔误 A*，核验附注已纠）；同时是规则分解基线（§5.2）的文献依据</td>
+      <td><span class="badge b-mix">✅ 存在性核验 · PDF 待读</span></td>
+    </tr>
+    <tr>
+      <td><b>LSP, Learned Subgoal Planner</b><br><span class="note mono">Stein2018_LearnedSubgoal · CoRL 2018 (PMLR v87)</span></td>
+      <td>学习 subgoal/frontier 属性（dead-end 概率），服务 unknown-environment 高层导航</td>
+      <td>未知环境探索决策 vs 已知先验图全局运动规划；二分类可达性 vs SE(2) 连续回归序列；无 HA* 段内运动学连接</td>
+      <td><span class="badge b-mix">✅ 存在性核验 · “random forests/RC car”细节⚠️未核验，引用前须精读</span></td>
+    </tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>7.2 相邻家族（一句话划界，建议引用）</h3>
+  <table>
+    <tr><th>家族</th><th>划界一句话</th><th>核验状态</th></tr>
+    <tr><td>Banzhaf2019_LearnedPoses（RA-L 2019）</td><td>学 pose samples 喂 Bi-RRT*——informed sampling vs 我方有序路线分解，消费方非 HA*</td><td><span class="badge b-same">✅ spot-check：摘要原文 “reduces the computation time by up to an order of magnitude”</span></td></tr>
+    <tr><td>Ichter2017_LearnedSampling</td><td>CVAE 学采样分布——回答“在哪采样”，我方回答“按什么顺序去哪”</td><td><span class="badge b-mix">✅ 已入库 · PDF 待读</span></td></tr>
+    <tr><td>MPNet / Dynamic MPNet / MPC-MPNet、Sub-Goal Trees</td><td>神经整路径/递归中间状态——连接器是 sampling/MPC 而非 HA*，不面向森林 tree-gap</td><td><span class="badge b-mix">⚠️ 未入库（报告级线索），引用前须核验入库</span></td></tr>
+    <tr><td>learned heuristic 路线（SaIL / Neural A* / Takahashi）</td><td>改启发式让单次全局搜索更准 vs 我方把长问题分解成多段短问题</td><td><span class="badge b-risk">Takahashi ❌ 支点失效（D6 optional）；SaIL/Neural A* ⚠️ 未入库</span></td></tr>
+    <tr><td>Traversability HA*（Mujahed2019）</td><td>“HA* 进越野”非新点——我方贡献不在场景而在 learned decomposition，引用作背景区分</td><td><span class="badge b-mix">⚠️ venue/作者未核验</span></td></tr>
+    <tr><td>HRL subgoal（HIRO/HAC）</td><td>policy 内部机制 vs 规划器消费的显式子目标——术语相邻而已，简短提及，不作 baseline</td><td><span class="badge b-mix">⚠️ 未入库</span></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>7.3 经典背景与引用纪律</h3>
+  <table>
+    <tr><th>文献</th><th>书目（已核验）</th><th>状态</th></tr>
+    <tr><td><b>Hybrid A* 原始文献</b><br><span class="note mono">Dolgov2010_HybridAStar</span></td><td>Dolgov, Thrun, Montemerlo, Diebel. <i>Path Planning for Autonomous Vehicles in Unknown Semi-structured Environments</i>. IJRR 29(5): 485–501, 2010. DOI 10.1177/0278364909359210；另有 2008 AAAI Workshop 版（WS-08-10，无独立 DOI）</td><td><span class="badge b-same">✅ CrossRef 核验 + 主会话 spot-check</span></td></tr>
+    <tr><td><b>Reeds-Shepp 曲线</b><br><span class="note mono">Reeds1990_OptimalPaths</span></td><td>Reeds, Shepp. <i>Optimal paths for a car that goes both forwards and backwards</i>. Pacific J. Math. 145(2): 367–393, 1990. DOI 10.2140/pjm.1990.145.367</td><td><span class="badge b-same">✅ MSP + CrossRef 双源核验</span></td></tr>
+  </table>
+  <div class="callout risk"><b>引用纪律</b>：所有 ⚠️ 条目进论文前必须走引用核查四步（paper-writing.md）；失败标 [CITATION NEEDED]；严禁凭记忆生成 BibTeX。五禁“首次”claim 重申见 §1。</div>
+</div>
+
+<h2>8. 风险与开放问题</h2>
+<div class="card">
+  <table>
+    <tr><th>#</th><th>风险/开放项</th><th>等级</th><th>缓解 / 观测哨</th></tr>
+    <tr><td>1</td><td>解析分段标签与局部特征关联弱 → KNN 学不动（最大技术风险，D1/D4 知情接受）</td><td><span class="badge b-risk">高</span></td><td>leave-one-map-out 子目标可达率 &lt;80% 预警；标签 ablation 暴露；切主规则须 Contract v2</td></tr>
+    <tr><td>2</td><td>滚动误差累积 / 分布漂移</td><td><span class="badge b-mix">中</span></td><td>F1–F3 兜底 + 可达率指标；恶化时 DAgger 二轮采集（v2）</td></tr>
+    <tr><td>3</td><td>稀疏图收益趋零</td><td><span class="badge b-same">低</span></td><td>诚实边界：按密度分桶呈现，不掩盖</td></tr>
+    <tr><td>4</td><td>真实地图域差（程序化树障 vs SLAM 噪声栅格）</td><td><span class="badge b-mix">中</span></td><td>v1 仅测试；差距大则噪声/膨胀增强（v2）</td></tr>
+    <tr><td>5</td><td>工程：pathplan 的 RS steer 独立接口；RealMap 清点</td><td><span class="badge b-same">低</span></td><td>阶段 0 spike 确认</td></tr>
+    <tr><td>6</td><td><var>L</var><sub>min</sub> 失败分支策略（v1.1 形式化引出）：弃图 vs 局部放宽 <var>L</var><sub>max</sub> vs 回退瓶颈规则</td><td><span class="badge b-mix">开放</span></td><td>pilot 的标签失败率数据决定</td></tr>
+    <tr><td>7</td><td>难度分桶切点（λ、w<sub>min</sub>/w<sub>veh</sub>、d<sub>sg</sub> 档位）</td><td><span class="badge b-mix">开放</span></td><td>pilot 标定后写入 Contract 冻结</td></tr>
+  </table>
+</div>
+
+<h2>9. Contract 草案要素（立约时由 Dr Sun 锁数字）</h2>
+<div class="card">
+  <div class="callout ok"><b>Hypothesis（草案）</b>：Complex/Extreme 桶上，F-N3P 相对 vanilla HA*：median 规划时间缩减 ≥50%，成功率不降（≥−2 pp），路径长度膨胀 ≤5%；且相对最强规则分解基线（Voronoi waypoint HA*）在 hard 桶帕累托不劣。</div>
+  <div class="callout ok"><b>Success signal（草案）</b>：上述三条在未见程序化图与真实地图上同时成立，≥5 种子中位数达标。</div>
+  <div class="callout risk"><b>Failure signal（独立定义，草案）</b>：任一成立——① fallback 触发率 &gt;30% 且时间收益消失；② OOD 桶成功率相对 vanilla HA* 跌 &gt;5 pp；③ 与 hand-crafted 瓶颈 waypoint 无显著差异（说明“学习”不必要）；④ 真实地图时间收益 &lt;20%。</div>
+</div>
+
+<h2>10. 下一步</h2>
+<div class="card">
+  <p>① Dr Sun 审 v1.1 设计稿 → 修订定稿　② 立 <code>.pipeline/contracts/v9-forest-n3p.md</code>（approved 后才动实验代码）　③ 阶段 0 工程 spike：RS 独立接口 + 标签管线 + 标签质量 pilot + 难度切点标定　④ 写作期全程对照术语库。</p>
+</div>
+
+<h2>附录 A. 高危术语速查（完整表见 .pipeline/terminology/terminology.md）</h2>
+<div class="card">
+  <table>
+    <tr><th>一旦写出</th><th>改为</th><th>错误性质</th></tr>
+    <tr><td>随机森林（指场景）</td><td>程序化生成森林</td><td>撞 random forest 分类器名</td></tr>
+    <tr><td>激光雷达/LiDAR（指特征）</td><td>ray-cast 净空轮廓</td><td>无传感器环节，事实错误</td></tr>
+    <tr><td>检索增强/RAG</td><td>KNN(k=1) 回归</td><td>机制描述错误</td></tr>
+    <tr><td>滚动时域/receding horizon</td><td>自回归滚动预测</td><td>撞 MPC 专名</td></tr>
+    <tr><td>waypoint（指我方输出）</td><td>SE(2) 子目标</td><td>subgoal / waypoint / preparatory pose 三分</td></tr>
+    <tr><td>Dubins 曲线</td><td>Reeds-Shepp 曲线</td><td>不含倒车，另一种曲线</td></tr>
+    <tr><td>Waypoints Hybrid A*</td><td>Waypoints Hybrid B*</td><td>引用名错误（核验附注）</td></tr>
+    <tr><td>概率完备</td><td>完备性（继承 vanilla 级别）</td><td>sampling planner 专义</td></tr>
+    <tr><td>语义特征/嵌入/表征</td><td>手工特征</td><td>无语义模块</td></tr>
+    <tr><td>首次…（五类）</td><td>删除，改具体差异陈述</td><td>查重 §5 五禁</td></tr>
+  </table>
+</div>
+
+<footer>
+  DQN10 · F-N3P 设计稿 v1.1 · 2026-06-12 · 真源：2_experiment/v9_forest_n3p/design.md（本页与之同构镜像，章节编号一致）·
+  上游：n3p-deep-read-notes.md / gptpro-novelty-check.md（含核验附注）/ .pipeline/survey/learning-as-planner.md / .pipeline/terminology/terminology.md ·
+  origin: ai+local · reviewed: false
+</footer>
+
+</div>
+</body>
+</html>
