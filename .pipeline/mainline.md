@@ -149,7 +149,7 @@
 - **依赖**：T08
 
 ### T11 基线实现：Voronoi waypoint HA*
-- [ ] **目标**：实现规则分解基线
+- [x] **目标**：实现规则分解基线
 - **具体步骤**：
   1. 用 scipy.spatial.Voronoi 或 skimage.morphology.medial_axis 提取骨架
   2. 在骨架上放置 waypoint（间距类似 L_max）
@@ -252,3 +252,4 @@
 | 2026-06-20 | T08 大规模数据采集 | 新增 `forest_n3p.training_data` 与 `run_training_data_collection`，复用真实程序化森林生成、原版 Hybrid A* teacher、T04 RS 标签提取与 41 维特征管线；在 `gpu3070ti-relay` 跑 2000 张地图 × 40 查询，生成 100,531 个训练样本，Easy/Complex/Extreme 分别 37,386 / 34,183 / 28,962，标签失败率 6.8%，`acceptance_pass=true`；数据集写入 `2_experiment/forest_n3p/datasets/t08_training_dataset/`，报告写入 `.pipeline/experiments/20260620_t08_training_dataset.md` |
 | 2026-06-20 | T09 KNN 库构建 + 在线推理实现 | 新增 `forest_n3p.inference`、`build_knn_library` 和 `verify_inference`，对 T08 的 100,531×41 特征做 Z 分数标准化并构建 scikit-learn `KDTree` KNN 库；实现算法 2 在线循环、F1 近邻重试、F2 段内 Hybrid A*、F3 整题回退与无进展哨；5 个未见查询验收 `feasible_count=5/5`、碰撞复核全通过，KNN 库写入 `2_experiment/forest_n3p/models/t09_knn_library/`，报告和可视化写入 `.pipeline/experiments/20260620_t09_inference_verification/` |
 | 2026-06-20 | T10 MLP 训练（消融用） | 新增 `forest_n3p.mlp` 与 `train_mlp`，训练 4 个 Linear 层的 MLP 消融模型（41→256→256→128→3，109,827 参数），使用 PyTorch `MSELoss` + Adam、90/10 train/val split 和 train-split Z 分数标准化；在 `gpu3070ti-relay` 的 RTX 3070 Ti 上训练，best_epoch=31、normalized val MSE=0.4016、val RMSE dx/dy/dtheta=1.352m/0.666m/0.181rad；checkpoint 与训练日志写入 `2_experiment/forest_n3p/models/t10_mlp_subgoal/`，训练报告写入 `.pipeline/experiments/20260620_t10_mlp_training.md`，MLP 接入在线推理 5-query smoke `feasible_count=5/5` |
+| 2026-06-20 | T11 基线实现：Voronoi waypoint HA* | 新增 `forest_n3p.baselines.voronoi_waypoint` 与 `verify_voronoi_waypoint`，用 EDT 安全裕量过滤后的中轴构建规则 waypoint 图，按 6m 间距放置 waypoint，并复用段内 Hybrid A* 逐段连接；10 个未见查询验收 `feasible_count=10/10`、碰撞复核全通过、平均 waypoint 数 2.6，正式报告与可视化写入 `.pipeline/experiments/20260620_t11_voronoi_waypoint_verification/` |
