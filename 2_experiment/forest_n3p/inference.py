@@ -142,6 +142,7 @@ class InferenceConfig:
     full_fallback_max_nodes: int = 15_000
     no_progress_patience: int = 2
     no_progress_epsilon_m: float = 0.05
+    commit_verified_rs_segments: bool = False
     feature_config: FeatureConfig = field(default_factory=FeatureConfig)
 
     def __post_init__(self) -> None:
@@ -371,6 +372,7 @@ def run_forest_n3p(
         feature = extract_features(grid_map, current, final_goal, config=cfg.feature_config).vector
         neighbors = predictor.query(feature, current_pose=current, k=int(cfg.k_neighbors))
         chosen: NeighborPrediction | None = None
+        chosen_rs = None
         first_prediction = neighbors[0] if neighbors else None
         for candidate in neighbors:
             if candidate.rank > 1:
@@ -381,6 +383,7 @@ def run_forest_n3p(
             if candidate_rs is None:
                 continue
             chosen = candidate
+            chosen_rs = candidate_rs
             break
 
         if chosen is None:
@@ -433,82 +436,101 @@ def run_forest_n3p(
                     f"f2_failed:{f2.failure_reason}",
                 )
         else:
-            segment = _plan_segment(
-                planner,
-                current,
-                chosen.subgoal_pose,
-                timeout_s=float(cfg.segment_timeout_s),
-                max_nodes=int(cfg.segment_max_nodes),
-            )
-            total_expansions += segment.expansions
-            total_planner_time_s += segment.planner_time_s
-            steps.append(
-                InferenceStepRecord(
-                    step_index=step_index,
-                    mode=f"{predictor_label}_segment",
-                    current_pose=current,
-                    target_pose=chosen.subgoal_pose,
-                    neighbor_rank=int(chosen.rank),
-                    neighbor_distance=float(chosen.distance),
-                    segment_success=bool(segment.success),
-                    segment_failure_reason=segment.failure_reason,
-                    planner_time_s=float(segment.planner_time_s),
-                    planner_expansions=int(segment.expansions),
-                    distance_to_goal_m=_xy_distance(chosen.subgoal_pose, final_goal),
+            if cfg.commit_verified_rs_segments and chosen_rs is not None:
+                _append_poses(path_out, states_as_tuples(chosen_rs.samples))
+                steps.append(
+                    InferenceStepRecord(
+                        step_index=step_index,
+                        mode=f"{predictor_label}_rs_verified_segment",
+                        current_pose=current,
+                        target_pose=chosen.subgoal_pose,
+                        neighbor_rank=int(chosen.rank),
+                        neighbor_distance=float(chosen.distance),
+                        segment_success=True,
+                        segment_failure_reason=None,
+                        planner_time_s=0.0,
+                        planner_expansions=0,
+                        distance_to_goal_m=_xy_distance(chosen.subgoal_pose, final_goal),
+                    )
                 )
-            )
-            if not segment.success:
-                used_f2 += 1
-                f2 = _try_f2(
+                current = path_out[-1]
+            else:
+                segment = _plan_segment(
                     planner,
                     current,
-                    final_goal,
                     chosen.subgoal_pose,
-                    path_out,
-                    step_index,
-                    steps,
-                    cfg,
+                    timeout_s=float(cfg.segment_timeout_s),
+                    max_nodes=int(cfg.segment_max_nodes),
                 )
-                total_expansions += f2.expansions
-                total_planner_time_s += f2.planner_time_s
-                if f2.success:
-                    if f2.reached_goal:
-                        return _result(
-                            True,
+                total_expansions += segment.expansions
+                total_planner_time_s += segment.planner_time_s
+                steps.append(
+                    InferenceStepRecord(
+                        step_index=step_index,
+                        mode=f"{predictor_label}_segment",
+                        current_pose=current,
+                        target_pose=chosen.subgoal_pose,
+                        neighbor_rank=int(chosen.rank),
+                        neighbor_distance=float(chosen.distance),
+                        segment_success=bool(segment.success),
+                        segment_failure_reason=segment.failure_reason,
+                        planner_time_s=float(segment.planner_time_s),
+                        planner_expansions=int(segment.expansions),
+                        distance_to_goal_m=_xy_distance(chosen.subgoal_pose, final_goal),
+                    )
+                )
+                if not segment.success:
+                    used_f2 += 1
+                    f2 = _try_f2(
+                        planner,
+                        current,
+                        final_goal,
+                        chosen.subgoal_pose,
+                        path_out,
+                        step_index,
+                        steps,
+                        cfg,
+                    )
+                    total_expansions += f2.expansions
+                    total_planner_time_s += f2.planner_time_s
+                    if f2.success:
+                        if f2.reached_goal:
+                            return _result(
+                                True,
+                                path_out,
+                                steps,
+                                None,
+                                f2.mode,
+                                used_f1,
+                                used_f2,
+                                used_f3,
+                                started,
+                                total_planner_time_s,
+                                total_expansions,
+                                final_goal,
+                            )
+                        current = path_out[-1]
+                    else:
+                        used_f3 += 1
+                        return _run_f3(
+                            planner,
+                            start,
+                            final_goal,
                             path_out,
                             steps,
-                            None,
-                            f2.mode,
-                            used_f1,
-                            used_f2,
-                            used_f3,
+                            step_index,
+                            cfg,
                             started,
                             total_planner_time_s,
                             total_expansions,
-                            final_goal,
+                            used_f1,
+                            used_f2,
+                            used_f3,
+                            f"segment_failed:{segment.failure_reason};f2_failed:{f2.failure_reason}",
                         )
-                    current = path_out[-1]
                 else:
-                    used_f3 += 1
-                    return _run_f3(
-                        planner,
-                        start,
-                        final_goal,
-                        path_out,
-                        steps,
-                        step_index,
-                        cfg,
-                        started,
-                        total_planner_time_s,
-                        total_expansions,
-                        used_f1,
-                        used_f2,
-                        used_f3,
-                        f"segment_failed:{segment.failure_reason};f2_failed:{f2.failure_reason}",
-                    )
-            else:
-                _append_poses(path_out, segment.poses)
-                current = path_out[-1]
+                    _append_poses(path_out, segment.poses)
+                    current = path_out[-1]
 
         new_distance = _xy_distance(current, final_goal)
         if new_distance < previous_distance - float(cfg.no_progress_epsilon_m):

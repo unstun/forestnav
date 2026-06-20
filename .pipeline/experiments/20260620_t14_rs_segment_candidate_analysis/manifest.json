@@ -1,0 +1,8 @@
+{
+  "task": "T14",
+  "status": "rs_verified_segment_candidate_smoke",
+  "control_dir": ".pipeline/experiments/20260620_t14_planner_segment_control_smoke",
+  "candidate_dir": ".pipeline/experiments/20260620_t14_rs_segment_candidate_smoke",
+  "paired_rows": 45,
+  "summary_rows": 9
+}

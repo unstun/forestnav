@@ -26,6 +26,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--md-dqn-algo", default="cnn-dqn")
     parser.add_argument("--md-dqn-device", default="cpu")
     parser.add_argument("--md-dqn-max-steps", type=int, default=600)
+    parser.add_argument("--commit-verified-rs-segments", action="store_true")
     parser.add_argument("--allow-unreviewed-cutpoints", action="store_true")
     parser.add_argument("--allow-missing-md-dqn", action="store_true")
     parser.add_argument("--no-enforce-t14-scale", action="store_true")
@@ -43,6 +44,7 @@ def main(argv: list[str] | None = None) -> int:
         md_dqn_algo=str(args.md_dqn_algo),
         md_dqn_device=str(args.md_dqn_device),
         md_dqn_max_steps=int(args.md_dqn_max_steps),
+        commit_verified_rs_segments=bool(args.commit_verified_rs_segments),
         allow_unreviewed_cutpoints=bool(args.allow_unreviewed_cutpoints),
         allow_missing_md_dqn=bool(args.allow_missing_md_dqn),
         enforce_t14_scale=not bool(args.no_enforce_t14_scale),

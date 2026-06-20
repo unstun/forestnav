@@ -86,6 +86,7 @@ class MainEvaluationConfig:
     full_fallback_timeout_s: float = 2.5
     full_fallback_max_nodes: int = 15_000
     k_neighbors: int = 5
+    commit_verified_rs_segments: bool = False
     md_dqn_source_dir: Path | None = None
     md_dqn_checkpoint_path: Path | None = None
     md_dqn_algo: str = "cnn-dqn"
@@ -537,6 +538,7 @@ def _inference_config(cfg: MainEvaluationConfig, *, k_neighbors: int) -> Inferen
         segment_max_nodes=int(cfg.segment_max_nodes),
         full_fallback_timeout_s=float(cfg.full_fallback_timeout_s),
         full_fallback_max_nodes=int(cfg.full_fallback_max_nodes),
+        commit_verified_rs_segments=bool(cfg.commit_verified_rs_segments),
     )
 
 
