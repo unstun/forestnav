@@ -48,6 +48,7 @@ class TrainingDataConfig:
     teacher_wall_timeout_s: float = 4.0
     teacher_max_nodes: int = 15_000
     map_generation_wall_timeout_s: float = 30.0
+    map_job_wall_timeout_s: float = 240.0
     max_query_sample_attempts: int = 800
     l_max_m: float = 8.0
     l_min_m: float = 1.0
@@ -248,6 +249,23 @@ def _nan_pose() -> Pose:
 
 def _run_map_job(args: tuple[int, TrainingProfile, TrainingDataConfig]) -> _MapJobResult:
     map_id, profile, config = args
+    try:
+        return _run_with_wall_timeout(
+            "map_job",
+            float(config.map_job_wall_timeout_s),
+            lambda: _run_map_job_impl(args),
+        )
+    except WallTimeoutError as exc:
+        return _failed_map_job_result(
+            map_id=int(map_id),
+            profile=profile,
+            config=config,
+            failure_reason=str(exc),
+        )
+
+
+def _run_map_job_impl(args: tuple[int, TrainingProfile, TrainingDataConfig]) -> _MapJobResult:
+    map_id, profile, config = args
     map_seed = int(config.seed) + 100_000 + int(map_id)
     map_rng = np.random.default_rng(map_seed)
     footprint = TwoCircleFootprint.from_box(length=0.924, width=0.740)
@@ -438,6 +456,30 @@ def _run_map_job(args: tuple[int, TrainingProfile, TrainingDataConfig]) -> _MapJ
     )
 
 
+def _failed_map_job_result(
+    *,
+    map_id: int,
+    profile: TrainingProfile,
+    config: TrainingDataConfig,
+    failure_reason: str,
+) -> _MapJobResult:
+    map_seed = int(config.seed) + 100_000 + int(map_id)
+    map_record = TrainingMapRecord(
+        map_id=int(map_id),
+        profile_name=profile.name,
+        difficulty_bucket=profile.difficulty_bucket,
+        map_seed=int(map_seed),
+        generated=False,
+        generation_time_s=float(config.map_job_wall_timeout_s),
+        trunk_count=int(profile.trunk_count),
+        trunk_gap_m=float(profile.trunk_gap_m),
+        trunk_gap_jitter=float(profile.trunk_gap_jitter),
+        obstacle_ratio=0.0,
+        failure_reason=failure_reason,
+    )
+    return _MapJobResult(map_record=map_record, queries=(), samples=(), paths=())
+
+
 def _raw_sample_from_label(
     sample: LabelSample,
     sample_index: int,
@@ -595,6 +637,8 @@ def _validate_config(config: TrainingDataConfig) -> None:
         raise ValueError("teacher_wall_timeout_s must exceed teacher_timeout_s")
     if float(config.map_generation_wall_timeout_s) <= 0.0:
         raise ValueError("map_generation_wall_timeout_s must be positive")
+    if float(config.map_job_wall_timeout_s) <= float(config.map_generation_wall_timeout_s):
+        raise ValueError("map_job_wall_timeout_s must exceed map_generation_wall_timeout_s")
 
 
 def _run_with_wall_timeout(label: str, timeout_s: float, fn: Any) -> Any:
@@ -898,6 +942,7 @@ def render_training_data_report(payload: dict[str, Any]) -> str:
         f"teacher_wall_timeout_s={config['teacher_wall_timeout_s']}",
         f"teacher_max_nodes={config['teacher_max_nodes']}",
         f"map_generation_wall_timeout_s={config['map_generation_wall_timeout_s']}",
+        f"map_job_wall_timeout_s={config['map_job_wall_timeout_s']}",
         f"distance_bins={[(item['key'], item['min_distance_m'], item['max_distance_m']) for item in config['distance_bins']]}",
         "```",
         "",
