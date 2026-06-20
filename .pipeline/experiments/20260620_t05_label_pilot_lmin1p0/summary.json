@@ -1,0 +1,122 @@
+{
+  "source_head": "a66d4b24292381f252c93c2119e1bc0d678a382c+working-tree-t05",
+  "execution_host": "gpu3070ti-relay",
+  "config": {
+    "seed": 20260620,
+    "map_count": 20,
+    "queries_per_map": 10,
+    "width_cells": 300,
+    "height_cells": 300,
+    "resolution_m": 0.1,
+    "min_query_distance_m": 8.0,
+    "max_query_sample_attempts": 600,
+    "teacher_timeout_s": 2.5,
+    "teacher_max_nodes": 15000,
+    "l_max_m": 8.0,
+    "l_min_m": 1.0,
+    "path_sample_step_m": 0.2,
+    "turning_radius_m": 1.0,
+    "wheelbase_m": 0.6,
+    "rs_sample_step_m": 0.1,
+    "profiles": [
+      {
+        "name": "low",
+        "trunk_count": 60,
+        "trunk_gap_m": 1.2,
+        "trunk_gap_jitter": 0.2,
+        "bush_cluster_count": 0
+      },
+      {
+        "name": "medium",
+        "trunk_count": 90,
+        "trunk_gap_m": 1.0,
+        "trunk_gap_jitter": 0.25,
+        "bush_cluster_count": 0
+      },
+      {
+        "name": "high",
+        "trunk_count": 120,
+        "trunk_gap_m": 0.85,
+        "trunk_gap_jitter": 0.25,
+        "bush_cluster_count": 0
+      }
+    ]
+  },
+  "summary": {
+    "total_queries": 200,
+    "teacher_success_count": 148,
+    "teacher_success_rate": 0.74,
+    "label_attempt_count": 148,
+    "label_success_count": 124,
+    "label_failure_count": 24,
+    "label_failure_rate": 0.16216216216216217,
+    "average_total_segments_per_successful_labeled_path": 3.2338709677419355,
+    "segment_length_m": {
+      "min": 1.0,
+      "mean": 5.885198555956679,
+      "max": 8.400000000000002
+    },
+    "total_samples": 277,
+    "by_difficulty": {
+      "high": {
+        "total_queries": 60,
+        "teacher_success_count": 32,
+        "teacher_success_rate": 0.5333333333333333,
+        "label_attempt_count": 32,
+        "label_success_count": 21,
+        "label_failure_count": 11,
+        "label_failure_rate": 0.34375,
+        "average_total_segments_per_successful_labeled_path": 3.238095238095238,
+        "segment_length_m": {
+          "min": 1.0,
+          "mean": 4.953191489361703,
+          "max": 8.000000000000002
+        },
+        "total_samples": 47
+      },
+      "low": {
+        "total_queries": 70,
+        "teacher_success_count": 61,
+        "teacher_success_rate": 0.8714285714285714,
+        "label_attempt_count": 61,
+        "label_success_count": 57,
+        "label_failure_count": 4,
+        "label_failure_rate": 0.06557377049180328,
+        "average_total_segments_per_successful_labeled_path": 3.1228070175438596,
+        "segment_length_m": {
+          "min": 1.2000000000000002,
+          "mean": 6.406611570247934,
+          "max": 8.400000000000002
+        },
+        "total_samples": 121
+      },
+      "medium": {
+        "total_queries": 70,
+        "teacher_success_count": 55,
+        "teacher_success_rate": 0.7857142857142857,
+        "label_attempt_count": 55,
+        "label_success_count": 46,
+        "label_failure_count": 9,
+        "label_failure_rate": 0.16363636363636364,
+        "average_total_segments_per_successful_labeled_path": 3.369565217391304,
+        "segment_length_m": {
+          "min": 1.0,
+          "mean": 5.708256880733946,
+          "max": 8.200000000000001
+        },
+        "total_samples": 109
+      }
+    },
+    "map_count": 20,
+    "generated_map_count": 20,
+    "map_generation_failure_count": 0,
+    "label_failure_threshold": 0.2,
+    "label_failure_rate_pass": true
+  },
+  "files": {
+    "maps_csv": ".pipeline/experiments/20260620_t05_label_pilot_lmin1p0/maps.csv",
+    "queries_csv": ".pipeline/experiments/20260620_t05_label_pilot_lmin1p0/queries.csv",
+    "summary_json": ".pipeline/experiments/20260620_t05_label_pilot_lmin1p0/summary.json",
+    "report_md": ".pipeline/experiments/20260620_t05_label_pilot_lmin1p0/report.md"
+  }
+}

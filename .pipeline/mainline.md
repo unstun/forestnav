@@ -61,7 +61,7 @@
 - **依赖**：T02（RS 接口）、T03（特征提取）
 
 ### T05 标签预实验
-- [ ] **目标**：在小规模数据上验证标签管线质量
+- [x] **目标**：在小规模数据上验证标签管线质量
 - **需人工确认**
 - **具体步骤**：
   1. 生成 20 张程序化森林地图（低/中/高密度各若干）
@@ -246,3 +246,4 @@
 | 2026-06-20 | T02 RS 独立接口验证 | 新增 `forest_n3p.rs_utils`，封装 RS 曲线生成、曲线采样和 GridFootprintChecker 碰撞检测；新增 `tests/test_rs_interface.py`，验证自由空间可通行和障碍阻断可检测 |
 | 2026-06-20 | T03 特征提取实现 | 新增 `forest_n3p.features`，实现 41 维 ray-cast clearance profile、目标相对量、环带密度和运动学标志；新增 `tests/test_features.py` 与 `forest_n3p.scripts.visualize_features`，生成 3 张不同密度森林可视化图并完成目视验收 |
 | 2026-06-20 | T04 标签提取实现 | 新增 `forest_n3p.labeling`，实现前向贪心 Reeds-Shepp 无碰撞可达分段、车体系相对位姿标签和 41 维特征样本输出；新增 `tests/test_labeling.py` 与 `forest_n3p.scripts.visualize_labeling`，用 Hybrid A* 教师路径生成并可视化 3 个 SE(2) 子目标 |
+| 2026-06-20 | T05 标签预实验 | 新增 `forest_n3p.pilot_labeling` 与 `run_label_pilot`，在 `gpu3070ti-relay` 跑 20 张程序化森林地图 × 10 查询；默认 `L_min=1.5m` 标签失败率 23.6%，据失败原因降为 `L_min=1.0m` 后失败率 16.2%，报告与 CSV 写入 `.pipeline/experiments/20260620_t05_label_pilot_lmin1p0/`，需 Dr Sun 人工确认参数是否进入后续正式实验 |
