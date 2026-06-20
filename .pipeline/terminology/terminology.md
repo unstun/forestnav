@@ -53,6 +53,28 @@ updated: 2026-06-20
 | KD 树 | k-d tree | KD 树 | — | 正式论文中 k-d tree 带连字符 |
 | KNN | k-nearest neighbors | K 近邻 | — | 机器学习标准术语 |
 
+## 实验设计与统计术语
+
+| 术语 | 正式英文 | 正式中文 | 禁止用法 | 来源/说明 |
+|------|----------|----------|----------|-----------|
+| 研究假设 | hypothesis | 研究假设（H₀ = 零假设，H₁ = 备择假设） | 假说（偏生物学） | 统计学教材通用 |
+| 实验预注册 | pre-registration | 实验预注册（首次出现括注 pre-registration） | Research Contract（项目内术语，对外禁用） | AsPredicted/OSF 中文文档 |
+| 成功判据 / 失败判据 | success criterion / failure criterion | 成功判据 / 失败判据 | 成功信号 / 失败信号（偏工程电信） | 项目内可用 signal，论文中用 criterion |
+| 基线算法 | baseline | 基线算法 / 基线方法 | 基准（偏性能测试 benchmark） | 中文 ML/规划论文高频用法；baseline ≠ benchmark |
+| 消融实验 | ablation study | 消融实验 | 控制变量实验（语义不等价） | 中文计算机论文高度共识 |
+| 中位数 | median | 中位数 | 中间值 | 统计学教材 |
+| 第 95 百分位数 | P95 / 95th percentile | 第 95 百分位数（工程场景可缩写 P95） | — | 统计学教材 |
+| 百分点 | percentage point (pp) | 百分点 | "提升 2%"（当实际从 60% 升到 62% 时应说"提升 2 百分点"） | 统计/经济学教材；% 和 pp 不可混用 |
+| 分布外 | out-of-distribution (OOD) | 分布外（首次出现括注 OOD） | 域外 / 超分布 | 智源社区、中文 ML 论文统一用法；OOD ≠ distribution shift |
+| 备用规划器 | fallback planner | 备用规划器（路径规划语境）/ 回退（一般语境） | 降级策略（偏系统工程） | 路径规划场景"备用规划器"更精确 |
+| Wilcoxon 符号秩检验 | Wilcoxon signed-rank test | Wilcoxon 符号秩检验 | 威尔科克森（音译几乎不见于正式论文） | JMP 中文文档、统计教材 |
+| 自举置信区间 | Bootstrap confidence interval | 自举置信区间（首次出现括注 Bootstrap CI） | 引导程序（机翻误用） | 统计学学术规范；"自助法"偶见，"自举"更通行 |
+| p 值 | p-value | p 值（小写斜体 p） | P 值（大写非规范） | 统计学教材无争议 |
+| 预实验 | pilot experiment | 预实验 | 先导实验（偏医学） | 中文科研方法文献 |
+| 技术预研 | engineering spike | 技术预研 | 探针 / spike（直接用英文对中文读者不友好） | 敏捷开发社区（知乎/CSDN） |
+| 随机种子 | random seed | 随机种子 | 种子（不完整） | 深度学习复现文献 |
+| 合理性验证 | sanity check | 合理性验证（或保留英文 sanity check） | 健全性检查（机翻） | 无固定中文译法，建议括注英文 |
+
 ## 高危黑话速查（论文/文档中一旦写出立即修正）
 
 | 一旦写出 | 改为 | 错误性质 |
