@@ -1,0 +1,3 @@
+bucket,old_status,new_status,old_median_time_reduction,new_median_time_reduction,delta_reduction_pp,remaining_gap_to_50pct_pp,old_success_drop_pp,new_success_drop_pp,old_path_inflation_ratio,new_path_inflation_ratio,new_time_check,new_success_check,new_path_check,new_collision_check
+Complex,fail,pass,-0.29928488339210424,0.9081127538146435,120.73976372067476,0.0,-12.0,-12.0,0.0,0.0,True,True,True,True
+Extreme,fail,fail,-0.2620551733160261,0.4222126689092295,68.42678422252555,7.778733109077052,-8.000000000000007,-7.000000000000006,0.0005034854358592078,2.220446049250313e-16,False,True,True,True

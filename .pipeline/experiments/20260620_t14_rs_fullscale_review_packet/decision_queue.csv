@@ -1,0 +1,5 @@
+decision_id,question,default_recommendation,blocking_scope,evidence
+D-T14-05,是否接受 commit_verified_rs_segments 作为正式 F-N3P 方法实现,needs_review,T14 completion and paper Method claim,.pipeline/experiments/20260620_t14_rs_fullscale_comparison/analysis.md
+D-T14-06,Extreme 桶 42.2% 时间缩减未达 50% 后走继续重设计/负结果/Contract v2 哪条路线,needs_review,T14 completion and Results claim,.pipeline/experiments/20260620_t14_rs_fullscale_comparison/contract_gate_delta.csv
+D-T14-07,是否确认 T06 cutpoint supplement reviewed:true,needs_review,T14 formal acceptance,.pipeline/contracts/v9-forest-n3p-t06-calibration-supplement.md
+D-T14-08,MD-DQN historical checkpoint 是否保留为正式 baseline 或仅作历史 adapter smoke,needs_review,T14 baseline interpretation,.pipeline/experiments/20260620_t14_candidate_6method_fullscale_rs_segments/summary_by_method_bucket.csv
