@@ -1,0 +1,2 @@
+query_id,method,difficulty_bucket,distance_bin_key,success,feasible,collision_violation_count,failure_reason,total_time_s,total_expansions,fallback_f1_count,fallback_f2_count,fallback_f3_count,min_clearance_m,profile_name,map_seed,query_seed
+extreme_s01_q0029,n3p_k1,Extreme,d12_16,True,False,1,,3.5123960201162845,4612,0,1,1,0.07177564933834235,extreme_d07,20470621,20471625

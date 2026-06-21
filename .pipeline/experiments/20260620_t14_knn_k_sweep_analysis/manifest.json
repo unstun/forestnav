@@ -1,0 +1,20 @@
+{
+  "task": "T14",
+  "status": "knn_k_sweep_candidate_analysis",
+  "k_values": [
+    5,
+    10,
+    20,
+    40
+  ],
+  "baseline_k5_dir": ".pipeline/experiments/20260620_t14_candidate_6method_fullscale_rs_segments",
+  "sweep_dirs": {
+    "10": ".pipeline/experiments/20260620_t14_k10_rs_segments_sweep",
+    "20": ".pipeline/experiments/20260620_t14_k20_rs_segments_sweep",
+    "40": ".pipeline/experiments/20260620_t14_k40_rs_segments_sweep"
+  },
+  "source_head": "d53fac3b6c79ad6bd7a16ec521f7f6b97197dd89",
+  "summary_rows": 12,
+  "distance_rows": 48,
+  "worst_rows": 80
+}

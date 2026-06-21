@@ -1,0 +1,7 @@
+run_id,bucket,bucket_status,median_time_reduction,success_drop_pp,median_path_inflation_ratio,check_time_reduction_ge_50pct,check_success_drop_le_2pp,check_path_inflation_le_5pct,check_collision_zero,f_n3p_feasible_rate,f_n3p_median_time_s,f_n3p_p95_time_s,f_n3p_collision_violation_total,f_n3p_fallback_f1_rate,f_n3p_fallback_f2_rate,f_n3p_fallback_f3_rate
+k5_rs_verified_fullscale,Complex,pass,0.9081127538146435,-12.0,0.0,True,True,True,True,0.95,0.029094927478581667,2.634710704954339,0,0.68,0.44,0.06
+k5_rs_verified_fullscale,Extreme,fail,0.4222126689092295,-7.000000000000006,2.220446049250313e-16,False,True,True,True,0.9,0.1834170309593901,3.5166832613409498,0,0.84,0.6,0.13
+k20_rs_verified_pre_guard,Complex,pass,0.9198113060033251,-16.000000000000004,2.220446049250313e-16,True,True,True,True,0.99,0.024417867069132626,0.35514869294129225,0,0.68,0.19,0.02
+k20_rs_verified_pre_guard,Extreme,pass,0.9119992880580721,-16.000000000000004,0.0013441075439655226,True,True,True,True,0.98,0.028352890512906015,0.6507861182675686,0,0.84,0.21,0.02
+k20_rs_verified_collisionguard,Complex,pass,0.9193116080979239,-16.000000000000004,2.220446049250313e-16,True,True,True,True,0.99,0.02472874755039811,0.35716000319225627,0,0.68,0.19,0.02
+k20_rs_verified_collisionguard,Extreme,pass,0.9121339857266536,-15.000000000000002,0.0013441075439655226,True,True,True,True,0.97,0.028288176865316927,0.6512930711382058,0,0.84,0.21,0.03

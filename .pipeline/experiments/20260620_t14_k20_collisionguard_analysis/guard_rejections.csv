@@ -1,0 +1,1 @@
+query_id,method,difficulty_bucket,distance_bin_key,success,feasible,collision_violation_count_after_rejection,failure_reason,total_time_s,total_expansions,rejected_collision_violation_count,rejected_collision_path_length_m

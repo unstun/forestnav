@@ -1,0 +1,45 @@
+{
+  "schema": "forestnav_t14_collisionguard_analysis_v2",
+  "created_at_utc": "2026-06-21T01:39:16.801842+00:00",
+  "task": "T14",
+  "status": "candidate_review_ready_not_formal",
+  "inputs": [
+    {
+      "run_id": "k5_rs_verified_fullscale",
+      "path": ".pipeline/experiments/20260620_t14_candidate_6method_fullscale_rs_segments",
+      "log_base": ".pipeline/experiments/logs/20260620_t14_candidate_6method_fullscale_rs_segments",
+      "note": "RS-verified segment candidate with default k=5; Extreme speed gate failed."
+    },
+    {
+      "run_id": "k20_rs_verified_pre_guard",
+      "path": ".pipeline/experiments/20260620_t14_candidate_6method_fullscale_rs_k20",
+      "log_base": ".pipeline/experiments/logs/20260620_t14_candidate_6method_fullscale_rs_k20",
+      "note": "k=20 fullscale candidate before collision rejection; bucket gates passed but one n3p_k1 record had collision_violation_count=1."
+    },
+    {
+      "run_id": "k20_rs_verified_collisionguard",
+      "path": ".pipeline/experiments/20260620_t14_candidate_6method_fullscale_rs_k20_collisionguard",
+      "log_base": ".pipeline/experiments/logs/20260620_t14_candidate_6method_fullscale_rs_k20_collisionguard",
+      "note": "k=20 fullscale candidate after evaluation-level collision rejection safety gate."
+    }
+  ],
+  "outputs": {
+    "analysis_md": ".pipeline/experiments/20260620_t14_k20_collisionguard_analysis/analysis.md",
+    "gate_summary_csv": ".pipeline/experiments/20260620_t14_k20_collisionguard_analysis/gate_summary.csv",
+    "bucket_verdict_comparison_csv": ".pipeline/experiments/20260620_t14_k20_collisionguard_analysis/bucket_verdict_comparison.csv",
+    "method_bucket_summary_collisionguard_csv": ".pipeline/experiments/20260620_t14_k20_collisionguard_analysis/method_bucket_summary_collisionguard.csv",
+    "pre_guard_collision_records_csv": ".pipeline/experiments/20260620_t14_k20_collisionguard_analysis/pre_guard_collision_records.csv",
+    "pre_guard_collision_delta_csv": ".pipeline/experiments/20260620_t14_k20_collisionguard_analysis/pre_guard_collision_delta.csv",
+    "guard_rejections_csv": ".pipeline/experiments/20260620_t14_k20_collisionguard_analysis/guard_rejections.csv"
+  },
+  "latest_verdict": {
+    "status": "candidate_or_smoke",
+    "formal_acceptance": false,
+    "collision_violation_total": 0,
+    "method_exception_total": 0,
+    "preflight_warnings": [
+      "T06 cutpoint supplement is not reviewed:true: .pipeline/contracts/v9-forest-n3p-t06-calibration-supplement.md"
+    ]
+  },
+  "interpretation_boundary": "guarded rerun has zero collision violations; no actual guard rejection metadata appeared in this run"
+}

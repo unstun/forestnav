@@ -1,0 +1,8 @@
+{
+  "output_dir": ".pipeline/experiments/20260620_t14_candidate_6method_fullscale_rs_k20",
+  "record_count": 1800,
+  "query_count": 300,
+  "status": "candidate_or_smoke",
+  "formal_acceptance": false,
+  "report": ".pipeline/experiments/20260620_t14_candidate_6method_fullscale_rs_k20/report.md"
+}

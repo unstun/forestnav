@@ -1,0 +1,8 @@
+{
+  "output_dir": ".pipeline/experiments/20260620_t14_k10_rs_segments_sweep",
+  "record_count": 600,
+  "query_count": 300,
+  "status": "candidate_or_smoke",
+  "formal_acceptance": false,
+  "report": ".pipeline/experiments/20260620_t14_k10_rs_segments_sweep/report.md"
+}

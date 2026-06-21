@@ -1,0 +1,51 @@
+{
+  "status": "candidate_or_smoke",
+  "formal_acceptance": false,
+  "record_count": 1800,
+  "query_count": 300,
+  "method_count": 6,
+  "queries_per_bucket": {
+    "Easy": 100,
+    "Complex": 100,
+    "Extreme": 100
+  },
+  "seed_count": 5,
+  "collision_violation_total": 1,
+  "method_exception_total": 0,
+  "preflight_warnings": [
+    "T06 cutpoint supplement is not reviewed:true: .pipeline/contracts/v9-forest-n3p-t06-calibration-supplement.md"
+  ],
+  "preflight_unavailable_methods": {},
+  "bucket_verdicts": {
+    "Complex": {
+      "status": "pass",
+      "median_time_reduction": 0.9198113060033251,
+      "success_drop_pp": -16.000000000000004,
+      "median_path_inflation_ratio": 2.220446049250313e-16,
+      "checks": {
+        "median_time_reduction_ge_50pct": true,
+        "success_drop_le_2pp": true,
+        "median_path_inflation_le_5pct": true,
+        "collision_violations_zero": true
+      }
+    },
+    "Extreme": {
+      "status": "pass",
+      "median_time_reduction": 0.9119992880580721,
+      "success_drop_pp": -16.000000000000004,
+      "median_path_inflation_ratio": 0.0013441075439655226,
+      "checks": {
+        "median_time_reduction_ge_50pct": true,
+        "success_drop_le_2pp": true,
+        "median_path_inflation_le_5pct": true,
+        "collision_violations_zero": true
+      }
+    }
+  },
+  "contract_thresholds": {
+    "median_time_reduction_min": 0.5,
+    "success_drop_pp_max": 2.0,
+    "path_inflation_max": 0.05
+  },
+  "note": "candidate_or_smoke means this run is not sufficient for marking T14 complete; use reviewed T06 cutpoints, all official methods, >=100 queries per bucket, and >=5 seeds for formal acceptance"
+}

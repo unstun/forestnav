@@ -1,0 +1,137 @@
+{
+  "created_at_utc": "2026-06-21T01:05:03.789946+00:00",
+  "execution_host": "ubuntu-OMEN-by-HP-Laptop-17-ck1xxx",
+  "source_head": "d53fac3b6c79ad6bd7a16ec521f7f6b97197dd89",
+  "command": "python -m forest_n3p.scripts.run_main_evaluation --output-dir .pipeline/experiments/20260620_t14_candidate_6method_fullscale_rs_k20 --queries-per-bucket 100 --seed-count 5 --queries-per-map 5 --methods f_n3p_knn,vanilla_ha,n3p_k1,voronoi_waypoint,bottleneck_waypoint,md_dqn --distance-bins 8:12,12:16,16:20,20: --allow-unreviewed-cutpoints --bootstrap-resamples 5000 --md-dqn-source-dir /home/ubuntu/DQN10/2_experiment --md-dqn-checkpoint /home/ubuntu/DQN10/2_experiment/ugv_dqn/outputs/2026-05-12_train_load_external_demo_smoke/models/realmap_a/mlp-dqn.pt --md-dqn-algo mlp-dqn --md-dqn-device cpu --md-dqn-max-steps 600 --commit-verified-rs-segments --k-neighbors 20 --source-head d53fac3b6c79ad6bd7a16ec521f7f6b97197dd89",
+  "config": {
+    "seed": 20260620,
+    "queries_per_bucket": 100,
+    "seed_count": 5,
+    "queries_per_map": 5,
+    "width_cells": 300,
+    "height_cells": 300,
+    "resolution_m": 0.1,
+    "max_query_sample_attempts": 800,
+    "methods": [
+      "f_n3p_knn",
+      "vanilla_ha",
+      "n3p_k1",
+      "voronoi_waypoint",
+      "bottleneck_waypoint",
+      "md_dqn"
+    ],
+    "profiles": [
+      {
+        "name": "easy_d00",
+        "difficulty_bucket": "Easy",
+        "trunk_count": 40,
+        "trunk_gap_m": 1.35,
+        "trunk_gap_jitter": 0.2,
+        "bush_cluster_count": 0
+      },
+      {
+        "name": "easy_d01",
+        "difficulty_bucket": "Easy",
+        "trunk_count": 55,
+        "trunk_gap_m": 1.25,
+        "trunk_gap_jitter": 0.2,
+        "bush_cluster_count": 0
+      },
+      {
+        "name": "complex_d02",
+        "difficulty_bucket": "Complex",
+        "trunk_count": 70,
+        "trunk_gap_m": 1.15,
+        "trunk_gap_jitter": 0.22,
+        "bush_cluster_count": 0
+      },
+      {
+        "name": "extreme_d03",
+        "difficulty_bucket": "Extreme",
+        "trunk_count": 85,
+        "trunk_gap_m": 1.05,
+        "trunk_gap_jitter": 0.24,
+        "bush_cluster_count": 0
+      },
+      {
+        "name": "extreme_d04",
+        "difficulty_bucket": "Extreme",
+        "trunk_count": 100,
+        "trunk_gap_m": 0.95,
+        "trunk_gap_jitter": 0.25,
+        "bush_cluster_count": 0
+      },
+      {
+        "name": "extreme_d05",
+        "difficulty_bucket": "Extreme",
+        "trunk_count": 115,
+        "trunk_gap_m": 0.9,
+        "trunk_gap_jitter": 0.25,
+        "bush_cluster_count": 0
+      },
+      {
+        "name": "extreme_d06",
+        "difficulty_bucket": "Extreme",
+        "trunk_count": 130,
+        "trunk_gap_m": 0.85,
+        "trunk_gap_jitter": 0.25,
+        "bush_cluster_count": 0
+      },
+      {
+        "name": "extreme_d07",
+        "difficulty_bucket": "Extreme",
+        "trunk_count": 145,
+        "trunk_gap_m": 0.8,
+        "trunk_gap_jitter": 0.25,
+        "bush_cluster_count": 0
+      }
+    ],
+    "distance_bins": [
+      {
+        "key": "d08_12",
+        "order": 0,
+        "min_distance_m": 8.0,
+        "max_distance_m": 12.0
+      },
+      {
+        "key": "d12_16",
+        "order": 1,
+        "min_distance_m": 12.0,
+        "max_distance_m": 16.0
+      },
+      {
+        "key": "d16_20",
+        "order": 2,
+        "min_distance_m": 16.0,
+        "max_distance_m": 20.0
+      },
+      {
+        "key": "d20_inf",
+        "order": 3,
+        "min_distance_m": 20.0,
+        "max_distance_m": null
+      }
+    ],
+    "knn_library_dir": "2_experiment/forest_n3p/models/t09_knn_library",
+    "cutpoint_supplement_path": ".pipeline/contracts/v9-forest-n3p-t06-calibration-supplement.md",
+    "contract_path": ".pipeline/contracts/v9-forest-n3p.md",
+    "allow_unreviewed_cutpoints": true,
+    "allow_missing_md_dqn": false,
+    "enforce_t14_scale": true,
+    "teacher_timeout_s": 2.5,
+    "teacher_max_nodes": 15000,
+    "segment_timeout_s": 1.0,
+    "segment_max_nodes": 2000,
+    "full_fallback_timeout_s": 2.5,
+    "full_fallback_max_nodes": 15000,
+    "k_neighbors": 20,
+    "commit_verified_rs_segments": true,
+    "md_dqn_source_dir": "/home/ubuntu/DQN10/2_experiment",
+    "md_dqn_checkpoint_path": "/home/ubuntu/DQN10/2_experiment/ugv_dqn/outputs/2026-05-12_train_load_external_demo_smoke/models/realmap_a/mlp-dqn.pt",
+    "md_dqn_algo": "mlp-dqn",
+    "md_dqn_device": "cpu",
+    "md_dqn_max_steps": 600,
+    "bootstrap_resamples": 5000,
+    "bootstrap_seed": 20260620
+  }
+}
