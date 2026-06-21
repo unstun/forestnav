@@ -2,9 +2,10 @@
 set -euo pipefail
 
 # Run on gpu3070ti-relay after:
-# 1. Dr Sun approves D-T14-09/10/11.
-# 2. T06 supplement is set to reviewed:true and committed.
-# 3. SOURCE_HEAD is replaced with that post-review commit hash.
+# 1. Dr Sun resolves D-T14-09 using the T06 validation analysis.
+# 2. Dr Sun approves D-T14-10/11.
+# 3. T06 supplement is revised or explicitly approved, set to reviewed:true, and committed.
+# 4. SOURCE_HEAD is replaced with that post-review commit hash.
 
 cd ~/ForestNav
 source .venv/bin/activate

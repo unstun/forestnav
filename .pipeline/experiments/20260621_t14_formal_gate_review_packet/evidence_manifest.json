@@ -1,11 +1,14 @@
 {
   "schema": "forestnav_t14_formal_gate_review_packet_v1",
   "created_at_utc": "2026-06-21T01:45:06.595774+00:00",
+  "updated_at_utc": "2026-06-21T02:40:00+00:00",
   "task": "T14",
   "status": "needs_human_review_not_complete",
   "latest_candidate_run": ".pipeline/experiments/20260620_t14_candidate_6method_fullscale_rs_k20_collisionguard",
   "latest_candidate_verdict": ".pipeline/experiments/20260620_t14_candidate_6method_fullscale_rs_k20_collisionguard/verdict.json",
   "latest_collisionguard_analysis": ".pipeline/experiments/20260620_t14_k20_collisionguard_analysis/analysis.md",
+  "latest_t06_validation_run": ".pipeline/experiments/20260621_t06_review_validation_m6q10_d6q16",
+  "latest_t06_validation_analysis": ".pipeline/experiments/20260621_t06_review_validation_analysis/analysis.md",
   "parent_contract": ".pipeline/contracts/v9-forest-n3p.md",
   "t06_cutpoint_supplement": ".pipeline/contracts/v9-forest-n3p-t06-calibration-supplement.md",
   "formal_gate_summary": {
@@ -13,8 +16,11 @@
     "t06_reviewed": "false",
     "candidate_status": "candidate_or_smoke",
     "candidate_formal_acceptance": false,
-    "blocking_gate_count": 4,
-    "needs_human_review_count": 2
+    "t06_validation_density_bucket_separation_pass": false,
+    "t06_validation_distance_bucket_separation_pass": true,
+    "blocking_gate_count": 5,
+    "needs_human_review_count": 2,
+    "human_decision_count": 4
   },
   "outputs": {
     "review_packet_md": ".pipeline/experiments/20260621_t14_formal_gate_review_packet/review_packet.md",

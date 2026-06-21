@@ -2,6 +2,7 @@
 origin: ai+local
 reviewed: false
 created_at_utc: 2026-06-21T01:45:06.595401+00:00
+updated_at_utc: 2026-06-21T02:40:00+00:00
 task: T14
 status: needs_human_review
 ---
@@ -12,7 +13,7 @@ status: needs_human_review
 
 最新 k=20 collisionguard fullscale 已经把 T14 的核心数值门跑通：300 queries、1800 records、6 official methods、0 exceptions、0 collision violations，Complex/Extreme 两个目标桶均 pass。
 
-但现在仍不能勾选 T14。原因不是指标失败，而是 formal gate 没关：T06 cutpoint supplement 仍是 `reviewed:false`，runner 产物的 `formal_acceptance=false`，且 k=20/RS-verified segment 与 MD-DQN baseline 身份还需要 Dr Sun 人工确认。
+但现在仍不能勾选 T14。原因已经从“只缺人工确认”升级为“先缺 T06 密度轴复核”：T06 放大验证显示密度轴 `bucket_separation_pass=false`，Extreme 下界从原 T06 的 `d03` 后移到 `d05`。因此，原 T06 cutpoint supplement 不能直接作为正式难度桶依据；runner 产物仍是 `formal_acceptance=false`，且 k=20/RS-verified segment 与 MD-DQN baseline 身份也还需要 Dr Sun 人工确认。
 
 ## Latest Candidate Evidence
 
@@ -26,6 +27,18 @@ status: needs_human_review
 - method_exception_total: 0
 - preflight_warnings: `["T06 cutpoint supplement is not reviewed:true: .pipeline/contracts/v9-forest-n3p-t06-calibration-supplement.md"]`
 
+## New T06 Validation Evidence
+
+- validation run: `.pipeline/experiments/20260621_t06_review_validation_m6q10_d6q16`
+- analysis: `.pipeline/experiments/20260621_t06_review_validation_analysis/analysis.md`
+- total queries: 960
+- density queries: 480
+- distance queries: 480
+- density validation status: `fail`
+- distance validation status: `pass`
+- density cutpoint change: original Extreme lower bound `d03`; validation Extreme lower bound `d05`
+- direct implication: T14 formal rerun should stay on hold until Dr Sun either revises T06 cutpoints or explicitly accepts the original small-sample cutpoints despite the validation result.
+
 ## Contract Bucket Results
 
 | bucket | status | median time reduction | success drop pp | median path inflation | checks |
@@ -37,16 +50,17 @@ status: needs_human_review
 
 | gate | current status | blocking? | action |
 |---|---|---|---|
-| G02 T06 cutpoint supplement reviewed | fail | yes | Dr Sun review T06 supplement; if accepted, set reviewed:true and rerun formal T14 without --allow-unreviewed-cutpoints. |
+| G02 T06 cutpoint supplement reviewed | fail | yes | Dr Sun review T06 supplement together with the later validation evidence; only after resolving D-T14-09 should reviewed:true be set. |
+| G02b T06 validation consistency | fail | yes | Dr Sun decide whether to revise density buckets to validation cutpoints, run another validation, or explicitly retain the original T06 split with written justification. |
 | G08 F-N3P implementation variant accepted | needs_human_review | yes | Dr Sun decide whether this is the formal F-N3P(KNN) config or only a candidate variant. |
 | G09 MD-DQN baseline interpretation accepted | needs_human_review | yes | Dr Sun decide formal baseline vs adapter smoke/history-only baseline. |
-| G10 Programmatic formal verdict | fail | yes | After G02/G08/G09 human decisions, rerun formal command without unreviewed override to produce formal_acceptance=true. |
+| G10 Programmatic formal verdict | fail | yes | After G02/G02b/G08/G09 human decisions, rerun formal command without unreviewed override to produce formal_acceptance=true. |
 
 ## Dr Sun Decisions Needed
 
 | decision_id | question | allowed values | evidence |
 |---|---|---|---|
-| D-T14-09 | 是否确认 T06 难度轴补充 reviewed:true，可作为 T14 正式难度桶依据？ | `approve|revise_required|reject` | `.pipeline/contracts/v9-forest-n3p-t06-calibration-supplement.md; .pipeline/experiments/20260620_t06_difficulty_calibration/report.md` |
+| D-T14-09 | 是否确认 T06 难度轴补充 reviewed:true，可作为 T14 正式难度桶依据？ | `approve_original_with_justification|revise_to_validation_cutpoints|run_more_validation|reject` | `.pipeline/contracts/v9-forest-n3p-t06-calibration-supplement.md; .pipeline/experiments/20260620_t06_difficulty_calibration/report.md; .pipeline/experiments/20260621_t06_review_validation_analysis/analysis.md` |
 | D-T14-10 | 是否接受 k=20 + commit_verified_rs_segments 作为正式 F-N3P(KNN) 主评测配置？ | `approve|revise_required|reject` | `.pipeline/experiments/20260620_t14_knn_k_sweep_analysis/analysis.md; .pipeline/experiments/20260620_t14_k20_collisionguard_analysis/analysis.md` |
 | D-T14-11 | MD-DQN historical checkpoint 是否作为正式 baseline，还是只能标为 historical adapter smoke？ | `formal_baseline|history_only_smoke|revise_required` | `.pipeline/experiments/20260620_t14_candidate_6method_fullscale_rs_k20_collisionguard/summary_by_method_bucket.csv` |
 | D-T14-12 | 在 D-T14-09/10/11 通过后，是否允许 rerun formal T14 并在 formal_acceptance=true 后勾选 T14？ | `approve_after_rerun_passes|hold` | `.pipeline/experiments/20260620_t14_candidate_6method_fullscale_rs_k20_collisionguard/verdict.json` |
@@ -65,7 +79,7 @@ The earlier review packets remain useful history, but their numerical status was
 
 ## After Human Approval
 
-If D-T14-09/10/11 are approved, run the command in `post_review_formal_rerun_command.sh` on `gpu3070ti-relay` after setting T06 `reviewed:true` and updating `POST_T06_REVIEW_HEAD` to the post-review source commit. The expected success condition is a new `verdict.json` with `status=formal_pass` and `formal_acceptance=true`.
+If D-T14-09/10/11 are approved, run the command in `post_review_formal_rerun_command.sh` on `gpu3070ti-relay` after resolving the T06 validation discrepancy, setting T06 `reviewed:true`, and updating `POST_T06_REVIEW_HEAD` to the post-review source commit. The expected success condition is a new `verdict.json` with `status=formal_pass` and `formal_acceptance=true`.
 
 Only after that formal rerun passes should `.pipeline/mainline.md` T14 be changed from `[ ]` to `[x]` and a T14 completion record be appended.
 
