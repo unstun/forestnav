@@ -7,7 +7,12 @@ import sys
 from pathlib import Path
 
 from forest_n3p.difficulty_calibration import parse_distance_bins
-from forest_n3p.main_evaluation import MainEvaluationConfig, run_main_evaluation
+from forest_n3p.main_evaluation import (
+    MainEvaluationConfig,
+    default_main_evaluation_profiles,
+    run_main_evaluation,
+    validation_main_evaluation_profiles,
+)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -19,6 +24,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--queries-per-map", type=int, default=5)
     parser.add_argument("--seed", type=int, default=20260620)
     parser.add_argument("--methods", default=",".join(MainEvaluationConfig().methods))
+    parser.add_argument("--density-profile-buckets", choices=("original_t06", "validation_t06"), default="original_t06")
     parser.add_argument("--distance-bins", default="8:12,12:16,16:20,20:")
     parser.add_argument("--bootstrap-resamples", type=int, default=5_000)
     parser.add_argument("--md-dqn-source-dir", type=Path, default=None)
@@ -41,6 +47,7 @@ def main(argv: list[str] | None = None) -> int:
         seed_count=int(args.seed_count),
         queries_per_map=int(args.queries_per_map),
         methods=tuple(part.strip() for part in str(args.methods).split(",") if part.strip()),
+        profiles=_profiles_from_bucket_mode(str(args.density_profile_buckets)),
         distance_bins=parse_distance_bins(str(args.distance_bins)),
         md_dqn_source_dir=args.md_dqn_source_dir,
         md_dqn_checkpoint_path=args.md_dqn_checkpoint,
@@ -91,6 +98,14 @@ def _quote_args(argv: list[str] | None) -> list[str]:
     if argv is None:
         return []
     return [str(item) for item in argv]
+
+
+def _profiles_from_bucket_mode(mode: str):
+    if mode == "original_t06":
+        return default_main_evaluation_profiles()
+    if mode == "validation_t06":
+        return validation_main_evaluation_profiles()
+    raise ValueError(f"unsupported density profile bucket mode: {mode}")
 
 
 if __name__ == "__main__":

@@ -12,6 +12,7 @@ from forest_n3p.main_evaluation import (
     _evaluate_run_with_collision_rejection,
     preflight_main_evaluation,
     run_main_evaluation,
+    validation_main_evaluation_profiles,
 )
 from forest_n3p.scripts.run_main_evaluation import main as run_main_evaluation_cli
 from forest_n3p.training_data import TrainingProfile
@@ -47,6 +48,34 @@ def _write_human_review_form(path: Path, decisions: dict[str, str]) -> Path:
     return path
 
 
+def _write_t06_validation_summary(path: Path) -> Path:
+    payload = {
+        "summary": {
+            "density_summaries": [
+                {"level_key": "d00", "difficulty_bucket": "Easy"},
+                {"level_key": "d01", "difficulty_bucket": "Easy"},
+                {"level_key": "d02", "difficulty_bucket": "Complex"},
+                {"level_key": "d03", "difficulty_bucket": "Complex"},
+                {"level_key": "d04", "difficulty_bucket": "Complex"},
+                {"level_key": "d05", "difficulty_bucket": "Extreme"},
+                {"level_key": "d06", "difficulty_bucket": "Extreme"},
+                {"level_key": "d07", "difficulty_bucket": "Extreme"},
+            ]
+        }
+    }
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    return path
+
+
+def _formal_human_decisions() -> dict[str, str]:
+    return {
+        "D-T14-09": "revise_to_validation_cutpoints",
+        "D-T14-10": "approve",
+        "D-T14-11": "formal_baseline",
+        "D-T14-12": "approve_after_rerun_passes",
+    }
+
+
 def test_preflight_blocks_unreviewed_cutpoints_and_missing_md_dqn() -> None:
     report = preflight_main_evaluation(MainEvaluationConfig())
 
@@ -79,21 +108,16 @@ def test_preflight_blocks_unresolved_human_review_by_default(tmp_path: Path) -> 
 def test_preflight_accepts_formal_human_review_decisions(tmp_path: Path) -> None:
     contract = _write_frontmatter(tmp_path / "contract.md", status="approved")
     supplement = _write_frontmatter(tmp_path / "supplement.md", reviewed="true")
-    review_form = _write_human_review_form(
-        tmp_path / "human_review_form.md",
-        {
-            "D-T14-09": "revise_to_validation_cutpoints",
-            "D-T14-10": "approve",
-            "D-T14-11": "formal_baseline",
-            "D-T14-12": "approve_after_rerun_passes",
-        },
-    )
+    review_form = _write_human_review_form(tmp_path / "human_review_form.md", _formal_human_decisions())
+    validation_summary = _write_t06_validation_summary(tmp_path / "t06_validation_summary.json")
 
     report = preflight_main_evaluation(
         MainEvaluationConfig(
             methods=("vanilla_ha",),
+            profiles=validation_main_evaluation_profiles(),
             contract_path=contract,
             cutpoint_supplement_path=supplement,
+            t06_validation_summary_path=validation_summary,
             human_review_form_path=review_form,
             enforce_t14_scale=False,
         )
@@ -101,7 +125,54 @@ def test_preflight_accepts_formal_human_review_decisions(tmp_path: Path) -> None
 
     assert report.ok_to_run
     assert report.human_review_satisfied
+    assert report.profile_bucket_satisfied
     assert report.human_review_decisions["D-T14-09"] == "revise_to_validation_cutpoints"
+
+
+def test_preflight_blocks_revised_cutpoints_with_stale_profiles(tmp_path: Path) -> None:
+    contract = _write_frontmatter(tmp_path / "contract.md", status="approved")
+    supplement = _write_frontmatter(tmp_path / "supplement.md", reviewed="true")
+    review_form = _write_human_review_form(tmp_path / "human_review_form.md", _formal_human_decisions())
+    validation_summary = _write_t06_validation_summary(tmp_path / "t06_validation_summary.json")
+
+    report = preflight_main_evaluation(
+        MainEvaluationConfig(
+            methods=("vanilla_ha",),
+            contract_path=contract,
+            cutpoint_supplement_path=supplement,
+            t06_validation_summary_path=validation_summary,
+            human_review_form_path=review_form,
+            enforce_t14_scale=False,
+        )
+    )
+
+    assert not report.ok_to_run
+    assert report.human_review_satisfied
+    assert not report.profile_bucket_satisfied
+    assert any("d03 bucket=Extreme expected=Complex" in item for item in report.blocking_issues)
+
+
+def test_preflight_blocks_original_decision_with_validation_profiles(tmp_path: Path) -> None:
+    contract = _write_frontmatter(tmp_path / "contract.md", status="approved")
+    supplement = _write_frontmatter(tmp_path / "supplement.md", reviewed="true")
+    decisions = _formal_human_decisions()
+    decisions["D-T14-09"] = "approve_original_with_justification"
+    review_form = _write_human_review_form(tmp_path / "human_review_form.md", decisions)
+
+    report = preflight_main_evaluation(
+        MainEvaluationConfig(
+            methods=("vanilla_ha",),
+            profiles=validation_main_evaluation_profiles(),
+            contract_path=contract,
+            cutpoint_supplement_path=supplement,
+            human_review_form_path=review_form,
+            enforce_t14_scale=False,
+        )
+    )
+
+    assert not report.ok_to_run
+    assert not report.profile_bucket_satisfied
+    assert any("d03 bucket=Complex expected=Extreme" in item for item in report.blocking_issues)
 
 
 def test_smoke_main_evaluation_writes_outputs(tmp_path: Path) -> None:
@@ -192,6 +263,8 @@ def test_cli_writes_k_neighbors_and_source_head_overrides(tmp_path: Path) -> Non
             "1",
             "--methods",
             "vanilla_ha",
+            "--density-profile-buckets",
+            "validation_t06",
             "--distance-bins",
             "4:8",
             "--allow-unreviewed-cutpoints",
@@ -211,3 +284,7 @@ def test_cli_writes_k_neighbors_and_source_head_overrides(tmp_path: Path) -> Non
     payload = json.loads((output_dir / "run_config.json").read_text(encoding="utf-8"))
     assert payload["source_head"] == "unit-test-head"
     assert payload["config"]["k_neighbors"] == 17
+    assert any(
+        item["name"] == "complex_d03" and item["difficulty_bucket"] == "Complex"
+        for item in payload["config"]["profiles"]
+    )

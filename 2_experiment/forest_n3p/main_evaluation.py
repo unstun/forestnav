@@ -74,6 +74,9 @@ class MainEvaluationConfig:
     distance_bins: tuple[DistanceBin, ...] = field(default_factory=lambda: parse_distance_bins("8:12,12:16,16:20,20:"))
     knn_library_dir: Path = Path("2_experiment/forest_n3p/models/t09_knn_library")
     cutpoint_supplement_path: Path = Path(".pipeline/contracts/v9-forest-n3p-t06-calibration-supplement.md")
+    t06_validation_summary_path: Path = Path(
+        ".pipeline/experiments/20260621_t06_review_validation_m6q10_d6q16/summary.json"
+    )
     contract_path: Path = Path(".pipeline/contracts/v9-forest-n3p.md")
     human_review_form_path: Path = Path(
         ".pipeline/experiments/20260621_t14_formal_gate_review_packet/human_review_form.md"
@@ -142,6 +145,8 @@ class PreflightReport:
     cutpoint_supplement_reviewed: bool
     human_review_satisfied: bool
     human_review_decisions: dict[str, str]
+    profile_bucket_satisfied: bool
+    profile_bucket_issues: tuple[str, ...]
     t14_scale_satisfied: bool
 
 
@@ -162,6 +167,19 @@ def default_main_evaluation_profiles() -> tuple[TrainingProfile, ...]:
         TrainingProfile("complex_d02", "Complex", trunk_count=70, trunk_gap_m=1.15, trunk_gap_jitter=0.22),
         TrainingProfile("extreme_d03", "Extreme", trunk_count=85, trunk_gap_m=1.05, trunk_gap_jitter=0.24),
         TrainingProfile("extreme_d04", "Extreme", trunk_count=100, trunk_gap_m=0.95, trunk_gap_jitter=0.25),
+        TrainingProfile("extreme_d05", "Extreme", trunk_count=115, trunk_gap_m=0.90, trunk_gap_jitter=0.25),
+        TrainingProfile("extreme_d06", "Extreme", trunk_count=130, trunk_gap_m=0.85, trunk_gap_jitter=0.25),
+        TrainingProfile("extreme_d07", "Extreme", trunk_count=145, trunk_gap_m=0.80, trunk_gap_jitter=0.25),
+    )
+
+
+def validation_main_evaluation_profiles() -> tuple[TrainingProfile, ...]:
+    return (
+        TrainingProfile("easy_d00", "Easy", trunk_count=40, trunk_gap_m=1.35, trunk_gap_jitter=0.20),
+        TrainingProfile("easy_d01", "Easy", trunk_count=55, trunk_gap_m=1.25, trunk_gap_jitter=0.20),
+        TrainingProfile("complex_d02", "Complex", trunk_count=70, trunk_gap_m=1.15, trunk_gap_jitter=0.22),
+        TrainingProfile("complex_d03", "Complex", trunk_count=85, trunk_gap_m=1.05, trunk_gap_jitter=0.24),
+        TrainingProfile("complex_d04", "Complex", trunk_count=100, trunk_gap_m=0.95, trunk_gap_jitter=0.25),
         TrainingProfile("extreme_d05", "Extreme", trunk_count=115, trunk_gap_m=0.90, trunk_gap_jitter=0.25),
         TrainingProfile("extreme_d06", "Extreme", trunk_count=130, trunk_gap_m=0.85, trunk_gap_jitter=0.25),
         TrainingProfile("extreme_d07", "Extreme", trunk_count=145, trunk_gap_m=0.80, trunk_gap_jitter=0.25),
@@ -215,6 +233,10 @@ def preflight_main_evaluation(config: MainEvaluationConfig) -> PreflightReport:
         else:
             issues.append(msg)
 
+    profile_bucket_issues = _profile_bucket_issues(config, human_decisions)
+    if profile_bucket_issues:
+        issues.append("T14 profile bucket configuration is inconsistent: " + "; ".join(profile_bucket_issues))
+
     t14_scale = int(config.queries_per_bucket) >= 100 and int(config.seed_count) >= 5
     if not t14_scale:
         msg = (
@@ -236,6 +258,8 @@ def preflight_main_evaluation(config: MainEvaluationConfig) -> PreflightReport:
         cutpoint_supplement_reviewed=reviewed,
         human_review_satisfied=not human_review_issues,
         human_review_decisions=human_decisions,
+        profile_bucket_satisfied=not profile_bucket_issues,
+        profile_bucket_issues=tuple(profile_bucket_issues),
         t14_scale_satisfied=t14_scale,
     )
 
@@ -692,6 +716,7 @@ def _build_verdict(
         and not preflight.unavailable_methods
         and preflight.cutpoint_supplement_reviewed
         and preflight.human_review_satisfied
+        and preflight.profile_bucket_satisfied
     )
     formal_acceptance = bool(
         expected_formal
@@ -713,6 +738,8 @@ def _build_verdict(
         "preflight_unavailable_methods": dict(preflight.unavailable_methods),
         "human_review_satisfied": bool(preflight.human_review_satisfied),
         "human_review_decisions": dict(preflight.human_review_decisions),
+        "profile_bucket_satisfied": bool(preflight.profile_bucket_satisfied),
+        "profile_bucket_issues": list(preflight.profile_bucket_issues),
         "bucket_verdicts": bucket_verdicts,
         "contract_thresholds": {
             "median_time_reduction_min": 0.50,
@@ -803,6 +830,67 @@ def _human_review_issues(decisions: dict[str, str], *, form_path: Path) -> list[
     return issues
 
 
+def _profile_bucket_issues(config: MainEvaluationConfig, decisions: dict[str, str]) -> list[str]:
+    t06_decision = decisions.get("D-T14-09")
+    if t06_decision not in {"approve_original_with_justification", "revise_to_validation_cutpoints"}:
+        return []
+
+    if t06_decision == "approve_original_with_justification":
+        expected, _unkeyed = _density_bucket_map_from_profiles(default_main_evaluation_profiles())
+        expectation_source = "original T06 profiles"
+    else:
+        try:
+            expected = _density_bucket_map_from_validation(config.t06_validation_summary_path)
+        except Exception as exc:  # noqa: BLE001
+            return [f"cannot read T06 validation cutpoints from {config.t06_validation_summary_path}: {exc}"]
+        expectation_source = str(config.t06_validation_summary_path)
+
+    actual, unkeyed = _density_bucket_map_from_profiles(config.profiles)
+    issues: list[str] = []
+    if unkeyed:
+        issues.append(f"profiles lack density level keys: {', '.join(unkeyed)}")
+    for level_key, expected_bucket in sorted(expected.items()):
+        actual_bucket = actual.get(level_key)
+        if actual_bucket is None:
+            issues.append(f"missing profile for {level_key} expected={expected_bucket}")
+        elif actual_bucket != expected_bucket:
+            issues.append(f"{level_key} bucket={actual_bucket} expected={expected_bucket}")
+    if issues:
+        issues.insert(0, f"D-T14-09={t06_decision} expects buckets from {expectation_source}")
+    return issues
+
+
+def _density_bucket_map_from_validation(path: Path) -> dict[str, str]:
+    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    summaries = payload.get("summary", {}).get("density_summaries", ())
+    out: dict[str, str] = {}
+    for item in summaries:
+        level_key = str(item["level_key"])
+        out[level_key] = str(item["difficulty_bucket"])
+    if not out:
+        raise ValueError("summary.density_summaries is empty")
+    return out
+
+
+def _density_bucket_map_from_profiles(profiles: Sequence[TrainingProfile]) -> tuple[dict[str, str], list[str]]:
+    out: dict[str, str] = {}
+    unkeyed: list[str] = []
+    for profile in profiles:
+        level_key = _density_level_key_from_profile_name(profile.name)
+        if level_key is None:
+            unkeyed.append(str(profile.name))
+            continue
+        out[level_key] = str(profile.difficulty_bucket)
+    return out, unkeyed
+
+
+def _density_level_key_from_profile_name(name: str) -> str | None:
+    tail = str(name).rsplit("_", 1)[-1]
+    if len(tail) == 3 and tail[0] == "d" and tail[1:].isdigit():
+        return tail
+    return None
+
+
 def _frontmatter_bool(path: Path, key: str) -> bool:
     return _frontmatter_value(path, key) == "true"
 
@@ -866,6 +954,7 @@ def _write_report(
         f"- queries_per_bucket_config: {cfg.queries_per_bucket}",
         f"- seed_count_config: {cfg.seed_count}",
         f"- human_review_satisfied: {preflight.human_review_satisfied}",
+        f"- profile_bucket_satisfied: {preflight.profile_bucket_satisfied}",
         "",
         "## 预检",
         "",
