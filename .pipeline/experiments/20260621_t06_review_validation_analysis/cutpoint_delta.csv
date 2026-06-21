@@ -1,0 +1,3 @@
+axis,original_query_count,validation_query_count,original_bucket_separation,validation_bucket_separation,original_order_pass,validation_order_pass,original_metric_pass,validation_metric_pass,original_easy_max,validation_easy_max,original_complex_min,validation_complex_min,original_complex_max,validation_complex_max,original_extreme_min,validation_extreme_min,changed_fields,interpretation
+density,120,480,pass,fail,pass,pass,pass,fail,d01,d01,d02,d02,d02,d04,d03,d05,complex_range;extreme_min;pass_status,放大验证显示密度轴切点不稳定；Extreme 下界从 d03 后移到 d05，且 bucket_separation_pass 由通过变为失败。
+distance,90,480,pass,pass,pass,pass,pass,pass,d08_12,d08_12,d12_16,d12_16,d16_20,d16_20,d20_inf,d20_inf,none,放大验证保持距离轴切点和通过状态一致；该轴相对稳定。

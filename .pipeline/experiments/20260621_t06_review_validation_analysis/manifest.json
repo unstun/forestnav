@@ -1,0 +1,32 @@
+{
+  "created_at_utc": "2026-06-21T02:09:36+00:00",
+  "task": "T14",
+  "purpose": "T06 review validation evidence for T14 formal gate decision",
+  "reviewed": false,
+  "origin": "ai+local+remote",
+  "input_artifacts": {
+    "original_t06": ".pipeline/experiments/20260620_t06_difficulty_calibration",
+    "validation_t06": ".pipeline/experiments/20260621_t06_review_validation_m6q10_d6q16",
+    "validation_logs": [
+      ".pipeline/experiments/logs/20260621_t06_review_validation_m6q10_d6q16.out",
+      ".pipeline/experiments/logs/20260621_t06_review_validation_m6q10_d6q16.err",
+      ".pipeline/experiments/logs/20260621_t06_review_validation_m6q10_d6q16.exit"
+    ]
+  },
+  "outputs": {
+    "analysis_md": ".pipeline/experiments/20260621_t06_review_validation_analysis/analysis.md",
+    "cutpoint_delta_csv": ".pipeline/experiments/20260621_t06_review_validation_analysis/cutpoint_delta.csv",
+    "density_level_comparison_csv": ".pipeline/experiments/20260621_t06_review_validation_analysis/density_level_comparison.csv",
+    "distance_level_comparison_csv": ".pipeline/experiments/20260621_t06_review_validation_analysis/distance_level_comparison.csv",
+    "formal_gate_implications_csv": ".pipeline/experiments/20260621_t06_review_validation_analysis/formal_gate_implications.csv"
+  },
+  "key_findings": {
+    "density_original_bucket_separation_pass": true,
+    "density_validation_bucket_separation_pass": false,
+    "distance_original_bucket_separation_pass": true,
+    "distance_validation_bucket_separation_pass": true,
+    "original_density_extreme_min": "d03",
+    "validation_density_extreme_min": "d05"
+  },
+  "conclusion": "T14 remains blocked at formal acceptance because T06 density cutpoints require human review/revision before a formal main evaluation rerun."
+}

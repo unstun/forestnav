@@ -1,0 +1,5 @@
+.pipeline/experiments/20260621_t06_review_validation_m6q10_d6q16/report.md
+.pipeline/experiments/20260621_t06_review_validation_m6q10_d6q16/summary.json
+density_bucket_separation_pass=False
+distance_bucket_separation_pass=True
+bucket_separation_pass=False

@@ -1,0 +1,9 @@
+level_key,level_label,original_bucket,validation_bucket,original_query_count,validation_query_count,original_success_rate,validation_success_rate,original_timeout_rate,validation_timeout_rate,original_median_time_s,validation_median_time_s,original_p95_time_s,validation_p95_time_s,original_median_expansions,validation_median_expansions,bucket_changed,risk_note
+d00,"d00:trees=40,gap=1.35m",Easy,Easy,15,60,0.8667,0.8500,0.1333,0.1500,0.1742,0.1693,2.5011,2.5011,57.0000,25.0000,false,density metric is noisy around Easy/Complex/Extreme boundary
+d01,"d01:trees=55,gap=1.25m",Easy,Easy,15,60,1.0000,0.9000,0.0000,0.1000,0.1798,0.2122,1.2623,2.5003,64.0000,94.0000,false,
+d02,"d02:trees=70,gap=1.15m",Complex,Complex,15,60,0.8000,0.8667,0.2000,0.1333,0.1630,0.1823,2.5013,2.5007,33.0000,45.0000,false,density metric is noisy around Easy/Complex/Extreme boundary
+d03,"d03:trees=85,gap=1.05m",Extreme,Complex,15,60,0.6667,0.7667,0.3333,0.2333,0.3942,0.3576,2.5015,2.5004,427.0000,342.5000,true,bucket changed under larger validation sample
+d04,"d04:trees=100,gap=0.95m",Extreme,Complex,15,60,0.6000,0.7500,0.3333,0.2333,0.7753,0.4486,2.5007,2.5016,1031.0000,463.0000,true,bucket changed under larger validation sample
+d05,"d05:trees=115,gap=0.90m",Extreme,Extreme,15,60,0.4667,0.6167,0.5333,0.3833,2.5001,1.1835,2.5020,2.5017,3425.0000,1566.5000,false,
+d06,"d06:trees=130,gap=0.85m",Extreme,Extreme,15,60,0.7333,0.6833,0.2667,0.3167,0.6242,0.6279,2.5007,2.5008,575.0000,662.0000,false,
+d07,"d07:trees=145,gap=0.80m",Extreme,Extreme,15,60,0.4667,0.5500,0.5333,0.4500,2.5000,2.1921,2.5013,2.5011,3283.0000,2666.0000,false,

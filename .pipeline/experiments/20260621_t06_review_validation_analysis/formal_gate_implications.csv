@@ -1,0 +1,6 @@
+gate_or_decision,status,evidence,recommended_action
+T06 reviewed gate,not_ready,T06 supplement remains reviewed:false and validation density axis failed bucket_separation_pass.,"Dr Sun reviews whether to keep original small-sample cutpoints, revise supplement, or request another validation."
+T14 formal rerun,hold,Formal T14 run depends on accepted Easy/Complex/Extreme definitions; density cutpoints are now disputed.,Do not launch a formal acceptance rerun until T06 cutpoints are accepted or revised.
+Existing k20 collisionguard fullscale run,candidate_evidence_only,"Core k20 metrics passed under the earlier candidate bucket definitions, but not under a reviewed/frozen T06 decision.",Keep it as strong candidate evidence; rerun if density buckets are revised.
+Distance axis,stable_support,Distance cutpoints and pass status are unchanged after query count increased from 90 to 480.,"Use as supporting evidence when reviewing T06, while retaining reviewed:false until human review."
+Density axis,revision_or_more_validation_needed,Density query count increased from 120 to 480; Extreme lower bound moved from d03 to d05 and metric_pass became false.,Treat original density split as not yet formal; either revise cutpoints to validation result or run a larger confirmatory calibration.
