@@ -1,0 +1,6 @@
+earlier_decision,old_meaning,current_replacement,current_status
+D-T14-01 / D-T14-07,T06 cutpoint supplement acceptance,D-T14-09,still blocking; reviewed:false
+D-T14-02 / D-T14-08,MD-DQN baseline status,D-T14-11,still needs human interpretation
+D-T14-03 / D-T14-06,old candidate failed Contract time gate,superseded by k20 collisionguard evidence,no longer the numerical blocker
+D-T14-04,T14 completion gate,D-T14-12,still blocked until formal rerun passes
+D-T14-05,commit_verified_rs_segments as formal F-N3P,D-T14-10,still needs human acceptance
