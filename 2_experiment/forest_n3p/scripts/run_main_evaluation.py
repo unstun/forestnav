@@ -10,6 +10,7 @@ from forest_n3p.difficulty_calibration import parse_distance_bins
 from forest_n3p.main_evaluation import (
     MainEvaluationConfig,
     default_main_evaluation_profiles,
+    preflight_main_evaluation,
     run_main_evaluation,
     validation_main_evaluation_profiles,
 )
@@ -38,6 +39,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--allow-unresolved-human-review", action="store_true")
     parser.add_argument("--allow-missing-md-dqn", action="store_true")
     parser.add_argument("--no-enforce-t14-scale", action="store_true")
+    parser.add_argument("--preflight-only", action="store_true")
     parser.add_argument("--source-head", default=None)
     args = parser.parse_args(argv)
 
@@ -62,6 +64,29 @@ def main(argv: list[str] | None = None) -> int:
         enforce_t14_scale=not bool(args.no_enforce_t14_scale),
         bootstrap_resamples=int(args.bootstrap_resamples),
     )
+    if args.preflight_only:
+        report = preflight_main_evaluation(config)
+        print(
+            json.dumps(
+                {
+                    "ok_to_run": report.ok_to_run,
+                    "blocking_issues": list(report.blocking_issues),
+                    "warnings": list(report.warnings),
+                    "available_methods": list(report.available_methods),
+                    "unavailable_methods": dict(report.unavailable_methods),
+                    "cutpoint_supplement_reviewed": report.cutpoint_supplement_reviewed,
+                    "human_review_satisfied": report.human_review_satisfied,
+                    "human_review_decisions": dict(report.human_review_decisions),
+                    "profile_bucket_satisfied": report.profile_bucket_satisfied,
+                    "profile_bucket_issues": list(report.profile_bucket_issues),
+                    "t14_scale_satisfied": report.t14_scale_satisfied,
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return 0 if report.ok_to_run else 2
+
     result = run_main_evaluation(
         args.output_dir,
         config=config,

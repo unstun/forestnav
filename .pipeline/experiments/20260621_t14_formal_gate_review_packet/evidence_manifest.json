@@ -1,7 +1,7 @@
 {
   "schema": "forestnav_t14_formal_gate_review_packet_v1",
   "created_at_utc": "2026-06-21T01:45:06.595774+00:00",
-  "updated_at_utc": "2026-06-21T03:10:00+00:00",
+  "updated_at_utc": "2026-06-21T03:30:00+00:00",
   "task": "T14",
   "status": "needs_human_review_not_complete",
   "latest_candidate_run": ".pipeline/experiments/20260620_t14_candidate_6method_fullscale_rs_k20_collisionguard",
@@ -25,6 +25,11 @@
     "density_profile_mode_values": [
       "original_t06",
       "validation_t06"
+    ],
+    "preflight_only_required_before_long_run": true,
+    "preflight_only_log_suffixes": [
+      ".preflight.json",
+      ".preflight.err"
     ]
   },
   "outputs": {

@@ -288,3 +288,62 @@ def test_cli_writes_k_neighbors_and_source_head_overrides(tmp_path: Path) -> Non
         item["name"] == "complex_d03" and item["difficulty_bucket"] == "Complex"
         for item in payload["config"]["profiles"]
     )
+
+
+def test_cli_preflight_only_reports_blocking_issues(tmp_path: Path, capsys) -> None:
+    output_dir = tmp_path / "t14_preflight_only"
+
+    rc = run_main_evaluation_cli(
+        [
+            "--output-dir",
+            str(output_dir),
+            "--queries-per-bucket",
+            "1",
+            "--seed-count",
+            "1",
+            "--methods",
+            "vanilla_ha",
+            "--allow-unreviewed-cutpoints",
+            "--allow-missing-md-dqn",
+            "--no-enforce-t14-scale",
+            "--preflight-only",
+        ]
+    )
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert rc == 2
+    assert payload["ok_to_run"] is False
+    assert payload["human_review_satisfied"] is False
+    assert any("human review is unresolved" in item for item in payload["blocking_issues"])
+    assert not output_dir.exists()
+
+
+def test_cli_preflight_only_accepts_explicitly_degraded_config(tmp_path: Path, capsys) -> None:
+    output_dir = tmp_path / "not_created_by_preflight"
+    rc = run_main_evaluation_cli(
+        [
+            "--output-dir",
+            str(output_dir),
+            "--queries-per-bucket",
+            "1",
+            "--seed-count",
+            "1",
+            "--methods",
+            "vanilla_ha",
+            "--density-profile-buckets",
+            "validation_t06",
+            "--allow-missing-md-dqn",
+            "--allow-unreviewed-cutpoints",
+            "--allow-unresolved-human-review",
+            "--no-enforce-t14-scale",
+            "--preflight-only",
+        ]
+    )
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert rc == 0
+    assert payload["ok_to_run"] is True
+    assert payload["t14_scale_satisfied"] is False
+    assert not output_dir.exists()

@@ -36,6 +36,26 @@ LOG=".pipeline/experiments/logs/20260621_t14_formal_6method_rs_k20_collisionguar
 mkdir -p "$(dirname "$LOG")"
 rm -rf "$OUT"
 
+env PYTHONPATH=2_experiment python -m forest_n3p.scripts.run_main_evaluation \
+  --output-dir "$OUT" \
+  --queries-per-bucket 100 \
+  --seed-count 5 \
+  --queries-per-map 5 \
+  --methods f_n3p_knn,vanilla_ha,n3p_k1,voronoi_waypoint,bottleneck_waypoint,md_dqn \
+  --density-profile-buckets "$DENSITY_PROFILE_BUCKETS" \
+  --distance-bins 8:12,12:16,16:20,20: \
+  --bootstrap-resamples 5000 \
+  --md-dqn-source-dir /home/ubuntu/DQN10/2_experiment \
+  --md-dqn-checkpoint /home/ubuntu/DQN10/2_experiment/ugv_dqn/outputs/2026-05-12_train_load_external_demo_smoke/models/realmap_a/mlp-dqn.pt \
+  --md-dqn-algo mlp-dqn \
+  --md-dqn-device cpu \
+  --md-dqn-max-steps 600 \
+  --k-neighbors 20 \
+  --commit-verified-rs-segments \
+  --source-head "$SOURCE_HEAD" \
+  --preflight-only \
+  > "${LOG}.preflight.json" 2> "${LOG}.preflight.err"
+
 set +e
 /usr/bin/time -p env PYTHONPATH=2_experiment python -m forest_n3p.scripts.run_main_evaluation \
   --output-dir "$OUT" \

@@ -2,7 +2,7 @@
 origin: ai+local
 reviewed: false
 created_at_utc: 2026-06-21T01:45:06.595401+00:00
-updated_at_utc: 2026-06-21T03:10:00+00:00
+updated_at_utc: 2026-06-21T03:30:00+00:00
 task: T14
 status: needs_human_review
 ---
@@ -81,6 +81,8 @@ The earlier review packets remain useful history, but their numerical status was
 ## After Human Approval
 
 If D-T14-09/10/11 are approved, run the command in `post_review_formal_rerun_command.sh` on `gpu3070ti-relay` after resolving the T06 validation discrepancy, setting T06 `reviewed:true`, setting `DENSITY_PROFILE_BUCKETS` according to D-T14-09, and setting `SOURCE_HEAD` to the post-review source commit. The expected success condition is a new `verdict.json` with `status=formal_pass` and `formal_acceptance=true`.
+
+The script first runs `python -m forest_n3p.scripts.run_main_evaluation --preflight-only` with the same formal configuration and writes `${LOG}.preflight.json`. If preflight fails, the long evaluation is not started.
 
 Example:
 
