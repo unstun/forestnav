@@ -3,10 +3,29 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import numpy as np
+
+from forest_n3p.evaluation import EvaluationConfig, EvaluationRun
 from forest_n3p.difficulty_calibration import parse_distance_bins
-from forest_n3p.main_evaluation import MainEvaluationConfig, preflight_main_evaluation, run_main_evaluation
+from forest_n3p.main_evaluation import (
+    MainEvaluationConfig,
+    _evaluate_run_with_collision_rejection,
+    preflight_main_evaluation,
+    run_main_evaluation,
+)
 from forest_n3p.scripts.run_main_evaluation import main as run_main_evaluation_cli
 from forest_n3p.training_data import TrainingProfile
+from pathplan import GridMap, TwoCircleFootprint
+
+
+def _blocked_map(width: int = 120, height: int = 120, resolution: float = 0.1) -> GridMap:
+    grid = np.zeros((height, width), dtype=np.uint8)
+    grid[55:66, 50] = 1
+    return GridMap(grid, resolution=resolution, origin=(0.0, 0.0))
+
+
+def _footprint() -> TwoCircleFootprint:
+    return TwoCircleFootprint.from_box(length=0.924, width=0.740)
 
 
 def test_preflight_blocks_unreviewed_cutpoints_and_missing_md_dqn() -> None:
@@ -50,6 +69,43 @@ def test_smoke_main_evaluation_writes_outputs(tmp_path: Path) -> None:
     assert result.output_paths["queries_csv"].exists()
     payload = json.loads(result.output_paths["summary_json"].read_text(encoding="utf-8"))
     assert payload["record_count"] == 3
+
+
+def test_collision_rejection_marks_colliding_success_as_failed() -> None:
+    run = EvaluationRun(
+        query_id="q_collision",
+        method="n3p_k1",
+        difficulty_bucket="Extreme",
+        distance_bin_key="d12_16",
+        success=True,
+        path=((4.5, 6.0, 0.0), (5.5, 6.0, 0.0)),
+        total_time_s=0.25,
+        total_expansions=42,
+        reference_path_length_m=1.0,
+        fallback_f2_count=1,
+        metadata={"profile_name": "extreme_test"},
+    )
+
+    record = _evaluate_run_with_collision_rejection(
+        run,
+        _blocked_map(),
+        _footprint(),
+        config=EvaluationConfig(path_sample_step_m=0.05),
+    )
+
+    assert not record.success
+    assert not record.feasible
+    assert record.collision_violation_count == 0
+    assert record.path_length_m is None
+    assert record.path_inflation_ratio is None
+    assert record.total_time_s == 0.25
+    assert record.total_expansions == 42
+    assert record.fallback_f2_count == 1
+    assert record.failure_reason is not None
+    assert record.failure_reason.startswith("collision_violation_rejected:")
+    assert record.metadata["profile_name"] == "extreme_test"
+    assert record.metadata["rejected_collision_violation_count"] > 0
+    assert record.metadata["rejected_collision_path_length_m"] > 0.0
 
 
 def test_cli_writes_k_neighbors_and_source_head_overrides(tmp_path: Path) -> None:

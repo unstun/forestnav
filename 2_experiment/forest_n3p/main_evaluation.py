@@ -28,6 +28,7 @@ from forest_n3p.difficulty_calibration import DistanceBin, parse_distance_bins, 
 from forest_n3p.evaluation import (
     EvaluationConfig,
     EvaluationRecord,
+    EvaluationRun,
     bootstrap_success_rate_difference,
     evaluate_run,
     paired_wilcoxon_time,
@@ -310,7 +311,7 @@ def run_main_evaluation(
         vanilla_record: EvaluationRecord | None = None
         if "vanilla_ha" in preflight.available_methods:
             run = _run_vanilla_ha(query, grid_map, footprint, cfg, reference_path_length_m=None)
-            vanilla_record = evaluate_run(run, grid_map, footprint, config=eval_cfg)
+            vanilla_record = _evaluate_run_with_collision_rejection(run, grid_map, footprint, config=eval_cfg)
             records.append(vanilla_record)
 
         reference_length = vanilla_record.path_length_m if vanilla_record is not None and vanilla_record.feasible else None
@@ -326,7 +327,7 @@ def run_main_evaluation(
                 predictors=predictors,
                 reference_path_length_m=reference_length,
             )
-            records.append(evaluate_run(run, grid_map, footprint, config=eval_cfg))
+            records.append(_evaluate_run_with_collision_rejection(run, grid_map, footprint, config=eval_cfg))
 
     stat_pairs = _stat_pairs(preflight.available_methods)
     paired_tests = tuple(paired_wilcoxon_time(records, a, b) for a, b in stat_pairs)
@@ -515,6 +516,45 @@ def _run_vanilla_ha(
         reference_path_length_m=reference_path_length_m,
         metadata={"profile_name": query.profile_name, "map_seed": query.map_seed, "query_seed": query.query_seed},
     )
+
+
+def _evaluate_run_with_collision_rejection(
+    run: EvaluationRun,
+    grid_map: GridMap,
+    footprint: TwoCircleFootprint,
+    *,
+    config: EvaluationConfig | None = None,
+) -> EvaluationRecord:
+    record = evaluate_run(run, grid_map, footprint, config=config)
+    if int(record.collision_violation_count) == 0:
+        return record
+
+    metadata = dict(run.metadata)
+    metadata["rejected_collision_violation_count"] = int(record.collision_violation_count)
+    metadata["rejected_collision_path_length_m"] = record.path_length_m
+    reason = f"collision_violation_rejected:{record.collision_violation_count}"
+    if run.failure_reason:
+        reason = f"{reason};{run.failure_reason}"
+
+    rejected_run = EvaluationRun(
+        query_id=run.query_id,
+        method=run.method,
+        difficulty_bucket=run.difficulty_bucket,
+        distance_bin_key=run.distance_bin_key,
+        success=False,
+        path=(),
+        total_time_s=run.total_time_s,
+        total_expansions=run.total_expansions,
+        reference_path_length_m=run.reference_path_length_m,
+        fallback_f1_count=run.fallback_f1_count,
+        fallback_f2_count=run.fallback_f2_count,
+        fallback_f3_count=run.fallback_f3_count,
+        subgoal_reachable_count=run.subgoal_reachable_count,
+        subgoal_attempt_count=run.subgoal_attempt_count,
+        failure_reason=reason,
+        metadata=metadata,
+    )
+    return evaluate_run(rejected_run, grid_map, footprint, config=config)
 
 
 def _make_planner(grid_map: GridMap, footprint: TwoCircleFootprint, cfg: MainEvaluationConfig) -> HybridAStarPlanner:
