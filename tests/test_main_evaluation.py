@@ -5,6 +5,7 @@ from pathlib import Path
 
 from forest_n3p.difficulty_calibration import parse_distance_bins
 from forest_n3p.main_evaluation import MainEvaluationConfig, preflight_main_evaluation, run_main_evaluation
+from forest_n3p.scripts.run_main_evaluation import main as run_main_evaluation_cli
 from forest_n3p.training_data import TrainingProfile
 
 
@@ -49,3 +50,38 @@ def test_smoke_main_evaluation_writes_outputs(tmp_path: Path) -> None:
     assert result.output_paths["queries_csv"].exists()
     payload = json.loads(result.output_paths["summary_json"].read_text(encoding="utf-8"))
     assert payload["record_count"] == 3
+
+
+def test_cli_writes_k_neighbors_and_source_head_overrides(tmp_path: Path) -> None:
+    output_dir = tmp_path / "t14_cli_overrides"
+
+    rc = run_main_evaluation_cli(
+        [
+            "--output-dir",
+            str(output_dir),
+            "--queries-per-bucket",
+            "1",
+            "--seed-count",
+            "1",
+            "--queries-per-map",
+            "1",
+            "--methods",
+            "vanilla_ha",
+            "--distance-bins",
+            "4:8",
+            "--allow-unreviewed-cutpoints",
+            "--allow-missing-md-dqn",
+            "--no-enforce-t14-scale",
+            "--bootstrap-resamples",
+            "20",
+            "--k-neighbors",
+            "17",
+            "--source-head",
+            "unit-test-head",
+        ]
+    )
+
+    assert rc == 0
+    payload = json.loads((output_dir / "run_config.json").read_text(encoding="utf-8"))
+    assert payload["source_head"] == "unit-test-head"
+    assert payload["config"]["k_neighbors"] == 17
