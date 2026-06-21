@@ -1,7 +1,7 @@
 {
   "schema": "forestnav_t14_formal_gate_review_packet_v1",
   "created_at_utc": "2026-06-21T01:45:06.595774+00:00",
-  "updated_at_utc": "2026-06-21T02:40:00+00:00",
+  "updated_at_utc": "2026-06-21T03:10:00+00:00",
   "task": "T14",
   "status": "needs_human_review_not_complete",
   "latest_candidate_run": ".pipeline/experiments/20260620_t14_candidate_6method_fullscale_rs_k20_collisionguard",
@@ -18,9 +18,14 @@
     "candidate_formal_acceptance": false,
     "t06_validation_density_bucket_separation_pass": false,
     "t06_validation_distance_bucket_separation_pass": true,
-    "blocking_gate_count": 5,
+    "blocking_gate_count": 6,
     "needs_human_review_count": 2,
-    "human_decision_count": 4
+    "human_decision_count": 4,
+    "density_profile_mode_required": true,
+    "density_profile_mode_values": [
+      "original_t06",
+      "validation_t06"
+    ]
   },
   "outputs": {
     "review_packet_md": ".pipeline/experiments/20260621_t14_formal_gate_review_packet/review_packet.md",

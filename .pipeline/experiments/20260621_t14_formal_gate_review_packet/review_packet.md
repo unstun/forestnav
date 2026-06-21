@@ -2,7 +2,7 @@
 origin: ai+local
 reviewed: false
 created_at_utc: 2026-06-21T01:45:06.595401+00:00
-updated_at_utc: 2026-06-21T02:40:00+00:00
+updated_at_utc: 2026-06-21T03:10:00+00:00
 task: T14
 status: needs_human_review
 ---
@@ -52,9 +52,10 @@ status: needs_human_review
 |---|---|---|---|
 | G02 T06 cutpoint supplement reviewed | fail | yes | Dr Sun review T06 supplement together with the later validation evidence; only after resolving D-T14-09 should reviewed:true be set. |
 | G02b T06 validation consistency | fail | yes | Dr Sun decide whether to revise density buckets to validation cutpoints, run another validation, or explicitly retain the original T06 split with written justification. |
+| G02c Density profile mode aligned | fail | yes | If D-T14-09 keeps original cutpoints, rerun with `DENSITY_PROFILE_BUCKETS=original_t06`; if D-T14-09 revises to validation cutpoints, rerun with `DENSITY_PROFILE_BUCKETS=validation_t06`. |
 | G08 F-N3P implementation variant accepted | needs_human_review | yes | Dr Sun decide whether this is the formal F-N3P(KNN) config or only a candidate variant. |
 | G09 MD-DQN baseline interpretation accepted | needs_human_review | yes | Dr Sun decide formal baseline vs adapter smoke/history-only baseline. |
-| G10 Programmatic formal verdict | fail | yes | After G02/G02b/G08/G09 human decisions, rerun formal command without unreviewed override to produce formal_acceptance=true. |
+| G10 Programmatic formal verdict | fail | yes | After G02/G02b/G02c/G08/G09 human decisions, rerun formal command without unreviewed override to produce formal_acceptance=true. |
 
 ## Dr Sun Decisions Needed
 
@@ -79,7 +80,20 @@ The earlier review packets remain useful history, but their numerical status was
 
 ## After Human Approval
 
-If D-T14-09/10/11 are approved, run the command in `post_review_formal_rerun_command.sh` on `gpu3070ti-relay` after resolving the T06 validation discrepancy, setting T06 `reviewed:true`, and updating `POST_T06_REVIEW_HEAD` to the post-review source commit. The expected success condition is a new `verdict.json` with `status=formal_pass` and `formal_acceptance=true`.
+If D-T14-09/10/11 are approved, run the command in `post_review_formal_rerun_command.sh` on `gpu3070ti-relay` after resolving the T06 validation discrepancy, setting T06 `reviewed:true`, setting `DENSITY_PROFILE_BUCKETS` according to D-T14-09, and setting `SOURCE_HEAD` to the post-review source commit. The expected success condition is a new `verdict.json` with `status=formal_pass` and `formal_acceptance=true`.
+
+Example:
+
+```bash
+SOURCE_HEAD=<post-review-commit> DENSITY_PROFILE_BUCKETS=validation_t06 \
+  bash .pipeline/experiments/20260621_t14_formal_gate_review_packet/post_review_formal_rerun_command.sh
+```
+
+D-T14-09 to command mapping:
+
+- `approve_original_with_justification` -> `DENSITY_PROFILE_BUCKETS=original_t06`
+- `revise_to_validation_cutpoints` -> `DENSITY_PROFILE_BUCKETS=validation_t06`
+- `run_more_validation` or `reject` -> do not run formal T14.
 
 Only after that formal rerun passes should `.pipeline/mainline.md` T14 be changed from `[ ]` to `[x]` and a T14 completion record be appended.
 

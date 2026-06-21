@@ -5,14 +5,33 @@ set -euo pipefail
 # 1. Dr Sun resolves D-T14-09 using the T06 validation analysis.
 # 2. Dr Sun approves D-T14-10/11.
 # 3. T06 supplement is revised or explicitly approved, set to reviewed:true, and committed.
-# 4. SOURCE_HEAD is replaced with that post-review commit hash.
+# 4. DENSITY_PROFILE_BUCKETS is set from D-T14-09:
+#    - approve_original_with_justification -> original_t06
+#    - revise_to_validation_cutpoints -> validation_t06
+# 5. SOURCE_HEAD is set to that post-review commit hash.
+
+SOURCE_HEAD="${SOURCE_HEAD:-POST_T06_REVIEW_HEAD}"
+DENSITY_PROFILE_BUCKETS="${DENSITY_PROFILE_BUCKETS:-SET_BY_D_T14_09}"
+
+if [[ "$SOURCE_HEAD" == "POST_T06_REVIEW_HEAD" ]]; then
+  echo "ERROR: set SOURCE_HEAD to the post-review commit hash" >&2
+  exit 2
+fi
+
+case "$DENSITY_PROFILE_BUCKETS" in
+  original_t06|validation_t06)
+    ;;
+  *)
+    echo "ERROR: set DENSITY_PROFILE_BUCKETS to original_t06 or validation_t06 according to D-T14-09" >&2
+    exit 2
+    ;;
+esac
 
 cd ~/ForestNav
 source .venv/bin/activate
 
-SOURCE_HEAD="POST_T06_REVIEW_HEAD"
-OUT=".pipeline/experiments/20260621_t14_formal_6method_rs_k20_collisionguard"
-LOG=".pipeline/experiments/logs/20260621_t14_formal_6method_rs_k20_collisionguard"
+OUT=".pipeline/experiments/20260621_t14_formal_6method_rs_k20_collisionguard_${DENSITY_PROFILE_BUCKETS}"
+LOG=".pipeline/experiments/logs/20260621_t14_formal_6method_rs_k20_collisionguard_${DENSITY_PROFILE_BUCKETS}"
 
 mkdir -p "$(dirname "$LOG")"
 rm -rf "$OUT"
@@ -24,6 +43,7 @@ set +e
   --seed-count 5 \
   --queries-per-map 5 \
   --methods f_n3p_knn,vanilla_ha,n3p_k1,voronoi_waypoint,bottleneck_waypoint,md_dqn \
+  --density-profile-buckets "$DENSITY_PROFILE_BUCKETS" \
   --distance-bins 8:12,12:16,16:20,20: \
   --bootstrap-resamples 5000 \
   --md-dqn-source-dir /home/ubuntu/DQN10/2_experiment \
