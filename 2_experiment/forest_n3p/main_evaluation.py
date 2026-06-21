@@ -11,18 +11,10 @@ from typing import Any, Iterable, Sequence
 
 import numpy as np
 
-from forest_n3p.baselines.bottleneck_waypoint import (
-    BottleneckWaypointConfig,
-    plan_bottleneck_waypoint,
-)
 from forest_n3p.baselines.md_dqn_adapter import (
     MdDqnAdapterConfig,
     check_md_dqn_adapter,
     plan_md_dqn,
-)
-from forest_n3p.baselines.voronoi_waypoint import (
-    VoronoiWaypointConfig,
-    plan_voronoi_waypoint,
 )
 from forest_n3p.difficulty_calibration import DistanceBin, parse_distance_bins, sample_query_in_distance_bin
 from forest_n3p.evaluation import (
@@ -36,7 +28,6 @@ from forest_n3p.evaluation import (
     planner_run_from_result,
     write_evaluation_outputs,
 )
-from forest_n3p.inference import InferenceConfig, KnnSubgoalLibrary, run_forest_n3p
 from forest_n3p.maps.forest import generate_forest_grid
 from forest_n3p.pilot_labeling import footprint_clearance_m
 from forest_n3p.training_data import TrainingDataConfig, TrainingProfile, make_forest_params
@@ -60,6 +51,13 @@ OFFICIAL_T14_METHODS = (
 
 IMPLEMENTED_METHODS = frozenset(OFFICIAL_T14_METHODS)
 
+FORMAL_HUMAN_DECISIONS = {
+    "D-T14-09": ("approve_original_with_justification", "revise_to_validation_cutpoints"),
+    "D-T14-10": ("approve",),
+    "D-T14-11": ("formal_baseline",),
+    "D-T14-12": ("approve_after_rerun_passes",),
+}
+
 
 @dataclass(frozen=True)
 class MainEvaluationConfig:
@@ -77,7 +75,11 @@ class MainEvaluationConfig:
     knn_library_dir: Path = Path("2_experiment/forest_n3p/models/t09_knn_library")
     cutpoint_supplement_path: Path = Path(".pipeline/contracts/v9-forest-n3p-t06-calibration-supplement.md")
     contract_path: Path = Path(".pipeline/contracts/v9-forest-n3p.md")
+    human_review_form_path: Path = Path(
+        ".pipeline/experiments/20260621_t14_formal_gate_review_packet/human_review_form.md"
+    )
     allow_unreviewed_cutpoints: bool = False
+    allow_unresolved_human_review: bool = False
     allow_missing_md_dqn: bool = False
     enforce_t14_scale: bool = True
     teacher_timeout_s: float = 2.5
@@ -138,6 +140,8 @@ class PreflightReport:
     available_methods: tuple[str, ...]
     unavailable_methods: dict[str, str]
     cutpoint_supplement_reviewed: bool
+    human_review_satisfied: bool
+    human_review_decisions: dict[str, str]
     t14_scale_satisfied: bool
 
 
@@ -202,6 +206,15 @@ def preflight_main_evaluation(config: MainEvaluationConfig) -> PreflightReport:
         elif "md_dqn" in unavailable:
             issues.append(f"md_dqn unavailable: {unavailable['md_dqn']}")
 
+    human_decisions = _read_human_review_decisions(config.human_review_form_path)
+    human_review_issues = _human_review_issues(human_decisions, form_path=config.human_review_form_path)
+    if human_review_issues:
+        msg = "T14 human review is unresolved: " + "; ".join(human_review_issues)
+        if config.allow_unresolved_human_review:
+            warnings.append(msg)
+        else:
+            issues.append(msg)
+
     t14_scale = int(config.queries_per_bucket) >= 100 and int(config.seed_count) >= 5
     if not t14_scale:
         msg = (
@@ -221,6 +234,8 @@ def preflight_main_evaluation(config: MainEvaluationConfig) -> PreflightReport:
         available_methods=available,
         unavailable_methods=unavailable,
         cutpoint_supplement_reviewed=reviewed,
+        human_review_satisfied=not human_review_issues,
+        human_review_decisions=human_decisions,
         t14_scale_satisfied=t14_scale,
     )
 
@@ -367,6 +382,8 @@ def _run_method(
     reference_path_length_m: float | None,
 ):
     if method == "f_n3p_knn":
+        from forest_n3p.inference import run_forest_n3p
+
         result = run_forest_n3p(
             grid_map,
             footprint,
@@ -386,6 +403,8 @@ def _run_method(
         )
 
     if method == "n3p_k1":
+        from forest_n3p.inference import run_forest_n3p
+
         result = run_forest_n3p(
             grid_map,
             footprint,
@@ -405,6 +424,11 @@ def _run_method(
         )
 
     if method == "voronoi_waypoint":
+        from forest_n3p.baselines.voronoi_waypoint import (
+            VoronoiWaypointConfig,
+            plan_voronoi_waypoint,
+        )
+
         result = plan_voronoi_waypoint(
             grid_map,
             footprint,
@@ -431,6 +455,11 @@ def _run_method(
         )
 
     if method == "bottleneck_waypoint":
+        from forest_n3p.baselines.bottleneck_waypoint import (
+            BottleneckWaypointConfig,
+            plan_bottleneck_waypoint,
+        )
+
         result = plan_bottleneck_waypoint(
             grid_map,
             footprint,
@@ -572,6 +601,8 @@ def _make_planner(grid_map: GridMap, footprint: TwoCircleFootprint, cfg: MainEva
 
 
 def _inference_config(cfg: MainEvaluationConfig, *, k_neighbors: int) -> InferenceConfig:
+    from forest_n3p.inference import InferenceConfig
+
     return InferenceConfig(
         k_neighbors=int(k_neighbors),
         segment_timeout_s=float(cfg.segment_timeout_s),
@@ -656,7 +687,12 @@ def _build_verdict(
         for row in records
         if row.failure_reason is not None and "exception" in str(row.failure_reason).lower()
     )
-    expected_formal = bool(preflight.t14_scale_satisfied and not preflight.unavailable_methods and preflight.cutpoint_supplement_reviewed)
+    expected_formal = bool(
+        preflight.t14_scale_satisfied
+        and not preflight.unavailable_methods
+        and preflight.cutpoint_supplement_reviewed
+        and preflight.human_review_satisfied
+    )
     formal_acceptance = bool(
         expected_formal
         and collision_total == 0
@@ -675,6 +711,8 @@ def _build_verdict(
         "method_exception_total": method_exception_total,
         "preflight_warnings": list(preflight.warnings),
         "preflight_unavailable_methods": dict(preflight.unavailable_methods),
+        "human_review_satisfied": bool(preflight.human_review_satisfied),
+        "human_review_decisions": dict(preflight.human_review_decisions),
         "bucket_verdicts": bucket_verdicts,
         "contract_thresholds": {
             "median_time_reduction_min": 0.50,
@@ -705,6 +743,8 @@ def _stat_pairs(methods: Sequence[str]) -> tuple[tuple[str, str], ...]:
 def _load_predictors(config: MainEvaluationConfig, methods: Sequence[str]) -> dict[str, KnnSubgoalLibrary]:
     if not any(method in methods for method in ("f_n3p_knn", "n3p_k1")):
         return {}
+    from forest_n3p.inference import KnnSubgoalLibrary
+
     return {"knn": KnnSubgoalLibrary.load(config.knn_library_dir)}
 
 
@@ -725,6 +765,42 @@ def _profile_by_name(profiles: Sequence[TrainingProfile], name: str) -> Training
 def _missing_knn_files(root: Path) -> list[str]:
     required = ("knn_tree.pkl", "labels.npy", "feature_mean.npy", "feature_std.npy", "metadata.json")
     return [name for name in required if not (Path(root) / name).exists()]
+
+
+def _read_human_review_decisions(path: Path) -> dict[str, str]:
+    path = Path(path)
+    if not path.exists():
+        return {}
+
+    decisions: dict[str, str] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("|") or not stripped.endswith("|"):
+            continue
+        cells = [part.strip() for part in stripped.strip("|").split("|")]
+        if len(cells) < 5:
+            continue
+        decision_id, decision = cells[0], cells[1]
+        if decision_id.startswith("D-T14-"):
+            decisions[decision_id] = decision
+    return decisions
+
+
+def _human_review_issues(decisions: dict[str, str], *, form_path: Path) -> list[str]:
+    issues: list[str] = []
+    if not Path(form_path).exists():
+        issues.append(f"missing human review form: {form_path}")
+
+    for decision_id, allowed_values in FORMAL_HUMAN_DECISIONS.items():
+        value = decisions.get(decision_id, "").strip()
+        if not value:
+            issues.append(f"{decision_id} missing decision")
+            continue
+        if value not in allowed_values:
+            allowed = "|".join(allowed_values)
+            issues.append(f"{decision_id} decision={value!r} is not formal-acceptable ({allowed})")
+
+    return issues
 
 
 def _frontmatter_bool(path: Path, key: str) -> bool:
@@ -789,6 +865,7 @@ def _write_report(
         f"- method_exception_total: {verdict['method_exception_total']}",
         f"- queries_per_bucket_config: {cfg.queries_per_bucket}",
         f"- seed_count_config: {cfg.seed_count}",
+        f"- human_review_satisfied: {preflight.human_review_satisfied}",
         "",
         "## 预检",
         "",

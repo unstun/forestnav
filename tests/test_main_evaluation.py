@@ -28,12 +28,80 @@ def _footprint() -> TwoCircleFootprint:
     return TwoCircleFootprint.from_box(length=0.924, width=0.740)
 
 
+def _write_frontmatter(path: Path, **values: str) -> Path:
+    lines = ["---", *(f"{key}: {value}" for key, value in values.items()), "---", ""]
+    path.write_text("\n".join(lines), encoding="utf-8")
+    return path
+
+
+def _write_human_review_form(path: Path, decisions: dict[str, str]) -> Path:
+    rows = [
+        "# T14 Human Review Form",
+        "",
+        "| decision_id | decision | reviewer | date | notes |",
+        "|---|---|---|---|---|",
+    ]
+    for decision_id in ("D-T14-09", "D-T14-10", "D-T14-11", "D-T14-12"):
+        rows.append(f"| {decision_id} | {decisions.get(decision_id, '')} | Dr Sun | 2026-06-21 | unit test |")
+    path.write_text("\n".join(rows) + "\n", encoding="utf-8")
+    return path
+
+
 def test_preflight_blocks_unreviewed_cutpoints_and_missing_md_dqn() -> None:
     report = preflight_main_evaluation(MainEvaluationConfig())
 
     assert not report.ok_to_run
     assert any("cutpoint supplement" in item for item in report.blocking_issues)
     assert any("md_dqn unavailable" in item for item in report.blocking_issues)
+    assert any("human review is unresolved" in item for item in report.blocking_issues)
+
+
+def test_preflight_blocks_unresolved_human_review_by_default(tmp_path: Path) -> None:
+    contract = _write_frontmatter(tmp_path / "contract.md", status="approved")
+    supplement = _write_frontmatter(tmp_path / "supplement.md", reviewed="true")
+    review_form = _write_human_review_form(tmp_path / "human_review_form.md", {})
+
+    report = preflight_main_evaluation(
+        MainEvaluationConfig(
+            methods=("vanilla_ha",),
+            contract_path=contract,
+            cutpoint_supplement_path=supplement,
+            human_review_form_path=review_form,
+            enforce_t14_scale=False,
+        )
+    )
+
+    assert not report.ok_to_run
+    assert not report.human_review_satisfied
+    assert any("D-T14-09 missing decision" in item for item in report.blocking_issues)
+
+
+def test_preflight_accepts_formal_human_review_decisions(tmp_path: Path) -> None:
+    contract = _write_frontmatter(tmp_path / "contract.md", status="approved")
+    supplement = _write_frontmatter(tmp_path / "supplement.md", reviewed="true")
+    review_form = _write_human_review_form(
+        tmp_path / "human_review_form.md",
+        {
+            "D-T14-09": "revise_to_validation_cutpoints",
+            "D-T14-10": "approve",
+            "D-T14-11": "formal_baseline",
+            "D-T14-12": "approve_after_rerun_passes",
+        },
+    )
+
+    report = preflight_main_evaluation(
+        MainEvaluationConfig(
+            methods=("vanilla_ha",),
+            contract_path=contract,
+            cutpoint_supplement_path=supplement,
+            human_review_form_path=review_form,
+            enforce_t14_scale=False,
+        )
+    )
+
+    assert report.ok_to_run
+    assert report.human_review_satisfied
+    assert report.human_review_decisions["D-T14-09"] == "revise_to_validation_cutpoints"
 
 
 def test_smoke_main_evaluation_writes_outputs(tmp_path: Path) -> None:
@@ -51,6 +119,7 @@ def test_smoke_main_evaluation_writes_outputs(tmp_path: Path) -> None:
         ),
         distance_bins=parse_distance_bins("4:8"),
         allow_unreviewed_cutpoints=True,
+        allow_unresolved_human_review=True,
         allow_missing_md_dqn=True,
         enforce_t14_scale=False,
         teacher_timeout_s=1.0,
@@ -126,6 +195,7 @@ def test_cli_writes_k_neighbors_and_source_head_overrides(tmp_path: Path) -> Non
             "--distance-bins",
             "4:8",
             "--allow-unreviewed-cutpoints",
+            "--allow-unresolved-human-review",
             "--allow-missing-md-dqn",
             "--no-enforce-t14-scale",
             "--bootstrap-resamples",

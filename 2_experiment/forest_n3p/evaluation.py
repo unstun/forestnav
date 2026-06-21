@@ -8,8 +8,6 @@ from pathlib import Path
 from typing import Any, Iterable, Sequence
 
 import numpy as np
-from scipy.ndimage import distance_transform_edt
-from scipy.stats import bootstrap, wilcoxon
 
 from forest_n3p.features import Pose, wrap_pi
 from forest_n3p.third_party.pathplan import GridMap, TwoCircleFootprint
@@ -326,6 +324,8 @@ def paired_wilcoxon_time(
     median_delta = float(np.median(diffs))
     if np.allclose(diffs, 0.0):
         return PairedWilcoxonResult(method_a, method_b, len(x), 0.0, 1.0, median_delta)
+    from scipy.stats import wilcoxon
+
     result = wilcoxon(np.asarray(x, dtype=np.float64), np.asarray(y, dtype=np.float64), zero_method="wilcox")
     return PairedWilcoxonResult(
         method_a=method_a,
@@ -364,6 +364,8 @@ def bootstrap_success_rate_difference(
 
     def statistic(sample: np.ndarray, axis: int = 0) -> np.ndarray:
         return np.mean(sample, axis=axis)
+
+    from scipy.stats import bootstrap
 
     res = bootstrap(
         (diffs,),
@@ -508,6 +510,8 @@ def min_clearance_m(
 
 
 def _distance_field_m(grid_map: GridMap) -> np.ndarray:
+    from scipy.ndimage import distance_transform_edt
+
     free = np.asarray(grid_map.data) == 0
     padded = np.pad(free, 1, mode="constant", constant_values=False)
     return distance_transform_edt(padded)[1:-1, 1:-1] * float(grid_map.resolution)

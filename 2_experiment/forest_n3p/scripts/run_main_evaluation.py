@@ -29,6 +29,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--k-neighbors", type=int, default=MainEvaluationConfig().k_neighbors)
     parser.add_argument("--commit-verified-rs-segments", action="store_true")
     parser.add_argument("--allow-unreviewed-cutpoints", action="store_true")
+    parser.add_argument("--allow-unresolved-human-review", action="store_true")
     parser.add_argument("--allow-missing-md-dqn", action="store_true")
     parser.add_argument("--no-enforce-t14-scale", action="store_true")
     parser.add_argument("--source-head", default=None)
@@ -49,6 +50,7 @@ def main(argv: list[str] | None = None) -> int:
         k_neighbors=int(args.k_neighbors),
         commit_verified_rs_segments=bool(args.commit_verified_rs_segments),
         allow_unreviewed_cutpoints=bool(args.allow_unreviewed_cutpoints),
+        allow_unresolved_human_review=bool(args.allow_unresolved_human_review),
         allow_missing_md_dqn=bool(args.allow_missing_md_dqn),
         enforce_t14_scale=not bool(args.no_enforce_t14_scale),
         bootstrap_resamples=int(args.bootstrap_resamples),
