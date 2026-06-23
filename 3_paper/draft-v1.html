@@ -1,0 +1,956 @@
+<title>F-N3P Paper Draft — ForestNav</title>
+<style>
+:root {
+  --ground: #FAFAF6;
+  --text: #272822;
+  --text-secondary: #6B6960;
+  --accent: #2B6844;
+  --accent-light: #E8F0EB;
+  --placeholder: #D4782F;
+  --placeholder-bg: #FDF3EB;
+  --rule: #D6D4CC;
+  --algo-bg: #F4F6F3;
+  --table-stripe: #F5F4F0;
+  --margin-bg: #F0EFE8;
+  --col-width: 700px;
+  --margin-width: 240px;
+  --gap: 48px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--text);
+  background: var(--ground);
+}
+
+.page {
+  max-width: calc(var(--col-width) + var(--margin-width) + var(--gap));
+  margin: 0 auto;
+  padding: 0 24px 80px;
+  position: relative;
+}
+
+/* --- Header & Canvas --- */
+.paper-header {
+  position: relative;
+  padding: 48px 0 36px;
+  border-bottom: 2px solid var(--accent);
+  margin-bottom: 36px;
+}
+.draft-badge {
+  display: inline-block;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--placeholder);
+  border: 1.5px solid var(--placeholder);
+  border-radius: 3px;
+  padding: 2px 10px;
+  margin-bottom: 16px;
+}
+.paper-header h1 {
+  font-size: 26px;
+  line-height: 1.35;
+  font-weight: 700;
+  color: var(--text);
+  max-width: var(--col-width);
+  margin-bottom: 12px;
+}
+.paper-meta {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: var(--col-width);
+}
+.paper-meta strong { color: var(--text); font-weight: 600; }
+
+canvas#forest-vis {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.7;
+  border-radius: 6px;
+}
+
+/* --- Main Layout --- */
+.content {
+  position: relative;
+  max-width: var(--col-width);
+}
+
+/* --- Sections --- */
+.section { margin-bottom: 40px; }
+.section-head {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--rule);
+}
+.subsection-head {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 28px 0 10px;
+}
+p { margin-bottom: 14px; }
+p + p { text-indent: 1.5em; }
+
+/* --- Margin Notes --- */
+.margin-note {
+  position: absolute;
+  right: calc(-1 * var(--margin-width) - var(--gap) + 16px);
+  width: var(--margin-width);
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  background: var(--margin-bg);
+  padding: 8px 12px;
+  border-radius: 4px;
+  border-left: 3px solid var(--accent);
+}
+.margin-note.placeholder-note {
+  border-left-color: var(--placeholder);
+  background: var(--placeholder-bg);
+  color: #7A4A1A;
+}
+.mn-label {
+  display: block;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+  color: var(--accent);
+}
+.margin-note.placeholder-note .mn-label { color: var(--placeholder); }
+
+/* --- Abstract --- */
+.abstract {
+  background: var(--accent-light);
+  padding: 20px 24px;
+  border-radius: 6px;
+  margin-bottom: 36px;
+  font-size: 15px;
+}
+.abstract strong {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 6px;
+}
+
+/* --- Equations --- */
+.eq {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin: 18px 0;
+  font-style: italic;
+  font-size: 15px;
+}
+.eq-body { text-align: center; }
+.eq-num {
+  font-style: normal;
+  color: var(--text-secondary);
+  font-size: 14px;
+  min-width: 36px;
+  text-align: right;
+}
+.eq .fn { font-style: normal; }
+
+/* --- Algorithms --- */
+.algorithm {
+  background: var(--algo-bg);
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--accent);
+  border-radius: 4px;
+  margin: 24px 0;
+  overflow: hidden;
+}
+.algo-header {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--rule);
+  background: rgba(43,104,68,0.06);
+}
+.algo-body { padding: 12px 16px; }
+.algo-io {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  margin-bottom: 10px;
+  line-height: 1.7;
+}
+.algo-line {
+  font-family: ui-monospace, 'SF Mono', 'Cascadia Code', monospace;
+  font-size: 13px;
+  line-height: 1.85;
+  padding-left: 40px;
+  position: relative;
+  white-space: pre-wrap;
+}
+.algo-line::before {
+  content: attr(data-num);
+  position: absolute;
+  left: 0;
+  width: 28px;
+  text-align: right;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+.algo-line .comment {
+  color: var(--accent);
+  font-style: italic;
+}
+.algo-line .kw { font-weight: 700; }
+
+/* --- Tables --- */
+.table-wrap {
+  overflow-x: auto;
+  margin: 18px 0;
+  border-radius: 4px;
+  border: 1px solid var(--rule);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.6;
+}
+thead {
+  background: var(--accent);
+  color: #fff;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+}
+th { padding: 8px 14px; text-align: left; }
+td {
+  padding: 7px 14px;
+  border-top: 1px solid var(--rule);
+}
+tbody tr:nth-child(even) { background: var(--table-stripe); }
+td em { font-size: 13px; color: var(--text-secondary); }
+
+/* --- Placeholder --- */
+.placeholder-box {
+  background: var(--placeholder-bg);
+  border: 2px dashed var(--placeholder);
+  border-radius: 6px;
+  padding: 24px;
+  margin: 24px 0;
+  text-align: center;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+.placeholder-box .ph-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--placeholder);
+  margin-bottom: 6px;
+}
+.placeholder-box .ph-desc {
+  font-size: 14px;
+  color: #7A4A1A;
+  line-height: 1.6;
+}
+
+/* --- Figure --- */
+.figure {
+  margin: 28px 0;
+  text-align: center;
+}
+.figure canvas { border-radius: 6px; border: 1px solid var(--rule); }
+.fig-caption {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 8px;
+  line-height: 1.55;
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.fig-caption strong { color: var(--text); }
+
+/* --- Inline --- */
+.var { font-style: italic; }
+.vec { font-style: italic; font-weight: 700; }
+.fn { font-style: normal; font-variant: normal; }
+
+/* --- Flow Diagram --- */
+.flow {
+  font-family: ui-monospace, 'SF Mono', monospace;
+  font-size: 12px;
+  line-height: 1.8;
+  background: var(--algo-bg);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 16px 20px;
+  margin: 20px 0;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* --- Lists --- */
+ul, ol { margin: 10px 0 14px 24px; }
+li { margin-bottom: 4px; }
+
+/* --- Responsive --- */
+@media (max-width: 1060px) {
+  .margin-note {
+    position: static;
+    width: 100%;
+    margin: 12px 0;
+    border-left-width: 3px;
+  }
+  canvas#forest-vis { display: none; }
+}
+@media (max-width: 600px) {
+  .paper-header h1 { font-size: 21px; }
+  body { font-size: 15px; }
+  .page { padding: 0 16px 60px; }
+}
+</style>
+
+<div class="page">
+
+<!-- ============================================================ -->
+<!-- HEADER -->
+<!-- ============================================================ -->
+<header class="paper-header">
+  <div class="draft-badge">Draft — 待审阅 · 无实验数据</div>
+  <h1>Oracle-Supervised Subgoal Decomposition for Hybrid&nbsp;A* Planning in Dense Forest Environments</h1>
+  <div class="paper-meta">
+    <strong>ForestNav Project</strong> · F-N3P Design v1.1<br>
+    Draft date: 2026-06-20 · Status: 设计稿审阅阶段，Contract 未立<br>
+    实验结果部分以 <span style="color:var(--placeholder);font-weight:600">[PLACEHOLDER]</span> 标注
+  </div>
+  <canvas id="forest-vis" width="200" height="160"></canvas>
+</header>
+
+<!-- ============================================================ -->
+<!-- ABSTRACT -->
+<!-- ============================================================ -->
+<div class="abstract">
+  <strong>Abstract</strong>
+  Vanilla Hybrid A* suffers from explosive node expansion when planning long-distance, kinematically feasible paths for Ackermann-steered vehicles in dense forest environments.
+  We propose an oracle-supervised subgoal decomposition method that learns to sequentially predict intermediate SE(2) subgoals from prior occupancy maps.
+  A KNN-based predictor, trained on successful Hybrid A* solutions, decomposes each planning query into a sequence of short segments.
+  Hybrid A* with analytic expansion connects adjacent subgoals, preserving minimum turning radius and full-body collision constraints.
+  A three-level fallback hierarchy ensures the method inherits vanilla Hybrid A*'s completeness.
+  <span style="color:var(--placeholder);font-weight:600">[PLACEHOLDER: 关键定量结果——规划时间缩减比例、成功率、路径膨胀率，待实验填充]</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- 1. INTRODUCTION -->
+<!-- ============================================================ -->
+<div class="section" id="sec-intro">
+  <h2 class="section-head">1 &nbsp;Introduction</h2>
+
+  <p>Autonomous navigation in forested terrain requires planning collision-free paths that respect the kinematic constraints of Ackermann-steered vehicles — in particular, a minimum turning radius and a non-negligible body footprint. When the environment is represented as a prior occupancy grid (resolution 0.1 m, typical workspace ~30 × 30 m), Hybrid A* with Reeds-Shepp analytic expansion is a natural choice: it searches over SE(2) states while guaranteeing kinematic feasibility.</p>
+
+  <p>However, vanilla Hybrid A* exhibits a well-known scaling problem. As the Euclidean distance between start and goal grows and obstacle density increases, the number of expanded nodes grows rapidly — often exceeding computational budgets and causing planning timeouts. This is especially acute in dense forests, where narrow tree gaps force long, winding paths with many direction changes.</p>
+
+  <div style="position:relative">
+    <div class="margin-note" style="top:0">
+      <span class="mn-label">设计决策 D1</span>
+      放弃"缝枚举 A+C 混合"方案，选择 N3P 忠实路线的逐步预测。Dr Sun 2026-06-12 知情拍板。
+    </div>
+  </div>
+
+  <p>Our key observation is that successful Hybrid A* solutions in forests can be decomposed into a sequence of short segments, each connectable by a Reeds-Shepp curve or a short bounded search. If a predictor can identify these intermediate subgoals — given only the current pose, the goal, and local obstacle geometry — the long planning query reduces to a series of easy, short-range subqueries.</p>
+
+  <p>We propose a method (referred to internally as F-N3P) that extends the preparatory-pose prediction of Xue et al.'s N3P from single-bottleneck parking scenarios to multi-bottleneck forest planning. The method works in two phases:</p>
+
+  <ul>
+    <li><strong>Offline</strong>: Solve many forest planning queries with vanilla Hybrid A*. Extract ordered subgoal sequences from successful paths via a greedy RS-reachable segmentation rule. Build a KNN sample library of (feature, relative-pose) pairs.</li>
+    <li><strong>Online</strong>: For each new query, sequentially predict subgoals using KNN lookup, connect each pair with bounded Hybrid A*, and concatenate segments. Fall back to vanilla Hybrid A* when predictions fail.</li>
+  </ul>
+
+  <p style="text-indent:0"><strong>Contributions.</strong> (1) We formalize a sequential subgoal decomposition for Hybrid A* in dense forests — extending the single-pose prediction of N3P to ordered SE(2) subgoal sequences via a greedy RS-reachable segmentation definition. (2) We design a 41-dimensional hand-crafted feature representation (ray-cast clearance profile + goal-relative + density statistics) as the environment abstraction for forests, replacing the closed-form 4-parameter abstraction of structured parking. (3) We provide a comprehensive experimental evaluation including rule-based decomposition baselines, ablation studies on label rules and features, and generalization tests on unseen procedural maps and real SLAM occupancy grids.</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- 2. RELATED WORK -->
+<!-- ============================================================ -->
+<div class="section" id="sec-related">
+  <h2 class="section-head">2 &nbsp;Related Work</h2>
+
+  <p><strong>Learning to guide lattice/hybrid planners.</strong> N3P [Xue et al., ITSC 2026] learns a single preparatory pose for parking, decomposing the maneuver into prepare–approach–dock stages consumed by Hybrid A*. Our work inherits N3P's self-supervised labeling philosophy, KNN model, and fair-timing discipline, but extends the prediction from one pose to an ordered sequence and replaces the closed-form parking abstraction with a general feature representation. Bonetti et al.'s Waypoints Hybrid B* generates waypoints from topological roadmaps to guide search in industrial corridors — the waypoints are rule-derived rather than learned, and the environment is structured rather than unstructured. Banzhaf et al. learn pose samples to inform Bi-RRT* sampling — an informed-sampling approach rather than ordered subgoal decomposition, with a different underlying planner.</p>
+
+  <p><strong>Learned subgoal planning.</strong> Stein et al.'s Learned Subgoal Planner (LSP) learns frontier properties (dead-end probabilities) for navigation decisions in unknown environments — an exploration-time decision aid, not a motion-level planner over known maps with kinematic constraints. Hierarchical RL approaches (HIRO, HAC) use subgoals as internal policy mechanisms, not as explicit intermediate poses consumed by a geometric planner.</p>
+
+  <div style="position:relative">
+    <div class="margin-note" style="top:-20px">
+      <span class="mn-label">引用纪律</span>
+      ⚠️ 标记条目（Bonetti, LSP 等）论文引用前须走核查四步，禁凭 AI 记忆生成 BibTeX。
+    </div>
+  </div>
+
+  <p><strong>Hybrid A* and Reeds-Shepp curves.</strong> Hybrid A* [Dolgov et al., IJRR 2010] searches over SE(2) states on a discretized grid, using Reeds-Shepp curves [Reeds &amp; Shepp, 1990] as analytic expansions to accelerate goal connection. Our method uses the same Hybrid A* implementation for both teacher data generation and online segment connection, ensuring a fair comparison.</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- 3. PROBLEM FORMULATION -->
+<!-- ============================================================ -->
+<div class="section" id="sec-problem">
+  <h2 class="section-head">3 &nbsp;Problem Formulation</h2>
+
+  <p><strong>Environment.</strong> The workspace <em>W</em> ⊂ ℝ² is discretized at resolution <em>r</em> = 0.1 m into a grid <em>G</em>. A prior occupancy map <em>M</em> : <em>G</em> → {0, 1} assigns 1 to cells occupied by tree obstacles; the occupied region is Occ(<em>M</em>) ⊂ <em>W</em>. The map (~30 × 30 m) is known offline in its entirety — the "prior" qualifier distinguishes this setting from unknown-environment exploration.</p>
+
+  <p><strong>Vehicle.</strong> The vehicle state is <strong>x</strong> = (<strong>p</strong>, <em>θ</em>) ∈ SE(2). An Ackermann chassis imposes a path curvature constraint |<em>κ</em>| ≤ 1/<em>ρ</em><sub>min</sub>, where <em>ρ</em><sub>min</sub> is the minimum turning radius. The body footprint <em>B</em>(<strong>x</strong>) ⊂ ℝ² is modeled as a bounding dual-circle (wheelbase ~0.6 m).</p>
+
+  <div class="eq">
+    <span class="eq-body">
+      <em>X</em><sub>free</sub> = { <strong>x</strong> ∈ SE(2) : <em>B</em>(<strong>x</strong>) ∩ Occ(<em>M</em>) = ∅ }
+    </span>
+    <span class="eq-num">(1)</span>
+  </div>
+
+  <p>A feasible path <em>τ</em> : [0, 1] → <em>X</em><sub>free</sub> is piecewise smooth, curvature-compliant everywhere, and allows a finite number of direction switches.</p>
+
+  <p><strong>Planning query.</strong> Given <em>q</em> = (<em>M</em>, <strong>x</strong><sub>s</sub>, <strong>x</strong><sub>g</sub>), find a feasible <em>τ</em> with <em>τ</em>(0) = <strong>x</strong><sub>s</sub> and <em>τ</em>(1) = <strong>x</strong><sub>g</sub>. Solution quality has two dimensions: search cost (planning time <em>T</em>, node expansions <em>E</em>) and path quality (length, direction switches, minimum clearance). The pain point: vanilla Hybrid A*'s <em>E</em> grows rapidly with distance and obstacle density.</p>
+
+  <p><strong>Reeds-Shepp notation.</strong> RS(<strong>x</strong>, <strong>x</strong>′) denotes the shortest Reeds-Shepp curve connecting two poses, satisfying the curvature constraint by construction. Feasibility reduces to collision checking: RS<sub>free</sub>(<strong>x</strong>, <strong>x</strong>′) ⟺ the curve lies entirely within <em>X</em><sub>free</sub>, verified by sampling along the curve at resolution <em>r</em> with dual-circle collision checks.</p>
+
+  <p><strong>Subgoal decomposition.</strong> Given query <em>q</em>, we seek an ordered subgoal sequence (<em>g</em><sub>1</sub>, …, <em>g<sub>K</sub></em>), <em>g<sub>i</sub></em> ∈ <em>X</em><sub>free</sub>, such that adjacent pairs (<em>g<sub>i</sub></em>, <em>g</em><sub><em>i</em>+1</sub>) can be connected at low cost — ideally by a collision-free RS curve, otherwise by a short bounded Hybrid A* search. The full path is the concatenation <em>τ</em> = <em>τ</em><sub>0</sub> ⊕ <em>τ</em><sub>1</sub> ⊕ ⋯ ⊕ <em>τ<sub>K</sub></em>.</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- 4. METHOD -->
+<!-- ============================================================ -->
+<div class="section" id="sec-method">
+  <h2 class="section-head">4 &nbsp;Method</h2>
+
+  <!-- 4.1 Overview -->
+  <h3 class="subsection-head">4.1 &nbsp;System Overview</h3>
+
+  <div class="flow">Offline (one-time)                           Online (per query)
+─────────────────────────────────          ─────────────────────────────
+① Procedural forest generation              Current pose p ← start
+   ↓ (maps/forest.py)                         │
+② HA*+RS full solve → keep successes          ├─ Stop criterion:
+   ↓ (pathplan library)                       │    RS_free(p → goal)?
+③ Greedy RS segmentation                      │      yes → RS direct, output ✓
+   → subgoal ground-truth sequences           │      no  ↓
+   ↓ (Algorithm 1)                            ├─ Feature extraction f(p; goal, map)
+④ Featurize → (feature, Δpose) pairs          ├─ KNN lookup → next subgoal ĝ
+   ↓                                          ├─ Feasibility check: RS_free(p→ĝ)?
+⑤ Build KNN library / train MLP               │    no → fallback F1/F2/F3 (§4.6)
+                                              ├─ Segment HA*(p→ĝ), analytic first
+                                              └─ p ← ĝ, repeat (up to K_max steps)</div>
+
+  <p>The learning module answers exactly one question: <em>"Standing at the current pose, with the goal over there and local tree obstacles shaped like this — where should the next intermediate pose be?"</em> This is the N3P question asked repeatedly to form a sequence.</p>
+
+  <div style="position:relative">
+    <div class="margin-note" style="top:-40px">
+      <span class="mn-label">与 N3P 对比</span>
+      N3P 预测 1 个准备位姿（泊车单瓶颈）。我们逐步调用同一预测器形成序列（森林多瓶颈）。标签哲学、KNN 模型、fallback 策略继承自 N3P。
+    </div>
+  </div>
+
+  <!-- 4.2 Label Extraction -->
+  <h3 class="subsection-head">4.2 &nbsp;Offline Label Extraction: Greedy RS-Reachable Segmentation</h3>
+
+  <p>Given a successful teacher path <em>P</em> : [0, <em>S</em>] → <em>X</em><sub>free</sub> (arc-length parameterized, <em>P</em>(0) = <strong>x</strong><sub>s</sub>, <em>P</em>(<em>S</em>) = <strong>x</strong><sub>g</sub>), we extract an ordered subgoal sequence by greedily finding the farthest RS-reachable point at each step:</p>
+
+  <div class="algorithm">
+    <div class="algo-header">Algorithm 1 &nbsp;Forward Greedy RS-Reachable Segmentation (Label Extraction)</div>
+    <div class="algo-body">
+      <div class="algo-io">
+        <strong>Input:</strong> Teacher path <em>P</em> : [0, <em>S</em>] → <em>X</em><sub>free</sub> (arc-length parameterized)<br>
+        <strong>Output:</strong> Subgoal sequence (<em>g</em><sub>1</sub>, …, <em>g<sub>K</sub></em>) and sample set {(<strong>f</strong>(<em>g<sub>i</sub></em>), Δ<sub><em>i</em></sub>)}<br>
+        <strong>Params:</strong> <em>L</em><sub>max</sub> = 8 m (max segment length), <em>L</em><sub>min</sub> = 1.5 m (min forward progress)
+      </div>
+      <div class="algo-line" data-num="1"><em>g</em><sub>0</sub> ← <em>P</em>(0);  <em>s</em><sub>0</sub> ← 0;  <em>i</em> ← 0</div>
+      <div class="algo-line" data-num="2"><span class="kw">while</span> ¬( RS<sub>free</sub>(<em>g<sub>i</sub></em>, <strong>x</strong><sub>g</sub>) ∧ len(RS(<em>g<sub>i</sub></em>, <strong>x</strong><sub>g</sub>)) ≤ <em>L</em><sub>max</sub> ):</div>
+      <div class="algo-line" data-num="3">    <em>S<sub>i</sub></em> ← { <em>s</em> ∈ (<em>s<sub>i</sub></em>, <em>S</em>] : RS<sub>free</sub>(<em>g<sub>i</sub></em>, <em>P</em>(<em>s</em>)) ∧ len ≤ <em>L</em><sub>max</sub> }</div>
+      <div class="algo-line" data-num="4">    <span class="kw">if</span> <em>S<sub>i</sub></em> = ∅ <span class="kw">or</span> max(<em>S<sub>i</sub></em>) − <em>s<sub>i</sub></em> < <em>L</em><sub>min</sub>:</div>
+      <div class="algo-line" data-num="5">        fail_count += 1; discard <em>P</em>; <span class="kw">return</span> ∅ <span class="comment">▷ label failure</span></div>
+      <div class="algo-line" data-num="6">    <em>s</em><sub><em>i</em>+1</sub> ← max(<em>S<sub>i</sub></em>);  <em>g</em><sub><em>i</em>+1</sub> ← <em>P</em>(<em>s</em><sub><em>i</em>+1</sub>) <span class="comment">▷ farthest RS-reachable</span></div>
+      <div class="algo-line" data-num="7">    Δ<sub><em>i</em></sub> ← <em>g</em><sub><em>i</em>+1</sub> ⊖ <em>g<sub>i</sub></em> <span class="comment">▷ relative pose in g_i body frame</span></div>
+      <div class="algo-line" data-num="8">    emit sample (<strong>f</strong>(<em>g<sub>i</sub></em>), Δ<sub><em>i</em></sub>);  <em>i</em> ← <em>i</em> + 1</div>
+      <div class="algo-line" data-num="9"><em>K</em> ← <em>i</em> <span class="comment">▷ final segment: RS direct to goal, no sample emitted</span></div>
+    </div>
+  </div>
+
+  <p><strong>Semantics.</strong> Each subgoal is the farthest point along the teacher path that can be reached from the previous subgoal by a single collision-free RS curve. This is the sequential generalization of N3P's "analytic-expansion success point" label: where N3P has one such point (the bottleneck), forests have many.</p>
+
+  <p><strong>Constructive property.</strong> By construction, RS<sub>free</sub>(<em>g<sub>i</sub></em>, <em>g</em><sub><em>i</em>+1</sub>) holds for every <em>i</em>. Corollary: within the teacher distribution and on the same static map, the online analytic expansion should hit on the first attempt — Hybrid A* serves only as insurance. This property degrades when the actual pose drifts from <em>g<sub>i</sub></em>; the degradation is quantified by the subgoal reachability rate (§5).</p>
+
+  <p><strong>Failure handling.</strong> Line 4–5: if the farthest reachable point makes less than <em>L</em><sub>min</sub> = 1.5 m forward progress, the entire teacher path is discarded. This prevents fragmented labels in dense clusters. The label failure rate is monitored during pilot experiments.</p>
+
+  <p><strong>Sample yield.</strong> Each teacher path produces <em>K</em> samples (<strong>f</strong>(<em>g<sub>i</sub></em>), Δ<sub><em>i</em></sub>), where Δ<sub><em>i</em></sub> is expressed in the body frame of <em>g<sub>i</sub></em> — making feature-label pairs invariant to global SE(2) transforms, a prerequisite for cross-map generalization.</p>
+
+  <div style="position:relative">
+    <div class="margin-note" style="top:-60px">
+      <span class="mn-label">已知风险 · §8.1</span>
+      此规则的标签落点常在开阔地（RS 可达区域自然远离瓶颈），与局部几何特征的关联弱于瓶颈规则。若 KNN 学不动，标签 ablation 会暴露此问题。
+    </div>
+  </div>
+
+  <!-- 4.3 Feature Design -->
+  <h3 class="subsection-head">4.3 &nbsp;Feature Design: Environment Abstraction for Forests</h3>
+
+  <p>N3P's parking abstraction uses 4 closed-form parameters (lane width, spot width, dead-end depth, type). This is possible because parking geometries are regular. Forest environments have irregular, distributed obstacles with no such low-dimensional structure. We design a 41-dimensional hand-crafted feature vector <strong>f</strong> ∈ ℝ<sup>41</sup>, computed entirely in the current pose's body frame:</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Group</th><th>Definition</th><th>Dim</th><th>Rationale</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Goal distance</td>
+          <td><em>f</em><sub>1</sub> = log(1 + ‖<strong>p</strong><sub>g</sub> − <strong>p</strong>‖)</td>
+          <td>1</td>
+          <td>Log-compressed to handle long ranges</td>
+        </tr>
+        <tr>
+          <td>Goal bearing</td>
+          <td>(sin <em>α</em>, cos <em>α</em>), <em>α</em> = goal azimuth in body frame</td>
+          <td>2</td>
+          <td>sin/cos avoids angle wraparound discontinuity</td>
+        </tr>
+        <tr>
+          <td>Goal heading diff</td>
+          <td>(sin Δ<em>θ</em><sub>g</sub>, cos Δ<em>θ</em><sub>g</sub>), Δ<em>θ</em><sub>g</sub> = <em>θ</em><sub>g</sub> − <em>θ</em></td>
+          <td>2</td>
+          <td>Final-segment alignment signal</td>
+        </tr>
+        <tr>
+          <td>Clearance profile</td>
+          <td><em>f</em><sub>5+<em>j</em></sub> = log(1 + <em>ρ<sub>j</sub></em>),&nbsp; <em>ρ<sub>j</sub></em> = min(<em>R</em><sub>max</sub>, distance to first occupied cell along body-frame direction <em>φ<sub>j</sub></em> = 2π<em>j</em>/32),&nbsp; <em>j</em> = 0..31</td>
+          <td>32</td>
+          <td>Local obstacle layout; tree gaps appear as adjacent-ray distance peaks</td>
+        </tr>
+        <tr>
+          <td>Density statistics</td>
+          <td>Fraction of occupied cells in annular bands [0,2), [2,5), [5,10) m</td>
+          <td>3</td>
+          <td>Coarse crowdedness measure at three scales</td>
+        </tr>
+        <tr>
+          <td>Kinematics</td>
+          <td>Reverse flag <em>b</em> ∈ {0,1} (set to 0 in v1)</td>
+          <td>1</td>
+          <td>Reserved for future use</td>
+        </tr>
+        <tr style="font-weight:600;background:var(--accent-light)">
+          <td colspan="2" style="text-align:right">Total</td>
+          <td>41</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>Ray-cast clearance profile</strong> is the key component. It is a geometric query on the prior occupancy grid — not a sensor measurement. Tree gaps manifest as peaks in adjacent ray distances; the KNN distance metric can sense these patterns without explicitly detecting gaps. This feature vector is our "environment abstraction" — the forest counterpart to N3P's 4-parameter parking abstraction, and one of the contributions.</p>
+
+  <div style="position:relative">
+    <div class="margin-note" style="top:-20px">
+      <span class="mn-label">术语红线</span>
+      "ray-cast 净空轮廓"≠ LiDAR。这是先验图上的几何查询，与传感器无关。论文中禁用"激光雷达""LiDAR"描述此特征。
+    </div>
+  </div>
+
+  <p><strong>Distance metric.</strong> Training-set per-dimension z-score normalization (μ<sub><em>l</em></sub>, σ<sub><em>l</em></sub>). Distance: <em>d</em>(<strong>f</strong>, <strong>f</strong>′) = ‖(<strong>f</strong> − <strong>f</strong>′) ⊘ <strong>σ</strong>‖<sub>2</sub>. v1 uses uniform weights; pilot experiments may up-weight the goal group.</p>
+
+  <!-- 4.4 Learning Module -->
+  <h3 class="subsection-head">4.4 &nbsp;Learning Module</h3>
+
+  <p><strong>Primary model: KNN(k=1).</strong> The sample library is <em>D</em> = {(<strong>f</strong><sub><em>n</em></sub>, Δ<sub><em>n</em></sub>)}<sub><em>n</em>=1</sub><sup><em>N</em></sup>. For a query feature <strong>f</strong>, the predictor returns <em>π</em>(<strong>f</strong>) = Δ<sub><em>n</em>*</sub> where <em>n</em>* = argmin<sub><em>n</em></sub> <em>d</em>(<strong>f</strong>, <strong>f</strong><sub><em>n</em></sub>). The world-frame subgoal is <em>ĝ</em> = <strong>x</strong> ⊕ <em>π</em>(<strong>f</strong>), where ⊕ is SE(2) composition.</p>
+
+  <p><strong>Key property inherited from N3P:</strong> KNN output is always a real relative pose from the teacher data — it cannot hallucinate poses that never appeared in training. However, it does <em>not</em> guarantee collision-free on the current map (the sample may come from a different map), so online feasibility checking remains essential.</p>
+
+  <p><strong>Library scale.</strong> Estimated ~2,000 maps × ~10 queries × ~6 segments ≈ 1.2 × 10<sup>5</sup> samples. At 41 dimensions × float32, this is ~20 MB (comparable to N3P's 47.8 MB KNN library). KD-tree construction is <em>O</em>(<em>N</em> log <em>N</em>); at 41 dimensions, KD-tree query performance degrades toward linear scan, but even linear scan over 1.2 × 10<sup>5</sup> 41-dimensional distance computations takes single-digit milliseconds — not a bottleneck.</p>
+
+  <p><strong>Ablation model: MLP.</strong> A 4-layer fully-connected network (~10<sup>5</sup> parameters) regressing Δ directly. Known risk: multi-modal averaging — when two viable tree gaps exist, the MLP's mean prediction lands on the trunk between them. This mirrors the MLP failure mode observed in N3P and is handled by the same feasibility check + fallback mechanism.</p>
+
+  <!-- 4.5 Online Inference -->
+  <h3 class="subsection-head">4.5 &nbsp;Online Sequential Inference</h3>
+
+  <div class="algorithm">
+    <div class="algo-header">Algorithm 2 &nbsp;Online Sequential Inference</div>
+    <div class="algo-body">
+      <div class="algo-io">
+        <strong>Input:</strong> Query <em>q</em> = (<em>M</em>, <strong>x</strong><sub>s</sub>, <strong>x</strong><sub>g</sub>), sample library <em>D</em><br>
+        <strong>Output:</strong> Feasible path <em>τ</em> (method solution or F3 fallback)<br>
+        <strong>Params:</strong> <em>K</em><sub>max</sub> = ⌈2‖<strong>p</strong><sub>s</sub> − <strong>p</strong><sub>g</sub>‖/<em>L</em><sub>min</sub>⌉, <em>N</em><sub>seg</sub> = 2000
+      </div>
+      <div class="algo-line" data-num="1"><em>p</em> ← <strong>x</strong><sub>s</sub>;  <em>τ</em> ← ∅</div>
+      <div class="algo-line" data-num="2"><span class="kw">for</span> step = 1 .. <em>K</em><sub>max</sub>:</div>
+      <div class="algo-line" data-num="3">    <span class="kw">if</span> RS<sub>free</sub>(<em>p</em>, <strong>x</strong><sub>g</sub>): <span class="kw">return</span> <em>τ</em> ⊕ RS(<em>p</em>, <strong>x</strong><sub>g</sub>) <span class="comment">▷ stop criterion</span></div>
+      <div class="algo-line" data-num="4">    <em>ĝ</em> ← <em>p</em> ⊕ <em>π</em>(<strong>f</strong>(<em>p</em>)) <span class="comment">▷ KNN predict + body-to-world</span></div>
+      <div class="algo-line" data-num="5">    <span class="kw">if</span> ¬RS<sub>free</sub>(<em>p</em>, <em>ĝ</em>):  <em>ĝ</em> ← F1(<em>p</em>) <span class="comment">▷ 2nd..kth neighbor retry</span></div>
+      <div class="algo-line" data-num="6">    <span class="kw">if</span> F1 all fail:  goto F2/F3 (§4.6)</div>
+      <div class="algo-line" data-num="7">    <em>τ</em><sub>seg</sub> ← HA*(<em>p</em> → <em>ĝ</em> | analytic-first, budget <em>N</em><sub>seg</sub>) <span class="comment">▷ segment connect</span></div>
+      <div class="algo-line" data-num="8">    <span class="kw">if</span> <em>τ</em><sub>seg</sub> fail:  goto F2/F3 (§4.6)</div>
+      <div class="algo-line" data-num="9">    <em>τ</em> ← <em>τ</em> ⊕ <em>τ</em><sub>seg</sub>;  <em>p</em> ← <em>ĝ</em></div>
+      <div class="algo-line" data-num="10">    <span class="kw">if</span> ‖<em>p</em> − <strong>p</strong><sub>g</sub>‖ no decrease for 2 consecutive steps: goto F3 <span class="comment">▷ stall guard</span></div>
+      <div class="algo-line" data-num="11">goto F3 <span class="comment">▷ step limit exceeded</span></div>
+    </div>
+  </div>
+
+  <p>The stop criterion (line 3) matches the label termination condition (Algorithm 1 line 2) — both are "RS can reach the goal directly." v1 applies no post-processing smoothing, keeping the comparison with baselines fair.</p>
+
+  <p><strong>Per-query cost decomposition</strong> (mechanism-level; measured values to be reported in §6):</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Component</th><th>Invocations</th><th>Per-invocation cost</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Feature extraction</td><td>≤ <em>K</em><sub>max</sub></td><td><em>n</em><sub>ray</sub> grid marches <em>O</em>(<em>R</em><sub>max</sub>/<em>r</em>) + band statistics <em>O</em>((<em>R</em><sub>max</sub>/<em>r</em>)²)</td></tr>
+        <tr><td>KNN query</td><td>≤ <em>K</em><sub>max</sub></td><td>Upper bound <em>O</em>(<em>d</em> · <em>N</em>), empirically ms-level</td></tr>
+        <tr><td>RS feasibility check</td><td>≤ <em>k</em> · <em>K</em><sub>max</sub></td><td><em>O</em>(len/<em>r</em>) sampled collision checks</td></tr>
+        <tr><td>Segment HA*</td><td>≤ <em>K</em><sub>max</sub></td><td>≤ <em>N</em><sub>seg</sub> expansions; in-distribution: analytic first hit</td></tr>
+        <tr><td>Final RS direct</td><td>1</td><td><em>O</em>(len/<em>r</em>)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>Structural comparison with vanilla.</strong> Vanilla Hybrid A* expands nodes over the full start-to-goal distance, with expansion count growing rapidly in distance and density. Our method replaces this single long search with <em>K</em> bounded short searches (each capped at <em>N</em><sub>seg</sub> = 2,000 expansions) plus constant-cost learning overhead. The time benefit comes from this structural replacement — a mechanistic claim verified empirically in §6, not an a priori assertion.</p>
+
+  <!-- 4.6 Fallback -->
+  <h3 class="subsection-head">4.6 &nbsp;Fallback Hierarchy and Completeness</h3>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Level</th><th>Trigger</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>F1</strong></td>
+          <td>RS(<em>p</em> → <em>ĝ</em>) collides</td>
+          <td>Retry with 2nd..kth nearest neighbors (k ≤ 5)</td>
+        </tr>
+        <tr>
+          <td><strong>F2</strong></td>
+          <td>All F1 candidates fail</td>
+          <td>Run HA*(<em>p</em> → <em>ĝ</em>) with budget <em>N</em><sub>seg</sub>; if still fails, try HA*(<em>p</em> → goal) with limited budget</td>
+        </tr>
+        <tr>
+          <td><strong>F3</strong></td>
+          <td>F2 fails / step limit / stall</td>
+          <td>Full vanilla HA* on original query <em>q</em></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>Completeness argument.</strong> Let <em>Q<sub>v</sub></em> be the set of queries solvable by vanilla Hybrid A* within its budget. F3 runs the same vanilla Hybrid A* on the original query when the method fails, so the method's success set ⊇ <em>Q<sub>v</sub></em>. We inherit vanilla Hybrid A*'s completeness level — which is resolution- and budget-limited — and claim nothing stronger. We also do not claim optimality.</p>
+
+  <p><strong>Worst-case overhead.</strong> <em>T</em><sub>F-N3P</sub> ≤ <em>T</em><sub>overhead</sub> + <em>T</em><sub>vanilla</sub>, where <em>T</em><sub>overhead</sub> is the total cost of the sequential prediction phase (features + queries + checks + segment searches), bounded by <em>K</em><sub>max</sub> and per-component budgets. A high fallback trigger rate means time benefits vanish — this is precisely Failure Signal ① in the research contract.</p>
+
+  <div style="position:relative">
+    <div class="margin-note" style="top:-30px">
+      <span class="mn-label">Contract 草案</span>
+      Failure signal ①：fallback 触发率 >30% 且时间收益消失。这是方法不 work 的最直接信号。
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 5. EXPERIMENTAL SETUP -->
+<!-- ============================================================ -->
+<div class="section" id="sec-experiment">
+  <h2 class="section-head">5 &nbsp;Experimental Setup</h2>
+
+  <h3 class="subsection-head">5.1 &nbsp;Scenario Generation and Difficulty Axes</h3>
+
+  <p>Training environments are procedurally generated forests with three difficulty axes:</p>
+  <ul>
+    <li><strong>Tree density</strong> <em>λ</em> (trees per unit area)</li>
+    <li><strong>Minimum gap ratio</strong> <em>w</em><sub>min</sub> / <em>w</em><sub>veh</sub> (narrowest gap vs. vehicle width)</li>
+    <li><strong>Start-goal distance</strong> <em>d</em><sub>sg</sub> (Euclidean)</li>
+  </ul>
+
+  <p>At least 3 × 3 buckets with effective coverage, following the spirit of N3P's Easy/Complex/Extreme difficulty levels. Exact cut-points for each axis are calibrated during pilot experiments and frozen in the Research Contract.</p>
+
+  <p><strong>Data splits:</strong></p>
+  <ul>
+    <li><strong>Train:</strong> ~2,000 procedural forest maps (multi-density, multi-seed)</li>
+    <li><strong>Validation:</strong> Same-distribution, new seeds</li>
+    <li><strong>Test:</strong> (a) Unseen procedural maps (in-distribution), (b) OOD density buckets (extrapolation), (c) Real SLAM occupancy grids (existing RealMap assets, test-only)</li>
+  </ul>
+
+  <p><strong>Seed discipline:</strong> ≥5 training seeds for the learning module; ≥100 evaluation queries per bucket; report min/mean/median/P95.</p>
+
+  <h3 class="subsection-head">5.2 &nbsp;Baselines</h3>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Baseline</th><th>Role</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Vanilla HA*+RS</td>
+          <td>Primary comparison (including 2D heuristic DP precomputation in timing)</td>
+          <td>Existing implementation</td>
+        </tr>
+        <tr>
+          <td>N3P-style single subgoal (K=1)</td>
+          <td>Proves "sequence" is necessary (degenerate version, same features/model)</td>
+          <td>Degenerate case of our method</td>
+        </tr>
+        <tr>
+          <td>Voronoi/skeleton waypoint HA*</td>
+          <td>Rule-based decomposition comparison</td>
+          <td>Needs implementation</td>
+        </tr>
+        <tr>
+          <td>Hand-crafted bottleneck waypoint</td>
+          <td>Proves "learning" is necessary (medial-axis narrow-passage extraction)</td>
+          <td>Needs implementation</td>
+        </tr>
+        <tr>
+          <td>MD-DQN rollout</td>
+          <td>RL baseline (corresponds to N3P's HOPE comparison)</td>
+          <td>Existing, needs re-evaluation on v9 scenarios</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>Fairness protocol.</strong> All baselines share the same pathplan implementation, dual-circle collision model, and timing protocol. Rule-based waypoint baselines use the same segment HA* for inter-waypoint connection — isolating "where do decomposition points come from" as the sole independent variable.</p>
+
+  <h3 class="subsection-head">5.3 &nbsp;Ablation Studies</h3>
+  <ul>
+    <li><strong>Label rules:</strong> Greedy RS-reachable (ours) vs. bottleneck-pose vs. curvature-boundary</li>
+    <li><strong>Model:</strong> KNN(k=1) vs. MLP</li>
+    <li><strong>KNN k value:</strong> k = 1, 3, 5</li>
+    <li><strong>Feature groups:</strong> ±density statistics, ±goal heading diff, ray count 16/32/64</li>
+    <li><strong>Segment length:</strong> <em>L</em><sub>max</sub> = 4, 6, 8, 12 m</li>
+    <li><strong>Sequence:</strong> Fixed subgoal count vs. variable (adaptive)</li>
+    <li><strong>Fallback:</strong> Progressive disabling of F1 → F2 → F3</li>
+    <li><strong>Robustness:</strong> Gaussian noise injected into predicted subgoal <em>ĝ</em></li>
+  </ul>
+
+  <h3 class="subsection-head">5.4 &nbsp;Metrics</h3>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Metric</th><th>Definition</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Planning time <em>T</em></td><td>Wall-clock from query receipt to path return, including 2D heuristic DP precomputation, feature extraction, KNN query, feasibility checks, all search, and all fallbacks</td></tr>
+        <tr><td>Node expansions <em>E</em></td><td>Sum of all HA* expansions for the query (including F2/F3)</td></tr>
+        <tr><td>Success rate SR</td><td>Fraction of queries returning a feasible path within budget</td></tr>
+        <tr><td>Path length inflation</td><td>len(<em>τ</em>)/len(<em>τ</em><sub>vanilla</sub>) − 1, computed only on mutually successful queries; SR reported alongside</td></tr>
+        <tr><td>Direction switches</td><td>Count of forward↔reverse transitions (N3P metric)</td></tr>
+        <tr><td>Minimum clearance</td><td>min<sub><strong>x</strong>∈<em>τ</em></sub> dist(<em>B</em>(<strong>x</strong>), Occ)</td></tr>
+        <tr><td>Collision violations</td><td>Dual-circle collision count along returned path (sanity, should be 0)</td></tr>
+        <tr><td>Fallback rates</td><td>Fraction of queries triggering F1 / F2 / F3, reported per level</td></tr>
+        <tr><td>Subgoal reachability</td><td>Per-step fraction where RS<sub>free</sub>(<em>p</em>, <em>ĝ</em>) holds on first attempt</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>Timing protocol.</strong> Single-threaded, same machine, load-isolated. All method-side overhead (features, KNN, checks) included in <em>T</em> — no "bare search time" comparisons allowed. Statistics: ≥5 seeds × ≥100 queries per bucket; main table reports median and P95, supplementary shows min/mean.</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- 6. RESULTS [PLACEHOLDER] -->
+<!-- ============================================================ -->
+<div class="section" id="sec-results">
+  <h2 class="section-head">6 &nbsp;Results</h2>
+
+  <div class="placeholder-box">
+    <div class="ph-label">Placeholder — 待实验填充</div>
+    <div class="ph-desc">
+      此节将包含以下内容，在实验完成后按 Contract 判定写入：<br><br>
+      <strong>6.1</strong> 主对比表：F-N3P vs. Vanilla HA* vs. 各 Baseline，按难度桶分别报告 <em>T</em>, <em>E</em>, SR, 路径膨胀率<br>
+      <strong>6.2</strong> Ablation 结果表：标签规则 / 特征组 / 模型 / 参数敏感性<br>
+      <strong>6.3</strong> Fallback 分析：各级触发率 vs. 难度桶<br>
+      <strong>6.4</strong> 泛化测试：OOD 密度桶 + 真实 SLAM 地图结果<br>
+      <strong>6.5</strong> 定性可视化：子目标序列 + 路径对比图<br><br>
+      所有数字以脚本/代码自动输出为准，AI 解读须标明并置于原始数据之后。
+    </div>
+  </div>
+
+  <div style="position:relative">
+    <div class="margin-note placeholder-note" style="top:-160px">
+      <span class="mn-label">Contract 判定标准</span>
+      Success: Complex/Extreme 桶 median T 缩减 ≥50%，SR ≥-2pp，路径膨胀 ≤5%，且在未见图+真实地图同时成立。<br><br>
+      Failure（独立定义）：① fallback >30% ② OOD SR 跌 >5pp ③ 与规则 waypoint 无差异 ④ 真实地图收益 <20%
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 7. CONCLUSION [PLACEHOLDER] -->
+<!-- ============================================================ -->
+<div class="section" id="sec-conclusion">
+  <h2 class="section-head">7 &nbsp;Conclusion</h2>
+
+  <div class="placeholder-box">
+    <div class="ph-label">Placeholder — 待实验结果确定后撰写</div>
+    <div class="ph-desc">
+      结论将基于实验结果按 Contract 判定写入。<br>
+      包含：方法总结、主要发现、局限性与诚实边界（稀疏图收益趋零、OOD 限制）、未来工作方向。
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- NOTATION TABLE -->
+<!-- ============================================================ -->
+<div class="section" id="sec-notation">
+  <h2 class="section-head">Appendix &nbsp;Notation Summary</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Symbol</th><th>Meaning</th><th>Value / Default</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><em>M</em>, <em>r</em>, <em>W</em></td><td>Occupancy map / resolution / workspace</td><td><em>r</em> = 0.1 m, ~30 × 30 m</td></tr>
+        <tr><td><strong>x</strong> = (<strong>p</strong>, <em>θ</em>)</td><td>SE(2) vehicle state</td><td>—</td></tr>
+        <tr><td><em>ρ</em><sub>min</sub></td><td>Minimum turning radius</td><td>From pathplan config</td></tr>
+        <tr><td><em>B</em>(<strong>x</strong>)</td><td>Body footprint (dual-circle)</td><td>Wheelbase ~0.6 m</td></tr>
+        <tr><td><em>L</em><sub>max</sub>, <em>L</em><sub>min</sub></td><td>Max segment length / min forward progress</td><td>8 m / 1.5 m (pilot)</td></tr>
+        <tr><td><strong>f</strong> ∈ ℝ<sup>41</sup></td><td>Hand-crafted feature vector</td><td>§4.3</td></tr>
+        <tr><td><em>D</em>, <em>N</em></td><td>Sample library / library size</td><td>~1.2 × 10<sup>5</sup></td></tr>
+        <tr><td><em>K</em><sub>max</sub></td><td>Step limit</td><td>⌈2‖<strong>p</strong><sub>s</sub> − <strong>p</strong><sub>g</sub>‖/<em>L</em><sub>min</sub>⌉</td></tr>
+        <tr><td><em>N</em><sub>seg</sub></td><td>Per-segment node budget</td><td>2,000</td></tr>
+        <tr><td><em>R</em><sub>max</sub>, <em>n</em><sub>ray</sub></td><td>Ray truncation radius / ray count</td><td>10 m / 32</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div><!-- /.page -->
+
+<!-- Canvas: procedural forest + path visualization -->
+<script>
+(function() {
+  const c = document.getElementById('forest-vis');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+
+  // seeded RNG
+  let seed = 42;
+  function rand() { seed = (seed * 16807 + 0) % 2147483647; return (seed - 1) / 2147483646; }
+
+  // ground
+  ctx.fillStyle = '#E8E6DD';
+  ctx.fillRect(0, 0, W, H);
+
+  // grid lines
+  ctx.strokeStyle = '#D5D3CA';
+  ctx.lineWidth = 0.5;
+  for (let x = 0; x < W; x += 10) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 10) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+
+  // generate trees
+  const trees = [];
+  for (let i = 0; i < 55; i++) {
+    const tx = 15 + rand() * (W - 30);
+    const ty = 10 + rand() * (H - 20);
+    const tr = 3 + rand() * 5;
+    let ok = true;
+    for (const t of trees) {
+      const dx = t.x - tx, dy = t.y - ty;
+      if (dx*dx + dy*dy < (t.r + tr + 4) * (t.r + tr + 4)) { ok = false; break; }
+    }
+    if (ok) trees.push({x: tx, y: ty, r: tr});
+  }
+
+  // draw trees
+  for (const t of trees) {
+    ctx.beginPath();
+    ctx.arc(t.x, t.y, t.r, 0, Math.PI * 2);
+    ctx.fillStyle = '#8B9A7B';
+    ctx.fill();
+    ctx.strokeStyle = '#6B7A5B';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // path waypoints (pre-defined to weave through)
+  const path = [
+    {x: 12, y: H - 15}, {x: 40, y: H - 35}, {x: 70, y: H - 50},
+    {x: 95, y: H - 40}, {x: 120, y: H - 65}, {x: 145, y: H - 55},
+    {x: 170, y: H - 80}, {x: 190, y: H - 100}, {x: 185, y: 30}
+  ];
+
+  // draw path
+  ctx.beginPath();
+  ctx.moveTo(path[0].x, path[0].y);
+  for (let i = 1; i < path.length; i++) {
+    const prev = path[i-1], curr = path[i];
+    const mx = (prev.x + curr.x) / 2, my = (prev.y + curr.y) / 2;
+    ctx.quadraticCurveTo(prev.x, prev.y, mx, my);
+  }
+  ctx.lineTo(path[path.length-1].x, path[path.length-1].y);
+  ctx.strokeStyle = '#2B6844';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([]);
+  ctx.stroke();
+
+  // subgoal markers
+  for (let i = 1; i < path.length - 1; i++) {
+    const p = path[i];
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#D4782F';
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  // start / goal
+  ctx.beginPath();
+  ctx.arc(path[0].x, path[0].y, 5, 0, Math.PI * 2);
+  ctx.fillStyle = '#2B6844';
+  ctx.fill();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.fillStyle = '#1A1D23';
+  ctx.font = '600 9px system-ui, sans-serif';
+  ctx.fillText('S', path[0].x - 3, path[0].y - 9);
+
+  const last = path[path.length-1];
+  ctx.beginPath();
+  ctx.arc(last.x, last.y, 5, 0, Math.PI * 2);
+  ctx.fillStyle = '#C0392B';
+  ctx.fill();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.fillStyle = '#1A1D23';
+  ctx.fillText('G', last.x - 3, last.y - 9);
+
+  // legend
+  ctx.fillStyle = '#6B6960';
+  ctx.font = '8px system-ui, sans-serif';
+  ctx.fillText('● subgoal', 8, 12);
+})();
+</script>

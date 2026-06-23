@@ -1,0 +1,656 @@
+<title>ForestNav 项目全景 — F-N3P</title>
+<style>
+:root {
+  --ground: #F3F4F7;
+  --surface: #FFFFFF;
+  --text: #1E2028;
+  --text-2: #6B7085;
+  --accent: #2E6B8A;
+  --accent-light: #E6F0F5;
+  --decision: #C44030;
+  --decision-bg: #FDF0EE;
+  --locked: #2A8A5B;
+  --locked-bg: #E8F5EE;
+  --pilot: #B07D20;
+  --pilot-bg: #FDF8E8;
+  --open: #7B7B7B;
+  --open-bg: #F2F2F2;
+  --border: #DDE0E8;
+  --nav-w: 210px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,-apple-system,'PingFang SC','Noto Sans CJK SC',sans-serif;font-size:15px;line-height:1.7;color:var(--text);background:var(--ground)}
+
+/* NAV */
+.nav{position:fixed;left:0;top:0;width:var(--nav-w);height:100vh;background:var(--surface);border-right:1px solid var(--border);padding:20px 0;overflow-y:auto;z-index:10}
+.nav-title{font-size:13px;font-weight:700;color:var(--accent);padding:0 16px 12px;letter-spacing:.04em}
+.nav a{display:block;padding:7px 16px;font-size:13px;color:var(--text-2);text-decoration:none;border-left:3px solid transparent;transition:all .15s}
+.nav a:hover,.nav a.active{color:var(--accent);background:var(--accent-light);border-left-color:var(--accent)}
+.nav .nav-badge{display:inline-block;background:var(--decision);color:#fff;font-size:10px;font-weight:700;border-radius:8px;padding:0 6px;margin-left:4px;vertical-align:1px}
+
+/* MAIN */
+.main{margin-left:var(--nav-w);padding:28px 32px 80px}
+.main-header{margin-bottom:32px;padding-bottom:20px;border-bottom:2px solid var(--accent)}
+.main-header h1{font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px}
+.main-header p{font-size:13px;color:var(--text-2)}
+
+/* STATUS BAR */
+.status-bar{display:flex;gap:16px;margin-bottom:28px;flex-wrap:wrap}
+.status-card{flex:1;min-width:160px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 18px}
+.status-card .sc-label{font-size:11px;font-weight:600;color:var(--text-2);letter-spacing:.04em;margin-bottom:4px}
+.status-card .sc-value{font-size:18px;font-weight:700;color:var(--accent)}
+.status-card .sc-value.warn{color:var(--decision)}
+
+/* SECTIONS */
+.section{background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;overflow:hidden}
+.section-head{display:flex;align-items:center;gap:10px;padding:14px 20px;cursor:pointer;user-select:none;transition:background .15s}
+.section-head:hover{background:var(--accent-light)}
+.section-head .arrow{font-size:12px;color:var(--text-2);transition:transform .2s;flex-shrink:0}
+.section-head.open .arrow{transform:rotate(90deg)}
+.section-head h2{font-size:15px;font-weight:700;color:var(--text);flex:1}
+.section-body{display:none;padding:0 20px 18px;border-top:1px solid var(--border)}
+.section-head.open+.section-body{display:block}
+
+/* BADGES */
+.badge{display:inline-block;font-size:10px;font-weight:700;border-radius:4px;padding:2px 8px;vertical-align:1px}
+.badge-decision{background:var(--decision-bg);color:var(--decision)}
+.badge-locked{background:var(--locked-bg);color:var(--locked)}
+.badge-pilot{background:var(--pilot-bg);color:var(--pilot)}
+.badge-open{background:var(--open-bg);color:var(--open)}
+.badge-done{background:var(--locked-bg);color:var(--locked)}
+.badge-todo{background:var(--open-bg);color:var(--open)}
+
+/* TABLES */
+.tbl{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0}
+.tbl th{text-align:left;padding:8px 12px;background:var(--accent);color:#fff;font-weight:600;font-size:12px}
+.tbl td{padding:7px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:nth-child(even){background:#FAFBFC}
+
+/* DECISION ITEM */
+.decision{background:var(--decision-bg);border:1px solid #E8C0BB;border-radius:6px;padding:12px 16px;margin:10px 0}
+.decision .d-q{font-weight:700;font-size:14px;color:var(--decision);margin-bottom:4px}
+.decision .d-ctx{font-size:13px;color:#6B4040;line-height:1.6}
+
+/* SUBSECTION */
+.sub{margin:16px 0 8px;font-size:14px;font-weight:700;color:var(--accent);padding-bottom:4px;border-bottom:1px solid var(--border)}
+
+/* LISTS */
+.section-body ul{margin:8px 0 8px 20px}
+.section-body li{margin-bottom:4px;font-size:14px}
+
+/* FLOW */
+.flow-row{display:flex;align-items:center;gap:8px;margin:12px 0;flex-wrap:wrap}
+.flow-step{background:var(--accent-light);border:1px solid #C0D8E8;border-radius:6px;padding:8px 14px;font-size:13px;font-weight:600;color:var(--accent);text-align:center;min-width:100px}
+.flow-step.highlight{background:var(--decision-bg);border-color:#E8C0BB;color:var(--decision)}
+.flow-arrow{color:var(--text-2);font-size:18px}
+
+/* PARAM STATUS */
+.p-locked{color:var(--locked);font-weight:600}
+.p-pilot{color:var(--pilot);font-weight:600}
+.p-open{color:var(--decision);font-weight:600}
+
+/* RESPONSIVE */
+@media(max-width:800px){
+  .nav{display:none}
+  .main{margin-left:0;padding:16px}
+  .status-bar{flex-direction:column}
+}
+</style>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-title">FORESTNAV</div>
+  <a href="#overview">总览</a>
+  <a href="#method">方法核心</a>
+  <a href="#phase0">阶段 0: 技术预研</a>
+  <a href="#phase1">阶段 1: 主实验</a>
+  <a href="#params">参数清单 <span class="nav-badge">7</span></a>
+  <a href="#baselines">基线矩阵</a>
+  <a href="#ablation">消融矩阵</a>
+  <a href="#metrics">指标体系</a>
+  <a href="#risks">风险与开放问题</a>
+  <a href="#contract">实验预注册 <span class="nav-badge">3</span></a>
+  <a href="#timeline">阶段依赖</a>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+<header class="main-header">
+  <h1>ForestNav 项目全景</h1>
+  <p>F-N3P: Oracle-Supervised Subgoal Decomposition for Hybrid A* in Dense Forests &nbsp;·&nbsp; 2026-06-20</p>
+</header>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <div class="status-card">
+    <div class="sc-label">当前阶段</div>
+    <div class="sc-value">规划</div>
+  </div>
+  <div class="status-card">
+    <div class="sc-label">实验预注册</div>
+    <div class="sc-value warn">未立</div>
+  </div>
+  <div class="status-card">
+    <div class="sc-label">待确认决策</div>
+    <div class="sc-value warn">10 项</div>
+  </div>
+  <div class="status-card">
+    <div class="sc-label">设计稿</div>
+    <div class="sc-value">v1.1 待审</div>
+  </div>
+</div>
+
+<!-- ==================== 总览 ==================== -->
+<div class="section" id="overview">
+  <div class="section-head open" onclick="toggle(this)">
+    <span class="arrow">&#9654;</span>
+    <h2>总览：一句话说清楚在做什么</h2>
+  </div>
+  <div class="section-body">
+    <p style="font-size:15px;margin:12px 0"><strong>问题：</strong>阿克曼小车在密集森林占据栅格图上做全局路径规划，原版 Hybrid A* 因搜索空间爆炸经常超时。</p>
+    <p style="font-size:15px;margin:12px 0"><strong>方法：</strong>学一个"下一步该去哪"的预测器（KNN 查表），把一个长距离难题拆成多段短距离易题，每段用 Hybrid A* 连接。预测失败就回退到原版。</p>
+    <p style="font-size:15px;margin:12px 0"><strong>核心继承：</strong>从 N3P（泊车场景，预测 1 个位姿）扩展到森林（多个位姿形成序列）。</p>
+
+    <div class="sub">阶段推进路线</div>
+    <div class="flow-row">
+      <div class="flow-step highlight">设计稿审阅 ← 当前</div>
+      <span class="flow-arrow">&rarr;</span>
+      <div class="flow-step highlight">立实验预注册</div>
+      <span class="flow-arrow">&rarr;</span>
+      <div class="flow-step">阶段 0: 技术预研</div>
+      <span class="flow-arrow">&rarr;</span>
+      <div class="flow-step">阶段 1: 主实验</div>
+      <span class="flow-arrow">&rarr;</span>
+      <div class="flow-step">写作</div>
+    </div>
+    <p style="font-size:13px;color:var(--text-2);margin-top:8px">红色 = 需要 Dr Sun 动作才能推进。阶段严格按序，不可跳步。</p>
+  </div>
+</div>
+
+<!-- ==================== 方法核心 ==================== -->
+<div class="section" id="method">
+  <div class="section-head" onclick="toggle(this)">
+    <span class="arrow">&#9654;</span>
+    <h2>方法核心：六个关键设计决策</h2>
+    <span class="badge badge-locked">已定 6/6</span>
+  </div>
+  <div class="section-body">
+    <p style="margin:12px 0;font-size:14px">以下决策 2026-06-12 由 Dr Sun 拍板，记录在设计稿 v1.1 §2。如需修改须说明原因。</p>
+    <table class="tbl">
+      <thead><tr><th>#</th><th>决策点</th><th>选定</th><th>放弃方案</th><th>备注</th></tr></thead>
+      <tbody>
+        <tr><td>D1</td><td>序列机制</td><td>逐步预测（每步预测一个子目标）</td><td>缝枚举 A+C 混合</td><td>N3P 忠实路线</td></tr>
+        <tr><td>D2</td><td>输入表示</td><td>41 维手工特征 + KNN(k=1)</td><td>深度特征 / 图像输入</td><td>KNN 为主，MLP 进消融</td></tr>
+        <tr><td>D3</td><td>实验范围</td><td>程序化森林训练 + 未见图 + 真实地图泛化</td><td>只做程序化森林</td><td>查重报告要求泛化测试</td></tr>
+        <tr><td>D4</td><td>标签规则</td><td>解析扩展成功点（贪心 RS 可达分段）</td><td>瓶颈位姿规则</td><td>瓶颈规则进消融对照</td></tr>
+        <tr><td>D5</td><td>旧 DQN 去向</td><td>降为 RL 基线</td><td>继续开发</td><td>对应 N3P 打 HOPE 的角色</td></tr>
+        <tr><td>D6</td><td>Learned heuristic 基线</td><td>降为 optional</td><td>作为正式基线</td><td>文献支点核验失败（Takahashi）</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sub">离线阶段做什么</div>
+    <ol style="margin:8px 0 8px 20px;font-size:14px">
+      <li>用 <code>maps/forest.py</code> 程序化生成大量森林地图（多密度、多种子）</li>
+      <li>用原版 Hybrid A*+RS 全程求解每张图上的多个查询，保留成功路径</li>
+      <li>对每条成功路径跑算法 1（贪心 RS 可达分段），切出子目标真值序列</li>
+      <li>在每个子目标处提取 41 维特征，与对应的相对位姿 Δ 配对</li>
+      <li>建 KNN 样本库（约 12 万条，~20 MB）</li>
+    </ol>
+
+    <div class="sub">在线阶段做什么</div>
+    <ol style="margin:8px 0 8px 20px;font-size:14px">
+      <li>从起点出发，检查 RS 能否无碰撞直达终点</li>
+      <li>不能 → 提取 41 维特征 → KNN 查库 → 预测下一个子目标位姿</li>
+      <li>校验预测位姿是否 RS 无碰撞可达，不行就试第 2~5 近邻（F1 回退）</li>
+      <li>段内 Hybrid A* 连接当前位姿到子目标（解析扩展优先）</li>
+      <li>移动到子目标，重复步骤 1~4</li>
+      <li>RS 能直达终点时收工；全部失败则 F3 回退到原版 Hybrid A*</li>
+    </ol>
+
+    <div class="sub">KNN vs MLP</div>
+    <table class="tbl">
+      <thead><tr><th></th><th>KNN(k=1) — 主模型</th><th>MLP — 消融对照</th></tr></thead>
+      <tbody>
+        <tr><td>本质</td><td>查表：找特征最像的历史记录，返回它的位姿</td><td>拟合函数：神经网络计算出一个位姿</td></tr>
+        <tr><td>输出</td><td>一定是训练集中真实走过的位姿</td><td>可能输出从未出现过的位姿</td></tr>
+        <tr><td>多模态</td><td>无问题——只返回一个最近邻</td><td>有问题——两个可行方向的平均值可能撞障碍</td></tr>
+        <tr><td>训练</td><td>零训练，直接存库</td><td>需梯度下降训练</td></tr>
+        <tr><td>角色</td><td>主模型，论文主结果</td><td>消融实验，证明 KNN 优于 MLP</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== 阶段 0 ==================== -->
+<div class="section" id="phase0">
+  <div class="section-head" onclick="toggle(this)">
+    <span class="arrow">&#9654;</span>
+    <h2>阶段 0: 技术预研（实验预注册批准后启动）</h2>
+    <span class="badge badge-todo">未开始</span>
+  </div>
+  <div class="section-body">
+    <p style="margin:12px 0;font-size:14px">目的：验证技术可行性，标定关键参数。不产出论文数据。</p>
+
+    <table class="tbl">
+      <thead><tr><th>任务</th><th>具体内容</th><th>产出</th><th>状态</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>S1. RS 接口验证</td>
+          <td>确认 pathplan 是否暴露独立的 RS steer + 碰撞检测接口（标签提取和可行性校验需要脱离完整 HA* 调用）</td>
+          <td>接口可用性报告；若不可用，开发 wrapper</td>
+          <td><span class="badge badge-todo">未开始</span></td>
+        </tr>
+        <tr>
+          <td>S2. 标签管线实现</td>
+          <td>实现算法 1（贪心 RS 可达分段），在 10~20 张图上跑通</td>
+          <td>标签提取代码 + 小规模样本</td>
+          <td><span class="badge badge-todo">未开始</span></td>
+        </tr>
+        <tr>
+          <td>S3. 标签质量 Pilot</td>
+          <td>统计标签失败率、每条路径平均段数、段长分布</td>
+          <td>Pilot 报告，决定 L_max/L_min 是否需要调整</td>
+          <td><span class="badge badge-todo">未开始</span></td>
+        </tr>
+        <tr>
+          <td>S4. 特征提取实现</td>
+          <td>实现 41 维特征提取（射线投射 + 目标相对量 + 密度统计）</td>
+          <td>特征提取代码 + 可视化验证</td>
+          <td><span class="badge badge-todo">未开始</span></td>
+        </tr>
+        <tr>
+          <td>S5. 难度切点标定</td>
+          <td>在不同密度/缝宽/距离下跑原版 HA*，观察求解时间分布，确定 Easy/Complex/Extreme 切点</td>
+          <td>难度桶定义（写入 Contract）</td>
+          <td><span class="badge badge-todo">未开始</span></td>
+        </tr>
+        <tr>
+          <td>S6. RealMap 资产清点</td>
+          <td>确认现有真实 SLAM 地图资产，格式兼容性，可用数量</td>
+          <td>可用地图清单</td>
+          <td><span class="badge badge-todo">未开始</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="decision">
+      <div class="d-q">待确认：技术预研在哪跑？</div>
+      <div class="d-ctx">技术预研不涉及 GPU 训练（KNN 无需训练），但批量 HA* 求解可能较慢。Mac 本地是否足够？还是需要用远程 GPU 服务器加速批量求解？</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 阶段 1 ==================== -->
+<div class="section" id="phase1">
+  <div class="section-head" onclick="toggle(this)">
+    <span class="arrow">&#9654;</span>
+    <h2>阶段 1: 主实验（技术预研通过后启动）</h2>
+    <span class="badge badge-todo">未开始</span>
+  </div>
+  <div class="section-body">
+    <table class="tbl">
+      <thead><tr><th>步骤</th><th>内容</th><th>依赖</th><th>预估工作量</th></tr></thead>
+      <tbody>
+        <tr><td>E1. 大规模数据采集</td><td>~2000 张程序化森林图 × 多查询，批量 HA* 求解 + 标签提取</td><td>S1-S3 完成</td><td>计算密集，可能需数小时</td></tr>
+        <tr><td>E2. KNN 库构建</td><td>特征提取 + 样本库 + KD 树构建</td><td>E1</td><td>分钟级</td></tr>
+        <tr><td>E3. MLP 训练</td><td>4 层 FC，~10^5 参数，回归 Δ</td><td>E1</td><td>GPU，分钟级</td></tr>
+        <tr><td>E4. 基线实现</td><td>Voronoi waypoint HA* + 瓶颈规则 waypoint（需新写）</td><td>S1</td><td>中等</td></tr>
+        <tr><td>E5. 主评测</td><td>全基线 × 全难度桶 × ≥5 种子 × ≥100 查询/桶</td><td>E2-E4</td><td>计算密集</td></tr>
+        <tr><td>E6. 消融实验</td><td>标签规则 / 特征组 / 模型 / 参数敏感性</td><td>E5 基础设施</td><td>中等</td></tr>
+        <tr><td>E7. 泛化测试</td><td>OOD 密度桶 + 真实 SLAM 地图</td><td>E2 + S6</td><td>中等</td></tr>
+        <tr><td>E8. 结果分析</td><td>按 Contract 判定 success/failure</td><td>E5-E7</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== 参数清单 ==================== -->
+<div class="section" id="params">
+  <div class="section-head" onclick="toggle(this)">
+    <span class="arrow">&#9654;</span>
+    <h2>参数清单：全部参数一览</h2>
+    <span class="badge badge-decision">7 项待标定</span>
+  </div>
+  <div class="section-body">
+    <p style="margin:12px 0;font-size:13px;color:var(--text-2)">
+      <span class="badge badge-locked">锁定</span> = 由 pathplan 或设计决策锁定，不可调 &nbsp;
+      <span class="badge badge-pilot">Pilot 调</span> = 当前值来自 DQN10，spike 阶段用数据重新标定 &nbsp;
+      <span class="badge badge-decision">待定</span> = 需要 Dr Sun 决定或 pilot 数据决定
+    </p>
+
+    <div class="sub">标签提取参数</div>
+    <table class="tbl">
+      <thead><tr><th>参数</th><th>含义</th><th>当前值</th><th>来源</th><th>状态</th></tr></thead>
+      <tbody>
+        <tr><td>L_max</td><td>单段最大长度（超过此长度的 RS 直连不采用）</td><td>8 m</td><td>DQN10</td><td><span class="badge badge-pilot">Pilot 调</span></td></tr>
+        <tr><td>L_min</td><td>单步最小推进距离（不足则判标签失败，丢弃该路径）</td><td>1.5 m</td><td>DQN10</td><td><span class="badge badge-pilot">Pilot 调</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="decision">
+      <div class="d-q">L_max 和 L_min 的含义清楚吗？</div>
+      <div class="d-ctx">L_max = 8 m 意思是：即便 RS 曲线能无碰撞连接 12 m 外的点，也不取——太远了特征可能"看不到"那边的障碍（射线只看 R_max=10 m）。L_min = 1.5 m 意思是：如果在密集区域只能推进 1 m，说明这里太密了，标签质量不行，整条路径丢掉不用。这两个值 spike 阶段会用数据标定。</div>
+    </div>
+
+    <div class="sub">特征提取参数</div>
+    <table class="tbl">
+      <thead><tr><th>参数</th><th>含义</th><th>当前值</th><th>来源</th><th>状态</th></tr></thead>
+      <tbody>
+        <tr><td>R_max</td><td>射线最大探测距离（超过就截断，记为 R_max）</td><td>10 m</td><td>DQN10</td><td><span class="badge badge-pilot">Pilot 调</span></td></tr>
+        <tr><td>n_ray</td><td>射线方向数（均匀分布 360 度）</td><td>32</td><td>DQN10</td><td><span class="badge badge-pilot">Pilot 调</span></td></tr>
+        <tr><td>环带半径</td><td>密度统计的三个环带切点</td><td>[0,2), [2,5), [5,10) m</td><td>DQN10</td><td><span class="badge badge-pilot">Pilot 调</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sub">在线推理参数</div>
+    <table class="tbl">
+      <thead><tr><th>参数</th><th>含义</th><th>当前值</th><th>来源</th><th>状态</th></tr></thead>
+      <tbody>
+        <tr><td>K_max</td><td>最多预测几步子目标（超过就放弃，回退 F3）</td><td>&#8968;2&middot;d_sg / L_min&#8969;</td><td>设计稿推导</td><td><span class="badge badge-locked">锁定</span></td></tr>
+        <tr><td>N_seg</td><td>段内 Hybrid A* 最多扩展几个节点（预算上限）</td><td>2000</td><td>DQN10</td><td><span class="badge badge-pilot">Pilot 调</span></td></tr>
+        <tr><td>k（F1 重试）</td><td>RS 碰撞时最多试几个近邻</td><td>5</td><td>DQN10</td><td><span class="badge badge-pilot">Pilot 调</span></td></tr>
+        <tr><td>无进展哨</td><td>到终点距离连续几步不降就触发 F3</td><td>2 步</td><td>设计稿</td><td><span class="badge badge-locked">锁定</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sub">环境与车辆参数</div>
+    <table class="tbl">
+      <thead><tr><th>参数</th><th>含义</th><th>当前值</th><th>来源</th><th>状态</th></tr></thead>
+      <tbody>
+        <tr><td>地图分辨率 r</td><td>占据栅格图单元格大小</td><td>0.1 m</td><td>pathplan 配置</td><td><span class="badge badge-locked">锁定</span></td></tr>
+        <tr><td>地图尺寸</td><td>工作区大小</td><td>~30 &times; 30 m</td><td>既有配置</td><td><span class="badge badge-locked">锁定</span></td></tr>
+        <tr><td>轴距</td><td>车辆前后轴距离</td><td>~0.6 m</td><td>pathplan 配置</td><td><span class="badge badge-locked">锁定</span></td></tr>
+        <tr><td>&rho;_min</td><td>最小转弯半径</td><td>由 pathplan 配置</td><td>pathplan</td><td><span class="badge badge-locked">锁定</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sub">难度分桶参数</div>
+    <table class="tbl">
+      <thead><tr><th>参数</th><th>含义</th><th>当前值</th><th>状态</th></tr></thead>
+      <tbody>
+        <tr><td>树密度 &lambda; 切点</td><td>Easy/Complex/Extreme 的密度分界</td><td>待定</td><td><span class="badge badge-decision">Spike 标定</span></td></tr>
+        <tr><td>最窄缝宽比切点</td><td>w_min / w_veh 的分界</td><td>待定</td><td><span class="badge badge-decision">Spike 标定</span></td></tr>
+        <tr><td>起终距离切点</td><td>d_sg 的分界</td><td>待定</td><td><span class="badge badge-decision">Spike 标定</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== 基线矩阵 ==================== -->
+<div class="section" id="baselines">
+  <div class="section-head" onclick="toggle(this)">
+    <span class="arrow">&#9654;</span>
+    <h2>基线矩阵：5 条基线 + 公平性条款</h2>
+  </div>
+  <div class="section-body">
+    <table class="tbl">
+      <thead><tr><th>基线</th><th>一句话说明</th><th>证明什么</th><th>实现状态</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>原版 HA*+RS</strong></td>
+          <td>不做任何分解，直接全程搜索</td>
+          <td>主对照——我们的方法比不分解快多少</td>
+          <td><span class="badge badge-done">已有</span></td>
+        </tr>
+        <tr>
+          <td><strong>N3P 式 K=1</strong></td>
+          <td>只预测 1 个子目标就交给 HA*</td>
+          <td>"序列"必要性——1 个够不够？（预期：密林不够）</td>
+          <td><span class="badge badge-done">退化版</span></td>
+        </tr>
+        <tr>
+          <td><strong>Voronoi waypoint HA*</strong></td>
+          <td>用 Voronoi 图/骨架提取 waypoint，HA* 段内连接</td>
+          <td>"学习"vs"规则"——KNN 学出来的分解点比规则的好吗？</td>
+          <td><span class="badge badge-todo">需实现</span></td>
+        </tr>
+        <tr>
+          <td><strong>瓶颈规则 waypoint</strong></td>
+          <td>用中轴变换找窄道，在窄道中心放 waypoint</td>
+          <td>"学习"必要性——如果规则就够了，学习模块就没用</td>
+          <td><span class="badge badge-todo">需实现</span></td>
+        </tr>
+        <tr>
+          <td><strong>MD-DQN rollout</strong></td>
+          <td>用旧项目的 DQN 策略逐步出动作</td>
+          <td>RL 基线——对应 N3P 打 HOPE 的角色</td>
+          <td><span class="badge badge-pilot">需复评</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sub">公平性条款</div>
+    <ul>
+      <li>全部基线共用<strong>同一份 pathplan 实现</strong>（同一版 Hybrid A*、同一碰撞检测）</li>
+      <li>全部基线共用<strong>同一双圆近似车体模型</strong></li>
+      <li>全部基线共用<strong>同一计时协议</strong>（含所有前置计算）</li>
+      <li>规则 waypoint 基线的 waypoint 间连接<strong>也用段内 HA*</strong>——唯一变量是"分解点来自哪里"</li>
+      <li>RL 基线计时口径单独定义（逐步出动作直到可接 RS）</li>
+    </ul>
+
+    <div class="decision">
+      <div class="d-q">Voronoi waypoint 基线的实现方案需要确认</div>
+      <div class="d-ctx">Voronoi 图/骨架提取有多种实现（scipy.spatial.Voronoi、skimage.morphology.medial_axis 等）。用哪种？还是两种都试？是否需要对 Voronoi waypoint 做后处理（比如剪枝太近的 waypoint）？</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 消融矩阵 ==================== -->
+<div class="section" id="ablation">
+  <div class="section-head" onclick="toggle(this)">
+    <span class="arrow">&#9654;</span>
+    <h2>消融矩阵：8 组消融实验</h2>
+  </div>
+  <div class="section-body">
+    <table class="tbl">
+      <thead><tr><th>#</th><th>消融维度</th><th>对比组</th><th>回答什么问题</th></tr></thead>
+      <tbody>
+        <tr><td>A1</td><td>标签规则</td><td>贪心 RS 分段 vs 瓶颈位姿 vs 曲率边界</td><td>哪种标签规则学出来的子目标质量最高？</td></tr>
+        <tr><td>A2</td><td>模型</td><td>KNN(k=1) vs MLP</td><td>KNN 是否真的优于 MLP？（预期：是，因为多模态问题）</td></tr>
+        <tr><td>A3</td><td>KNN k 值</td><td>k = 1, 3, 5</td><td>k=1 最好还是多近邻均值更好？</td></tr>
+        <tr><td>A4</td><td>特征组</td><td>&plusmn;密度统计、&plusmn;终点朝向差、射线数 16/32/64</td><td>哪些特征维度真正有用？32 根射线够不够？</td></tr>
+        <tr><td>A5</td><td>段长 L_max</td><td>4, 6, 8, 12 m</td><td>段太短→碎片多开销大；段太长→特征看不到，哪个最优？</td></tr>
+        <tr><td>A6</td><td>序列策略</td><td>固定子目标数 vs 自适应</td><td>按距离自适应调整步数是否比固定好？</td></tr>
+        <tr><td>A7</td><td>回退阶梯</td><td>逐级关闭 F1 → F2 → F3</td><td>每级回退贡献多少成功率？</td></tr>
+        <tr><td>A8</td><td>鲁棒性</td><td>对预测子目标加高斯噪声（&sigma; = 0.1, 0.3, 0.5 m）</td><td>方法对预测误差有多敏感？</td></tr>
+      </tbody>
+    </table>
+
+    <div class="decision">
+      <div class="d-q">消融实验范围是否合适？</div>
+      <div class="d-ctx">8 组消融 × 每组 2~4 条件 = 约 20~30 次实验配置。每次需要在全部难度桶上跑，计算量可观。是否全部做？还是先做 A1/A2/A4（标签/模型/特征）这三个最关键的，其他看 budget 决定？</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 指标体系 ==================== -->
+<div class="section" id="metrics">
+  <div class="section-head" onclick="toggle(this)">
+    <span class="arrow">&#9654;</span>
+    <h2>指标体系：9 个指标 + 计时协议</h2>
+  </div>
+  <div class="section-body">
+    <table class="tbl">
+      <thead><tr><th>指标</th><th>一句话解释</th><th>怎么比</th></tr></thead>
+      <tbody>
+        <tr><td><strong>规划时间 T</strong></td><td>从收到查询到输出路径的总耗时，包含所有前置计算和回退</td><td>越小越好，主表报 median 和 P95</td></tr>
+        <tr><td><strong>节点扩展数 E</strong></td><td>所有 HA* 搜索的总扩展节点数（含回退里的）</td><td>越少越好，反映搜索量的减少</td></tr>
+        <tr><td><strong>成功率 SR</strong></td><td>在预算内找到可行路径的查询比例</td><td>不能比原版低太多（&ge;-2 pp）</td></tr>
+        <tr><td><strong>路径长度膨胀率</strong></td><td>我方路径比原版长多少（百分比）</td><td>只在双方都成功的查询上比，&le;5%</td></tr>
+        <tr><td><strong>方向切换次数</strong></td><td>路径中前进/倒车切换几次</td><td>N3P 口径，越少越好</td></tr>
+        <tr><td><strong>最小安全裕量</strong></td><td>路径上车体到最近障碍物的最小距离</td><td>越大越安全，不应比原版差太多</td></tr>
+        <tr><td><strong>碰撞违例</strong></td><td>返回路径上是否有碰撞（应该永远是 0）</td><td>完整性校验，不是比较指标</td></tr>
+        <tr><td><strong>回退触发率</strong></td><td>F1/F2/F3 各触发了多少查询（分级报告）</td><td>F3 >30% = 方法不 work</td></tr>
+        <tr><td><strong>子目标可达率</strong></td><td>预测的子目标首次 RS 检测就无碰撞通过的比例</td><td>越高说明 KNN 预测越准</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sub">计时协议</div>
+    <ul>
+      <li>单线程、同一台机器、负载隔离</li>
+      <li>方法侧<strong>全部</strong>开销计入 T（特征提取、KNN 查询、RS 校验、段内搜索）</li>
+      <li>原版 HA* 的 2D 启发式 DP 预计算也计入 T（N3P 公平口径）</li>
+      <li>统计：&ge;5 种子 &times; 每桶 &ge;100 查询</li>
+      <li>主表报 median 与 P95，补充报 min/mean</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ==================== 风险 ==================== -->
+<div class="section" id="risks">
+  <div class="section-head" onclick="toggle(this)">
+    <span class="arrow">&#9654;</span>
+    <h2>风险与开放问题：7 项</h2>
+  </div>
+  <div class="section-body">
+    <table class="tbl">
+      <thead><tr><th>危险度</th><th>风险</th><th>具体描述</th><th>应对</th></tr></thead>
+      <tbody>
+        <tr>
+          <td style="color:var(--decision);font-weight:700">高</td>
+          <td>标签-特征关联弱</td>
+          <td>贪心 RS 分段的标签落点常在开阔地，局部特征区分度可能不足 → KNN 查到的近邻和实际场景不匹配</td>
+          <td>监测：leave-one-map-out 子目标可达率 &lt;80% 即预警。如果确实学不动，按消融 A1 切换到瓶颈规则标签（须 Contract v2）</td>
+        </tr>
+        <tr>
+          <td style="color:var(--decision);font-weight:700">高</td>
+          <td>逐步预测分布漂移</td>
+          <td>预测有偏差 → 实际位姿偏离教师分布 → 后续预测越来越差（滚雪球效应）</td>
+          <td>F1-F3 回退兜底 + 子目标可达率指标监测。严重时考虑 DAgger 式二轮采集（v2，不进 v1）</td>
+        </tr>
+        <tr>
+          <td style="color:var(--pilot);font-weight:700">中</td>
+          <td>稀疏图方法无收益</td>
+          <td>障碍稀疏时 RS 直达概率高，方法优势趋零</td>
+          <td>诚实边界，论文按密度分桶呈现，不掩盖</td>
+        </tr>
+        <tr>
+          <td style="color:var(--pilot);font-weight:700">中</td>
+          <td>真实地图域差</td>
+          <td>程序化圆形树障 vs SLAM 噪声栅格，泛化可能差</td>
+          <td>v1 真实地图仅测试不训练；差距过大时上数据增强（v2）</td>
+        </tr>
+        <tr>
+          <td style="color:var(--pilot);font-weight:700">中</td>
+          <td>L_min 标签失败率高</td>
+          <td>密集区域可能有大量路径因推进不足被丢弃</td>
+          <td>Spike S3 监测；备选：局部放宽 L_max、该段回退瓶颈规则</td>
+        </tr>
+        <tr>
+          <td style="color:var(--open)">低</td>
+          <td>RS 接口不可用</td>
+          <td>pathplan 可能没暴露独立 RS steer 接口</td>
+          <td>Spike S1 验证；必要时写 wrapper</td>
+        </tr>
+        <tr>
+          <td style="color:var(--open)">低</td>
+          <td>KD 树高维退化</td>
+          <td>41 维下 KD 树查询可能退化为线性扫描</td>
+          <td>12 万条线性扫描仍在毫秒级，不构成瓶颈；实测计时确认</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== Contract 草案 ==================== -->
+<div class="section" id="contract">
+  <div class="section-head" onclick="toggle(this)">
+    <span class="arrow">&#9654;</span>
+    <h2>实验预注册草案：研究假设 + 判定标准</h2>
+    <span class="badge badge-decision">3 项待锁定</span>
+  </div>
+  <div class="section-body">
+    <p style="margin:12px 0;font-size:14px"><strong>实验预注册（pre-registration）</strong>= 实验前锁定"什么算成功、什么算失败"，防止实验后编故事。一旦批准不可修改——需改则产出 v2 并写明原因。</p>
+
+    <div class="decision">
+      <div class="d-q">待锁定 ①：研究假设的数字——"我们赌方法能达到什么效果"</div>
+      <div class="d-ctx">
+        <strong>草案：</strong>在困难场景（Complex/Extreme 难度桶），F-N3P 相对原版 Hybrid A*：<br>
+        &bull; 规划时间中位数缩减 &ge;<strong>50%</strong>（原版用 2 秒，我们应该 &le;1 秒）<br>
+        &bull; 成功率最多低 <strong>2 百分点</strong>（原版 95% 则我们至少 93%）<br>
+        &bull; 路径最多长 <strong>5%</strong>（原版 20 m 则我们最多 21 m）<br>
+        以上在未见程序化图 + 真实地图上同时成立，&ge;5 个随机种子的中位数达标。<br><br>
+        <strong>需要您判断：</strong>50% 提速目标合适吗？N3P 在泊车场景报告超过 80% 提速，但森林更难，所以降到 50%。太高？太低？成功率容忍 2 百分点够不够？路径变长 5% 会不会太严？
+      </div>
+    </div>
+
+    <div class="decision">
+      <div class="d-q">待锁定 ②：失败判据——"什么情况说明方法不行"</div>
+      <div class="d-ctx">
+        <strong>草案（四条独立，任何一条命中即判方法失败）：</strong><br>
+        &bull; ① 超过 <strong>30%</strong> 的查询需要回退到原版 Hybrid A*，且提速消失——说明预测器不靠谱<br>
+        &bull; ② 在训练时没见过的森林密度（分布外 OOD）上，成功率比原版低超过 <strong>5 百分点</strong>——说明不能泛化<br>
+        &bull; ③ 跟手工规则放置子目标的方法没有显著差异——说明"学习"这步没必要<br>
+        &bull; ④ 在真实 SLAM 地图上提速不到 <strong>20%</strong>——说明只在"假森林"上有效<br><br>
+        <strong>需要您判断：</strong>30% 回退率红线合理吗？分布外 5 百分点跌幅是不是太严？"没有显著差异"用什么统计方法判定？
+      </div>
+    </div>
+
+    <div class="decision">
+      <div class="d-q">待锁定 ③：怎么确认结果不是碰巧——统计检验</div>
+      <div class="d-ctx">
+        <strong>问题：</strong>跑 100 个查询我们快了 50%，怎么排除"恰好这批查询对我们有利"？<br><br>
+        <strong>草案（建议纳入预注册）：</strong><br>
+        &bull; <strong>Wilcoxon 符号秩检验</strong>：同一个查询，原版用了多久、我们用了多久，逐个配对比较，统计判断"我们确实更快"不是巧合<br>
+        &bull; <strong>自举置信区间（Bootstrap CI）</strong>：反复从结果中随机抽样，看成功率差异的范围是否稳定<br>
+        &bull; <strong>p 值门槛</strong>：p &lt; 0.05 = "纯靠运气出现的概率不到 5%"，学术界通用标准<br><br>
+        <strong>需要您判断：</strong>要不要把统计检验纳入预注册？纳入的话用 p &lt; 0.05（通用标准）还是 p &lt; 0.01（更严格）？
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 时间线 ==================== -->
+<div class="section" id="timeline">
+  <div class="section-head" onclick="toggle(this)">
+    <span class="arrow">&#9654;</span>
+    <h2>阶段依赖：什么卡什么</h2>
+  </div>
+  <div class="section-body">
+    <div style="font-family:ui-monospace,'SF Mono',monospace;font-size:12px;line-height:2;background:#F8F9FB;border:1px solid var(--border);border-radius:6px;padding:16px 20px;overflow-x:auto;white-space:pre">Dr Sun 审阅设计稿 ──┐
+                      ├─→ 立实验预注册 ──→ 阶段 0 技术预研 ──→ 阶段 1 主实验 ──→ 写作
+Dr Sun 锁定预注册    ┘       │
+  数字（研究假设/             │
+  失败判据）                 ↓
+                        S1 RS 接口 ──→ S2 标签管线 ──→ S3 标签预实验 ──→ E1 大规模采集
+                        S4 特征提取 ──→ (并入 S3)
+                        S5 难度标定 ──→ 写入预注册
+                        S6 RealMap 清点 ──→ E7 泛化测试
+
+阶段 1 内部：
+  E1 数据采集 ──→ E2 KNN 库 ──→ E5 主评测 ──→ E8 判定
+                  E3 MLP ──→ (并入 E5)
+  E4 基线实现 ──→ (并入 E5)
+  E5 主评测 ──→ E6 消融
+  E2 + S6 ──→ E7 泛化测试</div>
+
+    <div class="decision">
+      <div class="d-q">当前阻塞项</div>
+      <div class="d-ctx">
+        整个项目当前卡在两件事上：<br>
+        <strong>1. Dr Sun 审阅设计稿</strong>——方法设计有没有根本性问题？有的话现在改代价最小。<br>
+        <strong>2. 锁定实验预注册数字</strong>——研究假设和失败判据的阈值，锁定后才能立预注册、开工。<br><br>
+        这两件事不依赖任何代码或实验。
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /.main -->
+
+<script>
+function toggle(el) {
+  el.classList.toggle('open');
+}
+// Nav highlight
+document.querySelectorAll('.nav a').forEach(a => {
+  a.addEventListener('click', e => {
+    document.querySelectorAll('.nav a').forEach(x => x.classList.remove('active'));
+    a.classList.add('active');
+  });
+});
+// Auto-expand first section
+document.querySelector('.section-head').classList.add('open');
+</script>
