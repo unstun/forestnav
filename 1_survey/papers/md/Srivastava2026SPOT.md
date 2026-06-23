@@ -1,0 +1,253 @@
+---
+citation_key: Srivastava2026SPOT
+arxiv_id: 2602.01189
+arxiv_url: https://arxiv.org/abs/2602.01189
+source: arxiv-e-print
+converter: pandoc-3.9 markdown+tex_math_dollars-raw_html-raw_tex
+converted_at: 2026-06-23T17:49:00Z
+origin: ai+web
+reviewed: false
+---
+
+# Introduction {#sec:introduction}
+
+Quadrotors have emerged as the preferred unmanned aerial vehicle (UAV) platform for both civilian and military applications due to their simple mechanical design and ease of control. This has led to their widespread adoption in diverse domains such as aerial photography, surveillance, surveying, and disaster response. However, achieving safe and autonomous navigation in complex and dynamic environments remains a critical research challenge [@tordesillas2021TRO; @lu2025TRO].
+
+A widely adopted approach to quadrotor navigation is a two-stage planning framework [@gao2020TRO; @faster; @wang2022TRO; @ren2022bubble; @ren2025super]. In this framework, a *global* planner first computes a feasible path, which serves as the foundation for collision free polyhedral regions. A *local* planner then dynamically generates smooth and feasible trajectories within these regions, ensuring real-time adaptability while maintaining safety and efficiency. While these approaches perform well in environments with static obstacles, their performance degrades significantly when faced with dynamic obstacles.
+
+Recently, several methods have been proposed to address motion planning with dynamic obstacles [@lin2020ICRA; @he2021IROS; @xu2022ICRA; @hou2022RAL; @lu2022RAL; @RAST; @wu2024ICRA; @lu2025TRO; @quan2025RAL]. Despite this progress, existing approaches remain limited in several key aspects. Many works [@lin2020ICRA; @he2021IROS; @lu2022RAL; @xu2022ICRA] consider only a handful of dynamic obstacles, which is far from the complexity encountered in realistic, cluttered environments. Some methods rely on motion capture systems to provide ground-truth obstacle trajectories [@he2021IROS; @RAST; @wu2024ICRA; @lu2025TRO; @quan2025RAL], an assumption that is impractical for real-world deployment. Furthermore, most approaches [@lin2020ICRA; @he2021IROS; @xu2022ICRA; @hou2022RAL; @lu2022RAL; @RAST; @wu2024ICRA; @quan2025RAL] fail to incorporate backup or contingency trajectories. This omission is critical, as in densely populated environments with multiple dynamic obstacles, trajectory optimization alone often fails, leaving the robot without safe fallback (see Fig. [1](#teaser){reference-type="ref" reference="teaser"}). Overcoming these limitations is therefore essential for achieving robust and reliable motion planning in dynamic, real-world settings.
+
+:::: {#teaser .figure}
+![Deadlock encounter](Srivastava2026SPOT_figs/t1.png){width="\\linewidth"}
+
+![Backup Generation](Srivastava2026SPOT_figs/t2.png){width="\\linewidth"}
+
+![Backup Tracking](Srivastava2026SPOT_figs/t3.png){width="\\linewidth"}
+
+![Replanning](Srivastava2026SPOT_figs/t4.png){width="\\linewidth"}
+
+::: caption
+UAV navigation in a dynamic environment with backup planning. (a) The nominal trajectory (green) becomes unsafe due to dynamic obstacles. (b) A backup trajectory (red) is generated reactively to move the UAV toward a safer region. (c) The UAV tracks the backup trajectory, replanning it as needed to maintain safety. (d) Once a feasible path to the goal becomes available, the UAV switches back to goal-directed planning. Convex collision-free corridors are omitted for clarity. Obstacles within the UAV's sensing range are shown with red bounding boxes, while those outside the range are shown with green bounding boxes.
+:::
+::::
+
+In this work, we propose Spatio-Temporal Obstacle-free Trajectory (SPOT), a framework for autonomous navigation of UAVs in unknown dynamic environments, designed to address the challenges outlined above. Specifically, our key contributions are as follows
+
+- A novel formulation of spatio-temporal RRT$^\star$ motion planning for mapless, vision-based navigation in dynamic environments.
+
+- A robust planning pipeline that explicitly handles deadlocks and prevents collisions through backup trajectory generation.
+
+- Extensive validation in both simulation and real-world hardware, demonstrating reliable performance using only onboard sensing and computation. Simulations include scenarios with up to 30 dynamic obstacles. For reproducibility, the code is available at an anonymous repository[^1].
+
+# Related Work {#sec:related_work}
+
+## Global planning and safe flight corridor
+
+A well-established approach to collision avoidance in autonomous navigation involves performing convex decomposition in the configuration space based on the results of a global planner, followed by local trajectory optimization within the decomposed convex corridors [@deits2015computing; @liu2017planning; @faster; @gao2019flying; @ren2022bubble; @marcucci2023SR; @wang2024fast; @ren2025super]. Convex decomposition is performed around the piecewise-linear path generated by the global planner. Each segment of this path is enclosed within a polyhedron, constructed by first inflating an ellipsoid along the segment and then computing tangent planes at the contact points between the ellipsoid and obstacles. The collection of such overlapping convex polyhedra forms a Safe Flight Corridor (SFC) [@liu2017planning], which defines a collision-free region for trajectory generation.
+
+Global planning algorithms typically employed in this framework include grid-based methods grid-based methods (e.g., Jump Point Search, A$^\star$) [@liu2017planning; @faster; @wu2024ICRA], as well as sampling-based approaches (e.g., RRT and its variants) [@richter2016ISRR]. However, state-of-the-art SFC-based methods [@faster; @ren2025super] largely remain restricted to static obstacles in unknown environments, limiting their applicability in dynamic settings.
+
+## UAV planning in dynamic environments
+
+A number of recent methods address trajectory planning for UAVs in dynamic environments. One line of work first constructs SFC by considering only static obstacles, and subsequently enforces dynamic collision-avoidance constraints during trajectory optimization. Examples include chance-constrained MPC formulations [@lin2020ICRA; @xu2022ICRA; @hou2022RAL], where dynamic obstacles are typically modeled using simplified geometric primitives such as ellipsoids, spheres, or bounding boxes [@kamel2017IROS; @lin2020ICRA; @tordesillas2021TRO]. An alternative strategy proposed in [@tordesillas2022ACCESS] builds convex hulls around individual dynamic obstacles; however, this approach becomes computationally inefficient as the number of obstacles increases. Lu *et al.* deals with only small moving obstacles such as tennis balls.
+
+In contrast, other works model static and dynamic obstacles jointly [@chen2023TIE; @RAST; @lu2025TRO; @quan2025RAL]. Chen *et al.* [@chen2023TIE] propose a dual-structure particle-based map to simultaneously capture both obstacle types. Similarly, RAST [@RAST] employs a particle-based occupancy map combined with sampling-based planning to generate trajectories that minimize particle collisions. However, RAST restricts SFC construction to cuboid-shaped corridors, which can be overly conservative in environments with irregular geometries. In [@lu2025TRO], static and dynamic obstacles are jointly formulated as collision-avoidance constraints within the trajectory optimization process. More recently, Quan *et al.* [@quan2025RAL] utilize a state-time space representation derived from the Euclidean Signed Distance Field (ESDF) to predict pedestrian motion, though their formulation remains limited to 2D environments.
+
+In this work, we construct a spatio-temporal SFC that simultaneously accounts for static and dynamic obstacles. A key distinction is that our framework explicitly incorporates backup trajectories, which are critical in cluttered, dynamic environments where the UAV may otherwise encounter deadlock due to obstacles obstructing its forward motion. Existing approaches [@chen2023TIE; @RAST; @faster; @wang2024fast; @quan2025RAL; @ren2025super] do not address this issue. The work of Lu *et al.* [@lu2025TRO] is arguably the closest, as it also considers fallback strategies, but their formulation relies on maintaining a static local map. In contrast, our approach (SPOT) is map-less, making it light-weight and more scalable to highly dynamic and unknown environments.
+
+# Methodology {#sec:methodology}
+
+![System architecture of SPOT for reactive UAV motion planning in dynamic, unknown environments.](Srivastava2026SPOT_figs/system_architecture.png){#system_architecture width="100%"}
+
+## Planning pipeline
+
+In this section, we present our planning architecture for dynamic collision avoidance. An overview of the system is shown in Fig. [2](#system_architecture){reference-type="ref" reference="system_architecture"}. The proposed framework SPOT consists of three main components:
+
+- **Object Motion Segmentation**: Since planning is performed directly on point clouds (obtained from the onboard depth camera), it is critical to estimate both the position and velocity of points in the scene. To this end, we employ the onboard dynamic object tracking framework [@10323166], which outputs bounding boxes along with object positions and velocities. Each point lying inside a bounding box inherits the corresponding object velocity, while all other points are treated as static. This step produces a spatio-temporal representation of the environment.
+
+- **Collision Free Skeletal Path Generation**: Using the classified point cloud, we generate a guiding path to the goal via spatio-temporal RRT$^\star$ (see Section [3.2](#subsec:st_rrt){reference-type="ref" reference="subsec:st_rrt"}). Unexplored regions outside the sensor's field of view (FOV) are assumed obstacle-free, consistent with the mapless design. Path generation is regulated by a Finite State Machine (FSM), which serves as the decision-making layer. An overview of the same is given in Fig. [3](#fig_architecture){reference-type="ref" reference="fig_architecture"} and discussed subsequently. The FSM determines whether to initiate a new search, refine an existing path, or invoke the backup planner, thereby ensuring safe and reliable UAV navigation under dynamic conditions.
+
+- **Convex Decomposition and Trajectory Generation**: The skeletal path is then inflated into a safe corridor using convex decomposition, after which a smooth, dynamically feasible trajectory is generated. This ensures collision-free execution while adhering to UAV dynamics.
+
+![FSM governing the spatio-temporal RRT$^\star$ planning pipeline, operating in three modes: *Initial*, *Incremental*, and *Backup*.](Srivastava2026SPOT_figs/pipeline1.png){#fig_architecture width="80%"}
+
+The planning pipeline is governed by an FSM-based architecture with three modes: *Initial*, *Incremental*, and *Backup*. The initial and incremental planning blocks build upon the framework in [@gao2019flying], with modifications to support efficient spatio-temporal planning. In the initial mode, RRT$^\star$ is invoked to plan a path from the UAV's starting state to the goal. Once a valid path is found, the portion of the tree within the sensing horizon is used for SFC generation and trajectory optimization. In the incremental mode, the path is continuously refined by adding new nodes to the tree while simultaneously evaluating the safety of the trajectory currently being executed by the UAV. Finally, in the backup mode, if the planner fails to find a feasible path within the time budget, or if the UAV is hovering at a potentially unsafe location, a reactive backup planner is activated to generate an immediate collision-free maneuver, thereby reducing the risk of collisions with dynamic obstacles.
+
+## Spatio-Temporal RRT {#subsec:st_rrt}
+
+![Spatio-temporal RRT path generated in a dynamic environment. The environment provides a point cloud of obstacles, propagated into the future using velocity information. Each sphere represents the safety margin of a node (feasibility set) at its time of arrival. A color gradient from red to blue illustrates the flow of time, from the present (red) toward the future (blue).](Srivastava2026SPOT_figs/st-rrt.png){#fig:st-rrt width="90%"}
+
+In this section, we present our Spatio-Temporal RRT$^{\star}$ (ST-RRT$^\star$) algorithm for collision avoidance. In a dynamic environment the occupancy of any given location inherently time-dependent. In other words, whether a location is occupied depends not only on the obstacle's trajectory but also on the arrival time of the robot at that location. To account for this, we augment the standard RRT$^\star$ presented in [@gao2019flying] by propagating the robot's travel time from the *root* node to every node in the tree. Formally, each node is represented as $$n_i = \left(x_i, y_i, z_i, t_i\right)$$ where $(x_i, y_i, z_i)$ denotes the position in 3D space and $t_i$ is the accumulated travel time from the root node. This representation allows each node to encode both spatial position and arrival time, thereby enabling collision checks to be performed consistently against obstacle trajectories in the spatio-temporal space. An illustration is provided in Fig. [4](#fig:st-rrt){reference-type="ref" reference="fig:st-rrt"}.
+
+### Travel time estimate
+
+To incorporate the arrival time at each node, we employ a kinematics-based travel-time estimate, which is propagated and encoded into every node during the ST-RRT$^\star$ construction. Let $v_{max}$ denote the maximum admissible velocity for the robot. Consider a parent node $n_i= (\mathbf{p}_i, t_i), \mathbf{p}_i = [x_i, y_i, z_i]^T$ and a child node $n_j= (\mathbf{p}_j, t_j), \mathbf{p}_j = [x_j, y_j, z_j]^T$. The constructed spatio-temporal tree must satisfy two conditions: (i) causality, that is, the arrival time at any child node must strictly exceed that of its parent, and (ii) velocity feasibility, that is, the child node must be reachable from its parent under the maximum velocity bound $\mathbf{v}_{max}$ (see Fig. [4](#fig:st-rrt){reference-type="ref" reference="fig:st-rrt"}). Therefore, a child node is admissible if and only if it belongs the feasibility set $$\begin{equation}
+\label{consistent_nodes}
+    \mathcal{F}(n_i) = \Big\{n_j \ \big| \ t_j > t_i, \; \ \norm{\mathbf{p}_j-\mathbf{p}_i} \leq \mathbf{v}_{max}(t_j-t_i)\Big\}
+\end{equation}$$ This formulation ensures that each edge in the tree is both temporally ordered and kinematically feasible, thereby embedding spatio-temporal consistency directly into the RRT$^\star$ expansion process. Moreover, the feasibility set $\mathcal{F}(n_i)$ naturally extends to incorporate additional kinematic constraints, such as bounded acceleration.
+
+### Edge cost
+
+Given the spatio-temporal nature of the planning problem, we define a heuristic cost function for the connection between a parent node and a child node as $$\begin{equation}
+    C_e = \, \ \norm{\mathbf{p}_j - \mathbf{p}_i}+ w \ (\,t_j - t_i)
+\end{equation}$$ where $w$ is a weighting parameter which can be interpreted as a *desired velocity*. The above formulation enables a tunable trade-off between spatial distance and temporal separation. This flexibility allows the planner to adapt to application-specific priorities, such as minimizing travel distance or performing cautious motion planning in cluttered dynamic environments. In the steer function for ST-RRT$^{*}$ and also during rewiring, we ensure that the parent and child nodes are consistent as defined in [\[consistent_nodes\]](#consistent_nodes){reference-type="eqref" reference="consistent_nodes"} by restricting the connections of a node to other nodes which are reachible given UAV's velocity constraints.
+
+### Sampling strategy
+
+We have adopt informed sampling[^2] to accelerate convergence to an optimal path. Unlike prior work, we extend informed sampling to include not only spatial coordinates but also the time of arrival assigned to each newly added node. This restricts exploration to a spatio-temporal subset of the configuration space guaranteed to contain any better solution.
+
+Formally, let $c_\text{best}$ be the cost of the best path found from start $\mathbf{p}_s$ to goal $\mathbf{p}_g$. The informed set $\mathcal{X}$ consists of all points $\mathbf{p}$ satisfying: $$\begin{equation}
+\norm{\mathbf{p}_s - \mathbf{p}} \ + \ \norm{\mathbf{p} - \mathbf{p}_g} \ \leq \ c_\text{best}
+\end{equation}$$ The set $\mathcal{X}$ forms a prolate hyperspheroid with foci at $\mathbf{p}_s$ and $\mathbf{p}g$, and major axis length $c_\text{best}$. Samples are efficiently drawn from this ellipsoid using the closed-form method in [@gao2019flying].
+
+To extend this strategy to spatio-temporal planning, we employ a *decoupled sampling approach*. A candidate spatial sample $\mathbf{p}_\text{rand}$ is first generated within the informed ellipsoid. A time coordinate $t_\text{rand}$ is then assigned to this point by sampling from a distribution designed to prioritize time-efficient solutions $$\begin{equation}
+t_\text{rand} = t_s + k \ \frac{c_\text{best}}{w}
+\end{equation}$$ where $k \sim \mathcal{U}(0, 1)$ is uniformly distributed, $t_s$ is the start time, and $w$ is the temporal weight from our cost function. Intuitively, this strategy ensures that sampling is focused only on regions of space and time where an improved path could realistically exist. Instead of wasting samples in irrelevant areas or times, the planner concentrates effort within a tightly bounded spatio-temporal subset, thereby accelerating convergence to high-quality, time-efficient trajectories.
+
+### Collision checking
+
+Collision checking in spatio-temporal planning is particularly challenging, as the safety of a node $n_i$ depends on its distance to obstacles at the specific time $t_i$ it is visited. For static environments, we use a kdtree constructed from all the stationary points, which enables efficient nearest-neighbor queries in static point clouds. However, this approach is not directly applicable in dynamic scenes, since obstacle positions and velocities are only known at the instant sensor measurements are received. Beyond that instant, obstacle motion must be propagated forward in time to estimate occupancy at $t_i$ for safety evaluation. To achieve this efficiently, we employ a spatio-temporal hash grid to perform approximate nearest-neighbor queries. The procedures for hash grid construction and dynamic collision checking are described in Algorithm [\[alg:temporal_grid\]](#alg:temporal_grid){reference-type="ref" reference="alg:temporal_grid"} and Algorithm [\[alg:query_dynamic\]](#alg:query_dynamic){reference-type="ref" reference="alg:query_dynamic"}, respectively.
+
+Each dynamic point is encoded in the spatio-temporal hash grid by accounting for the corresponding resolutions in time and space (lines 5--7, Algorithm [\[alg:temporal_grid\]](#alg:temporal_grid){reference-type="ref" reference="alg:temporal_grid"}). The resulting hash grid $\mathcal{G}$ is then queried by Algorithm [\[alg:temporal_grid\]](#alg:temporal_grid){reference-type="ref" reference="alg:temporal_grid"} during collision checking. Specifically, the temporal component of a query point is first used to find the nearest temporal bin of the dynamic obstacle by calling the subroutine `NearestBin` (line 2, Algorithm [\[alg:query_dynamic\]](#alg:query_dynamic){reference-type="ref" reference="alg:query_dynamic"}). The spatial component of the query point is then used to construct all 27 neighbors in 3D (lines 3--6, Algorithm [\[alg:query_dynamic\]](#alg:query_dynamic){reference-type="ref" reference="alg:query_dynamic"}). Each neighbor is checked for occupancy in $\mathcal{G}$, yielding the closest obstacle point (line 11, Algorithm [\[alg:query_dynamic\]](#alg:query_dynamic){reference-type="ref" reference="alg:query_dynamic"}).
+
+The safety margin of a node is defined as the minimum of its static clearance (computed from the kd-tree) and its dynamic clearance $d_{min}$ (obtained from the spatio-temporal hash grid). A node is considered unsafe if this margin is less than the prescribed safety threshold $r_{min}$.
+
+:::: algorithm
+::: algorithmic
+[$\mathcal{D}$ is defined as the set of dynamic points of the form $(p, v)$, where $p$ denotes the position and $v$ denotes the associated velocity.]{style="color: mypink"}
+:::
+::::
+
+:::: algorithm
+::: algorithmic
+[$d_{\min}$ represents the minimum distance between the query point and its closest obstacle.]{style="color: mypink"} [The subroutine returns the nearest temporal index in $\mathcal{G}$ corresponding to $t$.]{style="color: mypink"}
+:::
+::::
+
+## Spatio-Temporal SFC
+
+As discussed earlier, SFC is defined as a sequence of overlapping convex polyhedra. We use the configuration space convex decomposition presented in [@ren2025super] for finding spatial corridors. Each polyhedron is constructed around a line segment connecting two points in the free space. Since we employ ST-RRT$^\star$ to generate the initial skeletal path, these points correspond to nodes in the path. Each node is associated with a timestamp, enabling spatio-temporal reasoning. Consider two nodes $n_i$ and $n_j$; conventionally, a polyhedron is constructed around the line segment $\overline{n_in_j}$. This is achieved by inflating an ellipsoid along the segment and computing tangent planes at its contact points with obstacles, which are represented as point clouds.
+
+To extend this formulation to dynamic environments, we discretize the temporal interval between $n_i$ and $n_j$ using a step size $\Delta t$, resulting in the set $\mathcal{T}_{ij} =\{t_i, t_i + \Delta t, t_i + 2\Delta t, \ldots, t_j \}$. At each temporal sample $t \in \mathcal{T}_{ij}$, the positions of the dynamic obstacles are predicted under a constant velocity model $$\begin{equation}
+    \mathbf{o}(t) = \mathbf{o}(t_i) + \mathbf{v}_o (t- t_i)
+\end{equation}$$ where $\mathbf{o}(t)$ is the predicted obstacle location based on the observed obstacle position $\mathbf{o}(t_i)$ at time $t_i$ and $\mathbf{v}_o$ is the velocity of the obstacle. The corresponding point clouds are aggregated to form the dynamic obstacle set $\mathcal{O}^{d}_{ij}$. The effective obstacle set to be considered during corridor construction is given by $$\begin{equation}
+    \mathcal{O}_{ij} = \mathcal{O}^s \cup \mathcal{O}^{d}_{ij}
+\end{equation}$$ where $\mathcal{O}^s$ denotes the static obstacles. In this manner, the SFC construction inherently accounts for both static and dynamic obstacles across the relevant time horizon. The construction of spatio-temporal collision-free polyhedra and the corresponding evolution of dynamic obstacle point clouds are illustrated in Fig. [5](#fig:sfc_dynamic){reference-type="ref" reference="fig:sfc_dynamic"}. In our implementation, we empirically fix the temporal resolution to $\Delta t = 0.2 \,\text{s}$, while constraining the maximum interval $(t_j - t_i)$ to 2 seconds. These choices strike a balance between prediction fidelity and computational tractability, ensuring that the constant-velocity approximation remains valid over the short prediction horizon.
+
+![Spatio-temporal convex collision-free polyhedra constructed along the path segment between nodes $n_i$ and $n_j$. The evolution of the safe corridor is color-coded from red to gray over the time span $[t_i, t_f]$. During the same interval, the predicted positions of dynamic obstacles are represented as point clouds, also color-coded from $t_i$ to $t_f$. These aggregated point clouds constitute the dynamic obstacle set $\mathcal{O}^d_{ij}$ used in corridor construction. Final optimized trajectory is visible in green.](figs/st_ciri2.png){#fig:sfc_dynamic width="90%"}
+
+## Trajectory optimization
+
+Given an initial skeletal path and a sequence of overlapping polyhedra from the SFC, the local planner computes a smooth, dynamically feasible trajectory for a quadrotor. The trajectory $\mathbf{p}(t): [0, T] \to \mathbb{R}^3$ is constrained to lie within the SFC. The total flight time $T$ is fixed and divided into $N$ segments with pre-assigned durations ${T_i}$. These durations come from the time assigned to ST-RRT$^*$ during path searching.
+
+The optimization problem is formulated as a nonlinear minimization over the spatial path, leveraging the MINCO framework [@wang2022TRO] for efficient computation:
+
+::: mini!
+\|s\|\[2\] \_s + \_d[]{#eq:opt_full label="eq:opt_full"}
+:::
+
+where $\mathcal{J}_s$ is the squared-jerk control effort, $\mathcal{J}_d$ is the penalty function that enforces dynamic limits like maximum velocity, maximum acceleration, etc. and corridor violation penalties. $\mathcal{M}(\mathbf{q},\mathbf{T})$ is a linear-complexity smooth map from intermediate points $\mathbf{q}$ and a time allocation $\mathbf{T}$ (pre allocated based on ST-RRT$^*$) for all pieces to the coefficients of polynomial pieces. $\mathbf{\xi}$ denotes the vector whose elements encode the position of $\mathbf{q}$, such that each element of $\mathbf{q}$ can be represented as a convex composition of the vertices of corresponding polygon, with normalized and squared values of $\mathbf{\xi}$ ensuring that all points lie inside the polygon. The constraints in [\[eq:constraints\]](#eq:constraints){reference-type="eqref" reference="eq:constraints"} corresponds to boundary conditions in position, velocity, and acceleration.
+
+The minimum jerk trajectory synthesized by MINCO is parametrized by only $\mathbf{q}$ and $\mathbf{T}$. The gradients of the objective function with respect to $\mathbf{\xi}$ are computed analytically, enabling efficient optimization using the L-BFGS algorithm. This formulation ensures the generated trajectory is safe (contained within the SFC), smooth, and respects the full dynamics of the quadrotor platform.
+
+## Backup trajectory
+
+In this section, we introduce a backup planning algorithm to ensure reactive, collision-free flight when the UAV enters a deadlock or unsafe state. A deadlock is characterized by the failure of local path planning to progress toward the goal, thereby leaving the UAV exposed to potential collisions with dynamic obstacles.
+
+The central principle of backup planning is to identify an intermediate safe goal in a direction away from obstacles, allowing the planner to reinitiate once the UAV reaches this region. The procedure consists of two stages:
+
+1.  A convex polygon ($C_{static}$) is constructed around the UAV's current location, incorporating only static obstacles. This guarantees that the backup maneuver is free from static collisions.
+
+2.  The repulsive Cauchy Artificial Potential Field (CAPF) approach [@srivastava2023ICUAS] is used to compute an escape direction vector pointing away from obstacles. The information about the size of the obstacles is taken from the bounding box dimensions recieved via the object detector. The intersection of this vector with $C_{static}$ defines the backup goal.
+
+A backup trajectory is then synthesized using ST-RRT$^\star$ with convex decomposition and trajectory optimization. The mechanism is triggered when either (i) a collision risk is detected along the current trajectory or (ii) the UAV is hovering while awaiting a feasible path. Once the UAV reaches the backup goal, the finite state machine (FSM) transitions back to its initial mode, thereby resuming its path planning toward the goal.
+
+# Experiments and Validation
+
+## Simulation results
+
+In this section, we present simulation results for collision avoidance in dynamic, cluttered environments. The results are divided into two categories:
+
+- Simulation with ground truth obstacle information: In this setting, the ground-truth positions and velocities of obstacles within the UAV's sensing range (6 m) are available, along with a 360$^\circ$ ground-truth point cloud. Simulations are performed in the *gym-pybullet-drones* environment [@panerati2021learning] using a ROS 2 interface, and we do not assume perfect tracking conditions, rather relying on realistic simulation of inner loop flight control behaviour. We compare our algorithm against the methods in [@wu2024ICRA] and [@ren2025super] under identical conditions.
+
+- Pipeline Validation: To evaluate the complete vision-based navigation pipeline and its potential for sim-to-real transfer, we conduct simulations in the PX4 SITL environment with Gazebo. In this case, obstacle information is obtained from an onboard detector [@10323166], rather than from ground-truth data.
+
+Fig. [6](#fig:drone_sim_avoid){reference-type="ref" reference="fig:drone_sim_avoid"} shows a snapshot from our simulation. All simulations were were executed on a workstation equipped with an Intel Core i7 (13th generation) processor and 16 GB of RAM.
+
+### Ground-truth simulations
+
+The simulation environment is a $16 \times 16$ m$^2$ area. Dynamic obstacles are modeled as vertical cylinders with a height of 5 m and diameters uniformly sampled between 0.4 m and 1.0 m. Obstacle velocities are randomly sampled within the range 0--0.5 m/s. The maximum velocity of the UAV is capped at 1 m/s for our algorithm as well as for the method in [@wu2024ICRA]. For [@ren2025super], we additionally report results at UAV speeds of 1 m/s and 5 m/s, since the approach is well suited for high-speed navigation. Simulations are conducted in three environments containing 10, 20, and 30 obstacles, respectively. For each environment, 50 independent trials are performed to evaluate the results. In addition, we compare our proposed approach, SPOT, against a variant of SPOT executed without the backup trajectory. The results are summarized in Table [1](#tab:success_rate){reference-type="ref" reference="tab:success_rate"}.
+
+::: {#tab:success_rate}
+  **Method**              **10 Obstacles**   **20 Obstacles**   **30 Obstacles**
+  ---------------------- ------------------ ------------------ ------------------
+  SPOT                         100.0                92                80.2
+  SPOT-w/o backup               94.2               82.4               52.2
+  [@wu2024ICRA]                100.0               71.3               57.1
+  [@ren2025super]-5m/s         100.0               70.0               62.2
+  [@ren2025super]-1m/s          52.2               42.8               10.2
+
+  : Comparison of success rates (%) across methods for environments with increasing obstacle densities.
+:::
+
+[]{#tab:success_rate label="tab:success_rate"}
+
+It is readily evident from the first two rows of Table [1](#tab:success_rate){reference-type="ref" reference="tab:success_rate"} that incorporating a backup trajectory increases the success rate by more than 20%. The improvement in the success rate of [@ren2025super] at higher UAV velocities can be attributed to the comparatively low speed of obstacles. Specifically, when the UAV moves at 5 m/s, obstacle velocities correspond to at most 10% of the UAV speed, compared to 50% when the UAV moves at 1 m/s. This speed advantage enables more efficient navigation through the environment. However, even under these conditions, [@ren2025super] performs worse than our approach due to the absence of object motion compensation in dynamic environments.
+
+:::: {#fig:drone_sim_avoid .figure latex-placement="t"}
+![](Srivastava2026SPOT_figs/sim_t1.png){width="\\linewidth"}
+
+![](Srivastava2026SPOT_figs/sim_t2.png){width="\\linewidth"}
+
+![](Srivastava2026SPOT_figs/sim_t3.png){width="\\linewidth"}
+
+![](Srivastava2026SPOT_figs/sim_t4.png){width="\\linewidth"}
+
+::: caption
+Simulation of UAV avoiding dynamic obstacles. The white polygons represent the spatio-temporal free space around the UAV, which follows the green trajectory. The obstacles within red bounding boxes are with UAVs sensing range, while the obstacles represented as green cylinders lie outside of it.
+:::
+::::
+
+The primary reason for collisions in [@wu2024ICRA] is its inability to escape deadlocks, that is, situations where no feasible path to the goal exists. In such cases, the UAV hovers at its current location, making it susceptible to collisions with dynamic obstacles. By contrast, our planner effectively avoids deadlocks by invoking the backup planner, as reflected in the higher success rates reported in Table [1](#tab:success_rate){reference-type="ref" reference="tab:success_rate"}. An example of SPOT avoiding a deadlock and switching to a backup trajectory is illustrated in Fig. [1](#teaser){reference-type="ref" reference="teaser"}. In Table  [\[tab:spot_ablation\]](#tab:spot_ablation){reference-type="ref" reference="tab:spot_ablation"} we provide mean ablations for the performance parameters of SPOT with different obstacle densities. In the table, Replans and Backup represent the number of times FSM had to switch to *Initial* mode and *Backup* mode respectively.
+
+### Pipeline validation
+
+To validate our sim-to-real pipeline for vision-based dynamic collision avoidance, we use the Gazebo simulation environment with PX4 SITL (see Fig. [7](#fig:gazebo_sim){reference-type="ref" reference="fig:gazebo_sim"}). Humans are simulated as dynamic obstacles, and the integration of our motion planning algorithm with the onboard detector is evaluated. Since the experiments use a depth camera, yaw planning is necessary to ensure the UAV faces the direction of motion while avoiding dynamic obstacles. For brevity, the yaw planning formulation is not presented here; readers can refer to [@9422918] for details. The simulation is conducted with 5 humans traversing an area of 20\*20 m$^2$.
+
+:::: {#fig:gazebo_sim .figure latex-placement="t"}
+![Sim-to-real validation in the PX4-Gazebo SITL environment for dynamic collision avoidance.](Srivastava2026SPOT_figs/Teaser_potential.jpeg){width="\\linewidth"}
+
+![Onboard detector integrated with Spatio-Temporal Path planning](Srivastava2026SPOT_figs/sim-to-real-rviz.png){width="\\linewidth"}
+
+::: caption
+Simulation of UAV avoiding humans with walking/running motion profiles. Bounding Boxes provided by onboard detector [@10323166] are used for segmenting pointclouds, which are then used by Spatio-Temporal planner for generating collision free trajectory
+:::
+::::
+
+## Hardware Results
+
+![Hardware platform.](Srivastava2026SPOT_figs/stingray.jpeg){#fig:hardware_platform width="50%"}
+
+We validate our collision avoidance algorithm through hardware experiments on an in-house developed micro-quadcopter UAV. The platform, as shown in Fig. [8](#fig:hardware_platform){reference-type="ref" reference="fig:hardware_platform"}, has a wheelbase of 430 mm and employs 5-inch, three-blade propellers for propulsion. For perception, the UAV is equipped with an Intel RealSense D455, while state estimation is provided by an Intel RealSense T265 camera for visual-inertial odometry. All onboard computation is performed using an NVIDIA Jetson Xavier NX. The UAV runs PX4 on an OmniNXT flight controller to enable trajectory tracking.
+
+We conduct two sets of experiments to evaluate performance in the presence of static and dynamic obstacles, respectively. Unlike [@wu2024ICRA], we use onboard computation to both track and avoid dynamic obstacles. Representative results are illustrated in Fig. [9](#fig:hardwar_experiments){reference-type="ref" reference="fig:hardwar_experiments"}.
+
+:::: {#fig:hardwar_experiments .figure latex-placement="t"}
+\
+
+::: caption
+Hardware experiments demonstrating collision avoidance on an in-house developed UAV. (a--d) UAV avoiding a static obstacle: starting from the initial position, approaching the obstacle, executing avoidance, and clearing it. (e) The planned trajectory. (f--i) UAV avoiding dynamic obstacles: starting from rest, approaching multiple moving obstacles, maneuvering around them, and successfully clearing the scene. (j) The planned trajectory. In the figures, white polygons represent obstacle free space while blue/yellow bboxes represent tracked obstacles
+:::
+::::
+
+# Conclusion
+
+We presented a reactive motion planning framework for quadrotors in unknown, dynamic environments, combining a 4D Spatio-Temporal RRT planner with vision-based Safe Flight Corridor generation and trajectory optimization. Dynamic obstacles are detected and tracked using a vision-based pipeline, and a backup planning module ensures safe navigation in deadlock scenarios. Simulation and hardware experiments demonstrate the method's performance and advantages over state-of-the-art approaches. Future work will focus on improving the estimation of the motion model for dynamic obstacles to enhance prediction and avoidance of collisions. We would also focus on improving the motion planning in more high speed and challenging environments.
+
+# Acknowledgment
+
+The authors acknowledge the support provided by MeitY, Govt. of India, under the project "Capacity Building for Human Resource Development in Unmanned Aircraft System (Drone and Related Technology)."
+
+[^1]: <https://anonymous.4open.science/r/Spatio_Temporal_RRT/>
+
+[^2]: Informed RRT$^\star$ operates like standard RRT$^\star$ until the first solution is found, after which it restricts sampling to a heuristic-defined subset of states, enabling solution refinement while implicitly balancing exploration and exploitation without additional parameters [@gammell2014IROS].
