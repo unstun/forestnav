@@ -1,0 +1,73 @@
+{
+  "task": "T20",
+  "generated_files": [
+    "3_paper/figures/t20_main_eval_bars.pdf",
+    "3_paper/figures/t20_main_eval_bars.png",
+    "3_paper/figures/t20_ablation_extreme.pdf",
+    "3_paper/figures/t20_ablation_extreme.png",
+    "3_paper/figures/t20_generalization_boundary.pdf",
+    "3_paper/figures/t20_generalization_boundary.png",
+    "3_paper/figures/t20_path_subgoals.pdf",
+    "3_paper/figures/t20_path_subgoals.png"
+  ],
+  "sources": {
+    "t14_summary": "/Users/sun/tongbu/study/phdproject/ForestNav/.pipeline/experiments/20260621_t14_formal_6method_rs_k20_collisionguard_validation_t06/summary_by_method_bucket.csv",
+    "t14_records": "/Users/sun/tongbu/study/phdproject/ForestNav/.pipeline/experiments/20260621_t14_formal_6method_rs_k20_collisionguard_validation_t06/records.csv",
+    "t14_queries": "/Users/sun/tongbu/study/phdproject/ForestNav/.pipeline/experiments/20260621_t14_formal_6method_rs_k20_collisionguard_validation_t06/queries.csv",
+    "t15_ablation_summary": "/Users/sun/tongbu/study/phdproject/ForestNav/.pipeline/experiments/20260623_t15_ablation_framework_validation_t06/ablation_summary.csv",
+    "t16_summary": "/Users/sun/tongbu/study/phdproject/ForestNav/.pipeline/experiments/20260623_t16_generalization_framework_t06/summary_by_method_bucket.csv",
+    "t16_verdict": "/Users/sun/tongbu/study/phdproject/ForestNav/.pipeline/experiments/20260623_t16_generalization_framework_t06/verdict.json"
+  },
+  "boundary": {
+    "t14": "formal main evaluation",
+    "t15": "framework-scale ablation snapshot",
+    "t16": "framework-scale generalization snapshot; RealMap did not pass the time-benefit criterion"
+  },
+  "figure_metadata": {
+    "t20_path_subgoals": {
+      "query": {
+        "query_id": "extreme_s02_q0051",
+        "difficulty_bucket": "Extreme",
+        "profile_name": "extreme_d05",
+        "map_seed": 20480622,
+        "query_seed": 20481623,
+        "seed_index": 2,
+        "map_index": 2,
+        "query_index": 1,
+        "distance_bin_key": "d20_inf",
+        "start": [
+          1.0,
+          22.400000000000002,
+          -0.5411436131056458
+        ],
+        "goal": [
+          21.3,
+          10.200000000000001,
+          -0.5411436131056458
+        ]
+      },
+      "vanilla": {
+        "success": true,
+        "time_s": 1.2327251434326172,
+        "expansions": 2974,
+        "path_pose_count": 251
+      },
+      "f_n3p": {
+        "success": true,
+        "time_s": 0.1454763340007048,
+        "expansions": 6,
+        "used_f1": 58,
+        "used_f2": 1,
+        "used_f3": 0,
+        "path_pose_count": 296,
+        "subgoal_count": 6
+      },
+      "n3p_k1": {
+        "success": true,
+        "time_s": 0.5829895829956513,
+        "expansions": 531,
+        "path_pose_count": 277
+      }
+    }
+  }
+}
