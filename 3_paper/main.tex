@@ -128,7 +128,99 @@ This section will be written from the T14, T15, and T16 experiment ledgers after
 
 \section{Results and Discussion}
 \label{sec:results}
-This section will be written only from verified CSV and JSON experiment outputs.
+The current result package contains one formal main evaluation and two framework-scale follow-up runs. The formal main evaluation is the T14 run with six methods, three validation difficulty buckets, five random seeds, 100 queries per bucket, and 1,800 method-query records in total. The ablation and generalization runs are included here because they define the current experimental boundary, but they are not yet used as final paper-scale evidence. All returned paths were rechecked by the same dual-circle collision detector used by the evaluation framework, and all reported collision-violation counts were zero.
+
+\subsection{Formal Main Evaluation}
+\label{sec:results_main}
+
+Table~\ref{tab:main_eval} reports the feasible rate and median wall-clock planning time from the formal T14 run. F-N3P had the highest feasible rate among the learned variants and the lowest median planning time in all three validation buckets. The gap widened as the query bucket became harder: in the Extreme bucket, F-N3P reached a 94\% feasible rate with a median planning time of 0.066 s, whereas vanilla Hybrid A* reached a 70\% feasible rate with a median planning time of 0.650 s. The N3P-style $k=1$ variant remained feasible on 80\% of Extreme queries, but its median time was 0.488 s, showing that a single nearest-neighbor prediction did not recover the main method's speed. Voronoi and bottleneck subgoal baselines were robust, but their median times stayed close to the vanilla planner in the harder buckets. The MD-DQN adapter produced almost no feasible paths in this benchmark, so this row should be read as an implementation-level baseline outcome under the current adapter rather than as a general claim about value-based planners.
+
+% Source: .pipeline/experiments/20260621_t14_formal_6method_rs_k20_collisionguard_validation_t06/summary_by_method_bucket.csv
+\begin{table}[t]
+\centering
+\caption{Formal T14 main evaluation. Each cell reports feasible rate in percent followed by median time in seconds.}
+\label{tab:main_eval}
+\small
+\begin{tabular}{lccc}
+\toprule
+Method & Easy & Complex & Extreme \\
+\midrule
+Vanilla Hybrid A* & 91 / 0.199 & 81 / 0.366 & 70 / 0.650 \\
+F-N3P & 100 / 0.012 & 98 / 0.027 & 94 / 0.066 \\
+N3P-style $k=1$ & 96 / 0.179 & 89 / 0.323 & 80 / 0.488 \\
+Voronoi subgoals & 100 / 0.624 & 100 / 0.624 & 94 / 0.679 \\
+Bottleneck subgoals & 99 / 0.514 & 99 / 0.616 & 91 / 0.674 \\
+MD-DQN adapter & 0 / 0.171 & 0 / 0.172 & 1 / 0.171 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The pre-registered success gate focuses on the Complex and Extreme buckets. Table~\ref{tab:contract_gate} shows the corresponding Contract checks. F-N3P reduced median planning time by 92.6\% in Complex and 89.8\% in Extreme relative to vanilla Hybrid A*. The success-rate difference was negative in both buckets, meaning that F-N3P solved more queries rather than losing success rate. Median path inflation stayed within the 5\% threshold. Under the T14 formal scale, the Complex and Extreme gates therefore passed.
+
+% Source: .pipeline/experiments/20260621_t14_formal_6method_rs_k20_collisionguard_validation_t06/verdict.json
+\begin{table}[t]
+\centering
+\caption{Pre-registered Contract gate for the formal T14 run. A negative success-rate drop means F-N3P improved feasible rate over vanilla Hybrid A*.}
+\label{tab:contract_gate}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Bucket & Time reduction & SR drop & Path inflation & Gate \\
+\midrule
+Complex & 92.6\% & -17.0 pp & 0.0\% & pass \\
+Extreme & 89.8\% & -24.0 pp & 1.6\% & pass \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Ablation Framework Run}
+\label{sec:results_ablation}
+
+The T15 ablation package registered 30 variants. Twenty-five variants were executed, while five variants were explicitly recorded as requiring relabeling or feature re-extraction before they can be used as final ablation evidence. Table~\ref{tab:ablation_snapshot} shows representative Extreme-bucket rows from the executed subset. The framework-scale trend is internally consistent with the method design. KNN with $k=20$ was faster than the MLP regressor and the $k=1$ nearest-neighbor variant. Removing density features or disabling the F1 retry step reduced the median-time advantage. Disabling F2 shifted failures into F3 and reduced the median-time reduction to 32.9\%. These rows support the current design direction, but because each Extreme row contains only 10 queries, they should be treated as ablation guidance rather than final ablation claims.
+
+% Source: .pipeline/experiments/20260623_t15_ablation_framework_validation_t06/ablation_summary.csv
+\begin{table}[t]
+\centering
+\caption{T15 ablation framework snapshot on the Extreme bucket. The run is framework-scale and is not final paper-scale evidence.}
+\label{tab:ablation_snapshot}
+\small
+\begin{tabular}{lrrrrr}
+\toprule
+Variant & Feasible & Median time & Time reduction & F2 & F3 \\
+\midrule
+KNN $k=20$ & 90\% & 0.357 & 61.5\% & 70\% & 10\% \\
+MLP & 90\% & 0.599 & 34.8\% & 90\% & 40\% \\
+KNN $k=1$ & 90\% & 0.438 & 50.0\% & 90\% & 20\% \\
+No density features & 90\% & 0.463 & 47.1\% & 70\% & 10\% \\
+No F1 retry & 90\% & 0.440 & 49.8\% & 90\% & 20\% \\
+No F2 local planner & 90\% & 0.588 & 32.9\% & 0\% & 70\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Generalization Framework Run}
+\label{sec:results_generalization}
+
+The T16 generalization package is intentionally reported as a framework-scale run. It used 16 queries and 32 method records, with five queries in each out-of-distribution density bucket and six RealMap queries. Table~\ref{tab:generalization_snapshot} shows the current evidence. The out-of-distribution density rows did not trigger the pre-registered failure criterion on success-rate drop. F-N3P matched vanilla Hybrid A* on OOD-Sparse and exceeded it on OOD-Dense in this small run. The RealMap aggregate did not pass the pre-registered time-benefit criterion. Both F-N3P and vanilla Hybrid A* had a 33.3\% feasible rate on RealMap, and F-N3P was slower at the aggregate median. The current paper draft should therefore describe RealMap transfer as unresolved and should not claim final real-map generalization until a larger reviewed run replaces this framework-scale evidence.
+
+% Source: .pipeline/experiments/20260623_t16_generalization_framework_t06/summary_by_method_bucket.csv and verdict.json
+\begin{table}[t]
+\centering
+\caption{T16 generalization framework snapshot. Time reduction is measured against vanilla Hybrid A* and can be negative.}
+\label{tab:generalization_snapshot}
+\small
+\begin{tabular}{lrrrrrr}
+\toprule
+Split & Queries & F-N3P SR & Vanilla SR & F-N3P time & Vanilla time & Reduction \\
+\midrule
+OOD-Sparse & 5 & 100\% & 100\% & 0.000 & 0.109 & 99.7\% \\
+OOD-Dense & 5 & 100\% & 80\% & 0.013 & 0.160 & 91.7\% \\
+RealMap & 6 & 33.3\% & 33.3\% & 3.277 & 2.500 & -31.1\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The current evidence supports one strong claim and two bounded claims. The strong claim is that, under the reviewed validation cutpoints and T14 formal scale, F-N3P passed the pre-registered Complex and Extreme procedural-map gates while maintaining zero collision violations. The first bounded claim is that the ablation framework points toward the importance of multi-neighbor KNN retrieval and the fallback hierarchy, but larger ablation runs are still required before ranking all design factors. The second bounded claim is that out-of-distribution procedural densities look promising at framework scale, whereas RealMap transfer remains an open failure boundary under the current evidence.
 
 \section{Conclusion}
 \label{sec:conclusion}

@@ -219,7 +219,7 @@
 - **依赖**：T09 完成
 
 ### T18 论文 Results 节
-- [ ] 基于 T14/T15/T16 的 CSV 数据，撰写 Results 节
+- [x] 基于 T14/T15/T16 的 CSV 数据，撰写 Results 节
 - **需人工确认**
 - **依赖**：T14, T15, T16
 
@@ -259,3 +259,4 @@
 | 2026-06-23 | T15 消融实验 | 新增 T15 消融框架与 runner，覆盖 A1-A8 变体登记；在 `gpu3070ti-relay` 按框架规模运行 30 个变体，其中 25 个真实运行、5 个明确登记为需后续重切标签/重提特征，生成 90 行 `ablation_summary.csv`、30 行 manifest、25 个子报告，exit=0、stderr 为空、碰撞违例 0；产物写入 `.pipeline/experiments/20260623_t15_ablation_framework_validation_t06/`，该结果用于论文框架和趋势检查，不作为最终大样本结论 |
 | 2026-06-23 | T16 泛化测试 | 新增 `forest_n3p.generalization` 与 `run_generalization_evaluation`，覆盖 OOD-Sparse/OOD-Dense 两个训练外密度桶和 T07 两张真实 SLAM 地图；本次框架规模运行 16 queries / 32 records，query seed 全唯一、方法异常 0、碰撞违例 0，判据② OOD 成功率跌幅通过，判据④ RealMap 20% 时间收益未通过；产物写入 `.pipeline/experiments/20260623_t16_generalization_framework_t06/`，需 Dr Sun 审阅后决定是否放大到论文最终规模 |
 | 2026-06-23 | T17 论文 Method 节 | 新建 `3_paper/main.tex` 与 `3_paper/references.bib`，基于实验代码、T08/T09/T14/T16 记录和术语规范撰写 Method：定义 F-N3P 为 oracle-supervised subgoal decomposition，说明 41 维 map feature、RS 可达标签、KNN-KDTree 子目标预测与 F1/F2/F3 回退；核验 N3P、Hybrid A*、Reeds-Shepp 三条外部依据并完成 `pdflatex+bibtex+pdflatex+pdflatex` 编译；T16 仍按框架规模描述，未写成最终泛化结论 |
+| 2026-06-23 | T18 论文 Results 节 | 基于 T14 正式主评测、T15 消融框架和 T16 泛化框架 CSV/JSON 撰写 `3_paper/main.tex` 的 Results and Discussion：新增主评测表、Contract gate 表、消融框架快照表、泛化框架快照表；明确 T14 支持 Complex/Extreme gate 通过，T15 仅作为趋势，T16 RealMap 20% 时间收益未通过且不能写成最终泛化成功；临时目录完成 `pdflatex+bibtex+pdflatex+pdflatex` 编译，引用与交叉引用通过 |
