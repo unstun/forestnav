@@ -348,6 +348,8 @@ def test_cli_preflight_only_reports_blocking_issues(tmp_path: Path, capsys) -> N
             "vanilla_ha",
             "--allow-unreviewed-cutpoints",
             "--allow-missing-md-dqn",
+            "--human-review-form-path",
+            str(tmp_path / "missing_human_review.md"),
             "--no-enforce-t14-scale",
             "--preflight-only",
         ]
