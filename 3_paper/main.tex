@@ -1,0 +1,140 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{url}
+
+\title{Oracle-Supervised Subgoal Decomposition for Hybrid A* Planning in Dense Forests}
+\author{Dr. Sun}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This draft is under construction. The Method section is the current T17 deliverable.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:introduction}
+This section will be completed after the experimental claims are frozen.
+
+\section{Related Work}
+\label{sec:related}
+This section will be completed during the reference-audit stage.
+
+\section{Problem Formulation}
+\label{sec:problem}
+The task is global path planning for an Ackermann-steered vehicle in a prior occupancy grid map. A query consists of an occupancy grid map, an initial pose, and a goal pose. The planner must return a collision-free path in $SE(2)$ that satisfies the vehicle minimum-turning-radius constraint and the full-body collision model.
+
+\section{Method}
+\label{sec:method}
+
+\subsection{Overview}
+\label{sec:method_overview}
+
+F-N3P is an oracle-supervised subgoal decomposition method for dense-forest planning. The method follows the main design principle of N3P, which accelerates parking by predicting an intermediate preparatory pose and delegating kinodynamic feasibility to Hybrid A* \cite{Xue2026N3P}. The difference is structural. Parking N3P predicts one preparatory pose for a local parking maneuver, whereas ForestNav must plan through a long, non-structured forest map with multiple narrow passages. F-N3P therefore predicts a sequence of $SE(2)$ subgoals. Each predicted subgoal defines a short local planning problem, and each local problem is solved or verified by the same Hybrid A* and Reeds--Shepp components used by the vanilla planner \cite{Dolgov2010HybridAstar,ReedsShepp1990}.
+
+The pipeline has an offline stage and an online stage. Offline, vanilla Hybrid A* solves many procedural forest queries. Successful teacher paths are converted into oracle labels by a greedy Reeds--Shepp-reachable segmentation rule. Each label pairs a 41-dimensional hand-crafted map feature with the next body-frame subgoal displacement. These pairs form a k-d tree K-nearest-neighbor library. Online, the planner starts from the initial pose, checks whether a direct collision-free Reeds--Shepp connection to the goal exists, and otherwise queries the library for the next subgoal. A fallback hierarchy keeps the method tied to the original planner: failed learned predictions are retried with additional neighbors, then with bounded local Hybrid A*, and finally with full vanilla Hybrid A* on the original query.
+
+\subsection{Map and Vehicle Model}
+\label{sec:method_model}
+
+The environment is represented by a prior occupancy grid map $\mathcal{M}: G \rightarrow \{0,1\}$ at resolution $r=0.1$ m, where occupied cells represent tree trunks or mapped obstacles. A vehicle pose is $\mathbf{x}=(x,y,\theta)\in SE(2)$. The vehicle footprint $B(\mathbf{x})$ is represented by a dual-circle approximation of the vehicle body, matching the collision model used in the planner implementation. The collision-free state set is
+\begin{equation}
+X_{\mathrm{free}} = \{\mathbf{x}\in SE(2): B(\mathbf{x})\cap \mathrm{Occ}(\mathcal{M})=\emptyset\}.
+\end{equation}
+A feasible path is a continuous sequence of poses in $X_{\mathrm{free}}$ that satisfies the Ackermann steering constraint through a minimum turning radius.
+
+The underlying local connector is a Reeds--Shepp curve. For two poses $\mathbf{x}$ and $\mathbf{x}'$, $RS(\mathbf{x},\mathbf{x}')$ denotes the shortest forward-and-reverse bounded-curvature connection in obstacle-free space \cite{ReedsShepp1990}. The predicate $RS_{\mathrm{free}}(\mathbf{x},\mathbf{x}')$ is true when sampled poses along that curve pass the dual-circle collision detector. The global teacher and local segment planner are Hybrid A* instances with analytic expansion enabled. Hybrid A* searches over the three-dimensional kinematic state space and uses analytic expansions to connect to the goal when possible \cite{Dolgov2010HybridAstar}.
+
+\subsection{Oracle Label Extraction}
+\label{sec:method_labels}
+
+The oracle data source is the vanilla Hybrid A* teacher. For a successful teacher path $P:[0,S]\rightarrow X_{\mathrm{free}}$ parameterized by arc length, F-N3P extracts a sequence of subgoals by repeatedly taking the farthest downstream pose that is reachable from the current pose by a collision-free Reeds--Shepp curve of bounded length. Let $g_0=P(0)$ and let $s_i$ be the arc-length index of the current subgoal $g_i$. The candidate set at step $i$ is
+\begin{equation}
+\mathcal{S}_i =
+\left\{
+s\in(s_i,S] :
+RS_{\mathrm{free}}(g_i,P(s)) \land
+\mathrm{len}(RS(g_i,P(s))) \le L_{\max}
+\right\}.
+\end{equation}
+If $\mathcal{S}_i$ is empty, the teacher path is discarded for labeling. Otherwise the next subgoal is $g_{i+1}=P(\max \mathcal{S}_i)$. If the arc-length progress $\max \mathcal{S}_i-s_i$ is below $L_{\min}$, the path is also discarded. This prevents very short, fragmented labels in dense regions. The current implementation uses $L_{\max}=8.0$ m. The formal training dataset used $L_{\min}=1.0$ m after the label-pilot failure-rate check.
+
+For every accepted transition, the label is not the global subgoal pose itself. Instead, the target is the body-frame displacement
+\begin{equation}
+\Delta_i = g_{i+1}\ominus g_i = (\Delta x_i,\Delta y_i,\Delta\theta_i),
+\end{equation}
+where $\ominus$ denotes the relative $SE(2)$ transform expressed in the frame of $g_i$. This representation removes global translation and rotation from the supervised target. The final teacher segment is handled by the online stopping rule and does not produce an additional label: when the current pose has a collision-free direct Reeds--Shepp connection to the goal, the planner closes the path directly.
+
+\subsection{Forest Environment Abstraction}
+\label{sec:method_features}
+
+F-N3P uses a 41-dimensional hand-crafted feature vector $\mathbf{f}(\mathbf{x},\mathbf{x}_g,\mathcal{M})$. All geometric quantities are expressed in the current vehicle frame. The feature design replaces the low-dimensional parking-scene abstraction in N3P with a map query that applies to unstructured tree distributions.
+
+\begin{table}[t]
+\centering
+\caption{Feature groups used by the F-N3P subgoal predictor.}
+\label{tab:features}
+\begin{tabular}{lll}
+\toprule
+Group & Dimension & Definition \\
+\midrule
+Goal range & 1 & $\log(1+\|\mathbf{p}_g-\mathbf{p}\|)$ \\
+Goal bearing & 2 & $\sin\alpha,\cos\alpha$ in the vehicle frame \\
+Goal heading error & 2 & $\sin\Delta\theta_g,\cos\Delta\theta_g$ \\
+Ray-cast clearance profile & 32 & $\log(1+\rho_j)$ for 32 uniform directions \\
+Local density & 3 & Occupancy ratios in $[0,2)$, $[2,5)$, and $[5,10)$ m rings \\
+Motion flag & 1 & Reserved forward/reverse flag, set to 0 in v1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The ray-cast clearance profile is a pure geometric query on the prior occupancy grid map. From the current pose, the implementation casts 32 uniformly spaced rays over $2\pi$ and records the distance to the first occupied cell or map boundary, truncated at $R_{\max}=10$ m. This feature is not a LiDAR measurement. It is computed from the map before planning and is used only as an environment abstraction for nearest-neighbor retrieval. Before building the nearest-neighbor structure, each feature dimension is z-score normalized using the training-set mean and standard deviation.
+
+\subsection{KNN Subgoal Predictor}
+\label{sec:method_knn}
+
+The supervised dataset is $\mathcal{D}=\{(\mathbf{f}_n,\Delta_n)\}_{n=1}^N$. The implementation builds a k-d tree over the normalized feature vectors and stores the corresponding three-dimensional labels. At query time, the predictor returns the $k$ nearest labels. For a current pose $\mathbf{x}$ and a predicted body-frame displacement $\Delta$, the world-frame subgoal is
+\begin{equation}
+\hat{g} = \mathbf{x}\circ \Delta,
+\end{equation}
+where $\circ$ is $SE(2)$ composition. The formal main evaluation uses $k=20$ candidate neighbors and commits a Reeds--Shepp segment immediately when the candidate segment has already passed collision checking. The software also exposes masked-feature KNN and an MLP regressor for ablation studies, but the main method is the full-feature KNN predictor.
+
+The current training dataset contains 100,531 samples with 41-dimensional features and three-dimensional labels. It was generated from 2,000 procedural maps and 80,000 planning queries. The teacher success and label extraction process are reported in the T08 experiment ledger; these numbers describe the current implementation state and are not used as result claims in this Method section.
+
+\subsection{Online Planning with Fallback}
+\label{sec:method_online}
+
+Given a new query $(\mathcal{M},\mathbf{x}_s,\mathbf{x}_g)$, F-N3P initializes the current pose $\mathbf{p}$ to $\mathbf{x}_s$ and an output path to the singleton path at $\mathbf{x}_s$. At each iteration, it first tests $RS_{\mathrm{free}}(\mathbf{p},\mathbf{x}_g)$. If the test succeeds, the planner appends the Reeds--Shepp curve and returns. Otherwise it extracts $\mathbf{f}(\mathbf{p},\mathbf{x}_g,\mathcal{M})$, queries the KNN library, transforms each candidate displacement into a world-frame subgoal, and checks whether that subgoal is collision-free and Reeds--Shepp reachable from the current pose.
+
+The fallback hierarchy has three levels. F1 retries additional nearest-neighbor candidates when the first predicted subgoal is occupied or fails the Reeds--Shepp collision test. F2 runs bounded Hybrid A* either to the predicted subgoal or directly to the goal, with a segment budget smaller than the full teacher budget. F3 abandons the learned decomposition and runs vanilla Hybrid A* on the original query with the same full-query budget used by the baseline. The planner also triggers F3 if the distance to the goal fails to decrease for two consecutive prediction steps or if the adaptive maximum step count is reached. This hierarchy does not claim a stronger completeness property than vanilla Hybrid A*. It gives F-N3P the same budgeted fallback coverage as the baseline while making the cost of failed predictions visible through fallback-rate metrics.
+
+\subsection{Implementation and Evaluation Interface}
+\label{sec:method_implementation}
+
+The implementation separates method construction from evaluation. The feature extractor, label extractor, KNN library builder, online inference loop, baselines, and metric writer are separate modules under \texttt{2\_experiment/forest\_n3p}. Evaluation records store success, feasibility, total wall-clock time, node expansions, path length, path inflation relative to vanilla Hybrid A*, direction switches, mean curvature, minimum clearance, collision violations, fallback counts, and subgoal reachability. The same record schema is used for the main evaluation, ablations, and generalization tests. Returned paths are rejected as infeasible if post hoc dual-circle collision checking finds any collision violation.
+
+This separation is important for the paper claims. The Method section defines how F-N3P constructs subgoals and paths. The Results section will only use metrics from the experiment ledgers. In particular, the current T16 generalization run is a framework-scale candidate run, not a final paper-scale RealMap claim. The paper should therefore not state final generalization conclusions until the corresponding Result tables are frozen.
+
+\section{Experiments}
+\label{sec:experiments}
+This section will be written from the T14, T15, and T16 experiment ledgers after human review.
+
+\section{Results and Discussion}
+\label{sec:results}
+This section will be written only from verified CSV and JSON experiment outputs.
+
+\section{Conclusion}
+\label{sec:conclusion}
+This section will be completed after Results are finalized.
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

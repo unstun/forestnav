@@ -215,7 +215,7 @@
 ## 阶段 2：写作
 
 ### T17 论文 Method 节
-- [ ] 基于实验代码和设计文档，撰写 3_paper/main.tex 的 Method 节
+- [x] 基于实验代码和设计文档，撰写 3_paper/main.tex 的 Method 节
 - **依赖**：T09 完成
 
 ### T18 论文 Results 节
@@ -258,3 +258,4 @@
 | 2026-06-23 | T14 主评测 | Dr Sun 确认先采用放大验证切点 `validation_t06` 推进整体框架；在 `gpu3070ti-relay` 重跑 6 方法 × Easy/Complex/Extreme × 5 seeds 主评测，生成 300 queries / 1800 records，`formal_acceptance=true`、`status=formal_pass`、方法异常 0、碰撞违例 0；Complex/Extreme Contract gate 均通过，产物写入 `.pipeline/experiments/20260621_t14_formal_6method_rs_k20_collisionguard_validation_t06/` |
 | 2026-06-23 | T15 消融实验 | 新增 T15 消融框架与 runner，覆盖 A1-A8 变体登记；在 `gpu3070ti-relay` 按框架规模运行 30 个变体，其中 25 个真实运行、5 个明确登记为需后续重切标签/重提特征，生成 90 行 `ablation_summary.csv`、30 行 manifest、25 个子报告，exit=0、stderr 为空、碰撞违例 0；产物写入 `.pipeline/experiments/20260623_t15_ablation_framework_validation_t06/`，该结果用于论文框架和趋势检查，不作为最终大样本结论 |
 | 2026-06-23 | T16 泛化测试 | 新增 `forest_n3p.generalization` 与 `run_generalization_evaluation`，覆盖 OOD-Sparse/OOD-Dense 两个训练外密度桶和 T07 两张真实 SLAM 地图；本次框架规模运行 16 queries / 32 records，query seed 全唯一、方法异常 0、碰撞违例 0，判据② OOD 成功率跌幅通过，判据④ RealMap 20% 时间收益未通过；产物写入 `.pipeline/experiments/20260623_t16_generalization_framework_t06/`，需 Dr Sun 审阅后决定是否放大到论文最终规模 |
+| 2026-06-23 | T17 论文 Method 节 | 新建 `3_paper/main.tex` 与 `3_paper/references.bib`，基于实验代码、T08/T09/T14/T16 记录和术语规范撰写 Method：定义 F-N3P 为 oracle-supervised subgoal decomposition，说明 41 维 map feature、RS 可达标签、KNN-KDTree 子目标预测与 F1/F2/F3 回退；核验 N3P、Hybrid A*、Reeds-Shepp 三条外部依据并完成 `pdflatex+bibtex+pdflatex+pdflatex` 编译；T16 仍按框架规模描述，未写成最终泛化结论 |
