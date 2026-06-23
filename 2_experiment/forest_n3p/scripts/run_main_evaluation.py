@@ -31,6 +31,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--knn-feature-indices", default=None)
     parser.add_argument("--mlp-model-dir", type=Path, default=MainEvaluationConfig().mlp_model_dir)
     parser.add_argument("--mlp-device", default=MainEvaluationConfig().mlp_device)
+    parser.add_argument("--cutpoint-supplement-path", type=Path, default=MainEvaluationConfig().cutpoint_supplement_path)
+    parser.add_argument("--t06-validation-summary-path", type=Path, default=MainEvaluationConfig().t06_validation_summary_path)
+    parser.add_argument("--contract-path", type=Path, default=MainEvaluationConfig().contract_path)
+    parser.add_argument("--human-review-form-path", type=Path, default=MainEvaluationConfig().human_review_form_path)
     parser.add_argument("--bootstrap-resamples", type=int, default=5_000)
     parser.add_argument("--md-dqn-source-dir", type=Path, default=None)
     parser.add_argument("--md-dqn-checkpoint", type=Path, default=None)
@@ -65,6 +69,10 @@ def main(argv: list[str] | None = None) -> int:
         knn_feature_indices=_parse_int_tuple(args.knn_feature_indices),
         mlp_model_dir=args.mlp_model_dir,
         mlp_device=str(args.mlp_device),
+        cutpoint_supplement_path=args.cutpoint_supplement_path,
+        t06_validation_summary_path=args.t06_validation_summary_path,
+        contract_path=args.contract_path,
+        human_review_form_path=args.human_review_form_path,
         md_dqn_source_dir=args.md_dqn_source_dir,
         md_dqn_checkpoint_path=args.md_dqn_checkpoint,
         md_dqn_algo=str(args.md_dqn_algo),
