@@ -49,7 +49,9 @@ OFFICIAL_T14_METHODS = (
     "md_dqn",
 )
 
-IMPLEMENTED_METHODS = frozenset(OFFICIAL_T14_METHODS)
+T15_EXTRA_METHODS = ("mlp",)
+
+IMPLEMENTED_METHODS = frozenset((*OFFICIAL_T14_METHODS, *T15_EXTRA_METHODS))
 
 FORMAL_HUMAN_DECISIONS = {
     "D-T14-09": ("approve_original_with_justification", "revise_to_validation_cutpoints"),
@@ -73,6 +75,10 @@ class MainEvaluationConfig:
     profiles: tuple[TrainingProfile, ...] = field(default_factory=lambda: default_main_evaluation_profiles())
     distance_bins: tuple[DistanceBin, ...] = field(default_factory=lambda: parse_distance_bins("8:12,12:16,16:20,20:"))
     knn_library_dir: Path = Path("2_experiment/forest_n3p/models/t09_knn_library")
+    knn_dataset_dir: Path = Path("2_experiment/forest_n3p/datasets/t08_training_dataset")
+    knn_feature_indices: tuple[int, ...] | None = None
+    mlp_model_dir: Path = Path("2_experiment/forest_n3p/models/t10_mlp_subgoal")
+    mlp_device: str = "cpu"
     cutpoint_supplement_path: Path = Path(".pipeline/contracts/v9-forest-n3p-t06-calibration-supplement.md")
     t06_validation_summary_path: Path = Path(
         ".pipeline/experiments/20260621_t06_review_validation_m6q10_d6q16/summary.json"
@@ -93,6 +99,12 @@ class MainEvaluationConfig:
     full_fallback_max_nodes: int = 15_000
     k_neighbors: int = 5
     commit_verified_rs_segments: bool = False
+    max_steps_override: int | None = None
+    enable_f1: bool = True
+    enable_f2: bool = True
+    enable_f3: bool = True
+    prediction_noise_sigma_m: float = 0.0
+    prediction_noise_seed: int = 20260620
     md_dqn_source_dir: Path | None = None
     md_dqn_checkpoint_path: Path | None = None
     md_dqn_algo: str = "cnn-dqn"
@@ -116,6 +128,17 @@ class MainEvaluationConfig:
             raise ValueError("distance_bins must not be empty")
         if int(self.k_neighbors) <= 0:
             raise ValueError("k_neighbors must be positive")
+        if self.knn_feature_indices is not None:
+            if not self.knn_feature_indices:
+                raise ValueError("knn_feature_indices must not be empty when set")
+            if len(set(self.knn_feature_indices)) != len(self.knn_feature_indices):
+                raise ValueError("knn_feature_indices must be unique")
+            if any(int(index) < 0 for index in self.knn_feature_indices):
+                raise ValueError("knn_feature_indices must be non-negative")
+        if self.max_steps_override is not None and int(self.max_steps_override) <= 0:
+            raise ValueError("max_steps_override must be positive when set")
+        if float(self.prediction_noise_sigma_m) < 0.0:
+            raise ValueError("prediction_noise_sigma_m must be non-negative")
         if int(self.md_dqn_max_steps) <= 0:
             raise ValueError("md_dqn_max_steps must be positive")
 
@@ -191,9 +214,9 @@ def preflight_main_evaluation(config: MainEvaluationConfig) -> PreflightReport:
     warnings: list[str] = []
     unavailable: dict[str, str] = {}
 
-    unknown = [method for method in config.methods if method not in OFFICIAL_T14_METHODS]
+    unknown = [method for method in config.methods if method not in IMPLEMENTED_METHODS]
     if unknown:
-        issues.append(f"unknown T14 methods: {', '.join(unknown)}")
+        issues.append(f"unknown evaluation methods: {', '.join(unknown)}")
 
     reviewed = _frontmatter_bool(config.cutpoint_supplement_path, "reviewed")
     if not reviewed:
@@ -208,9 +231,19 @@ def preflight_main_evaluation(config: MainEvaluationConfig) -> PreflightReport:
         issues.append(f"contract status is not approved: {config.contract_path} status={contract_status!r}")
 
     if any(method in config.methods for method in ("f_n3p_knn", "n3p_k1")):
-        missing = _missing_knn_files(config.knn_library_dir)
+        missing = (
+            _missing_knn_dataset_files(config.knn_dataset_dir)
+            if config.knn_feature_indices is not None
+            else _missing_knn_files(config.knn_library_dir)
+        )
         if missing:
-            issues.append(f"KNN library is incomplete under {config.knn_library_dir}: {', '.join(missing)}")
+            root = config.knn_dataset_dir if config.knn_feature_indices is not None else config.knn_library_dir
+            issues.append(f"KNN source is incomplete under {root}: {', '.join(missing)}")
+
+    if "mlp" in config.methods:
+        missing = _missing_mlp_files(config.mlp_model_dir)
+        if missing:
+            issues.append(f"MLP model is incomplete under {config.mlp_model_dir}: {', '.join(missing)}")
 
     if "md_dqn" in config.methods:
         md_dqn_availability = check_md_dqn_adapter(_md_dqn_config(config))
@@ -402,7 +435,7 @@ def _run_method(
     footprint: TwoCircleFootprint,
     cfg: MainEvaluationConfig,
     *,
-    predictors: dict[str, KnnSubgoalLibrary],
+    predictors: dict[str, Any],
     reference_path_length_m: float | None,
 ):
     if method == "f_n3p_knn":
@@ -414,7 +447,7 @@ def _run_method(
             query.start,
             query.goal,
             predictors["knn"],
-            config=_inference_config(cfg, k_neighbors=int(cfg.k_neighbors)),
+            config=_inference_config(cfg, k_neighbors=int(cfg.k_neighbors), query_seed=query.query_seed),
         )
         return planner_run_from_result(
             result,
@@ -435,7 +468,7 @@ def _run_method(
             query.start,
             query.goal,
             predictors["knn"],
-            config=_inference_config(cfg, k_neighbors=1),
+            config=_inference_config(cfg, k_neighbors=1, query_seed=query.query_seed),
         )
         return planner_run_from_result(
             result,
@@ -507,6 +540,33 @@ def _run_method(
                 "query_seed": query.query_seed,
                 "waypoint_count": len(result.waypoints),
                 "bottleneck_count": len(result.bottlenecks),
+            },
+        )
+
+    if method == "mlp":
+        from forest_n3p.inference import run_forest_n3p
+
+        result = run_forest_n3p(
+            grid_map,
+            footprint,
+            query.start,
+            query.goal,
+            predictors["mlp"],
+            config=_inference_config(cfg, k_neighbors=1, query_seed=query.query_seed),
+        )
+        return planner_run_from_result(
+            result,
+            query_id=query.query_id,
+            method=method,
+            difficulty_bucket=query.difficulty_bucket,
+            distance_bin_key=query.distance_bin_key,
+            reference_path_length_m=reference_path_length_m,
+            metadata={
+                "profile_name": query.profile_name,
+                "map_seed": query.map_seed,
+                "query_seed": query.query_seed,
+                "mlp_model_dir": str(cfg.mlp_model_dir),
+                "mlp_device": str(cfg.mlp_device),
             },
         )
 
@@ -624,7 +684,7 @@ def _make_planner(grid_map: GridMap, footprint: TwoCircleFootprint, cfg: MainEva
     )
 
 
-def _inference_config(cfg: MainEvaluationConfig, *, k_neighbors: int) -> InferenceConfig:
+def _inference_config(cfg: MainEvaluationConfig, *, k_neighbors: int, query_seed: int) -> InferenceConfig:
     from forest_n3p.inference import InferenceConfig
 
     return InferenceConfig(
@@ -634,6 +694,12 @@ def _inference_config(cfg: MainEvaluationConfig, *, k_neighbors: int) -> Inferen
         full_fallback_timeout_s=float(cfg.full_fallback_timeout_s),
         full_fallback_max_nodes=int(cfg.full_fallback_max_nodes),
         commit_verified_rs_segments=bool(cfg.commit_verified_rs_segments),
+        max_steps_override=cfg.max_steps_override,
+        enable_f1=bool(cfg.enable_f1),
+        enable_f2=bool(cfg.enable_f2),
+        enable_f3=bool(cfg.enable_f3),
+        prediction_noise_sigma_m=float(cfg.prediction_noise_sigma_m),
+        prediction_noise_seed=int(cfg.prediction_noise_seed) + int(query_seed),
     )
 
 
@@ -761,18 +827,30 @@ def _summary_lookup(records: Sequence[EvaluationRecord]) -> dict[tuple[str, str]
 
 def _stat_pairs(methods: Sequence[str]) -> tuple[tuple[str, str], ...]:
     pairs: list[tuple[str, str]] = []
-    for other in ("vanilla_ha", "n3p_k1", "voronoi_waypoint", "bottleneck_waypoint"):
+    for other in ("vanilla_ha", "n3p_k1", "mlp", "voronoi_waypoint", "bottleneck_waypoint"):
         if "f_n3p_knn" in methods and other in methods and other != "f_n3p_knn":
             pairs.append(("f_n3p_knn", other))
     return tuple(pairs)
 
 
-def _load_predictors(config: MainEvaluationConfig, methods: Sequence[str]) -> dict[str, KnnSubgoalLibrary]:
-    if not any(method in methods for method in ("f_n3p_knn", "n3p_k1")):
-        return {}
-    from forest_n3p.inference import KnnSubgoalLibrary
+def _load_predictors(config: MainEvaluationConfig, methods: Sequence[str]) -> dict[str, Any]:
+    predictors: dict[str, Any] = {}
+    if any(method in methods for method in ("f_n3p_knn", "n3p_k1")):
+        from forest_n3p.inference import FeatureMaskedKnnSubgoalLibrary, KnnSubgoalLibrary
 
-    return {"knn": KnnSubgoalLibrary.load(config.knn_library_dir)}
+        if config.knn_feature_indices is None:
+            predictors["knn"] = KnnSubgoalLibrary.load(config.knn_library_dir)
+        else:
+            predictors["knn"] = FeatureMaskedKnnSubgoalLibrary.from_dataset(
+                config.knn_dataset_dir,
+                feature_indices=config.knn_feature_indices,
+                name="masked_knn",
+            )
+    if "mlp" in methods:
+        from forest_n3p.mlp import MlpSubgoalPredictor
+
+        predictors["mlp"] = MlpSubgoalPredictor.load(config.mlp_model_dir, device=str(config.mlp_device))
+    return predictors
 
 
 def _profiles_by_bucket(profiles: Sequence[TrainingProfile]) -> dict[str, tuple[TrainingProfile, ...]]:
@@ -791,6 +869,16 @@ def _profile_by_name(profiles: Sequence[TrainingProfile], name: str) -> Training
 
 def _missing_knn_files(root: Path) -> list[str]:
     required = ("knn_tree.pkl", "labels.npy", "feature_mean.npy", "feature_std.npy", "metadata.json")
+    return [name for name in required if not (Path(root) / name).exists()]
+
+
+def _missing_knn_dataset_files(root: Path) -> list[str]:
+    required = ("features.npy", "labels.npy")
+    return [name for name in required if not (Path(root) / name).exists()]
+
+
+def _missing_mlp_files(root: Path) -> list[str]:
+    required = ("checkpoint.pt", "metadata.json")
     return [name for name in required if not (Path(root) / name).exists()]
 
 
