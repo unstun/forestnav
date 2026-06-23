@@ -1,0 +1,21 @@
+{
+  "created_at_utc": "2026-06-23T11:36:20.923658+00:00",
+  "source_head": "unknown",
+  "command": "python -m forest_n3p.scripts.run_ablation_experiments --output-dir .pipeline/experiments/20260623_t15_ablation_framework_validation_t06 --queries-per-bucket 10 --seed-count 2 --queries-per-map 5 --density-profile-buckets validation_t06 --bootstrap-resamples 1000",
+  "config": {
+    "queries_per_bucket": 10,
+    "seed_count": 2,
+    "queries_per_map": 5,
+    "seed": 20260623,
+    "density_profile_buckets": "validation_t06",
+    "distance_bins": "8:12,12:16,16:20,20:",
+    "bootstrap_resamples": 1000,
+    "commit_verified_rs_segments": true
+  },
+  "outputs": {
+    "manifest_csv": ".pipeline/experiments/20260623_t15_ablation_framework_validation_t06/ablation_manifest.csv",
+    "summary_csv": ".pipeline/experiments/20260623_t15_ablation_framework_validation_t06/ablation_summary.csv",
+    "run_index_csv": ".pipeline/experiments/20260623_t15_ablation_framework_validation_t06/ablation_run_index.csv",
+    "report_md": ".pipeline/experiments/20260623_t15_ablation_framework_validation_t06/report.md"
+  }
+}

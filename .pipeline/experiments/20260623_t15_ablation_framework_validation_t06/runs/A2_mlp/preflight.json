@@ -1,0 +1,23 @@
+{
+  "ok_to_run": true,
+  "blocking_issues": [],
+  "warnings": [
+    "T14 formal scale is not satisfied: queries_per_bucket=10, seed_count=2"
+  ],
+  "available_methods": [
+    "vanilla_ha",
+    "mlp"
+  ],
+  "unavailable_methods": {},
+  "cutpoint_supplement_reviewed": true,
+  "human_review_satisfied": true,
+  "human_review_decisions": {
+    "D-T14-09": "revise_to_validation_cutpoints",
+    "D-T14-10": "approve",
+    "D-T14-11": "formal_baseline",
+    "D-T14-12": "approve_after_rerun_passes"
+  },
+  "profile_bucket_satisfied": true,
+  "profile_bucket_issues": [],
+  "t14_scale_satisfied": false
+}

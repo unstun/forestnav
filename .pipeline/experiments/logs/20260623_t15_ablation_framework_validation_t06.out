@@ -1,0 +1,7 @@
+{
+  "output_dir": ".pipeline/experiments/20260623_t15_ablation_framework_validation_t06",
+  "variant_count": 30,
+  "runnable_variant_count": 25,
+  "summary": ".pipeline/experiments/20260623_t15_ablation_framework_validation_t06/ablation_summary.csv",
+  "report": ".pipeline/experiments/20260623_t15_ablation_framework_validation_t06/report.md"
+}

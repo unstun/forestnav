@@ -192,7 +192,7 @@
 - **依赖**：T09, T11, T12, T13
 
 ### T15 消融实验
-- [ ] **目标**：8 组消融实验
+- [x] **目标**：8 组消融实验
 - **需人工确认**
 - **具体步骤**：按消融矩阵（见 plan-overview.html）逐组执行
   - A1 标签规则 / A2 KNN vs MLP / A3 k 值 / A4 特征组
@@ -256,3 +256,4 @@
 | 2026-06-20 | T12 基线实现：瓶颈规则 waypoint | 新增 `forest_n3p.baselines.bottleneck_waypoint` 与 `verify_bottleneck_waypoint`，沿安全中轴路径读取 EDT 安全裕量，用 `find_peaks(-clearance)` 选择局部低谷作为瓶颈 waypoint，并在超长 skeleton 区间取最窄点作段长守卫；10 个未见查询验收 `feasible_count=10/10`、碰撞复核全通过、平均 waypoint 数 2.8，正式报告与可视化写入 `.pipeline/experiments/20260620_t12_bottleneck_waypoint_verification/` |
 | 2026-06-20 | T13 评测框架 | 新增 `forest_n3p.evaluation` 与 `verify_evaluation_framework`，统一 `EvaluationRun`/`EvaluationRecord`，计算 T/E/SR（基于无碰可行路径）/路径膨胀/方向切换/最小安全裕量/碰撞违例/fallback 触发率/子目标可达率，支持按 method+difficulty bucket 汇总 CSV/JSON、逐查询 Wilcoxon 与 Bootstrap SR CI；合成验证生成 8 条记录并写入 `.pipeline/experiments/20260620_t13_evaluation_framework_verification/`，全测试 40/40 通过 |
 | 2026-06-23 | T14 主评测 | Dr Sun 确认先采用放大验证切点 `validation_t06` 推进整体框架；在 `gpu3070ti-relay` 重跑 6 方法 × Easy/Complex/Extreme × 5 seeds 主评测，生成 300 queries / 1800 records，`formal_acceptance=true`、`status=formal_pass`、方法异常 0、碰撞违例 0；Complex/Extreme Contract gate 均通过，产物写入 `.pipeline/experiments/20260621_t14_formal_6method_rs_k20_collisionguard_validation_t06/` |
+| 2026-06-23 | T15 消融实验 | 新增 T15 消融框架与 runner，覆盖 A1-A8 变体登记；在 `gpu3070ti-relay` 按框架规模运行 30 个变体，其中 25 个真实运行、5 个明确登记为需后续重切标签/重提特征，生成 90 行 `ablation_summary.csv`、30 行 manifest、25 个子报告，exit=0、stderr 为空、碰撞违例 0；产物写入 `.pipeline/experiments/20260623_t15_ablation_framework_validation_t06/`，该结果用于论文框架和趋势检查，不作为最终大样本结论 |
