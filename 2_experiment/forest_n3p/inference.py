@@ -8,7 +8,7 @@ import time
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Iterable, Protocol
+from typing import Any, Iterable, Protocol, Sequence
 
 import numpy as np
 from sklearn import __version__ as sklearn_version
@@ -316,6 +316,19 @@ def subgoal_delta(values: Iterable[float]) -> Pose:
     if len(raw) != 3:
         raise ValueError("subgoal delta must have exactly three values")
     return raw  # type: ignore[return-value]
+
+
+def _validate_feature_indices(indices: Sequence[int], *, feature_dim: int) -> None:
+    if not indices:
+        raise ValueError("feature_indices must not be empty")
+    if len(set(indices)) != len(tuple(indices)):
+        raise ValueError("feature_indices must be unique")
+    dim = int(feature_dim)
+    if dim <= 0:
+        raise ValueError("feature_dim must be positive")
+    for index in indices:
+        if int(index) < 0 or int(index) >= dim:
+            raise ValueError(f"feature index {index} is outside [0, {dim})")
 
 
 def compose_subgoal_pose(current_pose: Pose, delta_body: Pose) -> Pose:
