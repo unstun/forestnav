@@ -128,6 +128,109 @@ class KnnSubgoalLibrary:
 
 
 @dataclass(frozen=True)
+class FeatureMaskedKnnSubgoalLibrary:
+    tree: KDTree
+    labels: np.ndarray
+    feature_indices: tuple[int, ...]
+    feature_mean: np.ndarray
+    feature_std: np.ndarray
+    metadata: dict[str, Any]
+    root: Path | None = None
+    name: str = "masked_knn"
+
+    @classmethod
+    def from_dataset(
+        cls,
+        dataset_dir: str | Path,
+        *,
+        feature_indices: Sequence[int],
+        leaf_size: int = 40,
+        zscore_epsilon: float = 1e-6,
+        name: str = "masked_knn",
+    ) -> "FeatureMaskedKnnSubgoalLibrary":
+        dataset_path = Path(dataset_dir)
+        features = np.load(dataset_path / "features.npy").astype(np.float64, copy=False)
+        labels = np.load(dataset_path / "labels.npy").astype(np.float32, copy=False)
+        indices = tuple(int(index) for index in feature_indices)
+        _validate_feature_indices(indices, feature_dim=int(features.shape[1]))
+        if features.shape[0] != labels.shape[0]:
+            raise ValueError("features and labels must have the same row count")
+        if labels.ndim != 2 or labels.shape[1] != 3:
+            raise ValueError("labels.npy must have shape (N, 3)")
+        selected = features[:, indices]
+        eps = float(zscore_epsilon)
+        if not (math.isfinite(eps) and eps > 0.0):
+            raise ValueError("zscore_epsilon must be finite and positive")
+        feature_mean = np.mean(selected, axis=0, dtype=np.float64)
+        feature_std = np.std(selected, axis=0, dtype=np.float64)
+        feature_std = np.where(feature_std < eps, 1.0, feature_std)
+        normalized = ((selected - feature_mean) / feature_std).astype(np.float32, copy=False)
+        metadata = {
+            "task": "T15",
+            "model": "FeatureMaskedKNN-KDTree",
+            "source_dataset_dir": str(dataset_path),
+            "source_feature_shape": list(features.shape),
+            "label_shape": list(labels.shape),
+            "feature_indices": list(indices),
+            "selected_feature_dim": len(indices),
+            "leaf_size": int(leaf_size),
+            "zscore_epsilon": eps,
+            "sklearn_version": sklearn_version,
+        }
+        return cls(
+            tree=KDTree(normalized, leaf_size=int(leaf_size)),
+            labels=np.asarray(labels, dtype=np.float32),
+            feature_indices=indices,
+            feature_mean=feature_mean.astype(np.float64, copy=False),
+            feature_std=feature_std.astype(np.float64, copy=False),
+            metadata=metadata,
+            root=dataset_path,
+            name=name,
+        )
+
+    @property
+    def sample_count(self) -> int:
+        return int(self.labels.shape[0])
+
+    @property
+    def feature_dim(self) -> int:
+        return len(self.feature_indices)
+
+    def normalize_feature(self, feature: np.ndarray) -> np.ndarray:
+        vector = np.asarray(feature, dtype=np.float64).reshape(-1)
+        _validate_feature_indices(self.feature_indices, feature_dim=int(vector.shape[0]))
+        selected = vector[np.asarray(self.feature_indices, dtype=np.int64)]
+        return ((selected - self.feature_mean) / self.feature_std).astype(np.float32, copy=False)
+
+    def query(
+        self,
+        feature: np.ndarray,
+        *,
+        current_pose: Pose,
+        k: int,
+    ) -> tuple[NeighborPrediction, ...]:
+        if self.sample_count <= 0:
+            raise ValueError("KNN library is empty")
+        query_k = max(1, min(int(k), self.sample_count))
+        normalized = self.normalize_feature(feature).reshape(1, -1)
+        distances, indices = self.tree.query(normalized, k=query_k)
+        out: list[NeighborPrediction] = []
+        for rank, (distance, sample_index) in enumerate(zip(distances[0], indices[0], strict=True), start=1):
+            delta = tuple(float(v) for v in self.labels[int(sample_index)])
+            subgoal = compose_subgoal_pose(current_pose, delta)  # type: ignore[arg-type]
+            out.append(
+                NeighborPrediction(
+                    rank=rank,
+                    sample_index=int(sample_index),
+                    distance=float(distance),
+                    delta_body=subgoal_delta(delta),
+                    subgoal_pose=subgoal,
+                )
+            )
+        return tuple(out)
+
+
+@dataclass(frozen=True)
 class InferenceConfig:
     k_neighbors: int = 5
     l_min_m: float = 1.0
@@ -144,6 +247,12 @@ class InferenceConfig:
     no_progress_epsilon_m: float = 0.05
     commit_verified_rs_segments: bool = False
     feature_config: FeatureConfig = field(default_factory=FeatureConfig)
+    max_steps_override: int | None = None
+    enable_f1: bool = True
+    enable_f2: bool = True
+    enable_f3: bool = True
+    prediction_noise_sigma_m: float = 0.0
+    prediction_noise_seed: int = 20260620
 
     def __post_init__(self) -> None:
         if int(self.k_neighbors) <= 0:
@@ -165,6 +274,10 @@ class InferenceConfig:
             raise ValueError("no_progress_patience must be positive")
         if float(self.no_progress_epsilon_m) < 0.0:
             raise ValueError("no_progress_epsilon_m must be non-negative")
+        if self.max_steps_override is not None and int(self.max_steps_override) <= 0:
+            raise ValueError("max_steps_override must be positive when set")
+        if float(self.prediction_noise_sigma_m) < 0.0:
+            raise ValueError("prediction_noise_sigma_m must be non-negative")
 
 
 @dataclass(frozen=True)
@@ -332,8 +445,14 @@ def run_forest_n3p(
     used_f3 = 0
     previous_distance = _xy_distance(current, final_goal)
     stall_count = 0
-    max_steps = max(1, int(math.ceil((2.0 * previous_distance) / max(float(cfg.l_min_m), 1e-9))))
+    adaptive_max_steps = max(1, int(math.ceil((2.0 * previous_distance) / max(float(cfg.l_min_m), 1e-9))))
+    max_steps = int(cfg.max_steps_override) if cfg.max_steps_override is not None else adaptive_max_steps
     predictor_label = _predictor_label(predictor)
+    noise_rng = (
+        np.random.default_rng(int(cfg.prediction_noise_seed))
+        if float(cfg.prediction_noise_sigma_m) > 0.0
+        else None
+    )
 
     for step_index in range(max_steps):
         direct = _try_rs(grid_map, footprint, current, final_goal, cfg)
@@ -371,6 +490,9 @@ def run_forest_n3p(
 
         feature = extract_features(grid_map, current, final_goal, config=cfg.feature_config).vector
         neighbors = predictor.query(feature, current_pose=current, k=int(cfg.k_neighbors))
+        neighbors = _apply_prediction_noise(neighbors, current, cfg, noise_rng)
+        if not bool(cfg.enable_f1):
+            neighbors = neighbors[:1]
         chosen: NeighborPrediction | None = None
         chosen_rs = None
         first_prediction = neighbors[0] if neighbors else None
@@ -387,27 +509,62 @@ def run_forest_n3p(
             break
 
         if chosen is None:
-            used_f2 += 1
-            f2 = _try_f2(
-                planner,
-                current,
-                final_goal,
-                first_prediction.subgoal_pose if first_prediction is not None else None,
-                path_out,
-                step_index,
-                steps,
-                cfg,
-            )
-            total_expansions += f2.expansions
-            total_planner_time_s += f2.planner_time_s
-            if f2.success:
-                if f2.reached_goal:
-                    return _result(
-                        True,
+            if bool(cfg.enable_f2):
+                used_f2 += 1
+                f2 = _try_f2(
+                    planner,
+                    current,
+                    final_goal,
+                    first_prediction.subgoal_pose if first_prediction is not None else None,
+                    path_out,
+                    step_index,
+                    steps,
+                    cfg,
+                )
+                total_expansions += f2.expansions
+                total_planner_time_s += f2.planner_time_s
+                if f2.success:
+                    if f2.reached_goal:
+                        return _result(
+                            True,
+                            path_out,
+                            steps,
+                            None,
+                            f2.mode,
+                            used_f1,
+                            used_f2,
+                            used_f3,
+                            started,
+                            total_planner_time_s,
+                            total_expansions,
+                            final_goal,
+                        )
+                    current = path_out[-1]
+                elif bool(cfg.enable_f3):
+                    used_f3 += 1
+                    return _run_f3(
+                        planner,
+                        start,
+                        final_goal,
                         path_out,
                         steps,
+                        step_index,
+                        cfg,
+                        started,
+                        total_planner_time_s,
+                        total_expansions,
+                        used_f1,
+                        used_f2,
+                        used_f3,
+                        f"f2_failed:{f2.failure_reason}",
+                    )
+                else:
+                    return _result(
+                        False,
+                        path_out,
+                        steps,
+                        f"f2_failed:{f2.failure_reason};f3_disabled",
                         None,
-                        f2.mode,
                         used_f1,
                         used_f2,
                         used_f3,
@@ -416,8 +573,7 @@ def run_forest_n3p(
                         total_expansions,
                         final_goal,
                     )
-                current = path_out[-1]
-            else:
+            elif bool(cfg.enable_f3):
                 used_f3 += 1
                 return _run_f3(
                     planner,
@@ -433,7 +589,22 @@ def run_forest_n3p(
                     used_f1,
                     used_f2,
                     used_f3,
-                    f"f2_failed:{f2.failure_reason}",
+                    "f2_disabled:no_reachable_prediction",
+                )
+            else:
+                return _result(
+                    False,
+                    path_out,
+                    steps,
+                    "f2_disabled:no_reachable_prediction;f3_disabled",
+                    None,
+                    used_f1,
+                    used_f2,
+                    used_f3,
+                    started,
+                    total_planner_time_s,
+                    total_expansions,
+                    final_goal,
                 )
         else:
             if cfg.commit_verified_rs_segments and chosen_rs is not None:
@@ -480,27 +651,62 @@ def run_forest_n3p(
                     )
                 )
                 if not segment.success:
-                    used_f2 += 1
-                    f2 = _try_f2(
-                        planner,
-                        current,
-                        final_goal,
-                        chosen.subgoal_pose,
-                        path_out,
-                        step_index,
-                        steps,
-                        cfg,
-                    )
-                    total_expansions += f2.expansions
-                    total_planner_time_s += f2.planner_time_s
-                    if f2.success:
-                        if f2.reached_goal:
-                            return _result(
-                                True,
+                    if bool(cfg.enable_f2):
+                        used_f2 += 1
+                        f2 = _try_f2(
+                            planner,
+                            current,
+                            final_goal,
+                            chosen.subgoal_pose,
+                            path_out,
+                            step_index,
+                            steps,
+                            cfg,
+                        )
+                        total_expansions += f2.expansions
+                        total_planner_time_s += f2.planner_time_s
+                        if f2.success:
+                            if f2.reached_goal:
+                                return _result(
+                                    True,
+                                    path_out,
+                                    steps,
+                                    None,
+                                    f2.mode,
+                                    used_f1,
+                                    used_f2,
+                                    used_f3,
+                                    started,
+                                    total_planner_time_s,
+                                    total_expansions,
+                                    final_goal,
+                                )
+                            current = path_out[-1]
+                        elif bool(cfg.enable_f3):
+                            used_f3 += 1
+                            return _run_f3(
+                                planner,
+                                start,
+                                final_goal,
                                 path_out,
                                 steps,
+                                step_index,
+                                cfg,
+                                started,
+                                total_planner_time_s,
+                                total_expansions,
+                                used_f1,
+                                used_f2,
+                                used_f3,
+                                f"segment_failed:{segment.failure_reason};f2_failed:{f2.failure_reason}",
+                            )
+                        else:
+                            return _result(
+                                False,
+                                path_out,
+                                steps,
+                                f"segment_failed:{segment.failure_reason};f2_failed:{f2.failure_reason};f3_disabled",
                                 None,
-                                f2.mode,
                                 used_f1,
                                 used_f2,
                                 used_f3,
@@ -509,8 +715,7 @@ def run_forest_n3p(
                                 total_expansions,
                                 final_goal,
                             )
-                        current = path_out[-1]
-                    else:
+                    elif bool(cfg.enable_f3):
                         used_f3 += 1
                         return _run_f3(
                             planner,
@@ -526,7 +731,22 @@ def run_forest_n3p(
                             used_f1,
                             used_f2,
                             used_f3,
-                            f"segment_failed:{segment.failure_reason};f2_failed:{f2.failure_reason}",
+                            f"segment_failed:{segment.failure_reason};f2_disabled",
+                        )
+                    else:
+                        return _result(
+                            False,
+                            path_out,
+                            steps,
+                            f"segment_failed:{segment.failure_reason};f2_disabled;f3_disabled",
+                            None,
+                            used_f1,
+                            used_f2,
+                            used_f3,
+                            started,
+                            total_planner_time_s,
+                            total_expansions,
+                            final_goal,
                         )
                 else:
                     _append_poses(path_out, segment.poses)
@@ -539,40 +759,70 @@ def run_forest_n3p(
             stall_count += 1
         previous_distance = new_distance
         if stall_count >= int(cfg.no_progress_patience):
-            used_f3 += 1
-            return _run_f3(
-                planner,
-                start,
-                final_goal,
+            if bool(cfg.enable_f3):
+                used_f3 += 1
+                return _run_f3(
+                    planner,
+                    start,
+                    final_goal,
+                    path_out,
+                    steps,
+                    step_index,
+                    cfg,
+                    started,
+                    total_planner_time_s,
+                    total_expansions,
+                    used_f1,
+                    used_f2,
+                    used_f3,
+                    "no_progress_sentinel",
+                )
+            return _result(
+                False,
                 path_out,
                 steps,
-                step_index,
-                cfg,
-                started,
-                total_planner_time_s,
-                total_expansions,
+                "no_progress_sentinel;f3_disabled",
+                None,
                 used_f1,
                 used_f2,
                 used_f3,
-                "no_progress_sentinel",
+                started,
+                total_planner_time_s,
+                total_expansions,
+                final_goal,
             )
 
-    used_f3 += 1
-    return _run_f3(
-        planner,
-        start,
-        final_goal,
+    if bool(cfg.enable_f3):
+        used_f3 += 1
+        return _run_f3(
+            planner,
+            start,
+            final_goal,
+            path_out,
+            steps,
+            max_steps,
+            cfg,
+            started,
+            total_planner_time_s,
+            total_expansions,
+            used_f1,
+            used_f2,
+            used_f3,
+            "max_step_budget",
+        )
+    return _result(
+        False,
         path_out,
         steps,
-        max_steps,
-        cfg,
-        started,
-        total_planner_time_s,
-        total_expansions,
+        "max_step_budget;f3_disabled",
+        None,
         used_f1,
         used_f2,
         used_f3,
-        "max_step_budget",
+        started,
+        total_planner_time_s,
+        total_expansions,
+        final_goal,
     )
 
 
@@ -624,6 +874,46 @@ def _predictor_label(predictor: SubgoalPredictor) -> str:
         if isinstance(model, str) and model:
             return model.lower().replace("-", "_").replace(" ", "_")
     return predictor.__class__.__name__.replace("Subgoal", "").replace("Library", "").lower() or "predictor"
+
+
+def _apply_prediction_noise(
+    neighbors: tuple[Any, ...],
+    current_pose: Pose,
+    cfg: InferenceConfig,
+    rng: np.random.Generator | None,
+) -> tuple[NeighborPrediction, ...]:
+    if rng is None or float(cfg.prediction_noise_sigma_m) <= 0.0:
+        return tuple(neighbors)
+    sigma = float(cfg.prediction_noise_sigma_m)
+    out: list[NeighborPrediction] = []
+    for candidate in neighbors:
+        pose = tuple(float(v) for v in candidate.subgoal_pose)
+        dx, dy = rng.normal(loc=0.0, scale=sigma, size=2)
+        noisy_pose = (float(pose[0] + dx), float(pose[1] + dy), wrap_pi(float(pose[2])))
+        out.append(
+            NeighborPrediction(
+                rank=int(candidate.rank),
+                sample_index=int(candidate.sample_index),
+                distance=float(candidate.distance),
+                delta_body=_body_relative_pose(current_pose, noisy_pose),
+                subgoal_pose=noisy_pose,
+            )
+        )
+    return tuple(out)
+
+
+def _body_relative_pose(current_pose: Pose, target_pose: Pose) -> Pose:
+    x, y, theta = (float(v) for v in current_pose)
+    tx, ty, ttheta = (float(v) for v in target_pose)
+    dx = tx - x
+    dy = ty - y
+    c = math.cos(theta)
+    s = math.sin(theta)
+    return (
+        float(c * dx + s * dy),
+        float(-s * dx + c * dy),
+        wrap_pi(ttheta - theta),
+    )
 
 
 def _try_rs(
