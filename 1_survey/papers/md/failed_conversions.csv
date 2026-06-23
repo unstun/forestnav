@@ -1,0 +1,3 @@
+arxiv_id,citation_key,title,direction_tag,stage,reason,exit_code,pdf_path,md_path
+2405.06290,Dai2024Path,Path Planning and Motion Control for Accurate Positioning of Car-like Robots,K_dubins_reeds_shepp,download-pdf,HTTP Error 404: Not Found,,/Users/sun/tongbu/study/phdproject/ForestNav/1_survey/papers/pdf/Dai2024Path.pdf,/Users/sun/tongbu/study/phdproject/ForestNav/1_survey/papers/md/Dai2024Path.md
+2411.18150,Schichler2024CostEffective,A Cost-Effective Approach to Smooth A* Path Planning for Autonomous Vehicles,K_dubins_reeds_shepp,quality-gate,size<5000;lines<50,,/Users/sun/tongbu/study/phdproject/ForestNav/1_survey/papers/pdf/Schichler2024CostEffective.pdf,/Users/sun/tongbu/study/phdproject/ForestNav/1_survey/papers/md/Schichler2024CostEffective.md
