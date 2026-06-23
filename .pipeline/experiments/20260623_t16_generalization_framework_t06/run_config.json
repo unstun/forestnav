@@ -1,0 +1,89 @@
+{
+  "created_at_utc": "2026-06-23T11:51:53.461471+00:00",
+  "execution_host": "MacBook-Pro.local",
+  "source_head": "t16-framework-local",
+  "command": "python -m forest_n3p.scripts.run_generalization_evaluation --output-dir .pipeline/experiments/20260623_t16_generalization_framework_t06 --ood-queries-per-bucket 5 --realmap-queries-per-map 3 --seed-count 2 --queries-per-map 2 --methods vanilla_ha,f_n3p_knn --distance-bins 8:12,12:16 --realmap-distance-bins 4:8,8:12 --bootstrap-resamples 200 --source-head t16-framework-local",
+  "config": {
+    "seed": 20260623,
+    "ood_queries_per_bucket": 5,
+    "seed_count": 2,
+    "queries_per_map": 2,
+    "realmap_queries_per_map": 3,
+    "include_realmap_canonical_query": true,
+    "width_cells": 300,
+    "height_cells": 300,
+    "resolution_m": 0.1,
+    "max_query_sample_attempts": 800,
+    "methods": [
+      "vanilla_ha",
+      "f_n3p_knn"
+    ],
+    "ood_profiles": [
+      {
+        "name": "ood_sparse_dneg01",
+        "difficulty_bucket": "OOD-Sparse",
+        "trunk_count": 25,
+        "trunk_gap_m": 1.55,
+        "trunk_gap_jitter": 0.18,
+        "bush_cluster_count": 0
+      },
+      {
+        "name": "ood_dense_d08",
+        "difficulty_bucket": "OOD-Dense",
+        "trunk_count": 160,
+        "trunk_gap_m": 0.75,
+        "trunk_gap_jitter": 0.27,
+        "bush_cluster_count": 0
+      }
+    ],
+    "distance_bins": [
+      {
+        "key": "d08_12",
+        "order": 0,
+        "min_distance_m": 8.0,
+        "max_distance_m": 12.0
+      },
+      {
+        "key": "d12_16",
+        "order": 1,
+        "min_distance_m": 12.0,
+        "max_distance_m": 16.0
+      }
+    ],
+    "realmap_distance_bins": [
+      {
+        "key": "d04_08",
+        "order": 0,
+        "min_distance_m": 4.0,
+        "max_distance_m": 8.0
+      },
+      {
+        "key": "d08_12",
+        "order": 1,
+        "min_distance_m": 8.0,
+        "max_distance_m": 12.0
+      }
+    ],
+    "realmap_manifest_path": "2_experiment/forest_n3p/assets/realmaps/manifest.json",
+    "contract_path": ".pipeline/contracts/v9-forest-n3p.md",
+    "knn_library_dir": "2_experiment/forest_n3p/models/t09_knn_library",
+    "knn_dataset_dir": "2_experiment/forest_n3p/datasets/t08_training_dataset",
+    "knn_feature_indices": null,
+    "teacher_timeout_s": 2.5,
+    "teacher_max_nodes": 15000,
+    "segment_timeout_s": 1.0,
+    "segment_max_nodes": 2000,
+    "full_fallback_timeout_s": 2.5,
+    "full_fallback_max_nodes": 15000,
+    "k_neighbors": 20,
+    "commit_verified_rs_segments": true,
+    "max_steps_override": null,
+    "enable_f1": true,
+    "enable_f2": true,
+    "enable_f3": true,
+    "prediction_noise_sigma_m": 0.0,
+    "prediction_noise_seed": 20260623,
+    "bootstrap_resamples": 200,
+    "bootstrap_seed": 20260623
+  }
+}

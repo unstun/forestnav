@@ -201,7 +201,7 @@
 - **依赖**：T14 基础设施
 
 ### T16 泛化测试
-- [ ] **目标**：分布外密度桶 + 真实 SLAM 地图
+- [x] **目标**：分布外密度桶 + 真实 SLAM 地图
 - **需人工确认**
 - **具体步骤**：
   1. 在训练分布外的密度上评测
@@ -257,3 +257,4 @@
 | 2026-06-20 | T13 评测框架 | 新增 `forest_n3p.evaluation` 与 `verify_evaluation_framework`，统一 `EvaluationRun`/`EvaluationRecord`，计算 T/E/SR（基于无碰可行路径）/路径膨胀/方向切换/最小安全裕量/碰撞违例/fallback 触发率/子目标可达率，支持按 method+difficulty bucket 汇总 CSV/JSON、逐查询 Wilcoxon 与 Bootstrap SR CI；合成验证生成 8 条记录并写入 `.pipeline/experiments/20260620_t13_evaluation_framework_verification/`，全测试 40/40 通过 |
 | 2026-06-23 | T14 主评测 | Dr Sun 确认先采用放大验证切点 `validation_t06` 推进整体框架；在 `gpu3070ti-relay` 重跑 6 方法 × Easy/Complex/Extreme × 5 seeds 主评测，生成 300 queries / 1800 records，`formal_acceptance=true`、`status=formal_pass`、方法异常 0、碰撞违例 0；Complex/Extreme Contract gate 均通过，产物写入 `.pipeline/experiments/20260621_t14_formal_6method_rs_k20_collisionguard_validation_t06/` |
 | 2026-06-23 | T15 消融实验 | 新增 T15 消融框架与 runner，覆盖 A1-A8 变体登记；在 `gpu3070ti-relay` 按框架规模运行 30 个变体，其中 25 个真实运行、5 个明确登记为需后续重切标签/重提特征，生成 90 行 `ablation_summary.csv`、30 行 manifest、25 个子报告，exit=0、stderr 为空、碰撞违例 0；产物写入 `.pipeline/experiments/20260623_t15_ablation_framework_validation_t06/`，该结果用于论文框架和趋势检查，不作为最终大样本结论 |
+| 2026-06-23 | T16 泛化测试 | 新增 `forest_n3p.generalization` 与 `run_generalization_evaluation`，覆盖 OOD-Sparse/OOD-Dense 两个训练外密度桶和 T07 两张真实 SLAM 地图；本次框架规模运行 16 queries / 32 records，query seed 全唯一、方法异常 0、碰撞违例 0，判据② OOD 成功率跌幅通过，判据④ RealMap 20% 时间收益未通过；产物写入 `.pipeline/experiments/20260623_t16_generalization_framework_t06/`，需 Dr Sun 审阅后决定是否放大到论文最终规模 |

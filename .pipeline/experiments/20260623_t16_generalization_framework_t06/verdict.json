@@ -1,0 +1,100 @@
+{
+  "status": "candidate_or_framework",
+  "formal_acceptance": false,
+  "record_count": 32,
+  "query_count": 16,
+  "method_count": 2,
+  "available_methods": [
+    "vanilla_ha",
+    "f_n3p_knn"
+  ],
+  "query_count_by_split": {
+    "ood_density": 10,
+    "realmap": 6
+  },
+  "query_count_by_bucket": {
+    "OOD-Dense": 5,
+    "OOD-Sparse": 5,
+    "RealMap": 6
+  },
+  "query_count_by_map": {
+    "ood_dense_d08": 5,
+    "ood_sparse_dneg01": 5,
+    "dqn_realmap_a": 3,
+    "willow_garage_0p10": 3
+  },
+  "collision_violation_total": 0,
+  "method_exception_total": 0,
+  "scale": {
+    "ood_queries_per_bucket_config": 5,
+    "seed_count_config": 2,
+    "realmap_queries_per_map_config": 3,
+    "ood_query_count_by_bucket": {
+      "OOD-Dense": 5,
+      "OOD-Sparse": 5
+    },
+    "realmap_query_count": 6,
+    "formal_scale_satisfied": false
+  },
+  "criteria": {
+    "failure_criterion_2_ood_success_drop_le_5pp": true,
+    "failure_criterion_4_realmap_time_reduction_ge_20pct": false,
+    "collision_violations_zero": true,
+    "method_exceptions_zero": true
+  },
+  "ood_bucket_verdicts": {
+    "OOD-Dense": {
+      "status": "pass",
+      "f_n3p_feasible_rate": 1.0,
+      "vanilla_feasible_rate": 0.8,
+      "success_drop_pp": -19.999999999999996,
+      "threshold_success_drop_pp_max": 5.0,
+      "count": 5
+    },
+    "OOD-Sparse": {
+      "status": "pass",
+      "f_n3p_feasible_rate": 1.0,
+      "vanilla_feasible_rate": 1.0,
+      "success_drop_pp": 0.0,
+      "threshold_success_drop_pp_max": 5.0,
+      "count": 5
+    }
+  },
+  "realmap_aggregate_verdict": {
+    "status": "fail",
+    "median_time_reduction": -0.31075616506544623,
+    "f_n3p_median_time_s": 3.2770476045006944,
+    "vanilla_median_time_s": 2.500119924545288,
+    "threshold_median_time_reduction_min": 0.2,
+    "f_n3p_feasible_rate": 0.3333333333333333,
+    "vanilla_feasible_rate": 0.3333333333333333,
+    "count": 6
+  },
+  "realmap_by_map_verdicts": {
+    "dqn_realmap_a": {
+      "status": "pass",
+      "median_time_reduction": 0.8842341740120322,
+      "f_n3p_median_time_s": 0.1275732499998412,
+      "vanilla_median_time_s": 1.1019940376281738,
+      "threshold_median_time_reduction_min": 0.2,
+      "f_n3p_feasible_rate": 0.6666666666666666,
+      "vanilla_feasible_rate": 0.6666666666666666,
+      "count": 3
+    },
+    "willow_garage_0p10": {
+      "status": "fail",
+      "median_time_reduction": -0.40148636681623984,
+      "f_n3p_median_time_s": 3.503991917001258,
+      "vanilla_median_time_s": 2.500196933746338,
+      "threshold_median_time_reduction_min": 0.2,
+      "f_n3p_feasible_rate": 0.0,
+      "vanilla_feasible_rate": 0.0,
+      "count": 3
+    }
+  },
+  "contract_failure_thresholds": {
+    "criterion_2_ood_success_drop_pp_max": 5.0,
+    "criterion_4_realmap_time_reduction_min": 0.2
+  },
+  "note": "candidate_or_framework means the runner and output schema are valid, but the run is below the configured formal scale. Use >=100 OOD queries per bucket and >=5 seeds for paper-grade OOD evidence."
+}
