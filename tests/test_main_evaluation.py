@@ -76,8 +76,13 @@ def _formal_human_decisions() -> dict[str, str]:
     }
 
 
-def test_preflight_blocks_unreviewed_cutpoints_and_missing_md_dqn() -> None:
-    report = preflight_main_evaluation(MainEvaluationConfig())
+def test_preflight_blocks_unreviewed_cutpoints_and_missing_md_dqn(tmp_path: Path) -> None:
+    report = preflight_main_evaluation(
+        MainEvaluationConfig(
+            cutpoint_supplement_path=tmp_path / "missing_supplement.md",
+            human_review_form_path=tmp_path / "missing_human_review.md",
+        )
+    )
 
     assert not report.ok_to_run
     assert any("cutpoint supplement" in item for item in report.blocking_issues)
@@ -220,6 +225,7 @@ def test_smoke_main_evaluation_writes_outputs(tmp_path: Path) -> None:
         allow_unresolved_human_review=True,
         allow_missing_md_dqn=True,
         enforce_t14_scale=False,
+        human_review_form_path=tmp_path / "missing_human_review.md",
         teacher_timeout_s=1.0,
         teacher_max_nodes=3_000,
         bootstrap_resamples=100,
@@ -297,6 +303,8 @@ def test_cli_writes_k_neighbors_and_source_head_overrides(tmp_path: Path) -> Non
             "--allow-unreviewed-cutpoints",
             "--allow-unresolved-human-review",
             "--allow-missing-md-dqn",
+            "--human-review-form-path",
+            str(tmp_path / "missing_human_review.md"),
             "--no-enforce-t14-scale",
             "--bootstrap-resamples",
             "20",
