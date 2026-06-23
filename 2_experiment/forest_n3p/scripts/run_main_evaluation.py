@@ -27,6 +27,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--methods", default=",".join(MainEvaluationConfig().methods))
     parser.add_argument("--density-profile-buckets", choices=("original_t06", "validation_t06"), default="original_t06")
     parser.add_argument("--distance-bins", default="8:12,12:16,16:20,20:")
+    parser.add_argument("--knn-dataset-dir", type=Path, default=MainEvaluationConfig().knn_dataset_dir)
+    parser.add_argument("--knn-feature-indices", default=None)
+    parser.add_argument("--mlp-model-dir", type=Path, default=MainEvaluationConfig().mlp_model_dir)
+    parser.add_argument("--mlp-device", default=MainEvaluationConfig().mlp_device)
     parser.add_argument("--bootstrap-resamples", type=int, default=5_000)
     parser.add_argument("--md-dqn-source-dir", type=Path, default=None)
     parser.add_argument("--md-dqn-checkpoint", type=Path, default=None)
@@ -35,6 +39,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--md-dqn-max-steps", type=int, default=600)
     parser.add_argument("--k-neighbors", type=int, default=MainEvaluationConfig().k_neighbors)
     parser.add_argument("--commit-verified-rs-segments", action="store_true")
+    parser.add_argument("--max-steps-override", type=int, default=None)
+    parser.add_argument("--disable-f1", action="store_true")
+    parser.add_argument("--disable-f2", action="store_true")
+    parser.add_argument("--disable-f3", action="store_true")
+    parser.add_argument("--prediction-noise-sigma-m", type=float, default=0.0)
+    parser.add_argument("--prediction-noise-seed", type=int, default=MainEvaluationConfig().prediction_noise_seed)
     parser.add_argument("--allow-unreviewed-cutpoints", action="store_true")
     parser.add_argument("--allow-unresolved-human-review", action="store_true")
     parser.add_argument("--allow-missing-md-dqn", action="store_true")
@@ -51,6 +61,10 @@ def main(argv: list[str] | None = None) -> int:
         methods=tuple(part.strip() for part in str(args.methods).split(",") if part.strip()),
         profiles=_profiles_from_bucket_mode(str(args.density_profile_buckets)),
         distance_bins=parse_distance_bins(str(args.distance_bins)),
+        knn_dataset_dir=args.knn_dataset_dir,
+        knn_feature_indices=_parse_int_tuple(args.knn_feature_indices),
+        mlp_model_dir=args.mlp_model_dir,
+        mlp_device=str(args.mlp_device),
         md_dqn_source_dir=args.md_dqn_source_dir,
         md_dqn_checkpoint_path=args.md_dqn_checkpoint,
         md_dqn_algo=str(args.md_dqn_algo),
@@ -58,6 +72,12 @@ def main(argv: list[str] | None = None) -> int:
         md_dqn_max_steps=int(args.md_dqn_max_steps),
         k_neighbors=int(args.k_neighbors),
         commit_verified_rs_segments=bool(args.commit_verified_rs_segments),
+        max_steps_override=args.max_steps_override,
+        enable_f1=not bool(args.disable_f1),
+        enable_f2=not bool(args.disable_f2),
+        enable_f3=not bool(args.disable_f3),
+        prediction_noise_sigma_m=float(args.prediction_noise_sigma_m),
+        prediction_noise_seed=int(args.prediction_noise_seed),
         allow_unreviewed_cutpoints=bool(args.allow_unreviewed_cutpoints),
         allow_unresolved_human_review=bool(args.allow_unresolved_human_review),
         allow_missing_md_dqn=bool(args.allow_missing_md_dqn),
@@ -123,6 +143,12 @@ def _quote_args(argv: list[str] | None) -> list[str]:
     if argv is None:
         return []
     return [str(item) for item in argv]
+
+
+def _parse_int_tuple(raw: str | None) -> tuple[int, ...] | None:
+    if raw is None or not str(raw).strip():
+        return None
+    return tuple(int(part.strip()) for part in str(raw).split(",") if part.strip())
 
 
 def _profiles_from_bucket_mode(mode: str):
