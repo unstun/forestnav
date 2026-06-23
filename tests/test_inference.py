@@ -8,6 +8,7 @@ import pytest
 
 import forest_n3p.inference as inference_module
 from forest_n3p.inference import (
+    FeatureMaskedKnnSubgoalLibrary,
     InferenceConfig,
     KnnSubgoalLibrary,
     NeighborPrediction,
@@ -70,6 +71,32 @@ def test_build_knn_library_applies_zscore_and_returns_nearest_label(tmp_path) ->
     assert prediction.sample_index == 1
     assert prediction.delta_body == pytest.approx((2.0, 0.0, 0.0))
     assert prediction.subgoal_pose == pytest.approx((2.0, 0.0, 0.0))
+
+
+def test_feature_masked_knn_uses_selected_columns(tmp_path) -> None:
+    dataset_dir = tmp_path / "dataset"
+    features = np.asarray(
+        [
+            [0.0, 100.0, 0.0, 0.0],
+            [10.0, -100.0, 10.0, 0.0],
+        ],
+        dtype=np.float32,
+    )
+    labels = np.asarray(
+        [
+            [1.0, 0.0, 0.0],
+            [9.0, 0.0, 0.0],
+        ],
+        dtype=np.float32,
+    )
+    _write_dataset(dataset_dir, features, labels)
+
+    library = FeatureMaskedKnnSubgoalLibrary.from_dataset(dataset_dir, feature_indices=(0, 2))
+    prediction = library.query(np.asarray([9.0, 100.0, 9.0, 0.0], dtype=np.float32), current_pose=(0.0, 0.0, 0.0), k=1)[0]
+
+    assert library.feature_dim == 2
+    assert prediction.sample_index == 1
+    assert prediction.delta_body == pytest.approx((9.0, 0.0, 0.0))
 
 
 def test_direct_rs_goal_short_circuits_before_knn_segment(tmp_path) -> None:
@@ -158,3 +185,50 @@ def test_verified_rs_segment_can_be_committed_without_segment_planner(monkeypatc
     assert result.path[0] == pytest.approx(start)
     assert result.path[1] == pytest.approx(subgoal)
     assert result.path[2] == pytest.approx(goal)
+
+
+def test_disabling_f1_limits_search_to_first_prediction(monkeypatch) -> None:
+    start = (1.0, 4.0, 0.0)
+    bad_subgoal = (2.0, 4.0, 0.0)
+    good_subgoal = (3.0, 4.0, 0.0)
+    goal = (6.0, 4.0, 0.0)
+
+    class TwoNeighborPredictor:
+        name = "knn"
+
+        def query(self, feature, *, current_pose, k):  # noqa: ANN001, ANN201
+            return (
+                NeighborPrediction(1, 0, 0.0, (1.0, 0.0, 0.0), bad_subgoal),
+                NeighborPrediction(2, 1, 0.1, (2.0, 0.0, 0.0), good_subgoal),
+            )
+
+    def fake_try_rs(grid_map, footprint, rs_start, rs_goal, cfg):  # noqa: ANN001, ANN202
+        start_key = tuple(round(float(v), 6) for v in rs_start)
+        goal_key = tuple(round(float(v), 6) for v in rs_goal)
+        if (start_key, goal_key) in ((start, good_subgoal), (good_subgoal, goal)):
+            return SimpleNamespace(samples=(AckermannState(*rs_start), AckermannState(*rs_goal)))
+        return None
+
+    monkeypatch.setattr(inference_module, "_try_rs", fake_try_rs)
+
+    with_f1 = run_forest_n3p(
+        _empty_map(),
+        _footprint(),
+        start,
+        goal,
+        TwoNeighborPredictor(),
+        config=InferenceConfig(k_neighbors=2, commit_verified_rs_segments=True, enable_f2=False, enable_f3=False),
+    )
+    no_f1 = run_forest_n3p(
+        _empty_map(),
+        _footprint(),
+        start,
+        goal,
+        TwoNeighborPredictor(),
+        config=InferenceConfig(k_neighbors=2, enable_f1=False, enable_f2=False, enable_f3=False),
+    )
+
+    assert with_f1.success
+    assert with_f1.used_f1 == 1
+    assert not no_f1.success
+    assert no_f1.failure_reason == "f2_disabled:no_reachable_prediction;f3_disabled"
