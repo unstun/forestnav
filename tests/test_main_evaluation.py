@@ -129,6 +129,33 @@ def test_preflight_accepts_formal_human_review_decisions(tmp_path: Path) -> None
     assert report.human_review_decisions["D-T14-09"] == "revise_to_validation_cutpoints"
 
 
+def test_preflight_accepts_t15_mlp_when_checkpoint_files_exist(tmp_path: Path) -> None:
+    contract = _write_frontmatter(tmp_path / "contract.md", status="approved")
+    supplement = _write_frontmatter(tmp_path / "supplement.md", reviewed="true")
+    review_form = _write_human_review_form(tmp_path / "human_review_form.md", _formal_human_decisions())
+    validation_summary = _write_t06_validation_summary(tmp_path / "t06_validation_summary.json")
+    mlp_dir = tmp_path / "mlp"
+    mlp_dir.mkdir()
+    (mlp_dir / "checkpoint.pt").write_bytes(b"unit-test")
+    (mlp_dir / "metadata.json").write_text("{}", encoding="utf-8")
+
+    report = preflight_main_evaluation(
+        MainEvaluationConfig(
+            methods=("mlp",),
+            profiles=validation_main_evaluation_profiles(),
+            contract_path=contract,
+            cutpoint_supplement_path=supplement,
+            t06_validation_summary_path=validation_summary,
+            human_review_form_path=review_form,
+            mlp_model_dir=mlp_dir,
+            enforce_t14_scale=False,
+        )
+    )
+
+    assert report.ok_to_run
+    assert report.available_methods == ("mlp",)
+
+
 def test_preflight_blocks_revised_cutpoints_with_stale_profiles(tmp_path: Path) -> None:
     contract = _write_frontmatter(tmp_path / "contract.md", status="approved")
     supplement = _write_frontmatter(tmp_path / "supplement.md", reviewed="true")
@@ -275,6 +302,11 @@ def test_cli_writes_k_neighbors_and_source_head_overrides(tmp_path: Path) -> Non
             "20",
             "--k-neighbors",
             "17",
+            "--max-steps-override",
+            "4",
+            "--disable-f2",
+            "--prediction-noise-sigma-m",
+            "0.3",
             "--source-head",
             "unit-test-head",
         ]
@@ -284,6 +316,9 @@ def test_cli_writes_k_neighbors_and_source_head_overrides(tmp_path: Path) -> Non
     payload = json.loads((output_dir / "run_config.json").read_text(encoding="utf-8"))
     assert payload["source_head"] == "unit-test-head"
     assert payload["config"]["k_neighbors"] == 17
+    assert payload["config"]["max_steps_override"] == 4
+    assert payload["config"]["enable_f2"] is False
+    assert payload["config"]["prediction_noise_sigma_m"] == 0.3
     assert any(
         item["name"] == "complex_d03" and item["difficulty_bucket"] == "Complex"
         for item in payload["config"]["profiles"]
