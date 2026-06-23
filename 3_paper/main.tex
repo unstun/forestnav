@@ -16,16 +16,32 @@
 \maketitle
 
 \begin{abstract}
-This draft is under construction. The Method section is the current T17 deliverable.
+Hybrid A* remains a practical baseline for non-holonomic vehicle planning because it searches directly in a kinematic state space and can return collision-free, curvature-constrained paths. Its cost, however, grows in dense forest maps where narrow gaps make long-range analytic expansion unreliable. This paper studies whether the planning problem can be decomposed into short, Reeds--Shepp-verifiable subproblems without replacing the planner's feasibility machinery. We introduce F-N3P, an oracle-supervised subgoal decomposition method that converts successful Hybrid A* teacher paths into body-frame $SE(2)$ subgoal labels and retrieves subgoals online with a 41-dimensional map feature and a k-d tree K-nearest-neighbor library. In a formal procedural-forest evaluation with six methods, three validation difficulty buckets, five random seeds, and 1,800 method-query records, F-N3P reduced median planning time by 92.6\% in the Complex bucket and 89.8\% in the Extreme bucket relative to vanilla Hybrid A*, while improving feasible rate and maintaining zero collision violations. Framework-scale ablations support the use of multi-neighbor retrieval and the fallback hierarchy. Framework-scale generalization tests show promising out-of-distribution procedural-density behavior but do not yet establish RealMap transfer; the RealMap aggregate failed the pre-registered 20\% time-benefit criterion.
 \end{abstract}
 
 \section{Introduction}
 \label{sec:introduction}
-This section will be completed after the experimental claims are frozen.
+Autonomous navigation in dense forests is a difficult case for non-holonomic path planning. The vehicle must respect an Ackermann steering model, avoid full-body collisions with tree trunks or mapped obstacles, and often move through narrow passages where small heading changes determine whether a candidate path is feasible. Hybrid A* is attractive in this setting because it searches in a three-dimensional kinematic state space and uses analytic expansions to close feasible segments when possible \cite{Dolgov2010HybridAstar}. The same mechanism also creates a computational bottleneck. In cluttered maps, a single long global search may spend much of its budget exploring states that would be unnecessary if the planner were given a small number of good intermediate $SE(2)$ targets.
+
+Learning-based motion planning offers one route to reduce this search burden, but replacing a geometric planner with a learned policy weakens the direct connection to collision checking and kinematic feasibility \cite{Wang2021LearningMotionPlanning}. The design goal in this paper is therefore narrower. F-N3P does not learn a complete planner. It learns a subgoal proposal mechanism and keeps Reeds--Shepp collision checking, bounded local Hybrid A*, and full vanilla Hybrid A* fallback in the loop. This choice follows the spirit of N3P, where a learned module predicts a preparatory pose and Hybrid A* handles the feasible connection \cite{Xue2026N3P}, but it changes the structure from a single parking preparatory pose to a sequential subgoal decomposition for long forest queries.
+
+The central question is whether oracle-supervised subgoals can make dense-forest Hybrid A* planning faster without losing the feasibility properties that make the original planner useful. F-N3P answers this by collecting successful teacher paths from vanilla Hybrid A*, segmenting them with a greedy Reeds--Shepp-reachable rule, and storing the resulting local geometric decisions in a K-nearest-neighbor library. At test time, the planner repeatedly retrieves candidate body-frame $SE(2)$ subgoals from local map features, verifies them with the same collision checker used by the baseline, and falls back to local or full Hybrid A* when retrieval fails.
+
+The contribution of this draft is a complete experimental scaffold for evaluating this decomposition idea in procedural forests and early real-map transfer tests. Under the current formal T14 procedural-map evaluation, F-N3P passed the pre-registered Complex and Extreme gates: it reduced median planning time by more than 50\%, did not reduce feasible rate, kept median path inflation below 5\%, and produced zero collision violations. The current evidence is not yet a final real-map generalization claim. The T16 RealMap aggregate failed the pre-registered 20\% time-benefit criterion at framework scale, and the paper keeps that boundary explicit.
 
 \section{Related Work}
 \label{sec:related}
-This section will be completed during the reference-audit stage.
+\paragraph{Hybrid A* and bounded-curvature vehicle planning.}
+Hybrid A* is a standard planning approach for car-like robots because it combines grid search with continuous pose states and analytic expansion, allowing paths to respect non-holonomic vehicle constraints while still using search-based planning structure \cite{Dolgov2010HybridAstar,Sormoli2024HybridSurvey}. Reeds--Shepp curves provide the bounded-curvature forward-and-reverse local connection model used by many car-like planners, including the analytic connection and verification logic in this work \cite{ReedsShepp1990}. F-N3P keeps this geometric core unchanged. Its learning component proposes intermediate $SE(2)$ subgoals, but every committed segment is still checked by the same Reeds--Shepp and Hybrid A* machinery used by the baseline.
+
+\paragraph{Roadmaps, waypoints, and subgoal structure.}
+Roadmap methods reduce planning cost by building graph structure in configuration space, with probabilistic roadmaps being a foundational example \cite{Kavraki1996PRM}. More recent vehicle-planning work also combines Hybrid A* with roadmap or waypoint structure in narrow industrial environments \cite{Bonetti2023Roadmap}. These methods motivate a useful comparison for forests: if a hand-built geometric decomposition is enough, learning is unnecessary. The baselines in this paper therefore include Voronoi and bottleneck subgoal planners. F-N3P differs from these baselines by learning the next $SE(2)$ subgoal from teacher trajectories rather than deriving all intermediate targets from a static roadmap, medial axis, or bottleneck rule.
+
+\paragraph{Learning-assisted motion planning.}
+Learning-based motion planning has been studied as a way to guide sampling, predict costs, or directly generate planning actions \cite{Wang2021LearningMotionPlanning}. For safety-critical vehicle planning, however, the main risk is not only prediction error but also the loss of a clear feasibility certificate. F-N3P takes a conservative position in this design space. The learned module is a proposal mechanism over local subgoals, not an authority that can bypass collision checking. Failed predictions are visible through fallback metrics, and full Hybrid A* remains the terminal recovery planner.
+
+\paragraph{From N3P parking to forest subgoal decomposition.}
+N3P shows that a learned preparatory pose can accelerate automated parking by handing a better intermediate target to Hybrid A* \cite{Xue2026N3P}. F-N3P reuses this division of labor but changes the problem geometry. Parking is a short structured maneuver, whereas forest navigation requires repeated decisions through unstructured obstacle fields. The method therefore turns one preparatory-pose prediction into sequential subgoal prediction, replaces parking-scene features with a ray-cast clearance profile and local density features from a prior occupancy grid map, and evaluates whether this decomposition improves dense-forest planning under explicit fallback and collision-checking gates.
 
 \section{Problem Formulation}
 \label{sec:problem}
@@ -95,7 +111,7 @@ Motion flag & 1 & Reserved forward/reverse flag, set to 0 in v1 \\
 \end{tabular}
 \end{table}
 
-The ray-cast clearance profile is a pure geometric query on the prior occupancy grid map. From the current pose, the implementation casts 32 uniformly spaced rays over $2\pi$ and records the distance to the first occupied cell or map boundary, truncated at $R_{\max}=10$ m. This feature is not a LiDAR measurement. It is computed from the map before planning and is used only as an environment abstraction for nearest-neighbor retrieval. Before building the nearest-neighbor structure, each feature dimension is z-score normalized using the training-set mean and standard deviation.
+The ray-cast clearance profile is a pure geometric query on the prior occupancy grid map. From the current pose, the implementation casts 32 uniformly spaced rays over $2\pi$ and records the distance to the first occupied cell or map boundary, truncated at $R_{\max}=10$ m. It is computed from the map before planning, does not use online range sensing, and is used only as an environment abstraction for nearest-neighbor retrieval. Before building the nearest-neighbor structure, each feature dimension is z-score normalized using the training-set mean and standard deviation.
 
 \subsection{KNN Subgoal Predictor}
 \label{sec:method_knn}
@@ -224,7 +240,9 @@ The current evidence supports one strong claim and two bounded claims. The stron
 
 \section{Conclusion}
 \label{sec:conclusion}
-This section will be completed after Results are finalized.
+This paper develops F-N3P as a conservative learning-assisted extension of Hybrid A* for dense forest planning. The method uses vanilla Hybrid A* teacher paths to learn local $SE(2)$ subgoal decisions, retrieves candidate subgoals from hand-crafted map features, and commits only segments that pass the same collision and Reeds--Shepp feasibility checks used by the baseline. In the formal procedural-map evaluation, this decomposition substantially reduced median planning time in the Complex and Extreme buckets while preserving or improving feasible rate and maintaining zero collision violations.
+
+The current evidence also defines the remaining boundary of the work. The ablation package is still framework-scale and should be expanded before making final design-factor claims. The out-of-distribution procedural-density run is promising at small scale, but the current RealMap aggregate did not meet the pre-registered time-benefit criterion. The next paper-ready step is therefore not to strengthen the claim rhetorically, but to generate figures, complete citation audit, and either replace the framework-scale generalization evidence with larger reviewed runs or report RealMap transfer as an explicit limitation.
 
 \bibliographystyle{plain}
 \bibliography{references}
