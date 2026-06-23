@@ -1,0 +1,106 @@
+{
+  "DOI": "10.1177/0278364909359210",
+  "title": [
+    "Path Planning for Autonomous Vehicles in Unknown Semi-structured Environments"
+  ],
+  "author": [
+    {
+      "given": "Dmitri",
+      "family": "Dolgov",
+      "sequence": "first",
+      "affiliation": [
+        {
+          "name": "AI & Robotics Group, Toyota Research Institute, Ann Arbor, MI 48105, USA,"
+        }
+      ],
+      "role": [
+        {
+          "vocabulary": "crossref",
+          "role": "author"
+        }
+      ]
+    },
+    {
+      "given": "Sebastian",
+      "family": "Thrun",
+      "sequence": "additional",
+      "affiliation": [
+        {
+          "name": "Stanford Artificial Intelligence Laboratory, Stanford University, Stanford CA 94305, USA,"
+        }
+      ],
+      "role": [
+        {
+          "vocabulary": "crossref",
+          "role": "author"
+        }
+      ]
+    },
+    {
+      "given": "Michael",
+      "family": "Montemerlo",
+      "sequence": "additional",
+      "affiliation": [
+        {
+          "name": "Stanford Artificial Intelligence Laboratory, Stanford University, Stanford CA 94305, USA,"
+        }
+      ],
+      "role": [
+        {
+          "vocabulary": "crossref",
+          "role": "author"
+        }
+      ]
+    },
+    {
+      "given": "James",
+      "family": "Diebel",
+      "sequence": "additional",
+      "affiliation": [
+        {
+          "name": "Stanford Artificial Intelligence Laboratory, Stanford University, Stanford CA 94305, USA"
+        }
+      ],
+      "role": [
+        {
+          "vocabulary": "crossref",
+          "role": "author"
+        }
+      ]
+    }
+  ],
+  "container-title": [
+    "The International Journal of Robotics Research"
+  ],
+  "published-print": {
+    "date-parts": [
+      [
+        2010,
+        4
+      ]
+    ]
+  },
+  "published-online": {
+    "date-parts": [
+      [
+        2010,
+        1,
+        25
+      ]
+    ]
+  },
+  "issued": {
+    "date-parts": [
+      [
+        2010,
+        1,
+        25
+      ]
+    ]
+  },
+  "volume": "29",
+  "issue": "5",
+  "page": "485-501",
+  "URL": "https://doi.org/10.1177/0278364909359210",
+  "publisher": "SAGE Publications"
+}

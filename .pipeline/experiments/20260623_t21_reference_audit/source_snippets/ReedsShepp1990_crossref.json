@@ -1,0 +1,59 @@
+{
+  "DOI": "10.2140/pjm.1990.145.367",
+  "title": [
+    "Optimal paths for a car that goes both forwards and backwards"
+  ],
+  "author": [
+    {
+      "given": "James",
+      "family": "Reeds",
+      "sequence": "first",
+      "affiliation": [],
+      "role": [
+        {
+          "vocabulary": "crossref",
+          "role": "author"
+        }
+      ]
+    },
+    {
+      "given": "Lawrence",
+      "family": "Shepp",
+      "sequence": "additional",
+      "affiliation": [],
+      "role": [
+        {
+          "vocabulary": "crossref",
+          "role": "author"
+        }
+      ]
+    }
+  ],
+  "container-title": [
+    "Pacific Journal of Mathematics"
+  ],
+  "published-print": {
+    "date-parts": [
+      [
+        1990,
+        10,
+        1
+      ]
+    ]
+  },
+  "published-online": null,
+  "issued": {
+    "date-parts": [
+      [
+        1990,
+        10,
+        1
+      ]
+    ]
+  },
+  "volume": "145",
+  "issue": "2",
+  "page": "367-393",
+  "URL": "https://doi.org/10.2140/pjm.1990.145.367",
+  "publisher": "Mathematical Sciences Publishers"
+}

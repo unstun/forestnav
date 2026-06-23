@@ -232,7 +232,7 @@
 - **依赖**：T14 数据
 
 ### T21 引用核查
-- [ ] 所有引用走四步核查流程，BibTeX 从 DOI 获取
+- [x] 所有引用走四步核查流程，BibTeX 从 DOI 获取
 - **依赖**：T19
 
 ---
@@ -262,3 +262,4 @@
 | 2026-06-23 | T18 论文 Results 节 | 基于 T14 正式主评测、T15 消融框架和 T16 泛化框架 CSV/JSON 撰写 `3_paper/main.tex` 的 Results and Discussion：新增主评测表、Contract gate 表、消融框架快照表、泛化框架快照表；明确 T14 支持 Complex/Extreme gate 通过，T15 仅作为趋势，T16 RealMap 20% 时间收益未通过且不能写成最终泛化成功；临时目录完成 `pdflatex+bibtex+pdflatex+pdflatex` 编译，引用与交叉引用通过 |
 | 2026-06-23 | T19 论文其余节 | 补写 `3_paper/main.tex` 的 Abstract、Introduction、Related Work 和 Conclusion，围绕 Hybrid A* 搜索负担、N3P preparatory-pose 思路到森林 sequential subgoal prediction 的转化、roadmap/waypoint 基线和 learning-assisted planning 定位展开；补入 Bonetti2023Roadmap、Kavraki1996PRM、Wang2021LearningMotionPlanning、Sormoli2024HybridSurvey 四条 DOI/arXiv BibTeX 线索；保留 T16 RealMap 未通过 20% 时间收益的 limitation，未把引用全审冒充为完成；临时目录 `pdflatex+bibtex+pdflatex+pdflatex` 编译通过 |
 | 2026-06-23 | T20 图表制作 | 新增可复现脚本 `3_paper/scripts/make_t20_figures.py`，从 T14/T15/T16 CSV/JSON 生成主评测柱状图、Extreme 消融柱状图、T16 泛化边界图，并重放 T14 Extreme query `extreme_s02_q0051` 生成路径对比和 F-N3P SE(2) 子目标序列图；产物写入 `3_paper/figures/t20_*.{pdf,png}` 与 `t20_manifest.json`，4 张图已接入 `3_paper/main.tex`，临时目录完整 LaTeX 编译通过；T15/T16 图均保持 framework-scale 边界，不写成最终结论 |
+| 2026-06-23 | T21 引用核查 | 对 `3_paper/main.tex` 当前 7 个引用 key 全量执行四步核查：正文 key 与 BibTeX key 一致性检查、官方网页/arXiv 页面核验、`curl -H "Accept: application/x-bibtex" https://doi.org/<DOI>` 拉取 raw BibTeX、逐条 claim 支撑检查；审计报告、raw BibTeX 和 Crossref/arXiv 元数据写入 `.pipeline/experiments/20260623_t21_reference_audit/`；收紧 Wang2021 引用附近正文，避免把本文保守设计选择强行归因给 survey；临时目录 `pdflatex+bibtex+pdflatex+pdflatex` 编译通过，正文无缺失引用或未使用 BibTeX |

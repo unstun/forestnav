@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:arxiv="http://arxiv.org/schemas/atom" xmlns="http://www.w3.org/2005/Atom">
+  <id>https://arxiv.org/api/e4AtmHjTor/w6UJlU6EKOXpRE4c</id>
+  <title>arXiv Query: search_query=&amp;id_list=2605.22722&amp;start=0&amp;max_results=10</title>
+  <updated>2026-06-23T12:30:52Z</updated>
+  <link href="https://arxiv.org/api/query?search_query=&amp;start=0&amp;max_results=10&amp;id_list=2605.22722" type="application/atom+xml"/>
+  <opensearch:itemsPerPage>10</opensearch:itemsPerPage>
+  <opensearch:totalResults>1</opensearch:totalResults>
+  <opensearch:startIndex>0</opensearch:startIndex>
+  <entry>
+    <id>http://arxiv.org/abs/2605.22722v1</id>
+    <title>N3P: Accelerated Automated Parking via a Learning-Based Naturalistic Three-Stage Scheme</title>
+    <updated>2026-05-21T16:56:00Z</updated>
+    <link href="https://arxiv.org/abs/2605.22722v1" rel="alternate" type="text/html"/>
+    <link href="https://arxiv.org/pdf/2605.22722v1" rel="related" type="application/pdf" title="pdf"/>
+    <summary>Autonomous parking requires efficient path planning that ensures kinematic feasibility and collision avoidance in constrained environments. Hybrid A* is widely used but computationally expensive, while reinforcement learning (RL) methods lack reliability and often struggle with long-horizon geometric constraints, leading to suboptimal trajectories. We present N3P, a fast learning-based three-stage framework for automated parking. By introducing an intermediate preparatory pose and using a learning module to predict it, N3P decomposes the maneuver into simpler subproblems, thereby reducing computational complexity and accelerating path generation. We validate the framework by integrating it with Hybrid A* algorithms. Experiments in perpendicular and parallel parking scenarios show that N3P-enhanced Hybrid A* speeds up planning by more than 80%. It also outperforms RL baselines in success rate and trajectory quality, producing shorter trajectories with fewer gear changes, while achieving comparable or lower planning time in most cases.</summary>
+    <category term="cs.RO" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="eess.SY" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2026-05-21T16:56:00Z</published>
+    <arxiv:comment>Accepted at IEEE Intelligent Transportation Systems Conference (ITSC 2026)</arxiv:comment>
+    <arxiv:primary_category term="cs.RO"/>
+    <author>
+      <name>Yifan Xue</name>
+    </author>
+    <author>
+      <name>Toktam Mohammadnejad</name>
+    </author>
+    <author>
+      <name>Faizan M Tariq</name>
+    </author>
+    <author>
+      <name>Sangjae Bae</name>
+    </author>
+    <author>
+      <name>David Isele</name>
+    </author>
+    <author>
+      <name>Yosuke Sakamoto</name>
+    </author>
+    <author>
+      <name>Nadia Figueroa</name>
+    </author>
+    <author>
+      <name>Jovin D'sa</name>
+    </author>
+  </entry>
+</feed>

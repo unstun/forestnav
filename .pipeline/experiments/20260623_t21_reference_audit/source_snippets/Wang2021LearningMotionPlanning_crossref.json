@@ -1,0 +1,174 @@
+{
+  "DOI": "10.1049/csy2.12020",
+  "title": [
+    "A survey of learning‐based robot motion planning"
+  ],
+  "author": [
+    {
+      "ORCID": "https://orcid.org/0000-0001-9139-0291",
+      "authenticated-orcid": false,
+      "given": "Jiankun",
+      "family": "Wang",
+      "sequence": "first",
+      "affiliation": [
+        {
+          "name": "Department of Electronic and Electrical Engineering Southern University of Science and Technology  Shenzhen China"
+        }
+      ],
+      "role": [
+        {
+          "vocabulary": "crossref",
+          "role": "author"
+        }
+      ]
+    },
+    {
+      "ORCID": "https://orcid.org/0000-0003-2223-5460",
+      "authenticated-orcid": false,
+      "given": "Tianyi",
+      "family": "Zhang",
+      "sequence": "additional",
+      "affiliation": [
+        {
+          "name": "Department of Electronic and Electrical Engineering Southern University of Science and Technology  Shenzhen China"
+        }
+      ],
+      "role": [
+        {
+          "vocabulary": "crossref",
+          "role": "author"
+        }
+      ]
+    },
+    {
+      "ORCID": "https://orcid.org/0000-0002-7107-6577",
+      "authenticated-orcid": false,
+      "given": "Nachuan",
+      "family": "Ma",
+      "sequence": "additional",
+      "affiliation": [
+        {
+          "name": "Department of Electronic and Electrical Engineering Southern University of Science and Technology  Shenzhen China"
+        }
+      ],
+      "role": [
+        {
+          "vocabulary": "crossref",
+          "role": "author"
+        }
+      ]
+    },
+    {
+      "ORCID": "https://orcid.org/0000-0002-9873-0858",
+      "authenticated-orcid": false,
+      "given": "Zhaoting",
+      "family": "Li",
+      "sequence": "additional",
+      "affiliation": [
+        {
+          "name": "Department of Electronic and Electrical Engineering Southern University of Science and Technology  Shenzhen China"
+        }
+      ],
+      "role": [
+        {
+          "vocabulary": "crossref",
+          "role": "author"
+        }
+      ]
+    },
+    {
+      "ORCID": "https://orcid.org/0000-0003-1960-5432",
+      "authenticated-orcid": false,
+      "given": "Han",
+      "family": "Ma",
+      "sequence": "additional",
+      "affiliation": [
+        {
+          "name": "Department of Electronic Engineering The Chinese University of Hong Kong  Hong Kong China"
+        }
+      ],
+      "role": [
+        {
+          "vocabulary": "crossref",
+          "role": "author"
+        }
+      ]
+    },
+    {
+      "ORCID": "https://orcid.org/0000-0001-9225-040X",
+      "authenticated-orcid": false,
+      "given": "Fei",
+      "family": "Meng",
+      "sequence": "additional",
+      "affiliation": [
+        {
+          "name": "Department of Electronic Engineering The Chinese University of Hong Kong  Hong Kong China"
+        }
+      ],
+      "role": [
+        {
+          "vocabulary": "crossref",
+          "role": "author"
+        }
+      ]
+    },
+    {
+      "ORCID": "https://orcid.org/0000-0002-5255-5898",
+      "authenticated-orcid": false,
+      "given": "Max Q.‐H.",
+      "family": "Meng",
+      "sequence": "additional",
+      "affiliation": [
+        {
+          "name": "Department of Electronic and Electrical Engineering Southern University of Science and Technology  Shenzhen China"
+        },
+        {
+          "name": "Department of Electronic Engineering The Chinese University of Hong Kong  Hong Kong China"
+        },
+        {
+          "name": "Shenzhen Research Institute of the Chinese University of Hong Kong  Shenzhen China"
+        }
+      ],
+      "role": [
+        {
+          "vocabulary": "crossref",
+          "role": "author"
+        }
+      ]
+    }
+  ],
+  "container-title": [
+    "IET Cyber-Systems and Robotics"
+  ],
+  "published-print": {
+    "date-parts": [
+      [
+        2021,
+        12
+      ]
+    ]
+  },
+  "published-online": {
+    "date-parts": [
+      [
+        2021,
+        5,
+        21
+      ]
+    ]
+  },
+  "issued": {
+    "date-parts": [
+      [
+        2021,
+        5,
+        21
+      ]
+    ]
+  },
+  "volume": "3",
+  "issue": "4",
+  "page": "302-314",
+  "URL": "https://doi.org/10.1049/csy2.12020",
+  "publisher": "Institution of Engineering and Technology (IET)"
+}

@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:arxiv="http://arxiv.org/schemas/atom" xmlns="http://www.w3.org/2005/Atom">
+  <id>https://arxiv.org/api/5N7RnA4SL5JF91mNeGsGfKtUZLw</id>
+  <title>arXiv Query: search_query=&amp;id_list=2406.05575&amp;start=0&amp;max_results=10</title>
+  <updated>2026-06-23T12:30:53Z</updated>
+  <link href="https://arxiv.org/api/query?search_query=&amp;start=0&amp;max_results=10&amp;id_list=2406.05575" type="application/atom+xml"/>
+  <opensearch:itemsPerPage>10</opensearch:itemsPerPage>
+  <opensearch:totalResults>1</opensearch:totalResults>
+  <opensearch:startIndex>0</opensearch:startIndex>
+  <entry>
+    <id>http://arxiv.org/abs/2406.05575v1</id>
+    <title>A Survey on Hybrid Motion Planning Methods for Automated Driving Systems</title>
+    <updated>2024-06-08T21:15:14Z</updated>
+    <link href="https://arxiv.org/abs/2406.05575v1" rel="alternate" type="text/html"/>
+    <link href="https://arxiv.org/pdf/2406.05575v1" rel="related" type="application/pdf" title="pdf"/>
+    <summary>Motion planning is an essential element of the modular architecture of autonomous vehicles, serving as a bridge between upstream perception modules and downstream low-level control signals. Traditional motion planners were initially designed for specific Automated Driving Functions (ADFs), yet the evolving landscape of highly automated driving systems (ADS) requires motion for a wide range of ADFs, including unforeseen ones. This need has motivated the development of the ``hybrid" approach in the literature, seeking to enhance motion planning performance by combining diverse techniques, such as data-driven (learning-based) and logic-driven (analytic) methodologies. Recent research endeavours have significantly contributed to the development of more efficient, accurate, and safe hybrid methods for Tactical Decision Making (TDM) and Trajectory Generation (TG), as well as integrating these algorithms into the motion planning module. Owing to the extensive variety and potential of hybrid methods, a timely and comprehensive review of the current literature is undertaken in this survey article. We classify the hybrid motion planners based on the types of components they incorporate, such as combinations of sampling-based with optimization-based/learning-based motion planners. The comparison of different classes is conducted by evaluating the addressed challenges and limitations, as well as assessing whether they focus on TG and/or TDM. We hope this approach will enable the researchers in this field to gain in-depth insights into the identification of current trends in hybrid motion planning and shed light on promising areas for future research.</summary>
+    <category term="cs.RO" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="eess.SY" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2024-06-08T21:15:14Z</published>
+    <arxiv:primary_category term="cs.RO"/>
+    <author>
+      <name>MReza Alipour Sormoli</name>
+    </author>
+    <author>
+      <name>Konstantinos Koufos</name>
+    </author>
+    <author>
+      <name>Mehrdad Dianati</name>
+    </author>
+    <author>
+      <name>Roger Woodman</name>
+    </author>
+  </entry>
+</feed>

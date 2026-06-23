@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:arxiv="http://arxiv.org/schemas/atom" xmlns="http://www.w3.org/2005/Atom">
+  <id>https://arxiv.org/api/BhtPcGRFm9/054q4Alwi7/CqeWg</id>
+  <title>arXiv Query: search_query=&amp;id_list=2304.14043&amp;start=0&amp;max_results=10</title>
+  <updated>2026-06-23T12:30:53Z</updated>
+  <link href="https://arxiv.org/api/query?search_query=&amp;start=0&amp;max_results=10&amp;id_list=2304.14043" type="application/atom+xml"/>
+  <opensearch:itemsPerPage>10</opensearch:itemsPerPage>
+  <opensearch:totalResults>1</opensearch:totalResults>
+  <opensearch:startIndex>0</opensearch:startIndex>
+  <entry>
+    <id>http://arxiv.org/abs/2304.14043v1</id>
+    <title>Improved path planning algorithms for non-holonomic autonomous vehicles in industrial environments with narrow corridors: Roadmap Hybrid A* and Waypoints Hybrid B*. Roadmap hybrid A* and Waypoints hybrid A* Pseudocodes</title>
+    <updated>2023-04-27T09:18:21Z</updated>
+    <link href="https://arxiv.org/abs/2304.14043v1" rel="alternate" type="text/html"/>
+    <link href="https://arxiv.org/pdf/2304.14043v1" rel="related" type="application/pdf" title="pdf"/>
+    <summary>This paper proposes two novel path planning algorithms, Roadmap Hybrid A* and Waypoints Hybrid A*, for car-like autonomous vehicles in logistics and industrial contexts with obstacles (e.g., pallets or containers) and narrow corridors. Roadmap Hybrid A* combines Hybrid A* with a graph search algorithm applied to a static roadmap. The former enables obstacle avoidance and flexibility, whereas the latter provides greater robustness, repeatability, and computational speed. Waypoint Hybrid A*, on the other hand, generates waypoints using a topological map of the environment to guide Hybrid A* to the target pose, reducing complexity and search time. Both algorithms enable predetermined control over the shape of desired parts of the path, for example, to obtain precise docking maneuvers to service machines and to eliminate unnecessary steering changes produced by Hybrid A* in corridors, thanks to the roadmap and/or the waypoints. To evaluate the performance of these algorithms, we conducted a simulation study in an industrial plant where a robot must navigate narrow corridors to serve machines in different areas. In terms of computational time, total length, reverse length path, and other metrics, both algorithms outperformed the standard Hybrid A*.</summary>
+    <category term="cs.RO" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2023-04-27T09:18:21Z</published>
+    <arxiv:primary_category term="cs.RO"/>
+    <author>
+      <name>Alessandro Bonetti</name>
+    </author>
+    <author>
+      <name>Simone Guidetti</name>
+    </author>
+    <author>
+      <name>Lorenzo Sabattini</name>
+    </author>
+  </entry>
+</feed>
