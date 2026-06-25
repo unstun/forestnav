@@ -536,6 +536,116 @@ def _run_method(
             },
         )
 
+    if method == "improved_ha":
+        from forest_n3p.baselines.improved_ha import make_improved_ha_planner
+
+        planner = make_improved_ha_planner(grid_map, footprint)
+        states, stats = planner.plan(
+            AckermannState(*query.start),
+            AckermannState(*query.goal),
+            timeout=float(cfg.teacher_timeout_s),
+            max_nodes=int(cfg.teacher_max_nodes),
+        )
+        return planner_run_from_path_stats(
+            (state.as_tuple() for state in states),
+            stats,
+            query_id=query.query_id,
+            method=method,
+            difficulty_bucket=query.difficulty_bucket,
+            distance_bin_key=query.distance_bin_key,
+            reference_path_length_m=reference_path_length_m,
+            metadata={"profile_name": query.profile_name, "map_seed": query.map_seed, "query_seed": query.query_seed},
+        )
+
+    if method == "lo_ha":
+        planner = LOHybridAStarPlanner(
+            grid_map,
+            footprint,
+            AckermannParams(wheelbase=0.6, min_turn_radius=1.0),
+            analytic_expansion=True,
+            collision_step=0.1,
+            goal_xy_tol=0.30,
+            goal_theta_tol=math.radians(15.0),
+            use_holonomic_heuristic=True,
+            theta_bins=72,
+        )
+        states, stats = planner.plan(
+            AckermannState(*query.start),
+            AckermannState(*query.goal),
+            timeout=float(cfg.teacher_timeout_s),
+            max_nodes=int(cfg.teacher_max_nodes),
+        )
+        return planner_run_from_path_stats(
+            (state.as_tuple() for state in states),
+            stats,
+            query_id=query.query_id,
+            method=method,
+            difficulty_bucket=query.difficulty_bucket,
+            distance_bin_key=query.distance_bin_key,
+            reference_path_length_m=reference_path_length_m,
+            metadata={"profile_name": query.profile_name, "map_seed": query.map_seed, "query_seed": query.query_seed},
+        )
+
+    if method == "ss_rrt":
+        planner = RRTStarPlanner(
+            grid_map,
+            footprint,
+            AckermannParams(wheelbase=0.6, min_turn_radius=1.0),
+            goal_xy_tol=0.30,
+            goal_theta_tol=math.radians(15.0),
+            rng_seed=int(query.query_seed),
+        )
+        states, stats = planner.plan(
+            AckermannState(*query.start),
+            AckermannState(*query.goal),
+            max_iter=3000,
+            timeout=float(cfg.teacher_timeout_s),
+        )
+        stats = dict(stats)
+        stats["expansions"] = int(stats.get("nodes", 0))
+        return planner_run_from_path_stats(
+            (state.as_tuple() for state in states),
+            stats,
+            query_id=query.query_id,
+            method=method,
+            difficulty_bucket=query.difficulty_bucket,
+            distance_bin_key=query.distance_bin_key,
+            reference_path_length_m=reference_path_length_m,
+            metadata={
+                "profile_name": query.profile_name,
+                "map_seed": query.map_seed,
+                "query_seed": query.query_seed,
+                "rrt_iterations": int(stats.get("iterations", 0)),
+            },
+        )
+
+    if method == "idb_rrt":
+        from forest_n3p.baselines.idb_rrt_adapter import plan_idb_rrt
+
+        result = plan_idb_rrt(
+            grid_map,
+            footprint,
+            query.start,
+            query.goal,
+            config=_idb_rrt_config(cfg),
+        )
+        return planner_run_from_result(
+            result,
+            query_id=query.query_id,
+            method=method,
+            difficulty_bucket=query.difficulty_bucket,
+            distance_bin_key=query.distance_bin_key,
+            reference_path_length_m=reference_path_length_m,
+            metadata={
+                "profile_name": query.profile_name,
+                "map_seed": query.map_seed,
+                "query_seed": query.query_seed,
+                "idb_rrt_run_dir": result.run_dir,
+                "idb_rrt_returncode": result.returncode,
+                "idb_rrt_state_count": int(result.state_count),
+            },
+        )
+
     if method == "mlp":
         from forest_n3p.inference import run_forest_n3p
 
@@ -560,37 +670,6 @@ def _run_method(
                 "query_seed": query.query_seed,
                 "mlp_model_dir": str(cfg.mlp_model_dir),
                 "mlp_device": str(cfg.mlp_device),
-            },
-        )
-
-    if method == "md_dqn":
-        result = plan_md_dqn(
-            grid_map,
-            footprint,
-            query.start,
-            query.goal,
-            config=_md_dqn_config(cfg),
-        )
-        return planner_run_from_result(
-            result,
-            query_id=query.query_id,
-            method=method,
-            difficulty_bucket=query.difficulty_bucket,
-            distance_bin_key=query.distance_bin_key,
-            reference_path_length_m=reference_path_length_m,
-            metadata={
-                "profile_name": query.profile_name,
-                "map_seed": query.map_seed,
-                "query_seed": query.query_seed,
-                "md_dqn_source_dir": str(cfg.md_dqn_source_dir) if cfg.md_dqn_source_dir is not None else None,
-                "md_dqn_checkpoint_path": (
-                    str(cfg.md_dqn_checkpoint_path) if cfg.md_dqn_checkpoint_path is not None else None
-                ),
-                "md_dqn_algo": str(cfg.md_dqn_algo),
-                "md_dqn_device": str(cfg.md_dqn_device),
-                "md_dqn_max_steps": int(cfg.md_dqn_max_steps),
-                "md_dqn_rollout_steps": int(result.rollout_steps),
-                "md_dqn_reached": bool(result.reached),
             },
         )
 
