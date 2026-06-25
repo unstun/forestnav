@@ -84,7 +84,6 @@ def main(argv: list[str] | None = None) -> int:
             prediction_noise_seed=int(args.prediction_noise_seed),
             allow_unreviewed_cutpoints=bool(args.allow_unreviewed_cutpoints),
             allow_unresolved_human_review=bool(args.allow_unresolved_human_review),
-            allow_missing_md_dqn=True,
             enforce_t14_scale=False,
             bootstrap_resamples=int(args.bootstrap_resamples),
         )

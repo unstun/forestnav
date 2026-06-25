@@ -40,3 +40,7 @@ Thumbs.db
 1_survey/papers/**/*.png
 1_survey/papers/**/*.jpg
 1_survey/papers/**/*.jpeg
+
+# iDb-RRT upstream source/build and per-query wrapper scratch files stay local.
+2_experiment/idb_rrt_strict_repro/upstream/
+2_experiment/idb_rrt_strict_repro/runs/

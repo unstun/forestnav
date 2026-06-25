@@ -543,7 +543,6 @@ def _main_config(cfg: GeneralizationConfig) -> MainEvaluationConfig:
         contract_path=cfg.contract_path,
         allow_unreviewed_cutpoints=True,
         allow_unresolved_human_review=True,
-        allow_missing_md_dqn=True,
         enforce_t14_scale=False,
         teacher_timeout_s=float(cfg.teacher_timeout_s),
         teacher_max_nodes=int(cfg.teacher_max_nodes),
