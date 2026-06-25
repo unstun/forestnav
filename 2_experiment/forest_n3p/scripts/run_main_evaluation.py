@@ -20,7 +20,7 @@ def main(argv: list[str] | None = None) -> int:
     raw_argv = list(sys.argv[1:] if argv is None else argv)
     parser = argparse.ArgumentParser(description="Run ForestNav T14 main evaluation.")
     parser.add_argument("--output-dir", type=Path, required=True)
-    parser.add_argument("--queries-per-bucket", type=int, default=100)
+    parser.add_argument("--queries-per-bucket", type=int, default=50)
     parser.add_argument("--seed-count", type=int, default=5)
     parser.add_argument("--queries-per-map", type=int, default=5)
     parser.add_argument("--seed", type=int, default=20260620)
@@ -36,11 +36,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--contract-path", type=Path, default=MainEvaluationConfig().contract_path)
     parser.add_argument("--human-review-form-path", type=Path, default=MainEvaluationConfig().human_review_form_path)
     parser.add_argument("--bootstrap-resamples", type=int, default=5_000)
-    parser.add_argument("--md-dqn-source-dir", type=Path, default=None)
-    parser.add_argument("--md-dqn-checkpoint", type=Path, default=None)
-    parser.add_argument("--md-dqn-algo", default="cnn-dqn")
-    parser.add_argument("--md-dqn-device", default="cpu")
-    parser.add_argument("--md-dqn-max-steps", type=int, default=600)
+    parser.add_argument("--idb-rrt-binary-path", type=Path, default=None)
+    parser.add_argument("--idb-rrt-dynoplan-root", type=Path, default=None)
+    parser.add_argument("--idb-rrt-motion-file", type=Path, default=None)
+    parser.add_argument("--idb-rrt-timeout-s", type=float, default=None)
     parser.add_argument("--k-neighbors", type=int, default=MainEvaluationConfig().k_neighbors)
     parser.add_argument("--commit-verified-rs-segments", action="store_true")
     parser.add_argument("--max-steps-override", type=int, default=None)
@@ -51,7 +50,6 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--prediction-noise-seed", type=int, default=MainEvaluationConfig().prediction_noise_seed)
     parser.add_argument("--allow-unreviewed-cutpoints", action="store_true")
     parser.add_argument("--allow-unresolved-human-review", action="store_true")
-    parser.add_argument("--allow-missing-md-dqn", action="store_true")
     parser.add_argument("--no-enforce-t14-scale", action="store_true")
     parser.add_argument("--preflight-only", action="store_true")
     parser.add_argument("--source-head", default=None)
@@ -73,11 +71,10 @@ def main(argv: list[str] | None = None) -> int:
         t06_validation_summary_path=args.t06_validation_summary_path,
         contract_path=args.contract_path,
         human_review_form_path=args.human_review_form_path,
-        md_dqn_source_dir=args.md_dqn_source_dir,
-        md_dqn_checkpoint_path=args.md_dqn_checkpoint,
-        md_dqn_algo=str(args.md_dqn_algo),
-        md_dqn_device=str(args.md_dqn_device),
-        md_dqn_max_steps=int(args.md_dqn_max_steps),
+        idb_rrt_binary_path=args.idb_rrt_binary_path,
+        idb_rrt_dynoplan_root=args.idb_rrt_dynoplan_root,
+        idb_rrt_motion_file=args.idb_rrt_motion_file,
+        idb_rrt_timeout_s=args.idb_rrt_timeout_s,
         k_neighbors=int(args.k_neighbors),
         commit_verified_rs_segments=bool(args.commit_verified_rs_segments),
         max_steps_override=args.max_steps_override,
@@ -88,7 +85,6 @@ def main(argv: list[str] | None = None) -> int:
         prediction_noise_seed=int(args.prediction_noise_seed),
         allow_unreviewed_cutpoints=bool(args.allow_unreviewed_cutpoints),
         allow_unresolved_human_review=bool(args.allow_unresolved_human_review),
-        allow_missing_md_dqn=bool(args.allow_missing_md_dqn),
         enforce_t14_scale=not bool(args.no_enforce_t14_scale),
         bootstrap_resamples=int(args.bootstrap_resamples),
     )
