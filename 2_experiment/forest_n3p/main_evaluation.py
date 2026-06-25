@@ -775,14 +775,15 @@ def _inference_config(cfg: MainEvaluationConfig, *, k_neighbors: int, query_seed
     )
 
 
-def _md_dqn_config(cfg: MainEvaluationConfig) -> MdDqnAdapterConfig:
-    return MdDqnAdapterConfig(
-        source_dir=cfg.md_dqn_source_dir,
-        checkpoint_path=cfg.md_dqn_checkpoint_path,
-        algo=str(cfg.md_dqn_algo),
-        device=str(cfg.md_dqn_device),
+def _idb_rrt_config(cfg: MainEvaluationConfig):
+    from forest_n3p.baselines.idb_rrt_adapter import IdBRrtAdapterConfig
+
+    return IdBRrtAdapterConfig(
+        binary_path=cfg.idb_rrt_binary_path,
+        dynoplan_root=cfg.idb_rrt_dynoplan_root,
+        motion_file=cfg.idb_rrt_motion_file,
+        timeout_s=float(cfg.idb_rrt_timeout_s if cfg.idb_rrt_timeout_s is not None else cfg.teacher_timeout_s),
         seed=int(cfg.seed),
-        max_steps=int(cfg.md_dqn_max_steps),
     )
 
 
