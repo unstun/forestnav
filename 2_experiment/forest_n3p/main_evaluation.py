@@ -11,11 +11,6 @@ from typing import Any, Iterable, Sequence
 
 import numpy as np
 
-from forest_n3p.baselines.md_dqn_adapter import (
-    MdDqnAdapterConfig,
-    check_md_dqn_adapter,
-    plan_md_dqn,
-)
 from forest_n3p.difficulty_calibration import DistanceBin, parse_distance_bins, sample_query_in_distance_bin
 from forest_n3p.evaluation import (
     EvaluationConfig,
@@ -36,6 +31,8 @@ from forest_n3p.third_party.pathplan import (
     AckermannState,
     GridMap,
     HybridAStarPlanner,
+    LOHybridAStarPlanner,
+    RRTStarPlanner,
     TwoCircleFootprint,
 )
 
@@ -46,7 +43,10 @@ OFFICIAL_T14_METHODS = (
     "n3p_k1",
     "voronoi_waypoint",
     "bottleneck_waypoint",
-    "md_dqn",
+    "improved_ha",
+    "lo_ha",
+    "ss_rrt",
+    "idb_rrt",
 )
 
 T15_EXTRA_METHODS = ("mlp",)
@@ -56,7 +56,6 @@ IMPLEMENTED_METHODS = frozenset((*OFFICIAL_T14_METHODS, *T15_EXTRA_METHODS))
 FORMAL_HUMAN_DECISIONS = {
     "D-T14-09": ("approve_original_with_justification", "revise_to_validation_cutpoints"),
     "D-T14-10": ("approve",),
-    "D-T14-11": ("formal_baseline",),
     "D-T14-12": ("approve_after_rerun_passes",),
 }
 
@@ -64,7 +63,7 @@ FORMAL_HUMAN_DECISIONS = {
 @dataclass(frozen=True)
 class MainEvaluationConfig:
     seed: int = 20260620
-    queries_per_bucket: int = 100
+    queries_per_bucket: int = 50
     seed_count: int = 5
     queries_per_map: int = 5
     width_cells: int = 300
@@ -89,7 +88,6 @@ class MainEvaluationConfig:
     )
     allow_unreviewed_cutpoints: bool = False
     allow_unresolved_human_review: bool = False
-    allow_missing_md_dqn: bool = False
     enforce_t14_scale: bool = True
     teacher_timeout_s: float = 2.5
     teacher_max_nodes: int = 15_000
@@ -105,11 +103,10 @@ class MainEvaluationConfig:
     enable_f3: bool = True
     prediction_noise_sigma_m: float = 0.0
     prediction_noise_seed: int = 20260620
-    md_dqn_source_dir: Path | None = None
-    md_dqn_checkpoint_path: Path | None = None
-    md_dqn_algo: str = "cnn-dqn"
-    md_dqn_device: str = "cpu"
-    md_dqn_max_steps: int = 600
+    idb_rrt_binary_path: Path | None = None
+    idb_rrt_dynoplan_root: Path | None = None
+    idb_rrt_motion_file: Path | None = None
+    idb_rrt_timeout_s: float | None = None
     bootstrap_resamples: int = 5_000
     bootstrap_seed: int = 20260620
 
@@ -139,8 +136,8 @@ class MainEvaluationConfig:
             raise ValueError("max_steps_override must be positive when set")
         if float(self.prediction_noise_sigma_m) < 0.0:
             raise ValueError("prediction_noise_sigma_m must be non-negative")
-        if int(self.md_dqn_max_steps) <= 0:
-            raise ValueError("md_dqn_max_steps must be positive")
+        if self.idb_rrt_timeout_s is not None and float(self.idb_rrt_timeout_s) <= 0.0:
+            raise ValueError("idb_rrt_timeout_s must be positive when set")
 
 
 @dataclass(frozen=True)
