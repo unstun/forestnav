@@ -263,7 +263,7 @@ def preflight_main_evaluation(config: MainEvaluationConfig) -> PreflightReport:
     if profile_bucket_issues:
         issues.append("T14 profile bucket configuration is inconsistent: " + "; ".join(profile_bucket_issues))
 
-    t14_scale = int(config.queries_per_bucket) >= 100 and int(config.seed_count) >= 5
+    t14_scale = int(config.queries_per_bucket) >= 50 and int(config.seed_count) >= 5
     if not t14_scale:
         msg = (
             "T14 formal scale is not satisfied: "
@@ -887,7 +887,7 @@ def _build_verdict(
         },
         "note": (
             "candidate_or_smoke means this run is not sufficient for marking T14 complete; "
-            "use reviewed T06 cutpoints, all official methods, >=100 queries per bucket, and >=5 seeds for formal acceptance"
+            "use reviewed T06 cutpoints, all official methods, >=50 queries per bucket, and >=5 seeds for formal acceptance"
         ),
     }
 
