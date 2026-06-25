@@ -218,6 +218,7 @@ def _find_binary(config: IdBRrtAdapterConfig) -> Path | None:
     candidates.extend(
         [
             root / "build" / "main_idbastar",
+            root / "build-conda" / "main_idbastar",
             root / "build-release" / "main_idbastar",
             root / "build-macos-conda-link-rpath" / "main_idbastar",
         ]
