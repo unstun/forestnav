@@ -1,0 +1,8 @@
+{
+  "output_dir": "/home/ubuntu/ForestNav/.pipeline/experiments/20260625_t14_8method_50q_partial_no_idb",
+  "record_count": 1200,
+  "query_count": 150,
+  "status": "candidate_or_smoke",
+  "formal_acceptance": false,
+  "report": "/home/ubuntu/ForestNav/.pipeline/experiments/20260625_t14_8method_50q_partial_no_idb/report.md"
+}
