@@ -1,68 +1,92 @@
 ---
 origin: ai+local-source
 reviewed: false
-status: partial_blocked
+status: formal_fail
 created_at: 2026-06-25
+updated_at: 2026-06-25
 ---
 
 # T14 9-method remote status
 
 ## Summary
 
-The requested 9-method 50-query/bucket run is blocked only by the `idb_rrt`
-Dynoplan binary. The Python-side implementation and remote deployment are in
-place, and the 8-method run without `idb_rrt` completed on `gpu3070ti-relay`.
+The requested 9-method 50-query/bucket remote run completed on
+`gpu3070ti-relay`. Deployment is no longer blocked: `main_idbastar` was built
+from the official Dynoplan source using a no-sudo micromamba toolchain, then
+used by the ForestNav `idb_rrt` adapter.
 
-## Completed
+The run is complete but did not satisfy the T14 contract thresholds, so the
+verdict is `formal_fail`, not `formal_acceptance`.
 
-- Removed the `md_dqn` evaluation entry from the official method set.
-- Added `improved_ha`, `lo_ha`, `ss_rrt`, and `idb_rrt` registration.
-- Added a fail-soft Dynoplan wrapper for `idb_rrt`.
-- Synced code and Dynoplan upstream sources to `gpu3070ti-relay`.
-- Remote 8-method smoke completed:
-  - Path: `.pipeline/experiments/20260625_smoke_8method_1q_remote`
-  - Records: 24
-  - Exceptions: 0
-- Remote 8-method 50q partial run completed:
-  - Path: `.pipeline/experiments/20260625_t14_8method_50q_partial_no_idb`
-  - Queries: 150
-  - Records: 1200
-  - Collision violations: 0
-  - Method exceptions: 0
-  - `official_methods_satisfied`: false
-  - Missing official method: `idb_rrt`
+## Final 9-method run
 
-## iDb-RRT blocker
+- Path: `.pipeline/experiments/20260625_t14_9method_50q_remote`
+- Log: `2_experiment/runs/20260625_t14_9method_50q_remote_20260625_142901.log`
+- Queries: 150
+- Records: 1350
+- Methods: 9
+- `official_methods_satisfied`: true
+- `missing_official_methods`: []
+- `method_exception_total`: 0
+- `collision_violation_total`: 0
+- `formal_acceptance`: false
+- `status`: `formal_fail`
 
-Remote preflight for the full 9-method set failed with:
+Official methods in the completed run:
 
-```text
-idb_rrt unavailable: Dynoplan main_idbastar binary not found
-```
+- `f_n3p_knn`
+- `vanilla_ha`
+- `n3p_k1`
+- `voronoi_waypoint`
+- `bottleneck_waypoint`
+- `improved_ha`
+- `lo_ha`
+- `ss_rrt`
+- `idb_rrt`
 
-Dynoplan source and `car1_v0_all.bin.sp.bin.small5000.msgpack` are present on
-the remote host, but `main_idbastar` is not built. Building is blocked because
-`gpu3070ti-relay` currently lacks the toolchain in PATH:
+`md_dqn` is not part of the current official method set or the completed
+records.
 
-- `cmake`: missing
-- `g++`: missing
-- `make`: missing
-- `sudo -n true`: fails because sudo requires a password
+## Contract failures
 
-Dynoplan's top-level CMake requires Boost, OMPL, FCL, yaml-cpp, Crocoddyl,
-Eigen3, and LZ4 before it can build `main_idbastar`.
+Complex bucket:
 
-## Boundary
+- `median_time_reduction`: 0.2154692446390205
+- `success_drop_pp`: -17.999999999999993
+- `median_path_inflation_ratio`: 0.03447259109623069
+- Failed check: `median_time_reduction_ge_50pct`
 
-The 8-method 50q output is a useful partial measurement, not a completed
-9-method formal result. The verdict code now requires every official method to
-be present before `formal_acceptance` can be true.
+Extreme bucket:
 
-## Next unblock options
+- `median_time_reduction`: 0.02143796528106101
+- `success_drop_pp`: -20.000000000000007
+- `median_path_inflation_ratio`: 0.06620978595837068
+- Failed checks:
+  - `median_time_reduction_ge_50pct`
+  - `median_path_inflation_le_5pct`
 
-1. Provide sudo access on `gpu3070ti-relay` so the Dynoplan build dependencies
-   can be installed.
-2. Provide a Linux `main_idbastar` binary built against compatible Dynoplan
-   dependencies.
-3. Run the iDb-RRT leg on another Linux host that already has a C++17 build
-   toolchain plus Dynoplan dependencies.
+## iDb-RRT deployment
+
+`idb_rrt` was initially blocked because `gpu3070ti-relay` had no system
+toolchain in PATH and sudo required a password. The unblock path used
+micromamba under the user account:
+
+- Micromamba root: `$HOME/micromamba-root`
+- Environment: `dynoplan-build`
+- Build directory:
+  `2_experiment/idb_rrt_strict_repro/upstream/dynoplan/build-conda`
+- Binary:
+  `2_experiment/idb_rrt_strict_repro/upstream/dynoplan/build-conda/main_idbastar`
+
+Dynoplan's `deps/nigh` submodule was empty after source sync. It was restored
+from the official locked commit `4e1fad64b2ffecff0449d920dca332bd2eac4aa1`,
+then `main_idbastar` built successfully.
+
+## iDb-RRT result summary
+
+- Easy: 50 records, 11 successes, success rate 0.22
+- Complex: 50 records, 3 successes, success rate 0.06
+- Extreme: 50 records, 2 successes, success rate 0.04
+
+All `idb_rrt` per-query run directories were synchronized back locally under
+`2_experiment/idb_rrt_strict_repro/runs/forestnav_adapter/`.
