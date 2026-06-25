@@ -850,9 +850,11 @@ def _build_verdict(
         for row in records
         if row.failure_reason is not None and "exception" in str(row.failure_reason).lower()
     )
+    official_methods_satisfied = all(method in preflight.available_methods for method in OFFICIAL_T14_METHODS)
     expected_formal = bool(
         preflight.t14_scale_satisfied
         and not preflight.unavailable_methods
+        and official_methods_satisfied
         and preflight.cutpoint_supplement_reviewed
         and preflight.human_review_satisfied
         and preflight.profile_bucket_satisfied
@@ -875,6 +877,10 @@ def _build_verdict(
         "method_exception_total": method_exception_total,
         "preflight_warnings": list(preflight.warnings),
         "preflight_unavailable_methods": dict(preflight.unavailable_methods),
+        "official_methods_satisfied": bool(official_methods_satisfied),
+        "missing_official_methods": [
+            method for method in OFFICIAL_T14_METHODS if method not in preflight.available_methods
+        ],
         "human_review_satisfied": bool(preflight.human_review_satisfied),
         "human_review_decisions": dict(preflight.human_review_decisions),
         "profile_bucket_satisfied": bool(preflight.profile_bucket_satisfied),
