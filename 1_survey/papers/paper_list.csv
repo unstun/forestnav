@@ -1,92 +1,102 @@
 arxiv_id,title,year,authors_short,direction_tag
+2601.01910,MMP-A*: Multimodal Perception Enhanced Incremental Heuristic Search on Path Planning,2026,Minh Hieu Ha et al.,G_subgoal_optimization
 2601.03519,A Vision-Language-Action Model with Visual Prompt for OFF-Road Autonomous Driving,2026,Liangdong Zhang et al.,O_dense_forest_narrow_passage
 2601.07434,LOONG: Online Time-Optimal Autonomous Flight for MAVs in Cluttered Environments,2026,Xin Guan et al.,I_corridor_planning
+2601.18548,Fast and Safe Trajectory Optimization for Mobile Manipulators With Neural Configuration Space Distance Field,2026,Yulin Li et al.,B_trajectory_optimization
 2601.19972,Just in time Informed Trees: Manipulability-Aware Asymptotically Optimized Motion Planning,2026,Kuanqi Cai et al.,Q_informed_sampling
 2601.20054,Game-Theoretic Autonomous Driving: A Graphs of Convex Sets Approach,2026,Nikolaj Käfer et al.,I_corridor_planning
 2601.21027,Track-centric Iterative Learning for Global Trajectory Optimization in Autonomous Racing,2026,Youngim Nam et al.,L_learning_path_optimization
-2602.01085,Estimating Force Interactions of Deformable Linear Objects from their Shapes,2026,Qi Jing Chen et al.,C_elastic_band
+2602.00992,Geometry-Aware Sampling-Based Motion Planning on Riemannian Manifolds,2026,Phone Thiha Kyaw et al.,N_path_repair
 2602.01189,SPOT: Spatio-Temporal Obstacle-free Trajectory Planning for UAVs in an Unknown Dynamic Environment,2026,Astik Srivastava et al.,I_corridor_planning
 2602.02826,Fast Near Time-Optimal Motion Planning for Holonomic Vehicles in Structured Environments,2026,Louis Callens et al.,I_corridor_planning
 2602.09714,Fast Motion Planning for Non-Holonomic Mobile Robots via a Rectangular Corridor Representation of Structured Environments,2026,Alejandro Gonzalez-Garcia et al.,I_corridor_planning
 2602.10365,Solving Geodesic Equations with Composite Bernstein Polynomials for Trajectory Planning,2026,Nick Gorman et al.,A_path_smoothing;K_dubins_reeds_shepp
 2602.12096,Multi Graph Search for High-Dimensional Robot Motion Planning,2026,Itamar Mishani et al.,E_bounded_suboptimal_search
 2602.14726,ManeuverNet: A Soft Actor-Critic Framework for Precise Maneuvering of Double-Ackermann-Steering Robots with Optimized Reward Functions,2026,Kohio Deflesselle et al.,C_elastic_band
-2602.19699,CACTO-BIC: Scalable Actor-Critic Learning via Biased Sampling and GPU-Accelerated Trajectory Optimization,2026,Elisa Alboni et al.,L_learning_path_optimization
+2602.16758,Smooth trajectory generation and hybrid B-splines-Quaternions based tool path interpolation for a 3T1R parallel kinematic milling robot,2026,Sina Akhbari et al.,B_trajectory_optimization
 2602.20225,FACTO: Function-space Adaptive Constrained Trajectory Optimization for Robotic Manipulators,2026,Yichang Feng et al.,B_trajectory_optimization
 2602.21174,Efficient Hierarchical Any-Angle Path Planning on Multi-Resolution 3D Grids,2026,Victor Reijgwart et al.,H_hierarchical_planning
 2603.00694,Wild-Drive: Off-Road Scene Captioning and Path Planning via Robust Multi-modal Routing and Efficient Large Language Model,2026,Zihang Wang et al.,O_dense_forest_narrow_passage
+2603.03514,Sampling-Based Motion Planning with Scene Graphs Under Perception Constraints,2026,Qingxi Meng et al.,Q_informed_sampling
 2603.04284,OmniPlanner: Universal Exploration and Inspection Path Planning across Robot Morphologies,2026,Angelos Zacharia et al.,J_homotopy_topology
-2603.04463,GAIDE: Graph-based Attention Masking for Spatial- and Embodiment-aware Motion Planning,2026,Davood Soleymanzadeh et al.,N_path_repair
+2603.04463,GAIDE: Graph-based Attention Masking for Spatial- and Embodiment-aware Motion Planning,2026,Davood Soleymanzadeh et al.,N_path_repair;Q_informed_sampling
 2603.04547,Many-RRT*: Robust Joint-Space Trajectory Planning for Serial Manipulators,2026,Theodore M. Belmont et al.,D_asymptotically_optimal_sampling
-2603.06924,LIPP: Load-Aware Informative Path Planning with Physical Sampling,2026,Hojune Kim et al.,J_homotopy_topology
-2603.09031,ImpedanceDiffusion: Diffusion-Based Global Path Planning for UAV Swarm Navigation with Generative Impedance Control,2026,Faryal Batool et al.,L_learning_path_optimization
+2603.06924,LIPP: Load-Aware Informative Path Planning with Physical Sampling,2026,Hojune Kim et al.,J_homotopy_topology;Q_informed_sampling
+2603.10330,PC-Diffuser: Path-Consistent Capsule CBF Safety Filtering for Diffusion-Based Trajectory Planner,2026,Eugene Ku et al.,L_learning_path_optimization
 2603.11074,DRAFTO: Decoupled Reduced-space and Adaptive Feasibility-repair Trajectory Optimization for Robotic Manipulators,2026,Yichang Feng et al.,B_trajectory_optimization
 2603.11658,"Coupling Tensor Trains with Graph of Convex Sets: Effective Compression, Exploration, and Planning in the C-Space",2026,Gerhard Reinerth et al.,I_corridor_planning
-2603.12361,GNN-DIP: Neural Corridor Selection for Decomposition-Based Motion Planning,2026,Peng Xie et al.,I_corridor_planning
+2603.12361,GNN-DIP: Neural Corridor Selection for Decomposition-Based Motion Planning,2026,Peng Xie et al.,I_corridor_planning;O_dense_forest_narrow_passage
 2603.13748,Multi-Robot Coordination for Planning under Context Uncertainty,2026,Pulkit Rustagi et al.,G_subgoal_optimization
 2603.21880,Optimal Solutions for the Moving Target Vehicle Routing Problem with Obstacles via Lazy Branch and Price,2026,Anoop Bhat et al.,I_corridor_planning
 2603.22508,Parallel OctoMapping: A Scalable Framework for Enhanced Path Planning in Autonomous Navigation,2026,Yihui Mao et al.,H_hierarchical_planning
+2603.25462,Temporally Decoupled Diffusion Planning for Autonomous Driving,2026,Xiang Li et al.,L_learning_path_optimization
 2603.26684,Decoupling Geometric Planning and Execution in Scalable Multi-Agent Path Finding,2026,Fernando Salanova et al.,H_hierarchical_planning
-2603.26696,Topological Motion Planning Diffusion: Generative Tangle-Free Path Planning for Tethered Robots in Obstacle-Rich Environments,2026,Yifu Tian et al.,J_homotopy_topology;L_learning_path_optimization
+2603.26696,Topological Motion Planning Diffusion: Generative Tangle-Free Path Planning for Tethered Robots in Obstacle-Rich Environments,2026,Yifu Tian et al.,J_homotopy_topology
 2604.02821,Goal-Conditioned Neural ODEs with Guaranteed Safety and Stability for Learning-Based All-Pairs Motion Planning,2026,Dechuan Liu et al.,I_corridor_planning
 2604.07599,SANDO: Safe Autonomous Trajectory Planning for Dynamic Unknown Environments,2026,Kota Kondo et al.,I_corridor_planning;O_dense_forest_narrow_passage
-2604.10548,"Simple but Stable, Fast and Safe: Achieve End-to-end Control by High-Fidelity Differentiable Simulation",2026,Fanxing Li et al.,O_dense_forest_narrow_passage
 2604.15076,NEAT-NC: NEAT guided Navigation Cells for Robot Path Planning,2026,Hibatallah Meliani et al.,J_homotopy_topology
 2604.19148,Multi-Step Gaussian Process Propagation for Adaptive Path Planning,2026,Alex Beaudin et al.,G_subgoal_optimization;Q_informed_sampling
+2604.22196,V-STC: A Time-Efficient Multi-Vehicle Coordinated Trajectory Planning Approach,2026,Pengfei Liu et al.,I_corridor_planning
 2605.01996,Optimized and kinematically feasible multi-agent motion planning,2026,Anja Hellander et al.,F_hybrid_astar
 2605.07215,PISTO: Proximal Inference for Stochastic Trajectory Optimization,2026,Hongzhe Yu et al.,B_trajectory_optimization
 2605.07370,MORPH-U: Multi-Objective Resilient Motion Planning for V2X-Enabled Autonomous Driving in High-Uncertainty Environments via Simulation,2026,Shih-Yu Lai,M_multi_objective_planning
 2605.14199,Motion Planning for Autonomous Vehicles using Optimization over Graphs of Convex Sets,2026,Matheus Wagner et al.,I_corridor_planning
-2605.15999,Constrained MPC-Based Motion Planning for Morphing Quadrotors in Ultra-Narrow Passages under Limited Perception,2026,Harsh Modi et al.,O_dense_forest_narrow_passage
+2605.15999,Constrained MPC-Based Motion Planning for Morphing Quadrotors in Ultra-Narrow Passages under Limited Perception,2026,Harsh Modi et al.,I_corridor_planning;O_dense_forest_narrow_passage
 2605.16863,"Plan First, Diffuse Later: Extrinsic Graph Guidance for Long-Horizon Diffusion Planning",2026,Yaniv Hassidof et al.,L_learning_path_optimization
-2605.18617,ManiSoft: Towards Vision-Language Manipulation for Soft Continuum Robotics,2026,Ziyu Wei et al.,C_elastic_band
-2605.19562,Learning-Accelerated Optimization-based Trajectory Planning for Cooperative Aerial-Ground Handover Missions,2026,Jingshan Chen et al.,L_learning_path_optimization
+2605.19958,TravExplorer: Cross-Floor Embodied Exploration via Traversability-Aware 3-D Planning,2026,Han Zheng et al.,G_subgoal_optimization
 2605.23240,Signal Temporal Logic Motion Planning via Graphs of Convex Sets,2026,Yu Chen et al.,I_corridor_planning
 2605.25010,Performance Comparison of Classical and Neural Sampling Algorithms for Robotic Navigation,2026,Hichem Cheriet et al.,L_learning_path_optimization
+2605.28202,Natural Functional Gradients for Smooth Trajectory Optimization,2026,Kisang Park et al.,B_trajectory_optimization
 2605.28362,Accelerating Robot Path Planning via Connectivity-Preserving Region Proposal Network,2026,Zhanzheng Ma et al.,J_homotopy_topology
 2606.02677,Motion Planning in Dynamic Environments: A Survey from Classical to Modern Methods,2026,Zongyuan Shen et al.,R_surveys
 2606.03512,SPADE: Sketch-guided Path Planning Augmented with Diffusion Experts,2026,Charbel Abi Hana et al.,L_learning_path_optimization
 2606.06041,Sample-efficient Low-level Motion Planning for Robotic Manipulation Tasks via Zero-shot Transfer Learning,2026,Yuanzhi He et al.,Q_informed_sampling
+2606.09719,Safe Polytope-in-Polytope Motion Planning and Control with Control Barrier Functions,2026,Alejandro Gonzalez-Garcia et al.,O_dense_forest_narrow_passage
 2606.14794,Computing Smooth Geodesics under Two-Sided Curvature Bounds with Applications to Robotics and Image Analysis,2026,Da Chen et al.,A_path_smoothing
+2606.16480,HOLO-MPPI: Multi-Scenario Motion Planning via Hierarchical Policy Optimization,2026,Youngjae Min et al.,J_homotopy_topology
 2606.16780,DIFF-IPPO: Diffusion-Based Informative Path Planning with Open-Vocabulary Belief Maps,2026,Sausar Karaf et al.,L_learning_path_optimization
 2606.18516,"Task Allocation and Motion Planning in Dynamic, Cluttered Environments via CBBA and Graphs of Convex Sets",2026,Matthew D. Osburn et al.,I_corridor_planning
-2606.20495,Increasing Resilience of Continuum Robots via Motion Planning Algorithms,2026,Oxana Shamilyan et al.,J_homotopy_topology
+2606.20495,Increasing Resilience of Continuum Robots via Motion Planning Algorithms,2026,Oxana Shamilyan et al.,J_homotopy_topology;M_multi_objective_planning
 2606.22838,FPAS: Frontier-Based Path Planning with Adaptive Sampling for Large-Scale Unknown Environments,2026,Jinwoo Choi et al.,Q_informed_sampling
+2501.06639,Enhancing Path Planning Performance through Image Representation Learning of High-Dimensional Configuration Spaces,2025,Jorge Ocampo Jimenez et al.,G_subgoal_optimization
 2501.06904,From Simulation to Field: Learning Terrain Traversability for Real-World Deployment,2025,Fetullah Atas et al.,O_dense_forest_narrow_passage
 2501.07343,Fast-Revisit Coverage Path Planning for Autonomous Mobile Patrol Robots Using Long-Range Sensor Information,2025,Srinivas Kachavarapu et al.,G_subgoal_optimization
 2502.00114,Mobile Robot Navigation Using Hand-Drawn Maps: A Vision Language Model Approach,2025,Aaron Hao Tan et al.,G_subgoal_optimization
 2502.01987,"Online Adaptive Traversability Estimation through Interaction for Unstructured, Densely Vegetated Environments",2025,Fabio A. Ruetz et al.,O_dense_forest_narrow_passage
-2502.05462,Motion Planning of Cooperative Nonholonomic Mobile Manipulators,2025,Keshab Patra et al.,N_path_repair;P_nonholonomic_constraints
+2502.03540,Path Planning for Masked Diffusion Model Sampling,2025,Fred Zhangzhi Peng et al.,L_learning_path_optimization
+2502.05462,Motion Planning of Cooperative Nonholonomic Mobile Manipulators,2025,Keshab Patra et al.,P_nonholonomic_constraints
 2502.08697,Bilevel Learning for Bilevel Planning,2025,Bowen Li et al.,L_learning_path_optimization
 2502.09556,Real-Time Fast Marching Tree for Mobile Robot Motion Planning in Dynamic Environments,2025,Jefferson Silveira et al.,D_asymptotically_optimal_sampling
 2502.15961,IA-TIGRIS: An Incremental and Adaptive Sampling-Based Planner for Online Informative Path Planning,2025,Brady Moon et al.,Q_informed_sampling
 2502.16932,DemoGen: Synthetic Demonstration Generation for Data-Efficient Visuomotor Policy Learning,2025,Zhengrong Xue et al.,C_elastic_band
 2503.00583,Space-Time Graphs of Convex Sets for Multi-Robot Motion Planning,2025,Jingtao Tang et al.,I_corridor_planning
-2503.07411,PER-DPP Sampling Framework and Its Application in Path Planning,2025,Junzhe Wang,Q_informed_sampling
+2503.07411,PER-DPP Sampling Framework and Its Application in Path Planning,2025,Junzhe Wang,M_multi_objective_planning;Q_informed_sampling
+2503.07855,Evaluating Path Planning Strategies for Efficient Nitrate Sampling in Crop Rows,2025,Ruiji Liu et al.,Q_informed_sampling
+2503.11072,A High-Speed Time-Optimal Trajectory Generation Strategy via a Two-layer Planning Model,2025,Haotian Tan et al.,B_trajectory_optimization
 2503.13171,HybridGen: VLM-Guided Hybrid Planning for Scalable Data Generation of Imitation Learning,2025,Wensheng Wang et al.,L_learning_path_optimization
-2504.03001,Autonomy Architectures for Safe Planning in Unknown Environments Under Budget Constraints,2025,Daniel M. Cherenson et al.,G_subgoal_optimization
+2503.16164,Asymptotically Optimal Path Planning With an Approximation of the Omniscient Set,2025,Jonáš Kříž et al.,D_asymptotically_optimal_sampling
+2504.02492,Industrial Internet Robot Collaboration System and Edge Computing Optimization,2025,Haopeng Zhao et al.,P_nonholonomic_constraints
+2504.03280,Dynamic Objective MPC for Motion Planning of Seamless Docking Maneuvers,2025,Oliver Schumann et al.,I_corridor_planning
 2504.04598,B4P: Simultaneous Grasp and Motion Planning for Object Placement via Parallelized Bidirectional Forests and Path Repair,2025,Benjamin H. Leebron et al.,J_homotopy_topology
 2504.06596,Overcoming Dynamic Environments: A Hybrid Approach to Motion Planning for Manipulators,2025,Ho Minh Quang Ngo et al.,F_hybrid_astar
 2504.12616,Graph-based Path Planning with Dynamic Obstacle Avoidance for Autonomous Parking,2025,Farhad Nawaz et al.,F_hybrid_astar
-2504.14680,A Complete and Bounded-Suboptimal Algorithm for a Moving Target Traveling Salesman Problem with Obstacles in 3D,2025,Anoop Bhat et al.,E_bounded_suboptimal_search;I_corridor_planning
-2504.16734,DYNUS: Uncertainty-aware Trajectory Planner in Dynamic Unknown Environments,2025,Kota Kondo et al.,O_dense_forest_narrow_passage
-2504.18713,Certifiably-Correct Mapping for Safe Navigation Despite Odometry Drift,2025,Devansh R. Agrawal et al.,I_corridor_planning
 2504.19072,Geometric Gait Optimization for Kinodynamic Systems Using a Lie Group Integrator,2025,Yanhao Yang et al.,P_nonholonomic_constraints
+2505.03257,Model Predictive Fuzzy Control: A Hierarchical Multi-Agent Control Architecture for Outdoor Search-and-Rescue Robots,2025,Craig Maxwell et al.,M_multi_objective_planning
+2505.05588,Deep Learning Warm Starts for Trajectory Optimization on the International Space Station,2025,Somrita Banerjee et al.,B_trajectory_optimization;L_learning_path_optimization
+2505.07779,Multi-Agent Path Finding via Finite-Horizon Hierarchical Factorization,2025,Jiarui Li et al.,H_hierarchical_planning
+2505.10355,pc-dbCBS: Kinodynamic Motion Planning of Physically-Coupled Robot Teams,2025,Khaled Wahba et al.,E_bounded_suboptimal_search
 2505.10542,AORRTC: Almost-Surely Asymptotically Optimal Planning with RRT-Connect,2025,Tyler Wilson et al.,D_asymptotically_optimal_sampling
 2505.15157,Cascaded Diffusion Models for Neural Motion Planning,2025,Mohit Sharma et al.,L_learning_path_optimization;N_path_repair
+2505.19219,Where Paths Collide: A Comprehensive Survey of Classic and Learning-Based Multi-Agent Pathfinding,2025,Shiyue Wang et al.,R_surveys
 2505.21968,Enhanced SIRRT*: A Structure-Aware RRT* for 2D Path Planning with Hybrid Smoothing and Bidirectional Rewiring,2025,Hyejeong Ryu,F_hybrid_astar
 2505.24339,Imitation Learning-Based Path Generation for the Complex Assembly of Deformable Objects,2025,Yitaek Kim et al.,L_learning_path_optimization
 2506.00351,Recasting Classical Motion Planning for Contact-Rich Manipulation,2025,Lin Yang et al.,J_homotopy_topology
-2506.04881,Structural Integrality in Task Assignment and Path Finding via Total Unimodularity of Petri Net Models,2025,Ioana Hustiu et al.,G_subgoal_optimization
 2506.09914,From Theory to Practice: Advancing Multi-Robot Path Planning Algorithms and Applications,2025,Teng Guo,A_path_smoothing
-2506.11419,FocalAD: Local Motion Planning for End-to-End Autonomous Driving,2025,Bin Sun et al.,N_path_repair
 2506.13421,Delayed Expansion AGT: Kinodynamic Planning with Application to Tractor-Trailer Parking,2025,Dongliang Zheng et al.,P_nonholonomic_constraints
 2506.16748,A Scalable Post-Processing Pipeline for Large-Scale Free-Space Multi-Agent Path Planning with PiBT,2025,Arjo Chakravarty et al.,F_hybrid_astar;H_hierarchical_planning
 2506.20314,Near Time-Optimal Hybrid Motion Planning for Timber Cranes,2025,Marc-Philip Ecker et al.,F_hybrid_astar
-2506.22827,Hierarchical Vision-Language Planning for Multi-Step Humanoid Manipulation,2025,André Schakkal et al.,N_path_repair
-2507.06605,"Growing Trees with an Agent: Accelerating RRTs with Learned, Multi-Step Episodic Exploration",2025,Xinyu Wu,D_asymptotically_optimal_sampling
-2507.09309,Informed Hybrid Zonotope-based Motion Planning Algorithm,2025,Peng Xie et al.,Q_informed_sampling
 2507.10284,Prompt Informed Reinforcement Learning for Visual Coverage Path Planning,2025,Venkat Margapuri,L_learning_path_optimization
+2507.15088,Search-Based Autonomous Vehicle Motion Planning Using Game Theory,2025,Pouya Panahandeh et al.,N_path_repair
 2507.15469,The Emergence of Deep Reinforcement Learning for Path Planning,2025,Thanh Thi Nguyen et al.,R_surveys
 2507.15710,Selective Densification for Rapid Motion Planning in High Dimensions with Narrow Passages,2025,Lu Huang et al.,I_corridor_planning;O_dense_forest_narrow_passage
 2507.16233,GFM-Planner: Perception-Aware Trajectory Planning with Geometric Feature Metric,2025,Yue Lin et al.,G_subgoal_optimization
@@ -94,70 +104,70 @@ arxiv_id,title,year,authors_short,direction_tag
 2507.19831,Feeling the Force: A Nuanced Physics-based Traversability Sensor for Navigation in Unstructured Vegetation,2025,Zaar Khizar et al.,O_dense_forest_narrow_passage
 2507.19860,Homotopy-aware Multi-agent Navigation via Distributed Model Predictive Control,2025,Haoze Dong et al.,J_homotopy_topology
 2507.23350,Multi-Waypoint Path Planning and Motion Control for Non-holonomic Mobile Robots in Agricultural Applications,2025,Mahmoud Ghorab et al.,G_subgoal_optimization;K_dubins_reeds_shepp
+2508.05668,"A Survey of LLM-based Deep Search Agents: Paradigm, Optimization, Evaluation, and Challenges",2025,Yunjia Xi et al.,R_surveys
 2508.06722,Improved Obstacle Avoidance for Autonomous Robots with ORCA-FLC,2025,Justin London,C_elastic_band
 2508.10203,Systematic Constraint Formulation and Collision-Free Trajectory Planning Using Space-Time Graphs of Convex Sets,2025,Matthew D. Osburn et al.,I_corridor_planning
 2508.18627,Integration of Robot and Scene Kinematics for Sequential Mobile Manipulation Planning,2025,Ziyuan Jiao et al.,G_subgoal_optimization
 2508.20884,Deep Fuzzy Optimization for Batch-Size and Nearest Neighbors in Optimal Robot Motion Planning,2025,Liding Zhang et al.,L_learning_path_optimization
+2508.21549,Estimated Informed Anytime Search for Sampling-Based Planning via Adaptive Sampler,2025,Liding Zhang et al.,Q_informed_sampling
 2508.21637,A-MHA*: Anytime Multi-Heuristic A*,2025,Ramkumar Natarajan et al.,E_bounded_suboptimal_search
 2509.04950,Ground-Aware Octree-A* Hybrid Path Planning for Memory-Efficient 3D Navigation of Ground Vehicles,2025,Byeong-Il Ham et al.,F_hybrid_astar
 2509.05345,INF-3DP: Implicit Neural Fields for Collision-Free Multi-Axis 3D Printing,2025,Jiasheng Qu et al.,L_learning_path_optimization
 2509.06115,Hybrid A* Path Planning with Multi-Modal Motion Extension for Four-Wheel Steering Mobile Robots,2025,Runjiao Bao et al.,F_hybrid_astar;P_nonholonomic_constraints
+2509.06682,An Adaptive Coverage Control Approach for Multiple Autonomous Off-road Vehicles in Dynamic Agricultural Fields,2025,Sajad Ahmadi et al.,O_dense_forest_narrow_passage
 2509.07321,Performance Characterization of a Point-Cloud-Based Path Planner in Off-Road Terrain,2025,Casey D. Majhor et al.,O_dense_forest_narrow_passage
 2509.08160,Diffusion-Guided Multi-Arm Motion Planning,2025,Viraj Parimi et al.,H_hierarchical_planning
 2509.08521,FMT$^{x}$: An Efficient and Asymptotically Optimal Extension of the Fast Marching Tree for Dynamic Replanning,2025,Soheil Espahbodini Nia,D_asymptotically_optimal_sampling
 2509.10349,Acetrans: An Autonomous Corridor-Based and Efficient UAV Suspended Transport System,2025,Weiyan Lu et al.,I_corridor_planning
 2509.11240,CORB-Planner: Corridor as Observations for RL Planning in High-Speed Flight,2025,Yechen Zhang et al.,I_corridor_planning
-2509.14460,Learning Discrete Abstractions for Visual Rearrangement Tasks Using Vision-Guided Graph Coloring,2025,Abhiroop Ajith et al.,G_subgoal_optimization
 2509.17340,AERO-MPPI: Anchor-Guided Ensemble Trajectory Optimization for Agile Mapless Drone Navigation,2025,Xin Chen et al.,J_homotopy_topology
 2509.24143,A Novel Model for 3D Motion Planning for a Generalized Dubins Vehicle with Pitch and Yaw Rate Constraints,2025,Deepak Prakash Kumar et al.,K_dubins_reeds_shepp
 2509.24995,Path Diffuser: Diffusion Model for Data-Driven Traffic Simulator,2025,Da Saem Lee et al.,L_learning_path_optimization
 2510.02716,A $1000\times$ Faster LLM-enhanced Algorithm For Path Planning in Large-scale Grid Maps,2025,Junlin Zeng et al.,G_subgoal_optimization
 2510.03547,Shape-Space Graphs: Fast and Collision-Free Path Planning for Soft Robots,2025,Carina Veil et al.,C_elastic_band
 2510.03948,A Real-Time Framework for Intermediate Map Construction and Kinematically Feasible Off-Road Planning Without OSM,2025,Otobong Jerome et al.,O_dense_forest_narrow_passage
-2510.12169,Hybrid Terrain-Aware Path Planning: Integrating VD-RRT* Exploration and VD-D* Lite Repair,2025,Akshay Naik et al.,F_hybrid_astar;P_nonholonomic_constraints
+2510.12169,Hybrid Terrain-Aware Path Planning: Integrating VD-RRT* Exploration and VD-D* Lite Repair,2025,Akshay Naik et al.,F_hybrid_astar;O_dense_forest_narrow_passage;P_nonholonomic_constraints
 2510.16500,Advancing Off-Road Autonomous Driving: The Large-Scale ORAD-3D Dataset and Comprehensive Benchmarks,2025,Chen Min et al.,O_dense_forest_narrow_passage
 2510.19128,A Cross-Environment and Cross-Embodiment Path Planning Framework via a Conditional Diffusion Model,2025,Mehran Ghafarian Tamizi et al.,L_learning_path_optimization
-2511.06471,GHOST: Solving the Traveling Salesman Problem on Graphs of Convex Sets,2025,Jingtao Tang et al.,I_corridor_planning
+2510.22740,Policies over Poses: Reinforcement Learning based Distributed Pose-Graph Optimization for Multi-Robot SLAM,2025,Sai Krishna Ghanta et al.,B_trajectory_optimization
+2510.23824,Decentralized Multi-Agent Goal Assignment for Path Planning using Large Language Models,2025,Murad Ismayilov et al.,H_hierarchical_planning
+2511.04180,PUL-SLAM: Path-Uncertainty Co-Optimization with Lightweight Stagnation Detection for Efficient Robotic Exploration,2025,Yizhen Yin et al.,A_path_smoothing
 2511.07811,Virtual Traffic Lights for Multi-Robot Navigation: Decentralized Planning with Centralized Conflict Resolution,2025,Sagar Gupta et al.,H_hierarchical_planning
-2511.07927,Local Path Planning with Dynamic Obstacle Avoidance in Unstructured Environments,2025,Okan Arif Guvenkaya et al.,G_subgoal_optimization
 2511.11043,Autonomous Vehicle Path Planning by Searching With Differentiable Simulation,2025,Asen Nachkov et al.,L_learning_path_optimization
-2511.12022,SBAMP: Sampling Based Adaptive Motion Planning,2025,Shreyas Raorane et al.,Q_informed_sampling
-2511.12778,DR. Nav: Semantic-Geometric Representations for Proactive Dead-End Recovery and Navigation,2025,Vignesh Rajagopal et al.,O_dense_forest_narrow_passage
+2511.12022,SBAMP: Sampling Based Adaptive Motion Planning,2025,Shreyas Raorane et al.,N_path_repair;Q_informed_sampling
 2511.13048,Unidirectional-Road-Network-Based Global Path Planning for Cleaning Robots in Semi-Structured Environments,2025,Yong Li et al.,F_hybrid_astar
 2511.15414,RRT*former: Environment-Aware Sampling-Based Motion Planning using Transformer,2025,Mingyang Feng et al.,D_asymptotically_optimal_sampling
 2511.16844,A*-based Temporal Logic Path Planning with User Preferences on Relaxed Task Satisfaction,2025,Disha Kamale et al.,E_bounded_suboptimal_search
 2511.18183,Off-Road Navigation via Implicit Neural Representation of Terrain Traversability,2025,Yixuan Jia et al.,O_dense_forest_narrow_passage
 2511.18525,Splatblox: Traversability-Aware Gaussian Splatting for Outdoor Robot Navigation,2025,Samarth Chopra et al.,O_dense_forest_narrow_passage
-2511.20050,Active3D: Active High-Fidelity 3D Reconstruction via Hierarchical Uncertainty Quantification,2025,Yan Li et al.,L_learning_path_optimization
-2511.20156,Map-World: Masked Action planning and Path-Integral World Model for Autonomous Driving,2025,Bin Hu et al.,J_homotopy_topology
+2511.20156,Map-World: Masked Action planning and Path-Integral World Model for Autonomous Driving,2025,Bin Hu et al.,G_subgoal_optimization;J_homotopy_topology
+2511.20394,Improved adaptive wind driven optimization algorithm for real-time path planning,2025,Shiqian Liu et al.,A_path_smoothing
 2511.22338,Nonholonomic Narrow Dead-End Escape with Deep Reinforcement Learning,2025,Denghan Xiong et al.,P_nonholonomic_constraints
-2512.02535,AID: Agent Intent from Diffusion for Multi-Agent Informative Path Planning,2025,Jeric Lew et al.,L_learning_path_optimization
 2512.06754,Model-Less Feedback Control of Space-based Continuum Manipulators using Backbone Tension Optimization,2025,Shrreya Rajneesh et al.,C_elastic_band
+2512.07303,Efficient Computation of a Continuous Topological Model of the Configuration Space of Tethered Mobile Robots,2025,Gianpietro Battocletti et al.,J_homotopy_topology
 2512.10099,"Push Smarter, Not Harder: Hierarchical RL-Diffusion Policy for Efficient Nonprehensile Manipulation",2025,Steven Caro et al.,G_subgoal_optimization
 2512.11571,Cross-Entropy Optimization of Physically Grounded Task and Motion Plans,2025,Andreu Matoses Gimenez et al.,Q_informed_sampling
 2512.13183,Efficient Path Generation with Curvature Guarantees by Mollification,2025,Alfredo González-Calvin et al.,A_path_smoothing
-2401.01439,Off-Road LiDAR Intensity Based Semantic Segmentation,2024,Kasi Viswanath et al.,O_dense_forest_narrow_passage
 2401.09819,PPNet: A Two-Stage Neural Network for End-to-end Path Planning,2024,Qinglong Meng et al.,G_subgoal_optimization
+2401.17500,LeTO: Learning Constrained Visuomotor Policy with Differentiable Trajectory Optimization,2024,Zhengtong Xu et al.,L_learning_path_optimization
 2402.00537,Robust Path Planning via Learning from Demonstrations for Robotic Catheters in Deformable Environments,2024,Zhen Li et al.,L_learning_path_optimization
 2402.01254,Neural Trajectory Model: Implicit Neural Trajectory Representation for Trajectories Generation,2024,Zihan Yu et al.,L_learning_path_optimization
 2402.04730,Model Predictive Trajectory Optimization With Dynamically Changing Waypoints for Serial Manipulators,2024,Florian Beck et al.,G_subgoal_optimization
-2402.05421,DiffTORI: Differentiable Trajectory Optimization for Deep Reinforcement and Imitation Learning,2024,Weikang Wan et al.,L_learning_path_optimization
+2402.05421,DiffTORI: Differentiable Trajectory Optimization for Deep Reinforcement and Imitation Learning,2024,Weikang Wan et al.,B_trajectory_optimization;L_learning_path_optimization
 2402.11768,Targeted Parallelization of Conflict-Based Search for Multi-Robot Path Planning,2024,Teng Guo et al.,E_bounded_suboptimal_search;H_hierarchical_planning
-2402.12498,Feudal Networks for Visual Navigation,2024,Faith Johnson et al.,G_subgoal_optimization
 2402.14933,Path Planning based on 2D Object Bounding-box,2024,Yanliang Huang et al.,L_learning_path_optimization
-2403.00988,Optimal Robot Formations: Balancing Range-Based Observability and User-Defined Configurations,2024,Syed Shabbir Ahmed et al.,G_subgoal_optimization
 2403.01450,Collision-Free Robot Navigation in Crowded Environments using Learning based Convex Model Predictive Control,2024,Zhuanglei Wen et al.,C_elastic_band
 2403.02751,Splat-Nav: Safe Real-Time Robot Navigation in Gaussian Splatting Maps,2024,Timothy Chen et al.,I_corridor_planning
+2403.07638,Online Adaptation of Sampling-Based Motion Planning with Inaccurate Models,2024,Marco Faroni et al.,Q_informed_sampling
+2403.10745,iDb-RRT: Sampling-based Kinodynamic Motion Planning with Motion Primitives and Trajectory Optimization,2024,Joaquim Ortiz-Haro et al.,O_dense_forest_narrow_passage
 2403.11298,Multi-Sample Long Range Path Planning under Sensing Uncertainty for Off-Road Autonomous Driving,2024,Matt Schmittle et al.,O_dense_forest_narrow_passage
-2403.12725,Some geometric and topological data-driven methods in robot motion path planning,2024,Boris Goldfarb,J_homotopy_topology;R_surveys
+2403.11552,LLM3:Large Language Model-based Task and Motion Planning with Motion Failure Reasoning,2024,Shu Wang et al.,N_path_repair
+2403.12725,Some geometric and topological data-driven methods in robot motion path planning,2024,Boris Goldfarb,J_homotopy_topology
 2403.15369,OceanPlan: Hierarchical Planning and Replanning for Natural Language AUV Piloting in Large-scale Unexplored Ocean Environments,2024,Ruochu Yang et al.,H_hierarchical_planning
-2403.16803,Exploiting Priors from 3D Diffusion Models for RGB-Based One-Shot View Planning,2024,Sicong Pan et al.,L_learning_path_optimization
-2404.00797,"Metarobotics for Industry and Society: Vision, Technologies, and Opportunities",2024,Eric Guiffo Kaigom,R_surveys
-2404.02817,A Survey of Optimization-based Task and Motion Planning: From Classical To Learning Approaches,2024,Zhigen Zhao et al.,R_surveys
-2404.05223,ITA-ECBS: A Bounded-Suboptimal Algorithm for the Combined Target-Assignment and Path-Finding Problem,2024,Yimin Tang et al.,E_bounded_suboptimal_search
+2404.05343,Non-linear Model Predictive Control for Multi-task GPS-free Autonomous Navigation in Vineyards,2024,Matteo Sperti et al.,O_dense_forest_narrow_passage
 2404.05581,Design and Simulation of Time-energy Optimal Anti-swing Trajectory Planner for Autonomous Tower Cranes,2024,Souravik Dutta et al.,M_multi_objective_planning
 2404.06974,Deep Reinforcement Learning for Mobile Robot Path Planning,2024,Hao Liu et al.,F_hybrid_astar
-2404.16379,Optimal and Bounded Suboptimal Any-Angle Multi-agent Pathfinding,2024,Konstantin Yakovlev et al.,E_bounded_suboptimal_search
+2404.07889,On the Performance of Jerk-Constrained Time-Optimal Trajectory Planning for Industrial Manipulators,2024,Jee-eun Lee et al.,B_trajectory_optimization
 2404.18687,Socially Adaptive Path Planning Based on Generative Adversarial Network,2024,Yao Wang et al.,J_homotopy_topology
 2405.03411,Greedy Heuristics for Sampling-Based Motion Planning in High-Dimensional State Spaces,2024,Phone Thiha Kyaw et al.,D_asymptotically_optimal_sampling
 2405.06290,Path Planning and Motion Control for Accurate Positioning of Car-like Robots,2024,Jin Dai et al.,K_dubins_reeds_shepp
@@ -166,63 +176,74 @@ arxiv_id,title,year,authors_short,direction_tag
 2406.02885,Homotopic Path Set Planning for Robot Manipulation and Navigation,2024,Jing Huang et al.,J_homotopy_topology
 2406.02916,Real-time Motion Planning for autonomous vehicles in dynamic environments,2024,Mohammad Dehghani Tezerjani et al.,C_elastic_band
 2406.05575,A Survey on Hybrid Motion Planning Methods for Automated Driving Systems,2024,MReza Alipour Sormoli et al.,R_surveys
-2407.02664,The path towards contact-based physical human-robot interaction,2024,Mohammad Farajtabar et al.,R_surveys
+2406.09631,Towards Optimizing a Convex Cover of Collision-Free Space for Trajectory Generation,2024,Yuwei Wu et al.,I_corridor_planning
+2407.02933,Online Time-Informed Kinodynamic Motion Planning of Nonlinear Systems,2024,Fei Meng et al.,Q_informed_sampling
 2407.05300,Space Adaptive Search for Nonholonomic Mobile Robots Path Planning,2024,Qi Wang,K_dubins_reeds_shepp
+2407.05779,Smooth Path Planning Using a Gaussian Process Regression Map for Mobile Robot Navigation,2024,Quentin Serdel et al.,A_path_smoothing
 2407.05979,Smoothing of Headland Path Edges and Headland-to-Mainfield Lane Transitions Based on a Spatial Domain Transformation and Linear Programming,2024,Mogens Plessen,A_path_smoothing
 2407.10660,HPHS: Hierarchical Planning based on Hybrid Frontier Sampling for Unknown Environments Exploration,2024,Shijun Long et al.,F_hybrid_astar
 2407.17392,Sampling-Based Hierarchical Trajectory Planning for Formation Flight,2024,Qingzhao Liu et al.,I_corridor_planning
 2408.03131,Stochastic Trajectory Optimization for Robotic Skill Acquisition From a Suboptimal Demonstration,2024,Chenlin Ming et al.,B_trajectory_optimization
-2408.04200,Koopman Operators in Robot Learning,2024,Lu Shi et al.,R_surveys
 2408.12831,SIMPNet: Spatial-Informed Motion Planning Network,2024,Davood Soleymanzadeh et al.,Q_informed_sampling
+2409.03920,Asymptotically-Optimal Multi-Query Path Planning for a Polygonal Robot,2024,Duo Zhang et al.,H_hierarchical_planning
 2409.05289,Developing Path Planning with Behavioral Cloning and Proximal Policy Optimization for Path-Tracking and Static Obstacle Nudging,2024,Mingyan Zhou et al.,G_subgoal_optimization;L_learning_path_optimization
-2409.10647,Safe Interval Motion Planning for Quadrotors in Dynamic Environments,2024,Songhao Huang et al.,C_elastic_band
+2409.05864,Neural MP: A Generalist Neural Motion Planner,2024,Murtaza Dalal et al.,J_homotopy_topology
+2409.10647,Safe Interval Motion Planning for Quadrotors in Dynamic Environments,2024,Songhao Huang et al.,C_elastic_band;I_corridor_planning
 2409.14491,Work Smarter Not Harder: Simple Imitation Learning with CS-PIBT Outperforms Large Scale Imitation Learning for MAPF,2024,Rishi Veerapaneni et al.,L_learning_path_optimization
 2409.15671,Autonomous Hiking Trail Navigation via Semantic Segmentation and Geometric Analysis,2024,Camndon Reed et al.,O_dense_forest_narrow_passage
 2409.17995,Joint Localization and Planning using Diffusion,2024,L. Lao Beyer et al.,L_learning_path_optimization
+2409.18253,UAV-Assisted Self-Supervised Terrain Awareness for Off-Road Navigation,2024,Jean-Michel Fortin et al.,O_dense_forest_narrow_passage
 2409.19543,Multi-Query Shortest-Path Problem in Graphs of Convex Sets,2024,Savva Morozov et al.,I_corridor_planning
 2410.01925,Topological mapping for traversability-aware long-range navigation in off-road terrain,2024,Jean-François Tremblay et al.,O_dense_forest_narrow_passage
 2410.03370,Collision-Aware Traversability Analysis for Autonomous Vehicles in the Context of Agricultural Robotics,2024,Florian Philippe et al.,O_dense_forest_narrow_passage
-2410.04129,Trajectory elongation strategies with minimum curvature discontinuities for a Dubins vehicle,2024,Aditya K. Rao et al.,K_dubins_reeds_shepp
 2410.05079,HE-Nav: A High-Performance and Efficient Navigation System for Aerial-Ground Robots in Cluttered Environments,2024,Junming Wang et al.,O_dense_forest_narrow_passage
 2410.07845,Autonomous Vehicles Path Planning under Temporal Logic Specifications,2024,Akshay Dhonthi et al.,G_subgoal_optimization
 2410.08909,Implicit Graph Search for Planning on Graphs of Convex Sets,2024,Ramkumar Natarajan et al.,I_corridor_planning
 2410.20230,FRTree Planner: Robot Navigation in Cluttered and Unknown Environments with Tree of Free Regions,2024,Yulin Li et al.,G_subgoal_optimization
+2410.20635,Generating and Optimizing Topologically Distinct Guesses for Mobile Manipulator Path Planning with Path Constraints,2024,Rufus Cheuk Yin Wong et al.,J_homotopy_topology
+2410.21497,Denoising Diffusion Planner: Learning Complex Paths from Low-Quality Demonstrations,2024,Michiel Nikken et al.,L_learning_path_optimization
 2410.24205,Zonal RL-RRT: Integrated RL-RRT Path Planning with Collision Probability and Zone Connectivity,2024,AmirMohammad Tahmasbi et al.,D_asymptotically_optimal_sampling
 2411.08851,Experience-based Subproblem Planning for Multi-Robot Motion Planning,2024,Irving Solis et al.,N_path_repair
 2411.14086,Path-Tracking Hybrid A* and Hierarchical MPC Framework for Autonomous Agricultural Vehicles,2024,Mingke Lu et al.,A_path_smoothing
 2411.14356,Learning Probabilistic Obstacle Spaces from Data-driven Uncertainty using Neural Networks,2024,Jun Xiang et al.,L_learning_path_optimization
 2411.17902,Nearest-Neighbourless Asymptotically Optimal Motion Planning with Fully Connected Informed Trees (FCIT*),2024,Tyler S. Wilson et al.,Q_informed_sampling
-2411.18150,A Cost-Effective Approach to Smooth A* Path Planning for Autonomous Vehicles,2024,Lukas Schichler et al.,K_dubins_reeds_shepp
+2411.18150,A Cost-Effective Approach to Smooth A* Path Planning for Autonomous Vehicles,2024,Lukas Schichler et al.,K_dubins_reeds_shepp;P_nonholonomic_constraints
 2411.18913,Planning Shorter Paths in Graphs of Convex Sets by Undistorting Parametrized Configuration Spaces,2024,Shruti Garg et al.,I_corridor_planning
-2412.00597,"Spline-FRIDA: Towards Diverse, Humanlike Robot Painting Styles with a Sample-Efficient, Differentiable Brush Stroke Model",2024,Lawrence Chen et al.,R_surveys
+2411.19393,Global Tensor Motion Planning,2024,An T. Le et al.,N_path_repair
 2412.03174,Resilient Timed Elastic Band Planner for Collision-Free Navigation in Unknown Environments,2024,Geesara Kulathunga et al.,C_elastic_band
+2412.13033,Singularity-Free Guiding Vector Field over Bézier's Curves Applied to Rovers Path Planning and Path Following,2024,Alfredo González-Calvin et al.,P_nonholonomic_constraints
+2412.16875,Swept Volume-Aware Trajectory Planning and MPC Tracking for Multi-Axle Swerve-Drive AMRs,2024,Tianxin Hu et al.,P_nonholonomic_constraints
 2412.17993,Multi-Agent Path Finding in Continuous Spaces with Projected Diffusion Models,2024,Jinhao Liang et al.,L_learning_path_optimization
 2412.19948,Motion Planning Diffusion: Learning and Adapting Robot Motion Planning with Diffusion Models,2024,J. Carvalho et al.,L_learning_path_optimization
 2301.01755,Autonomous Drone Racing: A Survey,2023,Drew Hanover et al.,R_surveys
-2301.08451,Accelerating Multi-Agent Planning Using Graph Transformers with Bounded Suboptimality,2023,Chenning Yu et al.,E_bounded_suboptimal_search
 2301.10528,An Incremental Inverse Reinforcement Learning Approach for Motion Planning with Separated Path and Velocity Preferences,2023,Armin Avaei et al.,J_homotopy_topology
+2301.11816,Bi-AM-RRT*: A Fast and Efficient Sampling-Based Motion Planning Algorithm in Dynamic Environments,2023,Ying Zhang et al.,A_path_smoothing
 2301.13512,OpTaS: An Optimization-based Task Specification Library for Trajectory Optimization and Model Predictive Control,2023,Christopher E. Mower et al.,B_trajectory_optimization
+2302.00122,Chance-Constrained Trajectory Optimization for High-DOF Robots in Uncertain Environments,2023,Charles Dawson et al.,B_trajectory_optimization
+2302.03474,MPC-based Motion Planning for Autonomous Truck-Trailer Maneuvering,2023,Mathias Bos et al.,I_corridor_planning
 2302.11114,Sampling-based path planning under temporal logic constraints with real-time adaptation,2023,Yizhou Chen et al.,Q_informed_sampling
 2302.11648,Fillet-based RRT*: A Rapid Convergence Implementation of RRT* for Curvature Constrained Vehicles,2023,James Swedeen et al.,D_asymptotically_optimal_sampling
-2302.11670,Batch Informed Trees (BIT*),2023,James Swedeen et al.,D_asymptotically_optimal_sampling
-2302.12219,Certified Polyhedral Decompositions of Collision-Free Configuration Space,2023,Hongkai Dai et al.,I_corridor_planning
 2302.13026,A Homotopy Invariant Based on Convex Dissection Topology and a Distance Optimal Path Planning Algorithm,2023,Jinyuan Liu et al.,C_elastic_band;J_homotopy_topology
 2302.14422,Paramater Optimization for Manipulator Motion Planning using a Novel Benchmark Set,2023,Carl Gaebert et al.,O_dense_forest_narrow_passage
 2303.06737,Non-Trivial Query Sampling For Efficient Learning To Plan,2023,Sagar Suhas Joshi et al.,L_learning_path_optimization
 2303.09477,Learning Local Heuristics for Search-Based Navigation Planning,2023,Rishi Veerapaneni et al.,E_bounded_suboptimal_search
 2303.11279,Distributed Timed Elastic Band (DTEB) Planner: Trajectory Sharing and Collision Prediction for Multi-Robot Systems,2023,Yiu Ming Chung et al.,C_elastic_band
+2303.11966,Multi-Robot Planning on Dynamic Topological Graphs using Mixed-Integer Programming,2023,Cora A. Dimmig et al.,J_homotopy_topology
 2303.14502,VERN: Vegetation-aware Robot Navigation in Dense Unstructured Outdoor Environments,2023,Adarsh Jagan Sathyamoorthy et al.,O_dense_forest_narrow_passage
 2304.00119,End-to-end deep learning-based framework for path planning and collision checking: bin picking application,2023,Mehran Ghafarian Tamizi et al.,G_subgoal_optimization;L_learning_path_optimization
+2304.00732,Leveraging Predictive Models for Adaptive Sampling of Spatiotemporal Fluid Processes,2023,Sandeep Manjanna et al.,Q_informed_sampling
 2304.00790,LQR-CBF-RRT*: Safe and Optimal Motion Planning,2023,Guang Yang et al.,Q_informed_sampling
 2304.00843,A Hierarchical Multi-Vehicle Coordinated Motion Planning Method based on Interactive Spatio-Temporal Corridors,2023,Xiang Zhang et al.,I_corridor_planning
-2304.09462,Decentralized Multi-Agent Planning for Multirotors: a Fully Online and Communication Latency Robust Approach,2023,Charbel Toumieh,I_corridor_planning
+2304.08988,Autonomous Navigation in Rows of Trees and High Crops with Deep Semantic Segmentation,2023,Alessandro Navone et al.,O_dense_forest_narrow_passage
 2304.10984,IBBT: Informed Batch Belief Trees for Motion Planning Under Uncertainty,2023,Dongliang Zheng et al.,Q_informed_sampling
 2304.14043,Improved path planning algorithms for non-holonomic autonomous vehicles in industrial environments with narrow corridors: Roadmap Hybrid A* and Waypoints Hybrid B*. Roadmap hybrid A* and Waypoints hybrid A* Pseudocodes,2023,Alessandro Bonetti et al.,F_hybrid_astar
 2305.00271,Path Planning for Multiple Tethered Robots Using Topological Braids,2023,Muqing Cao et al.,J_homotopy_topology
+2305.02772,Efficient and Robust Time-Optimal Trajectory Planning and Control for Agile Quadrotor Flight,2023,Ziyu Zhou et al.,G_subgoal_optimization
 2305.08080,Probabilistic RRT Connect with intermediate goal selection for online planning of autonomous vehicles,2023,Darshit Patel et al.,G_subgoal_optimization
 2305.13783,Deep Reinforcement Learning-based Multi-objective Path Planning on the Off-road Terrain Environment for Ground Vehicles,2023,Shuqiao Huang et al.,H_hierarchical_planning
 2305.13969,CTopPRM: Clustering Topological PRM for Planning Multiple Distinct Paths in 3D Environments,2023,Matej Novosad et al.,J_homotopy_topology
 2306.00148,SafeDiffuser: Safe Planning with Diffusion Probabilistic Models,2023,Wei Xiao et al.,L_learning_path_optimization
+2306.00264,Optimal Sampling-based Motion Planning in Gaussian Belief Space for Minimum Sensing Navigation,2023,Vrushabh Zinage et al.,Q_informed_sampling
 2306.00616,Progressive Learning for Physics-informed Neural Motion Planning,2023,Ruiqi Ni et al.,L_learning_path_optimization;O_dense_forest_narrow_passage
 2306.00851,Learning Sampling Dictionaries for Efficient and Generalizable Robot Motion Planning with Transformers,2023,Jacob J Johnson et al.,J_homotopy_topology
 2306.01203,"Topo-Geometrically Distinct Path Computation using Neighborhood-augmented Graph, and its Application to Path Planning for a Tethered Robot in 3D",2023,Alp Sahin et al.,J_homotopy_topology
@@ -233,47 +254,50 @@ arxiv_id,title,year,authors_short,direction_tag
 2306.14137,BotanicGarden: A High-Quality Dataset for Robot Navigation in Unstructured Natural Environments,2023,Yuanzhi Liu et al.,O_dense_forest_narrow_passage
 2306.14409,Efficient Heuristics for Multi-Robot Path Planning in Crowded Environments,2023,Teng Guo et al.,H_hierarchical_planning
 2307.00482,Adaptive Sampling Control in Motion Planning of Autonomous Vehicle,2023,Yucheng LI,Q_informed_sampling
+2307.06135,SayPlan: Grounding Large Language Models using 3D Scene Graphs for Scalable Robot Task Planning,2023,Krishan Rana et al.,A_path_smoothing
 2307.09754,ProNav: Proprioceptive Traversability Estimation for Legged Robot Navigation in Outdoor Environments,2023,Mohamed Elnoor et al.,O_dense_forest_narrow_passage
+2307.10555,Lightweight Neural Path Planning,2023,Jinsong Li et al.,Q_informed_sampling
 2308.04071,Path Signatures for Diversity in Probabilistic Trajectory Optimisation,2023,Lucas Barcelos et al.,J_homotopy_topology
+2308.04077,Federated Zeroth-Order Optimization using Trajectory-Informed Surrogate Gradients,2023,Yao Shu et al.,B_trajectory_optimization
 2308.04792,NNPP: A Learning-Based Heuristic Model for Accelerating Optimal Path Planning on Uneven Terrain,2023,Yiming Ji et al.,O_dense_forest_narrow_passage
 2308.05992,Reachable Set-based Path Planning for Automated Vertical Parking System,2023,In Hyuk Oh et al.,G_subgoal_optimization;K_dubins_reeds_shepp
 2308.07420,Multiple-Hypothesis Path Planning with Uncertain Object Detections,2023,Brian H. Wang et al.,O_dense_forest_narrow_passage
 2308.10049,Clothoid Curve-based Emergency-Stopping Path Planning with Adaptive Potential Field for Autonomous Vehicles,2023,Pengfei Lin et al.,K_dubins_reeds_shepp;O_dense_forest_narrow_passage
+2308.12110,Constrained Stein Variational Trajectory Optimization,2023,Thomas Power et al.,B_trajectory_optimization
 2308.15931,Sparse Waypoint Validity Checking for Self-Entanglement-Free Tethered Path Planning,2023,Tong Yang et al.,G_subgoal_optimization
 2308.16381,Wasserstein Distributionally Robust Chance Constrained Trajectory Optimization for Mobile Robots within Uncertain Safe Corridor,2023,Shaohang Xu et al.,I_corridor_planning
 2309.07832,VAPOR: Legged Robot Navigation in Outdoor Vegetation Using Offline Reinforcement Learning,2023,Kasun Weerakoon et al.,O_dense_forest_narrow_passage
 2309.08814,URA*: Uncertainty-aware Path Planning using Image-based Aerial-to-Ground Traversability Estimation for Off-road Environments,2023,Charles Moore et al.,O_dense_forest_narrow_passage
 2309.10275,Optimizing Crowd-Aware Multi-Agent Path Finding through Local Communication with Graph Neural Networks,2023,Phu Pham et al.,L_learning_path_optimization
+2309.10801,HAS-RRT: RRT-based Motion Planning using Topological Guidance,2023,Diane Uwacu et al.,O_dense_forest_narrow_passage
 2309.11032,Multi-Risk-RRT: An Efficient Motion Planning Algorithm for Robotic Autonomous Luggage Trolley Collection at Airports,2023,Zhirui Sun et al.,D_asymptotically_optimal_sampling
-2309.11655,Achieving Autonomous Cloth Manipulation with Optimal Control via Differentiable Physics-Aware Regularization and Safety Constraints,2023,Yutong Zhang et al.,C_elastic_band
 2309.13119,Sampling-Based Motion Planning: A Comparative Review,2023,Andreas Orthey et al.,Q_informed_sampling
-2309.13720,Design and Evaluation of Motion Planners for Quadrotors in Environments with Varying Complexities,2023,Yifei Simon Shao et al.,J_homotopy_topology
-2309.15191,Deep Learning for Optimization of Trajectories for Quadrotors,2023,Yuwei Wu et al.,L_learning_path_optimization
+2309.13508,Guided Cooperation in Hierarchical Reinforcement Learning via Model-based Rollout,2023,Haoran Wang et al.,G_subgoal_optimization
+2309.14595,Neural Informed RRT*: Learning-based Path Planning with Point Cloud State Representations under Admissible Ellipsoidal Constraints,2023,Zhe Huang et al.,D_asymptotically_optimal_sampling
+2309.15191,Deep Learning for Optimization of Trajectories for Quadrotors,2023,Yuwei Wu et al.,I_corridor_planning;L_learning_path_optimization
 2309.16862,Stochastic Implicit Neural Signed Distance Functions for Safe Motion Planning under Sensing Uncertainty,2023,Carlos Quintero-Peña et al.,H_hierarchical_planning;L_learning_path_optimization
 2310.01190,Graph-Theoretic Bézier Curve Optimization over Safe Corridors for Safe and Smooth Motion Planning,2023,Soufyan Zayou et al.,I_corridor_planning
 2310.09195,AMSwarmX: Safe Swarm Coordination in CompleX Environments via Implicit Non-Convex Decomposition of the Obstacle-Free Space,2023,Vivek K. Adajania et al.,I_corridor_planning
 2310.12828,Flexible Informed Trees (FIT*): Adaptive Batch-Size Approach in Informed Sampling-Based Path Planning,2023,Liding Zhang et al.,D_asymptotically_optimal_sampling;Q_informed_sampling
+2310.13831,Transformers for Trajectory Optimization with Application to Spacecraft Rendezvous,2023,Tommaso Guffanti et al.,L_learning_path_optimization
 2310.13899,FHT-Map: Feature-based Hierarchical Topological Map for Relocalization and Path Planning,2023,Kun Song et al.,J_homotopy_topology
-2310.14224,Detrive: Imitation Learning with Transformer Detection for End-to-End Autonomous Driving,2023,Daoming Chen et al.,L_learning_path_optimization
 2310.14339,Motion Planning for Autonomous Ground Vehicles Using Artificial Potential Fields: A Review,2023,Aziz ur Rehman et al.,R_surveys
 2310.17620,Radar-Only Off-Road Local Navigation,2023,Timothy Overbye et al.,O_dense_forest_narrow_passage
-2311.04107,Interactive Semantic Map Representation for Skill-based Visual Object Navigation,2023,Tatiana Zemskova et al.,G_subgoal_optimization
 2311.08345,Speeding Up Optimization-based Motion Planning through Deep Learning,2023,Johannes Tenhumberg et al.,J_homotopy_topology;N_path_repair
 2311.08740,AdVENTR: Autonomous Robot Navigation in Complex Outdoor Environments,2023,Kasun Weerakoon et al.,O_dense_forest_narrow_passage
+2311.10176,Scalable Multi-Robot Motion Planning Using Workspace Guidance-Informed Hypergraphs,2023,Courtney McBeth et al.,O_dense_forest_narrow_passage
 2311.12385,Joint-Space Multi-Robot Motion Planning with Learned Decentralized Heuristics,2023,Fengze Xie et al.,D_asymptotically_optimal_sampling
 2312.02328,Multi-Modal MPPI and Active Inference for Reactive Task and Motion Planning,2023,Yuezhe Zhang et al.,J_homotopy_topology
 2312.07227,Scalarizing Multi-Objective Robot Planning Problems using Weighted Maximization,2023,Nils Wilde et al.,M_multi_objective_planning
-2312.10666,CACTO-SL: Using Sobolev Learning to improve Continuous Actor-Critic with Trajectory Optimization,2023,Elisa Alboni et al.,L_learning_path_optimization
 2312.10880,Sharable Clothoid-based Continuous Motion Planning for Connected Automated Vehicles,2023,Sanghoon Oh et al.,K_dubins_reeds_shepp
-2201.02254,Data-Efficient Learning of High-Quality Controls for Kinodynamic Planning used in Vehicular Navigation,2022,Seth Karten et al.,Q_informed_sampling
+2312.14336,Constraint-Informed Learning for Warm Starting Trajectory Optimization,2023,Julia Briden et al.,L_learning_path_optimization
 2201.03163,Continuous-Curvature Target Tree Algorithm for Path Planning in Complex Parking Environments,2022,Minsoo Kim et al.,K_dubins_reeds_shepp
 2201.12981,G$ \mathbf{^2} $VD Planner: Efficient Motion Planning With Grid-based Generalized Voronoi Diagrams,2022,Jian Wen et al.,C_elastic_band;I_corridor_planning
-2202.01385,Technical Report: A Hierarchical Deliberative-Reactive System Architecture for Task and Motion Planning in Partially Known Environments,2022,Vasileios Vasilopoulos et al.,Q_informed_sampling
 2202.12177,Bubble Planner: Planning High-speed Smooth Quadrotor Trajectories using Receding Corridors,2022,Yunfan Ren et al.,I_corridor_planning
-2203.01369,ePA*SE: Edge-based Parallel A* for Slow Evaluations,2022,Shohin Mukherjee et al.,E_bounded_suboptimal_search
 2203.01642,Adaptive Path Planning for UAVs for Multi-Resolution Semantic Segmentation,2022,Felix Stache et al.,H_hierarchical_planning
 2203.01751,BITKOMO: Combining Sampling and Optimization for Fast Convergence in Optimal Motion Planning,2022,Jay Kamat et al.,D_asymptotically_optimal_sampling
 2203.02176,ST-RRT*: Asymptotically-Optimal Bidirectional Motion Planning through Space-Time,2022,Francesco Grothe et al.,D_asymptotically_optimal_sampling;O_dense_forest_narrow_passage
+2203.02816,Safely: Safe Stochastic Motion Planning Under Constrained Sensing via Duality,2022,Michael Hibbard et al.,B_trajectory_optimization
 2203.03224,Factor Graph-Based Planning as Inference for Autonomous Vehicle Racing,2022,Salman Bari et al.,K_dubins_reeds_shepp
 2203.04075,Obstacle Aware Sampling for Path Planning,2022,Murad Tukan et al.,Q_informed_sampling
 2203.12830,TIGRIS: An Informed Sampling-based Algorithm for Informative Path Planning,2022,Brady Moon et al.,Q_informed_sampling
@@ -287,141 +311,180 @@ arxiv_id,title,year,authors_short,direction_tag
 2205.04422,Motion Planning around Obstacles with Convex Optimization,2022,Tobia Marcucci et al.,I_corridor_planning
 2205.11790,Hierarchical Planning Through Goal-Conditioned Offline Reinforcement Learning,2022,Jinning Li et al.,G_subgoal_optimization
 2205.14853,Informable Multi-Objective and Multi-Directional RRT* System for Robot Path Planning,2022,Jiunn-Kai Huang et al.,J_homotopy_topology
-2206.00097,Real-time motion planning and decision-making for a group of differential drive robots under connectivity constraints using robust MPC and mixed-integer programming,2022,Angelo Caregnato-Neto et al.,N_path_repair
 2206.00130,CBS-Budget (CBSB): A Complete and Bounded Suboptimal Search for Multi-Agent Path Finding,2022,Jaein Lim et al.,E_bounded_suboptimal_search
 2206.00795,Adaptive Sampling-based Motion Planning with Control Barrier Functions,2022,Ahmad Ahmad et al.,Q_informed_sampling
 2206.06307,Towards Constructing Finer then Homotopy Path Classes,2022,Weifu Wang et al.,J_homotopy_topology
 2206.11977,Hierarchical Planning with Annotated Skeleton Guidance,2022,Diane Uwacu et al.,H_hierarchical_planning
-2207.08283,Accelerated RRT* By Local Directional Visibility,2022,Chenxi Feng et al.,O_dense_forest_narrow_passage
+2207.10782,Learning Deep SDF Maps Online for Robot Navigation and Exploration,2022,Gadiel Sznaier Camps et al.,B_trajectory_optimization
+2208.03969,Efficient Distance-Optimal Tethered Path Planning in Planar Environments: The Workspace Convexity,2022,Tong Yang et al.,A_path_smoothing
 2208.06111,Shape-aware Safe Corridors Generation using Voxel Grids,2022,Charbel Toumieh et al.,I_corridor_planning
 2208.09318,Adaptive Hybrid Local-Global Sampling for Fast Informed Sampling-Based Optimal Path Planning,2022,Marco Faroni et al.,Q_informed_sampling
+2208.10736,Optimization of Mobile Robotic Relay Operation for Minimal Average Wait Time,2022,Winston Hurst et al.,B_trajectory_optimization
 2209.06761,Online Whole-body Motion Planning for Quadrotor using Multi-resolution Search,2022,Yunfan Ren et al.,I_corridor_planning
+2209.06936,Vision-Based Uncertainty-Aware Motion Planning based on Probabilistic Semantic Segmentation,2022,Ralf Römer et al.,N_path_repair
 2209.08663,Multiple Waypoint Navigation in Unknown Indoor Environments,2022,Shivam Sood et al.,G_subgoal_optimization
-2209.08803,Zero-shot Active Visual Search (ZAVIS): Intelligent Object Search for Robotic Assistants,2022,Jeongeun Park et al.,G_subgoal_optimization
 2209.09447,Decentralized Deadlock-free Trajectory Planning for Quadrotor Swarm in Obstacle-rich Environments -- Extended version,2022,Jungwon Park et al.,I_corridor_planning;O_dense_forest_narrow_passage
 2209.09720,Adaptive and Collaborative Bathymetric Channel-Finding Approach for Multiple Autonomous Marine Vehicles,2022,Nikolai Gershfeld et al.,R_surveys
+2209.10687,Motion Planning for a Climbing Robot with Stochastic Grasps,2022,Stephanie Newdick et al.,B_trajectory_optimization
+2209.13092,"D-ITAGS: A Dynamic Interleaved Approach to Resilient Task Allocation, Scheduling, and Motion Planning",2022,Glen Neville et al.,E_bounded_suboptimal_search
 2209.13684,Online Search-based Collision-inclusive Motion Planning and Control for Impact-resilient Mobile Robots,2022,Zhouyu Lu et al.,C_elastic_band
-2209.14471,Lazy Probabilistic Roadmaps Revisited,2022,Miquel Ramirez et al.,N_path_repair
 2209.15150,Spatio-temporal Motion Planning for Autonomous Vehicles with Trapezoidal Prism Corridors and Bézier Curves,2022,Srujan Deolasee et al.,I_corridor_planning
-2210.04642,Exploration via Planning for Information about the Optimal Trajectory,2022,Viraj Mehta et al.,L_learning_path_optimization
 2210.07141,Scalable Multi-robot Motion Planning for Congested Environments With Topological Guidance,2022,Courtney McBeth et al.,J_homotopy_topology;O_dense_forest_narrow_passage
-2210.07592,TSP-Bot: Robotic TSP Pen Art using High-DoF Manipulators,2022,Daeun Song et al.,A_path_smoothing
 2210.08640,Evaluating Guiding Spaces for Motion Planning,2022,Amnon Attali et al.,Q_informed_sampling
 2210.08828,Search-Based Path Planning Algorithm for Autonomous Parking:Multi-Heuristic Hybrid A*,2022,Jihao Huang et al.,F_hybrid_astar
-2210.10933,The Software Stack That Won the Formula Student Driverless Competition,2022,Andres Alvarez et al.,K_dubins_reeds_shepp
 2210.12851,Lazy Incremental Search for Efficient Replanning with Bounded Suboptimality Guarantees,2022,Jaein Lim et al.,E_bounded_suboptimal_search
+2211.01576,Sequence-Based Plan Feasibility Prediction for Efficient Task and Motion Planning,2022,Zhutian Yang et al.,N_path_repair
 2211.01812,Benchmarking local motion planners for navigation of mobile manipulators,2022,Sevag Tafnakaji et al.,C_elastic_band
-2211.06625,CACTO: Continuous Actor-Critic with Trajectory Optimization -- Towards global optimality,2022,Gianluigi Grandesso et al.,L_learning_path_optimization
-2211.06908,The Weighted Markov-Dubins Problem,2022,Deepak Prakash Kumar et al.,K_dubins_reeds_shepp
+2211.06377,Two-Step Online Trajectory Planning of a Quadcopter in Indoor Environments with Obstacles,2022,Martin Zimmermann et al.,G_subgoal_optimization
 2211.08368,A Survey on the Integration of Machine Learning with Sampling-based Motion Planning,2022,Troy McMahon et al.,R_surveys
 2212.07155,Autonomous Vehicle Navigation with LIDAR using Path Planning,2022,Rahul M K et al.,P_nonholonomic_constraints
 2212.14307,Policy Optimization to Learn Adaptive Motion Primitives in Path Planning with Dynamic Obstacles,2022,Brian Angulo et al.,F_hybrid_astar
+2010.15394,Kilometer-scale autonomous navigation in subarctic forests,2021,Frey et al.,O_dense_forest_narrow_passage
 2101.02635,qRRT: Quality-Biased Incremental RRT for Optimal Motion Planning in Non-Holonomic Systems,2021,Nahas Pareekutty et al.,D_asymptotically_optimal_sampling
 2101.06798,"MPC-MPNet: Model-Predictive Motion Planning Networks for Fast, Near-Optimal Planning under Kinodynamic Constraints",2021,Linjun Li et al.,L_learning_path_optimization
+2101.11565,Shortest Paths in Graphs of Convex Sets,2021,Marcucci et al.,I_corridor_planning
 2102.03127,Experience-Based Heuristic Search: Robust Motion Planning with Deep Q-Learning,2021,Julian Bernhard et al.,N_path_repair
 2102.10313,Mesh Manifold based Riemannian Motion Planning for Omnidirectional Micro Aerial Vehicles,2021,Michael Pantic et al.,B_trajectory_optimization
-2102.13212,Motion Planning for a Pair of Tethered Robots,2021,Reza H. Teshnizi et al.,J_homotopy_topology
 2103.04374,Learning When to Quit: Meta-Reasoning for Motion Planning,2021,Yoonchang Sung et al.,L_learning_path_optimization
 2103.10210,S2P2: Self-Supervised Goal-Directed Path Planning Using RGB-D Data for Robotic Wheelchairs,2021,Hengli Wang et al.,L_learning_path_optimization
 2103.14607,Search-based Planning of Dynamic MAV Trajectories Using Local Multiresolution State Lattices,2021,Daniel Schleich et al.,F_hybrid_astar
-2104.14156,Radar-based Automotive Localization using Landmarks in a Multimodal Sensor Graph-based Approach,2021,Stefan Jürgens et al.,G_subgoal_optimization
-2105.00312,Waypoint Planning Networks,2021,Alexandru-Iosif Toma et al.,G_subgoal_optimization;N_path_repair
-2105.01287,Autonomous Robotic Mapping of Fragile Geologic Features,2021,Zhiang Chen et al.,R_surveys
+2105.00312,Waypoint Planning Networks,2021,Alexandru-Iosif Toma et al.,G_subgoal_optimization
 2105.11598,Feature Space Exploration For Planning Initial Benthic AUV Surveys,2021,Jackson Shields et al.,R_surveys
 2105.14118,Robust Sample-Based Output-Feedback Path Planning,2021,Mahroo Bahreinian et al.,G_subgoal_optimization
+2106.02801,Trajectory Optimization of Chance-Constrained Nonlinear Stochastic Systems for Motion Planning Under Uncertainty,2021,Yashwanth Kumar Nakka et al.,B_trajectory_optimization
+2106.09125,Convex Optimization for Trajectory Generation,2021,Danylo Malyuta et al.,B_trajectory_optimization
 2107.00817,A Levy Flight based Narrow Passage Sampling Method for Probabilistic Roadmap Planners,2021,Shubham Shukla et al.,O_dense_forest_narrow_passage
 2107.01259,Accelerating Kinodynamic RRT* Through Dimensionality Reduction,2021,Dongliang Zheng et al.,D_asymptotically_optimal_sampling
 2107.01834,Third Party Risk Modelling and Assessment for Safe UAV Path Planning in Metropolitan Environments,2021,Bizhao Pang et al.,F_hybrid_astar
-2107.02826,MPLP: Massively Parallelized Lazy Planning,2021,Shohin Mukherjee et al.,E_bounded_suboptimal_search
 2107.02829,Search-based Path Planning for a High Dimensional Manipulator in Cluttered Environments Using Optimization-based Primitives,2021,Muhammad Suhail Saleem et al.,J_homotopy_topology
-2108.00710,Multi-Objective Path-Based D* Lite,2021,Zhongqiang Ren et al.,E_bounded_suboptimal_search
-2108.00978,Constrained Shortest Path Search with Graph Convolutional Neural Networks,2021,Kevin Osanlou et al.,F_hybrid_astar;O_dense_forest_narrow_passage
-2108.01080,Learning-based Preference Prediction for Constrained Multi-Criteria Path-Planning,2021,Kevin Osanlou et al.,O_dense_forest_narrow_passage
+2107.05842,Motion Planning by Learning the Solution Manifold in Trajectory Optimization,2021,Takayuki Osa,L_learning_path_optimization
+2107.12219,Integer-Programming-Based Narrow-Passage Multi-Robot Path Planning with Effective Heuristics,2021,Jiaxi Huo et al.,J_homotopy_topology
+2108.00762,Redundancy Resolution in Kinematic Control of Serial Manipulators in Multi-Obstacle Environment,2021,Wanda Zhao et al.,H_hierarchical_planning
+2108.01036,Optimal Solving of Constrained Path-Planning Problems with Graph Convolutional Networks and Optimized Tree Search,2021,Kevin Osanlou et al.,O_dense_forest_narrow_passage
 2108.01884,Adaptive Path Planning for UAV-based Multi-Resolution Semantic Segmentation,2021,Felix Stache et al.,H_hierarchical_planning
+2108.06618,Adaptive Selection of Informative Path Planning Strategies via Reinforcement Learning,2021,Taeyeong Choi et al.,Q_informed_sampling
 2108.11775,Parallelised Diffeomorphic Sampling-based Motion Planning,2021,Tin Lai et al.,Q_informed_sampling
 2109.00890,Real-World Application of Various Trajectory Planning Algorithms on MIT RACECAR,2021,Oguzhan Kose,C_elastic_band
 2109.07111,Elastic Tracker: A Spatio-temporal Trajectory Planner Flexible Aerial Tracking,2021,Jialin Ji et al.,I_corridor_planning
 2109.07627,Adversarially Regularized Policy Learning Guided by Trajectory Optimization,2021,Zhigen Zhao et al.,L_learning_path_optimization
+2109.07977,Convex strategies for trajectory optimisation: application to the Polytope Traversal Problem,2021,Steve Tonneau,B_trajectory_optimization
 2109.09041,Online Distributed Trajectory Planning for Quadrotor Swarm with Feasibility Guarantee using Linear Safe Corridor,2021,Jungwon Park et al.,I_corridor_planning
 2110.05328,AMRA*: Anytime Multi-Resolution Multi-Heuristic A*,2021,Dhruv Mauria Saxena et al.,H_hierarchical_planning
 2110.07105,Integrated Path Planning and Tracking Control of Marine Current Turbine in Uncertain Ocean Environments,2021,Arezoo Hasankhani et al.,G_subgoal_optimization
-2110.10324,HARPS: An Online POMDP Framework for Human-Assisted Robotic Planning and Sensing,2021,Luke Burks et al.,G_subgoal_optimization
 2111.00383,Relevant Region Sampling Strategy with Adaptive Heuristic for Asymptotically Optimal Path Planning,2021,Chenming Li et al.,D_asymptotically_optimal_sampling;Q_informed_sampling
+2111.01877,AIT* and EIT*: Asymmetric bidirectional sampling-based path planning,2021,Marlin P. Strub et al.,Q_informed_sampling
 2111.06739,Neural Motion Planning for Autonomous Parking,2021,Dongchan Kim et al.,F_hybrid_astar
 2111.06923,ARC Nav -- A 3D Navigation Stack for Autonomous Robots,2021,Vishwas N. S et al.,D_asymptotically_optimal_sampling
-2111.13981,Kilometer-scale autonomous navigation in subarctic forests: challenges and lessons learned,2021,Dominic Baril et al.,O_dense_forest_narrow_passage
 2112.04612,Gaussian Process Constraint Learning for Scalable Chance-Constrained Motion Planning from Demonstrations,2021,Glen Chou et al.,P_nonholonomic_constraints
 2112.14953,Adaptive Gaussian Process based Stochastic Trajectory Optimization for Motion Planning,2021,Feng Yichang et al.,B_trajectory_optimization
+2001.02330,High-Level Plan for Behavioral Robot Navigation with Natural Language Directions and R-NET,2020,Amar Shrestha et al.,G_subgoal_optimization
 2001.08092,Local Policy Optimization for Trajectory-Centric Reinforcement Learning,2020,Patrik Kolaric et al.,L_learning_path_optimization
 2002.01591,"Reachable Sets for Safe, Real-Time Manipulator Trajectory Design",2020,Patrick Holmes et al.,B_trajectory_optimization
-2002.06599,Adaptively Informed Trees (AIT*): Fast Asymptotically Optimal Path Planning through Adaptive Heuristics,2020,Marlin P. Strub et al.,D_asymptotically_optimal_sampling
-2005.04191,Adaptive Motion Planning with Artificial Potential Fields Using a Prior Path,2020,Javad Amiryan et al.,O_dense_forest_narrow_passage
+2002.06599,Adaptively Informed Trees (AIT*): Fast Asymptotically Optimal Path Planning through Adaptive Heuristics,2020,Marlin P. Strub et al.,D_asymptotically_optimal_sampling;Q_informed_sampling
+2002.12494,Rationally Inattentive Path-Planning via RRT*,2020,Jeb Stefan et al.,J_homotopy_topology
+2003.02401,GOMP: Grasp-Optimized Motion Planning for Bin Picking,2020,Jeffrey Ichnowski et al.,B_trajectory_optimization
+2003.07811,Provably Safe Trajectory Optimization in the Presence of Uncertain Convex Obstacles,2020,Charles Dawson et al.,B_trajectory_optimization
+2004.05241,TIE: Time-Informed Exploration For Robot Motion Planning,2020,Sagar Suhas Joshi et al.,Q_informed_sampling
+2005.04191,Adaptive Motion Planning with Artificial Potential Fields Using a Prior Path,2020,Javad Amiryan et al.,O_dense_forest_narrow_passage;Q_informed_sampling
 2005.04374,Chance-Constrained Trajectory Optimization for Safe Exploration and Learning of Nonlinear Systems,2020,Yashwanth Kumar Nakka et al.,L_learning_path_optimization
 2006.04194,Robotic Motion Planning using Learned Critical Sources and Local Sampling,2020,Rajat Kumar Jenamani et al.,O_dense_forest_narrow_passage
 2006.07746,Learning Manifolds for Sequential Motion Planning,2020,Isabel M. Rayas Fernández et al.,L_learning_path_optimization
 2007.04842,An Interior Point Method Solving Motion Planning Problems with Narrow Passages,2020,Jim Mainprice et al.,O_dense_forest_narrow_passage
-2008.03324,Fisher Information Field: an Efficient and Differentiable Map for Perception-aware Planning,2020,Zichao Zhang et al.,G_subgoal_optimization
-2009.10249,Dynamic Multi-Agent Path Finding based on Conflict Resolution using Answer Set Programming,2020,Basem Atiq et al.,H_hierarchical_planning
+2007.09595,Risk-aware Path and Motion Planning for a Tethered Aerial Visual Assistant in Unstructured or Confined Environments,2020,Xuesu Xiao,M_multi_objective_planning
+2008.00766,Tracking the Race Between Deep Reinforcement Learning and Imitation Learning -- Extended Version,2020,Timo P. Gros et al.,L_learning_path_optimization
 2009.10484,Asymptotically Optimal Sampling-Based Motion Planning Methods,2020,Jonathan D. Gammell et al.,R_surveys
-2010.08744,Generating Large Convex Polytopes Directly on Point Clouds,2020,Xingguang Zhong et al.,C_elastic_band
+2010.01215,Efficient Multi-Contact Pattern Generation with Sequential Convex Approximations of the Centroidal Dynamics,2020,Brahayam Ponton et al.,B_trajectory_optimization
+2010.07133,A Geometric Approach to On-road Motion Planning for Long and Multi-Body Heavy-Duty Vehicles,2020,Rui Oliveira et al.,O_dense_forest_narrow_passage
 2010.14524,Section Patterns: Efficiently Solving Narrow Passage Problems in Multilevel Motion Planning,2020,Andreas Orthey et al.,O_dense_forest_narrow_passage
-2010.14693,AM-RRT*: Informed Sampling-based Planning with Assisting Metric,2020,Daniel Armstrong et al.,D_asymptotically_optimal_sampling
+2010.14693,AM-RRT*: Informed Sampling-based Planning with Assisting Metric,2020,Daniel Armstrong et al.,A_path_smoothing;D_asymptotically_optimal_sampling
 2011.00390,A Passive Navigation Planning Algorithm for Collision-free Control of Mobile Robots,2020,Carlo Tiseo et al.,C_elastic_band
-2011.00488,Fast Adaptation of Manipulator Trajectories to Task Perturbation By Differentiating through the Optimal Solution,2020,Shashank Srikanth et al.,C_elastic_band
 2011.00806,Search-based Kinodynamic Motion Planning for Omnidirectional Quadruped Robots,2020,Pei Wang et al.,C_elastic_band
+2011.04091,Exploiting collisions for sampling-based multicopter motion planning,2020,Jiaming Zha et al.,N_path_repair
+2011.06450,A deep Q-Learning based Path Planning and Navigation System for Firefighting Environments,2020,Manish Bhattarai et al.,L_learning_path_optimization
 2011.07383,Search-based Planning for Active Sensing in Goal-Directed Coverage Tasks,2020,Tushar Kusnur et al.,E_bounded_suboptimal_search
+2011.10737,Neural-iLQR: A Learning-Aided Shooting Method for Trajectory Optimization,2020,Zilong Cheng et al.,L_learning_path_optimization
+2011.12491,World Model as a Graph: Learning Latent Landmarks for Planning,2020,Lunjun Zhang et al.,G_subgoal_optimization
 2012.08892,E$ \mathbf{^3} $MoP: Efficient Motion Planning Based on Heuristic-Guided Motion Primitives Pruning and Path Optimization With Sparse-Banded Structure,2020,Jian Wen et al.,F_hybrid_astar
-2012.10490,Perception-Based Temporal Logic Planning in Uncertain Semantic Maps,2020,Yiannis Kantaros et al.,G_subgoal_optimization
-2012.12642,Autonomous Outdoor Scanning via Online Topological and Geometric Path Optimization,2020,Pengdi Huang et al.,J_homotopy_topology
 2012.14576,Dynamical Systems based Obstacle Avoidance with Workspace Constraint for Manipulators,2020,Dake Zheng et al.,C_elastic_band
 1901.00101,Probabilistically Safe Corridors to Guide Sampling-Based Motion Planning,2019,Jinwook Huh et al.,I_corridor_planning;O_dense_forest_narrow_passage
+1901.03922,Computing Large Convex Regions of Obstacle-Free Space via Semidefinite Programming,2019,Deits and Tedrake,I_corridor_planning
 1901.10094,A Homotopy Method for Motion Planning,2019,Shenyu Liu et al.,C_elastic_band
 1901.10863,Walking Posture Adaptation for Legged Robot Navigation in Confined Spaces,2019,Russell Buchanan et al.,C_elastic_band
 1902.00606,A Sequential Two-Step Algorithm for Fast Generation of Vehicle Racing Trajectories,2019,Nitin R. Kapania et al.,K_dubins_reeds_shepp
+1903.02749,Deep Visual MPC-Policy Learning for Navigation,2019,Noriaki Hirose et al.,G_subgoal_optimization
+1903.05751,Trajectory Optimization for Unknown Constrained Systems using Reinforcement Learning,2019,Kei Ota et al.,L_learning_path_optimization
 1903.10483,Computing a Minimal Set of t-Spanning Motion Primitives for Lattice Planners,2019,Alexander Botros et al.,F_hybrid_astar
+1903.11981,Regularizing Trajectory Optimization with Denoising Autoencoders,2019,Rinu Boney et al.,L_learning_path_optimization
 1904.02598,DDM: Fast Near-Optimal Multi-Robot Path Planning using Diversified-Path and Optimal Sub-Problem Solution Database Heuristics,2019,Shuai D. Han et al.,H_hierarchical_planning
-1904.02795,Generalized Lazy Search for Robot Motion Planning: Interleaving Search and Edge Evaluation via Event-based Toggles,2019,Aditya Mandalika et al.,N_path_repair
 1904.03693,On-line and on-board planning and perception for quadrupedal locomotion,2019,Carlos Mastalli et al.,E_bounded_suboptimal_search
-1904.11102,"Neural Path Planning: Fixed Time, Near-Optimal Path Generation via Oracle Imitation",2019,Mayur J. Bency et al.,L_learning_path_optimization
 1906.03684,Trajectory Optimization for Robust Humanoid Locomotion with Sample-Efficient Learning,2019,Majid Khadiv et al.,L_learning_path_optimization
-1906.07208,Heterogeneous Robot Teams for Informative Sampling,2019,Travis Manderson et al.,Q_informed_sampling
+1906.05329,Sub-Goal Trees -- a Framework for Goal-Directed Trajectory Prediction and Optimization,2019,Tom Jurgenson et al.,G_subgoal_optimization
 1906.10971,NeuroTrajectory: A Neuroevolutionary Approach to Local State Trajectory Learning for Autonomous Vehicles,2019,Sorin Grigorescu et al.,M_multi_objective_planning
 1907.07521,Stochastic Optimization for Trajectory Planning with Heteroscedastic Gaussian Processes,2019,Luka Petrović et al.,Q_informed_sampling
+1907.09591,Differentiable Gaussian Process Motion Planning,2019,Mohak Bhardwaj et al.,N_path_repair
 1908.00641,Online Motion Planning Over Multiple Homotopy Classes with Gaussian Process Inference,2019,Keshav Kolur et al.,J_homotopy_topology
-1908.03790,Towards Online Observability-Aware Trajectory Optimization for Landmark-based Estimators,2019,Kristoffer M. Frey et al.,G_subgoal_optimization
 1909.02896,Fast Trajectory Planning for Multiple Quadrotors using Relative Safe Flight Corridor,2019,Jungwon Park et al.,I_corridor_planning
-1909.09688,Revisiting the Asymptotic Optimality of RRT$^*$,2019,Kiril Solovey et al.,D_asymptotically_optimal_sampling
-1909.09705,A Layered Architecture for Active Perception: Image Classification using Deep Reinforcement Learning,2019,Hossein K. Mousavi et al.,G_subgoal_optimization
+1909.06570,Planning Jerk-Optimized Trajectory with Discrete-Time Constraints for Redundant Robots,2019,Chengkai Dai et al.,G_subgoal_optimization
 1910.08184,Map-Predictive Motion Planning in Unknown Environments,2019,Amine Elhafsi et al.,G_subgoal_optimization
 1910.09667,Combining Benefits from Trajectory Optimization and Deep Reinforcement Learning,2019,Guillaume Bellegarda et al.,L_learning_path_optimization
-1803.07696,Inverse Optimal Control from Incomplete Trajectory Observations,2018,Wanxin Jin et al.,L_learning_path_optimization
-1805.01079,Functional Path Optimisation for Exploration in Continuous Occupancy Maps,2018,Gilad Francis et al.,Q_informed_sampling
-1805.02944,Path Evaluation via HMM on Semantical Occupancy Grid Maps,2018,Timo Korthals et al.,Q_informed_sampling
+1911.06833,Improved Exploration through Latent Trajectory Optimization in Deep Deterministic Policy Gradient,2019,Kevin Sebastian Luck et al.,B_trajectory_optimization
+1710.00567,Online Safe Trajectory Generation For Quadrotors,2018,Gao et al.,I_corridor_planning
+1801.06819,A Next-Best-Smell Approach for Remote Gas Detection with a Mobile Robot,2018,Riccardo Polvara et al.,M_multi_objective_planning
+1804.07537,Classification of the Dubins set,2018,Shkel and Lumelsky,K_dubins_reeds_shepp
+1804.07855,Subgoal Discovery for Hierarchical Dialogue Policy Learning,2018,Da Tang et al.,G_subgoal_optimization
+1805.00224,Multi-objective path planning of an autonomous mobile robot using hybrid PSO-MFB optimization algorithm,2018,Fatin H. Ajeil et al.,M_multi_objective_planning
 1805.09951,A Data-Driven Approach for Autonomous Motion Planning and Control in Off-Road Driving Scenarios,2018,Hossein Rastgoftar et al.,O_dense_forest_narrow_passage
+1806.05767,Motion Planning Networks,2018,Ahmed H. Qureshi et al.,N_path_repair
 1807.08325,Potentially Guided Bidirectionalized RRT* for Fast Optimal Path Planning in Cluttered Environments,2018,Zaid Tahir et al.,D_asymptotically_optimal_sampling
+1809.03531,PRIMAL: Pathfinding via Reinforcement and Imitation Multi-Agent Learning,2018,Guillaume Sartoretti et al.,L_learning_path_optimization
 1809.10252,Deeply Informed Neural Sampling for Robot Motion Planning,2018,Ahmed H. Qureshi et al.,Q_informed_sampling
 1811.05113,Topological Area Graph Generation and its Application to Path Planning,2018,Jiawei Hou et al.,J_homotopy_topology
+1811.12598,X*: Anytime Multi-Agent Path Finding for Sparse Domains using Window-Based Iterative Repairs,2018,Kyle Vedder et al.,N_path_repair
 1701.07549,Robot Coverage Path Planning for General Surfaces Using Quadratic Differentials,2017,Yu-Yao Lin et al.,J_homotopy_topology
-1704.00264,Potential Functions based Sampling Heuristic For Optimal Path Planning,2017,Ahmed Hussain Qureshi et al.,D_asymptotically_optimal_sampling
-1704.01886,Landmark Guided Probabilistic Roadmap Queries,2017,Brian Paden et al.,G_subgoal_optimization
+1703.08944,Intelligent bidirectional rapidly-exploring random trees for optimal motion planning in complex cluttered environments,2017,Ahmed Hussain Qureshi et al.,D_asymptotically_optimal_sampling
 1705.02403,Group Marching Tree: Sampling-Based Approximately Optimal Motion Planning on GPUs,2017,Brian Ichter et al.,D_asymptotically_optimal_sampling
 1706.06454,Informed Sampling for Asymptotically Optimal Path Planning (Consolidated Version),2017,Jonathan D Gammell et al.,D_asymptotically_optimal_sampling
+1706.09068,Integrated online trajectory planning and optimization in distinctive topologies,2017,Roesmann et al.,C_elastic_band
 1707.01888,Batch Informed Trees (BIT*): Informed Asymptotically Optimal Anytime Search,2017,Jonathan D. Gammell et al.,D_asymptotically_optimal_sampling
-1707.03976,Asymptotic Optimality of Rapidly Exploring Random Tree,2017,Titas Bera et al.,D_asymptotically_optimal_sampling
 1709.05401,Search-based Motion Planning for Quadrotors using Linear Quadratic Minimum Time Control,2017,Sikang Liu et al.,F_hybrid_astar
 1710.02871,Path Homotopy Invariants and their Application to Optimal Trajectory Planning,2017,Subhrajit Bhattacharya et al.,J_homotopy_topology
+1710.03029,SGD for robot motion? The effectiveness of stochastic optimization on a new benchmark for biped locomotion tasks,2017,Martim Brandao et al.,B_trajectory_optimization
 1710.06092,Generalizing Informed Sampling for Asymptotically Optimal Sampling-based Kinodynamic Planning via Markov Chain Monte Carlo,2017,Daqing Yi et al.,Q_informed_sampling
 1710.08682,Context Aware Robot Navigation using Interactively Built Semantic Maps,2017,Akansel Cosgun et al.,G_subgoal_optimization
 1711.06391,Data-driven Planning via Imitation Learning,2017,Sanjiban Choudhury et al.,L_learning_path_optimization
+1711.09604,Randomized Physics-based Motion Planning for Grasping in Cluttered and Uncertain Environments,2017,Muhayyuddin et al.,N_path_repair
 1712.01491,TrackerBots: Autonomous Unmanned Aerial Vehicle for Real-Time Localization and Tracking of Multiple Radio-Tagged Animals,2017,Hoa Van Nguyen et al.,R_surveys
-1712.08125,Unifying Map and Landmark Based Representations for Visual Navigation,2017,Saurabh Gupta et al.,G_subgoal_optimization
-1601.06326,Sampling-based Algorithms for Optimal Motion Planning Using Closed-loop Prediction,2016,Oktay Arslan et al.,P_nonholonomic_constraints
-1605.01776,Non-Gaussian SLAP: Simultaneous Localization and Planning Under Non-Gaussian Uncertainty in Static and Dynamic Environments,2016,Mohammadhussein Rafieisakhaei et al.,J_homotopy_topology
+1601.03648,Functional Gradient Motion Planning in Reproducing Kernel Hilbert Spaces,2016,Zita Marinho et al.,B_trajectory_optimization
+1601.06326,Sampling-based Algorithms for Optimal Motion Planning Using Closed-loop Prediction,2016,Oktay Arslan et al.,P_nonholonomic_constraints;F_hybrid_astar
 1607.07470,Scaling Sampling-based Motion Planning to Humanoid Robots,2016,Yiming Yang et al.,O_dense_forest_narrow_passage
+1612.05143,Sampling-based Motion Planning for Active Multirotor System Identification,2016,Rik Bähnemann et al.,Q_informed_sampling
 1504.01783,Proximal operators for multi-agent path planning,2015,José Bento et al.,G_subgoal_optimization
 1504.05803,Evaluating direct transcription and nonlinear optimization methods for robot motion planning,2015,Diego Pardo et al.,J_homotopy_topology
-1504.07940,Planning for Optimal Feedback Control in the Volume of Free Space,2015,Dmitry Yershov et al.,N_path_repair
 1505.00200,An Effective Algorithmic Framework for Near Optimal Multi-Robot Path Planning,2015,Jingjin Yu et al.,H_hierarchical_planning
-1507.06980,Shortest Paths of Bounded Curvature for the Dubins Interval Problem,2015,Satyanarayana Manyam et al.,K_dubins_reeds_shepp
 1507.07602,An Asymptotically-Optimal Sampling-Based Algorithm for Bi-directional Motion Planning,2015,Joseph A. Starek et al.,D_asymptotically_optimal_sampling
 1510.08233,A Fast Randomized Method to Find Homotopy Classes for Socially-Aware Navigation,2015,Luigi Palmieri et al.,J_homotopy_topology
+1510.08636,Experience-based Planning with Sparse Roadmap Spanners,2015,Coleman et al.,N_path_repair
+1401.3843,Theta*: Any-Angle Path Planning on Grids,2014,Kenny Daniel et al.,M_multi_objective_planning
+1403.7714,Asymptotically-Optimal Motion Planning using Lower Bounds on Cost,2014,Oren Salzman et al.,D_asymptotically_optimal_sampling
+1404.2334,Informed RRT*: Optimal Sampling-based Path Planning Focused via Direct Sampling of an Admissible Ellipsoidal Heuristic,2014,Jonathan D. Gammell et al.,D_asymptotically_optimal_sampling;Q_informed_sampling
+1405.2872,Analysis of Asymptotically Optimal Sampling-based Motion Planning Algorithms for Lipschitz Continuous Dynamical Systems,2014,Georgios Papadopoulos et al.,D_asymptotically_optimal_sampling
+1405.5848,Batch Informed Trees (BIT*): Sampling-based Optimal Planning via the Heuristically Guided Search of Implicit Random Geometric Graphs,2014,Jonathan D. Gammell et al.,D_asymptotically_optimal_sampling
+1410.1950,Experience-Based Planning with Sparse Roadmap Spanners,2014,David Coleman et al.,N_path_repair
+1302.0723,Multi-Robot Informative Path Planning for Active Sensing of Environmental Phenomena: A Tale of Two Algorithms,2013,Nannan Cao et al.,M_multi_objective_planning
+1302.2828,Multi-agent RRT*: Sampling-based Cooperative Pathfinding (Extended Abstract),2013,Michal Čáp et al.,D_asymptotically_optimal_sampling
+1305.5024,A Nonlinear Constrained Optimization Framework for Comfortable and Customizable Motion Planning of Nonholonomic Mobile Robots - Part I,2013,Shilpa Gulati et al.,P_nonholonomic_constraints
+1305.6129,Information-Theoretic Approach to Efficient Adaptive Path Planning for Mobile Robotic Environmental Sensing,2013,Kian Hsiang Low et al.,Q_informed_sampling
+1306.3532,Fast Marching Tree: a Fast Marching Sampling-Based Method for Optimal Motion Planning in Many Dimensions,2013,Lucas Janson et al.,D_asymptotically_optimal_sampling
+1308.0189,"Asymptotically near-optimal RRT for fast, high-quality, motion planning",2013,Oren Salzman et al.,D_asymptotically_optimal_sampling
+1310.3163,Finding Locally Optimal Collision-Free Trajectories with Sequential Convex Optimization,2013,Schulman et al.,B_trajectory_optimization
+1202.5249,On the Power of Manifold Samples in Exploring Configuration Spaces and the Dimensionality of Narrow Passages,2012,Oren Salzman et al.,O_dense_forest_narrow_passage
+1204.6453,The Role of Vertex Consistency in Sampling-based Algorithms for Optimal Motion Planning,2012,Oktay Arslan et al.,D_asymptotically_optimal_sampling
+1205.5088,Kinodynamic RRT*: Optimal Motion Planning for Systems with Linear Differential Constraints,2012,Dustin J. Webb et al.,D_asymptotically_optimal_sampling
+1104.2800,Identifying Homotopy Classes of Trajectories,2011,Bhatt et al.,J_homotopy_topology
+1104.3270,Affine trajectory correction for nonholonomic mobile robots,2011,Quang-Cuong Pham,C_elastic_band;P_nonholonomic_constraints
+1105.1186,Sampling-based algorithms for optimal motion planning,2011,Karaman and Frazzoli,D_asymptotically_optimal_sampling
+1110.2737,Anytime Heuristic Search,2011,E. A. Hansen et al.,E_bounded_suboptimal_search
+1009.4787,Improving the Quality of Non-Holonomic Motion by Hybridizing C-PRM Paths,2010,Itamar Berger et al.,F_hybrid_astar
+0912.0266,Combining a Probabilistic Sampling Technique and Simple Heuristics to solve the Dynamic Path Planning Problem,2009,Nicolas A. Barriga et al.,D_asymptotically_optimal_sampling
+0404036,Online Searching with an Autonomous Robot,2004,Sandor P. Fekete et al.,R_surveys
+0210018,Topological robotics: motion planning in projective spaces,2002,Michael Farber et al.,J_homotopy_topology

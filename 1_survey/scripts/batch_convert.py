@@ -11,6 +11,7 @@ import shutil
 import signal
 import subprocess
 import sys
+import sysconfig
 import time
 import urllib.request
 from collections import Counter
@@ -31,6 +32,7 @@ LITERATURE_INDEX = PROJECT_ROOT / ".pipeline" / "literature" / "index.md"
 FETCH_SH = PROJECT_ROOT / ".claude" / "skills" / "fetch-arxiv-md" / "fetch.sh"
 USER_AGENT = "ForestNav literature corpus builder (mailto:research@example.com)"
 INSTALL_ATTEMPTS: dict[str, bool] = {}
+MARKER_TIMEOUT_SECONDS = 300
 
 
 STOPWORDS = {
@@ -219,22 +221,67 @@ def ensure_python_package(import_name: str, package_name: str) -> bool:
     return install.returncode == 0
 
 
+def find_console_script(name: str) -> Path | None:
+    candidates: list[Path] = []
+    if path := shutil.which(name):
+        candidates.append(Path(path))
+    scripts_dir = sysconfig.get_path("scripts")
+    if scripts_dir:
+        candidates.append(Path(scripts_dir) / name)
+    seen: set[Path] = set()
+    for candidate in candidates:
+        if candidate in seen:
+            continue
+        seen.add(candidate)
+        if candidate.exists() and os.access(candidate, os.X_OK):
+            return candidate
+    return None
+
+
+def marker_single_path() -> Path | None:
+    if not ensure_python_package("marker.converters.pdf", "marker-pdf"):
+        return None
+    return find_console_script("marker_single")
+
+
+def rewrite_marker_image_refs(markdown: str, figs_dir_name: str) -> str:
+    def repl(match: re.Match[str]) -> str:
+        alt_text = match.group(1)
+        target = match.group(2).strip()
+        if re.match(r"^[a-z]+://", target) or target.startswith("/") or target.startswith("#"):
+            return match.group(0)
+        return f"![{alt_text}]({figs_dir_name}/{Path(target).name})"
+
+    return re.sub(r"!\[([^\]]*)\]\(([^)]+)\)", repl, markdown)
+
+
 def try_marker_pdf(pdf_path: Path, md_path: Path, figs_dir: Path) -> bool:
-    if shutil.which("marker_single") is None:
-        ensure_python_package("marker", "marker-pdf")
-    marker_single = shutil.which("marker_single")
+    marker_single = marker_single_path()
     if marker_single is None:
         return False
     out_dir = md_path.parent / f".marker_{md_path.stem}"
     shutil.rmtree(out_dir, ignore_errors=True)
     out_dir.mkdir(parents=True, exist_ok=True)
-    result = subprocess.run(
-        [marker_single, str(pdf_path), str(out_dir), "--output_format", "markdown"],
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        check=False,
-    )
+    try:
+        result = subprocess.run(
+            [
+                str(marker_single),
+                str(pdf_path),
+                "--output_dir",
+                str(out_dir),
+                "--output_format",
+                "markdown",
+                "--disable_multiprocessing",
+            ],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+            timeout=MARKER_TIMEOUT_SECONDS,
+        )
+    except subprocess.TimeoutExpired:
+        shutil.rmtree(out_dir, ignore_errors=True)
+        return False
     if result.returncode != 0:
         shutil.rmtree(out_dir, ignore_errors=True)
         return False
@@ -242,7 +289,7 @@ def try_marker_pdf(pdf_path: Path, md_path: Path, figs_dir: Path) -> bool:
     if not candidates:
         shutil.rmtree(out_dir, ignore_errors=True)
         return False
-    md_path.write_text(candidates[0].read_text(encoding="utf-8", errors="replace"), encoding="utf-8")
+    markdown = candidates[0].read_text(encoding="utf-8", errors="replace")
     images = [p for p in out_dir.rglob("*") if p.suffix.lower() in {".png", ".jpg", ".jpeg", ".gif"}]
     if images:
         figs_dir.mkdir(parents=True, exist_ok=True)
@@ -250,6 +297,8 @@ def try_marker_pdf(pdf_path: Path, md_path: Path, figs_dir: Path) -> bool:
             target = figs_dir / image.name
             if image.resolve() != target.resolve():
                 shutil.copy2(image, target)
+        markdown = rewrite_marker_image_refs(markdown, figs_dir.name)
+    md_path.write_text(markdown, encoding="utf-8")
     shutil.rmtree(out_dir, ignore_errors=True)
     return True
 
@@ -374,11 +423,28 @@ def read_status_rows() -> dict[str, dict[str, str]]:
         return {row["arxiv_id"]: row for row in csv.DictReader(handle) if row.get("arxiv_id")}
 
 
+def read_failed_rows() -> dict[str, dict[str, str]]:
+    if not FAILED_CSV.exists():
+        return {}
+    with FAILED_CSV.open(newline="", encoding="utf-8") as handle:
+        return {row["arxiv_id"]: row for row in csv.DictReader(handle) if row.get("arxiv_id")}
+
+
 def write_rows(path: Path, rows: list[dict[str, object]], fieldnames: list[str]) -> None:
-    with path.open("w", newline="", encoding="utf-8") as handle:
+    tmp_path = path.with_suffix(f"{path.suffix}.tmp")
+    with tmp_path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
+    tmp_path.replace(path)
+
+
+def write_conversion_state(
+    status_rows_by_id: dict[str, dict[str, object]],
+    failed_rows_by_id: dict[str, dict[str, object]],
+) -> None:
+    write_rows(STATUS_CSV, list(status_rows_by_id.values()), status_fieldnames())
+    write_rows(FAILED_CSV, list(failed_rows_by_id.values()), failed_fieldnames())
 
 
 def status_fieldnames() -> list[str]:
@@ -454,6 +520,35 @@ def load_success_rows() -> list[dict[str, str]]:
         return []
     with STATUS_CSV.open(newline="", encoding="utf-8") as handle:
         return [row for row in csv.DictReader(handle) if row.get("status") == "success"]
+
+
+def parse_int(value: str | None, default: int = 0) -> int:
+    try:
+        return int(value or default)
+    except ValueError:
+        return default
+
+
+def should_retry_pymupdf_zero_formulas(previous: dict[str, str] | None) -> bool:
+    if not previous:
+        return False
+    return previous.get("source") == "pymupdf4llm" and parse_int(previous.get("formulas")) == 0
+
+
+def should_process_paper(
+    paper: Paper,
+    previous: dict[str, str] | None,
+    retry_pymupdf_zero_formulas: bool,
+    retry_failed: bool,
+) -> bool:
+    md_path = MD_DIR / f"{paper.citation_key}.md"
+    if retry_pymupdf_zero_formulas and should_retry_pymupdf_zero_formulas(previous):
+        return True
+    if previous and previous.get("status") == "failed" and not retry_failed:
+        return False
+    if previous is None or previous.get("status") != "success":
+        return True
+    return not has_complete_frontmatter(md_path, paper.citation_key)
 
 
 def write_readme(
@@ -539,6 +634,7 @@ def process_paper(
     paper: Paper,
     force: bool,
     fetch_timeout: int,
+    prefer_pdf_fallback: bool = False,
 ) -> tuple[dict[str, object], dict[str, object] | None]:
     pdf_path = PDF_DIR / f"{paper.citation_key}.pdf"
     md_path = MD_DIR / f"{paper.citation_key}.md"
@@ -551,6 +647,26 @@ def process_paper(
     source = "arxiv-e-print"
     complete_frontmatter = has_complete_frontmatter(md_path, paper.citation_key)
     existing_quality = quality_check(md_path) if complete_frontmatter else None
+    if prefer_pdf_fallback:
+        previous_source = frontmatter_value(md_path, "source", "existing") if complete_frontmatter else "none"
+        ok, source = fallback_pdf_to_md(paper, pdf_path)
+        quality = quality_check(md_path)
+        if ok and quality.ok:
+            return row_for_status(paper, "success", source, quality, ""), None
+        if existing_quality and existing_quality.ok:
+            return (
+                row_for_status(
+                    paper,
+                    "success",
+                    previous_source,
+                    existing_quality,
+                    "retry-pdf-fallback-failed-kept-existing",
+                ),
+                None,
+            )
+        failure = row_for_failure(paper, "pdf-fallback", source)
+        return row_for_status(paper, "failed", source, quality, source), failure
+
     needs_conversion = force or not complete_frontmatter or not (existing_quality and existing_quality.ok)
     if needs_conversion:
         fetch_result = run_fetch_arxiv(paper, timeout_seconds=fetch_timeout)
@@ -587,6 +703,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--start-index", type=int, default=0, help="Zero-based offset into paper_list.csv.")
     parser.add_argument("--sleep", type=float, default=3.0)
     parser.add_argument("--fetch-timeout", type=int, default=240)
+    parser.add_argument("--marker-timeout", type=int, default=MARKER_TIMEOUT_SECONDS)
     parser.add_argument(
         "--stop-after-success",
         type=int,
@@ -595,14 +712,49 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--force", action="store_true", help="Re-download PDFs and re-run conversion.")
     parser.add_argument("--dry-run", type=int, default=0, help="Process only the first N papers.")
+    parser.add_argument(
+        "--only-pending",
+        action="store_true",
+        help="Process only papers without a successful durable status row or complete Markdown.",
+    )
+    parser.add_argument(
+        "--retry-pymupdf-zero-formulas",
+        action="store_true",
+        help="Retry successful pymupdf4llm rows whose formula count is zero using the marker PDF path.",
+    )
+    parser.add_argument("--retry-failed", action="store_true", help="Retry rows already recorded as failed.")
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
+    global MARKER_TIMEOUT_SECONDS
+    MARKER_TIMEOUT_SECONDS = args.marker_timeout
     ensure_dirs()
-    papers = read_papers(args.paper_list)
-    candidate_count = len(papers)
+    all_papers = read_papers(args.paper_list)
+    candidate_count = len(all_papers)
+    candidate_ids = {paper.arxiv_id for paper in all_papers}
+    status_by_id = read_status_rows()
+    failed_by_id = read_failed_rows()
+    status_rows_by_id: dict[str, dict[str, object]] = {
+        arxiv_id: row for arxiv_id, row in status_by_id.items() if arxiv_id in candidate_ids
+    }
+    failed_rows_by_id: dict[str, dict[str, object]] = {
+        arxiv_id: row for arxiv_id, row in failed_by_id.items() if arxiv_id in candidate_ids
+    }
+
+    papers = all_papers
+    if args.only_pending:
+        papers = [
+            paper
+            for paper in papers
+            if should_process_paper(
+                paper,
+                status_by_id.get(paper.arxiv_id),
+                args.retry_pymupdf_zero_formulas,
+                args.retry_failed,
+            )
+        ]
     if args.start_index:
         papers = papers[args.start_index :]
     limit = args.dry_run or args.limit
@@ -612,11 +764,6 @@ def main() -> int:
         print("No papers to process.")
         return 1
 
-    status_by_id = read_status_rows()
-    status_rows: list[dict[str, object]] = [
-        row for row in status_by_id.values() if row.get("arxiv_id") not in {paper.arxiv_id for paper in papers}
-    ]
-    failed_rows: list[dict[str, object]] = []
     completed = 0
     successes = 0
     failures = 0
@@ -624,9 +771,11 @@ def main() -> int:
     for index, paper in enumerate(papers, start=1):
         previous = status_by_id.get(paper.arxiv_id)
         md_path = MD_DIR / f"{paper.citation_key}.md"
+        prefer_pdf_fallback = args.retry_pymupdf_zero_formulas and should_retry_pymupdf_zero_formulas(previous)
         if (
             has_complete_frontmatter(md_path, paper.citation_key)
             and not args.force
+            and not prefer_pdf_fallback
             and (previous is None or previous.get("status") == "success")
         ):
             quality = quality_check(md_path)
@@ -641,18 +790,26 @@ def main() -> int:
                     time.sleep(args.sleep)
         else:
             print(f"[{index}/{len(papers)}] {paper.citation_key} arXiv:{paper.arxiv_id}", flush=True)
-            status_row, failure_row = process_paper(paper, force=args.force, fetch_timeout=args.fetch_timeout)
+            status_row, failure_row = process_paper(
+                paper,
+                force=args.force,
+                fetch_timeout=args.fetch_timeout,
+                prefer_pdf_fallback=prefer_pdf_fallback,
+            )
             if index < len(papers):
                 time.sleep(args.sleep)
 
-        status_rows.append(status_row)
+        status_rows_by_id[paper.arxiv_id] = status_row
         completed += 1
         if status_row["status"] == "success":
             successes += 1
         else:
             failures += 1
         if failure_row:
-            failed_rows.append(failure_row)
+            failed_rows_by_id[paper.arxiv_id] = failure_row
+        else:
+            failed_rows_by_id.pop(paper.arxiv_id, None)
+        write_conversion_state(status_rows_by_id, failed_rows_by_id)
         if completed % 10 == 0 or completed == len(papers):
             print(
                 f"[{completed}/{len(papers)}] 已完成 {completed} 篇, 成功 {successes}, 失败 {failures}",
@@ -665,15 +822,21 @@ def main() -> int:
             )
             break
 
-    write_rows(STATUS_CSV, status_rows, status_fieldnames())
-    write_rows(FAILED_CSV, failed_rows, failed_fieldnames())
-    success_rows = load_success_rows()
+    write_conversion_state(status_rows_by_id, failed_rows_by_id)
+    success_rows = [
+        row
+        for row in status_rows_by_id.values()
+        if row.get("status") == "success" and row.get("arxiv_id") in candidate_ids
+    ]
+    failed_rows = list(failed_rows_by_id.values())
     write_readme(success_rows, failed_rows, candidate_count)
     write_literature_index(success_rows)
     print(f"Summary: success={len(success_rows)} failed={len(failed_rows)}")
     if args.dry_run:
         print(f"Dry-run processed {args.dry_run} papers.")
-    return 0 if len(success_rows) >= 200 or args.dry_run else 2
+    if args.dry_run or args.limit or args.start_index or args.only_pending:
+        return 0
+    return 0 if len(success_rows) >= 200 else 2
 
 
 if __name__ == "__main__":

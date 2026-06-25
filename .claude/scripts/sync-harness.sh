@@ -5,7 +5,7 @@
 # 检查项:
 #   1. symlink 完整性: .factory/commands → .claude/commands
 #                       .factory/skills  → .claude/skills
-#   2. CLAUDE.md ≡ AGENTS.md 逐行一致(硬规则 #15)
+#   2. CLAUDE.md → @AGENTS.md → AGENTS.md 引用正确(硬规则 #15)
 #   3. agents/droids 文件名覆盖: .claude/agents/ vs .factory/droids/
 #      （跨 CLI 命名不一致的 agent 通过 CROSS_MAP 建立等价映射）
 #   4. agents/droids 内容漂移: 正文(去 frontmatter)是否一致
@@ -76,17 +76,30 @@ echo "== 1. Symlink 完整性 =="
 check_symlink ".factory/commands" "../.claude/commands"
 check_symlink ".factory/skills"   "../.claude/skills"
 
-# ── 2. CLAUDE.md ≡ AGENTS.md ──────────────────────────────────────────────
-echo "== 2. CLAUDE.md ≡ AGENTS.md =="
+# ── 2. CLAUDE.md → @AGENTS.md → AGENTS.md ────────────────────────────────
+echo "== 2. CLAUDE.md → @AGENTS.md → AGENTS.md =="
 if [ ! -f "CLAUDE.md" ] || [ ! -f "AGENTS.md" ]; then
     echo "  ❌ 缺少 CLAUDE.md 或 AGENTS.md" >&2
     FAIL=1
-elif diff -q "CLAUDE.md" "AGENTS.md" >/dev/null; then
-    echo "  ✅ CLAUDE.md ≡ AGENTS.md"
-else
-    echo "  ❌ CLAUDE.md 与 AGENTS.md 不一致:" >&2
-    diff --brief "CLAUDE.md" "AGENTS.md" >&2 || true
+elif [ ! -s "AGENTS.md" ]; then
+    echo "  ❌ AGENTS.md 为空(应为内容真源)" >&2
     FAIL=1
+else
+    IMPORT_LINES=$(grep -c '^@AGENTS\.md$' "CLAUDE.md" || true)
+    if [ "$IMPORT_LINES" -eq 1 ]; then
+        echo "  ✅ CLAUDE.md → @AGENTS.md → AGENTS.md"
+    else
+        echo "  ❌ CLAUDE.md 应含且仅含一行独立的 \`@AGENTS.md\` 引用,实际匹配:$IMPORT_LINES" >&2
+        FAIL=1
+    fi
+fi
+
+echo "== 2b. Claude Code 项目级 settings =="
+if [ -e ".claude/settings.json" ]; then
+    echo "  ❌ .claude/settings.json 仍存在；本项目采用无项目 hook 模式" >&2
+    FAIL=1
+else
+    echo "  ✅ 未保留 .claude/settings.json"
 fi
 
 # ── 3. agents/droids 文件名覆盖 ───────────────────────────────────────────

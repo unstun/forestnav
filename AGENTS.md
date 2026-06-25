@@ -1,7 +1,7 @@
 # ForestNav 森林路径规划研究项目
 
 > 作用域:`/Users/sun/tongbu/study/phdproject/ForestNav/**` (Mac)、`$HOME/ForestNav/**` (Ubuntu GPU)。
-> `CLAUDE.md ≡ AGENTS.md`（逐行一致,见硬规则 #15）。
+> 内容真源:本文件(`AGENTS.md`)；`CLAUDE.md` 通过 `@AGENTS.md` 引用本文件，并只补充 Claude Code 无项目 hook 模式下的主动纪律(见硬规则 #15)。
 
 ## 身份与协议
 
@@ -44,7 +44,7 @@
 
 ### 研究纪律
 
-6. MUST:每完成一个有意义的变更就 git commit。修改代码或论文前由 PreToolUse hook 自动 git backup。
+6. MUST:每完成一个有意义的变更就 git commit。修改代码或论文前先看 `git status --short`；若已有相关 dirty diff，先做本地备份提交，不依赖 Claude Code 项目级 hook。
 7. MUST:遇到不确定的研究决策、技术选型、实验设计时,先问 Dr Sun 而不是自行决定。
 8. MUST:先读后答——内部信息用 ACE(`mcp__auggie__codebase-retrieval`)——已付费订阅($20/mo),物尽其用。ACE 不是普通 grep,它是语义级代码搜索引擎:自然语言查询 → 跨文件/跨语言/跨服务精准召回(代码+文档+配置+调用链);实时索引(改文件即更新);自动过滤去重压缩,只返回最相关片段,不灌噪声。典型用法:3~5 次 ACE 调用即可理解整个项目。,外部信息联网,禁凭 AI 记忆答专业问题。附简短出处(文件:行号 / URL),不大段复制上下文。无法确认时直说"不知道",禁用模糊措辞绕过。
    论文和资料依据必须来自实际打开核验过的网页、PDF、DOI 或数据集页面；本地 AI 摘要、subagent 草稿、未核验 `.pipeline` 文件只能作为检索线索，禁止作为事实依据。
@@ -82,7 +82,7 @@ AI 产出要默认给 Dr Sun 审查。计划、代码解释、实验记录和提
 
 ### 基础设施
 
-15. MUST:`CLAUDE.md ≡ AGENTS.md`(逐行一致),修改任一文件后必须同步另一个,并跑 `bash .claude/scripts/check-agents-sync.sh` 验证。`.claude/agents/` 与 `.factory/droids/` 正文须一致(由 `bash .claude/scripts/sync-harness.sh` 校验)。
+15. MUST:`AGENTS.md` 是内容真源；`CLAUDE.md` 必须包含独立行 `@AGENTS.md` 并只保留 Claude Code 入口补充规则。修改任一文件后必须跑 `bash .claude/scripts/check-agents-sync.sh` 验证。`.claude/agents/` 与 `.factory/droids/` 正文须一致(由 `bash .claude/scripts/sync-harness.sh` 校验)。
 16. MUST:`.pipeline/` 知识库结构变更(增删库/改 README)须经 Conductor 角色授权。
 
 ### 安全底线
@@ -95,8 +95,9 @@ AI 产出要默认给 Dr Sun 审查。计划、代码解释、实验记录和提
 19. MUST:引用 .pipeline/survey/、.pipeline/contracts/、.pipeline/experiments/
     或 bigmemory/冷区/调研记录/ 的内容时，读 frontmatter 的 origin + reviewed，
     按信任矩阵决定引用行为（详见 .pipeline/survey/document-confidence.md）。
-    AI 编辑 reviewed:true 的文档时一律重置为 reviewed:false（Edit/Write 工具由
-    PostToolUse hook 自动执行；Bash 写文件须手动重置）。
+    AI 编辑 reviewed:true 的文档时一律重置为 reviewed:false；Claude Code 无项目级
+    PostToolUse hook，必须手动修改或运行 `bash .claude/scripts/reset-reviewed.sh <file>`；
+    Bash 写文件同样须手动重置。
     Why: AI 产出默认不可靠，不同来源可信度不同，低置信度内容不可作为决策依据。
 20. MUST:进入实验阶段前必须有 Research Contract
     （.pipeline/contracts/`<topic>`.md），status 必须是 `approved` 或 `frozen`，
@@ -112,7 +113,7 @@ AI 产出要默认给 Dr Sun 审查。计划、代码解释、实验记录和提
 
 ## Harness
 
-`bigmemory/`、`.pipeline/`、`.claude/`、`.factory/`、`.codex/`、`CLAUDE.md`/`AGENTS.md` 统称 Harness——项目无关的研究脚手架,可跨项目复用。`.claude/` 为 commands/skills 单一真实源,`.factory/commands` / `.factory/skills` 为 symlink。
+`bigmemory/`、`.pipeline/`、`.claude/`、`.factory/`、`.codex/`、`CLAUDE.md`/`AGENTS.md` 统称 Harness——项目无关的研究脚手架,可跨项目复用。`.claude/` 为 commands/skills 单一真实源,`.factory/commands` / `.factory/skills` 为 symlink。本项目不保留 `.claude/settings.json`；Claude Code 自动 hook 行为由 `CLAUDE.md` 的主动纪律替代。
 
 ## 索引
 

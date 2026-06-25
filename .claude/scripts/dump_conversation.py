@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-dump_conversation.py — 导出 Claude Code / Droid 会话为 Markdown
-用法: python dump_conversation.py [--session-id UUID] [--source claude|droid|auto] [--output PATH]
-默认: auto 模式取两个平台中最新会话,输出到 bigmemory/冷区/会话记录/YYYY-MM-DD_HHMM.md
+dump_conversation.py — 手工导出 Claude Code / Droid 会话为 Markdown
+用法: python dump_conversation.py --output PATH [--session-id UUID] [--source claude|droid|auto]
+注意: /archive 已停用完整聊天记录归档；本脚本必须显式传 --output。
 """
 
 import json
@@ -391,7 +391,11 @@ def main():
         default="auto",
         help="选择平台: claude / droid / auto(默认 auto,取两边最新)",
     )
-    parser.add_argument("--output", "-o", help="输出路径,默认 bigmemory/冷区/会话记录/")
+    parser.add_argument(
+        "--output", "-o",
+        required=True,
+        help="输出路径；必须显式指定，避免重新写入 bigmemory/冷区/会话记录/",
+    )
     args = parser.parse_args()
 
     # ---- 定位会话文件 ---- #
@@ -443,12 +447,8 @@ def main():
     # ---- 输出 ---- #
     output_text = "\n".join(md_lines)
 
-    if args.output:
-        out_path = Path(args.output)
-    else:
-        out_dir = PROJ_DIR / "bigmemory" / "冷区" / "会话记录"
-        out_dir.mkdir(parents=True, exist_ok=True)
-        out_path = out_dir / f"{mod_time.strftime('%Y-%m-%d_%H%M')}.md"
+    out_path = Path(args.output)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
 
     out_path.write_text(output_text, encoding="utf-8")
     print(f"[完成] 已导出到 {out_path}")

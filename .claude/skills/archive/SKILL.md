@@ -34,13 +34,12 @@ description: 对话结束前归档本次变更到项目记忆系统（bigmemory 
 
 同时读取 `bigmemory/格式规范.md` 了解文件格式要求。
 
-### Step 2.5: 导出会话记录
+### Step 2.5: 会话记录导出已停用
 
-如果本次对话有实质性交互（非纯执行类），由主 AI 直接执行：
-```bash
-python3 {bigmemory}/../.claude/scripts/dump_conversation.py
-```
-提前执行避免脚本失败阻塞 Agent 1 的冷区写入。
+`/archive` 不再导出完整聊天记录，也不再写入 `bigmemory/冷区/会话记录/`。
+归档只保留可复查的摘要层信息：改动、踩坑、调研、心路、里程碑、热区状态和 `.pipeline/` 知识库。
+
+如 Dr Sun 单独要求导出某次会话，必须手工调用脚本并显式指定 `--output`。
 
 ### Step 3: 分诊 — 判断归档范围
 
@@ -55,7 +54,6 @@ python3 {bigmemory}/../.claude/scripts/dump_conversation.py
 | Q3 | 获取了外部信息？ | 调研记录 |
 | Q4 | 涉及重要决策或方向变化？ | 心路历程 |
 | Q5 | 完成重大里程碑？ | 里程碑 |
-| Q6 | 有实质性交互（非纯执行类）？ | 会话记录 |
 
 **.pipeline/ 分诊（仅当 `.pipeline/` 存在时）：**
 
@@ -83,7 +81,7 @@ python3 {bigmemory}/../.claude/scripts/dump_conversation.py
 
 #### Agent 1: 冷区事实层
 
-**职责**：Q1 改动记录 + Q2 踩坑记录 + Q6 会话记录
+**职责**：Q1 改动记录 + Q2 踩坑记录
 
 只写入分诊通过的类别。追加模式，文件已存在则先读取再追加。
 
@@ -93,7 +91,6 @@ python3 {bigmemory}/../.claude/scripts/dump_conversation.py
   只记录改变系统行为/架构的改动
 - **Q2 → 踩坑记录** → `bigmemory/冷区/踩坑记录/{TODAY}.md`
   "原因"字段只写会话中实际验证过的根因，禁止编造
-- **Q6 → 会话记录** → 确认 Step 2.5 导出的文件已创建（主 AI 已提前执行脚本）
 
 质量标准：每条须回答"未来的我为什么需要知道这个？"
 
@@ -197,7 +194,6 @@ codex exec \
 调研记录：✓ / ✗(原因) / —
 心路历程：✓ / ✗(原因) / —
 里程碑：  ✓ / ✗(原因) / —
-会话记录：✓ [路径] / ✗(原因) / —
 热区瘦身：状态简报 [N字] | 未关闭决策 [N字] | 近期改动 [N字]
 偏好/工作流：✓ 更新 / 无变更
 .pipeline/：literature ✓/⚠/— | experiments ✓/⚠/— | survey ✓/⚠/— | terminology ✓/⚠/—

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # ============================================================
-# PreToolUse hook  --  搜索工具调用前注入策略提醒
+# search reminder helper -- 搜索工具调用前注入策略提醒
 # ------------------------------------------------------------
+# 用法     : 可由支持 hook 的客户端调用；Claude Code 无项目级 hook 时手动查看
 # 匹配     : WebSearch | WebFetch | mcp__grok-search__.*
 # 目的     : AI 调搜索工具前就地提醒硬规则 #12 / gotchas,
 #            防止(a) WebFetch/WebSearch 同批并行 403 级联

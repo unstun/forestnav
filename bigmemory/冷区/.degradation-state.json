@@ -1,0 +1,14 @@
+{
+  "last_run": "2026-06-25",
+  "thresholds": {
+    "warm_to_cold_days": 31,
+    "cold_to_archive_days": 91,
+    "archive_to_delete_days": 365
+  },
+  "last_check_result": {
+    "date": "2026-06-25",
+    "files_checked": 7,
+    "degradations_triggered": 0,
+    "note": "归档 Agent 4 执行降级扫描（2026-06-25 08:38）。冷区共 7 个日文件（2026-06-24 两个、2026-06-25 五个），最早文件距今 1 天，均未达 31 天阈值，无需降级。同次写入 .pipeline/survey/dqn10-baseline-inventory.md（Codex 质量门控 PASS）。"
+  }
+}

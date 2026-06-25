@@ -25,3 +25,18 @@ Thumbs.db
 # Temporary
 *.tmp
 *.bak
+1_survey/papers/api_trials/
+
+# 文献语料库 PDF 体积过大,不入 git/GitHub,仅留本地(AGENTS.md 硬规则#13)
+1_survey/papers/pdf/
+
+# MinerU/marker 从论文抽取的图片,体积过大(~3G),不入 git,仅留本地
+1_survey/papers/md/**/*.png
+1_survey/papers/md/**/*.jpg
+1_survey/papers/md/**/*.jpeg
+1_survey/papers/md/*.png
+1_survey/papers/md/*.jpg
+1_survey/papers/md/*.jpeg
+1_survey/papers/**/*.png
+1_survey/papers/**/*.jpg
+1_survey/papers/**/*.jpeg

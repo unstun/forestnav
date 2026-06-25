@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # ============================================================================
-# check-agents-sync.sh — 校验 CLAUDE.md 与 AGENTS.md 逐行一致(硬规则 #15)
+# check-agents-sync.sh — 校验 CLAUDE.md 通过 @AGENTS.md 引用 AGENTS.md(硬规则 #15)
 # ----------------------------------------------------------------------------
-# 用法:`bash .claude/scripts/check-agents-sync.sh`
-# 返回:一致 → exit 0;不一致 → 打印 diff 并 exit 2
+# 设计:AGENTS.md 是内容真源,CLAUDE.md 是 Claude Code 入口 thin wrapper。
+# Claude Code 启动 / /compact 后会自动展开 @AGENTS.md import 注入 context。
 # ============================================================================
 set -euo pipefail
 
@@ -15,11 +15,17 @@ if [ ! -f "$A" ] || [ ! -f "$B" ]; then
   exit 2
 fi
 
-if diff -q "$A" "$B" >/dev/null; then
-  echo "✅ CLAUDE.md ≡ AGENTS.md"
-  exit 0
-else
-  echo "❌ CLAUDE.md 与 AGENTS.md 不一致:" >&2
-  diff "$A" "$B" >&2 || true
+if [ ! -s "$B" ]; then
+  echo "❌ $B 为空(应为内容真源)" >&2
   exit 2
 fi
+
+IMPORT_LINES=$(grep -c '^@AGENTS\.md$' "$A" || true)
+if [ "$IMPORT_LINES" -ne 1 ]; then
+  echo "❌ $A 应含且仅含一行独立的 \`@AGENTS.md\` 引用,实际匹配:$IMPORT_LINES" >&2
+  echo "   修复: 在 $A 中放一行 '@AGENTS.md'(顶格,前后空行)" >&2
+  exit 2
+fi
+
+echo "✅ CLAUDE.md → @AGENTS.md → AGENTS.md 引用正确"
+exit 0

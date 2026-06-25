@@ -6,407 +6,388 @@ title: "Optimal Solutions for the Moving Target Vehicle Routing Problem with Obs
 authors_short: "Anoop Bhat et al."
 year: 2026
 direction_tag: I_corridor_planning
-source: pymupdf4llm
-converted_at: 2026-06-23T17:52:28Z
+source: mineru-vlm
+converter: mineru-open-api
+model: vlm
+converted_at: 2026-06-25T08:06:03Z
 origin: ai+web
 reviewed: false
 ---
 
-# **Optimal Solutions for the Moving Target Vehicle Routing Problem with Obstacles via Lazy Branch and Price** 
+# Optimal Solutions for the Moving Target Vehicle Routing Problem with Obstacles via Lazy Branch and Price
 
-Anoop Bhat[1] and Geordan Gutow[2] and Surya Singh[3] and Zhongqiang Ren[4] and Sivakumar Rathinam[5] and Howie Choset[1] 
+Anoop Bhat<sup>1</sup> and Geordan Gutow<sup>2</sup> and Surya Singh<sup>3</sup> and Zhongqiang Ren<sup>4</sup> and Sivakumar Rathinam<sup>5</sup> and Howie Choset<sup>1</sup>
 
-_**Abstract**_ **— The Moving Target Vehicle Routing Problem with Obstacles (MT-VRP-O) seeks trajectories for several agents that collectively intercept a set of moving targets. Each target has one or more time windows where it must be visited, and the agents must avoid static obstacles and satisfy speed and capacity constraints. We introduce Lazy Branch-and-Price with Relaxed Continuity (Lazy BPRC), which finds optimal solutions for the MT-VRP-O. Lazy BPRC applies the branch-and-price framework for VRPs, which alternates between a restricted master problem (RMP) and a pricing problem. The RMP aims to select a sequence of target-time window pairings (called a tour) for each agent to follow, from a limited subset of tours. The pricing problem adds tours to the limited subset. Conventionally, solving the RMP requires computing the cost for an agent to follow each tour in the limited subset. Computing these costs in the MT-VRP-O is computationally intensive, since it requires collision-free motion planning between moving targets. Lazy BPRC defers cost computations by solving the RMP using lower bounds on the costs of each tour, computed via motion planning with relaxed continuity constraints. We lazily evaluate the true costs of tours as-needed. We compute a tour’s cost by searching for a shortest path on a Graph of Convex Sets (GCS), and we accelerate this search using our continuity relaxation method. We demonstrate that Lazy BPRC runs up to an order of magnitude faster than two ablations.** 
+Abstract— The Moving Target Vehicle Routing Problem with Obstacles (MT-VRP-O) seeks trajectories for several agents that collectively intercept a set of moving targets. Each target has one or more time windows where it must be visited, and the agents must avoid static obstacles and satisfy speed and capacity constraints. We introduce Lazy Branch-and-Price with Relaxed Continuity (Lazy BPRC), which finds optimal solutions for the MT-VRP-O. Lazy BPRC applies the branch-and-price framework for VRPs, which alternates between a restricted master problem (RMP) and a pricing problem. The RMP aims to select a sequence of target-time window pairings (called a tour) for each agent to follow, from a limited subset of tours. The pricing problem adds tours to the limited subset. Conventionally, solving the RMP requires computing the cost for an agent to follow each tour in the limited subset. Computing these costs in the MT-VRP-O is computationally intensive, since it requires collision-free motion planning between moving targets. Lazy BPRC defers cost computations by solving the RMP using lower bounds on the costs of each tour, computed via motion planning with relaxed continuity constraints. We lazily evaluate the true costs of tours as-needed. We compute a tour’s cost by searching for a shortest path on a Graph of Convex Sets (GCS), and we accelerate this search using our continuity relaxation method. We demonstrate that Lazy BPRC runs up to an order of magnitude faster than two ablations.
 
-## I. INTRODUCTION 
+## I. INTRODUCTION
 
-Finding trajectories for multiple agents to visit multiple moving targets is necessary in applications such as defense [1], [2], [3], orbital refueling [4], and recharging mobile robots collecting data from the seafloor [5]. These applications can be modeled as variations of the Vehicle Routing Problem (VRP) [6], [7]. The VRP assumes a set of stationary targets and a set of agents, where the agents start at a common location called the depot. Each target has a demand of goods, and each agent has a capacity on the amount of goods it can deliver. Given the travel cost between every pair of targets, and between the targets and the depot, the VRP seeks a sequence of targets for each agent with minimal sum of costs, such that the sum of demands of targets visited by an agent does not exceed the capacity. In the Moving Target VRP (MT-VRP) [8], the targets are moving, and we seek not 
+Finding trajectories for multiple agents to visit multiple moving targets is necessary in applications such as defense [1], [2], [3], orbital refueling [4], and recharging mobile robots collecting data from the seafloor [5]. These applications can be modeled as variations of the Vehicle Routing Problem (VRP) [6], [7]. The VRP assumes a set of stationary targets and a set of agents, where the agents start at a common location called the depot. Each target has a demand of goods, and each agent has a capacity on the amount of goods it can deliver. Given the travel cost between every pair of targets, and between the targets and the depot, the VRP seeks a sequence of targets for each agent with minimal sum of costs, such that the sum of demands of targets visited by an agent does not exceed the capacity. In the Moving Target VRP (MT-VRP) [8], the targets are moving, and we seek not only a sequence of targets for each agent, but a trajectory. Each target must be met in a particular time window(s), and the agents have a speed limit. Prior work on the MT-VRP assumes piecewise-linear target trajectories [8], and we make the same assumption. When the agents must avoid static obstacles, we have the MT-VRP with Obstacles (MT-VRP-O), shown in Fig. 1.
 
-> 1Robotics Institute at Carnegie Mellon University, 5000 Forbes Ave., Pittsburgh, PA 15213. Emails: _{_ agbhat, choset _}_ @andrew.cmu.edu. 
+![](Bhat2026Optimal_figs/962954eca19b3db4277c691e835256009a45a5bc97e059e7cd812caa1fe1eaa7.jpg)  
+Fig. 1. Targets move through obstacle environment and must be intercepted within time windows, shown in bold-colored lines. Agents begin and end at depot, intercepting targets while avoiding obstacles.
 
-> 2Mechanical and Aerospace Engineering at Michigan Technological University, Houghton, MI 49931. Email: gmgutow@mtu.edu 
+The MT-VRP-O generalizes the Traveling Salesman Problem (TSP), and thus finding an optimal solution is NP-hard [9], [1]. No prior methods find an optimal solution for the MT-VRP-O. The closest related work finds optimal solutions for the MT-VRP without obstacles [8], using the branchand-price framework [10]. In this work, we develop a new branch-and-price algorithm for the MT-VRP-O called Lazy Branch-and-Price with Relaxed Continuity (Lazy BPRC).
 
-> 3Robotics and AI Institute, Cambridge, MA 02142. Email: ssingh@raiinst.com 
+We define the pairing of a target with one of its time windows as a target-window. We define a tour as a sequence of target-windows, meant to be followed by a single agent. The cost of a tour is the distance traveled by a collisionfree trajectory intercepting the tour’s targets in order. The MT-VRP-O seeks a least-cost set of tours for the agents to follow, from the set of all possible tours. Since explicitly enumerating all possible tours is intractable, we employ column generation [11], where we initially generate a limited subset F of all possible tours, then alternate between selecting a set of tours from F and adding tours to F .
 
-> 4UM-SJTU Joint Institute and Department of Automation at Shanghai Jiao Tong University, Shanghai, China. Email: zhongqiang.ren@sjtu.edu.cn 
+Traditionally, the selection step within column generation (known as the restricted master problem) aims to minimize the sum of selected tours’ costs. In the MT-VRP-O, however, computing tour costs is expensive, since it requires collisionfree motion planning. Our key idea is to instead perform column generation using cheap-to-compute lower bounds on tour costs. We compute these lower bounds by solving a motion planning problem with relaxed continuity constraints. Thus, we incorporate an outer alternation between (i) column generation using lower bounds on tour costs, and (ii) lazily evaluating only the costs of tours selected by column generation. We evaluate the cost of a tour by searching for a shortest path in a Graph of Convex Sets (GCS) [12]; we use our continuity relaxation strategy to provide a heuristic for the search. If column generation selects a set of tours whose costs have all been evaluated, we terminate the alternation between (i) and (ii). Our numerical results show that Lazy BPRC runs up to 46 times faster than a non-lazy ablation, and up to 26 times faster than an ablation using an existing obstacle-unaware heuristic [13].
 
-> 5Department of Mechanical Engineering and Department of Computer Science and Engineering at Texas A&M University, College Station, TX 77843. Email: srathinam@tamu.edu 
+## II. RELATED WORK
 
+While the MT-VRP-O has not been studied in prior work, several related problems have been studied. [5] studies a multi-agent Moving Target TSP with Obstacles (multi-agent MT-TSP-O), which lacks the capacity constraints from the MT-VRP-O. However, their approach only allows interception at sampled points along the targets’ trajectories, and thus [5] does not provide optimal solutions. On the other hand, for the single-agent MT-TSP-O, [13] presents a solver that finds optimal solutions. [13] alternates between a high-level search to generate a tour, and a low-level search to find a trajectory intercepting the tour’s targets to determine its cost. The low-level search in [13] solves a Shortest Path Problem on a GCS (SPP-GCS). We similarly solve an SPP-GCS to evaluate a tour’s cost, and we provide a novel heuristic for the search that we show outperforms the heuristic from [13].
 
-![](1_survey/papers/md/Bhat2026Optimal_figs/Bhat2026Optimal.pdf-0001-10.png)
+[8] studies the MT-VRP without obstacles using an approach called Branch-and-Price with Relaxed Continuity (BPRC). Our approach, Lazy BPRC, extends BPRC to handle obstacles, using a new obstacle-aware continuity relaxation strategy, as well as lazy tour cost evaluation. We show in Section VII that our lazy evaluation outperforms BPRC’s non-lazy tour cost evaluation.
 
+## III. PROBLEM SETUP
 
-Fig. 1. Targets move through obstacle environment and must be intercepted within time windows, shown in bold-colored lines. Agents begin and end at depot, intercepting targets while avoiding obstacles. 
+We consider $n _ { \mathrm { t a r } }$ targets moving in $\mathbb { R } ^ { 2 }$ , and $\{ 1 , 2 , \dots , n _ { \mathrm { t a r } } \}$ is the set of targets. Each target i has a demand $d _ { i }$ . Target i has $n _ { \mathrm { w i n } } ( i )$ time windows, and $[ \underline { { t } } _ { i , j } , \bar { t } _ { i , j } ]$ is the jth time window of target i. The trajectory of target i is $\tau _ { i } : \mathbb { R } \to \mathbb { R } ^ { 2 }$ and we assume $\tau _ { i }$ has constant velocity within each time window, but possibly different velocities in different time windows. Without loss of generality, we assume targets do not pass through obstacles during their time windows.<sup>1</sup>
 
-only a sequence of targets for each agent, but a trajectory. Each target must be met in a particular time window(s), and the agents have a speed limit. Prior work on the MT-VRP assumes piecewise-linear target trajectories [8], and we make the same assumption. When the agents must avoid static obstacles, we have the MT-VRP with Obstacles (MT-VRPO), shown in Fig. 1. 
+Let the number of agents be $n _ { \mathrm { a g t } }$ . Each agent has a capacity $d _ { \mathrm { m a x } }$ on the amount of demand it can serve. When visiting a target, an agent must serve the target’s full demand. Each agent has a speed limit $v _ { \mathrm { m a x } }$ , and no target moves faster than $v _ { \mathrm { m a x } }$ within its time windows. We denote an agent’s trajectory as $\tau _ { \mathrm { a } }$ . An agent trajectory $\tau _ { \mathrm { a } }$ intercepts target i if $\mathrm { ( i ) } \ \tau _ { \mathrm { a } } ( t ) = \tau _ { i } ( t )$ for some t within some time window of target i, and (ii) $\tau _ { \mathrm { a } }$ claims target i at time t. The notion of claiming is needed when we plan a trajectory $\tau _ { \mathrm { a } }$ to intercept some target i, then $i ^ { \prime } ,$ , but $\tau _ { \mathrm { a } }$ matches space-time locations with some target $i ^ { \prime \prime }$ unintentionally. As long as $\tau _ { \mathrm { a } }$ does not claim $i ^ { \prime \prime }$ , the agent’s capacity is not depleted when it meets $i ^ { \prime \prime } .$ All agents start at a depot $p _ { \mathrm { d } } \in \mathbb { R } ^ { 2 }$ . Finally, the agents must avoid collisions with stationary obstacles. We refer to a collision-free agent trajectory satisfying the speed limit as a feasible agent trajectory.
 
-The MT-VRP-O generalizes the Traveling Salesman Problem (TSP), and thus finding an optimal solution is NP-hard [9], [1]. No prior methods find an optimal solution for the MT-VRP-O. The closest related work finds optimal solutions for the MT-VRP without obstacles [8], using the branchand-price framework [10]. In this work, we develop a new branch-and-price algorithm for the MT-VRP-O called Lazy Branch-and-Price with Relaxed Continuity (Lazy BPRC). 
+The MT-VRP-O seeks a feasible trajectory for each agent such that every target is intercepted by some agent’s trajectory, and for each agent, the sum of demands of targets it intercepts does not exceed its capacity. In this work, we aim to minimize the sum of the agents’ distances traveled.
 
-We define the pairing of a target with one of its time windows as a _target-window_ . We define a tour as a sequence of target-windows, meant to be followed by a single agent. The cost of a tour is the distance traveled by a collisionfree trajectory intercepting the tour’s targets in order. The MT-VRP-O seeks a least-cost set of tours for the agents to follow, from the set of all possible tours. Since explicitly enumerating all possible tours is intractable, we employ _column generation_ [11], where we initially generate a limited subset _F_ of all possible tours, then alternate between selecting a set of tours from _F_ and adding tours to _F_ . 
+## IV. INTEGER LINEAR PROGRAM (ILP) FOR MT-VRP-O
 
-Traditionally, the selection step within column generation (known as the restricted master problem) aims to minimize the sum of selected tours’ costs. In the MT-VRP-O, however, computing tour costs is expensive, since it requires collisionfree motion planning. Our key idea is to instead perform column generation using cheap-to-compute _lower bounds_ on tour costs. We compute these lower bounds by solving a 
+Lazy BPRC considers a target-window graph $\begin{array} { r l } { \mathcal { G } _ { \mathrm { t w } } } & { { } = } \end{array}$ $( \nu _ { \mathrm { t w } } , \mathcal { E } _ { \mathrm { t w } } )$ . Each node in $\nu _ { \mathrm { t w } }$ is a pairing of a target i with one of its time windows, called a target-window. For example, $\gamma _ { i , j } = ( i , [ \underline { { t } } _ { i , j } , \overline { { t } } _ { i , j } ] )$ denotes the jth target-window of target i. $\nu _ { \mathrm { t w } }$ contains all possible target-windows, as well as a fictitious target-window $\gamma _ { 0 , 1 } = \gamma _ { 0 } = ( 0 , [ 0 , \infty ) )$ , referring to a fictitious stationary target 0 at the depot, with time window $[ 0 , \infty )$ . An agent trajectory $\tau _ { \mathrm { a } }$ intercepts target-window $\gamma _ { i , j }$ if $\tau _ { \mathrm { a } }$ intercepts target i at some $t \in [ \underline { { t } } _ { i , j } , \overline { { t } } _ { i , j } ]$
 
-motion planning problem with relaxed continuity constraints. Thus, we incorporate an outer alternation between (i) column generation using lower bounds on tour costs, and (ii) lazily evaluating only the costs of tours selected by column generation. We evaluate the cost of a tour by searching for a shortest path in a Graph of Convex Sets (GCS) [12]; we use our continuity relaxation strategy to provide a heuristic for the search. If column generation selects a set of tours whose costs have all been evaluated, we terminate the alternation between (i) and (ii). Our numerical results show that Lazy BPRC runs up to 46 times faster than a non-lazy ablation, and up to 26 times faster than an ablation using an existing obstacle-unaware heuristic [13]. 
+${ \mathcal E } _ { \mathrm { t w } }$ contains an edge from $\gamma _ { i , j }$ to $\gamma _ { i ^ { \prime } , j ^ { \prime } }$ if $i \neq i ^ { \prime } .$ . Each edge $( \gamma _ { i , j } , \gamma _ { i ^ { \prime } , j ^ { \prime } } ) \in \mathcal { E } _ { \mathrm { t w } }$ contains a value $\mathrm { L F D T } ( \gamma _ { i , j } , \gamma _ { i ^ { \prime } , j ^ { \prime } } , \bar { t } _ { i ^ { \prime } , j ^ { \prime } } )$ called the latest feasible departure time. The LFDT is the latest time $t \in [ \underline { { t } } _ { i , j } , \bar { t } _ { i , j } ]$ such that a feasible agent trajectory exists beginning at space-time point $( \tau _ { i } ( t ) , t )$ and intercepting $\gamma _ { i ^ { \prime } , j ^ { \prime } }$ at time $\bar { t } _ { i ^ { \prime } , j ^ { \prime } }$ . We compute LFDT for all edges at the beginning of BPRC using the method from [14].
 
-## II. RELATED WORK 
+A tour is a path in $\mathcal { G } _ { \mathrm { t w } }$ beginning and ending at $\gamma _ { 0 } ,$ visiting at most one target-window per non-fictitious target, such that (i) the sum of demands of visited targets is no larger than $d _ { \mathrm { m a x } }$ , and (ii) a feasible agent trajectory exists intercepting the target-windows in the tour in sequence. For a tour Γ, let Γ[n] denote the nth element of Γ; in the subsequent text, we use the same bracket notation to indicate the nth element of any sequence. Let Len(Γ) denote the number of target-windows in Γ. An agent trajectory $\tau _ { \mathrm { a } }$ executes Γ if $\tau _ { \mathrm { a } }$ intercepts the target-windows in Γ in sequence, and $\tau _ { \mathrm { a } }$ is feasible. For a tour Γ, the cost of Γ, denoted as $c ^ { * } ( \Gamma )$ , is the distance traveled by a minimum-distance trajectory executing Γ. We compute the cost of a tour by solving an SPP-GCS, described in Section V-G.
 
-While the MT-VRP-O has not been studied in prior work, several related problems have been studied. [5] studies a multi-agent Moving Target TSP with Obstacles (multi-agent MT-TSP-O), which lacks the capacity constraints from the MT-VRP-O. However, their approach only allows interception at sampled points along the targets’ trajectories, and thus [5] does not provide optimal solutions. On the other hand, for the single-agent MT-TSP-O, [13] presents a solver that finds optimal solutions. [13] alternates between a high-level search to generate a tour, and a low-level search to find a trajectory intercepting the tour’s targets to determine its cost. The low-level search in [13] solves a Shortest Path Problem on a GCS (SPP-GCS). We similarly solve an SPP-GCS to evaluate a tour’s cost, and we provide a novel heuristic for the search that we show outperforms the heuristic from [13]. 
+Let the set of all tours be S. Lazy BPRC formulates the MT-VRP-O as the problem of selecting a set ${ \mathcal { F } } _ { \mathrm { s o l } } \subseteq { \mathcal { S } }$ containing up to $n _ { \mathrm { a g t } }$ tours, such that every target is visited by some selected tour, and the sum of tour costs is minimized. In particular, for a tour Γ, let $\alpha ( i , \Gamma ) = 1$ if Γ visits target i and let $\alpha ( i , \Gamma ) = 0$ otherwise. Define a binary variable $\theta _ { k }$ which equals 1 if tour k is selected and 0 otherwise. We formulate the MT-VRP-O as the following ILP:
 
-[8] studies the MT-VRP without obstacles using an approach called Branch-and-Price with Relaxed Continuity (BPRC). Our approach, Lazy BPRC, extends BPRC to handle obstacles, using a new obstacle-aware continuity relaxation strategy, as well as lazy tour cost evaluation. We show in Section VII that our lazy evaluation outperforms BPRC’s non-lazy tour cost evaluation. 
+$$
+\min _ {\{\theta_ {k} \} _ {\Gamma_ {k} \in \mathcal {S}}} \quad \sum_ {\Gamma_ {k} \in \mathcal {S}} c ^ {*} (\Gamma_ {k}) \theta_ {k}\tag{1a}
+$$
 
-## III. PROBLEM SETUP 
+$$
+\text { s.t. } \quad \sum_ {\Gamma_ {k} \in \mathcal {S}} \theta_ {k} \leq n _ {\mathrm{agt}}\tag{1b}
+$$
 
-We consider _n_ tar targets moving in R[2] , and _{_ 1 _,_ 2 _, . . . , n_ tar _}_ is the set of targets. Each target _i_ has a demand _di_ . Target _i_ has _n_ win( _i_ ) time windows, and [ _t_ ~~_i_~~ _,j[,] ti,j_ ] is the _j_ th time window of target _i_ . The trajectory of target _i_ is _τi_ : R _→_ R[2] , and we assume _τi_ has constant velocity within each time window, but possibly different velocities in different time windows. Without loss of generality, we assume targets do not pass through obstacles during their time windows.[1] 
+$$
+\sum_ {\Gamma_ {k} \in \mathcal {S}} \alpha (i, \Gamma_ {k}) \theta_ {k} \geq 1 \forall i \in \{1, \dots , n _ {\mathrm{tar}} \}\tag{1c}
+$$
 
-Let the number of agents be _n_ agt. Each agent has a capacity _d_ max on the amount of demand it can serve. When visiting a target, an agent must serve the target’s full demand. Each agent has a speed limit _v_ max, and no target moves faster than _v_ max within its time windows. We denote an agent’s trajectory as _τ_ a. An agent trajectory _τ_ a _intercepts_ target _i_ if (i) _τ_ a( _t_ ) = _τi_ ( _t_ ) for some _t_ within some time window of 
+$$
+\theta_ {k} \in \{0, 1 \} \forall k \in \{1, \dots , | \mathcal {S} | \}\tag{1d}
+$$
 
-> 1If a target enters an obstacle within a time window, we can replace the single window with two time windows: one that ends when the target enters the obstacle, and another that begins when the target exits the obstacle. 
+(1a) minimizes the sum of tour costs, (1b) ensures that no more than $n _ { \mathrm { a g t } }$ tours are selected, (1c) ensures all targets are visited, and (1d) enforces that each $\theta _ { k }$ is binary.
 
-target _i_ , and (ii) _τ_ a _claims_ target _i_ at time _t_ . The notion of claiming is needed when we plan a trajectory _τ_ a to intercept some target _i_ , then _i[′]_ , but _τ_ a matches space-time locations with some target _i[′′]_ unintentionally. As long as _τ_ a does not claim _i[′′]_ , the agent’s capacity is not depleted when it meets _i[′′]_ . All agents start at a depot _p_ d _∈_ R[2] . Finally, the agents must avoid collisions with stationary obstacles. We refer to a collision-free agent trajectory satisfying the speed limit as a _feasible_ agent trajectory. 
+## V. LAZY BPRC
 
-The MT-VRP-O seeks a feasible trajectory for each agent such that every target is intercepted by some agent’s trajectory, and for each agent, the sum of demands of targets it intercepts does not exceed its capacity. In this work, we aim to minimize the sum of the agents’ distances traveled. 
+## A. Preliminaries
 
-## IV. INTEGER LINEAR PROGRAM (ILP) FOR MT-VRP-O 
+When solving ILP (1), explicitly having decision variables for every $\Gamma _ { k } \in \textit { s }$ is intractable, since the number of tours grows factorially with the numbers of targets. Thus, Lazy BPRC maintains a subset ${ \mathcal { F } } \subseteq S .$ , which is enlarged throughout the algorithm, and only selects tours from F. For each tour $\Gamma \in \mathcal { F }$ , we maintain a lower bound c(Γ) and an upper bound c(Γ) on $c ^ { * } ( \Gamma )$ . At the time when we add a tour Γ into ${ \mathcal { F } } _ { : }$ we compute the lower bound using the method from Section V-D and the upper bound using the method from Section V-E, and we refer to Γ as unevaluated. Over the course of the algorithm, we compute $c ^ { * } ( \Gamma )$ for certain tours Γ, then set their lower and upper bounds equal to c<sup>∗</sup>(Γ); we refer to such tours Γ as evaluated. For a set of tours $\mathcal { F } _ { \mathrm { s o l } }$ that is feasible for ILP (1), let $\overline { { c } } ( \mathcal { F } _ { \mathrm { s o l } } ) = \sum _ { \Gamma \in \mathcal { F } _ { \mathrm { s o l } } } \overline { { c } } ( \Gamma )$
 
-Lazy BPRC considers a _target-window graph G_ tw = ( _V_ tw _, E_ tw). Each node in _V_ tw is a pairing of a target _i_ with one of its time windows, called a _target-window_ . For example, _γi,j_ = ( _i,_ [ _t_ ~~_i_~~ _,j[,] ti,j_ ]) denotes the _j_ th target-window of target _i_ . _V_ tw contains all possible target-windows, as well as a fictitious target-window _γ_ 0 _,_ 1 = _γ_ 0 = (0 _,_ [0 _, ∞_ )), referring to a fictitious stationary target 0 at the depot, with time window [0 _, ∞_ ). An agent trajectory _τ_ a _intercepts_ target-window _γi,j_ if _τ_ a intercepts target _i_ at some _t ∈_ [ _t_ ~~_i_~~ _,j[,] ti,j_ ]. 
+<div class="mineru-algorithm" style="white-space: pre-wrap; font-family:monospace;">
+Algorithm 1 Lazy BPRC
+1: $\mathcal{F}_{\mathrm{inc}} = \text{GenerateFeasibleSolution}()$
+2: if $\mathcal{F}_{\mathrm{inc}} = \emptyset$ then return INFEASIBLE
+3: $\mathcal{F} = \text{Copy}(\mathcal{F}_{\mathrm{inc}})$
+4: STACK = [$\emptyset$]
+5: while STACK is not empty do
+6:    $\mathcal{B} = \text{STACK.pop}()$
+7:    while true do
+8:    $\theta, \underline{c}(\theta) = \text{SolveLP-}\mathcal{B}(\mathcal{F}, \mathcal{F}_{\mathrm{inc}})$
+9:    if $\theta$ is purely integer AND $\underline{c}(\theta) &lt; \overline{c}_{\mathrm{inc}}$ then
+10:    $\mathcal{F}_{\mathrm{sol}} = \text{ExtractTours}(\theta, \mathcal{F})$
+11:    $\mathcal{F}_{\mathrm{uneval}} = \text{GetUnevaluatedTours}(\mathcal{F}_{\mathrm{sol}})$
+12:    ComputeTourCosts($\mathcal{F}_{\mathrm{uneval}}$)
+13:    if $\overline{c}(\mathcal{F}_{\mathrm{sol}}) &lt; \overline{c}_{\mathrm{inc}}$ then $\mathcal{F}_{\mathrm{inc}} = \mathcal{F}_{\mathrm{sol}}$
+14:    else break
+15:    if $\underline{c}(\theta) \geq \overline{c}_{\mathrm{inc}}$ then continue
+16:    $\mathcal{B}', \mathcal{B}'' = \text{GenerateSuccessors}(\mathcal{B}, \theta, \mathcal{F})$
+17:    STACK.push($B'$)
+18:    STACK.push($\mathcal{B}''$)
+19: return $\mathcal{F}_{\mathrm{inc}}$
+</div>
 
-_E_ tw contains an edge from _γi,j_ to _γi′,j′_ if _i ̸_ = _i[′]_ . Each edge ( _γi,j, γi′,j′_ ) _∈E_ tw contains a value LFDT( _γi,j, γi′,j′, ti′,j′_ ), called the _latest feasible departure time_ . The LFDT is the latest time _t ∈_ [ _t_ ~~_i_~~ _,j[,] ti,j_ ] such that a feasible agent trajectory exists beginning at space-time point ( _τi_ ( _t_ ) _, t_ ) and intercepting _γi′,j′_ at time _ti′,j′_ . We compute LFDT for all edges at the beginning of BPRC using the method from [14]. 
+## B. Branch and Bound
 
-A _tour_ is a path in _G_ tw beginning and ending at _γ_ 0, visiting at most one target-window per non-fictitious target, such that (i) the sum of demands of visited targets is no larger than _d_ max, and (ii) a feasible agent trajectory exists intercepting the target-windows in the tour in sequence. For a tour Γ, let Γ[ _n_ ] denote the _n_ th element of Γ; in the subsequent text, we use the same bracket notation to indicate the _n_ th element of any sequence. Let Len(Γ) denote the number of target-windows in Γ. An agent trajectory _τ_ a _executes_ Γ if _τ_ a intercepts the target-windows in Γ in sequence, and _τ_ a is feasible. For a tour Γ, the cost of Γ, denoted as _c[∗]_ (Γ), is the distance traveled by a minimum-distance trajectory executing Γ. We compute the cost of a tour by solving an SPP-GCS, described in Section V-G. 
+Lazy BPRC solves ILP (1) via the branch-and-bound procedure shown in Alg. 1. The algorithm begins by generating an initial feasible solution ${ \mathcal { F } } _ { \mathrm { i n c } }$ for ILP (1), using the method in Section V-H. We call ${ \mathcal { F } } _ { \mathrm { i n c } }$ the incumbent, and we continually update ${ \mathcal { F } } _ { \mathrm { i n c } }$ to be the best solution to ILP (1) found so far, where “best” refers to smallest c-value. We initialize the subset ${ \mathcal F } ,$ introduced in Section V-A, to ${ \mathcal { F } } _ { \mathrm { i n c } }$ Define $\overline { { c } } _ { \mathrm { i n c } }$ as always taking the value of $\overline { { c } } ( \mathcal { F } _ { \mathrm { i n c } } )$
 
-Let the set of all tours be _S_ . Lazy BPRC formulates the MT-VRP-O as the problem of selecting a set _F_ sol _⊆S_ , containing up to _n_ agt tours, such that every target is visited by some selected tour, and the sum of tour costs is minimized. In particular, for a tour Γ, let _α_ ( _i,_ Γ) = 1 if Γ visits target _i_ and let _α_ ( _i,_ Γ) = 0 otherwise. Define a binary variable _θk_ which equals 1 if tour _k_ is selected and 0 otherwise. We 
+Next, we initialize a stack of branch-and-bound nodes, where each node B is a set of disallowed edges in ${ \mathcal E } _ { \mathrm { t w } }$ . Let ILP-B be ILP (1), with the constraint $\theta _ { k } = 0$ for any $\Gamma _ { k }$ traversing an edge in B. Let LP-B be the convex relaxation of ILP-B which replaces constraint (1d) with $\theta _ { k } \ge 0 \colon \mathrm { L P } { - } B$ is often called the master problem in branch-and-price. Let $c ^ { * } ( B )$ be the optimal cost of LP-B.
 
-formulate the MT-VRP-O as the following ILP: 
+When we expand B, we compute a lower bound on the optimal cost of ILP-B, which we obtain from a lower bound on the optimal cost of LP-B. In particular, we enter a loop that solves LP-B with lazy evaluation of tours in $\mathcal { F }$ (Line 7). On Line 8, we solve LP-B, but replace $c ^ { * } ( \Gamma _ { k } )$ in the objective (1a) with $\underline { { c } } ( \Gamma _ { k } )$ : we call this problem the surrogate master problem, LP-B. We obtain a solution θ to LP-B using column generation, which may add tours to $\mathcal { F }$ and update ${ \mathcal { F } } _ { \mathrm { i n c } }$ (Section V-C). On Line $8 , \ \underline { c } ( \theta )$ denotes the cost of θ within LP-B. Note that θ may not be optimal for LP-B, but we ensure that
 
+$$
+\underline {{c}} (\theta) \leq c ^ {*} (\mathcal {B})\tag{2}
+$$
 
-![](1_survey/papers/md/Bhat2026Optimal_figs/Bhat2026Optimal.pdf-0003-01.png)
+as described in Section V-F.
 
+We then check if θ is purely integer and $\underline { { c } } ( \theta ) < \overline { { c } } _ { \mathrm { i n c } }$ (Line 9). If so, θ corresponds to a set of tours $\mathcal { F } _ { \mathrm { s o l } }$ whose actual cost may be lower than $\overline { { c } } _ { \mathrm { i n c } }$ . Let $\mathcal { F } _ { \mathrm { u n e v a l } }$ be the set of unevaluated tours in $\mathcal { F } _ { \mathrm { s o l } }$ . We must have $\mathcal { F } _ { \mathrm { u n e v a l } } \neq \emptyset$ , since as we explain in Section V-C, while solving LP-B, whenever we obtain an integer solution θ whose corresponding set $\mathcal { F } _ { \mathrm { s o l } }$ has all tours evaluated, we set $\mathcal { F } _ { \mathrm { i n c } } = \mathcal { F } _ { \mathrm { s o l } }$ . Thus, we evaluate each $\Gamma _ { k } \in \mathcal { F } _ { \mathrm { u n e v a l } }$ by solving an SPP-GCS (Section V-G), then solve LP-B again.
 
+After exiting the lazy evaluation loop, if $\underline { { c } } ( \theta ) \geq \overline { { c } } _ { \mathrm { i n c } } .$ , we continue to the next expansion. Otherwise, the failure of the conditions on Lines 9 and 15 imply that θ contains noninteger values. We create two successors for B, denoted as $B ^ { \prime }$ and $B ^ { \prime \prime }$ , such that θ is feasible for neither $\mathrm { L P } { \cdot } B ^ { \prime }$ nor LP- $\cdot B ^ { \prime \prime } .$ but all integer solutions to ILP-B are feasible for both ILP-B<sup>′</sup> and $\mathrm { I L P } { - } B ^ { \prime \prime }$ . To do so, we apply “conventional branching” [15]. In particular, for an edge $e \in \mathcal { E } _ { \mathrm { t w } }$ , define the flow along e as the sum of $\theta _ { k }$ values for all $\Gamma _ { k }$ traversing e. We select the edge e with flow closest to 0.5 and let $B ^ { \prime } = B \cup \{ e \}$ . We then define $B ^ { \prime \prime }$ so that e is required be traversed by some tour in a solution to $\mathrm { I I } \mathrm { { } P } { - } B ^ { \prime \prime }$ , by disallowing other edges appropriately (see [15]). We push $B ^ { \prime }$ and $B ^ { \prime \prime }$ onto the stack.
 
-![](1_survey/papers/md/Bhat2026Optimal_figs/Bhat2026Optimal.pdf-0003-02.png)
+## C. Column Generation
 
+We now describe how we find a solution θ for LP-B satisfying (2). As stated in Section V-A, enumerating all the decision variables for LP-B is intractable, so we use column generation [11]. In particular, define the restricted surrogate master problem (RSMP) on $\mathcal { F }$ as LP-B with the constraint that $\theta _ { k } = 0$ for all tours $\Gamma _ { k } \notin \mathcal { F }$ . Note that to solve the RSMP, we do not have to solve for $\theta _ { k }$ with $\Gamma _ { k } \notin { \mathcal { F } } .$ To find a solution θ to $\underline { { \mathrm { L P } ^ { - } } } B$ satisfying (2), we alternate between solving the RSMP on $\mathcal { F }$ and adding tours to ${ \mathcal F } .$ To find tours to add to ${ \mathcal F } ,$ we solve a pricing problem (Section V-F). Whenever we obtain an integer solution θ to the RSMP, this corresponds to a feasible solution $\mathcal { F } _ { \mathrm { s o l } }$ to the MT-VRP-O. In this case, if $\overline { { c } } ( \mathcal { F } _ { \mathrm { s o l } } ) < \overline { { c } } _ { \mathrm { i n c } }$ , we set $\mathcal { F } _ { \mathrm { i n c } } = \mathcal { F } _ { \mathrm { s o l } }$
 
-(1a) minimizes the sum of tour costs, (1b) ensures that no more than _n_ agt tours are selected, (1c) ensures all targets are visited, and (1d) enforces that each _θk_ is binary. 
+We alternate between the RSMP and pricing problem until the pricing problem finds no new tours, and we return the optimal RSMP solution θ. The first time we solve the RSMP, it may be infeasible, because all feasible MT-VRP-O solutions that can be constructed from tours in $\mathcal { F }$ traverse some edge in B. In this case, we use the method from Section V-H to generate a set of tours $\mathcal { F } _ { \mathrm { n e w } }$ feasible for the MT-VRP-O, add these tours to $\mathcal { F } _ { \mathrm { s o l } } .$ , and solve the RSMP again. If we fail to generate $\mathcal { F } _ { \mathrm { n e w } }$ , we return $\theta = { \mathrm { N U L I } }$ and $\underline { { c } } ( \theta ) = \infty$
 
-## V. LAZY BPRC 
+## D. Computing Lower Bound on Tour Cost
 
-## _A. Preliminaries_ 
+This section describes how we compute the lower bound $\underline { { c } } ( \Gamma )$ for a tour Γ in Section V. Our method, illustrated in Fig. $^ { 2 , }$ extends the procedure from BPRC [8] to handle obstacles. At the beginning of Lazy BPRC, we divide each targetwindow $\gamma _ { i , j }$ into segments, where $\xi _ { i , j , k } = ( i , [ t _ { i , j , k } , \bar { t } _ { i , j , k } ] )$ denotes the kth segment of $\gamma _ { i , j }$ , and Segments $( \gamma _ { i , j } )$ is the set of segments of $\gamma _ { i , j }$ . To determine the number of segments per target-window, we first specify a number of segments to allocate per target, denoted as $n _ { \mathrm { s e g , t a r } }$ . Then for each target i, we allocate segments to its windows using the formula from BPRC [8], which gives more segments to longer windows. The depot gets a single segment $\xi _ { 0 }$ . For a target-window $\gamma , n _ { \mathrm { s e g } } ( \gamma )$ is the number of segments allocated to $\gamma$ . The segment indices for a target-window are ordered in increasing order of start time. An agent trajectory $\tau _ { \mathrm { a } }$ intercepts segment $\xi _ { i , j , k }$ if $\tau _ { \mathrm { a } }$ intercepts target i at a time $t \in [ \underline { { t } } _ { i , j , k } , \overline { { t } } _ { i , j , k } ]$
 
-When solving ILP (1), explicitly having decision variables for every Γ _k ∈S_ is intractable, since the number of tours grows factorially with the numbers of targets. Thus, Lazy BPRC maintains a subset _F ⊆S_ , which is enlarged throughout the algorithm, and only selects tours from _F_ . For each tour Γ _∈F_ , we maintain a lower bound _c_ (Γ) and an upper bound _c_ (Γ) on _c[∗]_ (Γ). At the time when we add a tour Γ into _F_ , we compute the lower bound using the method from Section V-D and the upper bound using the method from Section V-E, and we refer to Γ as _unevaluated_ . Over the course of the algorithm, we compute _c[∗]_ (Γ) for certain tours Γ, then set their lower and upper bounds equal to _c[∗]_ (Γ); we refer to such tours Γ as _evaluated_ . For a set of tours _F_ sol that is feasible for ILP (1), let _c_ ( _F_ sol) = � _c_ (Γ). Γ _∈F_ sol 
+For every pair of segments $( \xi , \xi ^ { \prime } )$ corresponding to different targets, we compute a lower bound $c _ { \mathrm { s e g } } ( \xi , \xi ^ { \prime } )$ on the cost of a feasible agent trajectory that intercepts ξ, then $\xi ^ { \prime }$ . To do so, we compute the shortest collision-free path in space from $\xi$ to $\xi ^ { \prime }$ ignoring time constraints, via the method from [16]. Let c be the path’s distance traveled. Let t be the start time of $\xi ,$ and let t<sup>′</sup> be the end time of $\xi ^ { \prime }$ . We set $c _ { \mathrm { s e g } } ( \xi , \xi ^ { \prime } ) = c$ if $t + c / v _ { \mathrm { m a x } } \le t ^ { \prime }$ , and $c _ { \mathrm { s e g } } ( \xi , \xi ^ { \prime } ) = \infty$ otherwise.
 
-## **Algorithm 1** Lazy BPRC 
+Next, given a tour Γ, we define a segment-graph $\mathcal { G } _ { \mathrm { s e g } } =$ $( \nu _ { \mathrm { s e g } } , \mathcal { E } _ { \mathrm { s e g } } )$ , where the set of nodes $\mathcal { V } _ { \mathrm { s e g } }$ is the set of all segments whose target-windows are visited by Γ. For each edge $( \Gamma [ n ] , \Gamma [ n + 1 ] ) \in \mathcal { E } _ { \mathrm { t w } }$ traversed by Γ, we connect edges in $\mathcal { E } _ { \mathrm { s e g } }$ from every segment of Γ[n] to every segment of $\Gamma [ n + 1 ]$ . The cost of each edge $( \xi , \xi ^ { \prime } )$ is $c _ { \mathrm { s e g } } ( \xi , \xi ^ { \prime } )$
 
-1: _F_ inc = GenerateFeasibleSolution() 
+Let $g _ { \mathrm { s e g } } ( \xi )$ be the cost of the shortest path in $\mathcal { G } _ { \mathrm { s e g } }$ from $\xi _ { 0 }$ to $\xi . \ \underline { { c } } ( \Gamma )$ , computed as follows, lower-bounds $c ^ { * } ( \Gamma )$
 
-> 2: **if** _F_ inc = _∅_ **then** return INFEASIBLE 
+$$
+\underline {{c}} (\Gamma) = \min _ {\xi \in \text { Segments } (\Gamma [ \text { Len } (\Gamma) - 1 ])} (g _ {\text { seg }} (\xi) + c _ {\text { seg }} (\xi , \xi_ {0}))\tag{3}
+$$
 
-3: _F_ = Copy( _F_ inc) 
+$g _ { \mathrm { s e g } } ( \xi _ { 0 } ) ~ = ~ 0 .$ , and for a segment $\xi ^ { \prime }$ of $\Gamma [ n ]$ with $1 \_ <$ $n < \mathrm { L e n } ( \Gamma )$ , we have $g _ { \mathrm { s e g } } ( \xi ^ { \prime } ) = \operatorname* { m i n } _ { \xi \in \mathrm { S e g m e n t s } ( \Gamma \left[ n - 1 \right] ) } \left( g _ { \mathrm { s e g } } ( \xi ) + \right.$ $c _ { \mathrm { s e g } } ( \xi , \xi ^ { \prime } ) )$ . Thus to compute $\underline { { c } } ( \Gamma )$ we can iterate from $n = 2$ to $n = \mathrm { L e n } ( \Gamma ) - 1$ , and for each $n ,$ , compute the g-values of the segments of $\Gamma [ n ]$ using the g-values for $\Gamma [ n - 1 ]$
 
-4: STACK = [ _∅_ ] 
+![](Bhat2026Optimal_figs/e4c907f9940da9f55307d8a4f18233bbd139c9f222b07293349c5143232339af.jpg)  
+Fig. 2. Computing bounds on the cost of an example tour Γ. To compute the lower bound $\underline { { c } } ( \Gamma )$ , we divide each target-window visited by Γ into segments. We then construct a segment-graph $\mathcal { G } _ { \mathrm { s e g } } ,$ where the nodes are the segments, and an edge connects every segment of Γ[n] to every segment of $\Gamma [ \breve { n } + 1 ] .$ . The edge cost from segment ξ to $\xi ^ { \prime }$ is the distance traveled along the shortest path in space from ξ to $\check { \xi } ^ { \prime } ,$ , if this path satisfies the relaxed timing constraints from in Section V-D, and ∞ otherwise. $\underline { { c } } ( \Gamma )$ is the cost of the shortest path in $\mathcal { G } _ { \mathrm { s e g } }$ from $\xi _ { 0 }$ to $\xi _ { 0 }$ visiting all target-windows in Γ. To compute the upper bound ${ \overline { { c } } } ,$ we construct a segment-start-graph $\mathcal { G } _ { \mathrm { s t a r t } } ,$ where the nodes are the starting points of the segments, and an edge connects every segment-start of $\Gamma [ n ]$ to every segment-start of $\Gamma [ n + 1 ]$ . The edge cost from s to $s ^ { \prime }$ is distance traveled by a feasible minimum-distance agent trajectory from s to $s ^ { \prime } ,$ if such a trajectory exists or if $s ^ { \prime } = s _ { 0 }$ , and ∞ otherwise. Our upper bound is the cost of the shortest path in $\mathcal { G } _ { \mathrm { s t a r t } }$ from s to $s _ { 0 }$ that visits all target-windows in Γ.
 
-|3: <br>4:|_F_ = Copy(_F_inc)<br> STACK = [_∅_]||
-|---|---|---|
-|5:|**while** STACK is not empty **do**||
-|6:|_B_ = STACK.pop()||
-|7:|**while** true **do**||
-|8:<br>9:|_θ, c_<br>(_θ_) = SolveLP<br>-_B_(_F_, _F_inc)<br>**if** _θ_ is purely integer AND _c_<br>(_θ_)_<_|_c_inc **then**|
-|10:|_F_sol = ExtractTours(_θ_, _F_)||
-|11:|_F_uneval = GetUnevaluatedTours(_F_sol)||
-|12:|ComputeTourCosts(_F_uneval)||
-|13:|**if**<br>_c_(_F_sol)_<_<br>_c_inc **then** _F_inc =_F_sol||
-|14:<br>15:|**else** break<br>**if** _c_<br>(_θ_)_≥_<br>_c_inc **then** continue||
-|16:|_B′, B′′_ = GenerateSuccessors(_B, θ, F_)||
-|17:|STACK.push(_B′_)||
-|18:|STACK.push(_B′′_)||
-|19:|return _F_inc||
+After this, we can compute c(Γ) via (3). As shown in Fig. 2, these computations correspond to finding an agent trajectory executing Γ subject to relaxed continuity constraints.
 
+For tours generated in the pricing problem (Section V-F), these g-values are computed as a byproduct of solving the pricing problem. For tours generated using the feasible solution generation method in Section V-H, we perform these g-value computations after generating the tours.
 
+## E. Computing Upper Bound on Tour Cost
 
-## _B. Branch and Bound_ 
+This section describes how we compute the upper bound $\overline { { c } } ( \Gamma )$ for a tour Γ in Section V. Recall that in Section V-D, we divided each target-window into segments. Let the starting point in space-time of segment $\xi _ { i , j , k }$ be $s _ { i , j , k } = ( \tau _ { i } ( \underline { { t } } _ { i , j , k } ) , \underline { { t } } _ { i , j , k } )$ . Denote the starting point of the depot segment as $s _ { 0 } ~ = ~ s _ { 0 , 1 , 1 }$ . For a target-window $\gamma$ , let SegmentStarts(γ) denote the set of segment-starts of $\gamma$ . We construct a segment-start-graph $\mathcal { G } _ { \mathrm { s t a r t } } = ( \nu _ { \mathrm { s t a r t } } , \mathcal { E } _ { \mathrm { s t a r t } } )$ . The set of nodes $\mathcal { V } _ { \mathrm { s t a r t } }$ is the set of all segment-starts whose targetwindows are visited by Γ. For each edge $( \gamma , \gamma ^ { \prime } ) ~ \in ~ \mathcal { E } _ { \mathrm { t w } }$ traversed by Γ, we connect an edge in ${ \mathcal E } _ { \mathrm { s t a r t } }$ from every segment-start of γ to every segment-start of $\gamma ^ { \prime } .$
 
-Lazy BPRC solves ILP (1) via the branch-and-bound procedure shown in Alg. 1. The algorithm begins by generating an initial feasible solution _F_ inc for ILP (1), using the 
+To determine the cost of an edge from $s ~ = ~ ( q , t )$ to $s ^ { \prime } = ( q ^ { \prime } , t ^ { \prime } )$ , denoted as $c _ { \mathrm { s t a r t } } ( s , s ^ { \prime } )$ , we compute the shortest collision-free path in space from q to $q ^ { \prime }$ using [17]. Let the distance traveled by this path be c. If $t + c / v _ { \mathrm { m a x } } \le t ^ { \prime }$ or $s ^ { \prime } =$ $s _ { 0 }$ , we set $c _ { \mathrm { s t a r t } } ( s , s ^ { \prime } ) = c ,$ and otherwise $c _ { \mathrm { s t a r t } } ( s , s ^ { \prime } ) = \infty$
 
-method in Section V-H. We call _F_ inc the incumbent, and we continually update _F_ inc to be the best solution to ILP (1) found so far, where “best” refers to smallest _c_ -value. We initialize the subset _F_ , introduced in Section V-A, to _F_ inc. Define _c_ inc as always taking the value of _c_ ( _F_ inc). 
+Define $g _ { \mathrm { s t a r t } } ( s )$ as the cost of a shortest path in G<sub>start</sub> from $s _ { 0 }$ to $s . \ { \overline { { c } } } ( \Gamma )$ , computed as follows, upper-bounds $c ^ { * } ( \Gamma )$ :
 
-Next, we initialize a stack of _branch-and-bound nodes_ , where each node _B_ is a set of disallowed edges in _E_ tw. Let ILP- _B_ be ILP (1), with the constraint _θk_ = 0 for any Γ _k_ traversing an edge in _B_ . Let LP- _B_ be the convex relaxation of ILP- _B_ which replaces constraint (1d) with _θk ≥_ 0: LP- _B_ is often called the _master problem_ in branch-and-price. Let _c[∗]_ ( _B_ ) be the optimal cost of LP- _B_ . 
+$$
+\overline {{c}} (\Gamma) = \min _ {s \in \text { SegmentStarts } (\Gamma [ \text { Len } (\Gamma) - 1 ])} (g _ {\text { start }} (s) + c _ {\text { start }} (s, s _ {0}))\tag{4}
+$$
 
-When we expand _B_ , we compute a lower bound on the optimal cost of ILP- _B_ , which we obtain from a lower bound on the optimal cost of LP- _B_ . In particular, we enter a loop that solves LP- _B_ with lazy evaluation of tours in _F_ (Line 7). On Line 8, we solve LP- _B_ , but replace _c[∗]_ (Γ _k_ ) in the objective (1a) with _c_ (Γ _k_ ): we call this problem the _surrogate master problem_ , LP- _B_ . We obtain a solution _θ_ to LP- _B_ using column generation, which may add tours to _F_ and update _F_ inc (Section V-C). On Line 8, _c_ ( _θ_ ) denotes the cost of _θ_ within LP- _B_ . Note that _θ_ may not be optimal for LP- _B_ , but we ensure that 
+To compute c(Γ), we note that $g ( s _ { 0 } ) ~ = ~ 0 \quad$ , and for a segment $\xi ^ { \prime }$ of $\Gamma [ n ]$ with $1 < n < \mathsf { L e n } ( \Gamma )$ , we have $g _ { \mathrm { s t a r t } } ( s ^ { \prime } ) = \operatorname* { m i n } _ { s \in \mathrm { S e g m e n t S t a r t s } ( \Gamma \left\lceil n - 1 \right\rceil ) } \left( g _ { \mathrm { s t a r t } } ( s ) + c _ { \mathrm { s t a r t } } ( s , s ^ { \prime } ) \right)$ . Thus, we can iterate from $n \stackrel { . } { = } \mathrm { { 2 } } \ \mathrm { t o } \tilde { n } = \mathrm { { L e n } } ( \Gamma ) - 1$ , and for each $n ,$ compute the g-values of the segment-starts of Γ[n] using the g-values for $\Gamma [ n - 1 ]$ . Then we can compute $\overline { { c } } ( \Gamma )$ using (4). For tours generated within the pricing problem (Section V-F), this computation happens as a byproduct and does not require extra computation. For tours generated using the feasible solution generation method in Section V-H, we must compute these g-values separately from the tour generation.
 
+We place points $s _ { i , j , k }$ at the segment-starts rather than at arbitrary points because, within the pricing problem (Section V-F), we need an upper bound on the cost of reaching each segment-start for dominance checking.
 
-![](1_survey/papers/md/Bhat2026Optimal_figs/Bhat2026Optimal.pdf-0003-18.png)
+## F. Pricing Problem
 
+The pricing problem seeks a set of tours $\mathcal { F } _ { \mathrm { p r i c e } }$ such that the RSMP on $\mathcal { F } \cup \mathcal { F } _ { \mathrm { p r i c e } }$ has a smaller optimal cost than the RSMP on $\mathcal { F }$ . To solve the pricing problem, we first note that when the RSMP produces a solution θ (specifically, its primal solution), the RSMP also produces a dual solution $( \lambda _ { 0 } , \lambda _ { 1 } , \ldots , \lambda _ { n _ { \mathrm { t a r } } } )$ , where $\lambda _ { 0 } ~ \in ~ \mathbb { R } _ { < 0 }$ is the dual variable corresponding to (1b), and for $i > 0 , \lambda _ { i } \in \mathbb { R } _ { \ge 0 }$ is the dual variable corresponding to (1c). Similarly to prior VRP work [11], we define the reduced cost of Γ as follows:
 
-as described in Section V-F. 
+$$
+\underline {{c}} _ {\mathrm{red}} (\Gamma) = \underline {{c}} (\Gamma) - c _ {\mathrm{dual}} (\Gamma)\tag{5}
+$$
 
-We then check if _θ_ is purely integer and _c_ ( _θ_ ) _< c_ inc (Line 9). If so, _θ_ corresponds to a set of tours _F_ sol whose actual cost may be lower than _c_ inc. Let _F_ uneval be the set of unevaluated tours in _F_ sol. We must have _F_ uneval = _∅_ , since as we explain in Section V-C, while solving LP- _B_ , whenever we obtain an integer solution _θ_ whose corresponding set _F_ sol has all tours evaluated, we set _F_ inc = _F_ sol. Thus, we evaluate each Γ _k ∈F_ uneval by solving an SPP-GCS (Section V-G), then solve LP- _B_ again. 
+where $c _ { \mathrm { d u a l } } ( \Gamma ) = \sum _ { i = 1 } ^ { n _ { \mathrm { t a r } } } \alpha ( i , \Gamma ) \lambda _ { i } + \lambda _ { 0 }$ . To improve the RSMP’s optimal cost, $\mathcal { F } _ { \mathrm { p r i c e } }$ must contain a tour with negative reduced cost [11]. Therefore, as in prior work, we search for tours with negative reduced cost.
 
-After exiting the lazy evaluation loop, if _c_ ( _θ_ ) _≥ c_ inc, we continue to the next expansion. Otherwise, the failure of the conditions on Lines 9 and 15 imply that _θ_ contains noninteger values. We create two successors for _B_ , denoted as _B[′]_ and _B[′′]_ , such that _θ_ is feasible for neither LP- _B[′]_ nor LP- _B[′′]_ , but all integer solutions to ILP- _B_ are feasible for both ILP- _B[′]_ and ILP- _B[′′]_ . To do so, we apply “conventional branching” [15]. In particular, for an edge _e ∈E_ tw, define the _flow_ along _e_ as the sum of _θk_ values for all Γ _k_ traversing _e_ . We select the edge _e_ with flow closest to 0.5 and let _B[′]_ = _B ∪{e}_ . We then define _B[′′]_ so that _e_ is required be traversed by some tour in a solution to ILP- _B[′′]_ , by disallowing other edges appropriately (see [15]). We push _B[′]_ and _B[′′]_ onto the stack. 
+In contrast to prior work, we do not guarantee returning a tour with negative reduced cost if such a tour exists. Instead, we only guarantee returning some Γ such that $c ^ { * } ( \Gamma ) - c _ { \mathrm { { d u a l } } } ( \Gamma ) < 0 .$ , if such Γ exists. This is sufficient to ensure that if we do not return any tours, then (2) is satisfied, as shown in the proof of Lemma 1.
 
-## _C. Column Generation_ 
+We search for tours with negative reduced cost by mod ifying the labeling algorithm from [8] to handle obstacles. First, we define a partial tour, which has the same definition as a tour from Section IV, except that a partial tour does not need to end with the depot.
 
-We now describe how we find a solution _θ_ for LP- _B_ satisfying (2). As stated in Section V-A, enumerating all the decision variables for LP- _B_ is intractable, so we use column generation [11]. In particular, define the _restricted surrogate master problem_ (RSMP) on _F_ as LP- _B_ with the constraint that _θk_ = 0 for all tours Γ _k ∈F/_ . Note that to solve the RSMP, we do not have to solve for _θk_ with Γ _k ∈F/_ . To find 
+1) Labels and Label Dominance: Within our labeling algorithm, we represent a partial tour Γ using a label $l =$ $( \gamma _ { i , j } , t , \sigma , \vec { b } , \vec { g } _ { \mathrm { u b } } , \vec { g } _ { \mathrm { l b } } , \lambda )$ , where
 
-a solution _θ_ to LP- _B_ satisfying (2), we alternate between solving the RSMP on _F_ and adding tours to _F_ . To find tours to add to _F_ , we solve a _pricing problem_ (Section V-F). Whenever we obtain an integer solution _θ_ to the RSMP, this corresponds to a feasible solution _F_ sol to the MT-VRP-O. In this case, if _c_ ( _F_ sol) _< c_ inc, we set _F_ inc = _F_ sol. 
+$\gamma _ { i , j }$ is the final target-window in Γ
 
-We alternate between the RSMP and pricing problem until the pricing problem finds no new tours, and we return the optimal RSMP solution _θ_ . The first time we solve the RSMP, it may be infeasible, because all feasible MT-VRPO solutions that can be constructed from tours in _F_ traverse some edge in _B_ . In this case, we use the method from Section V-H to generate a set of tours _F_ new feasible for the MT-VRPO, add these tours to _F_ sol, and solve the RSMP again. If we fail to generate _F_ new, we return _θ_ = NULL and _c_ ( _θ_ ) = _∞_ . 
+• t is the minimum time required to execute Γ
 
-## _D. Computing Lower Bound on Tour Cost_ 
+• $\sigma$ is the sum of demands of targets visited by Γ
 
-This section describes how we compute the lower bound _c_ (Γ) for a tour Γ in Section V. Our method, illustrated in Fig. 2, extends the procedure from BPRC [8] to handle obstacles. At the beginning of Lazy BPRC, we divide each targetwindow _γi,j_ into _segments_ , where _ξi,j,k_ = ( _i,_ [ _t_ ~~_i_~~ _,j,k[,] ti,j,k_ ]) denotes the _k_ th segment of _γi,j_ , and Segments( _γi,j_ ) is the set of segments of _γi,j_ . To determine the number of segments per target-window, we first specify a number of segments to allocate per target, denoted as _n_ seg,tar. Then for each target _i_ , we allocate segments to its windows using the formula from BPRC [8], which gives more segments to longer windows. The depot gets a single segment _ξ_ 0. For a target-window _γ_ , _n_ seg( _γ_ ) is the number of segments allocated to _γ_ . The segment indices for a target-window are ordered in increasing order of start time. An agent trajectory _τ_ a _intercepts_ segment _ξi,j,k_ if _τ_ a intercepts target _i_ at a time _t ∈_ [ _t_ ~~_i_~~ _,j,k[,] ti,j,k_ ]. 
+$\dot { b }$ is a binary vector with length $n _ { \mathrm { t a r } }$ where $\vec { b } [ i ^ { \prime } ] = 1$ for any target i<sup>′</sup> such that either (i) Γ visits $i ^ { \prime } , \mathrm { ( i i ) } t >$ $\mathrm { L F D T } ( \gamma _ { i , j } , \gamma _ { i ^ { \prime } , j ^ { \prime } } )$ for all $j ^ { \prime } \in \{ 1 , 2 , \dots , n _ { \mathrm { w i n } } ( i ^ { \prime } ) \}$ , or (iii) $\sigma + d _ { i ^ { \prime } } > d _ { \operatorname* { m a x } }$
 
-For every pair of segments ( _ξ, ξ[′]_ ) corresponding to different targets, we compute a lower bound _c_ seg( _ξ, ξ[′]_ ) on the cost of a feasible agent trajectory that intercepts _ξ_ , then _ξ[′]_ . To do so, we compute the shortest collision-free path in space from _ξ_ to _ξ[′]_ , ignoring time constraints, via the method from [16]. Let _c_ be the path’s distance traveled. Let _t_ be the start time of _ξ_ , and let _t[′]_ be the end time of _ξ[′]_ . We set _c_ seg( _ξ, ξ[′]_ ) = _c_ if _t_ + _c/v_ max _≤ t[′]_ , and _c_ seg( _ξ, ξ[′]_ ) = _∞_ otherwise. 
+$\vec { g } _ { \mathrm { u b } }$ is a vector with length $n _ { \mathrm { s e g } } ( \gamma _ { i , j } )$ where, if Γ is not a tour, ${ \vec { g } } _ { \mathrm { u b } } [ k ] = g _ { \mathrm { s t a r t } } ( s _ { i , j , k } )$ within the segment-startgraph for all tours extending from Γ. If Γ is a tour, $\vec { g } _ { \mathrm { u b } }$ contains a single element equal to c(Γ), as computed in Section V-E (i.e. not the true tour cost)
 
-Next, given a tour Γ, we define a _segment-graph G_ seg = ( _V_ seg _, E_ seg), where the set of nodes _V_ seg is the set of all segments whose target-windows are visited by Γ. For each edge (Γ[ _n_ ] _,_ Γ[ _n_ + 1]) _∈E_ tw traversed by Γ, we connect edges in _E_ seg from every segment of Γ[ _n_ ] to every segment of Γ[ _n_ + 1]. The cost of each edge ( _ξ, ξ[′]_ ) is _c_ seg( _ξ, ξ[′]_ ). 
+• ⃗g<sub>lb</sub> is a vector with length $n _ { \mathrm { s e g } } ( \gamma _ { i , j } )$ where, if Γ is not a tour, we have $\vec { g } _ { \mathrm { l b } } [ k ] = g _ { \mathrm { s e g } } ( \xi _ { i , j , k } )$ within the segmentgraph for all tours extending from Γ. If Γ is a tour, ⃗g<sub>lb</sub> contains a single element equal to $\underline { { c } } ( \Gamma )$ , as computed in Section V-E (i.e. not the true tour cost)
 
-Let _g_ seg( _ξ_ ) be the cost of the shortest path in _G_ seg from _ξ_ 0 to _ξ_ . _c_ (Γ), computed as follows, lower-bounds _c[∗]_ (Γ): 
+$$
+\lambda = c _ {\text { dual }} (\Gamma)
+$$
 
+Consider two labels $l = ( \gamma _ { i , j } , t , \sigma , \vec { b } , \vec { g } _ { \mathrm { u b } } , \vec { g } _ { \mathrm { l b } } , \lambda )$ and $l ^ { \prime } =$ $( \gamma _ { i , j } , t ^ { \prime } , \sigma ^ { \prime } , \vec { b } ^ { \prime } , \vec { g } _ { \mathrm { u b } } ^ { \prime } , \vec { g } _ { \mathrm { l b } } ^ { \prime } , \lambda ^ { \prime } )$ , both at target-window $\gamma _ { i , j } . \mathrm { ~ H f ~ }$ $\gamma _ { i , j } = \gamma _ { 0 }$ , we say l dominates l<sup>′</sup> if $\begin{array} { r } { \vec { g } _ { \mathrm { u b } } [ \breve { 1 } ] - \lambda \le \vec { g } _ { \mathrm { l b } } ^ { \prime } [ \breve { 1 } ] ^ { \cup } - \lambda . } \end{array}$ Otherwise, l dominates l<sup>′</sup> if
 
-![](1_survey/papers/md/Bhat2026Optimal_figs/Bhat2026Optimal.pdf-0004-07.png)
+$$
+\sigma \leq \sigma^ {\prime}\tag{6}
+$$
 
+$$
+\vec {b} [ i ^ {\prime} ] \leq \vec {b} ^ {\prime} [ i ^ {\prime} ], \forall i ^ {\prime} \in \{1, \dots , n _ {\mathrm{tar}} \}\tag{7}
+$$
 
-_g_ seg( _ξ_ 0) = 0, and for a segment _ξ[′]_ of Γ[ _n_ ] with 1 _< n <_ Len(Γ), we have _g_ seg( _ξ[′]_ ) = _ξ∈_ Segmentsmin(Γ[ _n−_ 1])[(] _[g]_[seg][(] _[ξ]_[) +] _c_ seg( _ξ, ξ[′]_ )). Thus to compute _c_ (Γ) we can iterate from _n_ = 2 to _n_ = Len(Γ) _−_ 1, and for each _n_ , compute the _g_ -values of the segments of Γ[ _n_ ] using the _g_ -values for Γ[ _n −_ 1]. 
+$$
+\vec {g} _ {\mathrm{ub}} [ k ] + \delta (\xi_ {i, j, k}) - \lambda \leq \vec {g} _ {\mathrm{lb}} ^ {\prime} [ k ] - \lambda^ {\prime}, \forall k \in \{1, \dots , n _ {\mathrm{seg}} (\gamma_ {i, j}) \}\tag{8}
+$$
 
+where $\delta ( \xi _ { i , j , k } )$ is the length of segment $\xi _ { i , j , k }$ in space. Let Γ be the partial tour represented by l and $\Gamma ^ { \prime }$ be the partial tour represented by $l ^ { \prime } .$ . Let Ω be the tour extending Γ such that $c ^ { * } ( \Omega ) - c _ { \mathrm { d u a l } } ( \Omega )$ is minimal, and let $\Omega ^ { \prime }$ be the tour extending $\Gamma ^ { \prime }$ such that $c ^ { * } ( \Omega ^ { \prime } ) - c _ { \mathrm { d u a l } } ( \Omega ^ { \prime } )$ is minimal. If l dominates $\bar { l ^ { \prime } }$ by our definition above, then $c ^ { * } ( \Omega ) - c _ { \mathrm { d u a l } } ( \Omega ) < c ^ { * } ( \Omega ^ { \prime } ) -$ $c _ { \mathrm { d u a l } } ( \Omega ^ { \prime } )$ ([8], Theorem 1).
 
-![](1_survey/papers/md/Bhat2026Optimal_figs/Bhat2026Optimal.pdf-0004-09.png)
+In particular, (6) and (7) are standard dominance conditions from the VRP literature [10], ensuring that any sequence of target-windows that can be appended to Γ can also be appended to $\Gamma ^ { \prime }$ without the violating the capacity constraint or causing a target to be revisited.
 
+Condition (8) is specific to moving targets. Consider trajectories $\tau _ { \mathrm { a } }$ and $\tau _ { \mathrm { a } } ^ { \prime }$ that execute Γ and $\Gamma ^ { \overline { { \prime } } }$ , respectively, and terminate by intercepting $\xi _ { i , j , k } ,$ , with minimum distance traveled. Define the reduced cost of $\tau _ { \mathrm { a } }$ as the distance traveled minus $\lambda ,$ , and the reduced cost of $\tau _ { \mathrm { a } } ^ { \prime }$ likewise using $\lambda ^ { \prime } .$ . The term $\vec { g } _ { \mathrm { u b } } [ k ]$ on the LHS of (8) upper-bounds the distance an agent must travel to execute Γ and travel to the start of $\xi _ { i , j , k } ,$ , and $\delta ( \xi _ { i , j , k } )$ is the distance an agent must travel from the start of $\xi _ { i , j , k }$ to the end, i.e. to visit every point in the segment. Thus, the sum of these two terms upperbounds the cost of $\tau _ { \mathrm { a } } ,$ since $\tau _ { \mathrm { a } }$ cannot do worse than travel to the start of $\xi _ { i , j , k }$ , then move along $\xi _ { i , j , k }$ to the point of interception. Thus the LHS upper-bounds the reduced cost of $\tau _ { \mathrm { a } } .$ . The $\vec { g } _ { \mathrm { 1 b } } ^ { \prime }$ lower-bounds the distance traveled by $\tau _ { \mathrm { a } } ^ { \prime } \mathrm { : }$ , so the RHS lower-bounds the reduced cost of $\tau _ { \mathrm { a } } ^ { \prime }$ . If condition (8) holds, $\tau _ { \mathrm { a } }$ cannot be worse (i.e. cannot have more positive reduced cost) than $\tau _ { \mathrm { a } } ^ { \prime }$ and we can discard $l ^ { \prime } .$
 
-Fig. 2. Computing bounds on the cost of an example tour Γ. To compute the lower bound _c_ (Γ), we divide each target-window visited by Γ into segments. We then construct a _segment-graph G_ seg, where the nodes are the segments, and an edge connects every segment of Γ[ _n_ ] to every segment of Γ[ _n_ +1]. The edge cost from segment _ξ_ to _ξ[′]_ is the distance traveled along the shortest path in space from _ξ_ to _ξ[′]_ , if this path satisfies the relaxed timing constraints from in Section V-D, and _∞_ otherwise. _c_ (Γ) is the cost of the shortest path in _G_ seg from _ξ_ 0 to _ξ_ 0 visiting all target-windows in Γ. To compute the upper bound _c_ , we construct a _segment-start-graph G_ start, where the nodes are the starting points of the segments, and an edge connects every segment-start of Γ[ _n_ ] to every segment-start of Γ[ _n_ + 1]. The edge cost from _s_ to _s[′]_ is distance traveled by a feasible minimum-distance agent trajectory from _s_ to _s[′]_ , if such a trajectory exists or if _s[′]_ = _s_ 0, and _∞_ otherwise. Our upper bound is the cost of the shortest path in _G_ start from _s_ 0 to _s_ 0 that visits all target-windows in Γ. 
+2) Labeling Algorithm: Our labeling algorithm maintains a set of mutually nondominated labels at each target-window, as well as a priority queue, where labels with lexicographically smaller $( t , \sigma , \operatorname* { m i n } ( g _ { \mathrm { l b } } ) - \lambda )$ have higher priority. When we expand a label $l = ( \gamma _ { i , j } , t , \sigma , \vec { b } , \vec { g } _ { \mathrm { u b } } , \vec { g } _ { \mathrm { l b } } , \lambda )$ , we iterate over all successor target-windows of l, i.e. all target-windows $\gamma _ { i ^ { \prime } , j ^ { \prime } }$ satisfying the following conditions:
 
-After this, we can compute _c_ (Γ) via (3). As shown in Fig. 2, these computations correspond to finding an agent trajectory executing Γ subject to relaxed continuity constraints. 
+$$
+1) \left(\gamma_ {i, j}, \gamma_ {i ^ {\prime}, j ^ {\prime}}\right) \in \mathcal {E} _ {\mathrm{tw}} \setminus \mathcal {B}
+$$
 
-For tours generated in the pricing problem (Section V- F), these _g_ -values are computed as a byproduct of solving the pricing problem. For tours generated using the feasible solution generation method in Section V-H, we perform these _g_ -value computations after generating the tours. 
+2) $t \leq \mathrm { L F D T } ( \gamma _ { i , j } , \gamma _ { i ^ { \prime } , j ^ { \prime } } )$
 
-## _E. Computing Upper Bound on Tour Cost_ 
+3) $\sigma + d _ { i ^ { \prime } } \leq d _ { \operatorname* { m a x } }$
 
-This section describes how we compute the upper bound _c_ (Γ) for a tour Γ in Section V. Recall that in Section V-D, we divided each target-window into segments. Let the starting point in space-time of segment _ξi,j,k_ be _si,j,k_ = ( _τi_ ( _t_ ~~_i_~~ _,j,k_[)] _[,][ t]_ ~~_i_~~ _,j,k_[)][.][Denote][the][starting][point][of][the] depot segment as _s_ 0 = _s_ 0 _,_ 1 _,_ 1. For a target-window _γ_ , let SegmentStarts( _γ_ ) denote the set of segment-starts of _γ_ . We construct a _segment-start-graph G_ start = ( _V_ start _, E_ start). The set 
+4) If ${ \mathit { i } } ^ { \prime } \neq 0 ,$ then $\vec { b } [ i ^ { \prime } ] = 0$
 
-of nodes _V_ start is the set of all segment-starts whose targetwindows are visited by Γ. For each edge ( _γ, γ[′]_ ) _∈E_ tw traversed by Γ, we connect an edge in _E_ start from every segment-start of _γ_ to every segment-start of _γ[′]_ . 
+For each successor target-window $\gamma _ { i ^ { \prime } , j ^ { \prime } }$ , we generate a successor label $l ^ { \prime } = ( \gamma _ { i ^ { \prime } , j ^ { \prime } } , t ^ { \prime } , \sigma ^ { \prime } , \vec { b } ^ { \prime } , \vec { g } _ { \mathrm { u b } } ^ { \prime } , \vec { g } _ { \mathrm { l b } } ^ { \prime } , \lambda ^ { \prime } )$ , where
 
-To determine the cost of an edge from _s_ = ( _q, t_ ) to _s[′]_ = ( _q[′] , t[′]_ ), denoted as _c_ start( _s, s[′]_ ), we compute the shortest collision-free path in space from _q_ to _q[′]_ using [17]. Let the distance traveled by this path be _c_ . If _t_ + _c/v_ max _≤ t[′]_ or _s[′]_ = _s_ 0, we set _c_ start( _s, s[′]_ ) = _c_ , and otherwise _c_ start( _s, s[′]_ ) = _∞_ . 
+$t ^ { \prime } = \mathrm { E F A T } ( \gamma _ { i , j } , \gamma _ { i ^ { \prime } , j ^ { \prime } } , t )$ , where EFAT is the earliest time at which a feasible agent trajectory can intercept $\gamma _ { i ^ { \prime } , j ^ { \prime } }$ after intercepting $\gamma _ { i , j }$ at time t. EFAT stands for “earliest feasible arrival time,” and we compute it using the method from [14].
 
-Define _g_ start( _s_ ) as the cost of a shortest path in _G_ start from _s_ 0 to _s_ . _c_ (Γ), computed as follows, upper-bounds _c[∗]_ (Γ): 
+$$
+\sigma^ {\prime} = \sigma + d _ {i ^ {\prime}}
+$$
 
+$\vec { b ^ { \prime } }$ is identical to $\vec { b , }$ except for the following modifications. First, if $i ^ { \prime } \ne 0$ , we set $\vec { b } ^ { \prime } [ i ^ { \prime } ] = 1$ . Then, we set $\vec { b ^ { \prime } } [ i ^ { \prime \prime } ] = 1$ for each target $i ^ { \prime \prime }$ such that either (i) $\sigma ^ { \prime } + d _ { i ^ { \prime \prime } } > d _ { \mathrm { m a x } }$ , or (ii) for all $j ^ { \prime \prime } \in \{ 1 , 2 , \dots , n _ { \mathrm { w i n } } ( i ^ { \prime \prime } ) \}$ $t ^ { \prime } > \mathrm { L F D T } ( \gamma _ { i ^ { \prime } , j ^ { \prime } } , \gamma _ { i ^ { \prime \prime } j ^ { \prime \prime } } )$
 
-![](1_survey/papers/md/Bhat2026Optimal_figs/Bhat2026Optimal.pdf-0005-03.png)
+• For each $k ^ { \prime } \in \{ 1 , 2 , \dotsc , n _ { \mathrm { s e g } } ( \gamma _ { i ^ { \prime } , j ^ { \prime } } ) \}$ , we compute
 
+$$
+\vec {g} _ {\mathrm{ub}} ^ {\prime} [ k ^ {\prime} ] = \min _ {k \in \{1, 2, \dots , n _ {\text {seg}} (\gamma_ {i, j}) \}} \vec {g} _ {\mathrm{ub}} [ k ] + c _ {\text {start}} (s _ {i, j, k}, s _ {i ^ {\prime}, j ^ {\prime}, k ^ {\prime}})\tag{9}
+$$
 
-To compute _c_ (Γ), we note that _g_ ( _s_ 0) = 0, and for a segment _ξ[′]_ of Γ[ _n_ ] with 1 _< n <_ Len(Γ), we have _g_ start( _s[′]_ ) = _s∈_ SegmentStartsmin (Γ[ _n−_ 1])[(] _[g]_[start][(] _[s]_[) +] _[ c]_[start][(] _[s, s][′]_[))][.][Thus,] we can iterate from _n_ = 2 to _n_ = Len(Γ) _−_ 1, and for each _n_ , compute the _g_ -values of the segment-starts of Γ[ _n_ ] using the _g_ -values for Γ[ _n −_ 1]. Then we can compute _c_ (Γ) using (4). For tours generated within the pricing problem (Section V-F), this computation happens as a byproduct and does not require extra computation. For tours generated using the feasible solution generation method in Section V-H, we must compute these _g_ -values separately from the tour generation. 
+• For each $k ^ { \prime } \in \{ 1 , 2 , \dots , n _ { \mathrm { s e g } } ( \gamma _ { i ^ { \prime } , j ^ { \prime } } ) \}$ , we compute
 
-We place points _si,j,k_ at the segment-starts rather than at arbitrary points because, within the pricing problem (Section V-F), we need an upper bound on the cost of reaching each segment-start for dominance checking. 
+$$
+\vec {g} _ {\mathrm{lb}} ^ {\prime} [ k ^ {\prime} ] = \min _ {k \in \{1, 2, \dots , n _ {\mathrm{seg}} (\gamma_ {i, j}) \}} \vec {g} _ {\mathrm{lb}} [ k ] + c _ {\mathrm{seg}} (\xi_ {i, j, k}, \xi_ {i ^ {\prime}, j ^ {\prime}, k ^ {\prime}})\tag{10}
+$$
 
-## _F. Pricing Problem_ 
+• λ<sup>′</sup> = λ, if $i ^ { \prime } = 0 .$ , and $\lambda ^ { \prime } = \lambda + \lambda _ { i ^ { \prime } }$ ′ otherwise
 
-The pricing problem seeks a set of tours _F_ price such that the RSMP on _F ∪F_ price has a smaller optimal cost than the RSMP on _F_ . To solve the pricing problem, we first note that when the RSMP produces a solution _θ_ (specifically, its primal solution), the RSMP also produces a dual solution ( _λ_ 0 _, λ_ 1 _, . . . , λn_ tar), where _λ_ 0 _∈_ R _≤_ 0 is the dual variable corresponding to (1b), and for _i >_ 0, _λi ∈_ R _≥_ 0 is the dual variable corresponding to (1c). Similarly to prior VRP work [11], we define the _reduced cost_ of Γ as follows: 
+We then check if any labels at $\gamma _ { i ^ { \prime } , j ^ { \prime } }$ dominate $l ^ { \prime } .$ If so, we prune $l ^ { \prime } .$ Otherwise, we prune labels at $\gamma _ { i ^ { \prime } , j ^ { \prime } }$ dominated by $l ^ { \prime } ,$ , and we mark them to be discarded upon expansion from the priority queue. Then we push l<sup>′</sup> onto the priority queue. Any time we generate a successor label l at $\gamma _ { 0 }$ with $\vec { g } _ { \mathrm { l b } } [ 1 ] -$ $\lambda \overset { \cdot } { < } 0 , ^ { 2 }$ , and l is not dominated, we reconstruct the tour Γ represented by l via backpointer traversal, then add Γ to the set of tours to be returned. At this step, if Γ has already been evaluated, we do not add it to this set, since $c _ { \mathrm { r e d } } ^ { * } ( \Gamma )$ cannot be negative. The search ends when the priority queue becomes empty.
 
-_c_ ~~r~~ ed[(Γ) =] _[c]_ (Γ) _− c_ dual(Γ) (5) _n_ tar where _c_ dual(Γ) = � _α_ ( _i,_ Γ) _λi_ + _λ_ 0. To improve the RSMP’s _i_ =1 optimal cost, _F_ price must contain a tour with negative reduced cost [11]. Therefore, as in prior work, we search for tours with negative reduced cost. 
+## G. Computing Tour Cost via SPP-GCS
 
-In contrast to prior work, we do not guarantee returning a tour with negative reduced cost if such a tour exists. Instead, we only guarantee returning some Γ such that _c[∗]_ (Γ) _− c_ dual(Γ) _<_ 0, if such Γ exists. This is sufficient to ensure that if we do not return any tours, then (2) is satisfied, as shown in the proof of Lemma 1. 
+At the beginning of Lazy BPRC, we decompose free space into convex regions $\mathcal { A } _ { 1 } , \mathcal { A } _ { 2 } , \dotsc , \mathcal { A } _ { n _ { \mathrm { r e g } } } .$ , where $n _ { \mathrm { r e g } }$ is the number of regions. We then define a GCS $\mathcal { G } _ { \mathrm { c s } } = ( \dot { \mathcal { V } } _ { \mathrm { c s } } , \mathcal { E } _ { \mathrm { c s } } )$ where the set of nodes $\nu _ { \mathrm { c s } }$ consists of convex sets in spacetime. For each region A in our free space decomposition, we have a region-node $\mathcal { X } _ { \mathcal { A } } = \mathcal { A } \times \mathbb { R }$ . For each target-window $\gamma _ { i , j }$ visited by Γ, we have a window-node $\mathcal { X } _ { i , j }$ , consisting of the set of space-time points along $\tau _ { i }$ within $[ \underline { { t } } _ { i , j } , \bar { t } _ { i , j } ]$ . Since we assumed that a target’s velocity is constant within a time window, $\mathcal { X } _ { i , j }$ is a line segment in space-time, which is a convex set. We refer to nodes in $\mathcal { G } _ { \mathrm { c s } }$ as GCS-nodes. An edge connects a set $\mathcal { X }$ to a set $\mathcal { X } ^ { \prime }$ if X intersects $\mathcal { X } ^ { \prime }$ . We refer to a path in $\mathcal { G } _ { \mathrm { c s } }$ as a GCS-path. We say a GCS-path $P$ visits target-window $\gamma _ { i , j }$ if $P$ contains $\mathcal { X } _ { i , j }$
 
-We search for tours with negative reduced cost by modifying the labeling algorithm from [8] to handle obstacles. First, we define a _partial tour_ , which has the same definition as a tour from Section IV, except that a partial tour does not need to end with the depot. 
+We find a trajectory executing Γ using an algorithm similar to FMC\* [13], but without the various speedup techniques that $\mathrm { F M C ^ { \ast } }$ implements particularly for a minimum-time objective, since we aim to minimize distance traveled. We also replace the heuristic from $\mathrm { F M C ^ { \ast } }$ with the heuristic described later in the section, and we replace the focal search from FMC\* with a best-first search, since we seek optimal solutions rather than bounded-suboptimal solutions.
 
-_1) Labels and Label Dominance:_ Within our labeling algorithm, we represent a partial tour Γ using a _label l_ = ( _γi,j, t, σ,[⃗] b,⃗g_ ub _,⃗g_ lb _, λ_ ), where 
+We search the GCS using a priority queue called OPEN, containing GCS-paths. We initialize OPEN with the GCSpath $( \mathcal { X } _ { 0 , 1 } )$ , i.e. a path that stays at the depot. Each GCSpath on OPEN has an f-value. The initial GCS-path $( \mathcal { X } _ { 0 , 1 } )$ has an f-value of 0; we discuss the computation of f for other GCS-paths shortly. GCS-paths with smaller f -values have higher priority.
 
-- _γi,j_ is the final target-window in Γ 
+Each iteration pops a GCS-path P from OPEN, then iterates over each GCS-node X adjacent to $P [ - 1 ]$ . If X is a window-node $\mathcal { X } _ { i , j }$ , and $P$ has not visited the target-windows occurring before $\gamma _ { i , j }$ in Γ, we discard X . If X is a regionnode, and X already occurs in $P$ after the final window-node in $P _ { \mathrm { { : } } }$ , we discard X . If we do not discard X , we construct a successor GCS-path $P ^ { \prime }$ by appending X to $P ,$ , then compute its f -value as follows.
 
-- _t_ is the minimum time required to execute Γ 
+Suppose the first target-window in Γ unvisited by $P ^ { \prime }$ is $\Gamma [ n ]$ . We optimize a trajectory $\tau _ { \mathrm { a } }$ with a collision-free portion $\tau _ { \mathrm { a , 1 } }$ passing through the sets in P in sequence, followed by an obstacle-unaware portion $\tau _ { \mathrm { a } , 2 }$ that travels to $\Gamma [ n ]$ . We parameterize $\tau _ { \mathrm { a , 1 } }$ with a line segment per set in $P ,$ and $\tau _ { \mathrm { a } , 2 }$ with a single line segment. The objective of the trajectory optimization is a g-value plus an h-value. The g-value is the distance traveled by $\tau _ { \mathrm { a , 1 } }$ . The h-value is the distance traveled by $\tau _ { \mathrm { a } , 2 }$ , plus a term $h _ { n } ( t )$ which depends on the ending time t of $\tau _ { \mathrm { a } , 2 } . \ h _ { n } ( t )$ lower bounds the cost of intercepting the remaining targets in Γ after departing Γ[n] at time t, and we describe how to compute $h _ { n }$ in Section V-G.1.
 
-- _σ_ is the sum of demands of targets visited by Γ 
+The trajectory optimization is the same as the optimization performed for a GCS-path in $\mathrm { F M C ^ { \ast } }$ [13], except for two differences. First, FMC\* also optimizes an obstacle-unaware portion of the trajectory that departs $\Gamma [ n ]$ and intercepts all remaining targets, in place of our $h _ { n }$ value. Second, we constrain our computed trajectory to intercept $\Gamma [ n ]$ no later than a value $t _ { \mathrm { m a x } , n } ,$ which is the latest time at which a feasible agent trajectory could depart $\Gamma [ n ]$ , then intercept the remaining sequence of target-windows in Γ. We compute $t _ { \mathrm { m a x } , n }$ for each $n \in \{ 1 , 2 , \ldots , \mathrm { L e n } ( \Gamma ) \}$ } before beginning the search as follows. For $n = \mathrm { L e n } ( \Gamma )$ , we set $t _ { \operatorname* { m a x } , n } = \infty$ . We then iterate backwards from $n = \mathrm { L e n } ( \Gamma ) - 1$ to $n = 1$ , and $t _ { \mathrm { m a x } , n } = \mathrm { L F D T } ( \Gamma [ n ] , \Gamma [ n + 1 ] , t _ { \mathrm { m a x } , n + 1 } )$
 
-- _[⃗] b_ is a binary vector with length _n_ tar where _[⃗] b_ [ _i[′]_ ] = 1 for any target _i[′]_ such that either (i) Γ visits _i[′]_ , (ii) _t >_ LFDT( _γi,j, γi′,j′_ ) for all _j[′] ∈{_ 1 _,_ 2 _, . . . , n_ win( _i[′]_ ) _}_ , or (iii) _σ_ + _di′ > d_ max 
+Finally, if the trajectory optimization is infeasible, we discard $P ^ { \prime }$ . Otherwise, the trajectory optimization’s optimal cost is the f -value for $P ^ { \prime }$ , and we push $P ^ { \prime }$ onto OPEN.
 
-- _⃗g_ ub is a vector with length _n_ seg( _γi,j_ ) where, if Γ is not a tour, _⃗g_ ub[ _k_ ] = _g_ start( _si,j,k_ ) within the segment-startgraph for all tours extending from Γ. If Γ is a tour, _⃗g_ ub contains a single element equal to _c_ (Γ), as computed in Section V-E (i.e. not the true tour cost) 
+1) Constructing $h _ { n }$ Function: Consider the segmentgraph $\mathcal { G } _ { \mathrm { s e g } }$ for Γ, as defined in Section V-D. For a segment $\xi$ in $\mathcal { G } _ { \mathrm { s e g } } ,$ let $h _ { \mathrm { s e g } } ( \xi )$ be the cost of the shortest path in $\mathcal { G } _ { \mathrm { s e g } }$ from $\xi$ to $\xi _ { 0 }$ . Note that $h ( \xi _ { 0 } ) = 0$ , and for a segment $\xi$ of Γ[n] with $1 < n < \mathsf { L e n } ( \Gamma )$ , we have
 
-- _⃗g_ lb is a vector with length _n_ seg( _γi,j_ ) where, if Γ is not a tour, we have _⃗g_ lb[ _k_ ] = _g_ seg( _ξi,j,k_ ) within the segmentgraph for all tours extending from Γ. If Γ is a tour, _⃗g_ lb contains a single element equal to _c_ (Γ), as computed in Section V-E (i.e. not the true tour cost) 
+$$
+h _ {\text {seg}} (\xi) = \min _ {\xi^ {\prime} \in \text {Segments} (\Gamma [ n + 1 ])} (c _ {\text {seg}} (\xi , \xi^ {\prime}) + h _ {\text {seg}} (\xi^ {\prime})).\tag{11}
+$$
 
-## _• λ_ = _c_ dual(Γ) 
+Before searching $\mathcal { G } _ { \mathrm { c s } } .$ , we compute $h _ { \mathrm { s e g } }$ for all ξ in $\mathcal { G } _ { \mathrm { s e g } }$ as follows. We iterate backward from $n = \mathrm { L e n } ( \Gamma ) - 1$ to $n = 2 ,$ and for each $n ,$ , we compute the h-values for the segments of Γ[n] using the h-values for $\Gamma [ n + 1 ]$ ] using (11).
 
-Consider two labels _l_ = ( _γi,j, t, σ,[⃗] b,⃗g_ ub _,⃗g_ lb _, λ_ ) and _l[′]_ = ( _γi,j, t[′] , σ[′] ,[⃗] b[′] ,⃗g[′]_ ub _[,⃗g][ ′]_ lb _[, λ][′]_[)][,][both][at][target-window] _[γ][i,j]_[.][If] _γi,j_ = _γ_ 0, we say _l dominates l[′]_ if _⃗g_ ub[1] _− λ ≤ ⃗g[′]_ lb[[1]] _[ −][λ]_[.] Otherwise, _l_ dominates _l[′]_ if 
+Next, for each $n \in \{ 1 , 2 , \ldots , \operatorname { L e n } ( \Gamma ) \}$ , we do the following. Let $\gamma _ { i , j }$ be $\Gamma [ n ]$ . We construct a matrix $A _ { n } \in$ $\mathbb { R } ^ { n _ { \mathrm { s e g } } ( \breve { \Gamma } [ n ] ) \times 2 }$ whose kth row is $[ \underline { { t } } _ { i , j , k } , 1 ]$ . We construct a vector $\vec { b } _ { n } \in \mathbb { R } ^ { n _ { \mathrm { s e g } } ( \Gamma [ n ] ) }$ whose kth element is $h ( \xi _ { i , j , k } )$ . We then find the least-squares solution $\phi _ { n } \in \mathbb { R } ^ { 2 }$ to the equation $A _ { n } \phi _ { n } = \vec { b } _ { n }$ . For a time $t \in [ \underline { { t } } _ { i , j } , \overline { { t } } _ { i , j } ] , \phi _ { n } [ 1 ] t + \phi _ { n } [ 2 ]$ approximates the minimum cost to intercept all remaining targetwindows in Γ after departing Γ[n] at time t. To adjust this into a lower bound, we construct another matrix $B _ { n }$ whose kth row is $[ \bar { t } _ { i , j , k } , 1 ]$ , then compute a value $r _ { \mathrm { m a x } }$ as the max element of the vector vertcat $( A _ { n } , B _ { n } ) \phi _ { n } - \mathrm { v e r t c a t } ( \vec { b } _ { n } , \vec { b } _ { n } )$ where vertcat concatenates two matrices vertically. $r _ { \mathrm { m a x } }$ is the largest overestimation of $h _ { \mathrm { s e g } } ( \xi _ { i , j , k } )$ that our approximation makes over all segment start and end times of $\gamma _ { i , j } .$ . Then $h _ { n } ( t ) = \phi _ { n } [ 1 ] t + \phi _ { n } [ 2 ] - r _ { \operatorname* { m a x } }$ lower-bounds the remaining cost of executing Γ after departing $\Gamma [ n ]$ at time t.
 
+## H. Feasible Solution Generation
 
-![](1_survey/papers/md/Bhat2026Optimal_figs/Bhat2026Optimal.pdf-0005-20.png)
+To generate the initial incumbent, as well as a feasible set of tours $\mathcal { F } _ { \mathrm { n e w } }$ when the RSMP is infeasible, we extend the feasible solution generation from [8] to handle obstacles. This algorithm requires the EFAT and LFDT functions described previously. In [8], the values were computed using closed-form expressions, since [8] did not consider obstacles. Since we consider obstacles, we instead compute the values using the method from [14]. Otherwise, our initial feasible solution generation method is identical to BPRC’s.
 
+## I. Caching EFAT and LFDT Values
 
-where _δ_ ( _ξi,j,k_ ) is the length of segment _ξi,j,k_ in space. Let Γ be the partial tour represented by _l_ and Γ _[′]_ be the partial tour represented by _l[′]_ . Let Ω be the tour extending Γ such that _c[∗]_ (Ω) _− c_ dual(Ω) is minimal, and let Ω _[′]_ be the tour extending Γ _[′]_ such that _c[∗]_ (Ω _[′]_ ) _− c_ dual(Ω _[′]_ ) is minimal. If _l_ dominates _l[′]_ by our definition above, then _c[∗]_ (Ω) _− c_ dual(Ω) _< c[∗]_ (Ω _[′]_ ) _− c_ dual(Ω _[′]_ ) ([8], Theorem 1). 
+Lazy BPRC computes EFAT and LFDT several times, possibly with the same arguments. We cache the values for each unique set of arguments to speed up the algorithm.
 
-In particular, (6) and (7) are standard dominance conditions from the VRP literature [10], ensuring that any sequence of target-windows that can be appended to Γ can also be appended to Γ _[′]_ without the violating the capacity constraint or causing a target to be revisited. 
+## VI. THEORETICAL ANALYSIS
 
-Condition (8) is specific to moving targets. Consider trajectories _τ_ a and _τ_ a _[′]_ that execute Γ and Γ _[′]_ , respectively, and terminate by intercepting _ξi,j,k_ , with minimum distance traveled. Define the reduced cost of _τ_ a as the distance traveled minus _λ_ , and the reduced cost of _τ_ a _[′]_ likewise using _λ[′]_ . The term _⃗g_ ub[ _k_ ] on the LHS of (8) upper-bounds the distance an agent must travel to execute Γ and travel to the start of _ξi,j,k_ , and _δ_ ( _ξi,j,k_ ) is the distance an agent must travel from the start of _ξi,j,k_ to the end, i.e. to visit every point in the segment. Thus, the sum of these two terms upperbounds the cost of _τ_ a, since _τ_ a cannot do worse than travel to the start of _ξi,j,k_ , then move along _ξi,j,k_ to the point of interception. Thus the LHS upper-bounds the reduced cost of _τ_ a. The _⃗g[′]_ lb[lower-bounds][the][distance][traveled][by] _[τ]_[a] _[′]_[,][so] the RHS lower-bounds the reduced cost of _τ_ a _[′]_ . If condition 
+Lemma 1. When we return no tours in the pricing problem, (2) is satisfied.
 
-(8) holds, _τ_ a cannot be worse (i.e. cannot have more positive reduced cost) than _τ_ a _[′]_ and we can discard _l[′]_ . 
+Proof. Referring to values from the first paragraph of Section V-F, strong duality implies
 
-_2) Labeling Algorithm:_ Our labeling algorithm maintains a set of mutually nondominated labels at each target-window, as well as a priority queue, where labels with lexicographically smaller ( _t, σ,_ min( _g_ lb) _− λ_ ) have higher priority. When we expand a label _l_ = ( _γi,j, t, σ,[⃗] b,⃗g_ ub _,⃗g_ lb _, λ_ ), we iterate over all _successor target-windows_ of _l_ , i.e. all target-windows _γi′,j′_ satisfying the following conditions: 
+$$
+\underline {{c}} (\theta) = \sum_ {i = 1} ^ {n _ {\mathrm{tar}}} \lambda_ {i} + n _ {\mathrm{agt}} \lambda_ {0}\tag{12}
+$$
 
-1) ( _γi,j, γi′,j′_ ) _∈E_ tw _\ B_ 
+where the RHS is the cost of λ for the dual of the RSMP: this dual is the same as (18)-(21) in [11], but costs are replaced with lower bounds. If we return no tours, $c ^ { * } ( \Gamma ) - c _ { \lambda } ( \Gamma ) \geq 0$ for all tours. This implies λ is feasible for the dual of LP-B (the same dual as (18)-(21) in [11]). The cost of λ for the dual of LP-B is $\sum _ { i = 1 } ^ { n _ { \mathrm { t a r } } } \lambda _ { i } + n _ { \mathrm { a g t } } \lambda _ { 0 }$ , which lower-bounds $c ^ { * } ( B )$ by weak duality. Combining this with (12), we have (2).
 
+## Theorem 1. Lazy BPRC finds an optimal solution.
 
-![](1_survey/papers/md/Bhat2026Optimal_figs/Bhat2026Optimal.pdf-0006-03.png)
+Proof. Let $\mathcal { F } _ { \mathrm { o p t } }$ be an optimal MT-VRP-O solution, let $c _ { \mathrm { o p t } }$ be its cost, and let $\theta _ { \mathrm { o p t } }$ be the corresponding solution to ILP (1). We show by induction that whenever we execute $\mathrm { A l g }$ 1, Line 5, either $\overline { { c } } _ { \mathrm { i n c } } = c _ { \mathrm { o p t } }$ , or $\theta _ { \mathrm { o p t } }$ is feasible for LP-B for some $\boldsymbol { B }$ on the stack.
 
+Base Case The first node pushed onto the stack is $B = \varnothing .$ and LP-B is a relaxation of ILP (1), so $\theta _ { \mathrm { o p t } }$ is feasible for LP-B.
 
-For each successor target-window _γi′,j′_ , we generate a successor label _l[′]_ = ( _γi′,j′, t[′] , σ[′] ,[⃗] b[′] ,⃗g[′]_ ub _[,⃗g][ ′]_ lb _[, λ][′]_[)][,][where] 
+Induction Hypothesis Suppose on Line 5, either (i) $\bar { c } _ { \mathrm { i n c } } =$ $c _ { \mathrm { o p t } } ,$ or (ii) $\theta _ { \mathrm { o p t } }$ is feasible for LP-B for some B on the stack.
 
-- _t[′]_ = EFAT( _γi,j, γi′,j′, t_ ), where EFAT is the earliest time at which a feasible agent trajectory can intercept _γi[′] ,j[′]_ after intercepting _γi,j_ at time _t_ . EFAT stands for “earliest feasible arrival time,” and we compute it using the method from [14]. 
+Induction Step Suppose (i) holds. We never increase $\overline { { c } } _ { \mathrm { i n c } } ,$ and $\overline { { c } } _ { \mathrm { i n c } }$ cannot become smaller than $c _ { \mathrm { o p t } }$ by the optimality of $c _ { \mathrm { o p t } }$ , so if Line 5 is ever executed again, (i) will still hold.
 
-- _σ[′]_ = _σ_ + _di′_ 
+Now suppose (ii) holds. If B is not popped at this iteration, (ii) trivially holds at the next iteration. Next, suppose B is popped. Combining Lemma (1) with the feasibility of $\theta _ { \mathrm { o p t } }$ for LP-B, we have $\underline { { c } } ( \theta ) \leq c _ { \mathrm { o p t } }$ . Now we have two cases.
 
-- _[⃗] b[′]_ is identical to _[⃗] b_ , except for the following modifications. First, if _i[′]_ = 0, we set _[⃗] b[′]_ [ _i[′]_ ] = 1. Then, we set _b[⃗][′]_ [ _i[′′]_ ] = 1 for each target _i[′′]_ such that either (i) _σ[′]_ + _di′′ > d_ max, or (ii) for all _j[′′] ∈{_ 1 _,_ 2 _, . . . , n_ win( _i[′′]_ ) _}_ , _t[′] >_ LFDT( _γi′,j′, γi′′j′′_ ). 
+Case 1 Within the lazy evaluation loop, we set $\overline { { c } } _ { \mathrm { i n c } } = c _ { \mathrm { o p t } }$ Then (i) holds when we execute Line 5 next.
 
-- For each _k[′] ∈{_ 1 _,_ 2 _, . . . , n_ seg( _γi′,j′_ ) _}_ , we compute 
+Case $\underline { { { 2 } } } \ \bar { c } _ { \mathrm { i n c } } \ \ne \ c _ { \mathrm { o p t } }$ after the lazy evaluation loop. The optimality of $c _ { \mathrm { o p t } }$ then implies that $\overline { { c } } _ { \mathrm { i n c } } ~ > ~ c _ { \mathrm { o p t } }$ . Combining this with $\underline { { c } } ( \theta ) \ \leq \ c _ { \mathrm { o p t } }$ , we have $\underline { { c } } ( \theta ) ~ < ~ \overline { { c } } _ { \mathrm { i n c } } .$ This means the condition on Line 15 fails and we attempt to generate successors for B. No edge traversed by $\mathcal { F } _ { \mathrm { o p t } }$ is in $\begin{array} { r } { B ; { } } \end{array}$ if any edge traversed by $\mathcal { F } _ { \mathrm { o p t } }$ were in B, this would contradict (ii). Thus we have some edge to branch on when generating the successors $B ^ { \prime }$ and $B ^ { \prime \prime }$ . If we branch on an edge not traversed by $\mathcal { F } _ { \mathrm { o p t } } .$ , then $\theta _ { \mathrm { o p t } }$ is feasible for $\mathrm { L P } { \cdot } B ^ { \prime }$ and $\mathrm { L P } { \cdot } B ^ { \prime \prime }$ . If we branch on an edge e traversed by $\mathcal { F } _ { \mathrm { o p t } } , \theta _ { \mathrm { o p t } }$ is feasible for $\mathrm { L P } { \cdot } B ^ { \prime \prime }$ . Thus (ii) holds the next time we execute Line 5.
 
+Thus, the induction hypothesis holds the next time we execute Line 5. Since the number of branch-and-bound nodes expanded in Alg. 1 cannot be larger than the finite number of subsets of ${ \mathcal { E } } _ { \mathrm { t w } } , { \mathrm { A l g } } .$ 1 terminates. Termination only occurs when the stack becomes empty. This means at some point, we check Line 5, and the stack is empty, which means (ii) from the induction hypothesis cannot hold. Thus (i) holds at termination, implying that we found an optimal solution.
 
-![](1_survey/papers/md/Bhat2026Optimal_figs/Bhat2026Optimal.pdf-0006-09.png)
+## VII. NUMERICAL RESULTS
 
+We ran experiments on an Intel i9-9820X 3.3GHz CPU with 10 cores, hyperthreading disabled, and 128 GB RAM. We compared Lazy BPRC to two ablations. The first ablation, called “Non-Lazy BPRC,” is the same algorithm, but whenever we generate a label l representing a tour Γ, and l is not currently dominated, we set $\vec { g } _ { \mathrm { l b } } [ 1 ] = \vec { g } _ { \mathrm { u b } } [ 1 ] = c ^ { * } ( \Gamma ) ;$ if Γ was unevaluated prior to this step, we evaluate Γ, update $\vec { g } _ { \mathrm { l b } } [ 1 ]$ and $\vec { g } _ { \mathrm { u b } } [ 1 ]$ , then perform dominance checks again. The second ablation, called “No-Affine-Heuristic,” replaces our heuristic in the SPP-GCS associated with tour
 
+![](Bhat2026Optimal_figs/0dfc5520c1f63f455136904262edc2dd0ac9f3408bab5ba43c0bb728ff346cd1.jpg)
 
-![](1_survey/papers/md/Bhat2026Optimal_figs/Bhat2026Optimal.pdf-0006-10.png)
+![](Bhat2026Optimal_figs/f772a3399c8fe504db8a1bea5c9493e25df67a1a09740c3bbf1942b0a5a2ec27.jpg)
 
+![](Bhat2026Optimal_figs/263d2c4aa0ac029dda69af5aa4fa4dab4a7536cc667ed62980c60bb02f850548.jpg)  
+Fig. 3. (a) Varying the number of targets. Lazy BPRC shows smaller median runtime than the ablations, particularly for larger numbers of targets. (b) Varying the map resolution. Lazy BPRC’s advantage in median runtime grows as we increase the map resolution. (c) Varying the capacity. Lazy BPRC has smaller median runtime than the ablations for all tested capacities.
 
+Γ in Section V-G with the heuristic from FMC\*. That ${ \mathrm { i s } } ,$ when computing the f-value trajectory for a GCS-path $P ^ { \prime }$ the obstacle-unaware portion of the trajectory is required to intercept all target-windows in Γ unvisited by $P ^ { \prime }$ , in sequence. Each algorithm parallelized successor generation in pricing and tour cost evaluation, the initial computation of pairwise distances between segments and segment-starts, and initial pairwise LFDT computations.
 
-![](1_survey/papers/md/Bhat2026Optimal_figs/Bhat2026Optimal.pdf-0006-11.png)
+We generated problem instances by modifying the instance generation method from [14] to handle multiple agents. In every instance, each target had two time windows, demand 1, and speed within each time window generated uniformly at random between 0.5 and 1 m/s. Each instance had three agents with $v _ { \mathrm { m a x } } = 4 ~ \mathrm { m / s }$ . Our obstacle maps were square grids, but the agents and targets move in continuous space in the grids. We define the map resolution as the width of the obstacle map in grid cells. In our experiments, we varied the number of targets, map resolution, and capacity. We set the computation time limit to 10 min, per planner, per instance.
 
+## A. Experiment 1: Varying the Number of Targets
 
-_• λ[′]_ = _λ_ , if _i[′]_ = 0, and _λ[′]_ = _λ_ + _λi′_ otherwise 
+We fixed the map resolution to 30 and varied $n _ { \mathrm { t a r } }$ from 3 to 15, setting the capacity $d _ { \mathrm { m a x } } = n _ { \mathrm { t a r } } / n _ { \mathrm { a g t } }$ . Fig. 3 (a) shows the results. As $n _ { \mathrm { t a r } }$ increases, Lazy BPRC notably outperforms Non-Lazy BPRC in min, median, and max runtime, demonstrating that deferring the computation of tour costs is effective. Lazy BPRC also demonstrates smaller median and max runtimes than No-Affine-Heuristic, showing that our obstacle-aware heuristic leveraging continuity relaxation outperforms a heuristic that ignores obstacles.
 
-We then check if any labels at _γi[′] ,j[′]_ dominate _l[′]_ . If so, we prune _l[′]_ . Otherwise, we prune labels at _γi′,j′_ dominated by _l[′]_ , and we mark them to be discarded upon expansion from the priority queue. Then we push _l[′]_ onto the priority queue. Any time we generate a successor label _l_ at _γ_ 0 with _⃗g_ lb[1] _− λ <_ 0,[2] , and _l_ is not dominated, we reconstruct the tour Γ represented by _l_ via backpointer traversal, then add Γ to the set of tours to be returned. At this step, if Γ has already been evaluated, we do not add it to this set, since _c[∗]_ red[(Γ)] cannot be negative. The search ends when the priority queue becomes empty. 
+## B. Experiment 2: Varying the Map Resolution
 
-## _G. Computing Tour Cost via SPP-GCS_ 
+We fixed $n _ { \mathrm { t a r } }$ to 12 and $d _ { \mathrm { m a x } }$ to 4, then varied the map resolution from 10 to 30. Fig. 3 (b) shows the results.
 
-At the beginning of Lazy BPRC, we decompose free space into convex regions _A_ 1 _, A_ 2 _, . . . , An_ reg , where _n_ reg is the number of regions. We then define a GCS _G_ cs = ( _V_ cs _, E_ cs), where the set of nodes _V_ cs consists of convex sets in spacetime. For each region _A_ in our free space decomposition, we have a _region-node XA_ = _A ×_ R. For each target-window _γi,j_ visited by Γ, we have a _window-node Xi,j_ , consisting of 
+Lazy BPRC again demonstrates smaller median and max runtime than both ablations, and also smaller min runtime than Non-Lazy BPRC. Lazy BPRC’s advantage grows with the map resolution because as we increase map resolution, the numbers of nodes and edges in the GCS tend to increase, making the GCS more expensive to search. Lazy BPRC outperforms Non-Lazy BPRC because it reduces the number of SPP-GCS queries, and Lazy BPRC outperforms No-Affine-Heuristic by speeding up each SPP-GCS query.
 
+## C. Experiment 3: Varying the Capacity
 
-![](1_survey/papers/md/Bhat2026Optimal_figs/Bhat2026Optimal.pdf-0006-16.png)
+We fixed $n _ { \mathrm { t a r } }$ to 9 and the map resolution to 30, then varied the capacity $d _ { \mathrm { m a x } }$ from 3 to 7. Fig. 3 (c) shows the results. Lazy BPRC shows smaller median runtime than both ablations, and also smaller min runtime than Non-Lazy BPRC. Lazy BPRC’s max runtime hits the time limit for $d _ { \operatorname* { m a x } } \geq 4$
 
+Note that No-Affine-Heuristic’s median runtime counterintuitively drops when we increase $d _ { \mathrm { m a x } }$ from 6 to 7. This occurs because in two instances, runtime became more than 2 times smaller when we increased $d _ { \operatorname* { m a x } } ;$ runtime did not change as significantly in the other 8 instances. The runtime dropped in these two instances for No-Affine-Heuristic because there were one or more tours whose evaluation required significant runtime for $d _ { \operatorname* { m a x } } = 6$ , but simply never needed to be evaluated for $d _ { \operatorname* { m a x } } = 7$
 
-the set of space-time points along _τi_ within [ _t_ ~~_i_~~ _,j[,] ti,j_ ]. Since we assumed that a target’s velocity is constant within a time window, _Xi,j_ is a line segment in space-time, which is a convex set. We refer to nodes in _G_ cs as _GCS-nodes_ . An edge connects a set _X_ to a set _X[′]_ if _X_ intersects _X[′]_ . We refer to a path in _G_ cs as a _GCS-path_ . We say a GCS-path _P visits_ target-window _γi,j_ if _P_ contains _Xi,j_ . 
+## VIII. CONCLUSIONS
 
-We find a trajectory executing Γ using an algorithm similar to FMC* [13], but without the various speedup techniques that FMC* implements particularly for a minimum-time objective, since we aim to minimize distance traveled. We also replace the heuristic from FMC* with the heuristic described later in the section, and we replace the focal search from FMC* with a best-first search, since we seek optimal solutions rather than bounded-suboptimal solutions. 
+In this paper, we introduced Lazy BPRC, a new algorithm to find optimal solutions for the MT-VRP-O, and we demonstrated its benefits via ablation studies. One direction for future work is to pursue bounded-suboptimal solutions to enable scaling to more targets.
 
-We search the GCS using a priority queue called OPEN, containing GCS-paths. We initialize OPEN with the GCSpath ( _X_ 0 _,_ 1), i.e. a path that stays at the depot. Each GCSpath on OPEN has an _f_ -value. The initial GCS-path ( _X_ 0 _,_ 1) has an _f_ -value of 0; we discuss the computation of _f_ for other GCS-paths shortly. GCS-paths with smaller _f_ -values have higher priority. 
+## REFERENCES
 
-Each iteration pops a GCS-path _P_ from OPEN, then iterates over each GCS-node _X_ adjacent to _P_ [ _−_ 1]. If _X_ is a window-node _Xi,j_ , and _P_ has not visited the target-windows occurring before _γi,j_ in Γ, we discard _X_ . If _X_ is a regionnode, and _X_ already occurs in _P_ after the final window-node in _P_ , we discard _X_ . If we do not discard _X_ , we construct a successor GCS-path _P[′]_ by appending _X_ to _P_ , then compute its _f_ -value as follows. 
+[1] C. S. Helvig, G. Robins, and A. Zelikovsky, “The moving-target traveling salesman problem,” Journal of Algorithms, vol. 49, no. 1, pp. 153–174, 2003.
 
-Suppose the first target-window in Γ unvisited by _P[′]_ is Γ[ _n_ ]. We optimize a trajectory _τ_ a with a collision-free portion _τ_ a,1 passing through the sets in _P_ in sequence, followed by an obstacle-unaware portion _τ_ a,2 that travels to Γ[ _n_ ]. We parameterize _τ_ a,1 with a line segment per set in _P_ , and _τ_ a,2 with a single line segment. The objective of the trajectory optimization is a _g_ -value plus an _h_ -value. The _g_ -value is the distance traveled by _τ_ a,1. The _h_ -value is the distance traveled by _τ_ a,2, plus a term _hn_ ( _t_ ) which depends on the ending time _t_ of _τ_ a,2. _hn_ ( _t_ ) lower bounds the cost of intercepting the remaining targets in Γ after departing Γ[ _n_ ] at time _t_ , and we describe how to compute _hn_ in Section V-G.1. 
+[2] C. D. Smith, Assessment of genetic algorithm based assignment strategies for unmanned systems using the multiple traveling salesman problem with moving targets. University of Missouri-Kansas City, 2021.
 
-The trajectory optimization is the same as the optimization performed for a GCS-path in FMC* [13], except for two differences. First, FMC* also optimizes an obstacle-unaware portion of the trajectory that departs Γ[ _n_ ] and intercepts all remaining targets, in place of our _hn_ value. Second, we constrain our computed trajectory to intercept Γ[ _n_ ] no later than a value _t_ max _,n_ , which is the latest time at which a feasible agent trajectory could depart Γ[ _n_ ], then intercept the remaining sequence of target-windows in Γ. We compute _t_ max _,n_ for each _n ∈{_ 1 _,_ 2 _, . . . ,_ Len(Γ) _}_ before beginning the search as follows. For _n_ = Len(Γ), we set _t_ max _,n_ = _∞_ . We then iterate backwards from _n_ = Len(Γ) _−_ 1 to _n_ = 1, and _t_ max _,n_ = LFDT(Γ[ _n_ ] _,_ Γ[ _n_ + 1] _, t_ max _,n_ +1). 
+[3] A. Stieber and A. Fugenschuh, “Dealing with time in the multiple¨ traveling salespersons problem with moving targets,” Central European Journal of Operations Research, vol. 30, no. 3, pp. 991–1017, 2022.
 
-Finally, if the trajectory optimization is infeasible, we discard _P[′]_ . Otherwise, the trajectory optimization’s optimal 
+[4] J.-M. Bourjolly, O. Gurtuna, and A. Lyngvi, “On-orbit servicing: a time-dependent, moving-target traveling salesman problem,” International Transactions in Operational Research, vol. 13, no. 5, pp. 461– 481, 2006.
 
-cost is the _f_ -value for _P[′]_ , and we push _P[′]_ onto OPEN. _1) Constructing hn Function:_ Consider the segmentgraph _G_ seg for Γ, as defined in Section V-D. For a segment _ξ_ in _G_ seg, let _h_ seg( _ξ_ ) be the cost of the shortest path in _G_ seg from _ξ_ to _ξ_ 0. Note that _h_ ( _ξ_ 0) = 0, and for a segment _ξ_ of Γ[ _n_ ] with 1 _< n <_ Len(Γ), we have 
+[5] B. Li, B. R. Page, J. Hoffman, B. Moridian, and N. Mahmoudian, “Rendezvous planning for multiple auvs with mobile charging stations in dynamic currents,” IEEE Robotics and Automation Letters, vol. 4, no. 2, pp. 1653–1660, 2019.
 
+[6] P. Toth and D. Vigo, Vehicle routing: problems, methods, and applications. SIAM, 2014.
 
-![](1_survey/papers/md/Bhat2026Optimal_figs/Bhat2026Optimal.pdf-0007-01.png)
+[7] C. Archetti, L. Coelho, M. Speranza, and P. Vansteenwegen, “Beyond fifty years of vehicle routing: Insights into the history and the future,” European Journal of Operational Research, 2025.
 
+[8] A. Bhat, G. Gutow, Z. Ren, S. Rathinam, and H. Choset, “Optimal solutions for the moving target vehicle routing problem via branch-and-price with relaxed continuity,” 2026. [Online]. Available: https://arxiv.org/abs/2603.00663
 
-Before searching _G_ cs, we compute _h_ seg for all _ξ_ in _G_ seg as follows. We iterate backward from _n_ = Len(Γ) _−_ 1 to _n_ = 2, and for each _n_ , we compute the _h_ -values for the segments of Γ[ _n_ ] using the _h_ -values for Γ[ _n_ + 1] using (11). 
+[9] M. Hammar and B. J. Nilsson, “Approximation results for kinetic variants of tsp,” in Automata, Languages and Programming: 26th International Colloquium, ICALP’99 Prague, Czech Republic, July 11–15, 1999 Proceedings 26. Springer, 1999, pp. 392–401.
 
-Next, for each _n ∈{_ 1 _,_ 2 _, . . . ,_ Len(Γ) _}_ , we do the following. Let _γi,j_ be Γ[ _n_ ]. We construct a matrix _An ∈_ R _[n]_[seg][(Γ[] _[n]_[])] _[×]_[2] whose _k_ th row is [ _t_ ~~_i_~~ _,j,k[,]_[ 1]][.][We][construct][a] vector _[⃗] bn ∈_ R _[n]_[seg][(Γ[] _[n]_[])] whose _k_ th element is _h_ ( _ξi,j,k_ ). We then find the least-squares solution _ϕn ∈_ R[2] to the equation _Anϕn_ = _[⃗] bn_ . For a time _t ∈_ [ _t_ ~~_i_~~ _,j[,] ti,j_ ], _ϕn_ [1] _t_ + _ϕn_ [2] approximates the minimum cost to intercept all remaining targetwindows in Γ after departing Γ[ _n_ ] at time _t_ . To adjust this into a lower bound, we construct another matrix _Bn_ whose _k_ th row is [ _ti,j,k,_ 1], then compute a value _r_ max as the max element of the vector vertcat( _An, Bn_ ) _ϕn −_ vertcat( _[⃗] bn,[⃗] bn_ ), where vertcat concatenates two matrices vertically. _r_ max is the largest overestimation of _h_ seg( _ξi,j,k_ ) that our approximation makes over all segment start and end times of _γi,j_ . Then _hn_ ( _t_ ) = _ϕn_ [1] _t_ + _ϕn_ [2] _− r_ max lower-bounds the remaining cost of executing Γ after departing Γ[ _n_ ] at time _t_ . 
+[10] L. Costa, C. Contardo, and G. Desaulniers, “Exact branch-price-andcut algorithms for vehicle routing,” Transportation Science, vol. 53, no. 4, pp. 946–985, 2019.
 
-## _H. Feasible Solution Generation_ 
+[11] D. Feillet, “A tutorial on column generation and branch-and-price for vehicle routing problems,” 4or, vol. 8, no. 4, pp. 407–424, 2010.
 
-To generate the initial incumbent, as well as a feasible set of tours _F_ new when the RSMP is infeasible, we extend the feasible solution generation from [8] to handle obstacles. This algorithm requires the EFAT and LFDT functions described previously. In [8], the values were computed using closed-form expressions, since [8] did not consider obstacles. Since we consider obstacles, we instead compute the values using the method from [14]. Otherwise, our initial feasible solution generation method is identical to BPRC’s. 
+[12] T. Marcucci, J. Umenberger, P. Parrilo, and R. Tedrake, “Shortest paths in graphs of convex sets,” SIAM Journal on Optimization, vol. 34, no. 1, pp. 507–532, 2024.
 
-## _I. Caching EFAT and LFDT Values_ 
+[13] A. Bhat, G. Gutow, B. Vundurthy, Z. Ren, S. Rathinam, and H. Choset, “A complete and bounded-suboptimal algorithm for a moving target traveling salesman problem with obstacles in 3d\*,” in 2025 IEEE International Conference on Robotics and Automation (ICRA), 2025, pp. 6132–6138.
 
-Lazy BPRC computes EFAT and LFDT several times, possibly with the same arguments. We cache the values for each unique set of arguments to speed up the algorithm. 
+[14] ——, “A complete algorithm for a moving target traveling salesman problem with obstacles,” in International Workshop on the Algorithmic Foundations of Robotics. Springer, 2024.
 
-for all tours. This implies _λ_ is feasible for the dual of LP- _B_ (the same dual as (18)-(21) in [11]). The cost of _λ_ for the _n_ tar dual of LP- _B_ is � _λi_ + _n_ agt _λ_ 0, which lower-bounds _c[∗]_ ( _B_ ) _i_ =1 by weak duality. Combining this with (12), we have (2). 
+[15] G. Ozbaygin, O. E. Karasan, M. Savelsbergh, and H. Yaman, “A branch-and-price algorithm for the vehicle routing problem with roaming delivery locations,” Transportation Research Part B: Methodological, vol. 100, pp. 115–137, 2017.
 
-## **Theorem 1.** _Lazy BPRC finds an optimal solution._ 
+[16] T. Asano, T. Asano, and H. Imai, “Shortest path between two simple polygons,” Information processing letters, vol. 24, no. 5, pp. 285–288, 1987.
 
-_Proof._ Let _F_ opt be an optimal MT-VRP-O solution, let _c_ opt be its cost, and let _θ_ opt be the corresponding solution to ILP (1). We show by induction that whenever we execute Alg. 1, Line 5, either _c_ inc = _c_ opt, or _θ_ opt is feasible for LP- _B_ for some _B_ on the stack. 
-
-**Base Case** The first node pushed onto the stack is _B_ = _∅_ , and LP- _B_ is a relaxation of ILP (1), so _θ_ opt is feasible for LP- _B_ . 
-
-**Induction Hypothesis** Suppose on Line 5, either (i) _c_ inc = _c_ opt, or (ii) _θ_ opt is feasible for LP- _B_ for some _B_ on the stack. 
-
-**Induction Step** Suppose (i) holds. We never increase _c_ inc, and _c_ inc cannot become smaller than _c_ opt by the optimality of _c_ opt, so if Line 5 is ever executed again, (i) will still hold. 
-
-Now suppose (ii) holds. If _B_ is not popped at this iteration, (ii) trivially holds at the next iteration. Next, suppose _B_ is popped. Combining Lemma (1) with the feasibility of _θ_ opt for LP- _B_ , we have _c_ ( _θ_ ) _≤ c_ opt. Now we have two cases. 
-
-Case 1 Within the lazy evaluation loop, we set _c_ inc = _c_ opt. Then (i) holds when we execute Line 5 next. 
-
-Case 2 _c_ inc = _c_ opt after the lazy evaluation loop. The optimality of _c_ opt then implies that _c_ inc _> c_ opt. Combining this with _c_ ( _θ_ ) _≤ c_ opt, we have _c_ ( _θ_ ) _< c_ inc. This means the condition on Line 15 fails and we attempt to generate successors for _B_ . No edge traversed by _F_ opt is in _B_ ; if any edge traversed by _F_ opt were in _B_ , this would contradict (ii). Thus we have some edge to branch on when generating the successors _B[′]_ and _B[′′]_ . If we branch on an edge not traversed by _F_ opt, then _θ_ opt is feasible for LP- _B[′]_ and LP- _B[′′]_ . If we branch on an edge _e_ traversed by _F_ opt, _θ_ opt is feasible for LP- _B[′′]_ . Thus (ii) holds the next time we execute Line 5. 
-
-Thus, the induction hypothesis holds the next time we execute Line 5. Since the number of branch-and-bound nodes expanded in Alg. 1 cannot be larger than the finite number of subsets of _E_ tw, Alg. 1 terminates. Termination only occurs when the stack becomes empty. This means at some point, we check Line 5, and the stack is empty, which means (ii) from the induction hypothesis cannot hold. Thus (i) holds at termination, implying that we found an optimal solution. 
-
-## VI. THEORETICAL ANALYSIS 
-
-## **Lemma 1.** _When we return no tours in the pricing problem,_ (2) _is satisfied._ 
-
-_Proof._ Referring to values from the first paragraph of Section V-F, strong duality implies 
-
-
-![](1_survey/papers/md/Bhat2026Optimal_figs/Bhat2026Optimal.pdf-0007-21.png)
-
-
-where the RHS is the cost of _λ_ for the dual of the RSMP: this dual is the same as (18)-(21) in [11], but costs are replaced with lower bounds. If we return no tours, _c[∗]_ (Γ) _− cλ_ (Γ) _≥_ 0 
-
-## VII. NUMERICAL RESULTS 
-
-We ran experiments on an Intel i9-9820X 3.3GHz CPU with 10 cores, hyperthreading disabled, and 128 GB RAM. We compared Lazy BPRC to two ablations. The first ablation, called “Non-Lazy BPRC,” is the same algorithm, but whenever we generate a label _l_ representing a tour Γ, and _l_ is not currently dominated, we set _⃗g_ lb[1] = _⃗g_ ub[1] = _c[∗]_ (Γ); if Γ was unevaluated prior to this step, we evaluate Γ, update _⃗g_ lb[1] and _⃗g_ ub[1], then perform dominance checks again. The second ablation, called “No-Affine-Heuristic,” replaces our heuristic in the SPP-GCS associated with tour 
-
-
-![](1_survey/papers/md/Bhat2026Optimal_figs/Bhat2026Optimal.pdf-0008-00.png)
-
-
-Fig. 3. (a) Varying the number of targets. Lazy BPRC shows smaller median runtime than the ablations, particularly for larger numbers of targets. (b) Varying the map resolution. Lazy BPRC’s advantage in median runtime grows as we increase the map resolution. (c) Varying the capacity. Lazy BPRC has smaller median runtime than the ablations for all tested capacities. 
-
-Γ in Section V-G with the heuristic from FMC*. That is, when computing the _f_ -value trajectory for a GCS-path _P[′]_ , the obstacle-unaware portion of the trajectory is required to intercept all target-windows in Γ unvisited by _P[′]_ , in sequence. Each algorithm parallelized successor generation in pricing and tour cost evaluation, the initial computation of pairwise distances between segments and segment-starts, and initial pairwise LFDT computations. 
-
-We generated problem instances by modifying the instance generation method from [14] to handle multiple agents. In every instance, each target had two time windows, demand 1, and speed within each time window generated uniformly at random between 0.5 and 1 m/s. Each instance had three agents with _v_ max = 4 m/s. Our obstacle maps were square grids, but the agents and targets move in continuous space in the grids. We define the _map resolution_ as the width of the obstacle map in grid cells. In our experiments, we varied the number of targets, map resolution, and capacity. We set the computation time limit to 10 min, per planner, per instance. 
-
-## _A. Experiment 1: Varying the Number of Targets_ 
-
-We fixed the map resolution to 30 and varied _n_ tar from 3 to 15, setting the capacity _d_ max = _n_ tar _/n_ agt. Fig. 3 (a) shows the results. As _n_ tar increases, Lazy BPRC notably outperforms Non-Lazy BPRC in min, median, and max runtime, demonstrating that deferring the computation of tour costs is effective. Lazy BPRC also demonstrates smaller median and max runtimes than No-Affine-Heuristic, showing that our obstacle-aware heuristic leveraging continuity relaxation outperforms a heuristic that ignores obstacles. 
-
-## _B. Experiment 2: Varying the Map Resolution_ 
-
-We fixed _n_ tar to 12 and _d_ max to 4, then varied the map resolution from 10 to 30. Fig. 3 (b) shows the results. 
-
-Lazy BPRC again demonstrates smaller median and max runtime than both ablations, and also smaller min runtime than Non-Lazy BPRC. Lazy BPRC’s advantage grows with the map resolution because as we increase map resolution, the numbers of nodes and edges in the GCS tend to increase, making the GCS more expensive to search. Lazy BPRC outperforms Non-Lazy BPRC because it reduces the number of SPP-GCS queries, and Lazy BPRC outperforms NoAffine-Heuristic by speeding up each SPP-GCS query. 
-
-## _C. Experiment 3: Varying the Capacity_ 
-
-We fixed _n_ tar to 9 and the map resolution to 30, then varied the capacity _d_ max from 3 to 7. Fig. 3 (c) shows the results. Lazy BPRC shows smaller median runtime than both ablations, and also smaller min runtime than Non-Lazy BPRC. Lazy BPRC’s max runtime hits the time limit for _d_ max _≥_ 4. 
-
-Note that No-Affine-Heuristic’s median runtime counterintuitively drops when we increase _d_ max from 6 to 7. This occurs because in two instances, runtime became more than 2 times smaller when we increased _d_ max; runtime did not change as significantly in the other 8 instances. The runtime dropped in these two instances for No-Affine-Heuristic because there were one or more tours whose evaluation required significant runtime for _d_ max = 6, but simply never needed to be evaluated for _d_ max = 7. 
-
-## VIII. CONCLUSIONS 
-
-In this paper, we introduced Lazy BPRC, a new algorithm to find optimal solutions for the MT-VRP-O, and we demonstrated its benefits via ablation studies. One direction for future work is to pursue bounded-suboptimal solutions to enable scaling to more targets. 
-
-## REFERENCES 
-
-- [1] C. S. Helvig, G. Robins, and A. Zelikovsky, “The moving-target traveling salesman problem,” _Journal of Algorithms_ , vol. 49, no. 1, pp. 153–174, 2003. 
-
-- [2] C. D. Smith, _Assessment of genetic algorithm based assignment strategies for unmanned systems using the multiple traveling salesman problem with moving targets_ . University of Missouri-Kansas City, 2021. 
-
-- [3] A. Stieber and A. F¨ugenschuh, “Dealing with time in the multiple traveling salespersons problem with moving targets,” _Central European Journal of Operations Research_ , vol. 30, no. 3, pp. 991–1017, 2022. 
-
-- [4] J.-M. Bourjolly, O. Gurtuna, and A. Lyngvi, “On-orbit servicing: a time-dependent, moving-target traveling salesman problem,” _International Transactions in Operational Research_ , vol. 13, no. 5, pp. 461– 481, 2006. 
-
-- [5] B. Li, B. R. Page, J. Hoffman, B. Moridian, and N. Mahmoudian, “Rendezvous planning for multiple auvs with mobile charging stations in dynamic currents,” _IEEE Robotics and Automation Letters_ , vol. 4, no. 2, pp. 1653–1660, 2019. 
-
-- [6] P. Toth and D. Vigo, _Vehicle routing: problems, methods, and applications_ . SIAM, 2014. 
-
-- [7] C. Archetti, L. Coelho, M. Speranza, and P. Vansteenwegen, “Beyond fifty years of vehicle routing: Insights into the history and the future,” _European Journal of Operational Research_ , 2025. 
-
-- [8] A. Bhat, G. Gutow, Z. Ren, S. Rathinam, and H. Choset, “Optimal solutions for the moving target vehicle routing problem via branch-and-price with relaxed continuity,” 2026. [Online]. Available: https://arxiv.org/abs/2603.00663 
-
-- [9] M. Hammar and B. J. Nilsson, “Approximation results for kinetic variants of tsp,” in _Automata, Languages and Programming: 26th International Colloquium, ICALP’99 Prague, Czech Republic, July 11–15, 1999 Proceedings 26_ . Springer, 1999, pp. 392–401. 
-
-- [10] L. Costa, C. Contardo, and G. Desaulniers, “Exact branch-price-andcut algorithms for vehicle routing,” _Transportation Science_ , vol. 53, no. 4, pp. 946–985, 2019. 
-
-- [11] D. Feillet, “A tutorial on column generation and branch-and-price for vehicle routing problems,” _4or_ , vol. 8, no. 4, pp. 407–424, 2010. 
-
-- [12] T. Marcucci, J. Umenberger, P. Parrilo, and R. Tedrake, “Shortest paths in graphs of convex sets,” _SIAM Journal on Optimization_ , vol. 34, no. 1, pp. 507–532, 2024. 
-
-- [13] A. Bhat, G. Gutow, B. Vundurthy, Z. Ren, S. Rathinam, and H. Choset, “A complete and bounded-suboptimal algorithm for a moving target traveling salesman problem with obstacles in 3d*,” in _2025 IEEE International Conference on Robotics and Automation (ICRA)_ , 2025, pp. 6132–6138. 
-
-- [14] ——, “A complete algorithm for a moving target traveling salesman problem with obstacles,” in _International Workshop on the Algorithmic Foundations of Robotics_ . Springer, 2024. 
-
-- [15] G. Ozbaygin, O. E. Karasan, M. Savelsbergh, and H. Yaman, “A branch-and-price algorithm for the vehicle routing problem with roaming delivery locations,” _Transportation Research Part B: Methodological_ , vol. 100, pp. 115–137, 2017. 
-
-- [16] T. Asano, T. Asano, and H. Imai, “Shortest path between two simple polygons,” _Information processing letters_ , vol. 24, no. 5, pp. 285–288, 1987. 
-
-- [17] M. Cui, D. D. Harabor, and A. Grastien, “Compromise-free pathfinding on a navigation mesh.” in _IJCAI_ , 2017, pp. 496–502. 
-
+[17] M. Cui, D. D. Harabor, and A. Grastien, “Compromise-free pathfinding on a navigation mesh.” in IJCAI, 2017, pp. 496–502.
