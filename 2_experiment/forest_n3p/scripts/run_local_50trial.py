@@ -31,6 +31,7 @@ from forest_n3p.main_evaluation import (  # noqa: E402
     MainEvaluationConfig,
     _evaluate_run_with_collision_rejection,
     _generate_grid_map,
+    _run_method,
     _run_vanilla_ha,
     default_main_evaluation_profiles,
     validation_main_evaluation_profiles,
@@ -40,7 +41,7 @@ from forest_n3p.third_party.pathplan import GridMap, TwoCircleFootprint  # noqa:
 
 
 BUCKETS = ("Easy", "Complex", "Extreme")
-METHODS = ("f_n3p_knn", "vanilla_ha")
+METHODS = ("f_n3p_knn", "vanilla_ha", "improved_ha", "lo_ha", "ss_rrt", "idb_rrt")
 RAW_JSON_NAME = "local_50trial_results.json"
 SUMMARY_CSV_NAME = "local_50trial_summary.csv"
 
@@ -121,6 +122,7 @@ def main(argv: list[str] | None = None) -> int:
     eval_cfg = EvaluationConfig()
     footprint = TwoCircleFootprint.from_box(length=0.924, width=0.740)
     predictor = KnnSubgoalLibrary.load(args.knn_library_dir)
+    predictors = {"knn": predictor}
 
     records_payload: list[dict[str, Any]] = []
     summary_records = []
@@ -143,53 +145,33 @@ def main(argv: list[str] | None = None) -> int:
         vanilla_run = _run_vanilla_ha(query, grid_map, footprint, cfg, reference_path_length_m=None)
         vanilla_record = _evaluate_run_with_collision_rejection(vanilla_run, grid_map, footprint, config=eval_cfg)
         reference_length = vanilla_record.path_length_m if vanilla_record.feasible else None
-        summary_records.append(vanilla_record)
-        records_payload.append(
-            _run_payload(
-                query,
-                "vanilla_ha",
-                vanilla_record,
-                path=vanilla_run.path,
-                subgoals=(),
-                fallback_events=(),
-                raw_result=None,
-            )
-        )
 
-        fn3p_result = run_forest_n3p(
-            grid_map,
-            footprint,
-            query.start,
-            query.goal,
-            predictor,
-            config=_inference_config(args, query.query_seed),
-        )
-        fn3p_run = planner_run_from_result(
-            fn3p_result,
-            query_id=query.query_id,
-            method="f_n3p_knn",
-            difficulty_bucket=query.difficulty_bucket,
-            distance_bin_key=query.distance_bin_key,
-            reference_path_length_m=reference_length,
-            metadata={
-                "profile_name": query.profile_name,
-                "map_seed": query.map_seed,
-                "query_seed": query.query_seed,
-            },
-        )
-        fn3p_record = _evaluate_run_with_collision_rejection(fn3p_run, grid_map, footprint, config=eval_cfg)
-        summary_records.append(fn3p_record)
-        records_payload.append(
-            _run_payload(
+        for method in METHODS:
+            run, record, raw_result = _run_one_method(
+                method,
                 query,
-                "f_n3p_knn",
-                fn3p_record,
-                path=fn3p_result.path,
-                subgoals=_subgoals_from_steps(fn3p_result.steps),
-                fallback_events=_fallback_events_from_result(fn3p_result),
-                raw_result=result_to_dict(fn3p_result),
+                grid_map,
+                footprint,
+                cfg,
+                eval_cfg,
+                args,
+                predictors=predictors,
+                vanilla_run=vanilla_run,
+                vanilla_record=vanilla_record,
+                reference_path_length_m=reference_length,
             )
-        )
+            summary_records.append(record)
+            records_payload.append(
+                _run_payload(
+                    query,
+                    method,
+                    record,
+                    path=run.path,
+                    subgoals=_subgoals_from_steps(raw_result.steps) if raw_result is not None else (),
+                    fallback_events=_fallback_events_from_result(raw_result) if raw_result is not None else (),
+                    raw_result=result_to_dict(raw_result) if raw_result is not None else None,
+                )
+            )
 
         query_payloads.append(_query_payload(query))
         if int(args.progress_every) > 0 and (index == 1 or index % int(args.progress_every) == 0):
@@ -241,6 +223,61 @@ def main(argv: list[str] | None = None) -> int:
         )
     )
     return 0
+
+
+def _run_one_method(
+    method: str,
+    query: QuerySpec,
+    grid_map: GridMap,
+    footprint: TwoCircleFootprint,
+    cfg: MainEvaluationConfig,
+    eval_cfg: EvaluationConfig,
+    args: argparse.Namespace,
+    *,
+    predictors: dict[str, Any],
+    vanilla_run: Any,
+    vanilla_record: Any,
+    reference_path_length_m: float | None,
+) -> tuple[Any, Any, Any | None]:
+    if method == "vanilla_ha":
+        return vanilla_run, vanilla_record, None
+
+    if method == "f_n3p_knn":
+        raw_result = run_forest_n3p(
+            grid_map,
+            footprint,
+            query.start,
+            query.goal,
+            predictors["knn"],
+            config=_inference_config(args, query.query_seed),
+        )
+        run = planner_run_from_result(
+            raw_result,
+            query_id=query.query_id,
+            method=method,
+            difficulty_bucket=query.difficulty_bucket,
+            distance_bin_key=query.distance_bin_key,
+            reference_path_length_m=reference_path_length_m,
+            metadata={
+                "profile_name": query.profile_name,
+                "map_seed": query.map_seed,
+                "query_seed": query.query_seed,
+            },
+        )
+        record = _evaluate_run_with_collision_rejection(run, grid_map, footprint, config=eval_cfg)
+        return run, record, raw_result
+
+    run = _run_method(
+        method,
+        query,
+        grid_map,
+        footprint,
+        cfg,
+        predictors=predictors,
+        reference_path_length_m=reference_path_length_m,
+    )
+    record = _evaluate_run_with_collision_rejection(run, grid_map, footprint, config=eval_cfg)
+    return run, record, None
 
 
 def load_query_specs(args: argparse.Namespace) -> tuple[tuple[QuerySpec, ...], tuple[QuerySpec, ...], str, Path | None]:
