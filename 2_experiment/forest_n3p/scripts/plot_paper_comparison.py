@@ -109,7 +109,7 @@ def plot_trajectory_overlay(
     if len(cases) < 6:
         raise RuntimeError(f"need 6 representative paired cases, found {len(cases)}")
 
-    fig, axes = plt.subplots(2, 3, figsize=(7.2, 4.8), dpi=dpi, constrained_layout=True)
+    fig, axes = plt.subplots(2, 3, figsize=(7.2, 5.1), dpi=dpi, constrained_layout=True)
     for ax, query_id in zip(axes.flat, cases, strict=True):
         fn3p = runs[(query_id, "f_n3p_knn")]
         map_info = maps.get(str(fn3p["map_seed"]))
@@ -160,7 +160,7 @@ def plot_trajectory_overlay(
         plt.Line2D([0], [0], marker="^", color="none", markerfacecolor="#009E73", markeredgecolor="white", label="Start", markersize=6),
         plt.Line2D([0], [0], marker="*", color="none", markerfacecolor=COLORS["f_n3p_knn"], markeredgecolor="white", label="Goal", markersize=7),
     ]
-    fig.legend(handles=handles, loc="lower center", ncol=5, frameon=False, bbox_to_anchor=(0.5, -0.04))
+    fig.legend(handles=handles, loc="lower center", ncol=3, frameon=False, bbox_to_anchor=(0.5, -0.08))
     fig.savefig(output_path, dpi=dpi, bbox_inches="tight")
     plt.close(fig)
 
