@@ -262,13 +262,23 @@ def preflight_main_evaluation(config: MainEvaluationConfig) -> PreflightReport:
         if missing:
             issues.append(f"MLP model is incomplete under {config.mlp_model_dir}: {', '.join(missing)}")
 
-    if "idb_rrt" in config.methods:
+    for method in config.methods:
+        if not is_dqn10_baseline_method(method):
+            continue
+        availability = check_dqn10_baseline_available(method)
+        if not availability.available:
+            unavailable[method] = availability.reason or "unknown DQN10 baseline availability failure"
+            issues.append(f"{method} unavailable: {unavailable[method]}")
+
+    if "idb_rrt_dynoplan" in config.methods:
         from forest_n3p.baselines.idb_rrt_adapter import check_idb_rrt_adapter
 
         idb_availability = check_idb_rrt_adapter(_idb_rrt_config(config))
         if not idb_availability.available:
-            unavailable["idb_rrt"] = idb_availability.reason or "unknown iDb-RRT adapter availability failure"
-            issues.append(f"idb_rrt unavailable: {unavailable['idb_rrt']}")
+            unavailable["idb_rrt_dynoplan"] = (
+                idb_availability.reason or "unknown Dynoplan iDb-RRT adapter availability failure"
+            )
+            issues.append(f"idb_rrt_dynoplan unavailable: {unavailable['idb_rrt_dynoplan']}")
 
     human_decisions = _read_human_review_decisions(config.human_review_form_path)
     human_review_issues = _human_review_issues(human_decisions, form_path=config.human_review_form_path)
