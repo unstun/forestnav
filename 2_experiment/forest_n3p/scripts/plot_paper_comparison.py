@@ -19,15 +19,30 @@ except ModuleNotFoundError:  # pragma: no cover - 本地轻量环境允许退回
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_FIGURE_DIR = PROJECT_ROOT / "2_experiment" / "forest_n3p" / "figures"
 BUCKETS = ("Easy", "Complex", "Extreme")
-METHODS = ("f_n3p_knn", "vanilla_ha")
+METHODS = ("f_n3p_knn", "vanilla_ha", "improved_ha", "lo_ha", "ss_rrt", "idb_rrt")
 METHOD_LABELS = {
     "f_n3p_knn": "F-N3P",
     "vanilla_ha": "HA*",
+    "improved_ha": "Imp-HA*",
+    "lo_ha": "LO-HA*",
+    "ss_rrt": "SS-RRT*",
+    "idb_rrt": "IDB-RRT",
 }
 COLORS = {
-    # Okabe-Ito 系列里的 vermillion / blue，兼顾论文常用红蓝对比。
     "f_n3p_knn": "#D55E00",
     "vanilla_ha": "#0072B2",
+    "improved_ha": "#009E73",
+    "lo_ha": "#E69F00",
+    "ss_rrt": "#CC79A7",
+    "idb_rrt": "#56B4E9",
+}
+LINESTYLES = {
+    "f_n3p_knn": "-",
+    "vanilla_ha": "--",
+    "improved_ha": "-.",
+    "lo_ha": ":",
+    "ss_rrt": (0, (5, 1.5)),
+    "idb_rrt": (0, (3, 1.2, 1, 1.2)),
 }
 FALLBACK_COLORS = {
     "Primary": "#009E73",
@@ -97,13 +112,21 @@ def plot_trajectory_overlay(
     fig, axes = plt.subplots(2, 3, figsize=(7.2, 4.8), dpi=dpi, constrained_layout=True)
     for ax, query_id in zip(axes.flat, cases, strict=True):
         fn3p = runs[(query_id, "f_n3p_knn")]
-        vanilla = runs[(query_id, "vanilla_ha")]
         map_info = maps.get(str(fn3p["map_seed"]))
         if map_info is None:
             raise KeyError(f"missing map payload for map_seed={fn3p['map_seed']}")
         _plot_map_background(ax, map_info)
-        _plot_path(ax, vanilla.get("path", ()), method="vanilla_ha", linestyle="--", linewidth=1.4)
-        _plot_path(ax, fn3p.get("path", ()), method="f_n3p_knn", linestyle="-", linewidth=1.7)
+        for method in METHODS:
+            run = runs.get((query_id, method))
+            if run is None:
+                continue
+            _plot_path(
+                ax,
+                run.get("path", ()),
+                method=method,
+                linestyle=LINESTYLES[method],
+                linewidth=1.9 if method == "f_n3p_knn" else 1.05,
+            )
         subgoals = fn3p.get("subgoals", ())
         if subgoals:
             xs = [float(pose[0]) for pose in subgoals]
@@ -114,7 +137,7 @@ def plot_trajectory_overlay(
         ax.scatter([start[0]], [start[1]], s=42, marker="^", color="#009E73", edgecolors="white", linewidths=0.45, zorder=6)
         ax.scatter([goal[0]], [goal[1]], s=54, marker="*", color=COLORS["f_n3p_knn"], edgecolors="white", linewidths=0.45, zorder=6)
         fn_time = _metric(fn3p, "planning_time_s")
-        ha_time = _metric(vanilla, "planning_time_s")
+        ha_time = _metric(runs.get((query_id, "vanilla_ha"), {}), "planning_time_s")
         ax.set_title(f"{fn3p['difficulty_bucket']} | F-N3P {fn_time:.2f}s / HA* {ha_time:.2f}s")
         ax.set_aspect("equal", adjustable="box")
         ax.set_xlabel("x (m)")
@@ -122,13 +145,22 @@ def plot_trajectory_overlay(
         ax.tick_params(labelsize=7)
 
     handles = [
-        plt.Line2D([0], [0], color=COLORS["f_n3p_knn"], lw=1.7, label="F-N3P"),
-        plt.Line2D([0], [0], color=COLORS["vanilla_ha"], lw=1.4, ls="--", label="HA*"),
+        *[
+            plt.Line2D(
+                [0],
+                [0],
+                color=COLORS[method],
+                lw=1.9 if method == "f_n3p_knn" else 1.05,
+                ls=LINESTYLES[method],
+                label=METHOD_LABELS[method],
+            )
+            for method in METHODS
+        ],
         plt.Line2D([0], [0], marker="o", color="none", markerfacecolor=COLORS["f_n3p_knn"], markeredgecolor="white", label="Subgoal", markersize=5),
         plt.Line2D([0], [0], marker="^", color="none", markerfacecolor="#009E73", markeredgecolor="white", label="Start", markersize=6),
         plt.Line2D([0], [0], marker="*", color="none", markerfacecolor=COLORS["f_n3p_knn"], markeredgecolor="white", label="Goal", markersize=7),
     ]
-    fig.legend(handles=handles, loc="lower center", ncol=5, frameon=False, bbox_to_anchor=(0.5, -0.025))
+    fig.legend(handles=handles, loc="lower center", ncol=5, frameon=False, bbox_to_anchor=(0.5, -0.04))
     fig.savefig(output_path, dpi=dpi, bbox_inches="tight")
     plt.close(fig)
 
@@ -143,8 +175,9 @@ def plot_grouped_metrics(output_path: Path, runs: Sequence[dict[str, Any]], *, d
     fig, axes = plt.subplots(2, 2, figsize=(7.2, 5.2), dpi=dpi, constrained_layout=True)
     for ax, (metric, title, mode) in zip(axes.flat, metrics, strict=True):
         x = np.arange(len(BUCKETS), dtype=np.float64)
-        width = 0.34
-        for offset, method in ((-width / 2.0, "f_n3p_knn"), (width / 2.0, "vanilla_ha")):
+        width = min(0.12, 0.78 / float(len(METHODS)))
+        offsets = (np.arange(len(METHODS), dtype=np.float64) - (len(METHODS) - 1) / 2.0) * width
+        for offset, method in zip(offsets, METHODS, strict=True):
             centers = x + offset
             heights: list[float] = []
             yerrs: list[Any] = []
