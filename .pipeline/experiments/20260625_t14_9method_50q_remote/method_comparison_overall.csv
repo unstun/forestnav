@@ -1,0 +1,10 @@
+method,method_label,count,success_count,success_rate_pct,feasible_rate_pct,median_time_s,p95_time_s,median_path_inflation_pct,median_min_clearance_m,collision_violation_total,failure_count,top_failure_reason
+f_n3p_knn,F-N3P KNN,150,144,96.0,96.0,0.49,3.511,1.98,0.095,0,6,f2_failed:prediction:goal_in_collision;goal:timeout;f3_failed:timeout (5)
+vanilla_ha,Vanilla HA*,150,122,81.3,81.3,0.552,2.5,,0.086,0,28,timeout (28)
+n3p_k1,N3P k=1,150,137,91.3,91.3,0.479,3.514,0.0,0.079,0,13,f2_failed:prediction:goal_in_collision;goal:timeout;f3_failed:timeout (9)
+voronoi_waypoint,Voronoi WP,150,148,98.7,98.7,0.619,1.451,6.33,0.098,0,2,segment_failed:node_budget_exhausted (1)
+bottleneck_waypoint,Bottleneck WP,150,147,98.0,98.0,0.621,1.355,4.65,0.167,0,3,segment_failed:timeout (2)
+improved_ha,Improved HA*,150,122,81.3,81.3,0.55,2.501,0.0,0.088,0,28,timeout (28)
+lo_ha,LO-HA*,150,132,88.0,88.0,0.24,2.501,0.0,0.078,0,18,timeout (17)
+ss_rrt,SS-RRT,150,82,54.7,54.7,0.507,2.504,0.03,0.105,0,68,timeout (62)
+idb_rrt,iDb-RRT,150,16,10.7,10.7,2.741,2.762,0.0,0.293,0,134,idb_rrt_failed:returncode=1 (71)
