@@ -8,12 +8,15 @@ import numpy as np
 from forest_n3p.evaluation import EvaluationConfig, EvaluationRun
 from forest_n3p.difficulty_calibration import parse_distance_bins
 from forest_n3p.main_evaluation import (
+    IMPLEMENTED_METHODS,
     MainEvaluationConfig,
+    OFFICIAL_T14_METHODS,
     _evaluate_run_with_collision_rejection,
     preflight_main_evaluation,
     run_main_evaluation,
     validation_main_evaluation_profiles,
 )
+from forest_n3p.baselines.dqn10_full import canonical_dqn10_baseline_method
 from forest_n3p.scripts.run_main_evaluation import main as run_main_evaluation_cli
 from forest_n3p.training_data import TrainingProfile
 from pathplan import GridMap, TwoCircleFootprint
@@ -74,6 +77,17 @@ def _formal_human_decisions() -> dict[str, str]:
         "D-T14-11": "formal_baseline",
         "D-T14-12": "approve_after_rerun_passes",
     }
+
+
+def test_dqn10_full_migration_method_registry() -> None:
+    assert "md_dqn" not in IMPLEMENTED_METHODS
+    assert "dang2022_ugv_adapted" in OFFICIAL_T14_METHODS
+    assert "yoon2017_ugv_adapted" in OFFICIAL_T14_METHODS
+    assert "lian2023_ugv_adapted" in OFFICIAL_T14_METHODS
+    assert "idb_rrt_ugv_adapted" in OFFICIAL_T14_METHODS
+    assert canonical_dqn10_baseline_method("improved_ha") == "dang2022_ugv_adapted"
+    assert canonical_dqn10_baseline_method("ss_rrt") == "yoon2017_ugv_adapted"
+    assert canonical_dqn10_baseline_method("idb_rrt") == "idb_rrt_ugv_adapted"
 
 
 def test_preflight_blocks_unreviewed_cutpoints_and_missing_human_review(tmp_path: Path) -> None:
