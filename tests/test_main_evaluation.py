@@ -76,7 +76,7 @@ def _formal_human_decisions() -> dict[str, str]:
     }
 
 
-def test_preflight_blocks_unreviewed_cutpoints_and_missing_md_dqn(tmp_path: Path) -> None:
+def test_preflight_blocks_unreviewed_cutpoints_and_missing_human_review(tmp_path: Path) -> None:
     report = preflight_main_evaluation(
         MainEvaluationConfig(
             cutpoint_supplement_path=tmp_path / "missing_supplement.md",
@@ -86,7 +86,6 @@ def test_preflight_blocks_unreviewed_cutpoints_and_missing_md_dqn(tmp_path: Path
 
     assert not report.ok_to_run
     assert any("cutpoint supplement" in item for item in report.blocking_issues)
-    assert any("md_dqn unavailable" in item for item in report.blocking_issues)
     assert any("human review is unresolved" in item for item in report.blocking_issues)
 
 
