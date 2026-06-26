@@ -883,20 +883,34 @@ def _summary_lookup(records: Sequence[EvaluationRecord]) -> dict[tuple[str, str]
 
 def _stat_pairs(methods: Sequence[str]) -> tuple[tuple[str, str], ...]:
     pairs: list[tuple[str, str]] = []
-    for other in (
-        "vanilla_ha",
-        "n3p_k1",
-        "mlp",
-        "voronoi_waypoint",
-        "bottleneck_waypoint",
-        "improved_ha",
-        "lo_ha",
-        "ss_rrt",
-        "idb_rrt",
-    ):
+    comparison_order = _dedupe_methods(
+        (
+            "vanilla_ha",
+            "n3p_k1",
+            "mlp",
+            "voronoi_waypoint",
+            "bottleneck_waypoint",
+            *OFFICIAL_T14_METHODS,
+            *DQN10_EXTRA_METHODS,
+            *DQN10_COMPAT_ALIAS_METHODS,
+            *EXTERNAL_BASELINE_METHODS,
+        )
+    )
+    for other in comparison_order:
         if "f_n3p_knn" in methods and other in methods and other != "f_n3p_knn":
             pairs.append(("f_n3p_knn", other))
     return tuple(pairs)
+
+
+def _dedupe_methods(methods: Sequence[str]) -> tuple[str, ...]:
+    out: list[str] = []
+    seen: set[str] = set()
+    for method in methods:
+        if method in seen:
+            continue
+        seen.add(method)
+        out.append(method)
+    return tuple(out)
 
 
 def _load_predictors(config: MainEvaluationConfig, methods: Sequence[str]) -> dict[str, Any]:
