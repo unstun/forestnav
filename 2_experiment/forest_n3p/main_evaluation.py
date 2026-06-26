@@ -23,6 +23,14 @@ from forest_n3p.evaluation import (
     planner_run_from_result,
     write_evaluation_outputs,
 )
+from forest_n3p.baselines.dqn10_full import (
+    DQN10_BASELINE_ALIASES,
+    DQN10_BASELINE_METHODS,
+    canonical_dqn10_baseline_method,
+    check_dqn10_baseline_available,
+    compact_dqn10_stats,
+    is_dqn10_baseline_method,
+)
 from forest_n3p.maps.forest import generate_forest_grid
 from forest_n3p.pilot_labeling import footprint_clearance_m
 from forest_n3p.training_data import TrainingDataConfig, TrainingProfile, make_forest_params
@@ -31,8 +39,6 @@ from forest_n3p.third_party.pathplan import (
     AckermannState,
     GridMap,
     HybridAStarPlanner,
-    LOHybridAStarPlanner,
-    RRTStarPlanner,
     TwoCircleFootprint,
 )
 
@@ -43,15 +49,29 @@ OFFICIAL_T14_METHODS = (
     "n3p_k1",
     "voronoi_waypoint",
     "bottleneck_waypoint",
-    "improved_ha",
+    "dang2022_ugv_adapted",
     "lo_ha",
-    "ss_rrt",
-    "idb_rrt",
+    "yoon2017_ugv_adapted",
+    "lian2023_ugv_adapted",
+    "idb_rrt_ugv_adapted",
+    "apf_local",
 )
 
 T15_EXTRA_METHODS = ("mlp",)
 
-IMPLEMENTED_METHODS = frozenset((*OFFICIAL_T14_METHODS, *T15_EXTRA_METHODS))
+DQN10_EXTRA_METHODS = tuple(method for method in DQN10_BASELINE_METHODS if method not in OFFICIAL_T14_METHODS)
+DQN10_COMPAT_ALIAS_METHODS = tuple(DQN10_BASELINE_ALIASES)
+EXTERNAL_BASELINE_METHODS = ("idb_rrt_dynoplan",)
+
+IMPLEMENTED_METHODS = frozenset(
+    (
+        *OFFICIAL_T14_METHODS,
+        *T15_EXTRA_METHODS,
+        *DQN10_EXTRA_METHODS,
+        *DQN10_COMPAT_ALIAS_METHODS,
+        *EXTERNAL_BASELINE_METHODS,
+    )
+)
 
 FORMAL_HUMAN_DECISIONS = {
     "D-T14-09": ("approve_original_with_justification", "revise_to_validation_cutpoints"),
