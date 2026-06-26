@@ -1,0 +1,15 @@
+[project]
+name = "dang2022-strict-repro"
+version = "0.1.0"
+description = "Independent Dang2022 Improved Hybrid A* reproduction workspace"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy",
+  "scipy",
+  "matplotlib",
+  "pytest",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

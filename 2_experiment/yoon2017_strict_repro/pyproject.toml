@@ -1,0 +1,14 @@
+[project]
+name = "yoon2017-strict-repro"
+version = "0.1.0"
+description = "Independent Yoon 2017 SS-RRT* strict reproduction scaffold"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy",
+  "scipy",
+  "matplotlib",
+  "pytest",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

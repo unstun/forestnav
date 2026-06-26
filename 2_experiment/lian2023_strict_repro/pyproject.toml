@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lian2023-strict-repro"
+version = "0.1.0"
+description = "Independent Python reproduction workspace for Lian et al. 2023 EHA*-NLP valet parking planner."
+requires-python = ">=3.11"
+dependencies = [
+  "numpy",
+  "scipy",
+  "matplotlib",
+  "PyYAML",
+  "cyipopt",
+]
+
+[project.scripts]
+lian2023-run-table2 = "lian2023_strict.scripts.run_table2:main"
+lian2023-run-scene = "lian2023_strict.scripts.run_scene:main"
+lian2023-render-figures = "lian2023_strict.scripts.render_figures:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

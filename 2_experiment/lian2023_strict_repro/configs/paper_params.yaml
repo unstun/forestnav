@@ -1,0 +1,33 @@
+vehicle:
+  L: 4.8
+  Lf: 0.95
+  Lm: 2.8
+  Lr: 1.05
+  W: 1.9
+  amax: 2.0
+  omega_max: 0.85
+  vmax: 5.0
+  phi_max: 0.85
+algorithm:
+  mu1: 1.0
+  mu2: 0.01
+  mu3: 0.01
+  Wpenalty: 1000000.0
+  n: 200
+  Nc: 2
+  Nmax: 10
+  c: 5
+  Etol: 0.0001
+  dl1: 1.0
+  dl2: 0.1
+  lmax: 8.0
+  LPthre: 30
+  Lthre: 4.5
+  dx: 0.2
+  dy: 0.2
+  dtheta: 0.2
+  beta: 10
+source:
+  paper: "Trajectory Planning for Autonomous Valet Parking in Narrow Environments With Enhanced Hybrid A* Search and Nonlinear Optimization"
+  table: "Table I"
+  note: "Algorithm 1 prints Lthre=5, while Table I gives 4.5m; strict default uses Table I."
