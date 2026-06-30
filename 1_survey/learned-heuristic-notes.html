@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learned Heuristic 三篇重要论文笔记</title>
+<style>
+  :root {
+    --bg: #fafafa; --card: #fff; --border: #e0e0e0;
+    --accent1: #1a73e8; --accent2: #e8710a; --accent3: #0d904f;
+    --text: #222; --text2: #555; --text3: #888;
+    --tag-bg: #e8f0fe; --tag-text: #1a73e8;
+    --highlight: #fff8e1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.7;
+    max-width: 960px; margin: 0 auto; padding: 24px 16px;
+  }
+  h1 { font-size: 1.6em; margin-bottom: 4px; }
+  .subtitle { color: var(--text2); font-size: 0.95em; margin-bottom: 24px; }
+  .nav { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+  .nav button {
+    padding: 8px 16px; border: 2px solid var(--border); border-radius: 8px;
+    background: var(--card); cursor: pointer; font-size: 0.9em; font-weight: 600;
+    transition: all .2s;
+  }
+  .nav button.active { border-color: var(--accent1); background: var(--tag-bg); color: var(--accent1); }
+  .nav button:hover { border-color: var(--accent1); }
+
+  /* ---- paper card ---- */
+  .paper { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 20px; overflow: hidden; display: none; }
+  .paper.visible { display: block; }
+  .paper-header {
+    padding: 20px 24px; cursor: pointer; display: flex; align-items: flex-start; gap: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .paper-header:hover { background: #f5f8ff; }
+  .paper-num {
+    width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 1.1em; flex-shrink: 0; color: #fff;
+  }
+  .p1 .paper-num { background: var(--accent1); }
+  .p2 .paper-num { background: var(--accent2); }
+  .p3 .paper-num { background: var(--accent3); }
+  .paper-title { font-size: 1.15em; font-weight: 700; }
+  .paper-meta { font-size: 0.85em; color: var(--text2); margin-top: 4px; }
+  .paper-meta span { margin-right: 12px; }
+  .tags { margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag {
+    font-size: 0.75em; padding: 2px 8px; border-radius: 4px;
+    background: var(--tag-bg); color: var(--tag-text); font-weight: 500;
+  }
+  .tag.ack { background: #e6f4ea; color: #0d904f; }
+  .tag.no-ack { background: #fce8e6; color: #c5221f; }
+
+  .paper-body { padding: 0 24px 24px; }
+  .paper-body.collapsed { display: none; }
+
+  /* ---- sections inside card ---- */
+  .sec { margin-top: 20px; }
+  .sec-title {
+    font-size: 0.92em; font-weight: 700; color: var(--accent1);
+    border-bottom: 2px solid var(--tag-bg); padding-bottom: 4px; margin-bottom: 10px;
+  }
+  .p2 .sec-title { color: var(--accent2); border-color: #fde7cc; }
+  .p3 .sec-title { color: var(--accent3); border-color: #d4edda; }
+
+  .formula {
+    background: #f5f5f5; border-left: 3px solid var(--accent1); padding: 10px 14px;
+    font-family: 'Courier New', monospace; font-size: 0.9em; margin: 10px 0;
+    overflow-x: auto; border-radius: 0 6px 6px 0;
+  }
+  .p2 .formula { border-color: var(--accent2); }
+  .p3 .formula { border-color: var(--accent3); }
+
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.88em; }
+  th { background: #f0f4f8; text-align: left; padding: 8px 10px; font-weight: 600; border-bottom: 2px solid var(--border); }
+  td { padding: 7px 10px; border-bottom: 1px solid var(--border); }
+  tr:hover td { background: #f9fbff; }
+
+  .highlight-box {
+    background: var(--highlight); border-radius: 8px; padding: 12px 16px;
+    margin: 12px 0; font-size: 0.92em; border-left: 4px solid #f9ab00;
+  }
+  .pro { color: #0d904f; } .con { color: #c5221f; }
+  ul { padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  .oneliner { font-size: 1.05em; font-weight: 600; color: var(--text); margin: 12px 0; }
+
+  /* ---- comparison ---- */
+  #comparison { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-top: 24px; }
+  #comparison h2 { font-size: 1.2em; margin-bottom: 16px; }
+  .comp-table th { background: #e8f0fe; }
+
+  /* ---- relation diagram ---- */
+  .relation {
+    display: flex; align-items: center; justify-content: center; gap: 0;
+    margin: 20px 0; flex-wrap: wrap;
+  }
+  .rel-node {
+    padding: 12px 18px; border-radius: 10px; font-weight: 600; font-size: 0.9em;
+    text-align: center; min-width: 140px;
+  }
+  .rel-arrow { font-size: 1.5em; color: var(--text3); padding: 0 6px; }
+  .r1 { background: #e8f0fe; color: var(--accent1); border: 2px solid var(--accent1); }
+  .r2 { background: #fde7cc; color: var(--accent2); border: 2px solid var(--accent2); }
+  .r3 { background: #d4edda; color: var(--accent3); border: 2px solid var(--accent3); }
+
+  footer { text-align: center; color: var(--text3); font-size: 0.82em; margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<h1>Learned Heuristic 三篇重要论文笔记</h1>
+<p class="subtitle">ForestNav 方向调研 | 学习启发函数加速 Hybrid A* 搜索</p>
+
+<div class="nav">
+  <button class="active" onclick="show('all',this)">全部</button>
+  <button onclick="show('p1',this)">1 LoHA*</button>
+  <button onclick="show('p2',this)">2 DE-LoHA*</button>
+  <button onclick="show('p3',this)">3 LHBL</button>
+  <button onclick="show('comp',this)">对比</button>
+</div>
+
+<!-- ========== Paper 1: LoHA* ========== -->
+<div class="paper p1 visible" id="card-p1">
+  <div class="paper-header" onclick="toggle(this)">
+    <div class="paper-num">1</div>
+    <div>
+      <div class="paper-title">LoHA*: Learning Local Heuristics for Search-Based Navigation Planning</div>
+      <div class="paper-meta">
+        <span>Veerapaneni, Saleem, Likhachev</span>
+        <span>CMU</span>
+        <span>ICAPS 2023</span>
+        <span>arXiv: 2303.09477</span>
+      </div>
+      <div class="tags">
+        <span class="tag">局部启发函数</span>
+        <span class="tag">focal search</span>
+        <span class="tag">有界次优性</span>
+        <span class="tag ack">Ackermann</span>
+        <span class="tag ack">4D state-lattice</span>
+      </div>
+    </div>
+  </div>
+  <div class="paper-body">
+
+    <div class="oneliner">
+      不学全局 cost-to-go，只学"逃离局部区域的额外代价"——问题规模缩小几个数量级，泛化能力大幅提升，节点展开减少 2-20x，且保留有界次优性保证。
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">要解决什么问题</div>
+      <p>以往方法（DeepCubeA、Kim & An 2020 等）学的是<strong>全局</strong> cost-to-go h(s)&asymp;h*(s)。三个核心问题：</p>
+      <ul>
+        <li>全局 h 需要对整张地图推理，<strong>学习难度随地图变大急剧增长</strong></li>
+        <li>泛化差——小地图训练的 h 到大地图不 work</li>
+        <li>训练数据贵——每个样本要求解一个完整规划问题</li>
+      </ul>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">核心方法</div>
+      <p><strong>学什么：</strong>局部启发函数 h<sub>k</sub>(s) —— 从状态 s 逃出以其为中心的 K&times;K 区域需要的额外代价（相对于全局启发函数 h<sub>g</sub> 的残差）。</p>
+      <div class="formula">
+        h<sub>k</sub>(s) = h<sub>gk</sub>(s) - h<sub>g</sub>(s)<br><br>
+        h<sub>gk</sub>(s) = min<sub>s'</sub> {<br>
+        &nbsp;&nbsp;c(s,s') + h<sub>g</sub>(s') &nbsp; if s' &isin; LRB(s) &nbsp;// 到达边界<br>
+        &nbsp;&nbsp;c(s,s') + 0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if s' = goal &isin; LR(s) // 区域内到达目标<br>
+        &nbsp;&nbsp;&infin; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; otherwise &nbsp;&nbsp;// 死胡同<br>
+        }
+      </div>
+      <p><strong>怎么用：</strong>搜索时用 h<sub>g</sub>(s) + h<sub>k</sub>(s) 作为启发函数。h<sub>g</sub> 提供全局方向，h<sub>k</sub> 修正局部障碍物导致的低估。</p>
+      <p><strong>怎么保证：</strong>用 <strong>focal search</strong>（Pearl & Kim 1982）—— OPEN 用可采纳的 h<sub>g</sub> 排序，FOCAL 用 h<sub>g</sub> + h<sub>k</sub> 排序，保证有界次优性。</p>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">关键设计细节</div>
+      <table>
+        <tr><th>设计点</th><th>选择</th><th>为什么</th></tr>
+        <tr><td>尺度不变性</td><td>NN 输入用相对值 h<sub>g</sub>(s')-h<sub>g</sub>(s)</td><td>小地图训练、大地图测试时仍能泛化</td></tr>
+        <tr><td>NN 输入</td><td>双通道 (2K+1)&times;(2K+1) 图像 + 4D 状态</td><td>通道1: 障碍物; 通道2: 相对启发值</td></tr>
+        <tr><td>NN 架构</td><td>Conv &rarr; Flatten &rarr; Concat state &rarr; MLP(100)&times;2</td><td>局部问题 = 小网络 = CPU 训练即可</td></tr>
+        <tr><td>损失函数</td><td>回归 log(h<sub>k</sub>+1)</td><td>避免大值主导 MSE；死路设 h<sub>k</sub>=2K</td></tr>
+        <tr><td>训练数据</td><td>搜索中收集（非随机采样）20万样本</td><td>几分钟收集，CPU 训练 20-30 分钟</td></tr>
+      </table>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">实验设置（阿克曼运动学）</div>
+      <table>
+        <tr><th>项目</th><th>设置</th></tr>
+        <tr><td>状态空间</td><td>(x, y, &theta;, v)，4D</td></tr>
+        <tr><td>位置离散化</td><td>步长 0.5</td></tr>
+        <tr><td>航向离散化</td><td>30&deg; 步长</td></tr>
+        <tr><td>速度</td><td>v &isin; {-1, 0, 1, 2, 3}</td></tr>
+        <tr><td>动作</td><td>&Delta;v &isin; {-1, 0, 1}，转向角 &isin; {&plusmn;60&deg;, &plusmn;30&deg;, 0&deg;}</td></tr>
+        <tr><td>运动学</td><td><strong>Ackermann 约束</strong></td></tr>
+        <tr><td>全局启发函数</td><td>h<sub>g</sub> = L<sub>2</sub> / 3（欧几里得距离 / 最大速度）</td></tr>
+        <tr><td>地图</td><td>1024&times;1024 随机障碍(20%/30%) + 256&times;256 城市地图</td></tr>
+        <tr><td>局部区域</td><td>K = 4（9&times;9 窗口）</td></tr>
+      </table>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">实验结果</div>
+      <table>
+        <tr><th>地图</th><th>数据集</th><th>w=2</th><th>w=8</th><th>w=32</th><th>w=128</th></tr>
+        <tr><td rowspan="2">random20</td><td>训练</td><td>3.5x</td><td>7.9x</td><td>10.3x</td><td>11.6x</td></tr>
+        <tr><td>测试</td><td>3.6x</td><td>6.9x</td><td>10.5x</td><td>12.7x</td></tr>
+        <tr><td rowspan="2">random30</td><td>训练</td><td>2.2x</td><td>12.1x</td><td>18.1x</td><td>20.5x</td></tr>
+        <tr><td>测试</td><td>1.7x</td><td>7.7x</td><td>13.6x</td><td>16.6x</td></tr>
+        <tr><td>Denver 城市</td><td>测试</td><td>1.4x</td><td>8.4x</td><td>28.2x</td><td>30.7x</td></tr>
+      </table>
+      <p>加速倍数 = 基线 weighted A* 的节点展开数 / LoHA* 的节点展开数。w 越大，越依赖启发函数质量，LoHA* 优势越明显。</p>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">局限性</div>
+      <ul>
+        <li class="con"><strong>墙钟时间没减：</strong>NN 推理 ~4,500 节点/秒 vs 普通 A* ~140,000 节点/秒。节点减 10x 但推理慢 30x &rarr; 墙钟反而更慢</li>
+        <li class="con"><strong>数据收集贵：</strong>每个样本需要在局部区域跑一次 A*（续作 DE-LoHA* 解决）</li>
+        <li class="con"><strong>局部区域必须可定义：</strong>依赖物理空间 (x,y) 窗口，不适用于机械臂等场景</li>
+      </ul>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">与 ForestNav 的关联</div>
+      <div class="highlight-box">
+        <strong>直接相关：</strong>
+        <ul>
+          <li>同样是阿克曼运动学 + state-lattice 搜索</li>
+          <li>障碍物密度 20-30% 与森林可比</li>
+          <li>局部 h<sub>k</sub> 天然适合识别森林中的"死胡同"——树木间的狭窄通道走不通时 h<sub>k</sub> 给高惩罚</li>
+        </ul>
+        <strong>需要解决的差距：</strong>
+        <ul>
+          <li>论文用 2D 栅格，森林是圆形障碍物 &rarr; NN 输入表示需适配</li>
+          <li>墙钟没加速 &rarr; 需要 batch inference 或更轻量网络</li>
+          <li>K=4 (9&times;9) 在森林中是否够覆盖瓶颈区域？</li>
+          <li>随机障碍 vs 森林结构性障碍（树间距、通道宽度）</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ========== Paper 2: DE-LoHA* ========== -->
+<div class="paper p2 visible" id="card-p2">
+  <div class="paper-header" onclick="toggle(this)">
+    <div class="paper-num">2</div>
+    <div>
+      <div class="paper-title">DE-LoHA*: A Data Efficient Framework for Learning Local Heuristics</div>
+      <div class="paper-meta">
+        <span>Veerapaneni*, Park*, Saleem, Likhachev</span>
+        <span>CMU</span>
+        <span>SoCS 2024</span>
+        <span>arXiv: 2404.06728</span>
+      </div>
+      <div class="tags">
+        <span class="tag">LoHA* 续作</span>
+        <span class="tag">回溯数据收集</span>
+        <span class="tag">在线学习</span>
+        <span class="tag ack">Ackermann</span>
+        <span class="tag ack">4D state-lattice</span>
+      </div>
+    </div>
+  </div>
+  <div class="paper-body">
+
+    <div class="oneliner">
+      LoHA* 的同组直接续作——利用全局 A* 搜索中的回溯信息"免费"收集局部启发函数训练数据，数据效率提升 10 倍，支持边规划边学习的在线模式。
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">要解决什么问题</div>
+      <p>LoHA* 的数据收集瓶颈：每个训练样本需要在局部区域独立运行一次 A* 搜索。当 K 增大时，代价急剧增长（K=16 时需 616 次展开/样本）。</p>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">核心洞察</div>
+      <div class="highlight-box">
+        当全局 A* 求解一个 start&rarr;goal 问题时，搜索过程中展开的节点已经天然包含了大量局部子问题的解——只需要"回头看"就能提取。
+      </div>
+      <p><strong>定理 1（全局-局部排序一致性）：</strong>全局 A* 中从 s 出发在 LR(s) 内展开状态的顺序，与从 s 出发的局部 A* 的顺序完全一致。</p>
+      <div class="formula">
+        b(s_start, s') = c(s_start, s) + c(s, s') + h_g(s')<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= c(s_start, s) + b(s, s')<br><br>
+        c(s_start, s) 是常数 &rarr; 排序与局部 A* 一致 &nbsp; QED
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">方法：回溯数据收集</div>
+      <p><strong>完整数据：</strong>展开 s' 时，沿父指针回溯每个祖先 s。若 dist(s, s') > K（s' 已逃出 s 的局部区域），则 s' 就是 s 的最佳边界状态 &rarr; 直接算 h<sub>k</sub>(s)。</p>
+      <p><strong>不完整数据：</strong>若 s' 仍在 LR(s) 内，记录下界 h<sub>gk</sub>(s) &le; c(s,s') + h<sub>g</sub>(s')。训练时按进度降权：</p>
+      <div class="formula">
+        &alpha;(s, s') = d(s, s') / K &lt; 1<br>
+        训练损失 &times; &alpha; &nbsp;&nbsp;(离边界越远，权重越低)
+      </div>
+      <p><strong>零额外计算：</strong>不需要碰撞检测、不需要优先队列操作，仅沿父指针链回溯 + 距离检查。</p>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">数据效率对比</div>
+      <table>
+        <tr><th>K</th><th>局部 A*（原始方法）</th><th>回溯-完整</th><th>回溯-不完整</th></tr>
+        <tr><td>2</td><td>11 展开/样本</td><td>16.5</td><td><strong>5.0</strong></td></tr>
+        <tr><td>4</td><td>74.4</td><td>27.1</td><td><strong>5.0</strong></td></tr>
+        <tr><td>8</td><td>247</td><td>34.9</td><td><strong>5.0</strong></td></tr>
+        <tr><td>16</td><td><strong>616</strong></td><td>38.9</td><td><strong>5.0</strong></td></tr>
+      </table>
+      <p>局部 A* 代价随 K 急剧增长；不完整数据收集始终恒定 5.0 展开/样本，<strong>K=16 时效率差 123 倍</strong>。</p>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">在线学习</div>
+      <p>从 5 个规划问题的初始数据集开始 &rarr; 训练 &rarr; 用模型求解新问题同时收集数据 &rarr; 每 5 个问题重新训练。</p>
+      <p><strong>20 个问题后就出现显著性能提升</strong>，无需独立数据收集阶段。</p>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">局限性</div>
+      <ul>
+        <li class="con"><strong>墙钟问题未解决：</strong>NN 推理开销仍在（~2.3s/问题 vs 基线 0.1s/问题）</li>
+        <li class="con">去掉 &alpha; 降权后性能从 3.9x 降到 2.4x——不完整数据质量管理很关键</li>
+      </ul>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">与 ForestNav 的关联</div>
+      <div class="highlight-box">
+        如果走 LoHA* 方向，DE-LoHA* 的回溯数据收集是<strong>必用技术</strong>——
+        森林场景中我们已经在跑大量 Hybrid A* 求解，这些搜索过程中的中间数据可以"免费"用于训练局部启发函数。
+        在线学习模式意味着不需要预先准备大数据集，可以边跑实验边改进模型。
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ========== Paper 3: LHBL ========== -->
+<div class="paper p3 visible" id="card-p3">
+  <div class="paper-header" onclick="toggle(this)">
+    <div class="paper-num">3</div>
+    <div>
+      <div class="paper-title">LHBL: Beyond Single-Step Updates — RL of Heuristics with Limited-Horizon Search</div>
+      <div class="paper-meta">
+        <span>Hadar, Agostinelli, Shperberg</span>
+        <span>Ben-Gurion Univ. / Univ. of South Carolina</span>
+        <span>AAAI 2026</span>
+        <span>arXiv: 2511.10264</span>
+      </div>
+      <div class="tags">
+        <span class="tag">多步贝尔曼标签</span>
+        <span class="tag">凹陷区域修复</span>
+        <span class="tag">DeepCubeA 改进</span>
+        <span class="tag no-ack">无运动学约束</span>
+        <span class="tag no-ack">离散组合难题</span>
+      </div>
+    </div>
+  </div>
+  <div class="paper-body">
+
+    <div class="oneliner">
+      改进 DeepCubeA 的训练方式——用有限视距搜索生成多步训练标签（替代单步贝尔曼更新），解决启发函数的凹陷区域问题。在魔方/拼图上全面优于 DeepCubeA。
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">要解决什么问题</div>
+      <p>DeepCubeA 式的单步贝尔曼更新有两个局限：</p>
+      <ul>
+        <li><strong>采样分布不匹配：</strong>训练时随机采样状态，但实际搜索时状态分布高度非均匀（偏好低启发值区域）&rarr; 训练和部署的分布不一致</li>
+        <li><strong>标签信息量不足：</strong>每次更新只用到一条边的精确代价，其余全靠不准确的启发值估计 &rarr; 容易产生<strong>凹陷区域</strong>（depression region，启发函数严重低估的区域）</li>
+      </ul>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">核心方法：LHBL</div>
+      <p><strong>搜索阶段：</strong>从采样状态 s 出发执行 N 步有限视距搜索（A* 或 GBFS），获得搜索图 G。</p>
+      <p><strong>更新阶段：</strong>每个状态的启发值标签不再来自单步贝尔曼，而是来自到搜索前沿最佳后代的完整路径：</p>
+      <div class="formula">
+        单步贝尔曼 (SSBL):<br>
+        &nbsp;&nbsp;h(s) = min<sub>s'&isin;succ(s)</sub> [c(s,s') + h(s')] &nbsp;&nbsp;// 1 条精确边 + 1 个估计值<br><br>
+        有限视距贝尔曼 (LHB):<br>
+        &nbsp;&nbsp;h(s) = min<sub>&ell;&isin;leaves</sub> [C(s,&ell;) + h(&ell;)] &nbsp;&nbsp;// k 条精确边 + 1 个估计值
+      </div>
+      <p><strong>计算方法：</strong>在搜索图中添加辅助节点 z，连接所有前沿叶节点（边权 = 叶节点启发值），反转所有边，从 z 跑 Dijkstra &rarr; 一次性算出所有节点的 h<sub>LHB</sub>。</p>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">实验结果</div>
+      <table>
+        <tr><th>领域</th><th>状态空间</th><th>SSBL 求解率</th><th>LHBL 求解率</th><th>改进</th></tr>
+        <tr><td>35-滑块拼图</td><td>3.72&times;10<sup>41</sup></td><td>&lt;100%</td><td>100%</td><td>LHBL 在 80% 训练时已全解</td></tr>
+        <tr><td>魔方</td><td>4.3&times;10<sup>19</sup></td><td>68.8% (B=1)</td><td>&gt;95%</td><td>节点展开减两个数量级</td></tr>
+        <tr><td>7&times;7 Lights Out</td><td>10<sup>14</sup></td><td>4.7-13.2%</td><td>&gt;80%</td><td>SSBL 几乎失败</td></tr>
+      </table>
+      <p>核心发现：SSBL 在搜索中遭遇大量凹陷区域，LHBL 显著缓解。</p>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">局限性</div>
+      <ul>
+        <li class="con"><strong>只在离散组合难题上验证</strong>（魔方、拼图、Lights Out）——没有连续状态空间、没有运动学约束</li>
+        <li class="con">视距 N 过大可能引入近似误差或过拟合</li>
+        <li class="con">训练代价高（魔方需 10-12 天 / RTX 4090）</li>
+      </ul>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">与 ForestNav 的关联</div>
+      <div class="highlight-box">
+        LHBL 的思想（多步搜索标签 > 单步贝尔曼标签）是<strong>训练方法的改进</strong>，与 LoHA* 的"学什么"正交。
+        理论上可以<strong>组合</strong>：用 LHBL 的多步标签方式来训练 LoHA* 的局部启发函数。
+        但 LHBL 本身未在运动学约束场景验证，直接迁移有风险。更适合作为参考思路而非直接采用。
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ========== Comparison ========== -->
+<div id="comparison" class="visible">
+  <h2>三篇论文对比</h2>
+
+  <div class="relation">
+    <div class="rel-node r1">LoHA*<br><small>学什么</small></div>
+    <div class="rel-arrow">&rarr;</div>
+    <div class="rel-node r2">DE-LoHA*<br><small>数据怎么来</small></div>
+    <div class="rel-arrow">&nbsp;&nbsp;||&nbsp;&nbsp;</div>
+    <div class="rel-node r3">LHBL<br><small>标签怎么算</small></div>
+  </div>
+  <p style="text-align:center;color:var(--text3);font-size:0.85em;margin-bottom:16px;">
+    1&rarr;2 是同组续作（CMU Likhachev 组）；3 是独立工作，思想正交可组合
+  </p>
+
+  <table class="comp-table">
+    <tr>
+      <th></th>
+      <th style="color:var(--accent1)">LoHA* (ICAPS'23)</th>
+      <th style="color:var(--accent2)">DE-LoHA* (SoCS'24)</th>
+      <th style="color:var(--accent3)">LHBL (AAAI'26)</th>
+    </tr>
+    <tr>
+      <td><strong>核心创新</strong></td>
+      <td>定义局部启发函数 h<sub>k</sub></td>
+      <td>回溯收集训练数据</td>
+      <td>多步搜索生成训练标签</td>
+    </tr>
+    <tr>
+      <td><strong>改的是什么</strong></td>
+      <td>学什么（局部 vs 全局）</td>
+      <td>数据怎么来（回溯 vs oracle）</td>
+      <td>标签怎么算（多步 vs 单步）</td>
+    </tr>
+    <tr>
+      <td><strong>运动学约束</strong></td>
+      <td style="color:#0d904f;font-weight:700">Ackermann 4D</td>
+      <td style="color:#0d904f;font-weight:700">Ackermann 4D</td>
+      <td style="color:#c5221f">无（离散组合）</td>
+    </tr>
+    <tr>
+      <td><strong>搜索方法</strong></td>
+      <td>focal A* (state-lattice)</td>
+      <td>focal A* (state-lattice)</td>
+      <td>batch weighted A*</td>
+    </tr>
+    <tr>
+      <td><strong>搜索保证</strong></td>
+      <td>有界次优性</td>
+      <td>有界次优性</td>
+      <td>有界次优性（若 h 可采纳）</td>
+    </tr>
+    <tr>
+      <td><strong>节点减少</strong></td>
+      <td>2-20x</td>
+      <td>~3.9x (w=16)</td>
+      <td>2-100x（组合难题）</td>
+    </tr>
+    <tr>
+      <td><strong>墙钟加速</strong></td>
+      <td style="color:#c5221f">无（推理太慢）</td>
+      <td style="color:#c5221f">无</td>
+      <td>未明确报告</td>
+    </tr>
+    <tr>
+      <td><strong>训练数据量</strong></td>
+      <td>20 万样本</td>
+      <td>~100 次规划调用</td>
+      <td>10-100 亿样本</td>
+    </tr>
+    <tr>
+      <td><strong>训练时间</strong></td>
+      <td>CPU 20-30 分钟</td>
+      <td>更短（在线迭代）</td>
+      <td>GPU 3-12 天</td>
+    </tr>
+    <tr>
+      <td><strong>泛化到新地图</strong></td>
+      <td style="color:#0d904f;font-weight:700">是</td>
+      <td style="color:#0d904f;font-weight:700">是</td>
+      <td>未测试</td>
+    </tr>
+    <tr>
+      <td><strong>在线学习</strong></td>
+      <td>否</td>
+      <td style="color:#0d904f;font-weight:700">是</td>
+      <td>否</td>
+    </tr>
+    <tr>
+      <td><strong>测试领域</strong></td>
+      <td>2D 导航（随机障碍+城市）</td>
+      <td>2D 导航（随机障碍）</td>
+      <td>魔方、35-拼图、Lights Out</td>
+    </tr>
+    <tr>
+      <td><strong>与 ForestNav 距离</strong></td>
+      <td style="background:#e6f4ea">最近——同运动学</td>
+      <td style="background:#e6f4ea">最近——必用技术</td>
+      <td style="background:#fce8e6">较远——思想可借鉴</td>
+    </tr>
+  </table>
+
+  <div class="highlight-box" style="margin-top:20px;">
+    <strong>研究空白（2020-2026 文献调研确认）：</strong><br>
+    没有人把 LoHA* 思路迁移到 <strong>Hybrid A* + Ackermann + 密集障碍物（如森林）</strong>场景。
+    现有后续工作要么停留在数据效率改进（DE-LoHA*），要么迁移到多智能体（MAPF）。
+    这正是 ForestNav 的研究空白。
+  </div>
+</div>
+
+<footer>
+  ForestNav PhD Project | 生成时间: 2026-06-29 | 工具: Claude Code
+</footer>
+
+<script>
+function toggle(header) {
+  const body = header.nextElementSibling;
+  body.classList.toggle('collapsed');
+}
+
+function show(which, btn) {
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const papers = document.querySelectorAll('.paper');
+  const comp = document.getElementById('comparison');
+
+  if (which === 'all') {
+    papers.forEach(p => p.classList.add('visible'));
+    comp.classList.add('visible');
+  } else if (which === 'comp') {
+    papers.forEach(p => p.classList.remove('visible'));
+    comp.classList.add('visible');
+  } else {
+    papers.forEach(p => p.classList.remove('visible'));
+    comp.classList.remove('visible');
+    document.getElementById('card-' + which).classList.add('visible');
+  }
+}
+</script>
+
+</body>
+</html>

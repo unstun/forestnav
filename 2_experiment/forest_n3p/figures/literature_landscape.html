@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>学习加速搜索式路径规划 — 文献全景图</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0d1117; color: #c9d1d9; font-family: -apple-system, 'Segoe UI', sans-serif; padding: 20px; line-height: 1.6; }
+h1 { text-align: center; color: #58a6ff; font-size: 24px; margin-bottom: 5px; }
+.subtitle { text-align: center; color: #8b949e; font-size: 13px; margin-bottom: 20px; }
+.gap-banner { background: linear-gradient(135deg, #1a3a1a, #0d2818); border: 2px solid #2ea043; border-radius: 10px; padding: 15px 20px; margin: 15px auto; max-width: 900px; text-align: center; }
+.gap-banner h2 { color: #2ea043; font-size: 18px; margin-bottom: 5px; }
+.gap-banner p { color: #7ee787; font-size: 14px; }
+
+.tree-container { max-width: 1100px; margin: 20px auto; }
+.branch { margin-bottom: 25px; }
+.branch-header { display: flex; align-items: center; gap: 10px; padding: 10px 15px; border-radius: 8px; cursor: pointer; user-select: none; }
+.branch-header:hover { filter: brightness(1.2); }
+.branch-icon { font-size: 20px; }
+.branch-title { font-size: 16px; font-weight: bold; }
+.branch-desc { font-size: 12px; color: #8b949e; margin-left: auto; }
+.branch-count { background: rgba(255,255,255,0.15); padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+
+.papers { margin-left: 30px; border-left: 2px solid #30363d; padding-left: 15px; display: none; }
+.papers.open { display: block; }
+.paper { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 12px 15px; margin: 8px 0; transition: border-color 0.2s; }
+.paper:hover { border-color: #58a6ff; }
+.paper-title { color: #58a6ff; font-weight: bold; font-size: 14px; }
+.paper-venue { display: inline-block; background: #1f2937; color: #79c0ff; padding: 1px 8px; border-radius: 4px; font-size: 11px; margin-left: 8px; }
+.paper-meta { display: flex; gap: 15px; margin-top: 6px; font-size: 12px; color: #8b949e; flex-wrap: wrap; }
+.paper-meta span { display: flex; align-items: center; gap: 4px; }
+.tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: bold; }
+.tag-yes { background: #1a3a1a; color: #2ea043; }
+.tag-no { background: #3a1a1a; color: #da3633; }
+.tag-partial { background: #3a2a1a; color: #d29922; }
+.paper-method { margin-top: 6px; font-size: 12px; color: #b1bac4; }
+.paper-link { margin-top: 6px; }
+.paper-link a { color: #58a6ff; font-size: 12px; text-decoration: none; }
+.paper-link a:hover { text-decoration: underline; }
+
+.comparison { max-width: 1100px; margin: 30px auto; }
+.comparison h2 { color: #58a6ff; font-size: 18px; margin-bottom: 10px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { background: #161b22; color: #58a6ff; padding: 8px 10px; text-align: left; border-bottom: 2px solid #30363d; position: sticky; top: 0; }
+td { padding: 6px 10px; border-bottom: 1px solid #21262d; }
+tr:hover td { background: #161b22; }
+.highlight-row { background: #0d2818 !important; }
+.highlight-row td { color: #7ee787; }
+
+.filter-bar { max-width: 1100px; margin: 15px auto; display: flex; gap: 8px; flex-wrap: wrap; }
+.filter-btn { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; padding: 5px 12px; border-radius: 15px; cursor: pointer; font-size: 12px; transition: all 0.2s; }
+.filter-btn:hover, .filter-btn.active { background: #1f6feb; border-color: #1f6feb; color: #fff; }
+
+.stats-bar { max-width: 1100px; margin: 15px auto; display: flex; gap: 20px; justify-content: center; }
+.stat { text-align: center; }
+.stat-num { font-size: 28px; font-weight: bold; color: #58a6ff; }
+.stat-label { font-size: 11px; color: #8b949e; }
+
+.timeline { max-width: 1100px; margin: 30px auto; }
+.timeline h2 { color: #58a6ff; font-size: 18px; margin-bottom: 15px; }
+.timeline-track { display: flex; align-items: flex-end; gap: 2px; height: 120px; padding: 0 10px; }
+.timeline-bar { flex: 1; background: #1f6feb; border-radius: 3px 3px 0 0; min-width: 20px; position: relative; cursor: pointer; transition: background 0.2s; }
+.timeline-bar:hover { background: #58a6ff; }
+.timeline-bar .tip { display: none; position: absolute; bottom: 105%; left: 50%; transform: translateX(-50%); background: #161b22; border: 1px solid #30363d; padding: 5px 8px; border-radius: 5px; font-size: 11px; white-space: nowrap; z-index: 10; }
+.timeline-bar:hover .tip { display: block; }
+.timeline-labels { display: flex; gap: 2px; padding: 5px 10px; }
+.timeline-labels span { flex: 1; text-align: center; font-size: 11px; color: #8b949e; min-width: 20px; }
+
+footer { text-align: center; color: #484f58; font-size: 11px; margin-top: 40px; padding: 20px; }
+</style>
+</head>
+<body>
+
+<h1>学习加速搜索式路径规划 — 文献全景图</h1>
+<p class="subtitle">ForestNav 项目文献调研 | 覆盖 2020-2026 年 25+ 篇论文 | 按方法分类</p>
+
+<div class="gap-banner">
+<h2>研究空白</h2>
+<p>学习引导 + Hybrid A* + 阿克曼运动学 + 森林/密障碍 → 2020-2025 无任何论文覆盖此组合</p>
+</div>
+
+<div class="stats-bar">
+<div class="stat"><div class="stat-num" id="totalCount">0</div><div class="stat-label">总论文数</div></div>
+<div class="stat"><div class="stat-num" id="coreCount">0</div><div class="stat-label">核心相关</div></div>
+<div class="stat"><div class="stat-num" id="haCount">0</div><div class="stat-label">用 Hybrid A*</div></div>
+<div class="stat"><div class="stat-num" id="ackCount">0</div><div class="stat-label">阿克曼车</div></div>
+</div>
+
+<div class="filter-bar">
+<button class="filter-btn active" onclick="filterPapers('all')">全部</button>
+<button class="filter-btn" onclick="filterPapers('heuristic')">改启发函数</button>
+<button class="filter-btn" onclick="filterPapers('region')">改搜索区域</button>
+<button class="filter-btn" onclick="filterPapers('subgoal')">改子目标/分解</button>
+<button class="filter-btn" onclick="filterPapers('costmap')">学习代价图</button>
+<button class="filter-btn" onclick="filterPapers('pruning')">学习剪枝</button>
+<button class="filter-btn" onclick="filterPapers('corridor')">走廊约束</button>
+<button class="filter-btn" onclick="filterPapers('core')">仅核心论文</button>
+</div>
+
+<div class="tree-container" id="treeContainer"></div>
+
+<div class="timeline">
+<h2>发表年份分布</h2>
+<div class="timeline-track" id="timelineTrack"></div>
+<div class="timeline-labels" id="timelineLabels"></div>
+</div>
+
+<div class="comparison">
+<h2>关键论文对比</h2>
+<table>
+<thead>
+<tr><th>论文</th><th>年份</th><th>发表</th><th>NN 预测什么</th><th>规划器</th><th>阿克曼</th><th>加速</th><th>训练</th></tr>
+</thead>
+<tbody id="compTable"></tbody>
+</table>
+</div>
+
+<footer>
+ForestNav 文献全景图 | 数据来源: arXiv, IEEE, ICML, AAAI, ICRA, IROS, RA-L, RAS<br>
+生成时间: 2026-06-27 | 工具: Claude Code
+</footer>
+
+<script>
+const papers = [
+  // 改启发函数
+  { id:'loha', title:'LoHA*: Learning Local Heuristics for Search-Based Navigation Planning', authors:'Veerapaneni et al.', year:2023, venue:'ICAPS 2023', cat:'heuristic', arxiv:'2303.09477',
+    method:'学 9x9 局部"逃逸代价"加到全局启发函数上，focal search 保证有界次优性', speedup:'节点 2-20x', ackermann:true, hybridA:true, training:'监督', core:true },
+  { id:'transpath', title:'TransPath: Learning Heuristics for Grid-Based Pathfinding via Transformers', authors:'Kirilenko et al.', year:2023, venue:'AAAI 2023', cat:'heuristic', arxiv:'2212.11730',
+    method:'Transformer 学 cost-to-go 修正系数 + 路径概率图，focal search secondary heuristic', speedup:'4x, 路径损失<0.3%', ackermann:false, hybridA:false, training:'监督', core:false },
+  { id:'beyond', title:'Beyond Single-Step Updates: RL of Heuristics with Limited-Horizon Search', authors:'Hadar et al.', year:2026, venue:'AAAI 2026', cat:'heuristic', arxiv:'2511.10264',
+    method:'RL + 有限视距搜索训练启发函数，解决单步 Bellman 更新的 depression 区域问题', speedup:'显著优于单步 RL', ackermann:false, hybridA:false, training:'RL', core:true },
+  { id:'phil', title:'PHIL: Learning Graph Search Heuristics via Imitation Learning', authors:'Pandy et al.', year:2022, venue:'LoG 2022', cat:'heuristic', arxiv:'2212.03978',
+    method:'GNN 通过可微分 A* 步骤做模仿学习，输出节点启发值', speedup:'节点 -58.5%', ackermann:false, hybridA:false, training:'监督(模仿)', core:false },
+  { id:'nwa', title:'Neural Weighted A*: Learning Graph Costs and Heuristics', authors:'Archetti et al.', year:2021, venue:'LOD 2021', cat:'heuristic', arxiv:'2105.01480',
+    method:'NN 同时学边代价和启发函数，可微分 A* 端到端训练，有界次优性保证', speedup:'—', ackermann:false, hybridA:false, training:'监督', core:false },
+  { id:'attention', title:'Heuristic Search Planning with Deep NN using Imitation & Attention', authors:'Issakkimuthu et al.', year:2021, venue:'arXiv', cat:'heuristic', arxiv:'2112.01918',
+    method:'注意力机制 + 课程学习训练 A* 启发函数', speedup:'大幅减少节点', ackermann:false, hybridA:false, training:'监督(模仿)', core:false },
+  { id:'xiang', title:'Learning-accelerated A* for Risk-aware Path Planning', authors:'Xiang et al.', year:2024, venue:'AIAA 2025', cat:'heuristic', arxiv:'2409.11634',
+    method:'Transformer 学 cost-to-go，用于 risk-aware 扩展 A*(ASD A*)', speedup:'显著减少节点', ackermann:false, hybridA:false, training:'监督', core:false },
+
+  // 改搜索区域/路径概率
+  { id:'neurala', title:'Neural A*: Path Planning using Neural A* Search', authors:'Yonetani et al.', year:2021, venue:'ICML 2021', cat:'region', arxiv:'2009.07476',
+    method:'CNN→guidance map，可微分 A* 端到端训练，guidance map 偏置节点扩展', speedup:'—', ackermann:false, hybridA:false, training:'监督(端到端)', core:true },
+  { id:'iastar', title:'iA*: Imperative Learning-based A* Search', authors:'Chen et al.', year:2025, venue:'RA-L 2025', cat:'region', arxiv:'2403.15870',
+    method:'NN 预测节点代价，双层优化自监督训练，不需要标注数据', speedup:'面积-66%, 时间-54%', ackermann:false, hybridA:false, training:'自监督', core:true },
+  { id:'nnpp', title:'NNPP: Learning-Based Heuristic for Accelerating Path Planning on Uneven Terrain', authors:'Ji et al.', year:2025, venue:'RAS 2025', cat:'region', arxiv:'2308.04792',
+    method:'NN 预测路径概率图（每像素属于最优路径的概率），A* 只在高概率区搜', speedup:'3-5x', ackermann:false, hybridA:false, training:'监督', core:true },
+  { id:'rpnn', title:'RPNN-RRT*: Neural-Network-Driven Optimal Path Planning via Region Prediction', authors:'Huang et al.', year:2023, venue:'ALR 2023', cat:'region', arxiv:'2308.07974',
+    method:'CNN 预测高精度区域(89%准确率)，RRT* 只在区域内采样，三级层次损失', speedup:'时间 -29~73%', ackermann:false, hybridA:false, training:'监督', core:false },
+  { id:'nirrt', title:'Neural Informed RRT*', authors:'Huang et al.', year:2024, venue:'ICRA 2024', cat:'region', arxiv:'2309.14595',
+    method:'PointNet++ 预测关键状态，RRT* 在椭球+NN 联合限域内采样', speedup:'—', ackermann:false, hybridA:false, training:'监督', core:false },
+  { id:'nrrrt', title:'NR-RRT: Neural Risk-Aware Near-Optimal Path Planning', authors:'Meng et al.', year:2022, venue:'T-ASE 2022', cat:'region', arxiv:'2205.06951',
+    method:'NN 做 RRT* 采样器，从学习分布采样替代均匀采样', speedup:'—', ackermann:false, hybridA:false, training:'监督', core:false },
+  { id:'neurrt', title:'Neural RRT*: Learning-Based Optimal Path Planning', authors:'Ravikanna et al.', year:2020, venue:'T-NNLS 2020', cat:'region', arxiv:'',
+    method:'NN 分割有前景区域，RRT* 在区域内搜索（奠基性工作）', speedup:'—', ackermann:false, hybridA:false, training:'监督', core:false },
+  { id:'cbagan', title:'CBAGAN-RRT: Convolutional Block Attention GAN', authors:'Ivanovic et al.', year:2023, venue:'arXiv', cat:'region', arxiv:'2305.10442',
+    method:'GAN 生成路径概率分布图，RRT* 从中采样', speedup:'—', ackermann:false, hybridA:false, training:'GAN', core:false },
+  { id:'conform', title:'Conformalized Non-uniform Sampling for Motion Planning', authors:'—', year:2025, venue:'arXiv', cat:'region', arxiv:'2511.04835',
+    method:'路径预测 + 保形预测构建采样区域，有概率覆盖保证', speedup:'—', ackermann:false, hybridA:false, training:'监督', core:false },
+  { id:'ma2026', title:'Accelerating Path Planning via Connectivity-Preserving Region Proposal', authors:'Ma et al.', year:2026, venue:'arXiv', cat:'region', arxiv:'2605.28362',
+    method:'NN 提出保连通性候选区域，规划器限域搜索', speedup:'—', ackermann:false, hybridA:false, training:'—', core:false },
+  { id:'rrtformer', title:'RRT*former: Environment-Aware Sampling via Transformer', authors:'Feng et al.', year:2025, venue:'IROS 2025', cat:'region', arxiv:'2511.15414',
+    method:'Transformer 编码环境+历史采样，预测 RRT* 下一个采样位置', speedup:'—', ackermann:false, hybridA:false, training:'监督', core:false },
+
+  // 改子目标/分解
+  { id:'n3p', title:'N3P: Accelerated Automated Parking via Learning-Based Three-Stage Scheme', authors:'Xue et al.', year:2026, venue:'arXiv 2026', cat:'subgoal', arxiv:'2605.22722',
+    method:'4参数环境抽象 + KNN 预测准备姿态 + RS 直连 goal，泊车加速 80%+', speedup:'80%+', ackermann:true, hybridA:true, training:'监督(KNN)', core:true },
+  { id:'kim', title:'Neural Motion Planning for Autonomous Parking', authors:'Kim & Huh', year:2021, venue:'IJCAS 2023', cat:'subgoal', arxiv:'2111.06739',
+    method:'CVAE 学轨迹分布，偏置 Hybrid A* 节点扩展方向', speedup:'—', ackermann:true, hybridA:true, training:'监督(模仿)', core:true },
+  { id:'subdiff', title:'Subgoal Diffuser: Coarse-to-Fine Subgoal Generation for MPC', authors:'—', year:2024, venue:'ICRA 2024', cat:'subgoal', arxiv:'2403.13085',
+    method:'Diffusion 生成粗到细子目标序列，学习可达性估计器选子目标密度', speedup:'—', ackermann:false, hybridA:false, training:'监督+扩散', core:false },
+
+  // 学习剪枝
+  { id:'slope', title:'SLOPE: Search with Learned Optimal Pruning-based Expansion', authors:'Bokan et al.', year:2024, venue:'ICAPS 2024 WS', cat:'pruning', arxiv:'2406.04935',
+    method:'学习节点离最优路径的距离，剪掉远的节点，保持最优性', speedup:'—', ackermann:false, hybridA:false, training:'监督', core:false },
+
+  // 走廊约束
+  { id:'gnndip', title:'GNN-DIP: Neural Corridor Selection for Decomposition-Based Planning', authors:'Xie et al.', year:2026, venue:'arXiv 2026', cat:'corridor', arxiv:'2603.12361',
+    method:'GNN 在凸分解图上打分，预测最优走廊序列，2-280x 加速', speedup:'2-280x', ackermann:false, hybridA:false, training:'监督', core:true },
+  { id:'gcha', title:'GCHybridA*: Guided Search and Corridor Constraints for Hybrid A*', authors:'Che et al.', year:2026, venue:'Sensors 2026', cat:'corridor', arxiv:'',
+    method:'Voronoi 引导路径 + 安全走廊 + Hybrid A* 限域搜索（纯几何，无学习）', speedup:'分支 -83.7%', ackermann:false, hybridA:true, training:'无(几何)', core:true },
+
+  // 学习代价图(越野)
+  { id:'camel', title:'CAMEL: Learning Cost-maps Made Easy for Off-road Driving', authors:'Vishwanath et al.', year:2022, venue:'arXiv', cat:'costmap', arxiv:'2209.12413',
+    method:'深度模仿学习从专家示范学 costmap 参数，供经典规划器使用', speedup:'—', ackermann:false, hybridA:false, training:'模仿', core:false },
+  { id:'probtraverse', title:'Probabilistic Traversability Model for Off-Road Environments', authors:'Cai et al.', year:2023, venue:'IROS 2023', cat:'costmap', arxiv:'2210.00153',
+    method:'NN 学地形牵引力分布，motion planner 用两种风险代价公式', speedup:'成功率+30%', ackermann:false, hybridA:false, training:'自监督', core:false },
+  { id:'trailblazer', title:'Trailblazer: Learning Offroad Costmaps for Long Range Planning', authors:'Viswanath et al.', year:2025, venue:'arXiv', cat:'costmap', arxiv:'2505.09739',
+    method:'模仿学习 + 可微分 A*，多模态输入(卫星+LiDAR)→costmap→A*', speedup:'—', ackermann:false, hybridA:false, training:'模仿(可微A*)', core:false },
+];
+
+const categories = {
+  heuristic: { name:'改启发函数', desc:'学习更准的 cost-to-go 估计', color:'#1f6feb', icon:'🧭' },
+  region: { name:'改搜索区域', desc:'预测路径在哪，缩小搜索范围', color:'#a371f7', icon:'🗺' },
+  subgoal: { name:'改子目标/分解', desc:'预测中间目标点，分解规划问题', color:'#f0883e', icon:'🎯' },
+  pruning: { name:'学习剪枝', desc:'学习丢弃不太可能在最优路径上的节点', color:'#da3633', icon:'✂' },
+  corridor: { name:'走廊约束', desc:'选择或构建安全走廊限制搜索', color:'#2ea043', icon:'🏗' },
+  costmap: { name:'学习代价图', desc:'学习地形/通行代价供规划器使用', color:'#d29922', icon:'🌍' },
+};
+
+function renderTree(filter) {
+  const container = document.getElementById('treeContainer');
+  container.innerHTML = '';
+
+  for (const [catKey, catInfo] of Object.entries(categories)) {
+    let catPapers = papers.filter(p => p.cat === catKey);
+    if (filter === 'core') catPapers = catPapers.filter(p => p.core);
+    else if (filter !== 'all' && filter !== catKey) continue;
+    if (catPapers.length === 0) continue;
+
+    const branch = document.createElement('div');
+    branch.className = 'branch';
+    branch.dataset.cat = catKey;
+
+    const header = document.createElement('div');
+    header.className = 'branch-header';
+    header.style.background = catInfo.color + '22';
+    header.style.borderLeft = `4px solid ${catInfo.color}`;
+    header.innerHTML = `
+      <span class="branch-icon">${catInfo.icon}</span>
+      <span class="branch-title" style="color:${catInfo.color}">${catInfo.name}</span>
+      <span class="branch-desc">${catInfo.desc}</span>
+      <span class="branch-count" style="color:${catInfo.color}">${catPapers.length} 篇</span>
+    `;
+    header.onclick = () => {
+      const ps = branch.querySelector('.papers');
+      ps.classList.toggle('open');
+    };
+
+    const papersDiv = document.createElement('div');
+    papersDiv.className = 'papers open';
+
+    for (const p of catPapers) {
+      const ackTag = p.ackermann ? '<span class="tag tag-yes">阿克曼</span>' : '<span class="tag tag-no">非阿克曼</span>';
+      const haTag = p.hybridA ? '<span class="tag tag-yes">Hybrid A*</span>' : '<span class="tag tag-no">非HA*</span>';
+      const coreTag = p.core ? '<span class="tag tag-yes">核心</span>' : '';
+
+      papersDiv.innerHTML += `
+        <div class="paper" data-cat="${catKey}" data-core="${p.core}">
+          <div>
+            <span class="paper-title">${p.title}</span>
+            <span class="paper-venue">${p.venue}</span>
+            ${coreTag}
+          </div>
+          <div class="paper-meta">
+            <span>${p.authors}</span>
+            <span>${ackTag} ${haTag}</span>
+            <span>加速: ${p.speedup || '未报告'}</span>
+            <span>训练: ${p.training}</span>
+          </div>
+          <div class="paper-method">${p.method}</div>
+          ${p.arxiv ? `<div class="paper-link"><a href="https://arxiv.org/abs/${p.arxiv}" target="_blank">arXiv: ${p.arxiv}</a></div>` : ''}
+        </div>
+      `;
+    }
+
+    branch.appendChild(header);
+    branch.appendChild(papersDiv);
+    container.appendChild(branch);
+  }
+}
+
+function filterPapers(cat) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderTree(cat);
+}
+
+function updateStats() {
+  document.getElementById('totalCount').textContent = papers.length;
+  document.getElementById('coreCount').textContent = papers.filter(p => p.core).length;
+  document.getElementById('haCount').textContent = papers.filter(p => p.hybridA).length;
+  document.getElementById('ackCount').textContent = papers.filter(p => p.ackermann).length;
+}
+
+function renderTimeline() {
+  const years = {};
+  papers.forEach(p => { years[p.year] = (years[p.year] || 0) + 1; });
+  const minY = Math.min(...Object.keys(years).map(Number));
+  const maxY = Math.max(...Object.keys(years).map(Number));
+  const maxCount = Math.max(...Object.values(years));
+
+  const track = document.getElementById('timelineTrack');
+  const labels = document.getElementById('timelineLabels');
+  track.innerHTML = '';
+  labels.innerHTML = '';
+
+  for (let y = minY; y <= maxY; y++) {
+    const count = years[y] || 0;
+    const height = count > 0 ? Math.max(15, (count / maxCount) * 100) : 2;
+    const names = papers.filter(p => p.year === y).map(p => p.id).join(', ');
+    track.innerHTML += `<div class="timeline-bar" style="height:${height}px"><div class="tip">${y}: ${count} 篇<br>${names}</div></div>`;
+    labels.innerHTML += `<span>${y}</span>`;
+  }
+}
+
+function renderCompTable() {
+  const tbody = document.getElementById('compTable');
+  const corePapers = papers.filter(p => p.core).sort((a, b) => a.year - b.year);
+
+  for (const p of corePapers) {
+    const isOurs = (p.id === 'n3p' || p.id === 'kim');
+    const cls = isOurs ? 'highlight-row' : '';
+    tbody.innerHTML += `<tr class="${cls}">
+      <td><strong>${p.id}</strong></td>
+      <td>${p.year}</td>
+      <td>${p.venue}</td>
+      <td>${p.method.split('，')[0]}</td>
+      <td>${p.hybridA ? 'Hybrid A*' : 'A*/RRT*'}</td>
+      <td>${p.ackermann ? '<span class="tag tag-yes">Yes</span>' : '<span class="tag tag-no">No</span>'}</td>
+      <td>${p.speedup || '—'}</td>
+      <td>${p.training}</td>
+    </tr>`;
+  }
+}
+
+renderTree('all');
+updateStats();
+renderTimeline();
+renderCompTable();
+</script>
+</body>
+</html>
