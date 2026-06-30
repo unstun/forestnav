@@ -1,7 +1,7 @@
 ---
 origin: ai+web
 reviewed: false
-updated: 2026-06-20
+updated: 2026-06-30
 ---
 
 # ForestNav 术语规范表
@@ -27,6 +27,12 @@ updated: 2026-06-20
 | 解析扩展 | analytic expansion | 解析扩展 | 解析延伸 / 分析性扩展 | Dolgov 2010 标准术语 |
 | 节点扩展 | node expansion | 节点扩展 | 节点展开 | A* 搜索算法标准术语 |
 | 回退 | fallback | 回退（分级回退 = fallback hierarchy） | 降级策略 | ROS2 行为树用"回退节点"，本文用"分级回退" |
+| 运动基元 | motion primitive | 运动基元 | 运动原语 / 动作原语 | ICRA/pedestrian planning 标准术语；"基元"比"原语"更通用 |
+| 运动基元剪枝 | motion primitive pruning | 运动基元剪枝 | action pruning（RL 专用） / 动作空间剪枝 | E³MoP, MeshA*；描述效果时用 branching factor reduction |
+| 学习型运动基元选择 | learned motion primitive selection | 学习型运动基元选择 | learned action selection（RL 专用） / learned branching（无文献） | ICRA/IROS 多篇使用，motion planning 语境首选 |
+| 学习型解析扩展 | learned analytic expansion | 学习型解析扩展 | neural RS / 神经 RS（非标准） | 基于 Dolgov 2010 "analytic expansion" 自然衍生 |
+| 学习型局部规划器 | learned local planner | 学习型局部规划器 | neural path connector / neural local steering（无 top-venue 记录） | IROS 2020; kinodynamic 文献用 learned goal-reaching controller |
+| 分支因子 | branching factor | 分支因子 | 分叉因子 / 分枝数 | AI/搜索算法教科书标准译法 |
 
 ## 环境与车辆术语
 
@@ -93,3 +99,7 @@ updated: 2026-06-20
 | 占据图（缺"栅格"） | 占据栅格图 | 术语不完整 |
 | 无碰（缺"撞"） | 无碰撞 | 过于简略 |
 | 碰撞检查 | 碰撞检测 | 工程口语，学术不规范 |
+| action pruning（规划语境） | motion primitive pruning / 运动基元剪枝 | action pruning 是 RL 术语，不用于搜索式规划 |
+| neural RS / 神经 RS | learned analytic expansion / 学习型解析扩展 | 自造术语，无文献依据 |
+| 运动原语 | 运动基元 | "基元"比"原语"更通用 |
+| learned branching | learned motion primitive selection | 无 top-venue 使用记录 |
