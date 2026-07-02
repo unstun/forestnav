@@ -1,14 +1,14 @@
 {
-  "last_run": "2026-06-26",
+  "last_run": "2026-07-01",
   "thresholds": {
     "warm_to_cold_days": 31,
     "cold_to_archive_days": 91,
     "archive_to_delete_days": 365
   },
   "last_check_result": {
-    "date": "2026-06-26",
-    "files_checked": 11,
+    "date": "2026-07-01",
+    "files_checked": 16,
     "degradations_triggered": 0,
-    "note": "归档执行降级扫描（2026-06-26 02:22）。冷区共 11 个日文件，最早为 2026-06-24，未达 31 天阈值，无需降级。同次写入 .pipeline/experiments/20260626_t14_dqn10_full_migration_status.md（Codex 质量门控 PASS）。"
+    "note": "归档执行降级扫描（2026-07-01 23:09，记忆归档 Agent）。冷区五个子目录（心路历程/改动记录/调研记录/踩坑记录/里程碑）共 16 个日文件，最早为 2026-06-24，距今 <31 天，未达阈值，无需降级。同次写入 .pipeline/literature/index.md（Franke2025Accelerating，Codex 质量门控 PASS）+ .pipeline/survey/primitive-pruning-plus-learned-expansion-idea.md。"
   }
 }
