@@ -132,11 +132,24 @@ gate #2 顺带校准：patch 尺寸、rollout 步长、预算上限、D_max（�
 **总判定**：HA* 的解析扩展槽仍是空白。我们的**“漏斗型架构（中长距 PPO 扩展 + 末端 RS 完美贴合）”**既解决了纯 RL 的 BVP 震荡问题，又保留了 HA* 的完备性。
 
 **2024-2026 顶刊顶会相关竞品与差异表述**：
-- **PAIR (2026, 混合 A* + PPO 细化)**: PAIR 将 HA* 作为全局离散骨架，PPO 替代底层连续路径细化模块。
-  → 差异：PAIR 作用于底层轨迹优化（Smoothing/Refinement），而我们作用于**解析扩展（Analytic Expansion）**，核心目的是“跨越狭窄障碍进行一杆进洞”，提效而非纯平滑。
+- **PAIR (2026, Drones/MDPI, DOI: 10.3390/drones10010058)**: ⚠️ 原描述已于 2026-07-02 核验证伪。
+  实为多无人机 **2D 网格**导航（*PAIR: A Hybrid A\* with PPO Path Planner for Multi-UAV Navigation
+  in 2-D Dynamic Urban MEC Environments*）；标题中 "Hybrid A*" 指 "A*+PPO 混合规划器"这一整体架构，
+  **不是** Dolgov 意义上带连续曲率/RS shot 的 Hybrid A*。PPO 仅对 A* 航点施加局部偏移做细化
+  （摘要逐字: "A* produces feasible waypoint routes, while a shared risk-aware PPO policy applies
+  local offsets"），摘要无 Reeds-Shepp、无非完整约束（Semantic Scholar API 摘要核验；MDPI 原页 403）。
+  → 定位：与本模块**无竞品关系**，related work 至多作为 "A*+RL 混合架构" 远亲一笔带过，或不引。
 - **HOPE (2025, RL-based Hybrid Policy Path Planner)**: 端到端 RL 主导复杂场景探索（结合 RS 和 Action Masking），超越传统 HA*。
   → 差异：HOPE 是 RL 主导的混合策略框架，偏向于“RL + 规则兜底”；而我们是严谨的“HA* 主导，PPO 作为高级解析算子（Analytic Operator）被调用”。我们完备性由 HA* 兜底。
-- **Value-guided HA***: 用 RL 预计算的 Cost 函数替代 RS 启发式（如 Utilizing RL to Continuously Improve... 方案 A）。
+- **Value-guided HA***: 用学习到的 cost/heuristic 引导 HA* 搜索。
+  ⚠️ 原引例 "Utilizing RL to Continuously Improve a Primitive-Based Motion Planner" 已于
+  2026-07-02 核验证伪：实为 **AIAA**（Goddard et al., 2021 SciTech 会议版 / 2022 *J. Aerospace
+  Information Systems*, DOI: 10.2514/1.I011044，非 IEEE），F-16 飞机导航，RL 做**运动基元库
+  自动扩充**（自主新增 91 个基元，摘要逐字: "development of a primitive extraction algorithm"），
+  摘要无 Reeds-Shepp、无 "RL cost 替代 RS 启发式" 内容（Semantic Scholar API 摘要核验；AIAA
+  正文页 403 未读）——该文与**模块1（学习型基元）**相邻，与本类别无关。
+  本类别已核验引例改用库内 **Bernhard2021ExperienceBased**（Experience-Based Heuristic Search,
+  Deep Q-Learning 启发式, arXiv:2102.03127）。
   → 差异：它是替换 Heuristic（启发式引导），我们是替换 Analytic Expansion（真实边的生成）。（注：方案 A 完美规避精度问题，但我们要解决的是“生成一条带避障的曲线”，方案 B 的漏斗架构更契合我们的定义 A）。
 - **Sivaramakrishnan et al. 2021**（arXiv:2110.04238）：RL 训练"**无障碍**下到达局部航点"的控制器，嵌入**采样式**规划器扩展步。
   → 差异：它无障碍训练，我们在 HA* 解析扩展槽中 **policy 每步观测局部 patch，本身带避障基因**。
