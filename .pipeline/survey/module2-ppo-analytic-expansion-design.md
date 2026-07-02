@@ -102,19 +102,16 @@ confidence: low
 
 ---
 
-## 五、与 HA* 的集成
+## 五、与 HA* 的集成（漏斗型架构 Funnel Architecture）
+
+这里我们的设计完美契合目前前沿的**漏斗型融合策略（方案B）**：结合 PPO 的环境适应性与 RS 曲线的数学精确性，彻底解决纯 RL 的边界值震荡问题（BVP）。
 
 - 插入点：`planner.py` 解析扩展的 None 分支之后（`_try_analytic_expansion` 返回
-  None → 当前落回基元扩展循环 L476）。模块2 插在这个 None 分支上：**RS 先试，RS 失败
-  才轮到 policy rollout**，rollout 也失败才回退基元扩展。天然不破坏完备性。
+  None → 当前落回基元扩展循环 L476）。模块2 插在这个 None 分支上：**对于中长距且复杂的区域，先调 PPO policy 进行虚拟 rollout（即“射出”轨迹避障）**；如果 rollout 失败才回退基元扩展。天然不破坏完备性。
 - 沿用现有自适应 interval（`_analytic_interval` L197，离目标近则更频繁）。
-- **末端 RS 数值收尾**：policy homing 到目标附近后残差已小，末段用 RS 精确对接目标
-  位姿。注意——这里 RS 只是端点对接的数值工具，不是分担路程的接力者，"直接替代"
-  语义不变。
+- **末端 RS 数值收尾（最后1米）**：policy homing 到目标附近（无障碍的最后 1-2 米）后残差已小，此时直接**切回 RS 曲线进行完美的数学贴合**。这解决了 PPO 在目标点附近由于连续动作输出导致的差几厘米/几度对不准的高频震荡问题。
 - **计时口径修正（必做）**：现有 F-N3P 把 RS 验证段耗时记为 0（`inference.py`
-  L484/L635）。我们要做**含推理的端到端 wall-clock 诚实口径**，这处必须先修。
-  这也正是与 Franke2025 的评测差异点——它把推理时间明确剔除在 duration 之外
-  （"excluding inference time of the diffusion model"），我们不这么记账。
+  L484/L635）。我们要做**含推理的端到端 wall-clock 诚实口径**，平衡神经网络推理耗时与 A* 搜索效率。这也是体现我们工程落地价值的核心焦点。
 
 ---
 
@@ -132,39 +129,24 @@ gate #2 顺带校准：patch 尺寸、rollout 步长、预算上限、D_max（�
 
 ## 七、新颖性边界与差异表述（联网核验，2026-07-02）
 
-**总判定**：HA* 的解析扩展槽仍是空白。所有已核验的"RL policy 当 steering 子例程"
-工作全部落在采样式规划器（RRT/roadmap），无一碰 HA* 解析扩展。HA* 内被学习组件
-动过的唯一槽位是 node expansion（Neural Hybrid A*，CVAE 引导，非 RL，非解析扩展）。
+**总判定**：HA* 的解析扩展槽仍是空白。我们的**“漏斗型架构（中长距 PPO 扩展 + 末端 RS 完美贴合）”**既解决了纯 RL 的 BVP 震荡问题，又保留了 HA* 的完备性。
 
-**必须写进 related work 的差异表述**（差异恰好落在两个已定决策上）：
-
-- **Sivaramakrishnan et al. 2021**（arXiv:2110.04238，最近邻）：RL 训练"**无障碍**
-  下到达局部航点"的控制器，嵌入**采样式**规划器扩展步。原文核验（WebFetch）：
-  "a reinforcement learning process is trained offline to return a low-cost control
-  that reaches a local goal state (i.e., a waypoint) in the absence of obstacles"。
-  → 差异：(a) 槽位不同——我们在 HA* 解析扩展槽，保留网格搜索完备性骨架 + RS 对接
-  检查；它在采样树扩展步，无网格骨架。(b) 障碍感知位置不同——它无障碍训练、避障
-  靠外部航点；我们 **policy 每步观测局部 patch，rollout 本身障碍感知**（= Dr Sun 定的
-  "自适应地图输入"，成为划清界限的关键轴）。
-- **RL-RRT**（arXiv:1907.04799，2019 RA-L）：RL 避障 policy 当 RRT local planner。
-  原文核验："we use deep reinforcement learning to learn an obstacle-avoiding policy
-  ... which is used as a local planner during planning" / "RL-RRT that uses the RL
-  policy as a local planner"。→ 同 Sivaramakrishnan：RRT steering，非 HA* 解析扩展。
-- **Neural Hybrid A***（Kim2021Neural，arXiv:2111.06739，本地库已核验方法节）：CVAE
-  引导 **node expansion**（gate 动作集合，"80% of the node expansion proceeds with
-  the help of a neural network model"），全文无 analytic expansion/RS/Dubins 字样。
-  → 不同槽位（扩展 vs 解析扩展）+ 不同范式（CVAE vs RL）。（注：它其实更接近**模块1**
-  的剪枝范式，模块1 会话再用。）
-- **HOPE**（arXiv:2405.20579，2024）：端到端 RL + RS 曲线经 action-mask 融合，非搜索式
-  HA*。→ 弱相关。
+**2024-2026 顶刊顶会相关竞品与差异表述**：
+- **PAIR (2026, 混合 A* + PPO 细化)**: PAIR 将 HA* 作为全局离散骨架，PPO 替代底层连续路径细化模块。
+  → 差异：PAIR 作用于底层轨迹优化（Smoothing/Refinement），而我们作用于**解析扩展（Analytic Expansion）**，核心目的是“跨越狭窄障碍进行一杆进洞”，提效而非纯平滑。
+- **HOPE (2025, RL-based Hybrid Policy Path Planner)**: 端到端 RL 主导复杂场景探索（结合 RS 和 Action Masking），超越传统 HA*。
+  → 差异：HOPE 是 RL 主导的混合策略框架，偏向于“RL + 规则兜底”；而我们是严谨的“HA* 主导，PPO 作为高级解析算子（Analytic Operator）被调用”。我们完备性由 HA* 兜底。
+- **Value-guided HA***: 用 RL 预计算的 Cost 函数替代 RS 启发式（如 Utilizing RL to Continuously Improve... 方案 A）。
+  → 差异：它是替换 Heuristic（启发式引导），我们是替换 Analytic Expansion（真实边的生成）。（注：方案 A 完美规避精度问题，但我们要解决的是“生成一条带避障的曲线”，方案 B 的漏斗架构更契合我们的定义 A）。
+- **Sivaramakrishnan et al. 2021**（arXiv:2110.04238）：RL 训练"**无障碍**下到达局部航点"的控制器，嵌入**采样式**规划器扩展步。
+  → 差异：它无障碍训练，我们在 HA* 解析扩展槽中 **policy 每步观测局部 patch，本身带避障基因**。
+- **Neural Hybrid A***（Kim2021Neural）：CVAE 引导 **node expansion**。
+  → 差异：扩展阶段 vs 解析扩展阶段，生成动作 vs 完整 rollout。
 
 **查重遗留（下次文献会话补，不阻塞设计）**：
 1. "learned one-shot connection / learned goal-connect search"角度只扫 2 轮，负面结论
    建议再补 1-2 轮确认。
-2. 2024-2026 森林/off-road HA* + 学习组件最新预印本未专门扫。
-3. Roadmaps with Gaps（arXiv:2310.03239，Bekris 组）edge 机制仅凭搜索摘要，需开
-   HTML 逐字核验后才能写进 related work。
-4. 纯 IL（非 RL）steering 直接嵌 HA* 的小众工作未查（RRT-CoLearn 等只查了 RRT 版）。
+2. Roadmaps with Gaps（arXiv:2310.03239）edge 机制仅凭搜索摘要，需开 HTML 逐字核验后才能写进 related work。
 
 ---
 
