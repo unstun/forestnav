@@ -1,7 +1,7 @@
 ---
 origin: ai+web
 reviewed: false
-updated: 2026-06-30
+updated: 2026-07-02
 ---
 
 # ForestNav 术语规范表
@@ -32,6 +32,8 @@ updated: 2026-06-30
 | 学习型运动基元选择 | learned motion primitive selection | 学习型运动基元选择 | learned action selection（RL 专用） / learned branching（无文献） | ICRA/IROS 多篇使用，motion planning 语境首选 |
 | 学习型解析扩展 | learned analytic expansion | 学习型解析扩展 | neural RS / 神经 RS（非标准） | 基于 Dolgov 2010 "analytic expansion" 自然衍生 |
 | 学习型局部规划器 | learned local planner | 学习型局部规划器 | neural path connector / neural local steering（无 top-venue 记录） | IROS 2020; kinodynamic 文献用 learned goal-reaching controller |
+| RS 可对接域 | RS-connectable region | RS 可对接域（首次出现括注"存在无碰撞 Reeds-Shepp 曲线可直接连接目标的状态集合"） | reachable set / 可达域（与 reachability analysis 传统定义冲突）；goal region（笼统，丢失"RS 可连接"这一具体判据） | module2-ppo-analytic-expansion-design.md 项目内定义，是学习型转向 policy 的成功判据/训练 reward 核心项，非既有文献术语 |
+| 闭环转向策略 | closed-loop steering policy | 闭环转向策略 | 生成式转向模型 / open-loop steering generator（与逐步观测-动作闭环机制矛盾） | module2 设计文档区分"闭环 policy（每步观测→动作→重新观测）"与"开环生成模型"；呼应 Sivaramakrishnan et al. 2021(arXiv:2110.04238)/Chiang et al. 2019(arXiv:1907.04799) 的闭环 controller/policy 范式 |
 | 分支因子 | branching factor | 分支因子 | 分叉因子 / 分枝数 | AI/搜索算法教科书标准译法 |
 
 ## 环境与车辆术语
