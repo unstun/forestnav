@@ -4,8 +4,9 @@ import time
 from dataclasses import dataclass
 from typing import Any
 
-from forest_n3p.rl_rs.actions import SteeringAction, clip_steering_action
+from forest_n3p.rl_rs.actions import ActionConfig, SteeringAction, steering_action_to_primitive
 from forest_n3p.third_party.pathplan import AckermannParams, AckermannState
+from forest_n3p.third_party.pathplan.primitives import MotionPrimitive
 from forest_n3p.third_party.pathplan.robot import sample_constant_steer_motion
 
 
@@ -16,6 +17,7 @@ class RolloutStepResult:
     collided: bool
     requested_steering_rad: float
     applied_steering_rad: float
+    primitive: MotionPrimitive
     action_clipped: bool
     sample_time_s: float
     collision_check_time_s: float
@@ -29,15 +31,19 @@ def rollout_constant_steer_step(
     checker: Any,
     action_step_m: float,
     collision_sample_step_m: float,
+    action_config: ActionConfig | None = None,
 ) -> RolloutStepResult:
-    clipped = clip_steering_action(action, params)
+    primitive = steering_action_to_primitive(action, params, step_m=float(action_step_m), config=action_config)
+    requested = action.steering_rad if isinstance(action, SteeringAction) else float(action)
+    if isinstance(action, SteeringAction) and action.normalized:
+        requested = float(action.steering_rad) * float(params.max_steer)
 
     sample_start = time.perf_counter_ns()
     samples, _boxes = sample_constant_steer_motion(
         state,
-        clipped.applied,
-        1,
-        float(action_step_m),
+        primitive.steering,
+        primitive.direction,
+        primitive.step,
         params,
         step=float(collision_sample_step_m),
         footprint=None,
@@ -52,9 +58,10 @@ def rollout_constant_steer_step(
         next_state=samples[-1],
         samples=tuple(samples),
         collided=collided,
-        requested_steering_rad=clipped.requested,
-        applied_steering_rad=clipped.applied,
-        action_clipped=clipped.clipped,
+        requested_steering_rad=float(requested),
+        applied_steering_rad=float(primitive.steering),
+        primitive=primitive,
+        action_clipped=not math.isclose(float(requested), float(primitive.steering), rel_tol=0.0, abs_tol=1e-12),
         sample_time_s=sample_time_s,
         collision_check_time_s=collision_time_s,
     )
