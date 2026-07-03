@@ -218,7 +218,21 @@ def planner_run_from_path_stats(
     run_metadata.setdefault("evaluation_path_source", path_source)
     run_metadata.setdefault("planner_path_pose_count", len(raw_path))
     run_metadata.setdefault("evaluation_path_pose_count", len(poses))
-    for key in ("analytic_operator", "analytic_attempts", "analytic_successes"):
+    for key in (
+        "analytic_operator",
+        "analytic_attempts",
+        "analytic_successes",
+        "analytic_candidate_radius_count",
+        "analytic_candidate_success_count",
+        "analytic_candidate_failure_count",
+        "analytic_rs_solve_time_s",
+        "analytic_sample_time_s",
+        "analytic_collision_check_time_s",
+        "analytic_cost_eval_time_s",
+        "analytic_total_time_s",
+        "analytic_sample_count",
+        "analytic_collision_check_count",
+    ):
         if key in stats:
             run_metadata.setdefault(key, stats[key])
     if "remediations" in stats:
