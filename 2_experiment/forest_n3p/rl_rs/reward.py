@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 from forest_n3p.rl_rs.terminal import TerminalRsCheckResult
@@ -10,7 +11,8 @@ class RewardConfig:
     terminal_rs_success: float = 1.0
 
     def __post_init__(self) -> None:
-        if not self.terminal_rs_success >= 0.0:
+        value = float(self.terminal_rs_success)
+        if not (math.isfinite(value) and value >= 0.0):
             raise ValueError("terminal_rs_success must be non-negative")
 
 

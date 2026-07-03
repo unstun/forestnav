@@ -1,4 +1,5 @@
 import math
+from dataclasses import replace
 
 import numpy as np
 import pytest
@@ -174,21 +175,7 @@ def test_env_step_terminates_on_terminal_rs_success():
 def test_reward_config_controls_terminal_rs_success_reward():
     env = AnalyticExpansionEnv()
     context = _empty_context(goal=(1.6, 1.0, 0.0))
-    context = AnalyticExpansionContext(
-        grid_map=context.grid_map,
-        footprint=context.footprint,
-        start=context.start,
-        goal=context.goal,
-        params=context.params,
-        checker=context.checker,
-        max_steps=context.max_steps,
-        action_step_m=context.action_step_m,
-        collision_sample_step_m=context.collision_sample_step_m,
-        terminal_check_every=context.terminal_check_every,
-        theta_bins=context.theta_bins,
-        observation_config=context.observation_config,
-        reward_config=RewardConfig(terminal_rs_success=2.5),
-    )
+    context = replace(context, reward_config=RewardConfig(terminal_rs_success=2.5))
     env.reset(context)
 
     step = env.step(0.0)
