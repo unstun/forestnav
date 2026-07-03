@@ -30,6 +30,8 @@ class AnalyticExpansionContext:
     collision_padding_m: float | None = None
 
     def __post_init__(self) -> None:
+        _validate_state("start", self.start)
+        _validate_state("goal", self.goal)
         if int(self.max_steps) <= 0:
             raise ValueError("max_steps must be positive")
         for name in ("action_step_m", "collision_sample_step_m"):
@@ -74,6 +76,7 @@ class AnalyticExpansionEnv:
         self._checker = None
         self._state: AckermannState | None = None
         self._steps: list[RlRsStepTelemetry] = []
+        self._done = False
 
     @property
     def telemetry(self) -> RlRsEpisodeTelemetry:
@@ -82,13 +85,18 @@ class AnalyticExpansionEnv:
     def reset(self, context: AnalyticExpansionContext) -> RlRsObservation:
         self._context = context
         self._checker = context.collision_checker()
+        if _collides_pose(self._checker, context.start):
+            raise ValueError("AnalyticExpansionContext start state is in collision.")
         self._state = context.start
         self._steps = []
+        self._done = False
         return build_observation(context.start, context.goal, remaining_steps=int(context.max_steps))
 
     def step(self, action: SteeringAction | float) -> AnalyticExpansionStep:
         if self._context is None or self._state is None or self._checker is None:
             raise RuntimeError("AnalyticExpansionEnv.reset() must be called before step().")
+        if self._done:
+            raise RuntimeError("AnalyticExpansionEnv episode is done; call reset() before step().")
         context = self._context
         step_index = len(self._steps)
         rollout = rollout_constant_steer_step(
@@ -100,7 +108,8 @@ class AnalyticExpansionEnv:
             collision_sample_step_m=float(context.collision_sample_step_m),
         )
         self._state = rollout.next_state
-        should_check_terminal = (step_index + 1) % int(context.terminal_check_every) == 0
+        budget_exhausted = (step_index + 1) >= int(context.max_steps)
+        should_check_terminal = budget_exhausted or (step_index + 1) % int(context.terminal_check_every) == 0
         terminal = (
             check_terminal_rs_connectable(
                 grid_map=context.grid_map,
@@ -118,14 +127,13 @@ class AnalyticExpansionEnv:
             else TerminalRsCheckResult(False, 0.0, None, 0, None)
         )
         terminated = bool(rollout.collided or terminal.success)
-        truncated = bool(not terminated and (step_index + 1) >= int(context.max_steps))
+        truncated = bool(not terminated and budget_exhausted)
         failure_reason = None
         if rollout.collided:
             failure_reason = "collision"
         elif truncated:
-            failure_reason = "budget_exhausted"
-        elif terminal.failure_reason is not None:
-            failure_reason = terminal.failure_reason
+            detail = terminal.failure_reason or "terminal_rs_not_checked"
+            failure_reason = f"no_rs_terminal:{detail}"
 
         telemetry = RlRsStepTelemetry(
             step_index=step_index,
@@ -141,6 +149,7 @@ class AnalyticExpansionEnv:
             failure_reason=failure_reason,
         )
         self._steps.append(telemetry)
+        self._done = bool(terminated or truncated)
         observation = build_observation(
             rollout.next_state,
             context.goal,
@@ -154,3 +163,15 @@ class AnalyticExpansionEnv:
             telemetry=telemetry,
             terminal_rs=terminal,
         )
+
+
+def _validate_state(name: str, state: AckermannState) -> None:
+    for field_name, value in (("x", state.x), ("y", state.y), ("theta", state.theta)):
+        if not math.isfinite(float(value)):
+            raise ValueError(f"{name}.{field_name} must be finite")
+
+
+def _collides_pose(checker, state: AckermannState) -> bool:
+    if hasattr(checker, "collides_pose"):
+        return bool(checker.collides_pose(state.x, state.y, state.theta))
+    return bool(checker.collides_path((state,)))
