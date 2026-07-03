@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from forest_n3p.rl_rs.actions import SteeringAction
-from forest_n3p.rl_rs.obs import RlRsObservation, build_observation
+from forest_n3p.rl_rs.obs import ObservationConfig, RlRsObservation, build_observation
 from forest_n3p.rl_rs.reward import RewardBreakdown, pending_reward_breakdown
 from forest_n3p.rl_rs.rollout import rollout_constant_steer_step
 from forest_n3p.rl_rs.telemetry import RlRsEpisodeTelemetry, RlRsStepTelemetry
@@ -28,6 +28,7 @@ class AnalyticExpansionContext:
     terminal_check_every: int = 1
     theta_bins: int = 72
     collision_padding_m: float | None = None
+    observation_config: ObservationConfig = field(default_factory=ObservationConfig)
 
     def __post_init__(self) -> None:
         _validate_state("start", self.start)
@@ -93,7 +94,13 @@ class AnalyticExpansionEnv:
         self._state = context.start
         self._steps = []
         self._done = False
-        return build_observation(context.start, context.goal, remaining_steps=int(context.max_steps))
+        return build_observation(
+            context.start,
+            context.goal,
+            remaining_steps=int(context.max_steps),
+            grid_map=context.grid_map,
+            config=context.observation_config,
+        )
 
     def step(self, action: SteeringAction | float) -> AnalyticExpansionStep:
         if self._context is None or self._state is None or self._checker is None:
@@ -157,6 +164,8 @@ class AnalyticExpansionEnv:
             rollout.next_state,
             context.goal,
             remaining_steps=max(0, int(context.max_steps) - (step_index + 1)),
+            grid_map=context.grid_map,
+            config=context.observation_config,
         )
         return AnalyticExpansionStep(
             observation=observation,
