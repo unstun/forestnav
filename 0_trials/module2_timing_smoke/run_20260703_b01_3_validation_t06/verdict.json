@@ -1,0 +1,72 @@
+{
+  "status": "candidate_or_smoke",
+  "formal_acceptance": false,
+  "record_count": 18,
+  "query_count": 9,
+  "method_count": 2,
+  "queries_per_bucket": {
+    "Easy": 3,
+    "Complex": 3,
+    "Extreme": 3
+  },
+  "seed_count": 1,
+  "collision_violation_total": 0,
+  "method_exception_total": 0,
+  "preflight_warnings": [
+    "T14 formal scale is not satisfied: queries_per_bucket=3, seed_count=1"
+  ],
+  "preflight_unavailable_methods": {},
+  "official_methods_satisfied": false,
+  "missing_official_methods": [
+    "n3p_k1",
+    "voronoi_waypoint",
+    "bottleneck_waypoint",
+    "dang2022_ugv_adapted",
+    "lo_ha",
+    "yoon2017_ugv_adapted",
+    "lian2023_ugv_adapted",
+    "idb_rrt_ugv_adapted",
+    "apf_local"
+  ],
+  "human_review_satisfied": true,
+  "human_review_decisions": {
+    "D-T14-09": "revise_to_validation_cutpoints",
+    "D-T14-10": "approve",
+    "D-T14-11": "formal_baseline",
+    "D-T14-12": "approve_after_rerun_passes"
+  },
+  "profile_bucket_satisfied": true,
+  "profile_bucket_issues": [],
+  "bucket_verdicts": {
+    "Complex": {
+      "status": "fail",
+      "median_time_reduction": 0.39414691355796727,
+      "success_drop_pp": 0.0,
+      "median_path_inflation_ratio": 0.014363781895063543,
+      "checks": {
+        "median_time_reduction_ge_50pct": false,
+        "success_drop_le_2pp": true,
+        "median_path_inflation_le_5pct": true,
+        "collision_violations_zero": true
+      }
+    },
+    "Extreme": {
+      "status": "fail",
+      "median_time_reduction": -0.10972846197714592,
+      "success_drop_pp": 0.0,
+      "median_path_inflation_ratio": 0.19601453855816575,
+      "checks": {
+        "median_time_reduction_ge_50pct": false,
+        "success_drop_le_2pp": true,
+        "median_path_inflation_le_5pct": false,
+        "collision_violations_zero": true
+      }
+    }
+  },
+  "contract_thresholds": {
+    "median_time_reduction_min": 0.5,
+    "success_drop_pp_max": 2.0,
+    "path_inflation_max": 0.05
+  },
+  "note": "candidate_or_smoke means this run is not sufficient for marking T14 complete; use reviewed T06 cutpoints, all official methods, >=50 queries per bucket, and >=5 seeds for formal acceptance"
+}

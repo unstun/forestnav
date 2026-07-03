@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/sun/tongbu/study/phdproject/ForestNav/2_experiment/forest_n3p/scripts/run_main_evaluation.py", line 167, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/sun/tongbu/study/phdproject/ForestNav/2_experiment/forest_n3p/scripts/run_main_evaluation.py", line 114, in main
+    result = run_main_evaluation(
+        args.output_dir,
+    ...<2 lines>...
+        command=" ".join(["python -m forest_n3p.scripts.run_main_evaluation", *_quote_args(raw_argv)]),
+    )
+  File "/Users/sun/tongbu/study/phdproject/ForestNav/2_experiment/forest_n3p/main_evaluation.py", line 385, in run_main_evaluation
+    raise RuntimeError("T14 preflight failed:\n- " + "\n- ".join(preflight.blocking_issues))
+RuntimeError: T14 preflight failed:
+- T14 profile bucket configuration is inconsistent: D-T14-09=revise_to_validation_cutpoints expects buckets from .pipeline/experiments/20260621_t06_review_validation_m6q10_d6q16/summary.json; d03 bucket=Extreme expected=Complex; d04 bucket=Extreme expected=Complex

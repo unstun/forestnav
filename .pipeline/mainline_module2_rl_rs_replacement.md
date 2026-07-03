@@ -256,10 +256,13 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 实现位置: `2_experiment/forest_n3p/evaluation.py` 当前 HEAD 已写入 `timing_protocol`。
   - 本项新增验证: `2_experiment/forest_n3p/tests/test_evaluation_timing_protocol.py`
   - 当前验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q` -> `5 passed in 0.88s`
-- [ ] B01.3 跑 targeted smoke。
+- [x] B01.3 跑 targeted smoke。
   - 数据: 3 个固定 seed 小地图, 每个 3 个 query。
   - 输出: `0_trials/module2_timing_smoke/`
   - 验证: stdout/stderr、CSV、manifest、当前 commit hash。
+  - 失败预检: `0_trials/module2_timing_smoke/run_20260703_b01_3/`, 原因是 original T06 profiles 与 `D-T14-09=revise_to_validation_cutpoints` 冲突。
+  - 通过运行: `0_trials/module2_timing_smoke/run_20260703_b01_3_validation_t06/`
+  - 当前验证: `record_count=18`, `query_count=9`, `status=candidate_or_smoke`, `stderr.txt` 为空, `records.csv` 含 `timing_protocol` 与 `total_planner_time_s`。
 
 #### B02. Vanilla HA* 与 Dang-RS baseline 拆分
 
