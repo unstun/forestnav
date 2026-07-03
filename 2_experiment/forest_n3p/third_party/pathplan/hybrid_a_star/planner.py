@@ -413,6 +413,12 @@ class HybridAStarPlanner:
             total_d += query_distance(self._obs_dist_field, self.map, s.x, s.y)
         return total_d / len(states)
 
+    def _state_obstacle_distance(self, state: AckermannState) -> float:
+        if not hasattr(self, "_obs_dist_field"):
+            from .obstacle_field import compute_obstacle_distance_field
+            self._obs_dist_field = compute_obstacle_distance_field(self.map)
+        return float(query_distance(self._obs_dist_field, self.map, state.x, state.y))
+
     def plan(
         self,
         start: AckermannState,
