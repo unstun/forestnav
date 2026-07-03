@@ -429,10 +429,9 @@ class HybridAStarPlanner:
     ) -> Tuple[Optional[AnalyticRadiusResult], AnalyticCandidateTelemetry]:
         """尝试用指定转弯半径生成 RS 路径并验证碰撞。
 
-        返回 (segment_endpoints, actions, dense_samples):
-          - segment_endpoints: 各段终点 (用于路径重建，与 actions 一一对应)
-          - actions: 各段运动基元
-          - dense_samples: 沿路径的所有碰撞检测采样点 (用于代价评估)
+        返回 (AnalyticRadiusResult | None, AnalyticCandidateTelemetry):
+          - result: 成功候选的端点、动作和稠密采样点。
+          - telemetry: 无论成功/失败都记录该半径候选的成本账。
         """
         solve_start = time.perf_counter()
         rs = reeds_shepp_shortest_path(state.as_tuple(), goal.as_tuple(), turning_radius)
