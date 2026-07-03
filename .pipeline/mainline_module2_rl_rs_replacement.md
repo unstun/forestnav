@@ -244,10 +244,12 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 
 #### B01. 固化 F-N3P 计时口径修正
 
-- [ ] B01.1 为 `inference.py` 计时修正补单元测试。
+- [x] B01.1 为 `inference.py` 计时修正补单元测试。
   - 测试点: direct RS、verified RS segment、segment planning overhead。
   - 验证命令: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q`
-  - 通过标准: direct/verified RS 不再出现 `planner_time_s=0.0`。
+  - 通过标准: direct/verified RS 不再出现 `planner_time_s=0.0`, segment 分支把 prediction/RS 验证 overhead 与 planner 内部时间相加。
+  - 产出: `2_experiment/forest_n3p/tests/test_inference_timing.py`
+  - 当前验证: `3 passed in 0.85s`
 - [ ] B01.2 更新 evaluation metadata, 明确 total_time_s 与 planner_time_s 的关系。
   - 输出: `EvaluationRun.metadata["timing_protocol"]`
   - 目的: 防止后续论文表格混用 wall-clock 与 planner-internal time。
