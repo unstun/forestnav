@@ -50,7 +50,14 @@ def test_planner_run_from_result_records_timing_protocol():
 def test_planner_run_from_path_stats_records_timing_protocol():
     run = planner_run_from_path_stats(
         ((0.0, 0.0, 0.0), (1.0, 0.0, 0.0)),
-        {"time": 0.42, "expansions": 9},
+        {
+            "time": 0.42,
+            "expansions": 9,
+            "analytic_operator": "single_rs",
+            "analytic_attempts": 3,
+            "analytic_successes": 1,
+            "remediations": ["analytic_expansion", "analytic_operator:single_rs"],
+        },
         query_id="q1",
         method="vanilla_ha",
         difficulty_bucket="Extreme",
@@ -59,6 +66,10 @@ def test_planner_run_from_path_stats_records_timing_protocol():
 
     assert run.total_time_s == pytest.approx(0.42)
     assert run.metadata["total_planner_time_s"] == pytest.approx(0.42)
+    assert run.metadata["analytic_operator"] == "single_rs"
+    assert run.metadata["analytic_attempts"] == 3
+    assert run.metadata["analytic_successes"] == 1
+    assert run.metadata["planner_remediations"] == ["analytic_expansion", "analytic_operator:single_rs"]
 
     protocol = run.metadata["timing_protocol"]
     assert protocol["adapter"] == "planner_run_from_path_stats"
