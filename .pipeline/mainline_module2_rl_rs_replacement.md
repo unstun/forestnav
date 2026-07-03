@@ -327,11 +327,17 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - Analysis artifacts: `0_trials/module2_oracle_shape/oracle_connector_full_analysis.json`, `oracle_connector_b_only_cases.csv`, `oracle_connector_a_only_cases.csv`, `oracle_connector_invalid_query_counts.csv`。
   - Experiment record: `.pipeline/experiments/20260703_module2_c02_oracle_connector_full.md`。
   - 当前边界: C02.1 全量已完成, 但这不是最终 Gate #2。它把问题缩窄为 "invalid endpoint 清洗 + timeout/B-only connector 价值 + 成本账", 不能直接 claim RL 已必要或已充分。
-- [>] C02.2 标注失败形态。
+- [x] C02.2 标注失败形态。
   - 类别: 无解死区、需绕瓶颈、需短程避障后开阔、需倒车、goal 周围不可达、checker 假阳性。
   - 验证: 每类抽样出 PNG/SVG 可视化。
   - 已完成的数字分层: invalid start/goal = 1571, non-invalid unresolved = 0, timeout/B-only = 63, A-only = 2。
-  - 未完成: 每类抽样可视化和人工可读形态标签。
+  - 已完成可视化种子: 新增 `2_experiment/forest_n3p/scripts/render_oracle_connector_cases.py`。
+  - 输出: `0_trials/module2_oracle_shape/c02_shape_labels/summary.json`, `index.md`, 7 张 PNG。
+  - 形态标签: `invalid_goal_in_collision`, `invalid_start_in_collision_goal_also_blocked`, `timeout_saved_by_goal_annulus`, `oracle_b_conservative_combined_collision_rejection`。
+  - 图像 QA: 7 张图均为 `1393 x 1292`, 颜色多样性检查通过; B-success rows 均可重放为 `rendered_b_success=true`。
+  - Provenance issue: full run 中 5 个 `voronoi_skeleton` B-only rows 目前不能被当前脚本重放, 不能作为可视化正例或论文证据。
+  - Experiment record: `.pipeline/experiments/20260703_module2_c02_shape_labels.md`。
+  - 边界: C02.2 是视觉种子完成, 不是 Gate #2 通过。
 - [ ] C02.3 Gate #2 判定。
   - 通过: `需短程避障后开阔` 或 `需绕瓶颈` 占失败节点的主体。
   - 失败: 多数节点 oracle 也无解。
@@ -547,10 +553,9 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 优先级从上到下。每次只拿第一项 `[ ]`。
 
 1. [?] A00.2 刷新项目状态记忆, 关闭旧热区状态。
-2. [>] C02.2 为 full oracle 结果补失败形态可视化标签。
-3. [ ] C02.3 写 Gate #2 oracle shape 判定。
-4. [ ] D01.1 拆分 Dang multi-RS 调用成本。
-5. [ ] D02.1 基于 C02 patch/connector 需求做神经 policy 前向预算。
+2. [ ] C02.3 写 Gate #2 oracle shape 判定。
+3. [ ] D01.1 拆分 Dang multi-RS 调用成本。
+4. [ ] D02.1 基于 C02 patch/connector 需求做神经 policy 前向预算。
 
 ## 7. 完成记录
 
@@ -559,3 +564,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-03: 完成 A01.1, 新建 `0_trials/module2_rl_rs_evidence/` 证据目录与四个模板/初始证据文件。
 - 2026-07-03: 完成 A02.1, 新建 `local_slot_api.md`, 把模块2 API 从 "RL planner" 收紧到 "HA* analytic expansion operator"。
 - 2026-07-03: 完成 C02.1 全量 oracle connector, 7860/7860 dedup RS failure nodes 覆盖完成。Full run: Oracle A 6226, Oracle B 6287, connectable 6289; unresolved 1571 全部是 invalid start/goal; non-invalid 6289/6289 connectable; B-only timeout 63。记录见 `.pipeline/experiments/20260703_module2_c02_oracle_connector_full.md`。
+- 2026-07-03: 完成 C02.2 首批 shape label visual seed, 7 张代表样本 PNG 覆盖 invalid endpoint、goal-annulus B-only timeout rescue、A-only conservative B rejection。记录见 `.pipeline/experiments/20260703_module2_c02_shape_labels.md`。注意: 5 个 `voronoi_skeleton` B-only rows 当前重放失败, 暂不能作为论文证据。
