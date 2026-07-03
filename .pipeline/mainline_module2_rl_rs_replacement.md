@@ -292,12 +292,16 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 
 #### C01. 收集 RS 失败节点
 
-- [ ] C01.1 在 Complex/Extreme 查询中记录每次 analytic expansion 失败的 state。
+- [x] C01.1 在 Complex/Extreme 查询中记录每次 analytic expansion 失败的 state。
   - 字段: query_id, expansion_idx, state, goal, h_holo, h_rs, nearest_obstacle, failure radius list。
   - 输出: `0_trials/module2_oracle_shape/rs_failure_nodes.parquet`
-- [ ] C01.2 去重失败节点。
+-  - 产出: `2_experiment/forest_n3p/scripts/collect_rs_failure_nodes.py`, `0_trials/module2_oracle_shape/rs_failure_nodes.parquet`
+  - 当前验证: Complex/Extreme 共 20 queries, raw failure rows `8752`, `stderr.txt` 为空。
+- [x] C01.2 去重失败节点。
   - 方法: 按 `(query_id, grid cell, theta bin)` 去重。
   - 目的: 避免同一死点重复影响统计。
+  - 产出: `2_experiment/forest_n3p/scripts/dedupe_rs_failure_nodes.py`, `0_trials/module2_oracle_shape/rs_failure_nodes_dedup.parquet`
+  - 当前验证: `8752 -> 7860`, dropped duplicates `892`, `stderr.txt` 为空。
 
 #### C02. Oracle connector 可行性
 
