@@ -217,3 +217,61 @@ Boundary:
 - This is a bounded C02.1 smoke, not the full Gate #2 result.
 - Full C02.1 still needs all 7860 deduplicated RS failure nodes, or a
   preregistered stratified subset if the full run is too expensive.
+
+## C02.1 Chunk Runner Smoke
+
+Status: `runner_smoke_pass`
+
+Script:
+
+- `2_experiment/forest_n3p/scripts/run_oracle_connector_chunks.py`
+- Source head: `e0dbe829f74e363ee73e6e8fb70e911b944480d7`
+
+Purpose:
+
+- Full C02.1 can take hours. The runner makes the long run resumable by writing
+  independent chunk parquet/stdout/stderr/summary artifacts, then merging the
+  chunk parquet files into one result table.
+
+Command:
+
+```bash
+PYTHONPATH=2_experiment python -m forest_n3p.scripts.run_oracle_connector_chunks \
+  --input 0_trials/module2_oracle_shape/rs_failure_nodes_dedup.parquet \
+  --output-dir 0_trials/module2_oracle_shape/oracle_connector_runner_smoke \
+  --merged-output 0_trials/module2_oracle_shape/oracle_connector_results_runner_smoke.parquet \
+  --max-records 3 \
+  --chunk-size 2 \
+  --source-head e0dbe829f74e363ee73e6e8fb70e911b944480d7 \
+  --oracle-a-timeout-s 4 \
+  --oracle-a-max-nodes 30000 \
+  --oracle-b-segment-timeout-s 2 \
+  --oracle-b-segment-max-nodes 15000 \
+  --oracle-b-candidate-limit 16
+```
+
+Outputs:
+
+- `oracle_connector_runner_smoke/summary.json`
+- `oracle_connector_runner_smoke/chunks/chunk_000000_000001.parquet`
+- `oracle_connector_runner_smoke/chunks/chunk_000002_000002.parquet`
+- corresponding chunk stdout/stderr/summary files
+- `oracle_connector_results_runner_smoke.parquet`
+- `oracle_connector_runner_smoke_stdout.txt`
+- `oracle_connector_runner_smoke_stderr.txt`
+
+Result:
+
+- Selected rows: 3 / 7860
+- Chunk count: 2
+- Merged rows: 3
+- Oracle A success: 3 / 3
+- Oracle B success: 3 / 3
+- Oracle connectable: 3 / 3
+- Root stderr: 0 bytes
+- Chunk stderr: 0 bytes each
+
+Boundary:
+
+- This validates long-run execution mechanics only. It does not add new Gate #2
+  evidence beyond the bounded oracle smoke above.

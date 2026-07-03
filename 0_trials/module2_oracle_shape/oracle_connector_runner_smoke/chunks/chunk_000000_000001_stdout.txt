@@ -1,0 +1,38 @@
+{
+  "status": "complete",
+  "created_at_utc": "2026-07-03T18:02:03.157936+00:00",
+  "execution_host": "MacBook-Pro.local",
+  "source_head": "e0dbe829f74e363ee73e6e8fb70e911b944480d7",
+  "command": "python -m forest_n3p.scripts.run_oracle_connector_analysis --input 0_trials/module2_oracle_shape/rs_failure_nodes_dedup.parquet --output 0_trials/module2_oracle_shape/oracle_connector_runner_smoke/chunks/chunk_000000_000001.parquet --row-offset 0 --max-records 2 --source-head e0dbe829f74e363ee73e6e8fb70e911b944480d7 --oracle-a-timeout-s 4 --oracle-a-max-nodes 30000 --oracle-b-segment-timeout-s 2 --oracle-b-segment-max-nodes 15000 --oracle-b-candidate-limit 16",
+  "input": "0_trials/module2_oracle_shape/rs_failure_nodes_dedup.parquet",
+  "output": "0_trials/module2_oracle_shape/oracle_connector_runner_smoke/chunks/chunk_000000_000001.parquet",
+  "input_row_count": 7860,
+  "selected_row_count": 2,
+  "result_row_count": 2,
+  "oracle_a_success_count": 2,
+  "oracle_b_success_count": 2,
+  "oracle_connectable_count": 2,
+  "oracle_connectable_rate": 1.0,
+  "by_bucket": {
+    "Complex": {
+      "record_count": 2,
+      "oracle_a_success": 2,
+      "oracle_b_success": 2,
+      "oracle_connectable": 2
+    }
+  },
+  "top_failure_reasons": {},
+  "config": {
+    "density_profile_buckets": "validation_t06",
+    "buckets": "Complex,Extreme",
+    "query_ids": "",
+    "row_offset": 0,
+    "max_records": 2,
+    "oracle_a_timeout_s": 4.0,
+    "oracle_a_max_nodes": 30000,
+    "oracle_b_segment_timeout_s": 2.0,
+    "oracle_b_segment_max_nodes": 15000,
+    "oracle_b_candidate_limit": 16,
+    "disable_voronoi": false
+  }
+}

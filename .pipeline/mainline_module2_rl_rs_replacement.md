@@ -314,6 +314,8 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - Smoke 1: `0_trials/module2_oracle_shape/oracle_connector_results_smoke5.parquet`, Complex 前 5 个节点, A=5/5, B=5/5, stderr 空。
   - Smoke 2: `0_trials/module2_oracle_shape/oracle_connector_results_smoke_extreme3.parquet`, Extreme 3 个节点, A=2/3, B=3/3, stderr 空。
   - 关键观察: `extreme_s00_q0001:150:45:26` 出现 A 失败但 B 成功, 说明中间候选 oracle 能捕捉非平凡连接形态。
+  - 长跑执行层: 新增 `2_experiment/forest_n3p/scripts/run_oracle_connector_chunks.py`, 支持 chunk/resume/merge。
+  - Runner smoke: `0_trials/module2_oracle_shape/oracle_connector_runner_smoke/`, 3 rows -> 2 chunks -> merged 3 rows, 所有 stderr 空。
   - 当前边界: 只完成 bounded smoke, 还没有全量 7860 dedup 节点结果, 不能下 Gate #2 结论。
 - [ ] C02.2 标注失败形态。
   - 类别: 无解死区、需绕瓶颈、需短程避障后开阔、需倒车、goal 周围不可达、checker 假阳性。

@@ -124,6 +124,48 @@ Result:
 - `py_compile`: pass
 - `pytest`: `8 passed in 0.99s`
 
+## Chunk Runner Smoke
+
+Runner:
+
+- `2_experiment/forest_n3p/scripts/run_oracle_connector_chunks.py`
+- Source head: `e0dbe829f74e363ee73e6e8fb70e911b944480d7`
+
+Command:
+
+```bash
+PYTHONPATH=2_experiment python -m forest_n3p.scripts.run_oracle_connector_chunks \
+  --input 0_trials/module2_oracle_shape/rs_failure_nodes_dedup.parquet \
+  --output-dir 0_trials/module2_oracle_shape/oracle_connector_runner_smoke \
+  --merged-output 0_trials/module2_oracle_shape/oracle_connector_results_runner_smoke.parquet \
+  --max-records 3 \
+  --chunk-size 2 \
+  --source-head e0dbe829f74e363ee73e6e8fb70e911b944480d7 \
+  --oracle-a-timeout-s 4 \
+  --oracle-a-max-nodes 30000 \
+  --oracle-b-segment-timeout-s 2 \
+  --oracle-b-segment-max-nodes 15000 \
+  --oracle-b-candidate-limit 16
+```
+
+Result:
+
+- Selected rows: 3 / 7860
+- Chunk count: 2
+- Merged rows: 3
+- Oracle A success: 3 / 3
+- Oracle B success: 3 / 3
+- Root stderr: 0 bytes
+- Chunk stderr: 0 bytes each
+
+Artifacts:
+
+- `0_trials/module2_oracle_shape/oracle_connector_runner_smoke/summary.json`
+- `0_trials/module2_oracle_shape/oracle_connector_runner_smoke/chunks/`
+- `0_trials/module2_oracle_shape/oracle_connector_results_runner_smoke.parquet`
+- `0_trials/module2_oracle_shape/oracle_connector_runner_smoke_stdout.txt`
+- `0_trials/module2_oracle_shape/oracle_connector_runner_smoke_stderr.txt`
+
 ## 边界
 
 本报告不是 Gate #2 结论。全量 C02.1 仍需覆盖 7860 个去重失败节点,
