@@ -685,12 +685,12 @@ class HybridAStarPlanner:
                     trace_poses=trace_poses,
                     trace_boxes=trace_boxes,
                     failure_reason=None,
-                            remediations=remediations,
-                            analytic_attempts=analytic_attempts,
-                            analytic_successes=analytic_successes,
-                            analytic_failure_records=analytic_failure_records,
-                            analytic_telemetry_records=analytic_telemetry_records,
-                        )
+                    remediations=remediations,
+                    analytic_attempts=analytic_attempts,
+                    analytic_successes=analytic_successes,
+                    analytic_failure_records=analytic_failure_records,
+                    analytic_telemetry_records=analytic_telemetry_records,
+                )
 
             if self.analytic_expansion:
                 interval = self._analytic_interval(current.state, goal)
@@ -699,7 +699,20 @@ class HybridAStarPlanner:
                     analytic = self._try_analytic_expansion(current.state, goal)
                     telemetry = getattr(self, "_last_analytic_telemetry", None)
                     if isinstance(telemetry, AnalyticExpansionTelemetry):
-                        analytic_telemetry_records.append(telemetry.to_record())
+                        record = telemetry.to_record()
+                        record.update(
+                            {
+                                "attempt_index": int(analytic_attempts - 1),
+                                "expansion_idx": int(expansion_idx),
+                                "state_x": float(current.state.x),
+                                "state_y": float(current.state.y),
+                                "state_theta": float(current.state.theta),
+                                "goal_x": float(goal.x),
+                                "goal_y": float(goal.y),
+                                "goal_theta": float(goal.theta),
+                            }
+                        )
+                        analytic_telemetry_records.append(record)
                     if analytic is not None:
                         analytic_successes += 1
                         extra_states, extra_actions = analytic
