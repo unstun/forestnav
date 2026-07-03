@@ -373,7 +373,7 @@ class HybridAStarPlanner:
         rs = reeds_shepp_shortest_path(state.as_tuple(), goal.as_tuple(), self.params.min_turn_radius)
         h_rs = float(rs.total_length) if rs is not None and math.isfinite(rs.total_length) else None
         radii = tuple(float(radius) for radius in failed_radii)
-        return {
+        record = {
             "expansion_idx": int(expansion_idx),
             "analytic_operator": self.analytic_operator,
             "state_x": float(state.x),
@@ -388,6 +388,10 @@ class HybridAStarPlanner:
             "failed_radii": list(radii),
             "failed_radius_count": int(len(radii)),
         }
+        telemetry = getattr(self, "_last_analytic_telemetry", None)
+        if isinstance(telemetry, AnalyticExpansionTelemetry):
+            record.update(telemetry.summary())
+        return record
 
     def _dang2022_cost(self, states: List[AckermannState], actions: List[MotionPrimitive]) -> float:
         """Dang 2022 Eq. 3: G = σ₁·v + σ₂·m
@@ -647,6 +651,7 @@ class HybridAStarPlanner:
         analytic_attempts = 0
         analytic_successes = 0
         analytic_failure_records: List[Dict[str, Any]] = []
+        analytic_telemetry_records: List[Dict[str, Any]] = []
 
         start_key = self._discretize(start)
         open_nodes[start_key] = start_node
@@ -680,17 +685,21 @@ class HybridAStarPlanner:
                     trace_poses=trace_poses,
                     trace_boxes=trace_boxes,
                     failure_reason=None,
-                    remediations=remediations,
-                    analytic_attempts=analytic_attempts,
-                    analytic_successes=analytic_successes,
-                    analytic_failure_records=analytic_failure_records,
-                )
+                            remediations=remediations,
+                            analytic_attempts=analytic_attempts,
+                            analytic_successes=analytic_successes,
+                            analytic_failure_records=analytic_failure_records,
+                            analytic_telemetry_records=analytic_telemetry_records,
+                        )
 
             if self.analytic_expansion:
                 interval = self._analytic_interval(current.state, goal)
                 if interval > 0 and expansion_idx % interval == 0:
                     analytic_attempts += 1
                     analytic = self._try_analytic_expansion(current.state, goal)
+                    telemetry = getattr(self, "_last_analytic_telemetry", None)
+                    if isinstance(telemetry, AnalyticExpansionTelemetry):
+                        analytic_telemetry_records.append(telemetry.to_record())
                     if analytic is not None:
                         analytic_successes += 1
                         extra_states, extra_actions = analytic
@@ -711,6 +720,7 @@ class HybridAStarPlanner:
                             analytic_attempts=analytic_attempts,
                             analytic_successes=analytic_successes,
                             analytic_failure_records=analytic_failure_records,
+                            analytic_telemetry_records=analytic_telemetry_records,
                         )
                     else:
                         analytic_failure_records.append(
@@ -775,6 +785,7 @@ class HybridAStarPlanner:
             analytic_attempts=analytic_attempts,
             analytic_successes=analytic_successes,
             analytic_failure_records=analytic_failure_records,
+            analytic_telemetry_records=analytic_telemetry_records,
         )
 
     def _reconstruct_with_actions(self, node: Node) -> Tuple[List[AckermannState], List[Optional[MotionPrimitive]]]:
@@ -831,6 +842,7 @@ class HybridAStarPlanner:
         analytic_attempts: int = 0,
         analytic_successes: int = 0,
         analytic_failure_records: List[Dict[str, Any]] = None,
+        analytic_telemetry_records: List[Dict[str, Any]] = None,
     ):
         length = 0.0
         cusps = 0
@@ -867,6 +879,9 @@ class HybridAStarPlanner:
         }
         if analytic_failure_records:
             stats["analytic_failure_records"] = analytic_failure_records
+        if analytic_telemetry_records:
+            stats.update(self._analytic_telemetry_summary(analytic_telemetry_records))
+            stats["analytic_telemetry_records"] = analytic_telemetry_records
         if failure_reason:
             stats["failure_reason"] = failure_reason
         if remediations:
@@ -876,3 +891,35 @@ class HybridAStarPlanner:
         if trace_boxes:
             stats["trace_boxes"] = trace_boxes
         return stats
+
+    def _analytic_telemetry_summary(self, records: List[Dict[str, Any]]) -> Dict[str, Any]:
+        summary = {
+            "analytic_candidate_radius_count": 0,
+            "analytic_candidate_success_count": 0,
+            "analytic_candidate_failure_count": 0,
+            "analytic_rs_solve_time_s": 0.0,
+            "analytic_sample_time_s": 0.0,
+            "analytic_collision_check_time_s": 0.0,
+            "analytic_cost_eval_time_s": 0.0,
+            "analytic_total_time_s": 0.0,
+            "analytic_sample_count": 0,
+            "analytic_collision_check_count": 0,
+        }
+        for record in records:
+            for key in (
+                "analytic_candidate_radius_count",
+                "analytic_candidate_success_count",
+                "analytic_candidate_failure_count",
+                "analytic_sample_count",
+                "analytic_collision_check_count",
+            ):
+                summary[key] += int(record.get(key, 0) or 0)
+            for key in (
+                "analytic_rs_solve_time_s",
+                "analytic_sample_time_s",
+                "analytic_collision_check_time_s",
+                "analytic_cost_eval_time_s",
+                "analytic_total_time_s",
+            ):
+                summary[key] += float(record.get(key, 0.0) or 0.0)
+        return summary
