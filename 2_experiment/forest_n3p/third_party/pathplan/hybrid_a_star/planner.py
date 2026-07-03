@@ -299,27 +299,43 @@ class HybridAStarPlanner:
         """
         if self.analytic_operator == "disabled":
             self._last_analytic_failed_radii = []
+            self._last_analytic_telemetry = None
             return None
+        attempt_start = time.perf_counter()
         radii = self._analytic_radii()
         failed_radii: List[float] = []
+        candidate_telemetry: List[Dict[str, Any]] = []
+        cost_eval_time_s = 0.0
 
         best_result = None
         best_cost = float("inf")
+        best_radius: Optional[float] = None
 
         for radius in radii:
-            result = self._try_rs_with_radius(state, goal, radius)
+            result, telemetry = self._try_rs_with_radius(state, goal, radius)
+            candidate_telemetry.append(telemetry.to_record())
             if result is None:
                 failed_radii.append(float(radius))
                 continue
-            endpoints, actions, dense_samples = result
+            endpoints, actions, dense_samples = result.endpoints, result.actions, result.dense_samples
 
             # ── Dang 2022 Eq. 3-4 代价函数 (用稠密采样点评估碰撞风险) ──
+            cost_start = time.perf_counter()
             cost = self._dang2022_cost(dense_samples, actions)
+            cost_eval_time_s += time.perf_counter() - cost_start
             if cost < best_cost:
                 best_cost = cost
                 best_result = (endpoints, actions)
+                best_radius = float(radius)
 
         self._last_analytic_failed_radii = failed_radii if best_result is None else []
+        self._last_analytic_telemetry = AnalyticExpansionTelemetry(
+            operator=self.analytic_operator,
+            candidate_records=tuple(candidate_telemetry),
+            cost_eval_time_s=cost_eval_time_s,
+            total_time_s=time.perf_counter() - attempt_start,
+            accepted_radius_m=best_radius,
+        )
         return best_result
 
     def _analytic_radii(self) -> List[float]:
@@ -410,7 +426,7 @@ class HybridAStarPlanner:
 
     def _try_rs_with_radius(
         self, state: AckermannState, goal: AckermannState, turning_radius: float,
-    ) -> Optional[Tuple[List[AckermannState], List[MotionPrimitive], List[AckermannState]]]:
+    ) -> Tuple[Optional[AnalyticRadiusResult], AnalyticCandidateTelemetry]:
         """尝试用指定转弯半径生成 RS 路径并验证碰撞。
 
         返回 (segment_endpoints, actions, dense_samples):
@@ -418,9 +434,16 @@ class HybridAStarPlanner:
           - actions: 各段运动基元
           - dense_samples: 沿路径的所有碰撞检测采样点 (用于代价评估)
         """
+        solve_start = time.perf_counter()
         rs = reeds_shepp_shortest_path(state.as_tuple(), goal.as_tuple(), turning_radius)
+        rs_solve_time_s = time.perf_counter() - solve_start
         if rs is None:
-            return None
+            return None, self._candidate_telemetry(
+                turning_radius,
+                success=False,
+                failure_reason="no_rs_path",
+                rs_solve_time_s=rs_solve_time_s,
+            )
 
         # 该半径对应的最大转向角
         max_steer_for_r = math.atan(self.params.wheelbase / max(turning_radius, 1e-9))
@@ -429,6 +452,10 @@ class HybridAStarPlanner:
         endpoints: List[AckermannState] = []
         dense_samples: List[AckermannState] = [state]
         extra_actions: List[MotionPrimitive] = []
+        sample_time_s = 0.0
+        collision_check_time_s = 0.0
+        sample_count = 0
+        collision_check_count = 0
         for seg_type, seg_len in zip(rs.segment_types, rs.segment_lengths):
             seg_len = float(seg_len)
             if abs(seg_len) <= 1e-9:
@@ -444,6 +471,7 @@ class HybridAStarPlanner:
             else:
                 raise ValueError(f"Unknown Reeds–Shepp segment type: {seg_type!r}")
 
+            sample_start = time.perf_counter()
             seg_states, _ = sample_constant_steer_motion(
                 cur,
                 steering,
@@ -453,20 +481,87 @@ class HybridAStarPlanner:
                 step=self.collision_step,
                 footprint=None,
             )
-            if self.collision_checker.collides_path(seg_states):
-                return None
+            sample_time_s += time.perf_counter() - sample_start
+            sample_count += len(seg_states)
+
+            collision_start = time.perf_counter()
+            collides = self.collision_checker.collides_path(seg_states)
+            collision_check_time_s += time.perf_counter() - collision_start
+            collision_check_count += 1
+            if collides:
+                return None, self._candidate_telemetry(
+                    turning_radius,
+                    success=False,
+                    failure_reason="collision",
+                    rs_solve_time_s=rs_solve_time_s,
+                    sample_time_s=sample_time_s,
+                    collision_check_time_s=collision_check_time_s,
+                    sample_count=sample_count,
+                    collision_check_count=collision_check_count,
+                )
             cur = seg_states[-1]
             endpoints.append(cur)
             dense_samples.extend(seg_states[1:])
             extra_actions.append(MotionPrimitive(steering=steering, direction=direction, step=step_len, weight=1.0))
 
         if not endpoints:
-            return None
+            return None, self._candidate_telemetry(
+                turning_radius,
+                success=False,
+                failure_reason="empty_path",
+                rs_solve_time_s=rs_solve_time_s,
+                sample_time_s=sample_time_s,
+                collision_check_time_s=collision_check_time_s,
+                sample_count=sample_count,
+                collision_check_count=collision_check_count,
+            )
         if not self._goal_reached(endpoints[-1], goal):
-            return None
+            return None, self._candidate_telemetry(
+                turning_radius,
+                success=False,
+                failure_reason="goal_tolerance_miss",
+                rs_solve_time_s=rs_solve_time_s,
+                sample_time_s=sample_time_s,
+                collision_check_time_s=collision_check_time_s,
+                sample_count=sample_count,
+                collision_check_count=collision_check_count,
+            )
         endpoints[-1] = goal
         dense_samples[-1] = goal
-        return endpoints, extra_actions, dense_samples
+        telemetry = self._candidate_telemetry(
+            turning_radius,
+            success=True,
+            failure_reason=None,
+            rs_solve_time_s=rs_solve_time_s,
+            sample_time_s=sample_time_s,
+            collision_check_time_s=collision_check_time_s,
+            sample_count=sample_count,
+            collision_check_count=collision_check_count,
+        )
+        return AnalyticRadiusResult(endpoints, extra_actions, dense_samples, telemetry), telemetry
+
+    def _candidate_telemetry(
+        self,
+        turning_radius: float,
+        *,
+        success: bool,
+        failure_reason: Optional[str],
+        rs_solve_time_s: float,
+        sample_time_s: float = 0.0,
+        collision_check_time_s: float = 0.0,
+        sample_count: int = 0,
+        collision_check_count: int = 0,
+    ) -> AnalyticCandidateTelemetry:
+        return AnalyticCandidateTelemetry(
+            radius_m=float(turning_radius),
+            success=bool(success),
+            failure_reason=failure_reason,
+            rs_solve_time_s=float(rs_solve_time_s),
+            sample_time_s=float(sample_time_s),
+            collision_check_time_s=float(collision_check_time_s),
+            sample_count=int(sample_count),
+            collision_check_count=int(collision_check_count),
+        )
 
     def _path_mean_clearance(self, states: List[AckermannState]) -> float:
         """路径上平均障碍间隙 (用于 Dang 2022 碰撞风险代价)。
