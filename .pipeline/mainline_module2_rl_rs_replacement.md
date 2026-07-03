@@ -475,7 +475,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 已完成: `RewardBreakdown` 现在包含 success、terminal、collision、progress、rs_progress、clearance、curvature、path_length、step; `step.info` 暴露 `reward_total` 和 `reward_terms`。
   - 实现依据: distance progress 来自 E01.5 `progress_to_goal_m`; RS-distance progress 来自 terminal/estimated Reeds-Shepp path length; clearance 来自 `GridMap` EDT + `TwoCircleFootprint.circle_centers()`; curvature-rate 来自 `tan(steering)/wheelbase` 的变化; path length 来自 rollout samples。
   - 权重边界: progress/clearance/curvature/path-length/step shaping 已实现并可配置, 但默认不假装完成调参; E02.3 仍需显式 ablation hooks。
-  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `19 passed in 0.47s`。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `19 passed in 0.48s`。
   - 记录: `.pipeline/experiments/20260703_module2_e02_reward_shaping_terms.md`。
 - [ ] E02.3 reward ablation hooks。
   - 每个 reward term 可开关。
