@@ -62,6 +62,7 @@ T15_EXTRA_METHODS = ("mlp",)
 DQN10_EXTRA_METHODS = tuple(method for method in DQN10_BASELINE_METHODS if method not in OFFICIAL_T14_METHODS)
 DQN10_COMPAT_ALIAS_METHODS = tuple(DQN10_BASELINE_ALIASES)
 EXTERNAL_BASELINE_METHODS = ("idb_rrt_dynoplan",)
+ANALYTIC_OPERATOR_BASELINE_METHODS = ("ha_no_analytic", "ha_single_rs", "ha_dang_multi_rs")
 
 IMPLEMENTED_METHODS = frozenset(
     (
@@ -70,6 +71,7 @@ IMPLEMENTED_METHODS = frozenset(
         *DQN10_EXTRA_METHODS,
         *DQN10_COMPAT_ALIAS_METHODS,
         *EXTERNAL_BASELINE_METHODS,
+        *ANALYTIC_OPERATOR_BASELINE_METHODS,
     )
 )
 
@@ -596,6 +598,16 @@ def _run_method(
             },
         )
 
+    if method in ANALYTIC_OPERATOR_BASELINE_METHODS:
+        return _run_hybrid_a_operator(
+            method,
+            query,
+            grid_map,
+            footprint,
+            cfg,
+            reference_path_length_m=reference_path_length_m,
+        )
+
     if method == "idb_rrt_dynoplan":
         from forest_n3p.baselines.idb_rrt_adapter import plan_idb_rrt
 
@@ -680,6 +692,45 @@ def _run_vanilla_ha(
     )
 
 
+def _run_hybrid_a_operator(
+    method: str,
+    query: EvaluationQuery,
+    grid_map: GridMap,
+    footprint: TwoCircleFootprint,
+    cfg: MainEvaluationConfig,
+    *,
+    reference_path_length_m: float | None,
+):
+    operator_by_method = {
+        "ha_no_analytic": "disabled",
+        "ha_single_rs": "single_rs",
+        "ha_dang_multi_rs": "dang_multi_rs",
+    }
+    analytic_operator = operator_by_method[method]
+    planner = _make_planner(grid_map, footprint, cfg, analytic_operator=analytic_operator)
+    states, stats = planner.plan(
+        AckermannState(*query.start),
+        AckermannState(*query.goal),
+        timeout=float(cfg.teacher_timeout_s),
+        max_nodes=int(cfg.teacher_max_nodes),
+    )
+    return planner_run_from_path_stats(
+        (state.as_tuple() for state in states),
+        stats,
+        query_id=query.query_id,
+        method=method,
+        difficulty_bucket=query.difficulty_bucket,
+        distance_bin_key=query.distance_bin_key,
+        reference_path_length_m=reference_path_length_m,
+        metadata={
+            "profile_name": query.profile_name,
+            "map_seed": query.map_seed,
+            "query_seed": query.query_seed,
+            "analytic_operator": analytic_operator,
+        },
+    )
+
+
 def _evaluate_run_with_collision_rejection(
     run: EvaluationRun,
     grid_map: GridMap,
@@ -719,11 +770,18 @@ def _evaluate_run_with_collision_rejection(
     return evaluate_run(rejected_run, grid_map, footprint, config=config)
 
 
-def _make_planner(grid_map: GridMap, footprint: TwoCircleFootprint, cfg: MainEvaluationConfig) -> HybridAStarPlanner:
+def _make_planner(
+    grid_map: GridMap,
+    footprint: TwoCircleFootprint,
+    cfg: MainEvaluationConfig,
+    *,
+    analytic_operator: str | None = None,
+) -> HybridAStarPlanner:
     return HybridAStarPlanner(
         grid_map,
         footprint,
         AckermannParams(wheelbase=0.6, min_turn_radius=1.0),
+        analytic_operator=analytic_operator,
         analytic_expansion=True,
         collision_step=0.1,
         goal_xy_tol=0.30,
