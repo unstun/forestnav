@@ -211,3 +211,14 @@ Artifacts:
 
 本报告不是 Gate #2 结论。全量 C02.1 仍需覆盖 7860 个去重失败节点,
 或者先预注册一个分层抽样方案, 再用同一脚本执行。
+
+## Follow-up Full Run
+
+2026-07-03 后续已完成全量 C02.1 default-budget run:
+
+- Full record: `.pipeline/experiments/20260703_module2_c02_oracle_connector_full.md`
+- Merged output: `0_trials/module2_oracle_shape/oracle_connector_results.parquet`
+- Root summary: `0_trials/module2_oracle_shape/oracle_connector_full/summary.json`
+
+本 smoke 报告只保留为工具链早期证据；后续 Gate #2 讨论以 full run
+记录为准。

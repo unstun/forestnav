@@ -1,0 +1,2 @@
+processed 25/60 rows
+processed 50/60 rows

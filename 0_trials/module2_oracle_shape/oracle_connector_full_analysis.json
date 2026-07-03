@@ -1,0 +1,169 @@
+{
+  "created_at_utc": "2026-07-03T22:05:46.332992+00:00",
+  "input": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+  "summary": "0_trials/module2_oracle_shape/oracle_connector_full/summary.json",
+  "source_head": "1f4f96f82bca68f06cc6e9a08adb9ea9aaf993a5",
+  "row_count": 7860,
+  "chunk_count": 79,
+  "summary_status": "complete",
+  "oracle_a_success_count": 6226,
+  "oracle_b_success_count": 6287,
+  "oracle_connectable_count": 6289,
+  "oracle_connectable_rate": 0.8001272264631043,
+  "relation_counts": {
+    "both_success": 6224,
+    "unresolved": 1571,
+    "b_only": 63,
+    "a_only": 2
+  },
+  "by_bucket": {
+    "Complex": {
+      "row_count": 3368,
+      "oracle_a_success_count": 2596,
+      "oracle_b_success_count": 2596,
+      "oracle_connectable_count": 2597
+    },
+    "Extreme": {
+      "row_count": 4492,
+      "oracle_a_success_count": 3630,
+      "oracle_b_success_count": 3691,
+      "oracle_connectable_count": 3692
+    }
+  },
+  "relation_by_bucket": {
+    "Complex": {
+      "a_only": 1,
+      "b_only": 1,
+      "both_success": 2595,
+      "unresolved": 771
+    },
+    "Extreme": {
+      "a_only": 1,
+      "b_only": 62,
+      "both_success": 3629,
+      "unresolved": 800
+    }
+  },
+  "oracle_a_failure_reason_counts": {
+    "SUCCESS": 6226,
+    "goal_in_collision": 1182,
+    "start_in_collision": 389,
+    "timeout": 63
+  },
+  "oracle_a_failure_reason_by_bucket": {
+    "Complex": {
+      "SUCCESS": 2596,
+      "goal_in_collision": 709,
+      "start_in_collision": 62,
+      "timeout": 1
+    },
+    "Extreme": {
+      "SUCCESS": 3630,
+      "goal_in_collision": 473,
+      "start_in_collision": 327,
+      "timeout": 62
+    }
+  },
+  "oracle_b_failure_prefix_counts": {
+    "SUCCESS": 6287,
+    "no_rs_reachable_candidates": 1409,
+    "no_candidate_connected": 164
+  },
+  "oracle_b_failure_prefix_by_bucket": {
+    "Complex": {
+      "SUCCESS": 2596,
+      "no_candidate_connected": 63,
+      "no_rs_reachable_candidates": 709
+    },
+    "Extreme": {
+      "SUCCESS": 3691,
+      "no_candidate_connected": 101,
+      "no_rs_reachable_candidates": 700
+    }
+  },
+  "invalid_by_oracle_a_reason_count": 1571,
+  "invalid_by_oracle_a_reason": {
+    "goal_in_collision": 1182,
+    "start_in_collision": 389
+  },
+  "non_invalid_row_count": 6289,
+  "non_invalid_connectable_count": 6289,
+  "non_invalid_connectable_rate": 1.0,
+  "non_invalid_unresolved_count": 0,
+  "timeout_total_count": 63,
+  "timeout_connectable_count": 63,
+  "timeout_b_success_count": 63,
+  "timeout_unresolved_count": 0,
+  "b_only_count": 63,
+  "b_only_by_bucket": {
+    "Extreme": 62,
+    "Complex": 1
+  },
+  "b_only_by_query": {
+    "Extreme|extreme_s00_q0006": 52,
+    "Extreme|extreme_s00_q0004": 6,
+    "Extreme|extreme_s00_q0003": 3,
+    "Complex|complex_s00_q0003": 1,
+    "Extreme|extreme_s00_q0008": 1
+  },
+  "b_only_by_selected_source": {
+    "goal_annulus": 58,
+    "voronoi_skeleton": 5
+  },
+  "a_only_count": 2,
+  "candidate_raw_count_stats": {
+    "count": 7860,
+    "min": 330.0,
+    "p25": 390.0,
+    "median": 393.0,
+    "p75": 395.0,
+    "p90": 396.0,
+    "p99": 398.0,
+    "max": 399.0,
+    "mean": 381.42430025445293
+  },
+  "candidate_rs_reachable_count_stats": {
+    "count": 7860,
+    "min": 0.0,
+    "p25": 57.0,
+    "median": 123.5,
+    "p75": 193.0,
+    "p90": 268.0,
+    "p99": 354.0,
+    "max": 359.0,
+    "mean": 126.7765903307888
+  },
+  "oracle_b_attempted_candidate_count_stats": {
+    "count": 7860,
+    "min": 0.0,
+    "p25": 1.0,
+    "median": 1.0,
+    "p75": 1.0,
+    "p90": 1.0,
+    "p99": 32.0,
+    "max": 32.0,
+    "mean": 1.5423664122137404
+  },
+  "oracle_a_time_s_stats": {
+    "count": 7860,
+    "min": 5.7220458984375e-06,
+    "p25": 0.16023319959640503,
+    "median": 0.30703413486480713,
+    "p75": 1.1821402311325073,
+    "p90": 2.4677184343338014,
+    "p99": 6.758149816989898,
+    "max": 8.015707969665527,
+    "mean": 0.885015995387206
+  },
+  "oracle_b_segment_time_s_stats": {
+    "count": 6287,
+    "min": 0.1348731517791748,
+    "p25": 0.23147451877593994,
+    "median": 0.4341390132904053,
+    "p75": 0.9396604299545288,
+    "p90": 1.8218676090240495,
+    "p99": 3.468289704322815,
+    "max": 3.9881842136383057,
+    "mean": 0.7399323259265355
+  }
+}

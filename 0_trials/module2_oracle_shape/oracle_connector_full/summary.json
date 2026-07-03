@@ -1,0 +1,830 @@
+{
+  "status": "complete",
+  "created_at_utc": "2026-07-03T21:59:34.444135+00:00",
+  "execution_host": "MacBook-Pro.local",
+  "source_head": "1f4f96f82bca68f06cc6e9a08adb9ea9aaf993a5",
+  "command": "python -m forest_n3p.scripts.run_oracle_connector_chunks --input 0_trials/module2_oracle_shape/rs_failure_nodes_dedup.parquet --output-dir 0_trials/module2_oracle_shape/oracle_connector_full --merged-output 0_trials/module2_oracle_shape/oracle_connector_results.parquet --chunk-size 100 --source-head 1f4f96f82bca68f06cc6e9a08adb9ea9aaf993a5",
+  "input": "0_trials/module2_oracle_shape/rs_failure_nodes_dedup.parquet",
+  "input_row_count": 7860,
+  "row_offset": 0,
+  "selected_row_count": 7860,
+  "chunk_size": 100,
+  "chunk_count": 79,
+  "output_dir": "0_trials/module2_oracle_shape/oracle_connector_full",
+  "merged_output": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+  "failed_chunk": null,
+  "chunks": [
+    {
+      "offset": 0,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000000_000099.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000000_000099_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000000_000099_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000000_000099_summary.json"
+    },
+    {
+      "offset": 100,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000100_000199.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000100_000199_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000100_000199_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000100_000199_summary.json"
+    },
+    {
+      "offset": 200,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000200_000299.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000200_000299_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000200_000299_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000200_000299_summary.json"
+    },
+    {
+      "offset": 300,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000300_000399.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000300_000399_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000300_000399_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000300_000399_summary.json"
+    },
+    {
+      "offset": 400,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000400_000499.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000400_000499_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000400_000499_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000400_000499_summary.json"
+    },
+    {
+      "offset": 500,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000500_000599.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000500_000599_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000500_000599_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000500_000599_summary.json"
+    },
+    {
+      "offset": 600,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000600_000699.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000600_000699_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000600_000699_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000600_000699_summary.json"
+    },
+    {
+      "offset": 700,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000700_000799.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000700_000799_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000700_000799_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000700_000799_summary.json"
+    },
+    {
+      "offset": 800,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000800_000899.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000800_000899_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000800_000899_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000800_000899_summary.json"
+    },
+    {
+      "offset": 900,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000900_000999.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000900_000999_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000900_000999_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_000900_000999_summary.json"
+    },
+    {
+      "offset": 1000,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001000_001099.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001000_001099_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001000_001099_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001000_001099_summary.json"
+    },
+    {
+      "offset": 1100,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001100_001199.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001100_001199_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001100_001199_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001100_001199_summary.json"
+    },
+    {
+      "offset": 1200,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001200_001299.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001200_001299_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001200_001299_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001200_001299_summary.json"
+    },
+    {
+      "offset": 1300,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001300_001399.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001300_001399_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001300_001399_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001300_001399_summary.json"
+    },
+    {
+      "offset": 1400,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001400_001499.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001400_001499_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001400_001499_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001400_001499_summary.json"
+    },
+    {
+      "offset": 1500,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001500_001599.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001500_001599_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001500_001599_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001500_001599_summary.json"
+    },
+    {
+      "offset": 1600,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001600_001699.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001600_001699_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001600_001699_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001600_001699_summary.json"
+    },
+    {
+      "offset": 1700,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001700_001799.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001700_001799_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001700_001799_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001700_001799_summary.json"
+    },
+    {
+      "offset": 1800,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001800_001899.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001800_001899_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001800_001899_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001800_001899_summary.json"
+    },
+    {
+      "offset": 1900,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001900_001999.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001900_001999_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001900_001999_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_001900_001999_summary.json"
+    },
+    {
+      "offset": 2000,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002000_002099.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002000_002099_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002000_002099_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002000_002099_summary.json"
+    },
+    {
+      "offset": 2100,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002100_002199.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002100_002199_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002100_002199_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002100_002199_summary.json"
+    },
+    {
+      "offset": 2200,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002200_002299.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002200_002299_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002200_002299_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002200_002299_summary.json"
+    },
+    {
+      "offset": 2300,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002300_002399.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002300_002399_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002300_002399_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002300_002399_summary.json"
+    },
+    {
+      "offset": 2400,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002400_002499.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002400_002499_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002400_002499_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002400_002499_summary.json"
+    },
+    {
+      "offset": 2500,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002500_002599.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002500_002599_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002500_002599_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002500_002599_summary.json"
+    },
+    {
+      "offset": 2600,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002600_002699.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002600_002699_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002600_002699_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002600_002699_summary.json"
+    },
+    {
+      "offset": 2700,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002700_002799.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002700_002799_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002700_002799_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002700_002799_summary.json"
+    },
+    {
+      "offset": 2800,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002800_002899.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002800_002899_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002800_002899_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002800_002899_summary.json"
+    },
+    {
+      "offset": 2900,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002900_002999.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002900_002999_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002900_002999_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_002900_002999_summary.json"
+    },
+    {
+      "offset": 3000,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003000_003099.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003000_003099_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003000_003099_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003000_003099_summary.json"
+    },
+    {
+      "offset": 3100,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003100_003199.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003100_003199_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003100_003199_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003100_003199_summary.json"
+    },
+    {
+      "offset": 3200,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003200_003299.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003200_003299_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003200_003299_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003200_003299_summary.json"
+    },
+    {
+      "offset": 3300,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003300_003399.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003300_003399_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003300_003399_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003300_003399_summary.json"
+    },
+    {
+      "offset": 3400,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003400_003499.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003400_003499_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003400_003499_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003400_003499_summary.json"
+    },
+    {
+      "offset": 3500,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003500_003599.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003500_003599_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003500_003599_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003500_003599_summary.json"
+    },
+    {
+      "offset": 3600,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003600_003699.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003600_003699_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003600_003699_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003600_003699_summary.json"
+    },
+    {
+      "offset": 3700,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003700_003799.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003700_003799_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003700_003799_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003700_003799_summary.json"
+    },
+    {
+      "offset": 3800,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003800_003899.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003800_003899_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003800_003899_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003800_003899_summary.json"
+    },
+    {
+      "offset": 3900,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003900_003999.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003900_003999_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003900_003999_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_003900_003999_summary.json"
+    },
+    {
+      "offset": 4000,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004000_004099.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004000_004099_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004000_004099_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004000_004099_summary.json"
+    },
+    {
+      "offset": 4100,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004100_004199.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004100_004199_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004100_004199_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004100_004199_summary.json"
+    },
+    {
+      "offset": 4200,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004200_004299.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004200_004299_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004200_004299_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004200_004299_summary.json"
+    },
+    {
+      "offset": 4300,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004300_004399.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004300_004399_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004300_004399_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004300_004399_summary.json"
+    },
+    {
+      "offset": 4400,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004400_004499.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004400_004499_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004400_004499_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004400_004499_summary.json"
+    },
+    {
+      "offset": 4500,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004500_004599.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004500_004599_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004500_004599_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004500_004599_summary.json"
+    },
+    {
+      "offset": 4600,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004600_004699.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004600_004699_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004600_004699_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004600_004699_summary.json"
+    },
+    {
+      "offset": 4700,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004700_004799.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004700_004799_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004700_004799_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004700_004799_summary.json"
+    },
+    {
+      "offset": 4800,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004800_004899.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004800_004899_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004800_004899_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004800_004899_summary.json"
+    },
+    {
+      "offset": 4900,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004900_004999.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004900_004999_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004900_004999_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_004900_004999_summary.json"
+    },
+    {
+      "offset": 5000,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005000_005099.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005000_005099_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005000_005099_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005000_005099_summary.json"
+    },
+    {
+      "offset": 5100,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005100_005199.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005100_005199_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005100_005199_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005100_005199_summary.json"
+    },
+    {
+      "offset": 5200,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005200_005299.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005200_005299_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005200_005299_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005200_005299_summary.json"
+    },
+    {
+      "offset": 5300,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005300_005399.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005300_005399_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005300_005399_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005300_005399_summary.json"
+    },
+    {
+      "offset": 5400,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005400_005499.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005400_005499_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005400_005499_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005400_005499_summary.json"
+    },
+    {
+      "offset": 5500,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005500_005599.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005500_005599_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005500_005599_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005500_005599_summary.json"
+    },
+    {
+      "offset": 5600,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005600_005699.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005600_005699_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005600_005699_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005600_005699_summary.json"
+    },
+    {
+      "offset": 5700,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005700_005799.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005700_005799_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005700_005799_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005700_005799_summary.json"
+    },
+    {
+      "offset": 5800,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005800_005899.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005800_005899_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005800_005899_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005800_005899_summary.json"
+    },
+    {
+      "offset": 5900,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005900_005999.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005900_005999_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005900_005999_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_005900_005999_summary.json"
+    },
+    {
+      "offset": 6000,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": false,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006000_006099.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006000_006099_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006000_006099_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006000_006099_summary.json"
+    },
+    {
+      "offset": 6100,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006100_006199.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006100_006199_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006100_006199_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006100_006199_summary.json"
+    },
+    {
+      "offset": 6200,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006200_006299.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006200_006299_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006200_006299_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006200_006299_summary.json"
+    },
+    {
+      "offset": 6300,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006300_006399.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006300_006399_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006300_006399_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006300_006399_summary.json"
+    },
+    {
+      "offset": 6400,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006400_006499.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006400_006499_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006400_006499_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006400_006499_summary.json"
+    },
+    {
+      "offset": 6500,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006500_006599.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006500_006599_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006500_006599_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006500_006599_summary.json"
+    },
+    {
+      "offset": 6600,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006600_006699.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006600_006699_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006600_006699_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006600_006699_summary.json"
+    },
+    {
+      "offset": 6700,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006700_006799.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006700_006799_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006700_006799_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006700_006799_summary.json"
+    },
+    {
+      "offset": 6800,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006800_006899.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006800_006899_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006800_006899_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006800_006899_summary.json"
+    },
+    {
+      "offset": 6900,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006900_006999.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006900_006999_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006900_006999_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_006900_006999_summary.json"
+    },
+    {
+      "offset": 7000,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007000_007099.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007000_007099_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007000_007099_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007000_007099_summary.json"
+    },
+    {
+      "offset": 7100,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007100_007199.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007100_007199_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007100_007199_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007100_007199_summary.json"
+    },
+    {
+      "offset": 7200,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007200_007299.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007200_007299_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007200_007299_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007200_007299_summary.json"
+    },
+    {
+      "offset": 7300,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007300_007399.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007300_007399_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007300_007399_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007300_007399_summary.json"
+    },
+    {
+      "offset": 7400,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007400_007499.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007400_007499_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007400_007499_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007400_007499_summary.json"
+    },
+    {
+      "offset": 7500,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007500_007599.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007500_007599_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007500_007599_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007500_007599_summary.json"
+    },
+    {
+      "offset": 7600,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007600_007699.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007600_007699_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007600_007699_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007600_007699_summary.json"
+    },
+    {
+      "offset": 7700,
+      "limit": 100,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007700_007799.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007700_007799_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007700_007799_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007700_007799_summary.json"
+    },
+    {
+      "offset": 7800,
+      "limit": 60,
+      "returncode": 0,
+      "skipped_existing": true,
+      "parquet": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007800_007859.parquet",
+      "stdout": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007800_007859_stdout.txt",
+      "stderr": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007800_007859_stderr.txt",
+      "summary": "0_trials/module2_oracle_shape/oracle_connector_full/chunks/chunk_007800_007859_summary.json"
+    }
+  ],
+  "aggregate": {
+    "result_row_count": 7860,
+    "oracle_a_success_count": 6226,
+    "oracle_b_success_count": 6287,
+    "oracle_connectable_count": 6289,
+    "oracle_connectable_rate": 0.8001272264631043,
+    "by_bucket": {
+      "Complex": {
+        "record_count": 3368,
+        "oracle_a_success": 2596,
+        "oracle_b_success": 2596,
+        "oracle_connectable": 2597
+      },
+      "Extreme": {
+        "record_count": 4492,
+        "oracle_a_success": 3630,
+        "oracle_b_success": 3691,
+        "oracle_connectable": 3692
+      }
+    }
+  },
+  "forwarded_child_args": []
+}

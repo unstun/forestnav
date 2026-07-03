@@ -1,0 +1,10 @@
+difficulty_bucket,query_id,oracle_a_failure_reason,count
+Complex,complex_s00_q0007,goal_in_collision,706
+Extreme,extreme_s00_q0006,goal_in_collision,434
+Extreme,extreme_s00_q0006,start_in_collision,222
+Extreme,extreme_s00_q0002,start_in_collision,93
+Complex,complex_s00_q0002,start_in_collision,62
+Extreme,extreme_s00_q0007,goal_in_collision,39
+Extreme,extreme_s00_q0007,start_in_collision,7
+Extreme,extreme_s00_q0003,start_in_collision,5
+Complex,complex_s00_q0003,goal_in_collision,3

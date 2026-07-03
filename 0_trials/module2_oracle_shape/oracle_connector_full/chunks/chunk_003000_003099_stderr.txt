@@ -1,0 +1,4 @@
+processed 25/100 rows
+processed 50/100 rows
+processed 75/100 rows
+processed 100/100 rows

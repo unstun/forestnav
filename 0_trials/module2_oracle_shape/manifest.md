@@ -325,3 +325,100 @@ Boundary:
 
 - This is still the first 20 Complex rows only, so it is a runtime pilot and
   toolchain sanity check, not Gate #2 evidence.
+
+## C02.1 Full Default-Budget Run
+
+Status: `full_run_complete_not_final_gate`
+
+Source head:
+
+- `1f4f96f82bca68f06cc6e9a08adb9ea9aaf993a5`
+
+Command:
+
+```bash
+PYTHONPATH=2_experiment python -m forest_n3p.scripts.run_oracle_connector_chunks \
+  --input 0_trials/module2_oracle_shape/rs_failure_nodes_dedup.parquet \
+  --output-dir 0_trials/module2_oracle_shape/oracle_connector_full \
+  --merged-output 0_trials/module2_oracle_shape/oracle_connector_results.parquet \
+  --chunk-size 100 \
+  --source-head 1f4f96f82bca68f06cc6e9a08adb9ea9aaf993a5
+```
+
+Execution note:
+
+- The run used the chunk runner's resume/skip contract. Disjoint far-ahead
+  chunks were precomputed while the main runner handled the contiguous gap.
+- One auxiliary `chunk_006000_006099` attempt was stopped before parquet/summary
+  emission to avoid a race with the main runner. The accepted final
+  `chunk_006000_006099` artifact was produced by the main runner.
+- Final root summary is `status=complete`; chunk summaries report no nonzero
+  return codes.
+
+Outputs:
+
+- `oracle_connector_full/summary.json`
+- `oracle_connector_full/chunks/`
+- `oracle_connector_results.parquet`
+- `oracle_connector_full_stdout.txt`
+- `oracle_connector_full_stderr.txt`
+- `oracle_connector_full_analysis.json`
+- `oracle_connector_b_only_cases.csv`
+- `oracle_connector_a_only_cases.csv`
+- `oracle_connector_invalid_query_counts.csv`
+
+Integrity checks:
+
+- Input rows: 7860
+- Selected rows: 7860
+- Chunk count: 79
+- Chunk four-file sets missing: 0
+- Nonzero chunk summaries: 0
+- Merged rows: 7860
+- Merged columns: 58
+- `source_head` values in merged parquet: one value, all
+  `1f4f96f82bca68f06cc6e9a08adb9ea9aaf993a5`
+
+Full-run result:
+
+| Metric | Count |
+|---|---:|
+| Rows | 7860 |
+| Oracle A success | 6226 |
+| Oracle B success | 6287 |
+| Oracle connectable | 6289 |
+| Both A and B success | 6224 |
+| B-only | 63 |
+| A-only | 2 |
+| Unresolved | 1571 |
+
+By bucket:
+
+| Bucket | Rows | Oracle A | Oracle B | Connectable |
+|---|---:|---:|---:|---:|
+| Complex | 3368 | 2596 | 2596 | 2597 |
+| Extreme | 4492 | 3630 | 3691 | 3692 |
+
+Failure triage:
+
+- Oracle A failure reasons: `goal_in_collision=1182`,
+  `start_in_collision=389`, `timeout=63`.
+- The 1571 unresolved rows are exactly the
+  `goal_in_collision/start_in_collision` rows.
+- After excluding those invalid start/goal rows, remaining rows are 6289/7860
+  and oracle connectable is 6289/6289.
+- All 63 timeout rows are connectable by Oracle B.
+- B-only selected source distribution: `goal_annulus=58`,
+  `voronoi_skeleton=5`.
+
+Boundary:
+
+- This full run proves that the C02.1 oracle machinery covers all 7860
+  deduplicated RS failure nodes under the default budget.
+- It does not by itself finish Gate #2. C02.2 still needs visual/shape labels,
+  because "connectable" does not say whether the shape is a narrow bottleneck,
+  short obstacle-avoidance detour, reverse maneuver, or dirty invalid endpoint.
+- The strongest mechanical implication is that the current dataset has no
+  non-invalid oracle-no-solution rows under this oracle. The RL target is
+  therefore narrower than "all RS failures": it should focus on timeout and
+  operator-cost cases, not invalid endpoints.

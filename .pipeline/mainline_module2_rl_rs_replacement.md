@@ -305,7 +305,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 
 #### C02. Oracle connector 可行性
 
-- [>] C02.1 对每个 RS 失败节点跑局部/全图 HA* oracle。
+- [x] C02.1 对每个 RS 失败节点跑局部/全图 HA* oracle。
   - oracle A: 当前 node 到 final goal, analytic disabled, 放宽 timeout/max_nodes。
   - oracle B: 当前 node 到若干中间可通行候选, 再 RS 到 goal。
   - 输出: 是否存在可行连接、连接长度、转向次数、最小 clearance。
@@ -317,14 +317,26 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 长跑执行层: 新增 `2_experiment/forest_n3p/scripts/run_oracle_connector_chunks.py`, 支持 chunk/resume/merge。
   - Runner smoke: `0_trials/module2_oracle_shape/oracle_connector_runner_smoke/`, 3 rows -> 2 chunks -> merged 3 rows, 所有 stderr 空。
   - Default-budget pilot: `0_trials/module2_oracle_shape/oracle_connector_default_budget_pilot20/`, 20 rows -> 2 chunks, A=20/20, B=20/20, 所有 stderr 空, 约 2 秒/行。
-  - 当前边界: 只完成 bounded smoke, 还没有全量 7860 dedup 节点结果, 不能下 Gate #2 结论。
-- [ ] C02.2 标注失败形态。
+  - Full default-budget run: `0_trials/module2_oracle_shape/oracle_connector_full/summary.json`, 79 chunks, 7860/7860 rows, merged output `0_trials/module2_oracle_shape/oracle_connector_results.parquet`。
+  - Full integrity: root `status=complete`, chunk four-file sets missing 0, nonzero chunk summaries 0, merged rows 7860, merged `source_head` 全部为 `1f4f96f82bca68f06cc6e9a08adb9ea9aaf993a5`。
+  - Full counts: Oracle A success 6226, Oracle B success 6287, oracle connectable 6289, both success 6224, B-only 63, A-only 2, unresolved 1571。
+  - Bucket counts: Complex 3368 rows, connectable 2597; Extreme 4492 rows, connectable 3692。
+  - Failure triage: Oracle A failure reasons are `goal_in_collision=1182`, `start_in_collision=389`, `timeout=63`。
+  - Key implication: the 1571 unresolved rows are exactly the invalid start/goal rows; after excluding `goal_in_collision/start_in_collision`, remaining non-invalid rows are 6289/6289 oracle-connectable。
+  - B-only cases: all 63 are Oracle A `timeout`; selected candidate source is `goal_annulus=58`, `voronoi_skeleton=5`; detailed rows in `0_trials/module2_oracle_shape/oracle_connector_b_only_cases.csv`。
+  - Analysis artifacts: `0_trials/module2_oracle_shape/oracle_connector_full_analysis.json`, `oracle_connector_b_only_cases.csv`, `oracle_connector_a_only_cases.csv`, `oracle_connector_invalid_query_counts.csv`。
+  - Experiment record: `.pipeline/experiments/20260703_module2_c02_oracle_connector_full.md`。
+  - 当前边界: C02.1 全量已完成, 但这不是最终 Gate #2。它把问题缩窄为 "invalid endpoint 清洗 + timeout/B-only connector 价值 + 成本账", 不能直接 claim RL 已必要或已充分。
+- [>] C02.2 标注失败形态。
   - 类别: 无解死区、需绕瓶颈、需短程避障后开阔、需倒车、goal 周围不可达、checker 假阳性。
   - 验证: 每类抽样出 PNG/SVG 可视化。
+  - 已完成的数字分层: invalid start/goal = 1571, non-invalid unresolved = 0, timeout/B-only = 63, A-only = 2。
+  - 未完成: 每类抽样可视化和人工可读形态标签。
 - [ ] C02.3 Gate #2 判定。
   - 通过: `需短程避障后开阔` 或 `需绕瓶颈` 占失败节点的主体。
   - 失败: 多数节点 oracle 也无解。
   - 输出: `.pipeline/experiments/YYYYMMDD_module2_gate2_oracle_shape.md`
+  - 当前预判边界: full oracle 已反证 "多数节点 oracle 也无解"; 但它也显示 B-only timeout 只有 63/6289 non-invalid rows, 因此 Gate #2 不能粗暴写成 "多数 RS 失败都需要 RL connector"。正式判定必须等 C02.2 可视化标签和 D01/D02 成本账。
 
 ### Phase D: 成本账 Gate #1
 
@@ -535,11 +547,10 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 优先级从上到下。每次只拿第一项 `[ ]`。
 
 1. [?] A00.2 刷新项目状态记忆, 关闭旧热区状态。
-2. [x] A01.1 建立外部证据目录和 sources 模板。
-3. [x] A02.1 写本地 analytic expansion slot API 备忘。
-4. [ ] B01.1 给计时口径补测试。
-5. [ ] B02.1 拆分 analytic operator 配置。
-6. [ ] C01.1 采集 RS 失败节点。
+2. [>] C02.2 为 full oracle 结果补失败形态可视化标签。
+3. [ ] C02.3 写 Gate #2 oracle shape 判定。
+4. [ ] D01.1 拆分 Dang multi-RS 调用成本。
+5. [ ] D02.1 基于 C02 patch/connector 需求做神经 policy 前向预算。
 
 ## 7. 完成记录
 
@@ -547,3 +558,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-03: 会话前相关中间态已备份到 commit `640c76bf`。
 - 2026-07-03: 完成 A01.1, 新建 `0_trials/module2_rl_rs_evidence/` 证据目录与四个模板/初始证据文件。
 - 2026-07-03: 完成 A02.1, 新建 `local_slot_api.md`, 把模块2 API 从 "RL planner" 收紧到 "HA* analytic expansion operator"。
+- 2026-07-03: 完成 C02.1 全量 oracle connector, 7860/7860 dedup RS failure nodes 覆盖完成。Full run: Oracle A 6226, Oracle B 6287, connectable 6289; unresolved 1571 全部是 invalid start/goal; non-invalid 6289/6289 connectable; B-only timeout 63。记录见 `.pipeline/experiments/20260703_module2_c02_oracle_connector_full.md`。
