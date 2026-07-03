@@ -8,6 +8,7 @@ class RlRsStepTelemetry:
     step_index: int
     requested_steering_rad: float
     applied_steering_rad: float
+    primitive_direction: int
     action_clipped: bool
     sample_count: int
     sample_time_s: float
