@@ -31,6 +31,77 @@ class Node:
         return self.g + self.h
 
 
+@dataclass(frozen=True)
+class AnalyticCandidateTelemetry:
+    radius_m: float
+    success: bool
+    failure_reason: Optional[str]
+    rs_solve_time_s: float
+    sample_time_s: float
+    collision_check_time_s: float
+    sample_count: int
+    collision_check_count: int
+
+    def to_record(self) -> Dict[str, Any]:
+        return {
+            "radius_m": float(self.radius_m),
+            "success": bool(self.success),
+            "failure_reason": self.failure_reason,
+            "rs_solve_time_s": float(self.rs_solve_time_s),
+            "sample_time_s": float(self.sample_time_s),
+            "collision_check_time_s": float(self.collision_check_time_s),
+            "sample_count": int(self.sample_count),
+            "collision_check_count": int(self.collision_check_count),
+        }
+
+
+@dataclass(frozen=True)
+class AnalyticRadiusResult:
+    endpoints: List[AckermannState]
+    actions: List[MotionPrimitive]
+    dense_samples: List[AckermannState]
+    telemetry: AnalyticCandidateTelemetry
+
+
+@dataclass(frozen=True)
+class AnalyticExpansionTelemetry:
+    operator: str
+    candidate_records: Tuple[Dict[str, Any], ...]
+    cost_eval_time_s: float
+    total_time_s: float
+    accepted_radius_m: Optional[float]
+
+    def to_record(self) -> Dict[str, Any]:
+        summary = self.summary()
+        summary["candidate_records"] = list(self.candidate_records)
+        return summary
+
+    def summary(self) -> Dict[str, Any]:
+        successes = sum(1 for item in self.candidate_records if item["success"])
+        return {
+            "analytic_operator": self.operator,
+            "analytic_candidate_radius_count": len(self.candidate_records),
+            "analytic_candidate_success_count": int(successes),
+            "analytic_candidate_failure_count": int(len(self.candidate_records) - successes),
+            "analytic_rs_solve_time_s": _sum_float(self.candidate_records, "rs_solve_time_s"),
+            "analytic_sample_time_s": _sum_float(self.candidate_records, "sample_time_s"),
+            "analytic_collision_check_time_s": _sum_float(self.candidate_records, "collision_check_time_s"),
+            "analytic_cost_eval_time_s": float(self.cost_eval_time_s),
+            "analytic_total_time_s": float(self.total_time_s),
+            "analytic_sample_count": _sum_int(self.candidate_records, "sample_count"),
+            "analytic_collision_check_count": _sum_int(self.candidate_records, "collision_check_count"),
+            "analytic_accepted_radius_m": None if self.accepted_radius_m is None else float(self.accepted_radius_m),
+        }
+
+
+def _sum_float(records: Tuple[Dict[str, Any], ...], key: str) -> float:
+    return float(sum(float(item.get(key, 0.0) or 0.0) for item in records))
+
+
+def _sum_int(records: Tuple[Dict[str, Any], ...], key: str) -> int:
+    return int(sum(int(item.get(key, 0) or 0) for item in records))
+
+
 class HybridAStarPlanner:
     def __init__(
         self,
