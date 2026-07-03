@@ -81,6 +81,8 @@ class AnalyticExpansionStep:
             "telemetry": self.telemetry,
             "terminal_rs": self.terminal_rs,
             "reward_status": self.reward.status,
+            "reward_total": self.reward.total,
+            "reward_terms": self.reward.to_record(),
             "terminated": bool(self.terminated),
             "truncated": bool(self.truncated),
             "failure_reason": self.telemetry.failure_reason,

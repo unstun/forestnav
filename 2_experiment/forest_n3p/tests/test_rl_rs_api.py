@@ -91,7 +91,14 @@ def test_env_reset_step_returns_telemetry_and_reward_marker():
 
     assert step.reward.total == 0.0
     assert step.reward.success == 0.0
-    assert step.info["reward_status"] == "e02_1_terminal_rs_success"
+    assert step.info["reward_status"] == "e02_2_decomposed_shaping"
+    assert step.info["reward_total"] == step.reward.total
+    assert step.info["reward_terms"]["progress"] == step.reward.progress
+    assert step.info["reward_terms"]["rs_progress"] == step.reward.rs_progress
+    assert step.info["reward_terms"]["clearance"] == step.reward.clearance
+    assert step.info["reward_terms"]["curvature"] == step.reward.curvature
+    assert step.info["reward_terms"]["path_length"] == step.reward.path_length
+    assert step.info["reward_terms"]["step"] == step.reward.step
     assert step.info["terminated"] == step.terminated
     assert step.info["truncated"] == step.truncated
     assert step.info["failure_reason"] == step.telemetry.failure_reason
@@ -152,6 +159,8 @@ def test_env_step_terminates_on_rollout_collision_and_blocks_followup_step():
     assert not step.truncated
     assert step.telemetry.collided
     assert step.telemetry.failure_reason == "collision"
+    assert step.reward.collision == -1.0
+    assert step.reward.total == -1.0
     with pytest.raises(RuntimeError, match="episode is done"):
         env.step(0.0)
 
@@ -185,6 +194,40 @@ def test_reward_config_controls_terminal_rs_success_reward():
     assert step.reward.total == 2.5
 
 
+def test_reward_breakdown_records_configured_shaping_terms():
+    env = AnalyticExpansionEnv()
+    context = replace(
+        _empty_context(goal=(1.6, 1.0, 0.0)),
+        reward_config=RewardConfig(
+            terminal_rs_success=0.0,
+            collision_penalty=0.0,
+            terminal_rs_failure_penalty=0.0,
+            no_progress_penalty=0.0,
+            distance_progress_scale=1.0,
+            rs_distance_progress_scale=1.0,
+            clearance_scale=1.0,
+            clearance_target_m=0.5,
+            curvature_rate_penalty_scale=1.0,
+            path_length_penalty_scale=1.0,
+            step_penalty=-0.1,
+        ),
+    )
+    env.reset(context)
+
+    step = env.step(SteeringAction(0.1))
+    terms = step.info["reward_terms"]
+
+    assert step.reward.progress > 0.0
+    assert step.reward.rs_progress > 0.0
+    assert step.reward.clearance >= 0.0
+    assert step.reward.curvature < 0.0
+    assert step.reward.path_length < 0.0
+    assert step.reward.step == -0.1
+    assert terms["total"] == step.reward.total
+    assert terms["success"] == 0.0
+    assert terms["terminal"] == 0.0
+
+
 def test_env_step_truncates_with_no_terminal_rs_when_budget_exhausted():
     data = np.zeros((60, 60), dtype=np.uint8)
     data[10, 30] = 1
@@ -197,6 +240,8 @@ def test_env_step_truncates_with_no_terminal_rs_when_budget_exhausted():
     assert step.truncated
     assert not step.terminal_rs.success
     assert step.telemetry.failure_reason.startswith("no_rs_terminal:")
+    assert step.reward.terminal == -0.25
+    assert step.reward.total == -0.25
 
 
 def test_env_step_truncates_on_no_progress_before_budget_exhausted():
@@ -219,6 +264,7 @@ def test_env_step_truncates_on_no_progress_before_budget_exhausted():
     assert second.telemetry.failure_reason == "no_progress"
     assert second.telemetry.no_progress_count == 2
     assert second.telemetry.progress_to_goal_m < 0.0
+    assert second.reward.terminal == -0.25
 
 
 def test_egocentric_occupancy_patch_aligns_obstacle_in_robot_frame():
