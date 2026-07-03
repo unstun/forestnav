@@ -227,8 +227,10 @@ class HybridAStarPlanner:
             m = lₚ + sₚ + cₚ         (Eq. 4: 路径长度 + 转向角 + 转向切换)
         """
         if self.analytic_operator == "disabled":
+            self._last_analytic_failed_radii = []
             return None
         radii = self._analytic_radii()
+        failed_radii: List[float] = []
 
         best_result = None
         best_cost = float("inf")
@@ -236,6 +238,7 @@ class HybridAStarPlanner:
         for radius in radii:
             result = self._try_rs_with_radius(state, goal, radius)
             if result is None:
+                failed_radii.append(float(radius))
                 continue
             endpoints, actions, dense_samples = result
 
@@ -245,6 +248,7 @@ class HybridAStarPlanner:
                 best_cost = cost
                 best_result = (endpoints, actions)
 
+        self._last_analytic_failed_radii = failed_radii if best_result is None else []
         return best_result
 
     def _analytic_radii(self) -> List[float]:
