@@ -470,8 +470,13 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 测试锁定: terminal RS success 时 `goal_distance_m > 0.0` 仍给 success reward, 证明不是欧氏距离阈值替代。
   - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `18 passed in 0.49s`。
   - 记录: `.pipeline/experiments/20260703_module2_e02_success_reward.md`。
-- [ ] E02.2 shaping 分项全部写入 info。
+- [x] E02.2 shaping 分项全部写入 info。
   - distance/RS-distance progress, clearance, curvature-rate, path length, step penalty, terminal bonus/penalty。
+  - 已完成: `RewardBreakdown` 现在包含 success、terminal、collision、progress、rs_progress、clearance、curvature、path_length、step; `step.info` 暴露 `reward_total` 和 `reward_terms`。
+  - 实现依据: distance progress 来自 E01.5 `progress_to_goal_m`; RS-distance progress 来自 terminal/estimated Reeds-Shepp path length; clearance 来自 `GridMap` EDT + `TwoCircleFootprint.circle_centers()`; curvature-rate 来自 `tan(steering)/wheelbase` 的变化; path length 来自 rollout samples。
+  - 权重边界: progress/clearance/curvature/path-length/step shaping 已实现并可配置, 但默认不假装完成调参; E02.3 仍需显式 ablation hooks。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `19 passed in 0.47s`。
+  - 记录: `.pipeline/experiments/20260703_module2_e02_reward_shaping_terms.md`。
 - [ ] E02.3 reward ablation hooks。
   - 每个 reward term 可开关。
   - 后续论文可做消融, 不允许写死。
@@ -631,7 +636,8 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 8. [x] E01.4 动作实现。
 9. [x] E01.5 终止条件实现。
 10. [x] E02.1 success reward 与部署使命一致。
-11. [ ] E02.2 shaping 分项全部写入 info。
+11. [x] E02.2 shaping 分项全部写入 info。
+12. [ ] E02.3 reward ablation hooks。
 
 ## 7. 完成记录
 
@@ -653,3 +659,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-03: 完成 E01.4 forward-only action space。新增 normalized steering decode、physical clip、forward MotionPrimitive conversion 和 reverse gate 禁止测试; reverse/direction gate 保持未启用。记录见 `.pipeline/experiments/20260703_module2_e01_action_space.md`。
 - 2026-07-03: 完成 E01.5 terminal conditions。`AnalyticExpansionEnv` 现在区分 terminal RS success、rollout collision、budget/no-RS truncation、no-progress truncation, 并在 telemetry/info 中记录 `goal_distance_m`, `progress_to_goal_m`, `no_progress_count`。`oscillation` 未 claim 已实现, 后移到 E03.4 定义测试信号。记录见 `.pipeline/experiments/20260703_module2_e01_terminal_conditions.md`。
 - 2026-07-03: 完成 E02.1 terminal-RS success reward。`RewardConfig` 与 `compute_terminal_success_reward` 已接入 env; success reward 只由 terminal RS-connectability 触发, 不使用距离阈值替代。记录见 `.pipeline/experiments/20260703_module2_e02_success_reward.md`。
+- 2026-07-03: 完成 E02.2 reward shaping terms。`RewardBreakdown` 和 `step.info["reward_terms"]` 现在暴露 terminal/collision/progress/RS-progress/clearance/curvature/path-length/step 分项; 权重仍属待校准, E02.3 ablation hooks 未完成。记录见 `.pipeline/experiments/20260703_module2_e02_reward_shaping_terms.md`。
