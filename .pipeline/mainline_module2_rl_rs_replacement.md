@@ -386,10 +386,21 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 边界: 只测 NN forward; 未计 rollout collision、terminal RS、planner integration; 不构成 Gate #1 通过。
   - 环境限制: 本机 PyTorch import 需要 `--allow-duplicate-openmp`, 不能作为最终 paper timing。
   - 记录: `.pipeline/experiments/20260703_module2_d02_policy_forward_budget.md`。
-- [ ] D02.2 CPU 与 GPU 都测。
+- [x] D02.2 CPU 与 GPU 都测。
   - CPU: 本机或远端单线程。
   - GPU: 远端 CUDA, batch=1 和 batch=N analytic attempts。
   - 输出: p50/p95 forward ms。
+  - 已完成: 本机 CPU/MPS forward, 远端 3070 Ti CUDA forward, 以及 rollout collision + terminal RS proxy 成本账。
+  - 新增工具: `2_experiment/forest_n3p/scripts/run_rollout_collision_budget.py`。
+  - Forward outputs: `0_trials/module2_cost_accounting/d02_policy_forward_device_budget_local/`, `0_trials/module2_cost_accounting/d02_policy_forward_device_budget_cuda/`。
+  - Rollout outputs: `0_trials/module2_cost_accounting/d02_rollout_collision_budget/`。
+  - 规模: local forward 36 aggregate / 18000 samples; CUDA forward 18 aggregate / 9000 samples; rollout collision 192 aggregate / 19200 samples。
+  - CUDA evidence: 5070 Ti 当前被 Python 占用约 15.6GB, OOM; 3070 Ti 空闲并完成 run, torch `2.12.1+cu130`, driver `595.71.05`。
+  - 关键 forward p50: CPU compact/small CNN 128-cell = `0.392/0.514ms`; CUDA compact/small CNN 128-cell = `0.119/0.137ms`。
+  - 关键 rollout p50: Grid 32-step rollout total `0.129ms`, candidate total with terminal RS proxy `0.239ms`; EDT 32-step candidate total `0.207ms`。
+  - Conservative combined p50: CPU compact CNN 128-cell + Grid 32-step candidate total = `0.631ms`, still below D01 Dang attempt p50 `0.814ms`。
+  - 边界: 这是 compute plausibility, 不是 trained policy success, 也不是 Gate #1 通过。
+  - 记录: `.pipeline/experiments/20260703_module2_d02_device_and_rollout_budget.md`。
 - [ ] D02.3 Gate #1 判定。
   - 通过: `NN forward + rollout collision` 的 p50 成本小于 "被省掉的 RS/HA* expansion 成本" 的保守估计。
   - 失败: 端到端时间无下降空间。
@@ -578,7 +589,8 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 
 1. [?] A00.2 刷新项目状态记忆, 关闭旧热区状态。
 2. [x] D02.1 基于 C02 patch/connector 需求做神经 policy 前向预算。
-3. [ ] D02.2 加入干净 CPU/GPU forward 对比与 rollout collision 成本账。
+3. [x] D02.2 加入干净 CPU/GPU forward 对比与 rollout collision 成本账。
+4. [ ] D02.3 Gate #1 成本账判定。
 
 ## 7. 完成记录
 
@@ -592,3 +604,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-03: 完成 D01.1 Dang multi-RS analytic cost telemetry。Planner stats 现在能拆分候选半径数、RS solve、sampling、collision check、Dang cost eval、sample/check counts; 常规 evaluation metadata 透传 summary。Smoke artifact 见 `0_trials/module2_cost_accounting/d01_analytic_cost_telemetry_smoke/summary.json`, 记录见 `.pipeline/experiments/20260703_module2_d01_analytic_cost_telemetry.md`。
 - 2026-07-03: 完成 D01.2 C01/C02 query-set analytic cost distribution。当前 source-bound run 覆盖 20 queries、8622 analytic attempts、94842 radius candidates; attempt p50/p95/p99 total time 为 0.814/2.025/2.829 ms; analytic expansion 占总 plan time 约 33.2%。记录见 `.pipeline/experiments/20260703_module2_d01_cost_distribution.md`。下一步进入 D02.1, 不可直接跳到 RL 环境或 PPO 训练。
 - 2026-07-03: 完成 D02.1 neural policy pure forward budget。新增 `run_policy_forward_budget.py` 和 shape 推导测试; 本机 CPU single-thread 跑 3 models x 2 shapes x 3 batch sizes, 18 aggregate rows / 18000 sample rows。Batch=1 下 64-cell CNN p50 为 0.120/0.162 ms, 128-cell CNN p50 为 0.405/0.520 ms, tiny MLP p50 约 0.011 ms。结论仅限 forward-only: 网络前向暂不是第一堵墙, 但 Gate #1 仍缺 rollout collision + terminal RS + clean CPU/GPU。记录见 `.pipeline/experiments/20260703_module2_d02_policy_forward_budget.md`。
+- 2026-07-03: 完成 D02.2 device forward + rollout collision 成本账。新增 `run_rollout_collision_budget.py`; 本机 CPU/MPS、远端 3070 Ti CUDA 跑 forward, C01 dedup failure nodes 跑 deterministic rollout collision + terminal RS proxy。保守组合成本示例: CPU compact CNN 128-cell forward p50 0.392ms + Grid 32-step candidate p50 0.239ms = 0.631ms, 低于 D01 attempt p50 0.814ms; 但这只说明 compute 不应直接杀死方向, 不说明 trained policy 能减少 search。记录见 `.pipeline/experiments/20260703_module2_d02_device_and_rollout_budget.md`。

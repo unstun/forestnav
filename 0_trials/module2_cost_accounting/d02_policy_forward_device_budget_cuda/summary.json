@@ -1,0 +1,190 @@
+{
+  "status": "complete",
+  "created_at_utc": "2026-07-03T23:18:40.700996+00:00",
+  "execution_host": "ubuntu-OMEN-by-HP-Laptop-17-ck1xxx",
+  "platform": {
+    "system": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.3 (main, Mar 23 2026, 19:04:32) [GCC 13.3.0]"
+  },
+  "source_head": "4aa9ff48",
+  "command": "python -m forest_n3p.scripts.run_policy_forward_budget --output-dir 0_trials/module2_cost_accounting/d02_policy_forward_device_budget_cuda --models tiny_mlp,small_cnn,compact_cnn_mlp --batch-sizes 1,8,32 --patch-cells auto,margin_auto --warmup-iterations 100 --timed-iterations 500 --threads 1 --devices cuda --source-head 4aa9ff48",
+  "output_dir": "0_trials/module2_cost_accounting/d02_policy_forward_device_budget_cuda",
+  "outputs": {
+    "aggregate_records": "0_trials/module2_cost_accounting/d02_policy_forward_device_budget_cuda/forward_budget_records.parquet",
+    "sample_records": "0_trials/module2_cost_accounting/d02_policy_forward_device_budget_cuda/forward_budget_samples.parquet"
+  },
+  "torch": {
+    "version": "2.12.1+cu130",
+    "num_threads": 1,
+    "cuda_available": true,
+    "mps_available": false,
+    "devices_benchmarked": [
+      "cuda"
+    ]
+  },
+  "environment_flags": {
+    "allow_duplicate_openmp": false,
+    "KMP_DUPLICATE_LIB_OK": null
+  },
+  "config": {
+    "models": [
+      "tiny_mlp",
+      "small_cnn",
+      "compact_cnn_mlp"
+    ],
+    "batch_sizes": [
+      1,
+      8,
+      32
+    ],
+    "warmup_iterations": 100,
+    "timed_iterations": 500,
+    "threads": 1,
+    "range_bins_mode": "match_patch"
+  },
+  "shape_rationale": [
+    {
+      "label": "annulus_auto",
+      "resolution_m": 0.1,
+      "goal_annulus_max_radius_m": 3.0,
+      "footprint_length_m": 0.924,
+      "footprint_width_m": 0.74,
+      "patch_cells": 64,
+      "patch_extent_m": 6.4,
+      "patch_channels": 2,
+      "range_bins": 64,
+      "scalar_dim": 8,
+      "action_dim": 1,
+      "rationale": [
+        "resolution_m=0.1 from MainEvaluationConfig",
+        "goal_annulus_max_radius_m=3.0 from C02 oracle B candidate defaults",
+        "patch_cells is the next power of two covering the 2R goal-annulus diameter"
+      ]
+    },
+    {
+      "label": "footprint_margin_auto",
+      "resolution_m": 0.1,
+      "goal_annulus_max_radius_m": 3.0,
+      "footprint_length_m": 0.924,
+      "footprint_width_m": 0.74,
+      "patch_cells": 128,
+      "patch_extent_m": 12.8,
+      "patch_channels": 2,
+      "range_bins": 128,
+      "scalar_dim": 8,
+      "action_dim": 1,
+      "rationale": [
+        "resolution_m=0.1 from MainEvaluationConfig",
+        "goal_annulus_max_radius_m=3.0 plus two-circle footprint radius 0.592m",
+        "patch_cells is the next power of two covering the conservative footprint-margin diameter"
+      ]
+    }
+  ],
+  "d01_reference": {
+    "path": "0_trials/module2_cost_accounting/d01_analytic_cost_distribution/summary.json",
+    "source_head": "c152ed20cdced9034bca6932d65d0e4d1299f73e",
+    "attempt_total_time_p50_ms": 0.8141040007103584,
+    "attempt_total_time_p95_ms": 2.024803548920317,
+    "attempt_total_time_p99_ms": 2.8285751801558945
+  },
+  "aggregate_record_count": 18,
+  "sample_record_count": 9000,
+  "best_batch1_by_model": {
+    "compact_cnn_mlp": {
+      "model_name": "compact_cnn_mlp",
+      "device": "cuda",
+      "shape_label": "annulus_auto",
+      "batch_size": 1,
+      "patch_cells": 64,
+      "patch_extent_m": 6.4,
+      "patch_channels": 2,
+      "range_bins": 64,
+      "scalar_dim": 8,
+      "action_dim": 1,
+      "parameter_count": 15049,
+      "warmup_iterations": 100,
+      "timed_iterations": 500,
+      "torch_num_threads": 1,
+      "forward_mean_ms": 0.10356013,
+      "forward_p50_ms": 0.1022825,
+      "forward_p90_ms": 0.10622160000000001,
+      "forward_p95_ms": 0.10872099999999997,
+      "forward_p99_ms": 0.1253985,
+      "forward_max_ms": 0.161182,
+      "per_item_p50_ms": 0.1022825,
+      "per_item_p95_ms": 0.10872099999999997,
+      "ratio_to_d01_attempt_p50": 0.125638124749113,
+      "ratio_to_d01_attempt_p95": 0.05369459178297722,
+      "source_head": "4aa9ff48"
+    },
+    "small_cnn": {
+      "model_name": "small_cnn",
+      "device": "cuda",
+      "shape_label": "annulus_auto",
+      "batch_size": 1,
+      "patch_cells": 64,
+      "patch_extent_m": 6.4,
+      "patch_channels": 2,
+      "range_bins": 64,
+      "scalar_dim": 8,
+      "action_dim": 1,
+      "parameter_count": 164497,
+      "warmup_iterations": 100,
+      "timed_iterations": 500,
+      "torch_num_threads": 1,
+      "forward_mean_ms": 0.129001062,
+      "forward_p50_ms": 0.126606,
+      "forward_p90_ms": 0.1350203,
+      "forward_p95_ms": 0.14539485,
+      "forward_p99_ms": 0.15679803,
+      "forward_max_ms": 0.17982,
+      "per_item_p50_ms": 0.126606,
+      "per_item_p95_ms": 0.14539485,
+      "ratio_to_d01_attempt_p50": 0.15551575706485668,
+      "ratio_to_d01_attempt_p95": 0.07180689211925209,
+      "source_head": "4aa9ff48"
+    },
+    "tiny_mlp": {
+      "model_name": "tiny_mlp",
+      "device": "cuda",
+      "shape_label": "footprint_margin_auto",
+      "batch_size": 1,
+      "patch_cells": 128,
+      "patch_extent_m": 12.8,
+      "patch_channels": 2,
+      "range_bins": 128,
+      "scalar_dim": 8,
+      "action_dim": 1,
+      "parameter_count": 12993,
+      "warmup_iterations": 100,
+      "timed_iterations": 500,
+      "torch_num_threads": 1,
+      "forward_mean_ms": 0.037236064000000006,
+      "forward_p50_ms": 0.036961,
+      "forward_p90_ms": 0.037518300000000004,
+      "forward_p95_ms": 0.0384285,
+      "forward_p99_ms": 0.04125418999999999,
+      "forward_max_ms": 0.060189,
+      "per_item_p50_ms": 0.036961,
+      "per_item_p95_ms": 0.0384285,
+      "ratio_to_d01_attempt_p50": 0.045400833269151286,
+      "ratio_to_d01_attempt_p95": 0.018978878232651836,
+      "source_head": "4aa9ff48"
+    }
+  },
+  "boundary": {
+    "allowed": [
+      "This artifact measures neural policy forward-pass latency only.",
+      "Batch=1 numbers are the relevant direct comparator for one analytic expansion call.",
+      "Batched numbers are only a throughput hint for later vectorized evaluation."
+    ],
+    "not_included": [
+      "rollout collision checking",
+      "terminal Reeds-Shepp check",
+      "planner integration overhead",
+      "trained policy quality"
+    ],
+    "next_gate_input": "D02.2/D02.3 must add rollout collision and terminal RS costs before Gate #1."
+  }
+}

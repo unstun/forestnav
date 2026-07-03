@@ -1,0 +1,6 @@
+5070 Ti CUDA attempt status: failed_before_benchmark_due_to_gpu_memory_pressure
+Attempted command: python -m forest_n3p.scripts.run_policy_forward_budget --devices cuda ...
+Observed error: RuntimeError: CUDA error: out of memory during model.to(device)
+nvidia-smi snapshot after failure:
+NVIDIA GeForce RTX 5070 Ti, 16303 MiB, 15788 MiB, 31 MiB, 580.126.09
+1186472, python, 15586 MiB

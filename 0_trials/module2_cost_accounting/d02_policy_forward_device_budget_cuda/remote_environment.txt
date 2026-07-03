@@ -1,0 +1,10 @@
+ubuntu-OMEN-by-HP-Laptop-17-ck1xxx
+ubuntu
+Linux 6.17.0-35-generic x86_64 GNU/Linux
+NVIDIA GeForce RTX 3070 Ti Laptop GPU, 8192 MiB, 31 MiB, 7812 MiB, 595.71.05
+python /home/ubuntu/ForestNav/.venv_d02_cuda/bin/python
+torch 2.12.1+cu130
+cuda_available True
+cuda_device NVIDIA GeForce RTX 3070 Ti Laptop GPU
+pandas 3.0.3
+pyarrow 24.0.0

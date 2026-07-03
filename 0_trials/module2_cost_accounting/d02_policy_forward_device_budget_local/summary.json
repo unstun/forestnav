@@ -1,0 +1,191 @@
+{
+  "status": "complete",
+  "created_at_utc": "2026-07-03T23:08:48.435863+00:00",
+  "execution_host": "MacBook-Pro.local",
+  "platform": {
+    "system": "Darwin",
+    "machine": "arm64",
+    "python": "3.13.12 | packaged by conda-forge | (main, Feb  5 2026, 06:11:05) [Clang 19.1.7 ]"
+  },
+  "source_head": "4aa9ff48",
+  "command": "python -m forest_n3p.scripts.run_policy_forward_budget --output-dir 0_trials/module2_cost_accounting/d02_policy_forward_device_budget_local --models tiny_mlp,small_cnn,compact_cnn_mlp --batch-sizes 1,8,32 --patch-cells auto,margin_auto --warmup-iterations 100 --timed-iterations 500 --threads 1 --devices cpu,mps --allow-duplicate-openmp --source-head 4aa9ff48",
+  "output_dir": "0_trials/module2_cost_accounting/d02_policy_forward_device_budget_local",
+  "outputs": {
+    "aggregate_records": "0_trials/module2_cost_accounting/d02_policy_forward_device_budget_local/forward_budget_records.parquet",
+    "sample_records": "0_trials/module2_cost_accounting/d02_policy_forward_device_budget_local/forward_budget_samples.parquet"
+  },
+  "torch": {
+    "version": "2.11.0",
+    "num_threads": 1,
+    "cuda_available": false,
+    "mps_available": true,
+    "devices_benchmarked": [
+      "cpu",
+      "mps"
+    ]
+  },
+  "environment_flags": {
+    "allow_duplicate_openmp": true,
+    "KMP_DUPLICATE_LIB_OK": "TRUE"
+  },
+  "config": {
+    "models": [
+      "tiny_mlp",
+      "small_cnn",
+      "compact_cnn_mlp"
+    ],
+    "batch_sizes": [
+      1,
+      8,
+      32
+    ],
+    "warmup_iterations": 100,
+    "timed_iterations": 500,
+    "threads": 1,
+    "range_bins_mode": "match_patch"
+  },
+  "shape_rationale": [
+    {
+      "label": "annulus_auto",
+      "resolution_m": 0.1,
+      "goal_annulus_max_radius_m": 3.0,
+      "footprint_length_m": 0.924,
+      "footprint_width_m": 0.74,
+      "patch_cells": 64,
+      "patch_extent_m": 6.4,
+      "patch_channels": 2,
+      "range_bins": 64,
+      "scalar_dim": 8,
+      "action_dim": 1,
+      "rationale": [
+        "resolution_m=0.1 from MainEvaluationConfig",
+        "goal_annulus_max_radius_m=3.0 from C02 oracle B candidate defaults",
+        "patch_cells is the next power of two covering the 2R goal-annulus diameter"
+      ]
+    },
+    {
+      "label": "footprint_margin_auto",
+      "resolution_m": 0.1,
+      "goal_annulus_max_radius_m": 3.0,
+      "footprint_length_m": 0.924,
+      "footprint_width_m": 0.74,
+      "patch_cells": 128,
+      "patch_extent_m": 12.8,
+      "patch_channels": 2,
+      "range_bins": 128,
+      "scalar_dim": 8,
+      "action_dim": 1,
+      "rationale": [
+        "resolution_m=0.1 from MainEvaluationConfig",
+        "goal_annulus_max_radius_m=3.0 plus two-circle footprint radius 0.592m",
+        "patch_cells is the next power of two covering the conservative footprint-margin diameter"
+      ]
+    }
+  ],
+  "d01_reference": {
+    "path": "0_trials/module2_cost_accounting/d01_analytic_cost_distribution/summary.json",
+    "source_head": "c152ed20cdced9034bca6932d65d0e4d1299f73e",
+    "attempt_total_time_p50_ms": 0.8141040007103584,
+    "attempt_total_time_p95_ms": 2.024803548920317,
+    "attempt_total_time_p99_ms": 2.8285751801558945
+  },
+  "aggregate_record_count": 36,
+  "sample_record_count": 18000,
+  "best_batch1_by_model": {
+    "compact_cnn_mlp": {
+      "model_name": "compact_cnn_mlp",
+      "device": "cpu",
+      "shape_label": "annulus_auto",
+      "batch_size": 1,
+      "patch_cells": 64,
+      "patch_extent_m": 6.4,
+      "patch_channels": 2,
+      "range_bins": 64,
+      "scalar_dim": 8,
+      "action_dim": 1,
+      "parameter_count": 15049,
+      "warmup_iterations": 100,
+      "timed_iterations": 500,
+      "torch_num_threads": 1,
+      "forward_mean_ms": 0.1221796,
+      "forward_p50_ms": 0.117334,
+      "forward_p90_ms": 0.13054590000000002,
+      "forward_p95_ms": 0.1396006,
+      "forward_p99_ms": 0.1746141699999998,
+      "forward_max_ms": 0.295792,
+      "per_item_p50_ms": 0.117334,
+      "per_item_p95_ms": 0.1396006,
+      "ratio_to_d01_attempt_p50": 0.14412654881639017,
+      "ratio_to_d01_attempt_p95": 0.06894525647904905,
+      "source_head": "4aa9ff48"
+    },
+    "small_cnn": {
+      "model_name": "small_cnn",
+      "device": "cpu",
+      "shape_label": "annulus_auto",
+      "batch_size": 1,
+      "patch_cells": 64,
+      "patch_extent_m": 6.4,
+      "patch_channels": 2,
+      "range_bins": 64,
+      "scalar_dim": 8,
+      "action_dim": 1,
+      "parameter_count": 164497,
+      "warmup_iterations": 100,
+      "timed_iterations": 500,
+      "torch_num_threads": 1,
+      "forward_mean_ms": 0.16940193,
+      "forward_p50_ms": 0.16125,
+      "forward_p90_ms": 0.1926708,
+      "forward_p95_ms": 0.20788929999999994,
+      "forward_p99_ms": 0.29865899999999995,
+      "forward_max_ms": 0.336334,
+      "per_item_p50_ms": 0.16125,
+      "per_item_p95_ms": 0.20788929999999994,
+      "ratio_to_d01_attempt_p50": 0.19807051661618044,
+      "ratio_to_d01_attempt_p95": 0.10267134315862515,
+      "source_head": "4aa9ff48"
+    },
+    "tiny_mlp": {
+      "model_name": "tiny_mlp",
+      "device": "cpu",
+      "shape_label": "annulus_auto",
+      "batch_size": 1,
+      "patch_cells": 64,
+      "patch_extent_m": 6.4,
+      "patch_channels": 2,
+      "range_bins": 64,
+      "scalar_dim": 8,
+      "action_dim": 1,
+      "parameter_count": 8897,
+      "warmup_iterations": 100,
+      "timed_iterations": 500,
+      "torch_num_threads": 1,
+      "forward_mean_ms": 0.011295261999999999,
+      "forward_p50_ms": 0.010709,
+      "forward_p90_ms": 0.011625,
+      "forward_p95_ms": 0.012504199999999997,
+      "forward_p99_ms": 0.02019032999999998,
+      "forward_max_ms": 0.076459,
+      "per_item_p50_ms": 0.010709,
+      "per_item_p95_ms": 0.012504199999999997,
+      "ratio_to_d01_attempt_p50": 0.013154338991892564,
+      "ratio_to_d01_attempt_p95": 0.006175512684510847,
+      "source_head": "4aa9ff48"
+    }
+  },
+  "boundary": {
+    "allowed": [
+      "This artifact measures neural policy forward-pass latency only.",
+      "Batch=1 numbers are the relevant direct comparator for one analytic expansion call.",
+      "Batched numbers are only a throughput hint for later vectorized evaluation."
+    ],
+    "not_included": [
+      "rollout collision checking",
+      "terminal Reeds-Shepp check",
+      "planner integration overhead",
+      "trained policy quality"
+    ],
+    "next_gate_input": "D02.2/D02.3 must add rollout collision and terminal RS costs before Gate #1."
+  }
+}

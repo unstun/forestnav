@@ -1,0 +1,138 @@
+{
+  "status": "complete",
+  "created_at_utc": "2026-07-03T23:07:50.184359+00:00",
+  "execution_host": "MacBook-Pro.local",
+  "source_head": "4aa9ff48",
+  "command": "python -m forest_n3p.scripts.run_rollout_collision_budget --output-dir 0_trials/module2_cost_accounting/d02_rollout_collision_budget --max-records 24 --rollout-step-counts 1,8,16,32 --checker-types grid,edt --timed-iterations 100 --source-head 4aa9ff48",
+  "output_dir": "0_trials/module2_cost_accounting/d02_rollout_collision_budget",
+  "outputs": {
+    "aggregate_records": "0_trials/module2_cost_accounting/d02_rollout_collision_budget/rollout_collision_records.parquet",
+    "sample_records": "0_trials/module2_cost_accounting/d02_rollout_collision_budget/rollout_collision_samples.parquet"
+  },
+  "config": {
+    "action_step_m": 0.3,
+    "collision_sample_step_m": 0.1,
+    "rollout_step_counts": [
+      1,
+      8,
+      16,
+      32
+    ],
+    "checker_types": [
+      "grid",
+      "edt"
+    ],
+    "timed_iterations": 100,
+    "max_records": 24,
+    "skip_colliding_starts": true
+  },
+  "source": {
+    "input": "0_trials/module2_oracle_shape/rs_failure_nodes_dedup.parquet",
+    "source_row_count_after_bucket_filter": 7860,
+    "measured_source_count": 24,
+    "skipped_colliding_start_count": 0
+  },
+  "d01_reference": {
+    "path": "0_trials/module2_cost_accounting/d01_analytic_cost_distribution/summary.json",
+    "source_head": "c152ed20cdced9034bca6932d65d0e4d1299f73e",
+    "attempt_total_time_p50_ms": 0.8141040007103584,
+    "attempt_total_time_p95_ms": 2.024803548920317,
+    "collision_time_p50_ms": 0.360041500243824,
+    "collision_time_p95_ms": 1.4436243005548022
+  },
+  "aggregate_record_count": 192,
+  "sample_record_count": 19200,
+  "overall": {
+    "rollout_total_p50_ms": 0.04585425,
+    "candidate_total_p50_ms": 0.12822925000000002,
+    "max_candidate_total_p95_ms": 0.5278697499999998,
+    "max_rollout_total_p95_ms": 0.3442068999999998
+  },
+  "by_checker_and_steps": {
+    "edt:steps_1": {
+      "record_count": 24,
+      "rollout_total_p50_ms_mean": 0.00786275,
+      "rollout_total_p95_ms_mean": 0.011039895833333332,
+      "candidate_total_p50_ms_mean": 0.080315125,
+      "candidate_total_p95_ms_mean": 0.09888400208333332,
+      "rollout_collision_rate_mean": 0.20833333333333334,
+      "terminal_rs_success_rate_mean": 0.0
+    },
+    "edt:steps_8": {
+      "record_count": 24,
+      "rollout_total_p50_ms_mean": 0.03299833333333333,
+      "rollout_total_p95_ms_mean": 0.039666979166666665,
+      "candidate_total_p50_ms_mean": 0.12315631249999999,
+      "candidate_total_p95_ms_mean": 0.14640218541666664,
+      "rollout_collision_rate_mean": 0.5833333333333334,
+      "terminal_rs_success_rate_mean": 0.0
+    },
+    "edt:steps_16": {
+      "record_count": 24,
+      "rollout_total_p50_ms_mean": 0.05810075,
+      "rollout_total_p95_ms_mean": 0.06821408541666667,
+      "candidate_total_p50_ms_mean": 0.13730483333333335,
+      "candidate_total_p95_ms_mean": 0.16179964374999997,
+      "rollout_collision_rate_mean": 0.625,
+      "terminal_rs_success_rate_mean": 0.20833333333333334
+    },
+    "edt:steps_32": {
+      "record_count": 24,
+      "rollout_total_p50_ms_mean": 0.09586995833333334,
+      "rollout_total_p95_ms_mean": 0.11102266458333332,
+      "candidate_total_p50_ms_mean": 0.206548625,
+      "candidate_total_p95_ms_mean": 0.24228740416666664,
+      "rollout_collision_rate_mean": 0.875,
+      "terminal_rs_success_rate_mean": 0.6666666666666666
+    },
+    "grid:steps_1": {
+      "record_count": 24,
+      "rollout_total_p50_ms_mean": 0.014396791666666665,
+      "rollout_total_p95_ms_mean": 0.018432416666666666,
+      "candidate_total_p50_ms_mean": 0.0866658125,
+      "candidate_total_p95_ms_mean": 0.10411181458333334,
+      "rollout_collision_rate_mean": 0.20833333333333334,
+      "terminal_rs_success_rate_mean": 0.0
+    },
+    "grid:steps_8": {
+      "record_count": 24,
+      "rollout_total_p50_ms_mean": 0.05043924999999999,
+      "rollout_total_p95_ms_mean": 0.060593797916666664,
+      "candidate_total_p50_ms_mean": 0.14087316666666666,
+      "candidate_total_p95_ms_mean": 0.16936478124999998,
+      "rollout_collision_rate_mean": 0.5833333333333334,
+      "terminal_rs_success_rate_mean": 0.0
+    },
+    "grid:steps_16": {
+      "record_count": 24,
+      "rollout_total_p50_ms_mean": 0.08214235416666667,
+      "rollout_total_p95_ms_mean": 0.09876649791666665,
+      "candidate_total_p50_ms_mean": 0.16125627083333335,
+      "candidate_total_p95_ms_mean": 0.1959152145833333,
+      "rollout_collision_rate_mean": 0.625,
+      "terminal_rs_success_rate_mean": 0.20833333333333334
+    },
+    "grid:steps_32": {
+      "record_count": 24,
+      "rollout_total_p50_ms_mean": 0.128701375,
+      "rollout_total_p95_ms_mean": 0.15177172083333332,
+      "candidate_total_p50_ms_mean": 0.23935160416666668,
+      "candidate_total_p95_ms_mean": 0.2806716145833333,
+      "rollout_collision_rate_mean": 0.875,
+      "terminal_rs_success_rate_mean": 0.6666666666666666
+    }
+  },
+  "boundary": {
+    "allowed": [
+      "This artifact measures policy-like rollout sampling plus collision-checking overhead.",
+      "candidate_total_ms also includes a terminal Reeds-Shepp generate/sample/collision-check proxy.",
+      "Rows are sourced from deduplicated RS failure nodes and skip colliding starts by default."
+    ],
+    "not_included": [
+      "trained policy quality",
+      "planner open-list integration overhead",
+      "fallback primitive expansion after failed rollout",
+      "CUDA neural forward timing"
+    ]
+  }
+}
