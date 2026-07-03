@@ -166,6 +166,47 @@ Artifacts:
 - `0_trials/module2_oracle_shape/oracle_connector_runner_smoke_stdout.txt`
 - `0_trials/module2_oracle_shape/oracle_connector_runner_smoke_stderr.txt`
 
+## Default-Budget Pilot
+
+Purpose:
+
+- Estimate default oracle-budget runtime before full C02.1.
+- Uses script defaults: Oracle A `8 s / 50000 nodes`, Oracle B
+  `4 s / 25000 nodes`, `32` candidates.
+
+Command:
+
+```bash
+PYTHONPATH=2_experiment python -m forest_n3p.scripts.run_oracle_connector_chunks \
+  --input 0_trials/module2_oracle_shape/rs_failure_nodes_dedup.parquet \
+  --output-dir 0_trials/module2_oracle_shape/oracle_connector_default_budget_pilot20 \
+  --merged-output 0_trials/module2_oracle_shape/oracle_connector_results_default_budget_pilot20.parquet \
+  --max-records 20 \
+  --chunk-size 10 \
+  --source-head 19962660f81a5cab27921ec9f5dd32b8cafe798e
+```
+
+Result:
+
+- Selected rows: 20 / 7860
+- Chunk count: 2
+- Oracle A success: 20 / 20
+- Oracle B success: 20 / 20
+- Oracle connectable: 20 / 20
+- Root stderr: 0 bytes
+- Chunk stderr: 0 bytes each
+- Observed wall-clock: about 40 seconds for 20 rows, roughly 2 seconds per row.
+- Rough full-run estimate: 4-5 hours for 7860 rows before harder-node timeout
+  skew.
+
+Artifacts:
+
+- `0_trials/module2_oracle_shape/oracle_connector_default_budget_pilot20/summary.json`
+- `0_trials/module2_oracle_shape/oracle_connector_default_budget_pilot20/chunks/`
+- `0_trials/module2_oracle_shape/oracle_connector_results_default_budget_pilot20.parquet`
+- `0_trials/module2_oracle_shape/oracle_connector_default_budget_pilot20_stdout.txt`
+- `0_trials/module2_oracle_shape/oracle_connector_default_budget_pilot20_stderr.txt`
+
 ## 边界
 
 本报告不是 Gate #2 结论。全量 C02.1 仍需覆盖 7860 个去重失败节点,

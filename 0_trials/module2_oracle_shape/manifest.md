@@ -275,3 +275,53 @@ Boundary:
 
 - This validates long-run execution mechanics only. It does not add new Gate #2
   evidence beyond the bounded oracle smoke above.
+
+## C02.1 Default-Budget Pilot
+
+Status: `pilot_pass_not_gate`
+
+Purpose:
+
+- Estimate default oracle-budget runtime before starting all 7860 rows.
+- Unlike earlier smoke commands, this pilot uses the analysis script defaults:
+  Oracle A `8 s / 50000 nodes`, Oracle B `4 s / 25000 nodes`, and
+  `32` candidates.
+
+Command:
+
+```bash
+PYTHONPATH=2_experiment python -m forest_n3p.scripts.run_oracle_connector_chunks \
+  --input 0_trials/module2_oracle_shape/rs_failure_nodes_dedup.parquet \
+  --output-dir 0_trials/module2_oracle_shape/oracle_connector_default_budget_pilot20 \
+  --merged-output 0_trials/module2_oracle_shape/oracle_connector_results_default_budget_pilot20.parquet \
+  --max-records 20 \
+  --chunk-size 10 \
+  --source-head 19962660f81a5cab27921ec9f5dd32b8cafe798e
+```
+
+Outputs:
+
+- `oracle_connector_default_budget_pilot20/summary.json`
+- `oracle_connector_default_budget_pilot20/chunks/`
+- `oracle_connector_results_default_budget_pilot20.parquet`
+- `oracle_connector_default_budget_pilot20_stdout.txt`
+- `oracle_connector_default_budget_pilot20_stderr.txt`
+
+Result:
+
+- Selected rows: 20 / 7860
+- Chunk count: 2
+- Oracle A success: 20 / 20
+- Oracle B success: 20 / 20
+- Oracle connectable: 20 / 20
+- Root stderr: 0 bytes
+- Chunk stderr: 0 bytes each
+- Wall-clock observed by main session: about 40 seconds for 20 rows, roughly
+  2 seconds per row on this machine.
+- Rough full-run estimate: 4-5 hours for 7860 rows, before any harder-node
+  timeout skew.
+
+Boundary:
+
+- This is still the first 20 Complex rows only, so it is a runtime pilot and
+  toolchain sanity check, not Gate #2 evidence.
