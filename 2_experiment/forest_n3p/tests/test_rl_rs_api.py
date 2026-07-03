@@ -72,6 +72,9 @@ def test_env_reset_step_returns_telemetry_and_pending_reward_marker():
 
     assert step.reward.total == 0.0
     assert step.info["reward_status"] == "pending_e02"
+    assert step.info["terminated"] == step.terminated
+    assert step.info["truncated"] == step.truncated
+    assert step.info["failure_reason"] == step.telemetry.failure_reason
     assert step.telemetry.sample_count == 4
     assert env.telemetry.rollout_steps == 1
     assert env.telemetry.rollout_collision_checks == 4
