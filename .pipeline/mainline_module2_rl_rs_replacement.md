@@ -372,11 +372,20 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 
 #### D02. 神经 policy 前向预算
 
-- [ ] D02.1 实现三个候选网络的纯前向 microbenchmark。
+- [x] D02.1 实现三个候选网络的纯前向 microbenchmark。
   - tiny MLP: target + low-res lidar/distance vector。
   - small CNN: 2-channel egocentric patch + target pose。
   - compact CNN+MLP: patch encoder + scalar head。
   - 输入 shape 必须来自 C02 patch 需求, 不能拍脑袋。
+  - 已完成: 新增 `2_experiment/forest_n3p/scripts/run_policy_forward_budget.py`。
+  - Shape: `annulus_auto=64x64` 来自 `0.1m` resolution + C02 goal-annulus max radius `3.0m`; `footprint_margin_auto=128x128` 来自 two-circle footprint margin sensitivity。
+  - 输出: `0_trials/module2_cost_accounting/d02_policy_forward_budget/summary.json`, `forward_budget_records.parquet`, `forward_budget_samples.parquet`。
+  - 规模: CPU single-thread, 3 models x 2 shapes x 3 batch sizes, aggregate rows 18, sample rows 18000。
+  - Batch=1 关键数字: `tiny_mlp` p50 `0.011ms`; `compact_cnn_mlp` p50 `0.120ms`(64) / `0.405ms`(128); `small_cnn` p50 `0.162ms`(64) / `0.520ms`(128)。
+  - 参考: D01.2 Dang multi-RS attempt p50 `0.814ms`, p95 `2.025ms`。
+  - 边界: 只测 NN forward; 未计 rollout collision、terminal RS、planner integration; 不构成 Gate #1 通过。
+  - 环境限制: 本机 PyTorch import 需要 `--allow-duplicate-openmp`, 不能作为最终 paper timing。
+  - 记录: `.pipeline/experiments/20260703_module2_d02_policy_forward_budget.md`。
 - [ ] D02.2 CPU 与 GPU 都测。
   - CPU: 本机或远端单线程。
   - GPU: 远端 CUDA, batch=1 和 batch=N analytic attempts。
@@ -568,7 +577,8 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 优先级从上到下。每次只拿第一项 `[ ]`。
 
 1. [?] A00.2 刷新项目状态记忆, 关闭旧热区状态。
-2. [ ] D02.1 基于 C02 patch/connector 需求做神经 policy 前向预算。
+2. [x] D02.1 基于 C02 patch/connector 需求做神经 policy 前向预算。
+3. [ ] D02.2 加入干净 CPU/GPU forward 对比与 rollout collision 成本账。
 
 ## 7. 完成记录
 
@@ -581,3 +591,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-03: 完成 C02.3 Gate #2 oracle shape 判定。结果是 `gate2_not_failed_scope_narrowed`: "多数节点 oracle 也无解" 失败条件未命中, 但 RL 目标范围被压窄到 invalid endpoint 清洗 + timeout/operator-cost cases。D01/D02 成本账是进入 RL-RS 实现前的必要下一步。记录见 `.pipeline/experiments/20260703_module2_gate2_oracle_shape.md`。
 - 2026-07-03: 完成 D01.1 Dang multi-RS analytic cost telemetry。Planner stats 现在能拆分候选半径数、RS solve、sampling、collision check、Dang cost eval、sample/check counts; 常规 evaluation metadata 透传 summary。Smoke artifact 见 `0_trials/module2_cost_accounting/d01_analytic_cost_telemetry_smoke/summary.json`, 记录见 `.pipeline/experiments/20260703_module2_d01_analytic_cost_telemetry.md`。
 - 2026-07-03: 完成 D01.2 C01/C02 query-set analytic cost distribution。当前 source-bound run 覆盖 20 queries、8622 analytic attempts、94842 radius candidates; attempt p50/p95/p99 total time 为 0.814/2.025/2.829 ms; analytic expansion 占总 plan time 约 33.2%。记录见 `.pipeline/experiments/20260703_module2_d01_cost_distribution.md`。下一步进入 D02.1, 不可直接跳到 RL 环境或 PPO 训练。
+- 2026-07-03: 完成 D02.1 neural policy pure forward budget。新增 `run_policy_forward_budget.py` 和 shape 推导测试; 本机 CPU single-thread 跑 3 models x 2 shapes x 3 batch sizes, 18 aggregate rows / 18000 sample rows。Batch=1 下 64-cell CNN p50 为 0.120/0.162 ms, 128-cell CNN p50 为 0.405/0.520 ms, tiny MLP p50 约 0.011 ms。结论仅限 forward-only: 网络前向暂不是第一堵墙, 但 Gate #1 仍缺 rollout collision + terminal RS + clean CPU/GPU。记录见 `.pipeline/experiments/20260703_module2_d02_policy_forward_budget.md`。
