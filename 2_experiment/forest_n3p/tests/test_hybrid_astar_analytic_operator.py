@@ -76,3 +76,19 @@ def test_failed_analytic_operator_attempt_is_counted_without_success():
     assert stats["analytic_operator"] == "single_rs"
     assert stats["analytic_attempts"] == 1
     assert stats["analytic_successes"] == 0
+    assert stats["analytic_failure_count"] == 1
+
+    record = stats["analytic_failure_records"][0]
+    assert record["expansion_idx"] == 0
+    assert record["analytic_operator"] == "single_rs"
+    assert record["state_x"] == 1.0
+    assert record["state_y"] == 1.0
+    assert record["state_theta"] == 0.0
+    assert record["goal_x"] == 2.0
+    assert record["goal_y"] == 1.0
+    assert record["goal_theta"] == 0.0
+    assert record["h_holo"] is not None
+    assert record["h_rs"] is not None
+    assert record["nearest_obstacle_m"] >= 0.0
+    assert record["failed_radii"] == [1.0]
+    assert record["failed_radius_count"] == 1
