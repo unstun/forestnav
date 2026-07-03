@@ -80,3 +80,62 @@ Boundary:
 Experiment record:
 
 - `.pipeline/experiments/20260703_module2_d01_analytic_cost_telemetry.md`
+
+## D01.2 Analytic Cost Distribution
+
+Status: `cost_distribution_complete`
+
+Source head:
+
+- `c152ed20cdced9034bca6932d65d0e4d1299f73e`
+
+Command:
+
+```bash
+PYTHONPATH=2_experiment python -m forest_n3p.scripts.run_analytic_cost_distribution \
+  --output-dir 0_trials/module2_cost_accounting/d01_analytic_cost_distribution \
+  --queries-per-bucket 10 \
+  --seed-count 1 \
+  --queries-per-map 5 \
+  --density-profile-buckets validation_t06 \
+  --buckets Complex,Extreme \
+  --analytic-operator dang_multi_rs \
+  --timeout-s 2.5 \
+  --max-nodes 15000 \
+  --source-head c152ed20cdced9034bca6932d65d0e4d1299f73e
+```
+
+Outputs:
+
+- `d01_analytic_cost_distribution/summary.json`
+- `d01_analytic_cost_distribution/query_costs.parquet`
+- `d01_analytic_cost_distribution/attempt_costs.parquet`
+- `d01_analytic_cost_distribution/candidate_costs.parquet`
+- `d01_analytic_cost_distribution_stdout.txt`
+- `d01_analytic_cost_distribution_stderr.txt`
+
+Result:
+
+| Metric | Value |
+|---|---:|
+| Queries | 20 |
+| Analytic attempts | 8622 |
+| Radius candidates | 94842 |
+| Attempt total time p50 s | 0.000814 |
+| Attempt total time p95 s | 0.002025 |
+| Attempt total time p99 s | 0.002829 |
+| Total plan time s | 24.751256 |
+| Total analytic expansion time s | 8.215955 |
+| Analytic / plan time ratio | 0.331941 |
+
+Boundary:
+
+- This is a local budget audit over the C01/C02 query configuration.
+- It does not pass or fail Gate #1 by itself; D02 NN forward and rollout
+  collision costs are still missing.
+- Attempt counts are timeout-sensitive and should be treated as this run's
+  source-bound artifact, not a cross-run invariant.
+
+Experiment record:
+
+- `.pipeline/experiments/20260703_module2_d01_cost_distribution.md`
