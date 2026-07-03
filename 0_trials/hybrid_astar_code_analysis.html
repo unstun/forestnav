@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hybrid A* 核心源码完全解析 - ForestNav</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+
+        :root {
+            --bg-color: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --text-body: #334155;
+            --accent-primary: #0284c7;
+            --accent-hover: #0369a1;
+            --border-color: #e2e8f0;
+            --gradient-accent: linear-gradient(135deg, #0284c7 0%, #4f46e5 100%);
+            --highlight-bg: rgba(2, 132, 199, 0.05);
+            --code-bg: #f1f5f9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 960px;
+            padding: 50px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 10px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 2.6rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+        
+        header p { color: var(--text-muted); font-size: 1.15rem; font-weight: 500; }
+
+        section {
+            background-color: var(--bg-card);
+            border-radius: 16px;
+            padding: 40px 45px;
+            box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.08);
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.12);
+            border: 1px solid rgba(2, 132, 199, 0.2);
+        }
+
+        h2 {
+            font-size: 1.55rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h2::before {
+            content: '';
+            display: inline-block;
+            width: 5px;
+            height: 22px;
+            background: var(--gradient-accent);
+            border-radius: 3px;
+        }
+
+        p { margin-bottom: 18px; font-size: 1.05rem; color: var(--text-body); }
+        strong { color: var(--text-main); font-weight: 700; }
+        
+        ul, ol { margin-bottom: 22px; padding-left: 24px; color: var(--text-body); }
+        li { margin-bottom: 10px; font-size: 1.05rem; }
+
+        code {
+            font-family: 'Fira Code', monospace;
+            background-color: var(--code-bg);
+            color: #0369a1;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            border: 1px solid var(--border-color);
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+            margin: 20px 0;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            border: none;
+            color: var(--text-main);
+            font-size: 0.9em;
+        }
+
+        .highlight-box {
+            background: var(--highlight-bg);
+            border-left: 4px solid var(--accent-primary);
+            padding: 18px 24px;
+            border-radius: 0 8px 8px 0;
+            margin: 24px 0;
+            color: #0c4a6e;
+            font-size: 1.05rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-body);
+        }
+
+        th {
+            background-color: #e2e8f0;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 20px 15px; }
+            section { padding: 30px 25px; }
+            h1 { font-size: 2.1rem; }
+        }
+    </style>
+    <!-- MathJax for formula rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Hybrid A* 核心源码完全解析</h1>
+        <p>基于 third_party/pathplan/ 的算法落地与架构重构分析</p>
+    </header>
+
+    <section>
+        <h2>一、核心解决的问题</h2>
+        <p>传统的 A* 算法通常在离散网格上搜索，节点位于网格中心，路径只能“上下左右”或沿对角线进行折线移动。这在实际自动驾驶与机器人控制中存在两个致命缺陷：一是<strong>车辆受运动学约束</strong>（阿克曼转向结构的车辆无法原地转向或横移，带有锐角的折线路径根本无法行驶）；二是<strong>缺乏航向角信息</strong>（网格节点没有朝向 θ 的概念，无法控制车辆到达目标点时的具体姿态）。</p>
+        
+        <div class="highlight-box">
+            Hybrid A* 的核心思想可以概括为：<strong>在连续的三维物理状态空间 (x, y, θ) 中，利用真实的车辆运动学模型进行状态扩展，同时巧妙地借助离散网格来进行状态去重和搜索树的剪枝。</strong>
+        </div>
+
+        <p>“Hybrid（混合）”一词正是指这种完美结合——节点记录的是连续且精确的物理状态，而去重判断则依赖离散的网格。这样不仅保证了搜索出的每一条边都是车辆真实可行驶的光滑圆弧，又将搜索算法的复杂度严格限制在网格分辨率的规模之内。</p>
+        
+        <p>整个算法由四大核心机制支撑：</p>
+        <ul>
+            <li><strong>运动基元扩展</strong>：基于当前连续状态，利用自行车运动学模型进行积分计算，生成若干条真实的行驶圆弧轨迹。</li>
+            <li><strong>双重启发式函数</strong>：综合评估“考虑障碍物但不考虑车辆运动学”和“考虑运动学但忽略障碍物”的两种代价下界，取二者极值以实现优势互补。</li>
+            <li><strong>解析扩展 (Analytic Expansion)</strong>：在搜索过程中周期性地尝试使用 Reeds-Shepp (RS) 曲线直接将当前节点与终点相连。一旦连接成功且无碰撞，搜索即刻完美终止 —— <strong>这也正是我们模块2计划替换的核心接入点。</strong></li>
+            <li><strong>路径后处理与平滑</strong>：利用共轭梯度优化器和维诺场势能 (Voronoi Field)，将搜索出的带有明显网格特征的粗糙路径，平滑为极其贴合动力学的光滑轨迹。</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>二、一次路径规划 (plan) 的完整生命周期</h2>
+        <p>入口位于 <code>planner.py:358</code> 的 <code>plan(start, goal, timeout=5.0, max_nodes=20000)</code> 函数。下图展示了其完整的路径规划生命周期与决策逻辑（已优化框体宽度与文字换行，彻底消除重叠现象）：</p>
+        
+        <svg viewBox="0 0 900 1320" width="100%" height="auto" style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; margin: 20px 0; display: block; box-shadow: inset 0 0 10px rgba(0,0,0,0.02);">
+          <defs>
+            <!-- Arrow marker -->
+            <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#64748b" />
+            </marker>
+            <!-- Drop shadow -->
+            <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+              <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.05"/>
+            </filter>
+          </defs>
+
+          <!-- Node 1: Start -->
+          <rect x="230" y="30" width="240" height="40" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="1.5" filter="url(#shadow)" />
+          <text x="350" y="54" font-size="13" font-family="sans-serif" font-weight="600" fill="#1e293b" text-anchor="middle">开始 plan(start, goal)</text>
+
+          <!-- Arrow 1 -> 2 -->
+          <line x1="350" y1="70" x2="350" y2="150" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)" />
+
+          <!-- Node 2: Collision Check -->
+          <rect x="200" y="150" width="300" height="60" rx="8" fill="#f0f9ff" stroke="#0284c7" stroke-width="1.5" filter="url(#shadow)" />
+          <text x="350" y="184" font-size="13" font-family="sans-serif" font-weight="600" fill="#0369a1" text-anchor="middle">起终点碰撞自检</text>
+
+          <!-- Arrow 2 -> Fail -->
+          <line x1="500" y1="180" x2="590" y2="180" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)" />
+          <text x="545" y="170" font-size="11" font-family="sans-serif" fill="#ef4444" font-weight="600" text-anchor="middle">是 (碰撞)</text>
+
+          <!-- Node 2 Exit (Fail) -->
+          <rect x="600" y="150" width="280" height="60" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="1.5" filter="url(#shadow)" />
+          <text x="740" y="184" font-size="13" font-family="sans-serif" font-weight="600" fill="#991b1b" text-anchor="middle">直接返回 failure_reason</text>
+
+          <!-- Arrow 2 -> 3 -->
+          <line x1="350" y1="210" x2="350" y2="290" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)" />
+          <text x="360" y="254" font-size="11" font-family="sans-serif" fill="#16a34a" font-weight="600" text-anchor="start">否</text>
+
+          <!-- Node 3: Precompute -->
+          <rect x="190" y="290" width="320" height="60" rx="8" fill="#f0f9ff" stroke="#0284c7" stroke-width="1.5" filter="url(#shadow)" />
+          <text x="350" y="324" font-size="13" font-family="sans-serif" font-weight="600" fill="#0369a1" text-anchor="middle">预计算 2D Dijkstra 距离场</text>
+
+          <!-- Arrow 3 -> 4 -->
+          <line x1="350" y1="350" x2="350" y2="430" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)" />
+
+          <!-- Node 4: Insert Start -->
+          <rect x="200" y="430" width="300" height="60" rx="8" fill="#f0f9ff" stroke="#0284c7" stroke-width="1.5" filter="url(#shadow)" />
+          <text x="350" y="464" font-size="13" font-family="sans-serif" font-weight="600" fill="#0369a1" text-anchor="middle">起点入 Open 队列</text>
+
+          <!-- Arrow 4 -> 5 (Loop Check) -->
+          <line x1="350" y1="490" x2="350" y2="570" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)" />
+
+          <!-- Node 5: Loop Check -->
+          <rect x="170" y="570" width="360" height="80" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5" filter="url(#shadow)" />
+          <text x="350" y="602" font-size="13" font-family="sans-serif" font-weight="600" fill="#5b21b6" text-anchor="middle">Open 队列为空 或 超时 或 节点超限？</text>
+          <text x="350" y="625" font-size="11" font-family="sans-serif" fill="#6d28d9" text-anchor="middle">( 主循环控制条件 )</text>
+
+          <!-- Arrow 5 -> Fail -->
+          <line x1="530" y1="610" x2="590" y2="610" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)" />
+          <text x="560" y="600" font-size="11" font-family="sans-serif" fill="#ef4444" font-weight="600" text-anchor="middle">是 (终止)</text>
+
+          <!-- Node 5 Exit (Fail) -->
+          <rect x="600" y="580" width="280" height="60" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="1.5" filter="url(#shadow)" />
+          <text x="740" y="614" font-size="13" font-family="sans-serif" font-weight="600" fill="#991b1b" text-anchor="middle">返回规划失败并报告原因</text>
+
+          <!-- Arrow 5 -> 6 -->
+          <line x1="350" y1="650" x2="350" y2="720" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)" />
+          <text x="360" y="689" font-size="11" font-family="sans-serif" fill="#16a34a" font-weight="600" text-anchor="start">否</text>
+
+          <!-- Node 6: Pop Min F -->
+          <rect x="200" y="720" width="300" height="60" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5" filter="url(#shadow)" />
+          <text x="350" y="754" font-size="13" font-family="sans-serif" font-weight="600" fill="#5b21b6" text-anchor="middle">弹出 f 最小节点 (跳过陈旧缓存)</text>
+
+          <!-- Arrow 6 -> 7 -->
+          <line x1="350" y1="780" x2="350" y2="860" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)" />
+
+          <!-- Node 7: Goal Tolerance Check -->
+          <rect x="190" y="860" width="320" height="60" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5" filter="url(#shadow)" />
+          <text x="350" y="894" font-size="13" font-family="sans-serif" font-weight="600" fill="#5b21b6" text-anchor="middle">检查是否在目标点容差范围内？</text>
+
+          <!-- Arrow 7 -> Success -->
+          <line x1="510" y1="890" x2="590" y2="890" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)" />
+          <text x="550" y="880" font-size="11" font-family="sans-serif" fill="#16a34a" font-weight="600" text-anchor="middle">是 (到达)</text>
+
+          <!-- Node 7 Exit (Success) -->
+          <rect x="600" y="860" width="280" height="60" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5" filter="url(#shadow)" />
+          <text x="740" y="894" font-size="13" font-family="sans-serif" font-weight="600" fill="#14532d" text-anchor="middle">回溯规划树路径，返回成功</text>
+
+          <!-- Arrow 7 -> 8 -->
+          <line x1="350" y1="920" x2="350" y2="1000" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)" />
+          <text x="360" y="964" font-size="11" font-family="sans-serif" fill="#4b5563" font-weight="600" text-anchor="start">否</text>
+
+          <!-- Node 8: RS Check -->
+          <rect x="180" y="1000" width="340" height="60" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5" filter="url(#shadow)" />
+          <text x="350" y="1034" font-size="13" font-family="sans-serif" font-weight="600" fill="#5b21b6" text-anchor="middle">每隔 interval 次尝试 Reeds-Shepp 连接</text>
+
+          <!-- Arrow 8 -> Success -->
+          <line x1="520" y1="1030" x2="590" y2="1030" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)" />
+          <text x="555" y="1020" font-size="11" font-family="sans-serif" fill="#16a34a" font-weight="600" text-anchor="middle">成功且无障碍</text>
+
+          <!-- Node 8 Exit (Success) -->
+          <rect x="600" y="1000" width="280" height="60" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5" filter="url(#shadow)" />
+          <text x="740" y="1034" font-size="13" font-family="sans-serif" font-weight="600" fill="#14532d" text-anchor="middle">拼接当前路径与 RS 曲线返回</text>
+
+          <!-- Arrow 8 -> 9 -->
+          <line x1="350" y1="1060" x2="350" y2="1140" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)" />
+          <text x="360" y="1104" font-size="11" font-family="sans-serif" fill="#4b5563" font-weight="600" text-anchor="start">失败/跳过</text>
+
+          <!-- Node 9: Primitive expansion -->
+          <rect x="160" y="1140" width="380" height="80" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5" filter="url(#shadow)" />
+          <text x="350" y="1170" font-size="13" font-family="sans-serif" font-weight="600" fill="#5b21b6" text-anchor="middle">执行 10 个运动基元的圆弧仿真</text>
+          <text x="350" y="1195" font-size="11" font-family="sans-serif" fill="#6d28d9" text-anchor="middle">碰撞检测 ➔ 代价计算 ➔ 状态优选 ➔ 推入 Open 队列</text>
+
+          <!-- Loop back path -->
+          <path d="M 350 1220 L 350 1250 L 100 1250 L 100 610 L 170 610" fill="none" stroke="#6366f1" stroke-width="2" stroke-dasharray="4 2" marker-end="url(#arrow)" />
+          <text x="120" y="1244" font-size="11" font-family="sans-serif" fill="#6366f1" font-weight="600">循环返回</text>
+        </svg>
+
+        <p>一旦规划失败，系统会直接返回空的路径对象，并抛出非常明确的错误原因标识（例如 <code>start_in_collision</code>, <code>timeout</code> 等），位于 <code>planner.py:502-511</code>。</p>
+    </section>
+
+    <section>
+        <h2>三、状态空间与离散化策略 —— "Hybrid" 的工程实现</h2>
+        <p>在算法中，节点的定义位于 <code>planner.py:17-28</code>：每个 <code>Node</code> 存储的是连续的阿克曼物理状态 <code>AckermannState(x, y, θ)</code>，此外还包含了已消耗代价 <code>g</code>、预估代价 <code>h</code>、指向父节点的指针，以及生成该节点所采用的运动基元。</p>
+        
+        <p>判断两个状态是否重复的键值 (Key) 由 <code>_discretize</code> 方法生成（<code>planner.py:116-121</code>）：</p>
+        <ul>
+            <li><code>x, y</code> 会根据 <code>xy_resolution</code>（默认等同于地图的环境分辨率）向下取整，映射到具体的离散网格索引。</li>
+            <li><code>θ</code> 会被归一化到 <code>[0, 2π)</code> 的区间内，然后均匀划分为 72 个朝向桶（即每 5° 划分为一个刻度索引）。</li>
+        </ul>
+
+        <p><strong>关键去重机制</strong>：在每一个三维离散网格 <code>(gx, gy, θ_bin)</code> 中，算法强制只保留一个连续状态作为空间代表（在 Open 表 and Closed 表中均通过哈希字典 <code>dict[cell → Node]</code> 来严密维护）。如果在相同的物理网格内探测到了新到达的状态，只有当它的累计行驶代价 <code>g</code> 更优时，才能将原有的前任状态直接覆盖淘汰。这正是算法复杂度能够被“网格总数 × 基元数量”设定上限的物理原因，但这也必然导致了算法牺牲掉了学术层面上的严谨完备性与绝对最优性（详见第十节）。</p>
+
+        <p><strong>工程落地的核心赌注</strong>：落入同一个 5° 夹角区间且在同一网格内的两个不同物理状态，它们在后续延展出的可达空间几乎是完全重合的。仅保留代价更小的那个状态，对于工程寻路而言已经具备极高的可用性——这是用极其微小的精度损失换取巨大计算速度跃升的基石。</p>
+    </section>
+
+    <section>
+        <h2>四、运动学模型：自行车模型与精准物理积分</h2>
+        <p>在 <code>robot.py</code> 中封装了所有的车辆运动学约束：</p>
+        <ul>
+            <li><strong>车辆约束参数</strong>（<code>robot.py:9-16</code>）：车辆轴距 <code>wheelbase = 0.6 m</code>，最小转弯半径 <code>min_turn_radius = 1.1284 m</code>。车辆的最大前轮转角是由这两个参数直接物理导出的：<code>max_steer = atan(L / R_min) ≈ 28°</code>。这保证了路径的最大允许曲率 <code>κ_max</code> 在规划器内部搜索和后段 RS 曲线解析模型中保持绝对的数学一致，确保了两种路径形态能够无缝平滑衔接。</li>
+            <li><strong>状态精确积分</strong>（<code>robot.py:29-54</code>）：在恒定的方向盘转角指令下，自行车模型驶出的理论轨迹是一段极度精确的圆弧，其曲率 <code>k = tan(δ) / L</code>。底层代码舍弃了容易带来累积误差的欧拉小步长近似法，直接硬核代入了圆弧积分的闭式解析解（<code>x' = x + (sin(θ+dθ) − sin(θ))/k</code> 等公式），实现了真正的<strong>零积分误差</strong>。这个细节至关重要：节点的状态即便是经历了成百上千次的扩展，也绝不会出现丝毫的累积漂移，从而确保最后与 RS 曲线尾段对接时，车辆姿态是绝对精准的。</li>
+            <li><strong>高密度碰撞检测采样</strong>：<code>sample_constant_steer_motion</code> 函数（<code>robot.py:77-113</code>）会按照预设步长（<code>collision_step</code>），将一段生成的圆弧均匀离散采样成一系列致密的中间位姿，专门交由碰撞检测模块校验。采样的步长由纯物理的绝对长度设定（默认 0.1 m），刻意与地图的栅格分辨率解绑，这确保了在任何精度的地图下，防碰撞的检测密度始终保持一致的安全水准。</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>五、节点扩展：构建行驶运动基元 (Motion Primitives)</h2>
+        <p><code>primitives.py:15-27</code> 负责生成 10 个标准的物理运动基元（5个方向盘转角挡位 × 2个行驶方向，即前进和倒车）。</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>转向角挡位</th>
+                    <th>−28° (满左)</th>
+                    <th>−14° (半左)</th>
+                    <th>0° (直行)</th>
+                    <th>+14° (半右)</th>
+                    <th>+28° (满右)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>对应转弯半径</td>
+                    <td>1.13 m</td>
+                    <td>2.41 m</td>
+                    <td>∞ (直线)</td>
+                    <td>2.41 m</td>
+                    <td>1.13 m</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <ul>
+            <li>每一个物理扩展基元的弧长被严苛固定为 0.3 米。此外，倒车基元在构造时就自带了一个 1.2 的系数权重，以此在探索初期就抑制非必要的倒车行为。</li>
+            <li><strong>经典的工程矛盾化解</strong>：学术论文通常建议基元的弧长应当略大于网格的对角线长度，以确保生成的子节点一定会“跳出”父节点所在的网格；然而这套代码固定弧长为 0.3 米，在粗糙分辨率地图下，子节点极易原地落回父节点所在的网格。算法并没有选择生硬地拉长基元弧长来牺牲细腻度，而是创新地引入了“<strong>同网格优选放行机制</strong>”（Tie-breaker，见第十一节）来化解这一矛盾，在不损失路径细腻度的前提下完美解决了网格死锁问题。</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>六、代价函数设计：如何为一段行车路径合理定价</h2>
+        <p><code>_transition_cost</code>（<code>planner.py:133-145</code>）清晰地标明了其借鉴自学术界前沿的复合代价模型——转弯和倒车惩罚采用乘法因子，而前后换向操作则采用硬核的加法惩罚。</p>
+        
+        <pre><code>代价总计 = |物理弧长| × 基元自身权重       # 基础：走过的真实距离（倒车基元自带 1.2 倍系数）
+         × 倒车状态惩罚系数                 # 默认 1.0 (预留扩展)
+         × 转向动作惩罚系数                 # 默认 1.05，打方向盘即扣分
+         + 换向加法惩罚值                  # 默认 +2.0，切挡操作产生固定高额惩罚
+         + 方向盘转角偏离惩罚               # 默认 0 (按需开启)</code></pre>
+
+        <p><strong>底层设计逻辑</strong>：乘法惩罚机制会随着路径长度的增加而自动缩放（绕远路的弯道要比近处的弯道付出更加高昂的代价），而加法惩罚则作为一次性的物理事件计费（代码中默认换向一次直接固定增加 2.0 的物理代价值，等价于车辆强行多跑了 2 米的路程）。这一设计极其有效地在算法层面压制了车辆无谓的前后倒腾（来回揉库行为）。车辆的换向总次数（Cusps）也会在最终结果中被单独统计并输出上报。</p>
+    </section>
+
+    <section>
+        <h2>七、双重启发式函数：极值艺术的完美互补</h2>
+        <p>在算法的 <code>_heuristic</code> 模块（<code>planner.py:176-195</code>）中，最终预估代价采用了 <code>h = max(h_holo, h_RS)</code>，这是算法设计中最引人注目的精妙之笔。这两种启发式计算各自“刻意忽略了一半的物理约束”来换取宏观视野：</p>
+        
+        <ul>
+            <li><strong><code>h_holo</code>（忽略运动学约束的避障距离启发式）</strong>：算法在二维栅格地图上，从终点反向运行一次 Dijkstra 最短路径搜索，从而获得地图上所有网格到终点的最短绕障距离场。它能敏锐地察觉到复杂地形中的“死胡同”和 U 形障碍物，并给它们标上极其高昂的代价值，彻底防止算法被朴素的欧氏直线距离误导而陷入死路。这套结果计算昂贵，但会基于目标点进行持久化缓存。</li>
+            <li><strong><code>h_RS</code>（考虑运动学但无视障碍物的曲线启发式）</strong>：精确计算当前车辆姿态到目标姿态的 Reeds-Shepp 最短理论曲线长度（假设所处世界完全空旷无碍）。它能够极其敏锐地捕捉到姿态代价值——即便终点近在咫尺（例如只有区区 2 米远），但如果车头方向反了 180 度，欧氏距离会盲目判定“马上就到了”，而 <code>h_RS</code> 会客观冷静地指出“你必须先画一个大转弯半径的物理掉头曲线”。鉴于远距离计算 RS 曲线开销巨大且意义甚微，算法巧妙设置了性能门控：只有当避障距离 <code>h_holo ≤ 15m</code> 时，才会精准触发 RS 曲线长度的计算。</li>
+        </ul>
+
+        <p><strong>为何取极大值</strong>：这两种启发式计算出的都是真实行驶代价的近似理论下界。两个下界取极大值，其结果必然也是一个安全的理论下界，且算法总能采纳信息量更丰富的那一个约束——在离终点极近时，由于对泊入姿态要求严苛，<code>h_RS</code> 强势主导；在距离极远或陷入复杂死路时，受全局拓扑环境限制，<code>h_holo</code> 则占据绝对主导。</p>
+    </section>
+
+    <section>
+        <h2>八、Reeds-Shepp (RS) 曲线的数学原理与计算机制</h2>
+        <p>Reeds-Shepp (RS) 曲线由 J.A. Reeds 和 L.A. Shepp 于 1990 年在论文 <em>"Optimal paths for a car that goes both forwards and backwards"</em> 中提出。该理论严格证明了：<strong>在无障碍物空旷平面上，允许车辆前进和后退（即运动方向允许切换）时，任意两个三维位姿 \((x, y, \theta)\) 之间的最短运动学可行路径，必定由最大曲率圆弧（\(C\)）和直线段（\(S\)）拼接而成，且至多包含 5 段。</strong></p>
+        
+        <h3>1. 车辆运动学模型与状态空间</h3>
+        <p>车辆处于三维位姿空间（流形 \(SE(2)\)）中，其状态向量为 \(q = (x, y, \theta)^T\)。运动学控制方程为：</p>
+        \[
+        \begin{aligned}
+        \dot{x} &= v \cos \theta \\
+        \dot{y} &= v \sin \theta \\
+        \dot{\theta} &= \omega = \frac{v \tan \delta}{L}
+        \end{aligned}
+        \]
+        <p>其中，\(v \in \{-1, +1\}\) 对应挡位（\(+1\) 前进，\(-1\) 倒车）；方向盘转向角 \(\delta \in [-\delta_{\max}, \delta_{\max}]\)。当方向盘打满时，曲率达到最大值 \(\kappa_{\max} = 1 / r_{\min}\)，其中 \(r_{\min} = L / \tan \delta_{\max}\) 为车辆的最小转弯半径。</p>
+        
+        <h3>2. 运动基元字 (Words) 与 48 种候选路径分类</h3>
+        <p>在 RS 曲线中，圆弧段用 \(C\) 表示（分为左转 \(L\) 与右转 \(R\)），直线段用 \(S\) 表示。若相邻两个段之间车辆挡位发生了切换（即车速 \(v\) 改变方向），则形成一个<strong>尖点 (Cusp)</strong>，在字表示法中用竖线 <strong>\(\vert\)</strong> 隔开。</p>
+        <p>Reeds 和 Shepp 证明，最优路径仅能从以下 9 大类（共包含 48 种具体的单向/双向动作组合，Sussmann 等人后来进一步精简至 46 种）中产生：</p>
+        <ul>
+            <li><strong>CSC 类</strong>（如 \(L^+S^+L^+\), \(L^+S^+R^+\) 等，类似 Dubins 曲线但支持倒车）</li>
+            <li><strong>CCC 类</strong>（如 \(L^+R^-L^+\)）</li>
+            <li><strong>\(C\vert CC\) 类</strong>（包含一个尖点，如 \(L^+\vert R^-L^-\)）</li>
+            <li><strong>\(CC\vert C\) 类</strong>（如 \(L^+R^-\vert L^-\)）</li>
+            <li><strong>\(C\vert C\vert C\) 类</strong>（如 \(L^+\vert R^-\vert L^+\)）</li>
+            <li><strong>\(C\vert C_u C_u\vert C\) 类</strong>（中间两圆弧段长度 \(u\) 相等，如 \(L^+\vert R_u^-L_u^-\vert R^-\)）</li>
+            <li><strong>\(C\vert C_u C_u\vert C\) 变体</strong></li>
+            <li><strong>\(CS\vert C\) 类</strong>（如 \(L^+S^+\vert L^-\)）</li>
+            <li><strong>\(C\vert SC\) 类</strong>（如 \(L^+\vert S^-L^-\)）</li>
+        </ul>
+
+        <h3>3. 坐标系归一化与标准化 (Standardization)</h3>
+        <p>为了避免对任意的起点 \((x_s, y_s, \theta_s)\) 和终点 \((x_g, y_g, \theta_g)\) 直接求解极为复杂的非线性代数方程，算法在底层（<code>reeds_shepp.py:263-271</code>）首先进行<strong>坐标归一化</strong>，将问题转换至“起点位于原点且朝向为 0、最小转弯半径为 1”的标准参考系中：</p>
+        <ol>
+            <li><strong>平移与旋转（将起点置于原点对齐朝向）</strong>：
+                \[
+                \begin{aligned}
+                x_{\text{local}} &= (x_g - x_s) \cos \theta_s + (y_g - y_s) \sin \theta_s \\
+                y_{\text{local}} &= -(x_g - x_s) \sin \theta_s + (y_g - y_s) \cos \theta_s
+                \end{aligned}
+                \]
+            </li>
+            <li><strong>无量纲化缩放（乘以最大曲率 \(\kappa = 1/r_{\min}\)）</strong>：
+                \[
+                x = x_{\text{local}} \cdot \kappa, \quad y = y_{\text{local}} \cdot \kappa
+                \]
+            </li>
+            <li><strong>目标相对朝向计算</strong>：
+                \[
+                \phi = \text{mod2pi}(\theta_g - \theta_s)
+                \]
+            </li>
+        </ol>
+        <p>经过上述处理后，输入标准化目标状态 \(q'_g = (x, y, \phi)\)。求解器计算出各段的无量纲弧长 \((t, u, v)\) 后，再乘以物理半径 \(r_{\min}\)（即除以 \(\kappa\)），即可恢复出真实物理空间下的各段路径长度与中间点轨迹。</p>
+
+        <h3>4. 基于对称群 (Symmetry Group) 的公式精简机制</h3>
+        <p>直接硬编码 48 套解析公式会导致代码量臃肿、调试困难。代码巧妙地利用了车辆在二维平面运动学上的**对称群**性质，仅需实现 12 个基本字求解器（如 <code>_lsl</code>, <code>_lsr</code>, <code>_lrl</code> 等，均以左转 \(L\) 开始），即可通过三组镜像/反向算子衍生出全部 48 种组合：</p>
+        <ul>
+            <li><strong>时间反转 (Time Flip, \(T\))</strong>：将车辆前进/后退动作反转。几何上相当于关于 \(y\) 轴对称。
+                \[
+                (x, y, \phi) \xrightarrow{T} (-x, y, -\phi)
+                \]
+                计算出的各段弧长长度取相反数（正数变负数，表示倒车）。在代码中对应 <code>_timeflip(lengths)</code>。
+            </li>
+            <li><strong>镜像反转 (Reflection, \(R\))</strong>：将车辆所有左转与右转指令互换。几何上相当于关于 \(x\) 轴对称。
+                \[
+                (x, y, \phi) \xrightarrow{R} (x, -y, -\phi)
+                \]
+                计算出的路径类型中 <code>L</code> 与 <code>R</code> 进行互换。在代码中对应 <code>_reflect(types)</code>。
+            </li>
+            <li><strong>双重反转 (Time Flip + Reflection, \(TR\))</strong>：将上述两者复合应用。
+                \[
+                (x, y, \phi) \xrightarrow{TR} (-x, -y, \phi)
+                \]
+                弧长长度变号且 <code>L/R</code> 类型互换。
+            </li>
+        </ul>
+        <p>在底层计算循环中（<code>reeds_shepp.py:275-328</code>），算法对每一个候选字求解器 <code>fn</code>，依次代入这 4 种对称映射输入，穷举计算出所有可行的实数解，并在所有解中选出总长度（各段绝对值之和）最短的路径作为唯一的全局最优解返回。</p>
+    </section>
+
+    <section>
+        <h2>九、解析扩展 (Analytic Expansion)：RS 临门一脚 —— 模块2的核心替换区</h2>
+        <p>这一机制是理解我们项目核心重构（模块2）的绝对重心。</p>
+        
+        <p><strong>核心动机</strong>：如果仅靠离散的物理基元扩展，想要将 <code>(x, y, θ)</code> 联合物理状态同时逼近终点极其狭窄的容差范围（例如 0.1 米距离，5° 角度）是极为耗费算力的——最后几米的“精准揉库”往往会白白烧掉全程超过大半的搜索配额。解析扩展的解题思路是：在终点附近不要再做盲目网格搜索了，直接利用 RS 曲线的闭式代数解析解，强行尝试将当前状态与终点进行直连。只要这段刚性连接的曲线不发生碰撞，就直接宣布路径规划圆满成功。这物理上一石二鸟：既能让到达终点时的车辆物理姿态实现绝对的严丝合缝，又能极大幅度地提前终止计算高昂的搜索循环。</p>
+        
+        <p><strong>Dang (2022) 升级版多曲率扫描</strong>：标准的基础算法通常只利用最小转弯半径尝试一次 RS 直连。而这套代码实现了前沿的轮询扫描机制。它按照 <code>Δκ = 0.05 rad/m</code> 的曲率梯度，依次扫描大约 10 个候选转弯半径（覆盖 1.13m 到 2.26m）。通过极其严格的评分函数 <code>G = 0.4*碰撞风险项 + 0.6*刚性运动代价</code> 对幸存的候选曲线进行综合评估。更平缓的曲率（大半径）曲线虽然更加舒展顺滑，但更容易在密林中蹭到障碍物；而较紧的曲率虽然转弯灵活且避障强，但路径路径必定更加迂回。这一扫描机制物理上是赋予了 RS 刚性曲线一丝宝贵的“避障自由度”。</p>
+
+        <div class="highlight-box">
+            <strong>我们模块 2 的核心突破口：</strong><br>传统的 RS 曲线物理上依然是“无障碍情况下的数学最短路径”。在森林这种包含海量不规则障碍物的高密度复杂环境中，纯数学驱动的 RS 直连会反复被刚性碰撞检测无情否决，白白蒸发掉海量算力。我们将在这里大刀阔斧地重构，引入 <strong>基于 PPO 强化学习转向策略的闭环自动寻迹 (Rollout)</strong>。每向前推进哪怕一步，深度神经网络都会敏锐感知自车视角的局部占据栅格（Local Patch），并直接回归输出极度平滑且连续的转弯曲率指令，生成一条天然带有强烈“避障避让基因”的柔性曲线。直到非常逼近终点（1~2米）且处于极高成功率的纯净环境时，再切换回原本的 RS 精确泊入逻辑。这将是森林密林场景寻路成功率的质变。
+        </div>
+    </section>
+
+    <section>
+        <h2>十、碰撞检测机制：三位一体的立体防御塔</h2>
+        <p><code>geometry.py</code> 内部封装了一套精巧绝伦的碰撞防御体系，深刻理解它对模块2至关重要（强化学习环境必须和规划器严格对齐碰撞判定物理语义）：</p>
+        
+        <ol>
+            <li><strong>矩形物理足迹网格检测器 (GridFootprintChecker，主战力)</strong>：算法在系统启动时一次性预计算了车辆真实矩形边界在 72 个离散朝向角下，分别会覆盖并占据哪些底层的网格偏移量。在密集运行时，一次复杂的车辆物理边界碰撞检测，被极其优雅且粗暴地降维成了 Numpy 数组的纯矩阵平移相加操作，执行效率快到惊人。此外，它在绝对物理位姿级别建立了极高命中率的 LRU 缓存。</li>
+            <li><strong>双圆极度保守覆盖检测器 (TwoCircleFootprint)</strong>：利用车辆前后两段纯圆形包络伞，完美覆盖住整个带棱角的车身矩形。这样，碰撞检测就被进一步代数简化为了极致简单的“圆形与方块”相交测试。虽然结果在边缘判定上略微偏向保守（可能产生轻微假阳性），但从物理定律上杜绝了任何的漏碰风险。</li>
+            <li><strong>欧氏距离场防线 (EDTCollisionChecker)</strong>：预先计算整张物理大地图的连续欧氏距离变换场（EDT）。注释中极其清晰地敲黑板指出，<strong>这套检测防线与我们在强化学习 UGVBicycleEnv 仿真环境中的物理检测机制是百分之百绝对对齐的</strong>。这意味着模块2的 PPO 网络在训练场和最终推理实战中所“肉眼看到”的物理障碍物边界是绝对同源无差别的。</li>
+        </ol>
+    </section>
+
+    <section>
+        <h2>十一、终止条件与算法的理论局限认知</h2>
+        <p>判断车辆是否安全抵达终点的物理容差默认极小：绝对位置误差 ≤ 0.1 米，且绝对航向角误差 ≤ 5°。</p>
+        
+        <p>在拥抱这一强大工程算法的同时，我们也必须对其理论天花板保持绝对的清醒认知：</p>
+        <ul>
+            <li><strong>不具备理论完备性 (Not Complete)</strong>：由于在每个离散物理网格中强制只保留了一个单一代表性姿态，如果通向终点的唯一破局路径，恰好需要用到该网格中另外一个因为微弱劣势被丢弃的姿态，那么算法就会绝望地判定此局无解。</li>
+            <li><strong>绝不保证路径全局最优 (Not Optimal)</strong>：网格姿态的硬性代表剪枝、启发式预估函数的刻意轻微高估、以及解析扩展“先刚性连上就先得”的立即退出策略——这三座工程大山的叠加，注定了最终输出的路径无法在学术论文中声称是数学意义上的全局最优解。</li>
+        </ul>
+
+        <p>因此，对于这个算法的正确期待定位应当是：<strong>它能在极有限的计算资源和物理分辨率约束下，闪电般给出一条行驶质量极高的平滑可行路径。</strong> 这也定下了我们在后续撰写学术指标时，应主打“平均轨迹长度、机械换向总次数、危险障碍物间隙、求解成功率”，而刻意淡化“寻获最优解比例”的根本实验基调。</p>
+    </section>
+
+    <section>
+        <h2>十二、路径后处理：极其经典的动力学平滑管线</h2>
+        <p>原始规划输出的路径主要由生硬的 0.3 米固定短圆弧拼接而成，网格机器味极重。<code>smoother.py</code> 出场利用前沿的共轭梯度平滑技术将路径彻底打磨至极致顺滑：</p>
+        
+        <ul>
+            <li><strong>共轭梯度多目标平滑 (CG Smoothing)</strong>：算法将路径所有的顶点坐标作为动态优化变量，构建了一个精密的四元物理目标函数：<strong>平滑项</strong>（强力拉直折角）、<strong>障碍排斥项</strong>（利用二次惩罚将靠近危险区的节点强行推离）、<strong>曲率约束项</strong>，以及最重要的<strong>维诺场势能项</strong>（沿拓扑中心线柔性引导）。</li>
+            <li><strong>碰撞点刚性锚定 (Collision Anchoring)</strong>：由于优化器有一定概率会在数学上将路径点“过度平滑”进障碍物实体内部，算法在每一轮迭代后会强行重新校验物理碰撞。一旦触碰，就会将其强行抛锚锁死回 A* 生成的原始安全位置。由于 A* 的原始路径天然具备绝对防碰撞属性，这就构筑了整个平滑器安全性的绝对兜底护城河。</li>
+            <li><strong>维诺场势能的画龙点睛 (Voronoi Field)</strong>：在普通压素的排斥势能场中，极度狭窄通道的两侧障碍物会产生恐怖的叠加排斥力，直接将平滑器逼出通道外。而维诺势能场凭借精巧的数学构造，确保了在狭窄通道的“拓扑脊椎中心线”上，势能永远严格被压制为 0。这意味着狭窄地形的可通行性评价，绝不会因为其物理宽度的紧迫而遭到算法毫无理智的暴力阻断。</li>
+        </ul>
+    </section>
+
+</div>
+
+</body>
+</html>

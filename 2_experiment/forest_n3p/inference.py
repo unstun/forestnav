@@ -468,8 +468,11 @@ def run_forest_n3p(
     )
 
     for step_index in range(max_steps):
+        step_start_t = time.perf_counter()
         direct = _try_rs(grid_map, footprint, current, final_goal, cfg)
         if direct is not None:
+            step_time = time.perf_counter() - step_start_t
+            total_planner_time_s += step_time
             _append_poses(path_out, states_as_tuples(direct.samples))
             steps.append(
                 InferenceStepRecord(
@@ -481,7 +484,7 @@ def run_forest_n3p(
                     neighbor_distance=None,
                     segment_success=True,
                     segment_failure_reason=None,
-                    planner_time_s=0.0,
+                    planner_time_s=step_time,
                     planner_expansions=0,
                     distance_to_goal_m=0.0,
                 )
@@ -522,6 +525,8 @@ def run_forest_n3p(
             break
 
         if chosen is None:
+            overhead_t = time.perf_counter() - step_start_t
+            total_planner_time_s += overhead_t
             if bool(cfg.enable_f2):
                 used_f2 += 1
                 f2 = _try_f2(
@@ -621,6 +626,8 @@ def run_forest_n3p(
                 )
         else:
             if cfg.commit_verified_rs_segments and chosen_rs is not None:
+                step_time = time.perf_counter() - step_start_t
+                total_planner_time_s += step_time
                 _append_poses(path_out, states_as_tuples(chosen_rs.samples))
                 steps.append(
                     InferenceStepRecord(
@@ -632,13 +639,14 @@ def run_forest_n3p(
                         neighbor_distance=float(chosen.distance),
                         segment_success=True,
                         segment_failure_reason=None,
-                        planner_time_s=0.0,
+                        planner_time_s=step_time,
                         planner_expansions=0,
                         distance_to_goal_m=_xy_distance(chosen.subgoal_pose, final_goal),
                     )
                 )
                 current = path_out[-1]
             else:
+                overhead_t = time.perf_counter() - step_start_t
                 segment = _plan_segment(
                     planner,
                     current,
@@ -647,7 +655,8 @@ def run_forest_n3p(
                     max_nodes=int(cfg.segment_max_nodes),
                 )
                 total_expansions += segment.expansions
-                total_planner_time_s += segment.planner_time_s
+                step_time = overhead_t + segment.planner_time_s
+                total_planner_time_s += step_time
                 steps.append(
                     InferenceStepRecord(
                         step_index=step_index,
@@ -658,7 +667,7 @@ def run_forest_n3p(
                         neighbor_distance=float(chosen.distance),
                         segment_success=bool(segment.success),
                         segment_failure_reason=segment.failure_reason,
-                        planner_time_s=float(segment.planner_time_s),
+                        planner_time_s=step_time,
                         planner_expansions=int(segment.expansions),
                         distance_to_goal_m=_xy_distance(chosen.subgoal_pose, final_goal),
                     )
