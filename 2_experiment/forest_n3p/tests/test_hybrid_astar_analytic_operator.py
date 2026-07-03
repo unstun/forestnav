@@ -128,6 +128,12 @@ def test_dang_multi_rs_reports_candidate_cost_telemetry():
     records = stats["analytic_telemetry_records"]
     assert len(records) == 1
     attempt = records[0]
+    assert attempt["attempt_index"] == 0
+    assert attempt["expansion_idx"] == 0
+    assert attempt["state_x"] == 1.0
+    assert attempt["state_y"] == 1.0
+    assert attempt["goal_x"] == 1.8
+    assert attempt["goal_y"] == 1.0
     assert attempt["analytic_candidate_radius_count"] == len(attempt["candidate_records"])
     assert attempt["analytic_accepted_radius_m"] is not None
     candidate = attempt["candidate_records"][0]
