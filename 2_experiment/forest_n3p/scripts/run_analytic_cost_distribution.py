@@ -332,6 +332,11 @@ def _build_summary(
             "candidate_success_count": int(candidate_df["success"].sum()) if not candidate_df.empty else 0,
             "candidate_failure_count": int((~candidate_df["success"]).sum()) if not candidate_df.empty else 0,
         },
+        "failure_reason_counts": {
+            "plan": _value_counts(query_df, "plan_failure_reason"),
+            "candidate": _value_counts(candidate_df, "failure_reason"),
+        },
+        "time_budget_totals": _time_budget_totals(query_df, attempt_df),
         "overall": _distribution_block(attempt_df),
         "by_bucket": {
             str(bucket): _distribution_block(attempt_df[attempt_df["difficulty_bucket"] == bucket])
@@ -376,6 +381,30 @@ def _query_bucket_block(df: pd.DataFrame) -> dict[str, Any]:
             "analytic_successes_total": int(group["plan_analytic_successes"].sum()),
         }
     return out
+
+
+def _time_budget_totals(query_df: pd.DataFrame, attempt_df: pd.DataFrame) -> dict[str, float]:
+    if query_df.empty:
+        return {
+            "plan_time_s": 0.0,
+            "analytic_total_time_s": 0.0,
+            "analytic_to_plan_time_ratio": 0.0,
+        }
+    plan_time = float(query_df["plan_time_s"].sum())
+    analytic_time = float(attempt_df["analytic_total_time_s"].sum()) if not attempt_df.empty else 0.0
+    ratio = analytic_time / plan_time if plan_time > 0.0 else 0.0
+    return {
+        "plan_time_s": plan_time,
+        "analytic_total_time_s": analytic_time,
+        "analytic_to_plan_time_ratio": ratio,
+    }
+
+
+def _value_counts(df: pd.DataFrame, column: str) -> dict[str, int]:
+    if df.empty or column not in df:
+        return {}
+    counts = df[column].fillna("None").value_counts(dropna=False)
+    return {str(key): int(value) for key, value in counts.items()}
 
 
 def _series_stats(series: pd.Series) -> dict[str, float]:
