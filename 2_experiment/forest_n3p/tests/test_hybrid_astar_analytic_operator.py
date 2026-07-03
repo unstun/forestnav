@@ -92,3 +92,52 @@ def test_failed_analytic_operator_attempt_is_counted_without_success():
     assert record["nearest_obstacle_m"] >= 0.0
     assert record["failed_radii"] == [1.0]
     assert record["failed_radius_count"] == 1
+    assert record["analytic_candidate_radius_count"] == 1
+    assert record["analytic_candidate_failure_count"] == 1
+    assert record["analytic_rs_solve_time_s"] >= 0.0
+    assert record["analytic_sample_time_s"] >= 0.0
+    assert record["analytic_collision_check_time_s"] >= 0.0
+    assert record["analytic_total_time_s"] >= 0.0
+
+
+def test_dang_multi_rs_reports_candidate_cost_telemetry():
+    planner = _planner("dang_multi_rs")
+
+    path, stats = planner.plan(
+        AckermannState(1.0, 1.0, 0.0),
+        AckermannState(1.8, 1.0, 0.0),
+        timeout=1.0,
+        max_nodes=2_000,
+    )
+
+    assert path
+    assert stats["analytic_operator"] == "dang_multi_rs"
+    assert stats["analytic_attempts"] == 1
+    assert stats["analytic_successes"] == 1
+    assert stats["analytic_candidate_radius_count"] == len(planner._analytic_radii())
+    assert stats["analytic_candidate_success_count"] >= 1
+    assert stats["analytic_candidate_failure_count"] >= 0
+    assert stats["analytic_rs_solve_time_s"] >= 0.0
+    assert stats["analytic_sample_time_s"] >= 0.0
+    assert stats["analytic_collision_check_time_s"] >= 0.0
+    assert stats["analytic_cost_eval_time_s"] >= 0.0
+    assert stats["analytic_total_time_s"] >= 0.0
+    assert stats["analytic_sample_count"] > 0
+    assert stats["analytic_collision_check_count"] > 0
+
+    records = stats["analytic_telemetry_records"]
+    assert len(records) == 1
+    attempt = records[0]
+    assert attempt["analytic_candidate_radius_count"] == len(attempt["candidate_records"])
+    assert attempt["analytic_accepted_radius_m"] is not None
+    candidate = attempt["candidate_records"][0]
+    assert set(candidate) == {
+        "radius_m",
+        "success",
+        "failure_reason",
+        "rs_solve_time_s",
+        "sample_time_s",
+        "collision_check_time_s",
+        "sample_count",
+        "collision_check_count",
+    }
