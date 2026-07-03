@@ -65,6 +65,9 @@ class AnalyticExpansionStep:
             "telemetry": self.telemetry,
             "terminal_rs": self.terminal_rs,
             "reward_status": "pending_e02",
+            "terminated": bool(self.terminated),
+            "truncated": bool(self.truncated),
+            "failure_reason": self.telemetry.failure_reason,
         }
 
 
