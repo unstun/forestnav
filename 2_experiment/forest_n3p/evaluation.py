@@ -14,6 +14,9 @@ from forest_n3p.third_party.pathplan import GridMap, TwoCircleFootprint
 from forest_n3p.third_party.pathplan.geometry import GridFootprintChecker
 
 
+TIMING_PROTOCOL_SCHEMA_VERSION = 1
+
+
 @dataclass(frozen=True)
 class EvaluationConfig:
     theta_bins: int = 72
@@ -148,6 +151,22 @@ def planner_run_from_result(
     used_f1 = int(getattr(result, "used_f1", 0))
     used_f2 = int(getattr(result, "used_f2", 0))
     used_f3 = int(getattr(result, "used_f3", 0))
+    run_metadata = dict(metadata or {})
+    planner_time = getattr(result, "total_planner_time_s", None)
+    if planner_time is not None:
+        run_metadata["total_planner_time_s"] = float(planner_time)
+    run_metadata["timing_protocol"] = _timing_protocol(
+        adapter="planner_run_from_result",
+        total_time_source="result.total_time_s",
+        planner_time_source="result.total_planner_time_s",
+        planner_time_available=planner_time is not None,
+        planner_time_components=(
+            "direct RS collision check wall-clock",
+            "predictor query plus subgoal RS validation overhead",
+            "segment planner reported time",
+            "F2/F3 fallback planner reported time",
+        ),
+    )
     subgoal_reachable_count: int | None = None
     subgoal_attempt_count: int | None = None
     steps = tuple(getattr(result, "steps", ()))
@@ -171,7 +190,7 @@ def planner_run_from_result(
         subgoal_reachable_count=subgoal_reachable_count,
         subgoal_attempt_count=subgoal_attempt_count,
         failure_reason=getattr(result, "failure_reason", None),
-        metadata=metadata or {},
+        metadata=run_metadata,
     )
 
 
@@ -195,9 +214,18 @@ def planner_run_from_path_stats(
         poses = tuple(_clean_pose(pose.as_tuple() if hasattr(pose, "as_tuple") else pose) for pose in raw_path)
         path_source = "planner_path"
     run_metadata = dict(metadata or {})
+    planner_time = float(stats.get("time", math.nan))
     run_metadata.setdefault("evaluation_path_source", path_source)
     run_metadata.setdefault("planner_path_pose_count", len(raw_path))
     run_metadata.setdefault("evaluation_path_pose_count", len(poses))
+    run_metadata["total_planner_time_s"] = planner_time
+    run_metadata["timing_protocol"] = _timing_protocol(
+        adapter="planner_run_from_path_stats",
+        total_time_source='stats["time"]',
+        planner_time_source='stats["time"]',
+        planner_time_available=True,
+        planner_time_components=("planner.plan reported wall-clock",),
+    )
     return EvaluationRun(
         query_id=str(query_id),
         method=str(method),
@@ -205,12 +233,42 @@ def planner_run_from_path_stats(
         distance_bin_key=str(distance_bin_key),
         success=bool(raw_path) and stats.get("failure_reason") is None,
         path=poses,
-        total_time_s=float(stats.get("time", math.nan)),
+        total_time_s=planner_time,
         total_expansions=int(stats.get("expansions", 0)),
         reference_path_length_m=reference_path_length_m,
         failure_reason=stats.get("failure_reason"),
         metadata=run_metadata,
     )
+
+
+def _timing_protocol(
+    *,
+    adapter: str,
+    total_time_source: str,
+    planner_time_source: str,
+    planner_time_available: bool,
+    planner_time_components: Sequence[str],
+) -> dict[str, Any]:
+    return {
+        "schema_version": TIMING_PROTOCOL_SCHEMA_VERSION,
+        "adapter": str(adapter),
+        "total_time_s": {
+            "record_field": "EvaluationRun.total_time_s / EvaluationRecord.total_time_s",
+            "source": str(total_time_source),
+            "semantics": "end_to_end_method_wall_clock_seconds",
+        },
+        "planner_time_s": {
+            "record_field": "EvaluationRun.metadata.total_planner_time_s / EvaluationRecord.metadata.total_planner_time_s",
+            "source": str(planner_time_source),
+            "available": bool(planner_time_available),
+            "semantics": "planner_scoped_wall_clock_seconds",
+            "included_components": list(planner_time_components),
+        },
+        "comparison_rule": (
+            "Use total_time_s for method comparisons; use metadata.total_planner_time_s "
+            "only for timing audits and component accounting."
+        ),
+    }
 
 
 def evaluate_run(
