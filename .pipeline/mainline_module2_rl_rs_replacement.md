@@ -451,11 +451,16 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 验证: normalized action 转 physical steering, forward `MotionPrimitive` conversion, reverse gate rejection, rollout/env telemetry direction。
   - 当前结论: reverse/direction gate 未启用, 需 C02 倒车必要性证据或 v2 contract 才能开启。
   - 记录: `.pipeline/experiments/20260703_module2_e01_action_space.md`。
-- [ ] E01.5 终止条件实现。
+- [x] E01.5 终止条件实现。
   - success: 当前 state 能通过 RS 无碰撞接到 final goal。
   - collision: 当前 rollout segment 碰撞。
   - truncated: budget exhausted 或 no progress。
   - failure metadata: collision, timeout, no_rs_terminal, oscillation。
+  - 已完成: success 仍由 terminal RS checker 判定; rollout collision `terminated`; budget exhausted 且 terminal RS 失败 `truncated` 并写入 `no_rs_terminal:<detail>`; no-progress 由 `min_progress_m` + `no_progress_patience` 控制, 提前 `truncated` 并写入 `no_progress`。
+  - telemetry/info: `goal_distance_m`, `progress_to_goal_m`, `no_progress_count`。
+  - 边界: `oscillation` 暂不 claim 已实现, 后移到 E03.4 定义可测试信号。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `17 passed in 0.48s`。
+  - 记录: `.pipeline/experiments/20260703_module2_e01_terminal_conditions.md`。
 
 #### E02. Reward 最大实现
 
@@ -620,7 +625,8 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 6. [x] E01.2 harden `AnalyticExpansionEnv.reset/step` around real planner-state context。
 7. [x] E01.3 实现 egocentric occupancy/EDT observation patch。
 8. [x] E01.4 动作实现。
-9. [ ] E01.5 终止条件实现。
+9. [x] E01.5 终止条件实现。
+10. [ ] E02.1 success reward 与部署使命一致。
 
 ## 7. 完成记录
 
@@ -640,3 +646,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-03: 完成 E01.2 RL-RS 环境状态机加固。`AnalyticExpansionEnv` 现在测试覆盖 reset/step、碰撞起点拒绝、rollout collision、terminal RS success、budget truncation、done 后继续 step 报错和 info failure/status 字段。记录见 `.pipeline/experiments/20260703_module2_e01_env_state_machine.md`。
 - 2026-07-03: 完成 E01.3 egocentric observation patch。`RlRsObservation` 现在包含 occupancy + normalized EDT patch; robot-frame forward alignment、越界 occupied 和 channel stack 均有测试。记录见 `.pipeline/experiments/20260703_module2_e01_observation_patch.md`。
 - 2026-07-03: 完成 E01.4 forward-only action space。新增 normalized steering decode、physical clip、forward MotionPrimitive conversion 和 reverse gate 禁止测试; reverse/direction gate 保持未启用。记录见 `.pipeline/experiments/20260703_module2_e01_action_space.md`。
+- 2026-07-03: 完成 E01.5 terminal conditions。`AnalyticExpansionEnv` 现在区分 terminal RS success、rollout collision、budget/no-RS truncation、no-progress truncation, 并在 telemetry/info 中记录 `goal_distance_m`, `progress_to_goal_m`, `no_progress_count`。`oscillation` 未 claim 已实现, 后移到 E03.4 定义测试信号。记录见 `.pipeline/experiments/20260703_module2_e01_terminal_conditions.md`。
