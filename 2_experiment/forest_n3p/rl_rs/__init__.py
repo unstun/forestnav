@@ -17,7 +17,7 @@ from forest_n3p.rl_rs.obs import (
     build_scalar_observation,
 )
 from forest_n3p.rl_rs.policy import SteeringPolicy
-from forest_n3p.rl_rs.reward import RewardBreakdown
+from forest_n3p.rl_rs.reward import RewardBreakdown, RewardConfig, compute_terminal_success_reward
 from forest_n3p.rl_rs.rollout import RolloutStepResult, rollout_constant_steer_step
 from forest_n3p.rl_rs.telemetry import RlRsEpisodeTelemetry, RlRsStepTelemetry
 from forest_n3p.rl_rs.terminal import TerminalRsCheckResult, check_terminal_rs_connectable
@@ -30,6 +30,7 @@ __all__ = [
     "ClippedSteeringAction",
     "ObservationConfig",
     "RewardBreakdown",
+    "RewardConfig",
     "RlRsEpisodeTelemetry",
     "RlRsObservation",
     "RlRsStepTelemetry",
@@ -44,6 +45,7 @@ __all__ = [
     "build_scalar_observation",
     "check_terminal_rs_connectable",
     "clip_steering_action",
+    "compute_terminal_success_reward",
     "decode_steering_action",
     "rollout_constant_steer_step",
     "steering_action_to_primitive",

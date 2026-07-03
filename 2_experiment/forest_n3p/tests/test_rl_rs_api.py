@@ -8,6 +8,7 @@ from forest_n3p.rl_rs import (
     AnalyticExpansionContext,
     AnalyticExpansionEnv,
     ObservationConfig,
+    RewardConfig,
     SteeringAction,
     build_egocentric_edt_patch,
     build_egocentric_occupancy_patch,
@@ -79,16 +80,17 @@ def test_rollout_step_uses_ackermann_sampling_and_checker():
     assert result.primitive.direction == 1
 
 
-def test_env_reset_step_returns_telemetry_and_pending_reward_marker():
+def test_env_reset_step_returns_telemetry_and_reward_marker():
     env = AnalyticExpansionEnv()
-    obs = env.reset(_empty_context(goal=(3.0, 1.0, 0.0)))
+    obs = env.reset(_empty_context(goal=(3.0, 1.0, 0.0), terminal_check_every=10))
 
     assert len(obs.scalar) == 8
     assert obs.patch.shape == (2, 5, 5)
     step = env.step(0.0)
 
     assert step.reward.total == 0.0
-    assert step.info["reward_status"] == "pending_e02"
+    assert step.reward.success == 0.0
+    assert step.info["reward_status"] == "e02_1_terminal_rs_success"
     assert step.info["terminated"] == step.terminated
     assert step.info["truncated"] == step.truncated
     assert step.info["failure_reason"] == step.telemetry.failure_reason
@@ -164,6 +166,36 @@ def test_env_step_terminates_on_terminal_rs_success():
     assert step.terminal_rs.success
     assert step.telemetry.terminal_rs_success
     assert step.telemetry.failure_reason is None
+    assert step.telemetry.goal_distance_m > 0.0
+    assert step.reward.success == 1.0
+    assert step.reward.total == 1.0
+
+
+def test_reward_config_controls_terminal_rs_success_reward():
+    env = AnalyticExpansionEnv()
+    context = _empty_context(goal=(1.6, 1.0, 0.0))
+    context = AnalyticExpansionContext(
+        grid_map=context.grid_map,
+        footprint=context.footprint,
+        start=context.start,
+        goal=context.goal,
+        params=context.params,
+        checker=context.checker,
+        max_steps=context.max_steps,
+        action_step_m=context.action_step_m,
+        collision_sample_step_m=context.collision_sample_step_m,
+        terminal_check_every=context.terminal_check_every,
+        theta_bins=context.theta_bins,
+        observation_config=context.observation_config,
+        reward_config=RewardConfig(terminal_rs_success=2.5),
+    )
+    env.reset(context)
+
+    step = env.step(0.0)
+
+    assert step.terminal_rs.success
+    assert step.reward.success == 2.5
+    assert step.reward.total == 2.5
 
 
 def test_env_step_truncates_with_no_terminal_rs_when_budget_exhausted():

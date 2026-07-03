@@ -6,7 +6,7 @@ from typing import Any
 
 from forest_n3p.rl_rs.actions import ActionConfig, SteeringAction
 from forest_n3p.rl_rs.obs import ObservationConfig, RlRsObservation, build_observation
-from forest_n3p.rl_rs.reward import RewardBreakdown, pending_reward_breakdown
+from forest_n3p.rl_rs.reward import RewardBreakdown, RewardConfig, compute_terminal_success_reward
 from forest_n3p.rl_rs.rollout import rollout_constant_steer_step
 from forest_n3p.rl_rs.telemetry import RlRsEpisodeTelemetry, RlRsStepTelemetry
 from forest_n3p.rl_rs.terminal import TerminalRsCheckResult, check_terminal_rs_connectable
@@ -30,6 +30,7 @@ class AnalyticExpansionContext:
     collision_padding_m: float | None = None
     observation_config: ObservationConfig = field(default_factory=ObservationConfig)
     action_config: ActionConfig = field(default_factory=ActionConfig)
+    reward_config: RewardConfig = field(default_factory=RewardConfig)
     min_progress_m: float = 1e-3
     no_progress_patience: int = 3
 
@@ -72,7 +73,7 @@ class AnalyticExpansionStep:
         return {
             "telemetry": self.telemetry,
             "terminal_rs": self.terminal_rs,
-            "reward_status": "pending_e02",
+            "reward_status": self.reward.status,
             "terminated": bool(self.terminated),
             "truncated": bool(self.truncated),
             "failure_reason": self.telemetry.failure_reason,
@@ -206,7 +207,11 @@ class AnalyticExpansionEnv:
         )
         return AnalyticExpansionStep(
             observation=observation,
-            reward=pending_reward_breakdown(),
+            reward=compute_terminal_success_reward(
+                terminal_rs=terminal,
+                collided=rollout.collided,
+                config=context.reward_config,
+            ),
             terminated=terminated,
             truncated=truncated,
             telemetry=telemetry,
