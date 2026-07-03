@@ -218,6 +218,11 @@ def planner_run_from_path_stats(
     run_metadata.setdefault("evaluation_path_source", path_source)
     run_metadata.setdefault("planner_path_pose_count", len(raw_path))
     run_metadata.setdefault("evaluation_path_pose_count", len(poses))
+    for key in ("analytic_operator", "analytic_attempts", "analytic_successes"):
+        if key in stats:
+            run_metadata.setdefault(key, stats[key])
+    if "remediations" in stats:
+        run_metadata.setdefault("planner_remediations", stats["remediations"])
     run_metadata["total_planner_time_s"] = planner_time
     run_metadata["timing_protocol"] = _timing_protocol(
         adapter="planner_run_from_path_stats",
