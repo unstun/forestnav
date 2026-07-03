@@ -20,7 +20,7 @@ from forest_n3p.third_party.pathplan import AckermannParams, AckermannState, Gri
 from forest_n3p.third_party.pathplan.geometry import GridFootprintChecker
 
 
-def _empty_context(goal=(2.0, 1.0, 0.0)):
+def _empty_context(goal=(2.0, 1.0, 0.0), *, max_steps=4, terminal_check_every=1, no_progress_patience=3):
     grid_map = GridMap(np.zeros((60, 60), dtype=np.uint8), resolution=0.1, origin=(0.0, 0.0))
     footprint = TwoCircleFootprint.from_box(length=0.4, width=0.2)
     params = AckermannParams(wheelbase=0.5, min_turn_radius=1.0)
@@ -32,10 +32,12 @@ def _empty_context(goal=(2.0, 1.0, 0.0)):
         goal=AckermannState(*goal),
         params=params,
         checker=checker,
-        max_steps=4,
+        max_steps=max_steps,
         action_step_m=0.3,
         collision_sample_step_m=0.1,
+        terminal_check_every=terminal_check_every,
         observation_config=ObservationConfig(patch_size_m=0.4, patch_cells=5, include_edt=True, edt_clip_m=1.0),
+        no_progress_patience=no_progress_patience,
         theta_bins=32,
     )
 
@@ -90,6 +92,7 @@ def test_env_reset_step_returns_telemetry_and_pending_reward_marker():
     assert step.info["terminated"] == step.terminated
     assert step.info["truncated"] == step.truncated
     assert step.info["failure_reason"] == step.telemetry.failure_reason
+    assert step.info["no_progress_count"] == step.telemetry.no_progress_count
     assert step.telemetry.sample_count == 4
     assert step.telemetry.primitive_direction == 1
     assert env.telemetry.rollout_steps == 1
@@ -175,6 +178,28 @@ def test_env_step_truncates_with_no_terminal_rs_when_budget_exhausted():
     assert step.truncated
     assert not step.terminal_rs.success
     assert step.telemetry.failure_reason.startswith("no_rs_terminal:")
+
+
+def test_env_step_truncates_on_no_progress_before_budget_exhausted():
+    env = AnalyticExpansionEnv()
+    env.reset(
+        _empty_context(
+            goal=(0.0, 1.0, math.pi),
+            max_steps=5,
+            terminal_check_every=10,
+            no_progress_patience=2,
+        )
+    )
+
+    first = env.step(0.0)
+    second = env.step(0.0)
+
+    assert not first.terminated
+    assert not first.truncated
+    assert second.truncated
+    assert second.telemetry.failure_reason == "no_progress"
+    assert second.telemetry.no_progress_count == 2
+    assert second.telemetry.progress_to_goal_m < 0.0
 
 
 def test_egocentric_occupancy_patch_aligns_obstacle_in_robot_frame():
