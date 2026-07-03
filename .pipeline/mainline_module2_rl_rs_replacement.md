@@ -253,7 +253,8 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - [x] B01.2 更新 evaluation metadata, 明确 total_time_s 与 planner_time_s 的关系。
   - 输出: `EvaluationRun.metadata["timing_protocol"]`
   - 目的: 防止后续论文表格混用 wall-clock 与 planner-internal time。
-  - 产出: `2_experiment/forest_n3p/evaluation.py`, `2_experiment/forest_n3p/tests/test_evaluation_timing_protocol.py`
+  - 实现位置: `2_experiment/forest_n3p/evaluation.py` 当前 HEAD 已写入 `timing_protocol`。
+  - 本项新增验证: `2_experiment/forest_n3p/tests/test_evaluation_timing_protocol.py`
   - 当前验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q` -> `5 passed in 0.88s`
 - [ ] B01.3 跑 targeted smoke。
   - 数据: 3 个固定 seed 小地图, 每个 3 个 query。
