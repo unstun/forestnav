@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from forest_n3p.rl_rs import (
+    ActionConfig,
     AnalyticExpansionContext,
     AnalyticExpansionEnv,
     ObservationConfig,
@@ -11,7 +12,9 @@ from forest_n3p.rl_rs import (
     build_egocentric_edt_patch,
     build_egocentric_occupancy_patch,
     build_patch_observation,
+    clip_steering_action,
     rollout_constant_steer_step,
+    steering_action_to_primitive,
 )
 from forest_n3p.third_party.pathplan import AckermannParams, AckermannState, GridMap, TwoCircleFootprint
 from forest_n3p.third_party.pathplan.geometry import GridFootprintChecker
@@ -71,6 +74,7 @@ def test_rollout_step_uses_ackermann_sampling_and_checker():
     assert len(result.samples) == 4
     assert math.isclose(result.next_state.x, 1.3, abs_tol=1e-9)
     assert math.isclose(result.next_state.y, 1.0, abs_tol=1e-9)
+    assert result.primitive.direction == 1
 
 
 def test_env_reset_step_returns_telemetry_and_pending_reward_marker():
@@ -87,8 +91,31 @@ def test_env_reset_step_returns_telemetry_and_pending_reward_marker():
     assert step.info["truncated"] == step.truncated
     assert step.info["failure_reason"] == step.telemetry.failure_reason
     assert step.telemetry.sample_count == 4
+    assert step.telemetry.primitive_direction == 1
     assert env.telemetry.rollout_steps == 1
     assert env.telemetry.rollout_collision_checks == 4
+
+
+def test_action_config_is_forward_only_and_rejects_reverse_gate():
+    with pytest.raises(ValueError, match="forward-only"):
+        ActionConfig(allow_reverse=True)
+
+    context = _empty_context()
+    with pytest.raises(ValueError, match="forward direction"):
+        clip_steering_action(SteeringAction(0.0, direction=-1), context.params)
+
+
+def test_normalized_steering_action_decodes_and_converts_to_primitive():
+    context = _empty_context()
+    action = SteeringAction(0.5, normalized=True)
+
+    clipped = clip_steering_action(action, context.params)
+    primitive = steering_action_to_primitive(action, context.params, step_m=context.action_step_m)
+
+    assert math.isclose(clipped.applied, 0.5 * context.params.max_steer, abs_tol=1e-12)
+    assert primitive.direction == 1
+    assert math.isclose(primitive.step, context.action_step_m, abs_tol=1e-12)
+    assert math.isclose(primitive.steering, clipped.applied, abs_tol=1e-12)
 
 
 def test_env_step_before_reset_raises():
