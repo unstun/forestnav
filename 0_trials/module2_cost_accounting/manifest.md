@@ -3,7 +3,7 @@ status: d02_policy_forward_budget_complete
 origin: codex
 reviewed: false
 created: 2026-07-03
-source_head: 1ff1fa4626d65c8cf67542d7030305f54be1b00d
+source_head: 04cda992
 ---
 
 # Module2 Cost Accounting Manifest
