@@ -1,0 +1,517 @@
+---
+status: active
+origin: ai+web+local
+reviewed: false
+created: 2026-07-03
+contract: .pipeline/contracts/module2-ppo-funnel-expansion.md
+base_commit: 640c76bf
+---
+
+# 模块2主线: RL 替换 RS 解析扩展的论文级最大实现任务书
+
+> 执行原则: 本文件是长期任务索引。每次会话只做第一项未完成任务。
+> 完成一个有意义变更后更新本文件的状态记录, 再 git commit。
+
+## 0. 直观结论
+
+这条线不是把 PPO 接到现有 F-N3P 外面跑一个 demo。真正目标是:
+
+1. 在 Hybrid A* 的 analytic expansion 槽位里, 用一个闭环 RL steering policy 生成可碰撞验证的局部连接轨迹。
+2. policy 只在 RS shot 容易失败、但搜索树已经接近目标的区间出手。
+3. policy 末端仍切回 RS, 用 RS 负责最后几厘米/几度的数学贴合。
+4. 失败必须回落到原始基元扩展, 不能破坏 Hybrid A* 的兜底语义。
+5. 所有时间统计必须包含神经网络前向、rollout、RS 收尾和碰撞检测, 不能把开销藏起来。
+
+换句话说, 这是一个 "HA* 主导 + RL 解析算子" 的系统, 不是 "RL planner 加一点 RS"。
+
+## 1. 信任边界
+
+### 1.1 已批准但仍需证据化执行
+
+- Contract 已存在且 status=approved: `.pipeline/contracts/module2-ppo-funnel-expansion.md:1-8`。
+- Contract 定义的核心结构是 "中长距 PPO rollout + 最后 1-2m RS 收尾": `.pipeline/contracts/module2-ppo-funnel-expansion.md:10-17`。
+- 成功信号是节点数、端到端时间、超时失败率同时改善: `.pipeline/contracts/module2-ppo-funnel-expansion.md:19-32`。
+- 失败信号是计算账、oracle 无解、末端 RS 对接灾难、PPO 不收敛四个独立 gate: `.pipeline/contracts/module2-ppo-funnel-expansion.md:34-39`。
+- Contract 明确要求先修计时口径: `.pipeline/contracts/module2-ppo-funnel-expansion.md:41-45`。
+
+### 1.2 只能作为线索, 不能直接当论文依据
+
+- 设计文档标记为 `reviewed:false` 且 `confidence: low`: `.pipeline/survey/module2-ppo-analytic-expansion-design.md:1-15`。
+- 设计文档里的 "解析扩展槽" 和 "闭环 policy" 方向有 Dr Sun 拍板记录, 但仍需要代码和实验验证: `.pipeline/survey/module2-ppo-analytic-expansion-design.md:19-27`。
+- 外部仓库 README 只能证明仓库声称什么, 不能证明算法可复用。任何 GitHub 依据必须读到训练脚本、环境、动作、观测、碰撞和评测代码。
+
+### 1.3 本文件的证据规则
+
+每个任务必须记录四类证据:
+
+| 证据类型 | 最低要求 | 不合格例子 |
+|---|---|---|
+| 本地代码证据 | 文件路径 + 行号 + 相关符号 | "看起来在 planner 里" |
+| 外部论文证据 | URL + section/algorithm/line | "论文摘要说有效" |
+| 外部代码证据 | 仓库 URL + license + 文件路径 + 行号 | "README 说开源" |
+| 验证证据 | 可复跑命令 + stdout/stderr/artifact 路径 | "应该能跑" |
+
+## 2. 当前本地代码事实
+
+### 2.1 当前 Hybrid A* 的 analytic expansion 插入点
+
+- `HybridAStarPlanner._analytic_interval()` 按距离调整解析扩展触发频率: `2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py:197-202`。
+- `_try_analytic_expansion()` 当前实现是 Dang 2022 风格多曲率 RS 扫描: `2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py:204-245`。
+- 多曲率候选调用 `_try_rs_with_radius()` 生成 RS, 逐段采样并碰撞检测: `2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py:282-340`。
+- 主循环在 `expansion_idx % interval == 0` 时尝试 analytic expansion, 成功后立即拼接尾段并返回: `2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py:454-473`。
+- 失败时落回普通运动基元扩展: `2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py:476-500`。
+
+设计含义:
+
+- 真实改动点是 `_try_analytic_expansion()` 的职责, 不是单独写一个离线 RL planner。
+- 新 RL operator 必须返回 `List[AckermannState], List[MotionPrimitive]` 或等价结构, 否则不能无缝接入 `_trace_path()` 和 evaluation。
+- rollout 失败必须返回 `None`, 保持主循环自然进入基元扩展。
+
+### 2.2 当前运动学和碰撞语义
+
+- Ackermann 参数给定 `wheelbase=0.6`, `min_turn_radius=1.1284`: `2_experiment/forest_n3p/third_party/pathplan/robot.py:8-16`。
+- `propagate()` 使用恒曲率圆弧解析积分, 不是欧拉直线近似: `2_experiment/forest_n3p/third_party/pathplan/robot.py:29-54`。
+- `sample_constant_steer_motion()` 按固定步长采样弧线, 用于碰撞检测和可视化: `2_experiment/forest_n3p/third_party/pathplan/robot.py:77-113`。
+- `GridFootprintChecker.collides_path()` 逐 pose 检查碰撞: `2_experiment/forest_n3p/third_party/pathplan/geometry.py:398-406`。
+- `EDTCollisionChecker` 使用 EDT + two-circle footprint, 注释写明与 DRL 环境 collision detection 对齐: `2_experiment/forest_n3p/third_party/pathplan/geometry.py:419-425`。
+- EDT checker 的边界距离也并入碰撞语义, 出界等价于危险: `2_experiment/forest_n3p/third_party/pathplan/geometry.py:449-458`。
+
+设计含义:
+
+- RL 训练环境不能另写一套碰撞语义。训练、gate、planner 插件必须共享同一个 footprint/EDT/Grid checker。
+- 动作空间建议先表达为连续曲率或转向角, 再调用 `propagate()` 或 `sample_constant_steer_motion()` 形成 planner 可解释的弧段。
+- 如果训练时用 EDT checker, 推理时也要用 EDT 或明确记录 checker 差异, 否则 deployment distribution 不一致。
+
+### 2.3 当前 F-N3P 外层推理循环
+
+- `run_forest_n3p()` 当前先尝试 direct RS 到 final goal: `2_experiment/forest_n3p/inference.py:470-505`。
+- 当前 KNN/MLP predictor 输出 subgoal, 再用 RS 验证 subgoal 可达: `2_experiment/forest_n3p/inference.py:507-525`。
+- 若没有可达 prediction, 进入 F2/F3 回退: `2_experiment/forest_n3p/inference.py:527-626`。
+- 若 `commit_verified_rs_segments=True`, 直接提交已验证 RS segment: `2_experiment/forest_n3p/inference.py:627-647`。
+- 计时口径中间态已把 direct RS 和 verified RS 的 step wall-clock 计入 `planner_time_s`: `2_experiment/forest_n3p/inference.py:470-487`, `2_experiment/forest_n3p/inference.py:627-643`。
+
+设计含义:
+
+- F-N3P 是已有学习式 subgoal 分解, 不是本模块2的最终形态。
+- 模块2不能只复用 `run_forest_n3p()` 外层循环然后声称替换 RS。论文级实现必须进入 Hybrid A* analytic expansion 槽位。
+- `inference.py` 的计时修正仍有价值, 因为 evaluation 也要覆盖 F-N3P / baseline 对照。
+
+### 2.4 当前数据和评测基础
+
+- 训练数据配置已有 2000 maps、40 queries/map、100k 样本目标: `2_experiment/forest_n3p/training_data.py:41-68`。
+- 难度 profile 已按 Easy/Complex/Extreme 分桶: `2_experiment/forest_n3p/training_data.py:200-209`。
+- 程序化森林生成入口是 `generate_forest_grid()`: `2_experiment/forest_n3p/maps/forest.py:494-540`。
+- evaluation 已记录 success、feasible、time、expansions、path inflation、curvature、clearance、collision 等字段: `2_experiment/forest_n3p/evaluation.py:39-84`。
+- evaluation 已有 path densify + collision count + path quality 计算入口: `2_experiment/forest_n3p/evaluation.py:216-260`。
+
+设计含义:
+
+- 不要另起一个不可比较的数据/评测协议。
+- RL 训练可以复用 map/query generation, 但 label 目标要从 "subgoal imitation" 变成 "RS-connectable terminal set"。
+- 论文表格可以沿用现有 evaluation 字段, 但需要补 analytic expansion 细粒度 telemetry。
+
+## 3. 外部证据矩阵
+
+### 3.1 Hybrid A* analytic expansion 的问题是真问题
+
+Dang et al. 2022 明确把 Hybrid A* 分成 forward search 和 analytic expansion 两阶段, 并指出 RS curve 在 analytic expansion 中提高准确性和速度, 但在角落/障碍附近可能贴障碍:
+
+- MDPI HTML lines 334-337: https://www.mdpi.com/2076-3417/12/12/5999
+- Hybrid A* 两阶段: lines 347, 360-371: https://www.mdpi.com/2076-3417/12/12/5999
+- 论文结论说他们是在 analytic expansion phase 改进安全性: lines 433-434: https://www.mdpi.com/2076-3417/12/12/5999
+
+可用结论:
+
+- "RS analytic expansion 快但无视障碍/可能贴障碍" 是可引用问题。
+- Dang 2022 是直接相邻 baseline, 但它仍在 RS 家族内多曲率选优, 没有学习闭环避障 steering policy。
+
+### 3.2 HOPE 是强相关竞品, 但不是同一个插槽
+
+HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比较:
+
+- arXiv HTML lines 357-360: https://arxiv.org/html/2405.20579v1
+- GitHub README lines 237-238: https://github.com/jiamiya/HOPE
+- 训练入口包括 PPO 和 SAC: `https://github.com/jiamiya/HOPE/blob/main/src/train/train_HOPE_ppo.py#L100-L166`, `https://github.com/jiamiya/HOPE/blob/main/src/train/train_HOPE_sac.py#L100-L166`
+- `ParkingAgent` 在执行 RS 路径时直接由 `RsPlanner` 输出动作, 否则走 RL agent: `https://github.com/jiamiya/HOPE/blob/main/src/model/agent/parking_agent.py#L49-L95`
+- `RsPlanner.set_rs_path()` 把 RS ctypes/lengths 转成动作序列: `https://github.com/jiamiya/HOPE/blob/main/src/model/agent/parking_agent.py#L2-L47`
+- 环境动作是 `[steer, speed]`, kinematic single-track model step 更新状态: `https://github.com/jiamiya/HOPE/blob/main/src/env/vehicle.py#L69-L96`
+- 环境 reward 里包含 RS distance reward: `https://github.com/jiamiya/HOPE/blob/main/src/env/car_parking_base.py#L186-L227`
+- license: GPL-3.0, 不能直接复制进本项目核心代码, 只能概念借鉴或隔离参考。
+
+可用结论:
+
+- HOPE 支持 "RL+RS 组合比 naive RL 更稳" 这个方向。
+- HOPE 不是替换 Hybrid A* 内部 analytic expansion。它是 parking env 中 RL agent 和 RS planner 的融合执行。
+- 可借鉴: action mask, scene curriculum, RS distance shaping, RS action decomposition。
+- 不可直接复用: GPL 代码、停车场地图/状态定义、端到端 agent 结构。
+
+### 3.3 Neural A* 是 learned search guidance, 不是 analytic operator replacement
+
+- Neural A* README 说它是 trainable encoder + differentiable A* module, 学习 search optimality/efficiency trade-off: https://github.com/omron-sinicx/neural-astar
+- 代码 `NeuralAstar` 先 encode cost map, 再执行 differentiable A*: `https://github.com/omron-sinicx/neural-astar/blob/minimal/src/neural_astar/planner/astar.py#L105-L153`, `https://github.com/omron-sinicx/neural-astar/blob/minimal/src/neural_astar/planner/astar.py#L182-L213`
+- license API 未给出 SPDX, 使用前必须人工确认。
+
+可用结论:
+
+- Neural A* 是模块1/learned heuristic/node expansion 的相关工作。
+- 它不能证明 "learning policy 生成 analytic expansion edge" 已经被做掉。
+
+### 3.4 PythonRobotics 和 Karl Kurzer 只能作工程参考
+
+- PythonRobotics Reeds-Shepp 示例定义 Path.lengths/ctypes/directions: `https://github.com/AtsushiSakai/PythonRobotics/blob/master/PathPlanning/ReedsSheppPath/reeds_shepp_path_planning.py#L22-L37`
+- PythonRobotics 是教学实现, API/许可需要单独确认, 不作为本项目生产依赖。
+- Karl Kurzer path_planner 是 BSD-3-Clause, 可作为 Hybrid A* 工程参考。
+- Karl Kurzer `Algorithm::hybridAStar()` 在节点 in range 时执行 `dubinsShot`, 成功直接返回: `https://github.com/karlkurzer/path_planner/blob/master/src/algorithm.cpp#L165-L173`
+- Karl Kurzer 普通 successor expansion 紧随其后: `https://github.com/karlkurzer/path_planner/blob/master/src/algorithm.cpp#L176-L223`
+
+可用结论:
+
+- 这些仓库可以帮助审查本项目 Hybrid A* 插槽语义是否合理。
+- 它们不能直接提供 RL 替换方案。
+
+## 4. 禁止的假实现
+
+| 假实现 | 为什么是假 | 允许替代 |
+|---|---|---|
+| 只训练一个 policy 从 start 走到 goal, 不接入 `_try_analytic_expansion()` | 这是独立 RL planner, 不是替换 RS analytic expansion | 接入 `HybridAStarPlanner` 的 analytic operator, 失败返回 None |
+| 用 MLP 一次输出 subgoal, 再用 RS 连接 | 这是现有 F-N3P/KNN/MLP 范式, 不是闭环 RL steering | 每步局部观测, 每步输出曲率/steer, 虚拟 rollout |
+| reward 只写距离目标变近 | 会贴树/撞障碍/打转, 无法支撑路径质量 claim | success set + collision + clearance + curvature-rate + length + timeout |
+| 训练和推理用不同碰撞 checker | deployment distribution 不一致, 实验数字不可解释 | 共享 EDT/Grid footprint checker, 差异必须写入 metadata |
+| 只报成功率不报时间 | Contract 成功判据包含端到端时间 | 报 wall-clock, node expansions, policy calls, NN forward, collision checks |
+| 单一 seed 或单一地图出图 | 不能支撑论文 | 多 seed, Complex/Extreme, held-out procedural, real SLAM map |
+| 失败后偷偷换 warm-start 或换任务定义 | 违反预注册 | 失败按 gate 收口, 需要 v2 contract 才改定义 |
+
+## 5. 最大实现分解
+
+状态符号:
+
+- `[ ]` 未开始
+- `[>]` 正在执行
+- `[x]` 已完成
+- `[?]` 等 Dr Sun 或外部条件
+- `[!]` 失败或证伪, 需写原因
+
+### Phase A: 证据硬化和任务地基
+
+#### A00. 工作区保护与当前状态对齐
+
+- [x] A00.1 备份本会话前相关 dirty diff。
+  - 产出: commit `640c76bf 备份：模块2解析扩展分析与计时口径中间态`
+  - 包含: `2_experiment/forest_n3p/inference.py`, `0_trials/hybrid_astar_code_analysis.md`, `0_trials/hybrid_astar_code_analysis.html`
+- [?] A00.2 刷新热区, 关闭 "Contract 未起草" 旧状态。
+  - 输入: memory-retriever 结果显示热区过期。
+  - 验证: `bigmemory/热区/状态简报.md` 不再声称 module2 contract 未起草。
+  - 注意: 需要走项目 archive/sync 规则, 不在本文件中手改热区。
+  - 当前状态: `source-command-sync` skill 要求中途 AskUserQuestion 确认遗漏进展。为避免本 goal 停住, 暂挂到本轮归档/同步阶段处理。
+
+#### A01. 外部证据审计
+
+- [x] A01.1 建立 `0_trials/module2_rl_rs_evidence/` 证据目录。
+  - 文件: `sources.md`, `github_repos.md`, `paper_claims.md`, `negative_results.md`
+  - 每条证据必须有 URL、行号/section、trust label。
+  - 验证: 所有 URL 至少打开一次; 403/付费墙标为 blocked。
+- [ ] A01.2 深读 HOPE 论文和代码。
+  - 必读: arXiv method/algorithm/experiment, `parking_agent.py`, `car_parking_base.py`, `vehicle.py`, `model/action_mask.py`, `train_HOPE_ppo.py`, `eval_mix_scene.py`
+  - 输出: HOPE 与 ForestNav 插槽差异表。
+  - 失败条件: 只读 README 即停止。
+- [ ] A01.3 深读 Dang 2022 analytic expansion。
+  - 必读: Section 2.1, Section 3, Eq.2-4, experiment table。
+  - 输出: 本项目已有 Dang 多曲率实现与论文公式差异。
+  - 验证: 对照 `planner.py:204-280` 写逐项匹配/偏离。
+- [ ] A01.4 查 "learned connector / learned goal shot / neural steering function"。
+  - 查询词: `learned steering function motion planning`, `goal connect neural motion planner`, `RL local connector Hybrid A*`, `Reeds-Shepp neural planner`
+  - 输出: 正例、负例、未知项。
+  - 判据: 至少 10 个来源, 其中论文 >=5, 代码仓库 >=3。
+- [ ] A01.5 许可证审计。
+  - 输出: 可复制代码、只能读思想、不可用 三档。
+  - 必查: HOPE GPL-3.0, Karl Kurzer BSD-3-Clause, PythonRobotics license, Neural A* license。
+
+#### A02. 本地代码审计
+
+- [x] A02.1 形成 analytic expansion 插槽 API 设计备忘。
+  - 输入: `planner.py:204-245`, `planner.py:454-500`, `robot.py:29-113`
+  - 输出: `0_trials/module2_rl_rs_evidence/local_slot_api.md`
+  - 必含: 输入状态、goal、map、footprint、params、返回 states/actions、failure reason。
+- [ ] A02.2 形成 collision checker 统一备忘。
+  - 输入: `geometry.py:262-406`, `geometry.py:419-518`
+  - 输出: 训练/推理共享碰撞语义方案。
+- [ ] A02.3 评估当前 evaluation 字段缺口。
+  - 输入: `evaluation.py:39-84`, `evaluation.py:216-260`
+  - 输出: 需要新增 telemetry 字段列表。
+  - 必含: analytic_attempts, rs_attempts, rl_attempts, rl_successes, terminal_rs_successes, nn_forward_time_s, rollout_collision_checks, rollout_steps, fallback_to_primitives_count。
+
+### Phase B: 诚实计时和基线可比性
+
+#### B01. 固化 F-N3P 计时口径修正
+
+- [ ] B01.1 为 `inference.py` 计时修正补单元测试。
+  - 测试点: direct RS、verified RS segment、segment planning overhead。
+  - 验证命令: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q`
+  - 通过标准: direct/verified RS 不再出现 `planner_time_s=0.0`。
+- [ ] B01.2 更新 evaluation metadata, 明确 total_time_s 与 planner_time_s 的关系。
+  - 输出: `EvaluationRun.metadata["timing_protocol"]`
+  - 目的: 防止后续论文表格混用 wall-clock 与 planner-internal time。
+- [ ] B01.3 跑 targeted smoke。
+  - 数据: 3 个固定 seed 小地图, 每个 3 个 query。
+  - 输出: `0_trials/module2_timing_smoke/`
+  - 验证: stdout/stderr、CSV、manifest、当前 commit hash。
+
+#### B02. Vanilla HA* 与 Dang-RS baseline 拆分
+
+- [ ] B02.1 让 planner 可显式选择 analytic operator。
+  - operator: `single_rs`, `dang_multi_rs`, `disabled`
+  - 注意: 默认保持现状, 不破坏旧实验。
+  - 验证: 三种 operator 在同一 query 上 telemetry 可区分。
+- [ ] B02.2 单独记录 analytic expansion 尝试次数与成功次数。
+  - 当前 stats 只有 `remediations` 和 expansions, 不够。
+  - 新增 stats 字段必须由 tests 锁住。
+- [ ] B02.3 复跑小规模 baseline。
+  - 方法: HA* no analytic, HA* single RS, HA* Dang multi-RS。
+  - 输出: 证明 "RS slot 本身贡献多少", 否则 RL 改进无法归因。
+
+### Phase C: Oracle 形态分析 Gate #2
+
+#### C01. 收集 RS 失败节点
+
+- [ ] C01.1 在 Complex/Extreme 查询中记录每次 analytic expansion 失败的 state。
+  - 字段: query_id, expansion_idx, state, goal, h_holo, h_rs, nearest_obstacle, failure radius list。
+  - 输出: `0_trials/module2_oracle_shape/rs_failure_nodes.parquet`
+- [ ] C01.2 去重失败节点。
+  - 方法: 按 `(query_id, grid cell, theta bin)` 去重。
+  - 目的: 避免同一死点重复影响统计。
+
+#### C02. Oracle connector 可行性
+
+- [ ] C02.1 对每个 RS 失败节点跑局部/全图 HA* oracle。
+  - oracle A: 当前 node 到 final goal, analytic disabled, 放宽 timeout/max_nodes。
+  - oracle B: 当前 node 到若干中间可通行候选, 再 RS 到 goal。
+  - 输出: 是否存在可行连接、连接长度、转向次数、最小 clearance。
+- [ ] C02.2 标注失败形态。
+  - 类别: 无解死区、需绕瓶颈、需短程避障后开阔、需倒车、goal 周围不可达、checker 假阳性。
+  - 验证: 每类抽样出 PNG/SVG 可视化。
+- [ ] C02.3 Gate #2 判定。
+  - 通过: `需短程避障后开阔` 或 `需绕瓶颈` 占失败节点的主体。
+  - 失败: 多数节点 oracle 也无解。
+  - 输出: `.pipeline/experiments/YYYYMMDD_module2_gate2_oracle_shape.md`
+
+### Phase D: 成本账 Gate #1
+
+#### D01. 解析扩展开销拆分
+
+- [ ] D01.1 为 Dang multi-RS 统计每次调用的候选半径数、RS 求解时间、采样时间、碰撞检测时间。
+  - 插入点: `planner.py:204-245`, `planner.py:282-340`
+  - 输出: telemetry dataclass, 不污染主路径。
+- [ ] D01.2 统计 RS 失败调用的平均成本。
+  - 数据: C01 的同一 query set。
+  - 输出: `rs_attempt_cost_s`, `collision_checks`, `samples_checked`。
+
+#### D02. 神经 policy 前向预算
+
+- [ ] D02.1 实现三个候选网络的纯前向 microbenchmark。
+  - tiny MLP: target + low-res lidar/distance vector。
+  - small CNN: 2-channel egocentric patch + target pose。
+  - compact CNN+MLP: patch encoder + scalar head。
+  - 输入 shape 必须来自 C02 patch 需求, 不能拍脑袋。
+- [ ] D02.2 CPU 与 GPU 都测。
+  - CPU: 本机或远端单线程。
+  - GPU: 远端 CUDA, batch=1 和 batch=N analytic attempts。
+  - 输出: p50/p95 forward ms。
+- [ ] D02.3 Gate #1 判定。
+  - 通过: `NN forward + rollout collision` 的 p50 成本小于 "被省掉的 RS/HA* expansion 成本" 的保守估计。
+  - 失败: 端到端时间无下降空间。
+  - 输出: `.pipeline/experiments/YYYYMMDD_module2_gate1_cost_accounting.md`
+
+### Phase E: RL steering 环境
+
+#### E01. 环境 API
+
+- [ ] E01.1 新建 `2_experiment/forest_n3p/rl_rs/` 包。
+  - 文件: `__init__.py`, `env.py`, `obs.py`, `actions.py`, `reward.py`, `terminal.py`, `policy.py`, `rollout.py`, `telemetry.py`
+  - 说明: 这是最大实现骨架, 不是单文件 demo。
+- [ ] E01.2 `AnalyticExpansionEnv` 环境输入必须来自 planner state。
+  - reset 输入: map, footprint, current state, final goal, params, checker, budget。
+  - step 输入: continuous steer/curvature。
+  - step 输出: obs, reward, terminated, truncated, info。
+- [ ] E01.3 观测实现。
+  - 主通道: egocentric occupancy patch。
+  - 辅通道: EDT/distance field patch。
+  - scalar: relative goal distance, bearing, heading error, current clearance, remaining budget。
+  - 验证: patch rotate/translate invariance 通过图像测试。
+- [ ] E01.4 动作实现。
+  - v1: forward-only continuous steering in `[-max_steer, max_steer]`。
+  - v2 candidate: steering + direction gate, 用于 "需倒车" 形态。
+  - 注意: v2 只有 C02 证明倒车必要时才启用。
+- [ ] E01.5 终止条件实现。
+  - success: 当前 state 能通过 RS 无碰撞接到 final goal。
+  - collision: 当前 rollout segment 碰撞。
+  - truncated: budget exhausted 或 no progress。
+  - failure metadata: collision, timeout, no_rs_terminal, oscillation。
+
+#### E02. Reward 最大实现
+
+- [ ] E02.1 success reward 与部署使命一致。
+  - 直接调用本地 RS checker, 不用任意 "离目标 < eps" 代替。
+- [ ] E02.2 shaping 分项全部写入 info。
+  - distance/RS-distance progress, clearance, curvature-rate, path length, step penalty, terminal bonus/penalty。
+- [ ] E02.3 reward ablation hooks。
+  - 每个 reward term 可开关。
+  - 后续论文可做消融, 不允许写死。
+
+#### E03. 环境测试
+
+- [ ] E03.1 单步运动学测试。
+  - 与 `propagate()` 输出严格一致。
+- [ ] E03.2 碰撞测试。
+  - 同一 pose/path 下 env checker 与 planner checker 一致。
+- [ ] E03.3 success set 测试。
+  - 人工构造无障碍/有障碍 RS 对接样例。
+- [ ] E03.4 no progress/oscillation 测试。
+  - 防止 policy 原地左右打舵拿 shaping。
+
+### Phase F: BC warm-start 与 PPO 训练
+
+#### F01. Oracle 数据生成
+
+- [ ] F01.1 从 C02 oracle path 提取 state-action demonstrations。
+  - 状态: 每个 rollout step 的 env obs。
+  - 动作: oracle path 下一段曲率/steer。
+  - 过滤: 碰撞、过短、terminal RS 已可达样本。
+- [ ] F01.2 数据 manifest。
+  - 记录 map seed, query id, oracle type, source commit, extraction config。
+  - 输出: `2_experiment/forest_n3p/datasets/module2_rl_rs_bc/manifest.json`
+
+#### F02. BC 预热
+
+- [ ] F02.1 训练 BC policy。
+  - loss: steer regression + terminal classifier optional。
+  - metric: rollout success to RS-connectable set, not only action MSE。
+- [ ] F02.2 BC 作为正式 baseline。
+  - 目的: 证明 PPO 精调是否真的必要。
+  - 失败: 若 BC 已够好, 论文叙事要改成 "imitation initialized neural analytic expansion", PPO 只作 fine-tune。
+
+#### F03. PPO 最大实现
+
+- [ ] F03.1 选择 RL 库。
+  - 候选: stable-baselines3, cleanrl, local minimal PPO。
+  - 决策依据: continuous action, vector env, logging, checkpoint, license, reproducibility。
+  - 不允许: 手写不可审计的临时 PPO。
+- [ ] F03.2 vectorized env。
+  - 多 map/query 并行采样。
+  - 每个 episode 绑定一个 RS failure node 或 near-goal state。
+- [ ] F03.3 curriculum。
+  - stage 1: open/simple connector。
+  - stage 2: obstacle near but one clear side。
+  - stage 3: Complex/Extreme RS failure nodes。
+  - stage 4: held-out procedural maps。
+- [ ] F03.4 logging。
+  - TensorBoard/CSV: reward terms, success, terminal RS success, collision, truncation, rollout length, clearance, curvature rate。
+  - 每个 checkpoint 存 config + source hash。
+- [ ] F03.5 Gate #3 判定。
+  - 通过: 小规模单一密度地图中 RS-connectable terminal success > 80%。
+  - 失败: 按 Contract 记录 PPO 不收敛, 不改任务定义。
+
+### Phase G: Planner 集成
+
+#### G01. Operator 接口
+
+- [ ] G01.1 定义 `AnalyticExpansionOperator` protocol。
+  - `try_connect(state, goal, context) -> AnalyticExpansionResult | None`
+  - result 必含: states, actions, telemetry, terminal_rs_used。
+- [ ] G01.2 实现 `DangRsOperator` 适配当前代码。
+  - 目的: 新旧 operator 共用 telemetry/evaluation。
+- [ ] G01.3 实现 `RlRsFunnelOperator`。
+  - 流程: RL rollout -> terminal RS check -> return states/actions。
+  - 失败: 返回 None, 不抛异常终止 HA*。
+- [ ] G01.4 CLI/config 选择 operator。
+  - 默认不变。
+  - 实验脚本显式写 operator 名称。
+
+#### G02. 集成测试
+
+- [ ] G02.1 无模型 stub operator 测试。
+  - 用 deterministic steering mock 验证 planner 调用和 fallback。
+- [ ] G02.2 加载 checkpoint 测试。
+  - 缺 checkpoint 必须报错, 不能静默退回 RS 并声称 RL 生效。
+- [ ] G02.3 telemetry 测试。
+  - RL attempts/successes/failures 数字可被 evaluation 读取。
+
+### Phase H: 主实验
+
+#### H01. 评测协议冻结
+
+- [ ] H01.1 生成 module2 v1 evaluation manifest。
+  - 方法: HA* no analytic, HA* single RS, HA* Dang multi-RS, F-N3P KNN, F-N3P MLP, BC analytic operator, PPO analytic operator, PPO+RS funnel。
+  - 地图: Easy/Complex/Extreme held-out, real SLAM maps。
+  - seeds: >=5。
+  - queries: 每桶 >=100。
+- [ ] H01.2 指标冻结。
+  - Contract 主指标: expansions, total wall-clock, timeout failure rate, path quality。
+  - 诊断指标: analytic success, terminal RS success, collision checks, fallback count, clearance。
+
+#### H02. 正式评测
+
+- [ ] H02.1 本地 targeted smoke。
+  - 每方法 3 query, 检查输出格式和无碰撞。
+- [ ] H02.2 远端完整运行。
+  - 必须同步回本地: stdout/stderr, CSV, manifest, config, checkpoints, source hash。
+- [ ] H02.3 统计检验。
+  - Wilcoxon signed-rank for paired time/expansions。
+  - Bootstrap CI for success/failure rate。
+- [ ] H02.4 Contract 判定。
+  - 严格按 `.pipeline/contracts/module2-ppo-funnel-expansion.md:19-39`。
+  - 不允许事后改成功定义。
+
+### Phase I: 论文材料
+
+#### I01. Method 图和算法伪代码
+
+- [ ] I01.1 画系统图。
+  - 必含: HA* open loop, analytic trigger, RL rollout, terminal RS, fallback primitives。
+- [ ] I01.2 写 Algorithm 1: RL-RS Funnel Analytic Expansion。
+  - 输入/输出对齐代码 protocol。
+  - 每一步引用代码实现文件。
+- [ ] I01.3 写 Algorithm 2: Training Environment。
+  - reset, obs, action, terminal, reward。
+
+#### I02. 实验表格
+
+- [ ] I02.1 主表。
+  - rows: methods。
+  - columns: success, timeout, time p50/p95, expansions p50/p95, path inflation, clearance。
+- [ ] I02.2 消融表。
+  - occupancy only vs occupancy+EDT。
+  - BC vs PPO。
+  - terminal RS on/off。
+  - action mask on/off。
+  - forward-only vs forward+reverse if enabled。
+- [ ] I02.3 失败分析表。
+  - oracle no-solution, terminal RS fail, collision, oscillation, compute-overhead fail。
+
+#### I03. 论文 claim 安全线
+
+- [ ] I03.1 可 claim。
+  - "在本项目森林程序化地图和指定真实地图上, RL-RS funnel operator 相对 RS analytic expansion 降低..."
+  - 必须附对应统计检验。
+- [ ] I03.2 不可 claim。
+  - "全局最优"。
+  - "完备性增强"。
+  - "RL 替代 Hybrid A*"。
+  - "泛化到所有森林环境"。
+
+## 6. 当前第一批执行队列
+
+优先级从上到下。每次只拿第一项 `[ ]`。
+
+1. [?] A00.2 刷新项目状态记忆, 关闭旧热区状态。
+2. [x] A01.1 建立外部证据目录和 sources 模板。
+3. [x] A02.1 写本地 analytic expansion slot API 备忘。
+4. [ ] B01.1 给计时口径补测试。
+5. [ ] B02.1 拆分 analytic operator 配置。
+6. [ ] C01.1 采集 RS 失败节点。
+
+## 7. 完成记录
+
+- 2026-07-03: 创建本文件。依据本地 contract、当前 Hybrid A* 代码、F-N3P inference/evaluation/data 代码、Dang 2022、HOPE、Neural A*、PythonRobotics、Karl Kurzer path_planner 建立最大实现任务分解。
+- 2026-07-03: 会话前相关中间态已备份到 commit `640c76bf`。
+- 2026-07-03: 完成 A01.1, 新建 `0_trials/module2_rl_rs_evidence/` 证据目录与四个模板/初始证据文件。
+- 2026-07-03: 完成 A02.1, 新建 `local_slot_api.md`, 把模块2 API 从 "RL planner" 收紧到 "HA* analytic expansion operator"。

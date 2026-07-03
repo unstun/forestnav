@@ -1,0 +1,51 @@
+---
+origin: ai+web+local
+reviewed: false
+created: 2026-07-03
+topic: module2 RL-RS negative results
+---
+
+# 负面结果与证伪记录
+
+> 用途: 防止后续重复把相邻工作误写成 "已经替换 analytic expansion"。
+
+## N001: 只做端到端 RL planner 不能算模块2完成
+
+- 本地依据: 真实插入点是 `HybridAStarPlanner._try_analytic_expansion()`, 主循环在 analytic 成功时拼接并返回, 失败才扩展 primitives。
+- 锚点: `2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py:204-245`, `:454-500`。
+- 结论: 任何不接入这个槽位的 RL demo 都不能声称替换 RS。
+
+## N002: HOPE 不是 HA* analytic expansion slot replacement
+
+- 外部代码依据:
+  - `ParkingAgent.choose_action()` 在 RS route 执行期取 `RsPlanner` 动作, 否则取 RL 动作。
+  - `CarParking` 环境是 parking gym env, 不是 HA* open-list 节点内部。
+- 结论: HOPE 是强相关竞品和设计线索, 但不能作为 "本任务已有人直接做过" 的证据。
+
+## N003: Neural A* 不是 local analytic connector
+
+- 外部代码依据:
+  - `NeuralAstar.encode()` 输出 cost map。
+  - forward 调用 A* 搜索。
+- 结论: 它是 learned heuristic/search guidance 相关工作, 不是 RS shot 替代。
+
+## N003b: LoHA*/SLOPE 不是 analytic connector
+
+- 外部依据:
+  - LoHA* 学 local heuristic 并放入 focal search。
+  - SLOPE 学距离 optimal path 的函数, 用于 prune unfavorable nodes。
+- 结论: 都是 search guidance/node pruning 层, 不是生成当前 node 到 goal 的连续连接边。
+
+## N004: F-N3P/KNN/MLP 不是 RL 替换 RS
+
+- 本地依据:
+  - `run_forest_n3p()` 使用 predictor 预测 subgoal, 再用 RS 验证 subgoal 可达。
+  - 这属于 learned subgoal decomposition, 不是在 HA* analytic expansion 里闭环 rollout。
+- 结论: 可保留为 baseline 或消融, 不能作为模块2最终主方法。
+
+## N005: Adapting RL for Path Planning 不是内部 RS shot replacement
+
+- 外部依据:
+  - 论文 lines 86-88 自述是 autonomous driving pipeline 中 Hybrid A* module 的 drop-in replacement。
+  - lines 125-130, 154-162 显示它使用 closed-loop PPO + curriculum/action chunking 生成整条路径。
+- 结论: 可借 PPO/chunking/curriculum 设计, 但不是 ForestNav module2 的 HA* analytic operator。
