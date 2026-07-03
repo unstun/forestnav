@@ -4,7 +4,7 @@ import math
 from dataclasses import dataclass, field
 from typing import Any
 
-from forest_n3p.rl_rs.actions import SteeringAction
+from forest_n3p.rl_rs.actions import ActionConfig, SteeringAction
 from forest_n3p.rl_rs.obs import ObservationConfig, RlRsObservation, build_observation
 from forest_n3p.rl_rs.reward import RewardBreakdown, pending_reward_breakdown
 from forest_n3p.rl_rs.rollout import rollout_constant_steer_step
@@ -29,6 +29,7 @@ class AnalyticExpansionContext:
     theta_bins: int = 72
     collision_padding_m: float | None = None
     observation_config: ObservationConfig = field(default_factory=ObservationConfig)
+    action_config: ActionConfig = field(default_factory=ActionConfig)
 
     def __post_init__(self) -> None:
         _validate_state("start", self.start)
@@ -116,6 +117,7 @@ class AnalyticExpansionEnv:
             checker=self._checker,
             action_step_m=float(context.action_step_m),
             collision_sample_step_m=float(context.collision_sample_step_m),
+            action_config=context.action_config,
         )
         self._state = rollout.next_state
         budget_exhausted = (step_index + 1) >= int(context.max_steps)
@@ -149,6 +151,7 @@ class AnalyticExpansionEnv:
             step_index=step_index,
             requested_steering_rad=rollout.requested_steering_rad,
             applied_steering_rad=rollout.applied_steering_rad,
+            primitive_direction=int(rollout.primitive.direction),
             action_clipped=rollout.action_clipped,
             sample_count=len(rollout.samples),
             sample_time_s=rollout.sample_time_s,
