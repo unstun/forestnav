@@ -350,9 +350,15 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 
 #### D01. 解析扩展开销拆分
 
-- [ ] D01.1 为 Dang multi-RS 统计每次调用的候选半径数、RS 求解时间、采样时间、碰撞检测时间。
+- [x] D01.1 为 Dang multi-RS 统计每次调用的候选半径数、RS 求解时间、采样时间、碰撞检测时间。
   - 插入点: `planner.py:204-245`, `planner.py:282-340`
   - 输出: telemetry dataclass, 不污染主路径。
+  - 已完成: `AnalyticCandidateTelemetry`, `AnalyticRadiusResult`, `AnalyticExpansionTelemetry`。
+  - Stats 字段: `analytic_candidate_radius_count`, `analytic_candidate_success_count`, `analytic_candidate_failure_count`, `analytic_rs_solve_time_s`, `analytic_sample_time_s`, `analytic_collision_check_time_s`, `analytic_cost_eval_time_s`, `analytic_total_time_s`, `analytic_sample_count`, `analytic_collision_check_count`。
+  - Evaluation metadata: 常规评测只透传 summary telemetry, 不透传 `analytic_telemetry_records` 大列表。
+  - Smoke: `0_trials/module2_cost_accounting/d01_analytic_cost_telemetry_smoke/summary.json`, Dang multi-RS 空图单次 analytic attempt 扫 11 个半径, 11 个候选成功, telemetry record count 1。
+  - 验证: `py_compile` pass; `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_hybrid_astar_analytic_operator.py 2_experiment/forest_n3p/tests/test_evaluation_timing_protocol.py 2_experiment/forest_n3p/tests/test_inference_timing.py -q` -> `9 passed in 1.00s`。
+  - 记录: `.pipeline/experiments/20260703_module2_d01_analytic_cost_telemetry.md`。
 - [ ] D01.2 统计 RS 失败调用的平均成本。
   - 数据: C01 的同一 query set。
   - 输出: `rs_attempt_cost_s`, `collision_checks`, `samples_checked`。
@@ -555,7 +561,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 优先级从上到下。每次只拿第一项 `[ ]`。
 
 1. [?] A00.2 刷新项目状态记忆, 关闭旧热区状态。
-2. [ ] D01.1 拆分 Dang multi-RS 调用成本。
+2. [ ] D01.2 统计 C01/C02 query set 上的 RS analytic attempt 成本分布。
 3. [ ] D02.1 基于 C02 patch/connector 需求做神经 policy 前向预算。
 
 ## 7. 完成记录
@@ -567,3 +573,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-03: 完成 C02.1 全量 oracle connector, 7860/7860 dedup RS failure nodes 覆盖完成。Full run: Oracle A 6226, Oracle B 6287, connectable 6289; unresolved 1571 全部是 invalid start/goal; non-invalid 6289/6289 connectable; B-only timeout 63。记录见 `.pipeline/experiments/20260703_module2_c02_oracle_connector_full.md`。
 - 2026-07-03: 完成 C02.2 首批 shape label visual seed, 7 张代表样本 PNG 覆盖 invalid endpoint、goal-annulus B-only timeout rescue、A-only conservative B rejection。记录见 `.pipeline/experiments/20260703_module2_c02_shape_labels.md`。注意: 5 个 `voronoi_skeleton` B-only rows 当前重放失败, 暂不能作为论文证据。
 - 2026-07-03: 完成 C02.3 Gate #2 oracle shape 判定。结果是 `gate2_not_failed_scope_narrowed`: "多数节点 oracle 也无解" 失败条件未命中, 但 RL 目标范围被压窄到 invalid endpoint 清洗 + timeout/operator-cost cases。D01/D02 成本账是进入 RL-RS 实现前的必要下一步。记录见 `.pipeline/experiments/20260703_module2_gate2_oracle_shape.md`。
+- 2026-07-03: 完成 D01.1 Dang multi-RS analytic cost telemetry。Planner stats 现在能拆分候选半径数、RS solve、sampling、collision check、Dang cost eval、sample/check counts; 常规 evaluation metadata 透传 summary。Smoke artifact 见 `0_trials/module2_cost_accounting/d01_analytic_cost_telemetry_smoke/summary.json`, 记录见 `.pipeline/experiments/20260703_module2_d01_analytic_cost_telemetry.md`。
