@@ -305,10 +305,16 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 
 #### C02. Oracle connector 可行性
 
-- [ ] C02.1 对每个 RS 失败节点跑局部/全图 HA* oracle。
+- [>] C02.1 对每个 RS 失败节点跑局部/全图 HA* oracle。
   - oracle A: 当前 node 到 final goal, analytic disabled, 放宽 timeout/max_nodes。
   - oracle B: 当前 node 到若干中间可通行候选, 再 RS 到 goal。
   - 输出: 是否存在可行连接、连接长度、转向次数、最小 clearance。
+  - 已完成: 新增 `2_experiment/forest_n3p/scripts/run_oracle_connector_analysis.py`。
+  - Oracle B 候选源: `goal_annulus`, `corridor_offset`, `edt_high_clearance`, `voronoi_skeleton`。
+  - Smoke 1: `0_trials/module2_oracle_shape/oracle_connector_results_smoke5.parquet`, Complex 前 5 个节点, A=5/5, B=5/5, stderr 空。
+  - Smoke 2: `0_trials/module2_oracle_shape/oracle_connector_results_smoke_extreme3.parquet`, Extreme 3 个节点, A=2/3, B=3/3, stderr 空。
+  - 关键观察: `extreme_s00_q0001:150:45:26` 出现 A 失败但 B 成功, 说明中间候选 oracle 能捕捉非平凡连接形态。
+  - 当前边界: 只完成 bounded smoke, 还没有全量 7860 dedup 节点结果, 不能下 Gate #2 结论。
 - [ ] C02.2 标注失败形态。
   - 类别: 无解死区、需绕瓶颈、需短程避障后开阔、需倒车、goal 周围不可达、checker 假阳性。
   - 验证: 每类抽样出 PNG/SVG 可视化。

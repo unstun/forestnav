@@ -105,3 +105,115 @@ Additional dedup fields:
 This dataset is intentionally pre-oracle. It says where RS analytic expansion
 failed, not whether those states are solvable by a local connector. C02 must run
 oracle checks before any RL-steering design claim is allowed.
+
+## C02.1 Oracle Connector Smoke
+
+Status: `smoke_pass_not_gate`
+
+Script:
+
+- `2_experiment/forest_n3p/scripts/run_oracle_connector_analysis.py`
+- Source head: `f7bdb0e8a2a26d5b052b710fe299b799d1e85ee6`
+
+Oracle definitions:
+
+- Oracle A: Hybrid A* from failed analytic-expansion node to final goal with
+  analytic operator disabled.
+- Oracle B: generate intermediate poses from `goal_annulus`,
+  `corridor_offset`, `edt_high_clearance`, and `voronoi_skeleton`; keep only
+  candidates with collision-free RS to the final goal; plan from the failed node
+  to the candidate with analytic disabled; then re-run RS from the actual segment
+  endpoint to the final goal before accepting the combined path.
+
+Complex smoke command:
+
+```bash
+PYTHONPATH=2_experiment python -m forest_n3p.scripts.run_oracle_connector_analysis \
+  --input 0_trials/module2_oracle_shape/rs_failure_nodes_dedup.parquet \
+  --output 0_trials/module2_oracle_shape/oracle_connector_results_smoke5.parquet \
+  --max-records 5 \
+  --oracle-a-timeout-s 4 \
+  --oracle-a-max-nodes 30000 \
+  --oracle-b-segment-timeout-s 2 \
+  --oracle-b-segment-max-nodes 15000 \
+  --oracle-b-candidate-limit 16 \
+  --source-head f7bdb0e8a2a26d5b052b710fe299b799d1e85ee6
+```
+
+Complex smoke outputs:
+
+- `oracle_connector_results_smoke5.parquet`
+- `oracle_connector_results_smoke5_summary.json`
+- `oracle_connector_results_smoke5_stdout.txt`
+- `oracle_connector_results_smoke5_stderr.txt`
+
+Complex smoke result:
+
+- Selected rows: 5 / 7860
+- Bucket: Complex
+- Oracle A success: 5 / 5
+- Oracle B success: 5 / 5
+- Oracle connectable: 5 / 5
+- Candidate counts: 191-196 RS-reachable candidates per row
+- Collision violations: 0 on accepted A/B paths
+- `stderr`: empty
+
+Extreme smoke command:
+
+```bash
+PYTHONPATH=2_experiment python -m forest_n3p.scripts.run_oracle_connector_analysis \
+  --input 0_trials/module2_oracle_shape/rs_failure_nodes_dedup.parquet \
+  --output 0_trials/module2_oracle_shape/oracle_connector_results_smoke_extreme3.parquet \
+  --row-offset 3368 \
+  --max-records 3 \
+  --oracle-a-timeout-s 4 \
+  --oracle-a-max-nodes 30000 \
+  --oracle-b-segment-timeout-s 2 \
+  --oracle-b-segment-max-nodes 15000 \
+  --oracle-b-candidate-limit 16 \
+  --source-head f7bdb0e8a2a26d5b052b710fe299b799d1e85ee6
+```
+
+Extreme smoke outputs:
+
+- `oracle_connector_results_smoke_extreme3.parquet`
+- `oracle_connector_results_smoke_extreme3_summary.json`
+- `oracle_connector_results_smoke_extreme3_stdout.txt`
+- `oracle_connector_results_smoke_extreme3_stderr.txt`
+
+Extreme smoke result:
+
+- Selected rows: 3 / 7860
+- Bucket: Extreme
+- Oracle A success: 2 / 3
+- Oracle B success: 3 / 3
+- Oracle connectable: 3 / 3
+- Candidate counts: 34-233 RS-reachable candidates per row
+- Collision violations: 0 on accepted A/B paths
+- Non-trivial case: `extreme_s00_q0001:150:45:26` has Oracle A failure but
+  Oracle B success, so the B pipeline is not merely duplicating direct HA*.
+- `stderr`: empty
+
+Verification:
+
+```bash
+PYTHONPATH=2_experiment python -m py_compile \
+  2_experiment/forest_n3p/scripts/run_oracle_connector_analysis.py
+
+PYTHONPATH=2_experiment pytest \
+  2_experiment/forest_n3p/tests/test_hybrid_astar_analytic_operator.py \
+  2_experiment/forest_n3p/tests/test_inference_timing.py \
+  2_experiment/forest_n3p/tests/test_evaluation_timing_protocol.py \
+  -q
+```
+
+Result:
+
+- `py_compile`: pass
+- `pytest`: `8 passed in 0.99s`
+
+Boundary:
+
+- This is a bounded C02.1 smoke, not the full Gate #2 result.
+- Full C02.1 still needs all 7860 deduplicated RS failure nodes, or a
+  preregistered stratified subset if the full run is too expensive.
