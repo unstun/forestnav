@@ -1,4 +1,11 @@
-from forest_n3p.rl_rs.actions import ClippedSteeringAction, SteeringAction, clip_steering_action
+from forest_n3p.rl_rs.actions import (
+    ActionConfig,
+    ClippedSteeringAction,
+    SteeringAction,
+    clip_steering_action,
+    decode_steering_action,
+    steering_action_to_primitive,
+)
 from forest_n3p.rl_rs.env import AnalyticExpansionContext, AnalyticExpansionEnv, AnalyticExpansionStep
 from forest_n3p.rl_rs.obs import (
     ObservationConfig,
@@ -19,6 +26,7 @@ __all__ = [
     "AnalyticExpansionContext",
     "AnalyticExpansionEnv",
     "AnalyticExpansionStep",
+    "ActionConfig",
     "ClippedSteeringAction",
     "ObservationConfig",
     "RewardBreakdown",
@@ -36,5 +44,7 @@ __all__ = [
     "build_scalar_observation",
     "check_terminal_rs_connectable",
     "clip_steering_action",
+    "decode_steering_action",
     "rollout_constant_steer_step",
+    "steering_action_to_primitive",
 ]
