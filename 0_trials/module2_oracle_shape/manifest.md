@@ -484,3 +484,56 @@ Boundary:
 Experiment record:
 
 - `.pipeline/experiments/20260703_module2_c02_shape_labels.md`
+
+## C02.3 Gate #2 Oracle Shape Decision
+
+Status: `gate2_not_failed_scope_narrowed`
+
+Source head:
+
+- `be2c7f14`
+
+Input artifacts:
+
+- `oracle_connector_results.parquet`
+- `oracle_connector_full/summary.json`
+- `c02_shape_labels/summary.json`
+- `c02_shape_labels/index.md`
+
+Independent verification result:
+
+| Item | Value |
+|---|---:|
+| Full status | `complete` |
+| Chunk count | 79 |
+| Rows | 7860 |
+| Invalid start/goal | 1571 |
+| Non-invalid rows | 6289 |
+| Non-invalid connectable | 6289 |
+| Non-invalid unresolved | 0 |
+| B-only | 63 |
+| A-only | 2 |
+| Both success | 6224 |
+| Total unresolved | 1571 |
+| Shape-label cases | 7 |
+| Replayed/rendered B-success visual cases | 2 |
+
+B-only selected source distribution:
+
+| Source | Count | Evidence status |
+|---|---:|---|
+| `goal_annulus` | 58 | Reproducible visual positives exist. |
+| `voronoi_skeleton` | 5 | Replay mismatch; do not use as paper evidence until audited. |
+
+Decision:
+
+- Gate #2 no-solution failure is not triggered, because all 6289 non-invalid
+  rows are oracle-connectable under the C02.1 budget.
+- The broad claim "most RS failures need RL" is rejected. Invalid endpoints
+  dominate unresolved rows, and B-only timeout rows are narrow.
+- D01/D02 cost accounting is the next allowed step before any RL-RS funnel
+  implementation or PPO training.
+
+Experiment record:
+
+- `.pipeline/experiments/20260703_module2_gate2_oracle_shape.md`
