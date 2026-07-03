@@ -55,6 +55,21 @@ def main(argv: Sequence[str] | None = None) -> int:
             limit=limit,
         )
         chunk_records.append(record)
+        print(
+            json.dumps(
+                {
+                    "event": "chunk_complete",
+                    "offset": int(record["offset"]),
+                    "limit": int(record["limit"]),
+                    "returncode": int(record["returncode"]),
+                    "skipped_existing": bool(record["skipped_existing"]),
+                    "parquet": str(record["parquet"]),
+                },
+                ensure_ascii=False,
+            ),
+            file=sys.stderr,
+            flush=True,
+        )
         if int(record["returncode"]) != 0:
             failed = record
             break
