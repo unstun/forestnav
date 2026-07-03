@@ -468,7 +468,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 直接调用本地 RS checker, 不用任意 "离目标 < eps" 代替。
   - 已完成: `compute_terminal_success_reward` 使用 `TerminalRsCheckResult.success` 作为唯一 success signal; `RewardConfig.terminal_rs_success` 控制权重; `AnalyticExpansionContext.reward_config` 接入 env。
   - 测试锁定: terminal RS success 时 `goal_distance_m > 0.0` 仍给 success reward, 证明不是欧氏距离阈值替代。
-  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `18 passed in 0.47s`。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `18 passed in 0.49s`。
   - 记录: `.pipeline/experiments/20260703_module2_e02_success_reward.md`。
 - [ ] E02.2 shaping 分项全部写入 info。
   - distance/RS-distance progress, clearance, curvature-rate, path length, step penalty, terminal bonus/penalty。
