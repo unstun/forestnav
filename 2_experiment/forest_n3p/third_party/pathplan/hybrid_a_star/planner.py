@@ -269,6 +269,39 @@ class HybridAStarPlanner:
             radii.append(1.0 / max(kappa, 1e-9))
         return radii
 
+    def _analytic_failure_record(
+        self,
+        expansion_idx: int,
+        state: AckermannState,
+        goal: AckermannState,
+        dist_map,
+        goal_center,
+        goal_offset: float,
+        failed_radii,
+    ) -> Dict[str, Any]:
+        h_holo = None
+        if dist_map is not None and goal_center is not None:
+            value = self._holonomic_cost_to_go(dist_map, goal_center, goal_offset, state)
+            h_holo = float(value) if math.isfinite(value) else None
+        rs = reeds_shepp_shortest_path(state.as_tuple(), goal.as_tuple(), self.params.min_turn_radius)
+        h_rs = float(rs.total_length) if rs is not None and math.isfinite(rs.total_length) else None
+        radii = tuple(float(radius) for radius in failed_radii)
+        return {
+            "expansion_idx": int(expansion_idx),
+            "analytic_operator": self.analytic_operator,
+            "state_x": float(state.x),
+            "state_y": float(state.y),
+            "state_theta": float(state.theta),
+            "goal_x": float(goal.x),
+            "goal_y": float(goal.y),
+            "goal_theta": float(goal.theta),
+            "h_holo": h_holo,
+            "h_rs": h_rs,
+            "nearest_obstacle_m": self._state_obstacle_distance(state),
+            "failed_radii": list(radii),
+            "failed_radius_count": int(len(radii)),
+        }
+
     def _dang2022_cost(self, states: List[AckermannState], actions: List[MotionPrimitive]) -> float:
         """Dang 2022 Eq. 3: G = σ₁·v + σ₂·m
 
