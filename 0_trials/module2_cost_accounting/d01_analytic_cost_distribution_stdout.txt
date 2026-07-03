@@ -1,0 +1,10 @@
+{
+  "status": "complete",
+  "output_dir": "0_trials/module2_cost_accounting/d01_analytic_cost_distribution",
+  "query_count": 20,
+  "attempt_count": 8622,
+  "candidate_count": 94842,
+  "attempt_total_time_p50": 0.0008141040007103584,
+  "attempt_total_time_p95": 0.002024803548920317,
+  "candidate_radius_count_p50": 11.0
+}

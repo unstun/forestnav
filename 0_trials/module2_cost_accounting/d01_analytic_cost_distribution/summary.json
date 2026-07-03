@@ -1,0 +1,336 @@
+{
+  "status": "complete",
+  "created_at_utc": "2026-07-03T22:44:23.031876+00:00",
+  "execution_host": "MacBook-Pro.local",
+  "source_head": "c152ed20cdced9034bca6932d65d0e4d1299f73e",
+  "command": "python -m forest_n3p.scripts.run_analytic_cost_distribution --output-dir 0_trials/module2_cost_accounting/d01_analytic_cost_distribution --queries-per-bucket 10 --seed-count 1 --queries-per-map 5 --density-profile-buckets validation_t06 --buckets Complex,Extreme --analytic-operator dang_multi_rs --timeout-s 2.5 --max-nodes 15000 --source-head c152ed20cdced9034bca6932d65d0e4d1299f73e",
+  "output_dir": "0_trials/module2_cost_accounting/d01_analytic_cost_distribution",
+  "outputs": {
+    "query_costs": "0_trials/module2_cost_accounting/d01_analytic_cost_distribution/query_costs.parquet",
+    "attempt_costs": "0_trials/module2_cost_accounting/d01_analytic_cost_distribution/attempt_costs.parquet",
+    "candidate_costs": "0_trials/module2_cost_accounting/d01_analytic_cost_distribution/candidate_costs.parquet"
+  },
+  "config": {
+    "queries_per_bucket": 10,
+    "seed_count": 1,
+    "queries_per_map": 5,
+    "seed": 20260620,
+    "density_profile_buckets": "validation_t06",
+    "buckets": [
+      "Complex",
+      "Extreme"
+    ],
+    "analytic_operator": "dang_multi_rs",
+    "timeout_s": 2.5,
+    "max_nodes": 15000,
+    "max_queries": null
+  },
+  "counts": {
+    "query_count": 20,
+    "attempt_count": 8622,
+    "candidate_count": 94842,
+    "plan_success_count": 15,
+    "plan_failure_count": 5,
+    "attempt_success_count": 15,
+    "attempt_all_failed_count": 8607,
+    "candidate_success_count": 60,
+    "candidate_failure_count": 94782
+  },
+  "failure_reason_counts": {
+    "plan": {
+      "None": 15,
+      "timeout": 5
+    },
+    "candidate": {
+      "collision": 94782,
+      "None": 60
+    }
+  },
+  "time_budget_totals": {
+    "plan_time_s": 24.751256227493286,
+    "analytic_total_time_s": 8.215954979956223,
+    "analytic_to_plan_time_ratio": 0.3319409287529445
+  },
+  "overall": {
+    "attempt_count": 8622,
+    "success_candidate_attempt_count": 15,
+    "all_failed_candidate_attempt_count": 8607,
+    "fields": {
+      "analytic_total_time_s": {
+        "count": 8622,
+        "mean": 0.000952905935972654,
+        "p50": 0.0008141040007103584,
+        "p90": 0.0016153541995663552,
+        "p95": 0.002024803548920317,
+        "p99": 0.0028285751801558944,
+        "max": 0.014479207999102073
+      },
+      "analytic_rs_solve_time_s": {
+        "count": 8622,
+        "mean": 0.00025498911043485197,
+        "p50": 0.00024897799903556006,
+        "p90": 0.00030266790054156445,
+        "p95": 0.000317610598358442,
+        "p99": 0.00038272947129371434,
+        "max": 0.0012605829979293048
+      },
+      "analytic_sample_time_s": {
+        "count": 8622,
+        "mean": 0.00015001288411326403,
+        "p50": 0.00011066649858548772,
+        "p90": 0.00031774130347912434,
+        "p95": 0.0003552345024218084,
+        "p99": 0.0004405588488953063,
+        "max": 0.01345021000088309
+      },
+      "analytic_collision_check_time_s": {
+        "count": 8622,
+        "mean": 0.0005004674193559317,
+        "p50": 0.000360041500243824,
+        "p90": 0.0010485688026165016,
+        "p95": 0.001443624300554802,
+        "p99": 0.002198287003702714,
+        "max": 0.0053611619950970635
+      },
+      "analytic_cost_eval_time_s": {
+        "count": 8622,
+        "mean": 3.9048341475394745e-07,
+        "p50": 0.0,
+        "p90": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "max": 0.0022682079979858827
+      },
+      "analytic_candidate_radius_count": {
+        "count": 8622,
+        "mean": 11.0,
+        "p50": 11.0,
+        "p90": 11.0,
+        "p95": 11.0,
+        "p99": 11.0,
+        "max": 11.0
+      },
+      "analytic_candidate_success_count": {
+        "count": 8622,
+        "mean": 0.006958942240779402,
+        "p50": 0.0,
+        "p90": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "max": 11.0
+      },
+      "analytic_sample_count": {
+        "count": 8622,
+        "mean": 659.2869403850615,
+        "p50": 450.0,
+        "p90": 1549.0,
+        "p95": 1726.9499999999998,
+        "p99": 1928.3699999999972,
+        "max": 3168.0
+      },
+      "analytic_collision_check_count": {
+        "count": 8622,
+        "mean": 18.439805149617257,
+        "p50": 22.0,
+        "p90": 22.0,
+        "p95": 22.0,
+        "p99": 22.0,
+        "max": 33.0
+      }
+    }
+  },
+  "by_bucket": {
+    "Complex": {
+      "attempt_count": 3516,
+      "success_candidate_attempt_count": 7,
+      "all_failed_candidate_attempt_count": 3509,
+      "fields": {
+        "analytic_total_time_s": {
+          "count": 3516,
+          "mean": 0.0010876057918143534,
+          "p50": 0.0009306664996984182,
+          "p90": 0.0018906249997598934,
+          "p95": 0.002185166000344907,
+          "p99": 0.0028275106012188183,
+          "max": 0.006922500000655418
+        },
+        "analytic_rs_solve_time_s": {
+          "count": 3516,
+          "mean": 0.00024077568521604334,
+          "p50": 0.00022593700032302877,
+          "p90": 0.00029539549541368615,
+          "p95": 0.00030712400075572077,
+          "p99": 0.00035831345176120497,
+          "max": 0.0005733740053983638
+        },
+        "analytic_sample_time_s": {
+          "count": 3516,
+          "mean": 0.00018569832255097864,
+          "p50": 0.00018004000139626442,
+          "p90": 0.00033593850002944237,
+          "p95": 0.00036145824515187996,
+          "p99": 0.00044248674230402675,
+          "max": 0.0015440009992744308
+        },
+        "analytic_collision_check_time_s": {
+          "count": 3516,
+          "mean": 0.0006086983876369762,
+          "p50": 0.00043551850012590876,
+          "p90": 0.001301977995353809,
+          "p95": 0.0015971880006873107,
+          "p99": 0.0021608822490634338,
+          "max": 0.0053611619950970635
+        },
+        "analytic_cost_eval_time_s": {
+          "count": 3516,
+          "mean": 7.325318550808351e-07,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p95": 0.0,
+          "p99": 0.0,
+          "max": 0.0022682079979858827
+        },
+        "analytic_candidate_radius_count": {
+          "count": 3516,
+          "mean": 11.0,
+          "p50": 11.0,
+          "p90": 11.0,
+          "p95": 11.0,
+          "p99": 11.0,
+          "max": 11.0
+        },
+        "analytic_candidate_success_count": {
+          "count": 3516,
+          "mean": 0.009670079635949944,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p95": 0.0,
+          "p99": 0.0,
+          "max": 11.0
+        },
+        "analytic_sample_count": {
+          "count": 3516,
+          "mean": 855.0437997724687,
+          "p50": 852.5,
+          "p90": 1645.0,
+          "p95": 1776.0,
+          "p99": 1911.2499999999995,
+          "max": 2310.0
+        },
+        "analytic_collision_check_count": {
+          "count": 3516,
+          "mean": 19.282707622298066,
+          "p50": 22.0,
+          "p90": 22.0,
+          "p95": 22.0,
+          "p99": 22.0,
+          "max": 33.0
+        }
+      }
+    },
+    "Extreme": {
+      "attempt_count": 5106,
+      "success_candidate_attempt_count": 8,
+      "all_failed_candidate_attempt_count": 5098,
+      "fields": {
+        "analytic_total_time_s": {
+          "count": 5106,
+          "mean": 0.0008601513936421771,
+          "p50": 0.0007561664997410844,
+          "p90": 0.0012906039992230944,
+          "p95": 0.0016550829991501814,
+          "p99": 0.0028324627999609204,
+          "max": 0.014479207999102073
+        },
+        "analytic_rs_solve_time_s": {
+          "count": 5106,
+          "mean": 0.0002647764984233618,
+          "p50": 0.0002732090015342692,
+          "p90": 0.0003064379980060039,
+          "p95": 0.000323188000038499,
+          "p99": 0.0003917626028851372,
+          "max": 0.0012605829979293048
+        },
+        "analytic_sample_time_s": {
+          "count": 5106,
+          "mean": 0.00012543983249810453,
+          "p50": 8.924950270738918e-05,
+          "p90": 0.0002842289995896863,
+          "p95": 0.00034387374535072013,
+          "p99": 0.0004341137496339797,
+          "max": 0.01345021000088309
+        },
+        "analytic_collision_check_time_s": {
+          "count": 5106,
+          "mean": 0.0004259393965443076,
+          "p50": 0.0003271450013926369,
+          "p90": 0.0007409369964079815,
+          "p95": 0.0011185107546225481,
+          "p99": 0.0022439373516135648,
+          "max": 0.003427414001635043
+        },
+        "analytic_cost_eval_time_s": {
+          "count": 5106,
+          "mean": 1.549482960329649e-07,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p95": 0.0,
+          "p99": 0.0,
+          "max": 0.0003218749989173375
+        },
+        "analytic_candidate_radius_count": {
+          "count": 5106,
+          "mean": 11.0,
+          "p50": 11.0,
+          "p90": 11.0,
+          "p95": 11.0,
+          "p99": 11.0,
+          "max": 11.0
+        },
+        "analytic_candidate_success_count": {
+          "count": 5106,
+          "mean": 0.0050920485703094395,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p95": 0.0,
+          "p99": 0.0,
+          "max": 11.0
+        },
+        "analytic_sample_count": {
+          "count": 5106,
+          "mean": 524.4884449667059,
+          "p50": 353.0,
+          "p90": 1366.5,
+          "p95": 1639.0,
+          "p99": 1943.0,
+          "max": 3168.0
+        },
+        "analytic_collision_check_count": {
+          "count": 5106,
+          "mean": 17.859381120250685,
+          "p50": 21.0,
+          "p90": 22.0,
+          "p95": 22.0,
+          "p99": 22.0,
+          "max": 33.0
+        }
+      }
+    }
+  },
+  "query_by_bucket": {
+    "Complex": {
+      "query_count": 10,
+      "plan_success_count": 7,
+      "plan_failure_count": 3,
+      "analytic_attempts_total": 3516,
+      "analytic_successes_total": 7
+    },
+    "Extreme": {
+      "query_count": 10,
+      "plan_success_count": 8,
+      "plan_failure_count": 2,
+      "analytic_attempts_total": 5106,
+      "analytic_successes_total": 8
+    }
+  }
+}

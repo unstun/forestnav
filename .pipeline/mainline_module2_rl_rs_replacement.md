@@ -359,9 +359,16 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - Smoke: `0_trials/module2_cost_accounting/d01_analytic_cost_telemetry_smoke/summary.json`, Dang multi-RS 空图单次 analytic attempt 扫 11 个半径, 11 个候选成功, telemetry record count 1。
   - 验证: `py_compile` pass; `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_hybrid_astar_analytic_operator.py 2_experiment/forest_n3p/tests/test_evaluation_timing_protocol.py 2_experiment/forest_n3p/tests/test_inference_timing.py -q` -> `9 passed in 1.00s`。
   - 记录: `.pipeline/experiments/20260703_module2_d01_analytic_cost_telemetry.md`。
-- [ ] D01.2 统计 RS 失败调用的平均成本。
+- [x] D01.2 统计 RS 失败调用的平均成本。
   - 数据: C01 的同一 query set。
   - 输出: `rs_attempt_cost_s`, `collision_checks`, `samples_checked`。
+  - 已完成: 新增 `2_experiment/forest_n3p/scripts/run_analytic_cost_distribution.py`。
+  - 输出: `0_trials/module2_cost_accounting/d01_analytic_cost_distribution/summary.json`, `query_costs.parquet`, `attempt_costs.parquet`, `candidate_costs.parquet`。
+  - 规模: 20 queries, 8622 analytic attempts, 94842 radius candidates。
+  - 关键预算: attempt total time p50 `0.000814s`, p95 `0.002025s`, p99 `0.002829s`; total analytic time `8.215955s` / plan time `24.751256s` = `0.331941`。
+  - 主要成本项: collision check mean `0.000500s`, RS solve mean `0.000255s`, sampling mean `0.000150s`。
+  - 边界: D01.2 是本地成本分布, 不是 Gate #1 判定; D02 NN forward + rollout collision 仍缺。
+  - 记录: `.pipeline/experiments/20260703_module2_d01_cost_distribution.md`。
 
 #### D02. 神经 policy 前向预算
 
@@ -561,8 +568,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 优先级从上到下。每次只拿第一项 `[ ]`。
 
 1. [?] A00.2 刷新项目状态记忆, 关闭旧热区状态。
-2. [ ] D01.2 统计 C01/C02 query set 上的 RS analytic attempt 成本分布。
-3. [ ] D02.1 基于 C02 patch/connector 需求做神经 policy 前向预算。
+2. [ ] D02.1 基于 C02 patch/connector 需求做神经 policy 前向预算。
 
 ## 7. 完成记录
 
@@ -574,3 +580,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-03: 完成 C02.2 首批 shape label visual seed, 7 张代表样本 PNG 覆盖 invalid endpoint、goal-annulus B-only timeout rescue、A-only conservative B rejection。记录见 `.pipeline/experiments/20260703_module2_c02_shape_labels.md`。注意: 5 个 `voronoi_skeleton` B-only rows 当前重放失败, 暂不能作为论文证据。
 - 2026-07-03: 完成 C02.3 Gate #2 oracle shape 判定。结果是 `gate2_not_failed_scope_narrowed`: "多数节点 oracle 也无解" 失败条件未命中, 但 RL 目标范围被压窄到 invalid endpoint 清洗 + timeout/operator-cost cases。D01/D02 成本账是进入 RL-RS 实现前的必要下一步。记录见 `.pipeline/experiments/20260703_module2_gate2_oracle_shape.md`。
 - 2026-07-03: 完成 D01.1 Dang multi-RS analytic cost telemetry。Planner stats 现在能拆分候选半径数、RS solve、sampling、collision check、Dang cost eval、sample/check counts; 常规 evaluation metadata 透传 summary。Smoke artifact 见 `0_trials/module2_cost_accounting/d01_analytic_cost_telemetry_smoke/summary.json`, 记录见 `.pipeline/experiments/20260703_module2_d01_analytic_cost_telemetry.md`。
+- 2026-07-03: 完成 D01.2 C01/C02 query-set analytic cost distribution。当前 source-bound run 覆盖 20 queries、8622 analytic attempts、94842 radius candidates; attempt p50/p95/p99 total time 为 0.814/2.025/2.829 ms; analytic expansion 占总 plan time 约 33.2%。记录见 `.pipeline/experiments/20260703_module2_d01_cost_distribution.md`。下一步进入 D02.1, 不可直接跳到 RL 环境或 PPO 训练。
