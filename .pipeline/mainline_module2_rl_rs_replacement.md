@@ -459,7 +459,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 已完成: success 仍由 terminal RS checker 判定; rollout collision `terminated`; budget exhausted 且 terminal RS 失败 `truncated` 并写入 `no_rs_terminal:<detail>`; no-progress 由 `min_progress_m` + `no_progress_patience` 控制, 提前 `truncated` 并写入 `no_progress`。
   - telemetry/info: `goal_distance_m`, `progress_to_goal_m`, `no_progress_count`。
   - 边界: `oscillation` 暂不 claim 已实现, 后移到 E03.4 定义可测试信号。
-  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `17 passed in 0.48s`。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `17 passed in 0.47s`。
   - 记录: `.pipeline/experiments/20260703_module2_e01_terminal_conditions.md`。
 
 #### E02. Reward 最大实现
