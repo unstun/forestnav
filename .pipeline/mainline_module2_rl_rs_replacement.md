@@ -415,9 +415,14 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 
 #### E01. 环境 API
 
-- [ ] E01.1 新建 `2_experiment/forest_n3p/rl_rs/` 包。
+- [x] E01.1 新建 `2_experiment/forest_n3p/rl_rs/` 包。
   - 文件: `__init__.py`, `env.py`, `obs.py`, `actions.py`, `reward.py`, `terminal.py`, `policy.py`, `rollout.py`, `telemetry.py`
   - 说明: 这是最大实现骨架, 不是单文件 demo。
+  - 已完成: 新增 `2_experiment/forest_n3p/rl_rs/` 包和 `2_experiment/forest_n3p/tests/test_rl_rs_api.py`。
+  - API anchors: `AnalyticExpansionContext`, `AnalyticExpansionEnv`, `SteeringAction`, `rollout_constant_steer_step`, `check_terminal_rs_connectable`, `RlRsStepTelemetry`, `SteeringPolicy`。
+  - 边界: reward 仍是 `pending_e02`; 当前只建立 planner-compatible API skeleton, 不代表 PPO/BC、reward 或 planner integration 完成。
+  - 验证: `py_compile` pass; `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `2 passed in 0.22s`。
+  - 记录: `.pipeline/experiments/20260703_module2_e01_rl_rs_api_skeleton.md`。
 - [ ] E01.2 `AnalyticExpansionEnv` 环境输入必须来自 planner state。
   - reset 输入: map, footprint, current state, final goal, params, checker, budget。
   - step 输入: continuous steer/curvature。
@@ -596,7 +601,8 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 2. [x] D02.1 基于 C02 patch/connector 需求做神经 policy 前向预算。
 3. [x] D02.2 加入干净 CPU/GPU forward 对比与 rollout collision 成本账。
 4. [x] D02.3 Gate #1 成本账判定。
-5. [ ] E01.1 新建 `2_experiment/forest_n3p/rl_rs/` 包和环境 API skeleton。
+5. [x] E01.1 新建 `2_experiment/forest_n3p/rl_rs/` 包和环境 API skeleton。
+6. [ ] E01.2 harden `AnalyticExpansionEnv.reset/step` around real planner-state context。
 
 ## 7. 完成记录
 
@@ -612,3 +618,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-03: 完成 D02.1 neural policy pure forward budget。新增 `run_policy_forward_budget.py` 和 shape 推导测试; 本机 CPU single-thread 跑 3 models x 2 shapes x 3 batch sizes, 18 aggregate rows / 18000 sample rows。Batch=1 下 64-cell CNN p50 为 0.120/0.162 ms, 128-cell CNN p50 为 0.405/0.520 ms, tiny MLP p50 约 0.011 ms。结论仅限 forward-only: 网络前向暂不是第一堵墙, 但 Gate #1 仍缺 rollout collision + terminal RS + clean CPU/GPU。记录见 `.pipeline/experiments/20260703_module2_d02_policy_forward_budget.md`。
 - 2026-07-03: 完成 D02.2 device forward + rollout collision 成本账。新增 `run_rollout_collision_budget.py`; 本机 CPU/MPS、远端 3070 Ti CUDA 跑 forward, C01 dedup failure nodes 跑 deterministic rollout collision + terminal RS proxy。保守组合成本示例: CPU compact CNN 128-cell forward p50 0.392ms + Grid 32-step candidate p50 0.239ms = 0.631ms, 低于 D01 attempt p50 0.814ms; 但这只说明 compute 不应直接杀死方向, 不说明 trained policy 能减少 search。记录见 `.pipeline/experiments/20260703_module2_d02_device_and_rollout_budget.md`。
 - 2026-07-03: 完成 D02.3 Gate #1 pre-implementation 成本判定。结果为 `gate1_not_failed_preimplementation_compute_gate`: compute 预算不提前杀死方向, 允许进入 E01 环境 API; 但完整 Gate #1 仍需 trained/integrated operator 的端到端配对评测。记录见 `.pipeline/experiments/20260703_module2_gate1_cost_accounting.md`。
+- 2026-07-03: 完成 E01.1 RL-RS API skeleton。新增 `2_experiment/forest_n3p/rl_rs/` 包, 覆盖 actions/env/obs/policy/reward/rollout/telemetry/terminal 九个模块和 API 测试。边界: reward 标为 `pending_e02`, 尚未完成 E01.2/E01.3、BC/PPO 或 planner integration。记录见 `.pipeline/experiments/20260703_module2_e01_rl_rs_api_skeleton.md`。
