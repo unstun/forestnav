@@ -14,6 +14,9 @@ from .obstacle_field import query_distance
 from .reeds_shepp import reeds_shepp_shortest_path
 
 
+ANALYTIC_OPERATORS = ("disabled", "single_rs", "dang_multi_rs")
+
+
 @dataclass
 class Node:
     state: AckermannState
@@ -51,6 +54,7 @@ class HybridAStarPlanner:
         same_cell_tie_breaker: float = 1e-3,
         # Analytical expansion (thesis §6.1.2).
         analytic_expansion: bool = True,
+        analytic_operator: Optional[str] = None,
         analytic_expansion_interval: int = 8,
         analytic_expansion_distance_scale: float = 10.0,
         # ── Dang 2022 多曲率 RS 解析扩展参数 ──
@@ -88,7 +92,6 @@ class HybridAStarPlanner:
         self.steering_change_penalty = max(0.0, float(steering_change_penalty))
         self.same_cell_tie_breaker = max(0.0, float(same_cell_tie_breaker))
 
-        self.analytic_expansion = bool(analytic_expansion)
         self.analytic_expansion_interval = max(1, int(analytic_expansion_interval))
         self.analytic_expansion_distance_scale = max(1e-6, float(analytic_expansion_distance_scale))
 
@@ -97,6 +100,18 @@ class HybridAStarPlanner:
         self.max_curvature_ratio = max(1.0, float(max_curvature_ratio))
         self.sigma1 = max(0.0, float(sigma1))
         self.sigma2 = max(0.0, float(sigma2))
+        if analytic_operator is None:
+            if not bool(analytic_expansion):
+                analytic_operator = "disabled"
+            elif self.curvature_step > 0.0 and self.max_curvature_ratio > 1.0:
+                analytic_operator = "dang_multi_rs"
+            else:
+                analytic_operator = "single_rs"
+        if analytic_operator not in ANALYTIC_OPERATORS:
+            allowed = ", ".join(ANALYTIC_OPERATORS)
+            raise ValueError(f"analytic_operator must be one of {allowed}, got {analytic_operator!r}")
+        self.analytic_operator = str(analytic_operator)
+        self.analytic_expansion = self.analytic_operator != "disabled"
 
         self.use_holonomic_heuristic = bool(use_holonomic_heuristic)
         self.allow_diagonal = bool(allow_diagonal)
@@ -211,21 +226,9 @@ class HybridAStarPlanner:
             v = 碰撞风险 (EDT 距离近似 Voronoi 场代价)
             m = lₚ + sₚ + cₚ         (Eq. 4: 路径长度 + 转向角 + 转向切换)
         """
-        # ── 构建候选曲率列表 ──
-        r_min = self.params.min_turn_radius
-        kappa_min = 1.0 / max(r_min * self.max_curvature_ratio, 1e-9)  # 最松曲率
-        kappa_max = 1.0 / max(r_min, 1e-9)                              # 最紧曲率
-
-        if self.curvature_step > 0.0 and kappa_max > kappa_min:
-            # Dang 2022: 等曲率步长扫描
-            n_steps = max(1, int(round((kappa_max - kappa_min) / self.curvature_step)))
-            radii = []
-            for i in range(n_steps + 1):
-                kappa = kappa_min + (kappa_max - kappa_min) * i / n_steps
-                radii.append(1.0 / max(kappa, 1e-9))
-        else:
-            # 退化: 单曲率 (与标准 Hybrid A* 一致)
-            radii = [r_min]
+        if self.analytic_operator == "disabled":
+            return None
+        radii = self._analytic_radii()
 
         best_result = None
         best_cost = float("inf")
@@ -243,6 +246,24 @@ class HybridAStarPlanner:
                 best_result = (endpoints, actions)
 
         return best_result
+
+    def _analytic_radii(self) -> List[float]:
+        r_min = self.params.min_turn_radius
+        if self.analytic_operator == "single_rs":
+            return [r_min]
+
+        kappa_min = 1.0 / max(r_min * self.max_curvature_ratio, 1e-9)  # 最松曲率
+        kappa_max = 1.0 / max(r_min, 1e-9)                              # 最紧曲率
+        if self.curvature_step <= 0.0 or kappa_max <= kappa_min:
+            return [r_min]
+
+        # Dang 2022: 等曲率步长扫描
+        n_steps = max(1, int(round((kappa_max - kappa_min) / self.curvature_step)))
+        radii = []
+        for i in range(n_steps + 1):
+            kappa = kappa_min + (kappa_max - kappa_min) * i / n_steps
+            radii.append(1.0 / max(kappa, 1e-9))
+        return radii
 
     def _dang2022_cost(self, states: List[AckermannState], actions: List[MotionPrimitive]) -> float:
         """Dang 2022 Eq. 3: G = σ₁·v + σ₂·m
@@ -469,7 +490,7 @@ class HybridAStarPlanner:
                             trace_poses=trace_poses,
                             trace_boxes=trace_boxes,
                             failure_reason=None,
-                            remediations=remediations + ["analytic_expansion"],
+                            remediations=remediations + ["analytic_expansion", f"analytic_operator:{self.analytic_operator}"],
                         )
             current_f = current_priority
 
@@ -601,6 +622,7 @@ class HybridAStarPlanner:
             "expansions": expansions,
             "time": elapsed,
             "timed_out": timed_out,
+            "analytic_operator": self.analytic_operator,
         }
         if failure_reason:
             stats["failure_reason"] = failure_reason
