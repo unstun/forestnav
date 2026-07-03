@@ -56,7 +56,18 @@ def test_planner_run_from_path_stats_records_timing_protocol():
             "analytic_operator": "single_rs",
             "analytic_attempts": 3,
             "analytic_successes": 1,
+            "analytic_candidate_radius_count": 12,
+            "analytic_candidate_success_count": 4,
+            "analytic_candidate_failure_count": 8,
+            "analytic_rs_solve_time_s": 0.11,
+            "analytic_sample_time_s": 0.07,
+            "analytic_collision_check_time_s": 0.05,
+            "analytic_cost_eval_time_s": 0.02,
+            "analytic_total_time_s": 0.25,
+            "analytic_sample_count": 120,
+            "analytic_collision_check_count": 12,
             "remediations": ["analytic_expansion", "analytic_operator:single_rs"],
+            "analytic_telemetry_records": [{"too_large_for_regular_metadata": True}],
         },
         query_id="q1",
         method="vanilla_ha",
@@ -69,6 +80,17 @@ def test_planner_run_from_path_stats_records_timing_protocol():
     assert run.metadata["analytic_operator"] == "single_rs"
     assert run.metadata["analytic_attempts"] == 3
     assert run.metadata["analytic_successes"] == 1
+    assert run.metadata["analytic_candidate_radius_count"] == 12
+    assert run.metadata["analytic_candidate_success_count"] == 4
+    assert run.metadata["analytic_candidate_failure_count"] == 8
+    assert run.metadata["analytic_rs_solve_time_s"] == pytest.approx(0.11)
+    assert run.metadata["analytic_sample_time_s"] == pytest.approx(0.07)
+    assert run.metadata["analytic_collision_check_time_s"] == pytest.approx(0.05)
+    assert run.metadata["analytic_cost_eval_time_s"] == pytest.approx(0.02)
+    assert run.metadata["analytic_total_time_s"] == pytest.approx(0.25)
+    assert run.metadata["analytic_sample_count"] == 120
+    assert run.metadata["analytic_collision_check_count"] == 12
+    assert "analytic_telemetry_records" not in run.metadata
     assert run.metadata["planner_remediations"] == ["analytic_expansion", "analytic_operator:single_rs"]
 
     protocol = run.metadata["timing_protocol"]
