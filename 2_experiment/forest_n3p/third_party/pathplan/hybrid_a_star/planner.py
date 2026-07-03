@@ -436,6 +436,8 @@ class HybridAStarPlanner:
         closed_nodes: Dict[Tuple[int, int, int], Node] = {}
         open_heap: List[Tuple[float, int, Tuple[int, int, int]]] = []
         insert_counter = 0
+        analytic_attempts = 0
+        analytic_successes = 0
 
         start_key = self._discretize(start)
         open_nodes[start_key] = start_node
@@ -470,13 +472,17 @@ class HybridAStarPlanner:
                     trace_boxes=trace_boxes,
                     failure_reason=None,
                     remediations=remediations,
+                    analytic_attempts=analytic_attempts,
+                    analytic_successes=analytic_successes,
                 )
 
             if self.analytic_expansion:
                 interval = self._analytic_interval(current.state, goal)
                 if interval > 0 and expansion_idx % interval == 0:
+                    analytic_attempts += 1
                     analytic = self._try_analytic_expansion(current.state, goal)
                     if analytic is not None:
+                        analytic_successes += 1
                         extra_states, extra_actions = analytic
                         path, actions = self._reconstruct_with_actions(current)
                         path.extend(extra_states)
@@ -491,6 +497,8 @@ class HybridAStarPlanner:
                             trace_boxes=trace_boxes,
                             failure_reason=None,
                             remediations=remediations + ["analytic_expansion", f"analytic_operator:{self.analytic_operator}"],
+                            analytic_attempts=analytic_attempts,
+                            analytic_successes=analytic_successes,
                         )
             current_f = current_priority
 
@@ -540,6 +548,8 @@ class HybridAStarPlanner:
             timed_out=timed_out,
             failure_reason=failure_reason,
             remediations=remediations,
+            analytic_attempts=analytic_attempts,
+            analytic_successes=analytic_successes,
         )
 
     def _reconstruct_with_actions(self, node: Node) -> Tuple[List[AckermannState], List[Optional[MotionPrimitive]]]:
@@ -593,6 +603,8 @@ class HybridAStarPlanner:
         timed_out: bool = False,
         failure_reason: str = None,
         remediations: List[str] = None,
+        analytic_attempts: int = 0,
+        analytic_successes: int = 0,
     ):
         length = 0.0
         cusps = 0
@@ -623,6 +635,8 @@ class HybridAStarPlanner:
             "time": elapsed,
             "timed_out": timed_out,
             "analytic_operator": self.analytic_operator,
+            "analytic_attempts": int(analytic_attempts),
+            "analytic_successes": int(analytic_successes),
         }
         if failure_reason:
             stats["failure_reason"] = failure_reason
