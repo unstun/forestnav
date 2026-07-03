@@ -1,5 +1,5 @@
 ---
-status: d02_policy_forward_budget_complete
+status: d02_device_and_rollout_budget_complete
 origin: codex
 reviewed: false
 created: 2026-07-03
@@ -197,3 +197,59 @@ Boundary:
 Experiment record:
 
 - `.pipeline/experiments/20260703_module2_d02_policy_forward_budget.md`
+
+## D02.2 Device Forward and Rollout Collision Budget
+
+Status: `device_and_rollout_budget_complete`
+
+Source head:
+
+- `4aa9ff48`
+
+Outputs:
+
+- `d02_policy_forward_device_budget_local/summary.json`
+- `d02_policy_forward_device_budget_local/forward_budget_records.parquet`
+- `d02_policy_forward_device_budget_local/forward_budget_samples.parquet`
+- `d02_policy_forward_device_budget_cuda/summary.json`
+- `d02_policy_forward_device_budget_cuda/forward_budget_records.parquet`
+- `d02_policy_forward_device_budget_cuda/forward_budget_samples.parquet`
+- `d02_policy_forward_device_budget_cuda/remote_environment.txt`
+- `d02_policy_forward_device_budget_cuda/remote_5070_oom.txt`
+- `d02_rollout_collision_budget/summary.json`
+- `d02_rollout_collision_budget/rollout_collision_records.parquet`
+- `d02_rollout_collision_budget/rollout_collision_samples.parquet`
+
+Result:
+
+| Scope | Aggregate rows | Sample rows |
+|---|---:|---:|
+| Local CPU/MPS forward | 36 | 18000 |
+| 3070 Ti CUDA forward | 18 | 9000 |
+| Rollout collision + terminal RS proxy | 192 | 19200 |
+
+Key batch=1 forward p50:
+
+| Device | Model | Shape | p50 ms |
+|---|---|---|---:|
+| CPU | `compact_cnn_mlp` | 128-cell | 0.392 |
+| CPU | `small_cnn` | 128-cell | 0.514 |
+| CUDA 3070 Ti | `compact_cnn_mlp` | 128-cell | 0.119 |
+| CUDA 3070 Ti | `small_cnn` | 128-cell | 0.137 |
+
+Key rollout p50:
+
+| Checker | Steps | Rollout total p50 ms | Candidate total p50 ms |
+|---|---:|---:|---:|
+| Grid | 32 | 0.129 | 0.239 |
+| EDT | 32 | 0.096 | 0.207 |
+
+Boundary:
+
+- This closes D02.2 cost evidence, not Gate #1.
+- `candidate_total` includes deterministic rollout sampling + collision checking + terminal RS proxy, not trained policy quality.
+- 5070 Ti was reachable but occupied; 3070 Ti produced the CUDA artifact.
+
+Experiment record:
+
+- `.pipeline/experiments/20260703_module2_d02_device_and_rollout_budget.md`
