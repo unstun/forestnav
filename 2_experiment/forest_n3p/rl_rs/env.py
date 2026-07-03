@@ -4,9 +4,16 @@ import math
 from dataclasses import dataclass, field
 from typing import Any
 
+from forest_n3p.rs_utils import generate_reeds_shepp_path
 from forest_n3p.rl_rs.actions import ActionConfig, SteeringAction
 from forest_n3p.rl_rs.obs import ObservationConfig, RlRsObservation, build_observation
-from forest_n3p.rl_rs.reward import RewardBreakdown, RewardConfig, compute_terminal_success_reward
+from forest_n3p.rl_rs.reward import (
+    RewardBreakdown,
+    RewardConfig,
+    build_clearance_distance_field,
+    compute_decomposed_reward,
+    min_rollout_clearance_m,
+)
 from forest_n3p.rl_rs.rollout import rollout_constant_steer_step
 from forest_n3p.rl_rs.telemetry import RlRsEpisodeTelemetry, RlRsStepTelemetry
 from forest_n3p.rl_rs.terminal import TerminalRsCheckResult, check_terminal_rs_connectable
@@ -93,7 +100,10 @@ class AnalyticExpansionEnv:
         self._steps: list[RlRsStepTelemetry] = []
         self._done = False
         self._last_goal_distance_m: float | None = None
+        self._last_terminal_rs_path_length_m: float | None = None
+        self._last_curvature: float = 0.0
         self._no_progress_count = 0
+        self._clearance_field_m = None
 
     @property
     def telemetry(self) -> RlRsEpisodeTelemetry:
@@ -108,7 +118,10 @@ class AnalyticExpansionEnv:
         self._steps = []
         self._done = False
         self._last_goal_distance_m = _distance_to_goal(context.start, context.goal)
+        self._last_terminal_rs_path_length_m = _estimate_rs_path_length(context.start, context.goal, context.params)
+        self._last_curvature = 0.0
         self._no_progress_count = 0
+        self._clearance_field_m = build_clearance_distance_field(context.grid_map)
         return build_observation(
             context.start,
             context.goal,
@@ -164,6 +177,12 @@ class AnalyticExpansionEnv:
             if should_check_terminal and not rollout.collided
             else TerminalRsCheckResult(False, 0.0, None, 0, None)
         )
+        current_rs_path_length_m = terminal.path_length_m
+        rs_distance_progress_m = (
+            float(self._last_terminal_rs_path_length_m) - float(current_rs_path_length_m)
+            if self._last_terminal_rs_path_length_m is not None and current_rs_path_length_m is not None
+            else None
+        )
         terminated = bool(rollout.collided or terminal.success)
         no_progress = (
             int(context.no_progress_patience) > 0
@@ -178,6 +197,16 @@ class AnalyticExpansionEnv:
         elif truncated:
             detail = terminal.failure_reason or "terminal_rs_not_checked"
             failure_reason = f"no_rs_terminal:{detail}"
+        rollout_path_length_m = _path_length(rollout.samples)
+        min_clearance_m = min_rollout_clearance_m(
+            rollout.samples,
+            grid_map=context.grid_map,
+            footprint=context.footprint,
+            clearance_field_m=self._clearance_field_m,
+            padding_m=0.0 if context.collision_padding_m is None else float(context.collision_padding_m),
+        )
+        curvature = math.tan(float(rollout.applied_steering_rad)) / float(context.params.wheelbase)
+        curvature_delta_abs = abs(curvature - float(self._last_curvature))
 
         telemetry = RlRsStepTelemetry(
             step_index=step_index,
@@ -198,6 +227,9 @@ class AnalyticExpansionEnv:
         )
         self._steps.append(telemetry)
         self._done = bool(terminated or truncated)
+        if current_rs_path_length_m is not None:
+            self._last_terminal_rs_path_length_m = float(current_rs_path_length_m)
+        self._last_curvature = float(curvature)
         observation = build_observation(
             rollout.next_state,
             context.goal,
@@ -207,9 +239,15 @@ class AnalyticExpansionEnv:
         )
         return AnalyticExpansionStep(
             observation=observation,
-            reward=compute_terminal_success_reward(
+            reward=compute_decomposed_reward(
                 terminal_rs=terminal,
                 collided=rollout.collided,
+                failure_reason=failure_reason,
+                progress_to_goal_m=progress_to_goal,
+                rs_distance_progress_m=rs_distance_progress_m,
+                min_clearance_m=min_clearance_m,
+                curvature_delta_abs=curvature_delta_abs,
+                rollout_path_length_m=rollout_path_length_m,
                 config=context.reward_config,
             ),
             terminated=terminated,
@@ -233,3 +271,18 @@ def _collides_pose(checker, state: AckermannState) -> bool:
 
 def _distance_to_goal(state: AckermannState, goal: AckermannState) -> float:
     return float(math.hypot(float(goal.x) - float(state.x), float(goal.y) - float(state.y)))
+
+
+def _estimate_rs_path_length(state: AckermannState, goal: AckermannState, params: AckermannParams) -> float | None:
+    try:
+        path = generate_reeds_shepp_path(state, goal, turning_radius=float(params.min_turn_radius))
+    except Exception:  # noqa: BLE001 - reward shaping must not make reset fail.
+        return None
+    return float(path.total_length)
+
+
+def _path_length(samples: tuple[AckermannState, ...]) -> float:
+    total = 0.0
+    for start, end in zip(samples[:-1], samples[1:]):
+        total += math.hypot(float(end.x) - float(start.x), float(end.y) - float(start.y))
+    return float(total)
