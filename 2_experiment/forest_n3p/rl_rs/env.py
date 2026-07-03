@@ -76,6 +76,9 @@ class AnalyticExpansionStep:
             "terminated": bool(self.terminated),
             "truncated": bool(self.truncated),
             "failure_reason": self.telemetry.failure_reason,
+            "goal_distance_m": self.telemetry.goal_distance_m,
+            "progress_to_goal_m": self.telemetry.progress_to_goal_m,
+            "no_progress_count": self.telemetry.no_progress_count,
         }
 
 
