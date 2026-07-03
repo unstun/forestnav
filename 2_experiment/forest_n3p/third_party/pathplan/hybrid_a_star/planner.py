@@ -2,7 +2,7 @@ import heapq
 import math
 import time
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from ..common import default_collision_step, heading_diff
 from ..geometry import GridFootprintChecker
