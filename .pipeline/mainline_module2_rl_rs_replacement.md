@@ -401,10 +401,15 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - Conservative combined p50: CPU compact CNN 128-cell + Grid 32-step candidate total = `0.631ms`, still below D01 Dang attempt p50 `0.814ms`。
   - 边界: 这是 compute plausibility, 不是 trained policy success, 也不是 Gate #1 通过。
   - 记录: `.pipeline/experiments/20260703_module2_d02_device_and_rollout_budget.md`。
-- [ ] D02.3 Gate #1 判定。
+- [x] D02.3 Gate #1 判定。
   - 通过: `NN forward + rollout collision` 的 p50 成本小于 "被省掉的 RS/HA* expansion 成本" 的保守估计。
   - 失败: 端到端时间无下降空间。
   - 输出: `.pipeline/experiments/YYYYMMDD_module2_gate1_cost_accounting.md`
+  - 判定: `gate1_not_failed_preimplementation_compute_gate`。
+  - 含义: compute 预算未触发提前失败, 允许进入 E01; 但这不是完整 Gate #1 pass, 因为 trained policy 与 planner-integrated end-to-end time 尚未测。
+  - 保守证据: CPU compact CNN 128-cell forward p50 `0.392ms` + Grid 32-step candidate p50 `0.239ms` = `0.631ms`, 低于 D01 Dang attempt p50 `0.814ms`; CPU p95 组合 `0.821ms`, 低于 D01 p95 `2.025ms`。
+  - 禁止 claim: RL-RS faster, PPO necessary, final architecture selected。
+  - 记录: `.pipeline/experiments/20260703_module2_gate1_cost_accounting.md`。
 
 ### Phase E: RL steering 环境
 
@@ -590,7 +595,8 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 1. [?] A00.2 刷新项目状态记忆, 关闭旧热区状态。
 2. [x] D02.1 基于 C02 patch/connector 需求做神经 policy 前向预算。
 3. [x] D02.2 加入干净 CPU/GPU forward 对比与 rollout collision 成本账。
-4. [ ] D02.3 Gate #1 成本账判定。
+4. [x] D02.3 Gate #1 成本账判定。
+5. [ ] E01.1 新建 `2_experiment/forest_n3p/rl_rs/` 包和环境 API skeleton。
 
 ## 7. 完成记录
 
@@ -605,3 +611,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-03: 完成 D01.2 C01/C02 query-set analytic cost distribution。当前 source-bound run 覆盖 20 queries、8622 analytic attempts、94842 radius candidates; attempt p50/p95/p99 total time 为 0.814/2.025/2.829 ms; analytic expansion 占总 plan time 约 33.2%。记录见 `.pipeline/experiments/20260703_module2_d01_cost_distribution.md`。下一步进入 D02.1, 不可直接跳到 RL 环境或 PPO 训练。
 - 2026-07-03: 完成 D02.1 neural policy pure forward budget。新增 `run_policy_forward_budget.py` 和 shape 推导测试; 本机 CPU single-thread 跑 3 models x 2 shapes x 3 batch sizes, 18 aggregate rows / 18000 sample rows。Batch=1 下 64-cell CNN p50 为 0.120/0.162 ms, 128-cell CNN p50 为 0.405/0.520 ms, tiny MLP p50 约 0.011 ms。结论仅限 forward-only: 网络前向暂不是第一堵墙, 但 Gate #1 仍缺 rollout collision + terminal RS + clean CPU/GPU。记录见 `.pipeline/experiments/20260703_module2_d02_policy_forward_budget.md`。
 - 2026-07-03: 完成 D02.2 device forward + rollout collision 成本账。新增 `run_rollout_collision_budget.py`; 本机 CPU/MPS、远端 3070 Ti CUDA 跑 forward, C01 dedup failure nodes 跑 deterministic rollout collision + terminal RS proxy。保守组合成本示例: CPU compact CNN 128-cell forward p50 0.392ms + Grid 32-step candidate p50 0.239ms = 0.631ms, 低于 D01 attempt p50 0.814ms; 但这只说明 compute 不应直接杀死方向, 不说明 trained policy 能减少 search。记录见 `.pipeline/experiments/20260703_module2_d02_device_and_rollout_budget.md`。
+- 2026-07-03: 完成 D02.3 Gate #1 pre-implementation 成本判定。结果为 `gate1_not_failed_preimplementation_compute_gate`: compute 预算不提前杀死方向, 允许进入 E01 环境 API; 但完整 Gate #1 仍需 trained/integrated operator 的端到端配对评测。记录见 `.pipeline/experiments/20260703_module2_gate1_cost_accounting.md`。
