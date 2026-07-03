@@ -1,0 +1,249 @@
+{
+  "status": "complete",
+  "created_at_utc": "2026-07-03T22:19:11.035092+00:00",
+  "source_head": "833eb1a4",
+  "results": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+  "output_dir": "0_trials/module2_oracle_shape/c02_shape_labels",
+  "case_count": 7,
+  "cases": [
+    {
+      "case_id": "invalid_goal_complex",
+      "shape_label": "invalid_goal_in_collision",
+      "image": "0_trials/module2_oracle_shape/c02_shape_labels/invalid_goal_complex.png",
+      "query_id": "complex_s00_q0007",
+      "difficulty_bucket": "Complex",
+      "map_seed": 20360621,
+      "query_seed": 20361623,
+      "expansion_idx": 0,
+      "state": [
+        1.2000000000000002,
+        23.700000000000003,
+        -0.8668502077033193
+      ],
+      "goal": [
+        14.700000000000001,
+        7.800000000000001,
+        -0.8668502077033193
+      ],
+      "state_collides": false,
+      "goal_collides": true,
+      "oracle_a_success": false,
+      "oracle_a_failure_reason": "goal_in_collision",
+      "oracle_a_path_length_m": null,
+      "oracle_b_success": false,
+      "oracle_b_failure_reason": "no_rs_reachable_candidates",
+      "oracle_b_selected_candidate_source": null,
+      "rendered_b_success": false,
+      "rendered_b_attempted": 0,
+      "rendered_b_candidate": null,
+      "candidate_raw_count": 345,
+      "candidate_rs_reachable_count": 0
+    },
+    {
+      "case_id": "invalid_goal_extreme",
+      "shape_label": "invalid_goal_in_collision",
+      "image": "0_trials/module2_oracle_shape/c02_shape_labels/invalid_goal_extreme.png",
+      "query_id": "extreme_s00_q0006",
+      "difficulty_bucket": "Extreme",
+      "map_seed": 20460621,
+      "query_seed": 20461622,
+      "expansion_idx": 432,
+      "state": [
+        23.90221364294351,
+        11.746199844185025,
+        -2.930937042155919
+      ],
+      "goal": [
+        9.3,
+        11.100000000000001,
+        -3.0694290246301357
+      ],
+      "state_collides": false,
+      "goal_collides": true,
+      "oracle_a_success": false,
+      "oracle_a_failure_reason": "goal_in_collision",
+      "oracle_a_path_length_m": null,
+      "oracle_b_success": false,
+      "oracle_b_failure_reason": "no_rs_reachable_candidates",
+      "oracle_b_selected_candidate_source": null,
+      "rendered_b_success": false,
+      "rendered_b_attempted": 0,
+      "rendered_b_candidate": null,
+      "candidate_raw_count": 344,
+      "candidate_rs_reachable_count": 0
+    },
+    {
+      "case_id": "invalid_start_extreme",
+      "shape_label": "invalid_start_in_collision_goal_also_blocked",
+      "image": "0_trials/module2_oracle_shape/c02_shape_labels/invalid_start_extreme.png",
+      "query_id": "extreme_s00_q0006",
+      "difficulty_bucket": "Extreme",
+      "map_seed": 20460621,
+      "query_seed": 20461622,
+      "expansion_idx": 1024,
+      "state": [
+        25.309250017225466,
+        12.212515123607119,
+        -2.769429024630136
+      ],
+      "goal": [
+        9.3,
+        11.100000000000001,
+        -3.0694290246301357
+      ],
+      "state_collides": true,
+      "goal_collides": true,
+      "oracle_a_success": false,
+      "oracle_a_failure_reason": "start_in_collision",
+      "oracle_a_path_length_m": null,
+      "oracle_b_success": false,
+      "oracle_b_failure_reason": "no_rs_reachable_candidates",
+      "oracle_b_selected_candidate_source": null,
+      "rendered_b_success": false,
+      "rendered_b_attempted": 0,
+      "rendered_b_candidate": null,
+      "candidate_raw_count": 345,
+      "candidate_rs_reachable_count": 0
+    },
+    {
+      "case_id": "b_only_complex_timeout",
+      "shape_label": "timeout_saved_by_goal_annulus",
+      "image": "0_trials/module2_oracle_shape/c02_shape_labels/b_only_complex_timeout.png",
+      "query_id": "complex_s00_q0003",
+      "difficulty_bucket": "Complex",
+      "map_seed": 20360620,
+      "query_seed": 20361623,
+      "expansion_idx": 4640,
+      "state": [
+        13.387658259595709,
+        6.768346805746997,
+        2.346454858082751
+      ],
+      "goal": [
+        2.6,
+        17.900000000000002,
+        2.2309789106601006
+      ],
+      "state_collides": false,
+      "goal_collides": false,
+      "oracle_a_success": false,
+      "oracle_a_failure_reason": "timeout",
+      "oracle_a_path_length_m": null,
+      "oracle_b_success": true,
+      "oracle_b_failure_reason": null,
+      "oracle_b_selected_candidate_source": "goal_annulus",
+      "rendered_b_success": true,
+      "rendered_b_attempted": 4,
+      "rendered_b_candidate": [
+        2.5999999999999996,
+        15.900000000000002,
+        2.2309789106601006
+      ],
+      "candidate_raw_count": 396,
+      "candidate_rs_reachable_count": 67
+    },
+    {
+      "case_id": "b_only_extreme_goal_annulus",
+      "shape_label": "timeout_saved_by_goal_annulus",
+      "image": "0_trials/module2_oracle_shape/c02_shape_labels/b_only_extreme_goal_annulus.png",
+      "query_id": "extreme_s00_q0003",
+      "difficulty_bucket": "Extreme",
+      "map_seed": 20460620,
+      "query_seed": 20461623,
+      "expansion_idx": 224,
+      "state": [
+        10.649367664794951,
+        18.41271136843238,
+        -0.7345510660764587
+      ],
+      "goal": [
+        13.5,
+        2.1,
+        -1.334551066076459
+      ],
+      "state_collides": false,
+      "goal_collides": false,
+      "oracle_a_success": false,
+      "oracle_a_failure_reason": "timeout",
+      "oracle_a_path_length_m": null,
+      "oracle_b_success": true,
+      "oracle_b_failure_reason": null,
+      "oracle_b_selected_candidate_source": "goal_annulus",
+      "rendered_b_success": true,
+      "rendered_b_attempted": 2,
+      "rendered_b_candidate": [
+        12.439339828220179,
+        3.1606601717798215,
+        -0.7853981633974486
+      ],
+      "candidate_raw_count": 389,
+      "candidate_rs_reachable_count": 64
+    },
+    {
+      "case_id": "a_only_complex_conservative_b",
+      "shape_label": "oracle_b_conservative_combined_collision_rejection",
+      "image": "0_trials/module2_oracle_shape/c02_shape_labels/a_only_complex_conservative_b.png",
+      "query_id": "complex_s00_q0002",
+      "difficulty_bucket": "Complex",
+      "map_seed": 20360620,
+      "query_seed": 20361622,
+      "expansion_idx": 3424,
+      "state": [
+        9.319902426284134,
+        15.036415724810826,
+        -1.6337238306818767
+      ],
+      "goal": [
+        9.700000000000001,
+        2.4000000000000004,
+        -1.4722158131560936
+      ],
+      "state_collides": false,
+      "goal_collides": false,
+      "oracle_a_success": true,
+      "oracle_a_failure_reason": null,
+      "oracle_a_path_length_m": 13.498866933893389,
+      "oracle_b_success": false,
+      "oracle_b_failure_reason": "no_candidate_connected;goal_annulus:combined_collision:1;goal_annulus:combined_collision:1;voronoi_skeleton:combined_collision:1;goal_annulus:combined_collision:1;goal_annulus:combined_collision:1;corridor_offset:combined_collision:1;corridor_offset:combined_collision:1;goal_annulus:combined_collision:1",
+      "oracle_b_selected_candidate_source": null,
+      "rendered_b_success": false,
+      "rendered_b_attempted": 0,
+      "rendered_b_candidate": null,
+      "candidate_raw_count": 398,
+      "candidate_rs_reachable_count": 158
+    },
+    {
+      "case_id": "a_only_extreme_conservative_b",
+      "shape_label": "oracle_b_conservative_combined_collision_rejection",
+      "image": "0_trials/module2_oracle_shape/c02_shape_labels/a_only_extreme_conservative_b.png",
+      "query_id": "extreme_s00_q0003",
+      "difficulty_bucket": "Extreme",
+      "map_seed": 20460620,
+      "query_seed": 20461623,
+      "expansion_idx": 160,
+      "state": [
+        9.729390686183066,
+        18.631589995858462,
+        -1.311535031024892
+      ],
+      "goal": [
+        13.5,
+        2.1,
+        -1.334551066076459
+      ],
+      "state_collides": false,
+      "goal_collides": false,
+      "oracle_a_success": true,
+      "oracle_a_failure_reason": null,
+      "oracle_a_path_length_m": 18.297055669467458,
+      "oracle_b_success": false,
+      "oracle_b_failure_reason": "no_candidate_connected;goal_annulus:combined_collision:1;goal_annulus:combined_collision:1;goal_annulus:combined_collision:1;goal_annulus:combined_collision:1;goal_annulus:combined_collision:1;goal_annulus:combined_collision:1;voronoi_skeleton:combined_collision:1;goal_annulus:segment:timeout",
+      "oracle_b_selected_candidate_source": null,
+      "rendered_b_success": false,
+      "rendered_b_attempted": 0,
+      "rendered_b_candidate": null,
+      "candidate_raw_count": 345,
+      "candidate_rs_reachable_count": 67
+    }
+  ]
+}
