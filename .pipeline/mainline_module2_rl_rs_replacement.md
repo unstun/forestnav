@@ -266,10 +266,12 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 
 #### B02. Vanilla HA* 与 Dang-RS baseline 拆分
 
-- [ ] B02.1 让 planner 可显式选择 analytic operator。
+- [x] B02.1 让 planner 可显式选择 analytic operator。
   - operator: `single_rs`, `dang_multi_rs`, `disabled`
   - 注意: 默认保持现状, 不破坏旧实验。
   - 验证: 三种 operator 在同一 query 上 telemetry 可区分。
+  - 产出: `HybridAStarPlanner(..., analytic_operator=...)`, stats 字段 `analytic_operator`
+  - 当前验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q` -> `7 passed in 0.91s`
 - [ ] B02.2 单独记录 analytic expansion 尝试次数与成功次数。
   - 当前 stats 只有 `remediations` 和 expansions, 不够。
   - 新增 stats 字段必须由 tests 锁住。
