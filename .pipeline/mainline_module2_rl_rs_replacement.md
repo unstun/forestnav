@@ -464,8 +464,12 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 
 #### E02. Reward 最大实现
 
-- [ ] E02.1 success reward 与部署使命一致。
+- [x] E02.1 success reward 与部署使命一致。
   - 直接调用本地 RS checker, 不用任意 "离目标 < eps" 代替。
+  - 已完成: `compute_terminal_success_reward` 使用 `TerminalRsCheckResult.success` 作为唯一 success signal; `RewardConfig.terminal_rs_success` 控制权重; `AnalyticExpansionContext.reward_config` 接入 env。
+  - 测试锁定: terminal RS success 时 `goal_distance_m > 0.0` 仍给 success reward, 证明不是欧氏距离阈值替代。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `18 passed in 0.47s`。
+  - 记录: `.pipeline/experiments/20260703_module2_e02_success_reward.md`。
 - [ ] E02.2 shaping 分项全部写入 info。
   - distance/RS-distance progress, clearance, curvature-rate, path length, step penalty, terminal bonus/penalty。
 - [ ] E02.3 reward ablation hooks。
@@ -626,7 +630,8 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 7. [x] E01.3 实现 egocentric occupancy/EDT observation patch。
 8. [x] E01.4 动作实现。
 9. [x] E01.5 终止条件实现。
-10. [ ] E02.1 success reward 与部署使命一致。
+10. [x] E02.1 success reward 与部署使命一致。
+11. [ ] E02.2 shaping 分项全部写入 info。
 
 ## 7. 完成记录
 
@@ -647,3 +652,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-03: 完成 E01.3 egocentric observation patch。`RlRsObservation` 现在包含 occupancy + normalized EDT patch; robot-frame forward alignment、越界 occupied 和 channel stack 均有测试。记录见 `.pipeline/experiments/20260703_module2_e01_observation_patch.md`。
 - 2026-07-03: 完成 E01.4 forward-only action space。新增 normalized steering decode、physical clip、forward MotionPrimitive conversion 和 reverse gate 禁止测试; reverse/direction gate 保持未启用。记录见 `.pipeline/experiments/20260703_module2_e01_action_space.md`。
 - 2026-07-03: 完成 E01.5 terminal conditions。`AnalyticExpansionEnv` 现在区分 terminal RS success、rollout collision、budget/no-RS truncation、no-progress truncation, 并在 telemetry/info 中记录 `goal_distance_m`, `progress_to_goal_m`, `no_progress_count`。`oscillation` 未 claim 已实现, 后移到 E03.4 定义测试信号。记录见 `.pipeline/experiments/20260703_module2_e01_terminal_conditions.md`。
+- 2026-07-03: 完成 E02.1 terminal-RS success reward。`RewardConfig` 与 `compute_terminal_success_reward` 已接入 env; success reward 只由 terminal RS-connectability 触发, 不使用距离阈值替代。记录见 `.pipeline/experiments/20260703_module2_e02_success_reward.md`。
