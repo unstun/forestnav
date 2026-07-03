@@ -1,0 +1,8 @@
+{
+  "output_dir": "0_trials/module2_operator_baseline_smoke/run_20260703_b02_3",
+  "record_count": 27,
+  "query_count": 9,
+  "status": "candidate_or_smoke",
+  "formal_acceptance": false,
+  "report": "0_trials/module2_operator_baseline_smoke/run_20260703_b02_3/report.md"
+}

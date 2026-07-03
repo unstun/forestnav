@@ -279,9 +279,14 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 实现位置: planner stats 字段 `analytic_attempts`, `analytic_successes` 当前 HEAD 已存在。
   - 本项新增验证: 同一 query 的 disabled/single/dang 计数, 以及 analytic 失败时 `attempts=1`, `successes=0`。
   - 当前验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q` -> `8 passed in 0.97s`
-- [ ] B02.3 复跑小规模 baseline。
+- [x] B02.3 复跑小规模 baseline。
   - 方法: HA* no analytic, HA* single RS, HA* Dang multi-RS。
   - 输出: 证明 "RS slot 本身贡献多少", 否则 RL 改进无法归因。
+  - 入口: `python -m forest_n3p.scripts.run_main_evaluation --methods ha_no_analytic,ha_single_rs,ha_dang_multi_rs`
+  - v1 运行: `0_trials/module2_operator_baseline_smoke/run_20260703_b02_3/`, 暴露 records 缺 analytic attempt/success telemetry。
+  - v2 通过: `0_trials/module2_operator_baseline_smoke/run_20260703_b02_3_v2/`, `record_count=27`, `query_count=9`, `stderr.txt` 为空。
+  - telemetry: disabled `0/0`, single RS `2733/8`, Dang multi-RS `1504/8` analytic attempts/successes。
+  - 边界: 这是 9-query smoke, 只证明归因入口和计数字段可用, 不是论文性能结论。
 
 ### Phase C: Oracle 形态分析 Gate #2
 
