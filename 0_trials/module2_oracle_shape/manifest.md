@@ -422,3 +422,65 @@ Boundary:
   non-invalid oracle-no-solution rows under this oracle. The RL target is
   therefore narrower than "all RS failures": it should focus on timeout and
   operator-cost cases, not invalid endpoints.
+
+## C02.2 Shape Label Visual Seed
+
+Status: `visual_seed_complete_not_gate`
+
+Source head:
+
+- `833eb1a4`
+
+Script:
+
+- `2_experiment/forest_n3p/scripts/render_oracle_connector_cases.py`
+
+Command:
+
+```bash
+PYTHONPATH=2_experiment python -m forest_n3p.scripts.render_oracle_connector_cases \
+  --results 0_trials/module2_oracle_shape/oracle_connector_results.parquet \
+  --output-dir 0_trials/module2_oracle_shape/c02_shape_labels \
+  --source-head 833eb1a4
+```
+
+Outputs:
+
+- `c02_shape_labels/summary.json`
+- `c02_shape_labels/index.md`
+- `c02_shape_labels/invalid_goal_complex.png`
+- `c02_shape_labels/invalid_goal_extreme.png`
+- `c02_shape_labels/invalid_start_extreme.png`
+- `c02_shape_labels/b_only_complex_timeout.png`
+- `c02_shape_labels/b_only_extreme_goal_annulus.png`
+- `c02_shape_labels/a_only_complex_conservative_b.png`
+- `c02_shape_labels/a_only_extreme_conservative_b.png`
+
+Visual categories:
+
+| Shape label | Count in seed | Meaning |
+|---|---:|---|
+| `invalid_goal_in_collision` | 2 | The final goal is inside an occupied footprint region. |
+| `invalid_start_in_collision_goal_also_blocked` | 1 | The failed node is already colliding; in this representative case the goal is also blocked. |
+| `timeout_saved_by_goal_annulus` | 2 | Oracle A times out, while Oracle B reaches a goal-annulus candidate and terminal RS connects to the goal. |
+| `oracle_b_conservative_combined_collision_rejection` | 2 | Oracle A succeeds; current Oracle B rejects candidates at the combined-path acceptance stage. |
+
+Verification:
+
+- `summary.json` status is `complete`, `case_count=7`.
+- All PNGs are `1393 x 1292`.
+- Image QA checked dimensions, color diversity, and that B-success rows replay
+  as `rendered_b_success=true`.
+
+Boundary:
+
+- This is a first visual seed set for C02.2, not the final Gate #2 decision.
+- The visual positives currently use reproducible `goal_annulus` B-only rows.
+- The 5 full-run `voronoi_skeleton` B-only rows currently fail replay:
+  each had 38 RS-reachable candidates in the full result, but current
+  candidate regeneration returns 0 candidates. They must be audited before
+  being used as paper evidence.
+
+Experiment record:
+
+- `.pipeline/experiments/20260703_module2_c02_shape_labels.md`
