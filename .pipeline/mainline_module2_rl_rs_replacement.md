@@ -432,11 +432,16 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 边界: reward 仍 `pending_e02`, 观测 patch 仍属 E01.3, 未做 policy/planner integration。
   - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `11 passed in 0.44s`。
   - 记录: `.pipeline/experiments/20260703_module2_e01_env_state_machine.md`。
-- [ ] E01.3 观测实现。
+- [x] E01.3 观测实现。
   - 主通道: egocentric occupancy patch。
   - 辅通道: EDT/distance field patch。
   - scalar: relative goal distance, bearing, heading error, current clearance, remaining budget。
   - 验证: patch rotate/translate invariance 通过图像测试。
+  - 已完成: `RlRsObservation.patch` 现在支持 `(C,H,W)` float32 patch; 默认 config 为 `6.4m`, `64x64`, occupancy + normalized EDT 两通道。
+  - 语义: robot-frame patch, forward=+x; 越界按 occupied; EDT 以米计算后按 `edt_clip_m` 裁剪归一化。
+  - 测试: 前方障碍在 east/north heading 下落到同一 patch cell; 越界 occupied; occupancy/EDT channel stack 正确。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `14 passed in 0.43s`。
+  - 记录: `.pipeline/experiments/20260703_module2_e01_observation_patch.md`。
 - [ ] E01.4 动作实现。
   - v1: forward-only continuous steering in `[-max_steer, max_steer]`。
   - v2 candidate: steering + direction gate, 用于 "需倒车" 形态。
@@ -608,7 +613,8 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 4. [x] D02.3 Gate #1 成本账判定。
 5. [x] E01.1 新建 `2_experiment/forest_n3p/rl_rs/` 包和环境 API skeleton。
 6. [x] E01.2 harden `AnalyticExpansionEnv.reset/step` around real planner-state context。
-7. [ ] E01.3 实现 egocentric occupancy/EDT observation patch。
+7. [x] E01.3 实现 egocentric occupancy/EDT observation patch。
+8. [ ] E01.4 动作实现。
 
 ## 7. 完成记录
 
@@ -626,3 +632,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-03: 完成 D02.3 Gate #1 pre-implementation 成本判定。结果为 `gate1_not_failed_preimplementation_compute_gate`: compute 预算不提前杀死方向, 允许进入 E01 环境 API; 但完整 Gate #1 仍需 trained/integrated operator 的端到端配对评测。记录见 `.pipeline/experiments/20260703_module2_gate1_cost_accounting.md`。
 - 2026-07-03: 完成 E01.1 RL-RS API skeleton。新增 `2_experiment/forest_n3p/rl_rs/` 包, 覆盖 actions/env/obs/policy/reward/rollout/telemetry/terminal 九个模块和 API 测试。边界: reward 标为 `pending_e02`, 尚未完成 E01.2/E01.3、BC/PPO 或 planner integration。记录见 `.pipeline/experiments/20260703_module2_e01_rl_rs_api_skeleton.md`。
 - 2026-07-03: 完成 E01.2 RL-RS 环境状态机加固。`AnalyticExpansionEnv` 现在测试覆盖 reset/step、碰撞起点拒绝、rollout collision、terminal RS success、budget truncation、done 后继续 step 报错和 info failure/status 字段。记录见 `.pipeline/experiments/20260703_module2_e01_env_state_machine.md`。
+- 2026-07-03: 完成 E01.3 egocentric observation patch。`RlRsObservation` 现在包含 occupancy + normalized EDT patch; robot-frame forward alignment、越界 occupied 和 channel stack 均有测试。记录见 `.pipeline/experiments/20260703_module2_e01_observation_patch.md`。
