@@ -30,6 +30,8 @@ class AnalyticExpansionContext:
     collision_padding_m: float | None = None
     observation_config: ObservationConfig = field(default_factory=ObservationConfig)
     action_config: ActionConfig = field(default_factory=ActionConfig)
+    min_progress_m: float = 1e-3
+    no_progress_patience: int = 3
 
     def __post_init__(self) -> None:
         _validate_state("start", self.start)
@@ -42,6 +44,10 @@ class AnalyticExpansionContext:
                 raise ValueError(f"{name} must be finite and positive")
         if int(self.terminal_check_every) <= 0:
             raise ValueError("terminal_check_every must be positive")
+        if float(self.min_progress_m) < 0.0:
+            raise ValueError("min_progress_m must be non-negative")
+        if int(self.no_progress_patience) < 0:
+            raise ValueError("no_progress_patience must be non-negative")
 
     def collision_checker(self):
         return self.checker or GridFootprintChecker(
@@ -82,6 +88,8 @@ class AnalyticExpansionEnv:
         self._state: AckermannState | None = None
         self._steps: list[RlRsStepTelemetry] = []
         self._done = False
+        self._last_goal_distance_m: float | None = None
+        self._no_progress_count = 0
 
     @property
     def telemetry(self) -> RlRsEpisodeTelemetry:
@@ -95,6 +103,8 @@ class AnalyticExpansionEnv:
         self._state = context.start
         self._steps = []
         self._done = False
+        self._last_goal_distance_m = _distance_to_goal(context.start, context.goal)
+        self._no_progress_count = 0
         return build_observation(
             context.start,
             context.goal,
@@ -110,6 +120,11 @@ class AnalyticExpansionEnv:
             raise RuntimeError("AnalyticExpansionEnv episode is done; call reset() before step().")
         context = self._context
         step_index = len(self._steps)
+        previous_goal_distance = (
+            _distance_to_goal(self._state, context.goal)
+            if self._last_goal_distance_m is None
+            else float(self._last_goal_distance_m)
+        )
         rollout = rollout_constant_steer_step(
             state=self._state,
             action=action,
@@ -120,6 +135,13 @@ class AnalyticExpansionEnv:
             action_config=context.action_config,
         )
         self._state = rollout.next_state
+        goal_distance = _distance_to_goal(rollout.next_state, context.goal)
+        progress_to_goal = previous_goal_distance - goal_distance
+        if progress_to_goal < float(context.min_progress_m):
+            self._no_progress_count += 1
+        else:
+            self._no_progress_count = 0
+        self._last_goal_distance_m = goal_distance
         budget_exhausted = (step_index + 1) >= int(context.max_steps)
         should_check_terminal = budget_exhausted or (step_index + 1) % int(context.terminal_check_every) == 0
         terminal = (
@@ -139,10 +161,16 @@ class AnalyticExpansionEnv:
             else TerminalRsCheckResult(False, 0.0, None, 0, None)
         )
         terminated = bool(rollout.collided or terminal.success)
-        truncated = bool(not terminated and budget_exhausted)
+        no_progress = (
+            int(context.no_progress_patience) > 0
+            and self._no_progress_count >= int(context.no_progress_patience)
+        )
+        truncated = bool(not terminated and (budget_exhausted or no_progress))
         failure_reason = None
         if rollout.collided:
             failure_reason = "collision"
+        elif no_progress and truncated:
+            failure_reason = "no_progress"
         elif truncated:
             detail = terminal.failure_reason or "terminal_rs_not_checked"
             failure_reason = f"no_rs_terminal:{detail}"
@@ -154,6 +182,9 @@ class AnalyticExpansionEnv:
             primitive_direction=int(rollout.primitive.direction),
             action_clipped=rollout.action_clipped,
             sample_count=len(rollout.samples),
+            goal_distance_m=goal_distance,
+            progress_to_goal_m=progress_to_goal,
+            no_progress_count=int(self._no_progress_count),
             sample_time_s=rollout.sample_time_s,
             collision_check_time_s=rollout.collision_check_time_s,
             terminal_rs_time_s=terminal.time_s,
@@ -190,3 +221,7 @@ def _collides_pose(checker, state: AckermannState) -> bool:
     if hasattr(checker, "collides_pose"):
         return bool(checker.collides_pose(state.x, state.y, state.theta))
     return bool(checker.collides_path((state,)))
+
+
+def _distance_to_goal(state: AckermannState, goal: AckermannState) -> float:
+    return float(math.hypot(float(goal.x) - float(state.x), float(goal.y) - float(state.y)))
