@@ -243,14 +243,27 @@ Disallowed conclusions:
 - Do not use invalid start/goal rows as negative RL samples.
 - Do not call Gate #2 complete until C02.2 visual/shape labels are written.
 
-## Next Step
+## Follow-up
 
-Proceed to C02.2:
+C02.2 visual seed is now recorded separately:
 
-1. Render representative invalid start, invalid goal, B-only timeout, and A-only
-   conservative-rejection cases.
-2. Label whether non-invalid B-only cases are short obstacle detours, bottleneck
-   bypasses, reverse-maneuver requirements, or terminal-RS geometry quirks.
-3. Then write C02.3 Gate #2 with a narrower claim: whether the remaining
+- `.pipeline/experiments/20260703_module2_c02_shape_labels.md`
+- `0_trials/module2_oracle_shape/c02_shape_labels/`
+
+C02.2 rendered:
+
+- invalid start/goal representatives,
+- reproducible `goal_annulus` B-only timeout representatives,
+- A-only conservative Oracle B rejection representatives.
+
+It also found a provenance issue: the 5 full-run `voronoi_skeleton` B-only
+rows currently do not replay under the render script's candidate regeneration,
+so they remain excluded from visual/paper evidence until audited.
+
+Next step is C02.3:
+
+1. Write Gate #2 with a narrower claim: whether the remaining
    timeout/B-only shape justifies RL-RS funnel work, and what part of the
    problem must be solved instead by data cleaning or cost accounting.
+2. Do not use the `voronoi_skeleton` B-only rows as positive examples until
+   the replay mismatch is resolved.
