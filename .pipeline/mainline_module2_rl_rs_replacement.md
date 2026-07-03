@@ -338,11 +338,13 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - Provenance issue: full run 中 5 个 `voronoi_skeleton` B-only rows 目前不能被当前脚本重放, 不能作为可视化正例或论文证据。
   - Experiment record: `.pipeline/experiments/20260703_module2_c02_shape_labels.md`。
   - 边界: C02.2 是视觉种子完成, 不是 Gate #2 通过。
-- [ ] C02.3 Gate #2 判定。
-  - 通过: `需短程避障后开阔` 或 `需绕瓶颈` 占失败节点的主体。
-  - 失败: 多数节点 oracle 也无解。
-  - 输出: `.pipeline/experiments/YYYYMMDD_module2_gate2_oracle_shape.md`
-  - 当前预判边界: full oracle 已反证 "多数节点 oracle 也无解"; 但它也显示 B-only timeout 只有 63/6289 non-invalid rows, 因此 Gate #2 不能粗暴写成 "多数 RS 失败都需要 RL connector"。正式判定必须等 C02.2 可视化标签和 D01/D02 成本账。
+- [x] C02.3 Gate #2 判定。
+  - 判定: `gate2_not_failed_scope_narrowed`。
+  - Gate #2 失败条件未命中: full oracle 显示 non-invalid rows `6289/6289` connectable, non-invalid unresolved `0`。
+  - 宽 claim 被拒绝: invalid endpoint = `1571/7860`; B-only timeout = `63/6289` non-invalid rows, 不能写成 "多数 RS failure 需要 RL connector"。
+  - 允许继续: D01/D02 成本账, 因为存在 narrow connector-positive signal (`goal_annulus=58`, `voronoi_skeleton=5`, 其中 visual 正例只使用可重放 `goal_annulus`)。
+  - 禁止跳步: D01/D02 前不进入 RL 环境实现、PPO 训练或论文必要性 claim。
+  - 输出: `.pipeline/experiments/20260703_module2_gate2_oracle_shape.md`。
 
 ### Phase D: 成本账 Gate #1
 
@@ -553,9 +555,8 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 优先级从上到下。每次只拿第一项 `[ ]`。
 
 1. [?] A00.2 刷新项目状态记忆, 关闭旧热区状态。
-2. [ ] C02.3 写 Gate #2 oracle shape 判定。
-3. [ ] D01.1 拆分 Dang multi-RS 调用成本。
-4. [ ] D02.1 基于 C02 patch/connector 需求做神经 policy 前向预算。
+2. [ ] D01.1 拆分 Dang multi-RS 调用成本。
+3. [ ] D02.1 基于 C02 patch/connector 需求做神经 policy 前向预算。
 
 ## 7. 完成记录
 
@@ -565,3 +566,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-03: 完成 A02.1, 新建 `local_slot_api.md`, 把模块2 API 从 "RL planner" 收紧到 "HA* analytic expansion operator"。
 - 2026-07-03: 完成 C02.1 全量 oracle connector, 7860/7860 dedup RS failure nodes 覆盖完成。Full run: Oracle A 6226, Oracle B 6287, connectable 6289; unresolved 1571 全部是 invalid start/goal; non-invalid 6289/6289 connectable; B-only timeout 63。记录见 `.pipeline/experiments/20260703_module2_c02_oracle_connector_full.md`。
 - 2026-07-03: 完成 C02.2 首批 shape label visual seed, 7 张代表样本 PNG 覆盖 invalid endpoint、goal-annulus B-only timeout rescue、A-only conservative B rejection。记录见 `.pipeline/experiments/20260703_module2_c02_shape_labels.md`。注意: 5 个 `voronoi_skeleton` B-only rows 当前重放失败, 暂不能作为论文证据。
+- 2026-07-03: 完成 C02.3 Gate #2 oracle shape 判定。结果是 `gate2_not_failed_scope_narrowed`: "多数节点 oracle 也无解" 失败条件未命中, 但 RL 目标范围被压窄到 invalid endpoint 清洗 + timeout/operator-cost cases。D01/D02 成本账是进入 RL-RS 实现前的必要下一步。记录见 `.pipeline/experiments/20260703_module2_gate2_oracle_shape.md`。
