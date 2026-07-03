@@ -481,6 +481,7 @@ class HybridAStarPlanner:
         insert_counter = 0
         analytic_attempts = 0
         analytic_successes = 0
+        analytic_failure_records: List[Dict[str, Any]] = []
 
         start_key = self._discretize(start)
         open_nodes[start_key] = start_node
@@ -517,6 +518,7 @@ class HybridAStarPlanner:
                     remediations=remediations,
                     analytic_attempts=analytic_attempts,
                     analytic_successes=analytic_successes,
+                    analytic_failure_records=analytic_failure_records,
                 )
 
             if self.analytic_expansion:
@@ -539,9 +541,23 @@ class HybridAStarPlanner:
                             trace_poses=trace_poses,
                             trace_boxes=trace_boxes,
                             failure_reason=None,
-                            remediations=remediations + ["analytic_expansion", f"analytic_operator:{self.analytic_operator}"],
+                            remediations=remediations
+                            + ["analytic_expansion", f"analytic_operator:{self.analytic_operator}"],
                             analytic_attempts=analytic_attempts,
                             analytic_successes=analytic_successes,
+                            analytic_failure_records=analytic_failure_records,
+                        )
+                    else:
+                        analytic_failure_records.append(
+                            self._analytic_failure_record(
+                                expansion_idx,
+                                current.state,
+                                goal,
+                                dist_map,
+                                goal_center,
+                                goal_offset,
+                                getattr(self, "_last_analytic_failed_radii", ()),
+                            )
                         )
             current_f = current_priority
 
@@ -593,6 +609,7 @@ class HybridAStarPlanner:
             remediations=remediations,
             analytic_attempts=analytic_attempts,
             analytic_successes=analytic_successes,
+            analytic_failure_records=analytic_failure_records,
         )
 
     def _reconstruct_with_actions(self, node: Node) -> Tuple[List[AckermannState], List[Optional[MotionPrimitive]]]:
