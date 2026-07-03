@@ -11,6 +11,9 @@ class RlRsStepTelemetry:
     primitive_direction: int
     action_clipped: bool
     sample_count: int
+    goal_distance_m: float
+    progress_to_goal_m: float
+    no_progress_count: int
     sample_time_s: float
     collision_check_time_s: float
     terminal_rs_time_s: float
