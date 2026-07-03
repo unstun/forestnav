@@ -1,5 +1,5 @@
 ---
-status: d02_device_and_rollout_budget_complete
+status: d02_gate1_preimplementation_compute_not_failed
 origin: codex
 reviewed: false
 created: 2026-07-03
@@ -253,3 +253,35 @@ Boundary:
 Experiment record:
 
 - `.pipeline/experiments/20260703_module2_d02_device_and_rollout_budget.md`
+
+## D02.3 Gate #1 Pre-Implementation Cost Decision
+
+Status: `gate1_not_failed_preimplementation_compute_gate`
+
+Source head:
+
+- `66d82b63`
+
+Decision:
+
+- Gate #1 pre-implementation compute failure is not triggered.
+- This is not a full Gate #1 pass, because trained policy quality and integrated end-to-end time are not measured yet.
+- Allowed next action: proceed to E01 environment API implementation.
+
+Evidence:
+
+| Candidate | Combined p50 ms | Combined p95 ms | D01 attempt p50/p95 ms |
+|---|---:|---:|---:|
+| CPU `compact_cnn_mlp`, 128-cell + Grid 32-step candidate | 0.631 | 0.821 | 0.814 / 2.025 |
+| CPU `small_cnn`, 128-cell + Grid 32-step candidate | 0.753 | 0.918 | 0.814 / 2.025 |
+| CUDA `compact_cnn_mlp`, 128-cell + Grid 32-step candidate | 0.358 | 0.404 | 0.814 / 2.025 |
+| CUDA `small_cnn`, 128-cell + Grid 32-step candidate | 0.376 | 0.435 | 0.814 / 2.025 |
+
+Boundary:
+
+- Compute cost is plausible enough to continue.
+- Final Gate #1 remains open until planner-integrated paired evaluation proves end-to-end time reduction.
+
+Experiment record:
+
+- `.pipeline/experiments/20260703_module2_gate1_cost_accounting.md`
