@@ -665,6 +665,7 @@ class HybridAStarPlanner:
         remediations: List[str] = None,
         analytic_attempts: int = 0,
         analytic_successes: int = 0,
+        analytic_failure_records: List[Dict[str, Any]] = None,
     ):
         length = 0.0
         cusps = 0
@@ -697,7 +698,10 @@ class HybridAStarPlanner:
             "analytic_operator": self.analytic_operator,
             "analytic_attempts": int(analytic_attempts),
             "analytic_successes": int(analytic_successes),
+            "analytic_failure_count": len(analytic_failure_records or ()),
         }
+        if analytic_failure_records:
+            stats["analytic_failure_records"] = analytic_failure_records
         if failure_reason:
             stats["failure_reason"] = failure_reason
         if remediations:
