@@ -273,9 +273,12 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 实现位置: `HybridAStarPlanner(..., analytic_operator=...)`, stats 字段 `analytic_operator` 当前 HEAD 已存在。
   - 本项新增验证: `2_experiment/forest_n3p/tests/test_hybrid_astar_analytic_operator.py`
   - 当前验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q` -> `7 passed in 0.91s`
-- [ ] B02.2 单独记录 analytic expansion 尝试次数与成功次数。
+- [x] B02.2 单独记录 analytic expansion 尝试次数与成功次数。
   - 当前 stats 只有 `remediations` 和 expansions, 不够。
   - 新增 stats 字段必须由 tests 锁住。
+  - 实现位置: planner stats 字段 `analytic_attempts`, `analytic_successes` 当前 HEAD 已存在。
+  - 本项新增验证: 同一 query 的 disabled/single/dang 计数, 以及 analytic 失败时 `attempts=1`, `successes=0`。
+  - 当前验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q` -> `8 passed in 0.97s`
 - [ ] B02.3 复跑小规模 baseline。
   - 方法: HA* no analytic, HA* single RS, HA* Dang multi-RS。
   - 输出: 证明 "RS slot 本身贡献多少", 否则 RL 改进无法归因。
