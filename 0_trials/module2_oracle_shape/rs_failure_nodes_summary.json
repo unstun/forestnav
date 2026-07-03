@@ -1,0 +1,18 @@
+{
+  "status": "complete",
+  "created_at_utc": "2026-07-03T17:44:24.051890+00:00",
+  "execution_host": "MacBook-Pro.local",
+  "source_head": "e39c316d3c7cbed514193126788be244e38517f2",
+  "command": "python -m forest_n3p.scripts.collect_rs_failure_nodes --output 0_trials/module2_oracle_shape/rs_failure_nodes.parquet --queries-per-bucket 10 --seed-count 1 --queries-per-map 5 --density-profile-buckets validation_t06 --buckets Complex,Extreme --analytic-operator dang_multi_rs --timeout-s 2.5 --max-nodes 15000 --source-head e39c316d3c7cbed514193126788be244e38517f2",
+  "output": "0_trials/module2_oracle_shape/rs_failure_nodes.parquet",
+  "row_count": 8752,
+  "query_count": 20,
+  "buckets": [
+    "Complex",
+    "Extreme"
+  ],
+  "analytic_operator": "dang_multi_rs",
+  "queries_per_bucket": 10,
+  "seed_count": 1,
+  "queries_per_map": 5
+}

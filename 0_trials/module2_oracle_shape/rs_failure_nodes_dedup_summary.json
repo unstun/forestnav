@@ -1,0 +1,14 @@
+{
+  "status": "complete",
+  "created_at_utc": "2026-07-03T17:45:38.884303+00:00",
+  "execution_host": "MacBook-Pro.local",
+  "source_head": "a1633c603a69e3f55609aa588f5fab54cf169a65",
+  "command": "python -m forest_n3p.scripts.dedupe_rs_failure_nodes --input 0_trials/module2_oracle_shape/rs_failure_nodes.parquet --output 0_trials/module2_oracle_shape/rs_failure_nodes_dedup.parquet --resolution-m 0.1 --theta-bins 72 --source-head a1633c603a69e3f55609aa588f5fab54cf169a65",
+  "input": "0_trials/module2_oracle_shape/rs_failure_nodes.parquet",
+  "output": "0_trials/module2_oracle_shape/rs_failure_nodes_dedup.parquet",
+  "input_row_count": 8752,
+  "dedup_row_count": 7860,
+  "dropped_duplicate_count": 892,
+  "resolution_m": 0.1,
+  "theta_bins": 72
+}
