@@ -1,5 +1,5 @@
 ---
-status: d01_analytic_cost_telemetry_smoke_complete
+status: d02_policy_forward_budget_complete
 origin: codex
 reviewed: false
 created: 2026-07-03
@@ -139,3 +139,61 @@ Boundary:
 Experiment record:
 
 - `.pipeline/experiments/20260703_module2_d01_cost_distribution.md`
+
+## D02.1 Neural Policy Forward Budget
+
+Status: `policy_forward_budget_complete`
+
+Source head:
+
+- `04cda992`
+
+Command:
+
+```bash
+PYTHONPATH=2_experiment python -m forest_n3p.scripts.run_policy_forward_budget \
+  --output-dir 0_trials/module2_cost_accounting/d02_policy_forward_budget \
+  --models tiny_mlp,small_cnn,compact_cnn_mlp \
+  --batch-sizes 1,8,32 \
+  --patch-cells auto,margin_auto \
+  --warmup-iterations 150 \
+  --timed-iterations 1000 \
+  --threads 1 \
+  --allow-duplicate-openmp \
+  --source-head 04cda992
+```
+
+Outputs:
+
+- `d02_policy_forward_budget/summary.json`
+- `d02_policy_forward_budget/forward_budget_records.parquet`
+- `d02_policy_forward_budget/forward_budget_samples.parquet`
+
+Shape derivation:
+
+| Shape | Cells | Extent | Basis |
+|---|---:|---:|---|
+| `annulus_auto` | 64 | 6.4 m | `0.1 m` resolution and C02 goal-annulus max radius `3.0 m` |
+| `footprint_margin_auto` | 128 | 12.8 m | `3.0 m` plus two-circle footprint radius margin |
+
+Batch=1 result:
+
+| Model | Shape | Params | p50 ms | p95 ms | p50 / D01 p50 |
+|---|---|---:|---:|---:|---:|
+| `tiny_mlp` | `annulus_auto` | 8897 | 0.011 | 0.013 | 0.014 |
+| `compact_cnn_mlp` | `annulus_auto` | 15049 | 0.120 | 0.151 | 0.148 |
+| `small_cnn` | `annulus_auto` | 164497 | 0.162 | 0.189 | 0.199 |
+| `tiny_mlp` | `footprint_margin_auto` | 12993 | 0.011 | 0.015 | 0.014 |
+| `compact_cnn_mlp` | `footprint_margin_auto` | 15049 | 0.405 | 0.537 | 0.497 |
+| `small_cnn` | `footprint_margin_auto` | 164497 | 0.520 | 0.642 | 0.638 |
+
+Boundary:
+
+- This artifact measures pure neural forward pass only.
+- It does not include rollout collision checking, terminal RS, or planner integration overhead.
+- It does not pass/fail Gate #1; D02.2/D02.3 remain required.
+- Local Mac PyTorch required `--allow-duplicate-openmp`; clean CPU/GPU reruns are still needed before paper timing claims.
+
+Experiment record:
+
+- `.pipeline/experiments/20260703_module2_d02_policy_forward_budget.md`
