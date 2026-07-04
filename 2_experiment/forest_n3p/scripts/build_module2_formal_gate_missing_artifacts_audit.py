@@ -873,6 +873,36 @@ def _source_targets(source_freshness: dict[str, Any]) -> list[dict[str, Any]]:
     return [target for target in targets if isinstance(target, dict)]
 
 
+def _post_plan_stages_by_id(post_plan: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    stages = post_plan.get("ordered_stages")
+    if not isinstance(stages, list):
+        return {}
+    return {
+        str(stage.get("stage_id")): stage
+        for stage in stages
+        if isinstance(stage, dict) and stage.get("stage_id")
+    }
+
+
+def _stage_context(stages_by_id: dict[str, dict[str, Any]], stage_id: str) -> dict[str, Any]:
+    stage = stages_by_id.get(stage_id)
+    if not stage:
+        return {
+            "stage_id": stage_id,
+            "status": "missing_stage",
+            "allowed_now": False,
+            "blocked_by": ["post_f02_6_ordered_stage_missing"],
+            "evidence_paths": [],
+        }
+    return {
+        "stage_id": stage_id,
+        "status": stage.get("status"),
+        "allowed_now": stage.get("allowed_now"),
+        "blocked_by": _strings(stage.get("blocked_by")),
+        "evidence_paths": _strings(stage.get("evidence_paths")),
+    }
+
+
 def _group_missing(groups: Sequence[dict[str, Any]], group_id: str) -> bool:
     for group in groups:
         if group.get("group_id") == group_id:
