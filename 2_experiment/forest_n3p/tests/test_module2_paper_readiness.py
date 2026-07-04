@@ -124,6 +124,16 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
         "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked"
         in manifest["global_blockers"]
     )
+    assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_present"] is True
+    assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_row_count"] == 18
+    assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_source_target_count"] == 18
+    assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_missing_target_count"] == 0
+    assert manifest["claim_safety_remote_packet_safety_claim_gate_command_index_summary"]["claim_gate_rows"][
+        "claim_safety"
+    ]["stage_id"] == "regenerate_claim_gate_artifacts"
+    assert manifest["claim_safety_remote_packet_safety_claim_gate_command_index_summary"]["claim_gate_rows"][
+        "paper_readiness"
+    ]["required_before"] == "formal_claim_gate"
     assert manifest["claim_safety_requirement_stage_summary"]["requirements"]["training_remote_ppo_checkpoint"][
         "responsible_stage_id"
     ] == "gate3_remote_training"
@@ -168,6 +178,8 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert "claim_safety_remaining_deliverables_acceptance_matrix_row_count" in markdown
     assert "Claim Safety Formal Gate Gap Audit Remaining Deliverables Gap Summary" in markdown
     assert "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_total_missing_deliverables" in markdown
+    assert "Claim Safety Remote-Safety Claim-Gate Command Index" in markdown
+    assert "claim_safety_remote_packet_safety_command_index_row_count" in markdown
 
 
 def test_paper_readiness_accepts_synthetic_complete_evidence(tmp_path):
@@ -218,6 +230,7 @@ def test_paper_readiness_accepts_synthetic_complete_evidence(tmp_path):
         manifest["input_status"]["claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_open_category_count"]
         == 0
     )
+    assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_row_count"] == 18
     assert all(item["status"] != "blocked" for item in manifest["section_readiness"])
     assert "formal_performance_improvement" in manifest["conditional_claim_ids"]
 
@@ -511,6 +524,44 @@ def test_paper_readiness_rejects_claim_safety_without_formal_gate_gap_audit_summ
     )
 
 
+def test_paper_readiness_rejects_claim_safety_remote_safety_command_index_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_paper_readiness")
+    paths = _write_inputs(tmp_path, formal=True)
+
+    claim_safety_payload = json.loads(paths["claim_safety"].read_text(encoding="utf-8"))
+    summary = claim_safety_payload["status_report_remote_packet_safety_claim_gate_command_index_summary"]
+    summary["missing_target_ids"] = ["paper_readiness"]
+    summary["unknown_manual_count"] = 1
+    summary["forbidden_command_count"] = 1
+    summary["claim_gate_rows"]["claim_safety"]["stage_id"] = "regenerate_preflight_gate_artifacts"
+    summary["claim_gate_rows"]["claim_safety"]["command_kind"] = "unknown_manual"
+    summary["claim_gate_rows"].pop("paper_readiness")
+    paths["claim_safety"].write_text(json.dumps(claim_safety_payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        builder.PaperReadinessConfig(
+            output_dir=tmp_path,
+            method_algorithms_path=paths["method_algorithms"],
+            system_diagram_path=paths["system_diagram"],
+            paper_tables_path=paths["paper_tables"],
+            claim_safety_path=paths["claim_safety"],
+            h02_formal_acceptance_path=paths["h02_acceptance"],
+            h01_manifest_path=paths["h01_manifest"],
+            f02_6_decision_record_path=paths["decision_record"],
+            remote_execution_packet_path=paths["remote_packet"],
+            status_report_path=paths["status_report"],
+        )
+    )
+
+    assert manifest["status"] == "partial_methods_ready_results_blocked"
+    assert "claim_safety_remote_packet_safety_command_index_missing_targets" in manifest["global_blockers"]
+    assert "claim_safety_remote_packet_safety_command_index_unknown_manual_rows" in manifest["global_blockers"]
+    assert "claim_safety_remote_packet_safety_command_index_forbidden_commands" in manifest["global_blockers"]
+    assert "claim_safety_remote_packet_safety_command_index_claim_safety_wrong_stage" in manifest["global_blockers"]
+    assert "claim_safety_remote_packet_safety_command_index_claim_safety_manual_command" in manifest["global_blockers"]
+    assert "claim_safety_remote_packet_safety_command_index_missing_paper_readiness" in manifest["global_blockers"]
+
+
 def _write_inputs(tmp_path, *, formal):
     paths = {}
     paths["method_algorithms"] = _write_json(
@@ -595,6 +646,7 @@ def _write_inputs(tmp_path, *, formal):
             "status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary": _claim_safety_remaining_deliverables_gap_summary_payload(
                 formal=formal
             ),
+            "status_report_remote_packet_safety_claim_gate_command_index_summary": _claim_safety_command_index_summary_payload(),
             "allowed_claims": [
                 {"claim_id": "method_is_ha_star_analytic_operator", "scope": "method_structure"},
                 {"claim_id": "no_warm_gate3_formal_failure", "scope": "no_warm_only"},
