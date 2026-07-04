@@ -71,6 +71,8 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["current_state"]["formal_gate_proof_audit_passed_count"] == 2
     assert manifest["current_state"]["formal_gate_proof_audit_failed_count"] == 2
     assert manifest["current_state"]["formal_gate_proof_audit_blocked_count"] == 16
+    assert manifest["current_state"]["formal_gate_proof_audit_missing_artifact_count"] == 8
+    assert manifest["current_state"]["formal_gate_proof_audit_failed_acceptance_artifact_count"] == 2
     assert manifest["missing_counts_by_category"]["training"] == 3
     assert len(manifest["training_artifacts_required"]) == 3
     assert len(manifest["evaluation_artifacts_required"]) == 2
@@ -217,6 +219,34 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert proof_audit["category_status_counts"]["training"]["blocked_missing_artifact"] == 6
     assert proof_audit["category_status_counts"]["formal_acceptance"]["failed"] == 2
     assert proof_audit["results_by_id"]["h02_formal_output_acceptance_schema"]["status"] == "failed"
+    proof_gap = manifest["formal_gate_proof_audit_gap_summary"]
+    assert proof_gap["present"] is True
+    assert proof_gap["status"] == "formal_gate_proof_audit_blocked"
+    assert proof_gap["missing_artifact_count"] == 8
+    assert proof_gap["failed_acceptance_artifact_count"] == 2
+    assert proof_gap["categories"]["training"]["missing_artifact_ids"] == [
+        "train_final_model_zip",
+        "train_summary_json",
+        "train_training_manifest_json",
+    ]
+    assert proof_gap["categories"]["training"]["blocked_proof_command_count"] == 6
+    assert proof_gap["categories"]["evaluation"]["missing_artifact_ids"] == [
+        "eval_gate3_eval_episodes_csv",
+        "eval_gate3_summary_json",
+    ]
+    assert proof_gap["categories"]["acceptance"]["missing_artifact_ids"] == [
+        "gate3_trial_manifest_json",
+        "gate3_formal_audit_json",
+        "pulled_back_checkpoint_hash_record",
+    ]
+    assert proof_gap["categories"]["formal_acceptance"]["failed_artifact_ids"] == [
+        "h01_ready_for_formal_run",
+        "h02_formal_output_acceptance",
+    ]
+    assert proof_gap["categories"]["formal_acceptance"]["failed_proof_command_ids"] == [
+        "h01_ready_for_formal_run_status",
+        "h02_formal_output_acceptance_schema",
+    ]
     formal_gate_gap = manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]
     assert formal_gate_gap["present"] is True
     assert formal_gate_gap["total_missing_deliverables"] == 10
@@ -280,6 +310,8 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     assert manifest["formal_gate_proof_audit_summary"]["status"] == "formal_gate_proof_audit_passed"
     assert manifest["formal_gate_proof_audit_summary"]["passed_proof_command_count"] == 20
     assert manifest["formal_gate_proof_audit_summary"]["blocked_proof_command_count"] == 0
+    assert manifest["formal_gate_proof_audit_gap_summary"]["missing_artifact_count"] == 0
+    assert manifest["formal_gate_proof_audit_gap_summary"]["failed_acceptance_artifact_count"] == 0
     assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 0
     assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 0
     assert manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 0
@@ -781,6 +813,8 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
     assert "Remote Packet Safety Claim-Gate Command Index" in markdown
     assert "Remaining Deliverables Acceptance Matrix" in markdown
     assert "Formal Gate Proof Audit" in markdown
+    assert "Formal Gate Proof Audit Gap Summary" in markdown
+    assert "missing_artifact_count=`8`" in markdown
     assert "formal_gate_proof_audit_blocked" in markdown
     assert "training:train_final_model_zip" in markdown
     assert "decision_owner_required" in markdown
