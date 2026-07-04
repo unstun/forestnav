@@ -537,6 +537,66 @@ def test_paper_readiness_rejects_claim_safety_without_formal_gate_gap_audit_summ
     )
 
 
+def test_paper_readiness_rejects_claim_safety_remaining_deliverables_proof_command_plan_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_paper_readiness")
+    paths = _write_inputs(tmp_path, formal=True)
+
+    claim_safety_payload = json.loads(paths["claim_safety"].read_text(encoding="utf-8"))
+    plan = claim_safety_payload["status_report_remaining_deliverables_proof_command_plan"]
+    plan["execution_boundary"] = "run_commands_now"
+    plan["not_paper_result_material"] = False
+    plan["runs_training"] = True
+    plan["runs_remote_preflight"] = True
+    plan["total_matrix_rows"] = 9
+    plan["total_proof_command_count"] = 19
+    plan["rows"]["training:train_final_model_zip"]["proof_command_count"] = 1
+    plan["rows"].pop("formal_acceptance:h02_formal_output_acceptance")
+    paths["claim_safety"].write_text(json.dumps(claim_safety_payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        builder.PaperReadinessConfig(
+            output_dir=tmp_path,
+            method_algorithms_path=paths["method_algorithms"],
+            system_diagram_path=paths["system_diagram"],
+            paper_tables_path=paths["paper_tables"],
+            claim_safety_path=paths["claim_safety"],
+            h02_formal_acceptance_path=paths["h02_acceptance"],
+            h01_manifest_path=paths["h01_manifest"],
+            f02_6_decision_record_path=paths["decision_record"],
+            remote_execution_packet_path=paths["remote_packet"],
+            status_report_path=paths["status_report"],
+        )
+    )
+
+    assert manifest["status"] == "partial_methods_ready_results_blocked"
+    assert (
+        "claim_safety_remaining_deliverables_proof_command_plan_wrong_execution_boundary"
+        in manifest["global_blockers"]
+    )
+    assert "claim_safety_remaining_deliverables_proof_command_plan_result_material" in manifest["global_blockers"]
+    assert "claim_safety_remaining_deliverables_proof_command_plan_runs_training" in manifest["global_blockers"]
+    assert (
+        "claim_safety_remaining_deliverables_proof_command_plan_runs_remote_preflight"
+        in manifest["global_blockers"]
+    )
+    assert (
+        "claim_safety_remaining_deliverables_proof_command_plan_row_count_mismatch"
+        in manifest["global_blockers"]
+    )
+    assert (
+        "claim_safety_remaining_deliverables_proof_command_plan_command_count_mismatch"
+        in manifest["global_blockers"]
+    )
+    assert (
+        "claim_safety_remaining_deliverables_proof_command_plan_training_train_final_model_zip_command_count_mismatch"
+        in manifest["global_blockers"]
+    )
+    assert (
+        "claim_safety_remaining_deliverables_proof_command_plan_missing_formal_acceptance_h02_formal_output_acceptance"
+        in manifest["global_blockers"]
+    )
+
+
 def test_paper_readiness_rejects_claim_safety_remote_safety_command_index_drift(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_paper_readiness")
     paths = _write_inputs(tmp_path, formal=True)
