@@ -103,6 +103,7 @@ def build_manifest(config: Module2EvaluationManifestConfig) -> dict[str, Any]:
         },
         "methods": methods,
         "metrics": _metric_records(),
+        "required_output_schema": _required_output_schema(),
         "real_maps": real_maps,
         "realmap_query_protocol": realmap_query_protocol,
         "f02_6_decision_packet": f02_6_decision_packet,
@@ -232,6 +233,88 @@ def _metric_records() -> list[dict[str, str]]:
         {"metric_id": "fallback_count", "role": "diagnostic", "definition": "F-N3P fallback usage and planner primitive fallback evidence"},
         {"metric_id": "nn_forward_time_s", "role": "diagnostic", "definition": "neural policy forward wall-clock time when available"},
     ]
+
+
+def _required_output_schema() -> dict[str, list[str]]:
+    records_columns = [
+        "query_id",
+        "method",
+        "difficulty_bucket",
+        "distance_bin_key",
+        "success",
+        "feasible",
+        "total_time_s",
+        "total_expansions",
+        "path_length_m",
+        "reference_path_length_m",
+        "path_inflation_ratio",
+        "direction_switches",
+        "mean_abs_curvature",
+        "min_clearance_m",
+        "collision_violation_count",
+        "fallback_triggered",
+        "analytic_operator",
+        "analytic_attempts",
+        "analytic_successes",
+        "analytic_failure_count",
+        "rl_attempts",
+        "rl_successes",
+        "rs_attempts",
+        "nn_forward_time_s",
+        "fallback_to_primitives_count",
+        "rollout_protocol",
+        "collision_checker",
+        "rl_rollout_steps",
+        "rl_rollout_collision_checks",
+        "terminal_rs_success_count",
+        "terminal_rs_used_count",
+        "bc_checkpoint",
+        "bc_checkpoint_sha256",
+        "rl_rs_checkpoint",
+        "rl_rs_checkpoint_sha256",
+        "failure_reason",
+    ]
+    summary_columns = [
+        "method",
+        "difficulty_bucket",
+        "count",
+        "success_count",
+        "success_rate",
+        "feasible_count",
+        "feasible_rate",
+        "median_time_s",
+        "p95_time_s",
+        "mean_time_s",
+        "median_expansions",
+        "p95_expansions",
+        "median_path_inflation_ratio",
+        "p95_path_inflation_ratio",
+        "median_min_clearance_m",
+        "collision_violation_total",
+        "timeout_failure_count",
+        "timeout_failure_rate",
+        "mean_nn_forward_time_s",
+        "p95_nn_forward_time_s",
+        "rl_attempts_total",
+        "rl_successes_total",
+        "rs_attempts_total",
+        "fallback_to_primitives_total",
+    ]
+    return {
+        "records_csv_required_columns": records_columns,
+        "summary_by_method_bucket_required_columns": summary_columns,
+        "summary_json_required_sections": [
+            "record_count",
+            "summary_by_method_bucket",
+            "paired_time_tests",
+            "paired_expansion_tests",
+            "success_rate_bootstrap_ci",
+            "failure_rate_bootstrap_ci",
+            "timeout_failure_rate_bootstrap_ci",
+        ],
+        "schema_status": "frozen_for_module2_v1",
+        "diagnostic_boundary": "A02.3 telemetry columns are required for auditability but do not by themselves permit formal performance claims.",
+    }
 
 
 def _global_blockers(
@@ -597,6 +680,16 @@ def _manifest_markdown(manifest: dict[str, Any]) -> str:
             f"- path: `{packet.get('path')}`",
             f"- status: `{packet.get('status')}`",
             f"- effective decision: `{packet.get('effective_warm_start_decision')}`",
+        ]
+    )
+    schema = manifest.get("required_output_schema") or {}
+    lines.extend(
+        [
+            "",
+            "## Required Output Schema",
+            f"- records.csv columns: `{len(schema.get('records_csv_required_columns', []))}` required",
+            f"- summary_by_method_bucket.csv columns: `{len(schema.get('summary_by_method_bucket_required_columns', []))}` required",
+            f"- schema status: `{schema.get('schema_status')}`",
         ]
     )
     lines.extend(["", "## Formal Command", ""])

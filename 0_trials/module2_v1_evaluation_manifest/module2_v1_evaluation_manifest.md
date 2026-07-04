@@ -23,6 +23,11 @@
 - status: `pending_human_decision`
 - effective decision: `pending`
 
+## Required Output Schema
+- records.csv columns: `36` required
+- summary_by_method_bucket.csv columns: `24` required
+- schema status: `frozen_for_module2_v1`
+
 ## Formal Command
 
 ```bash
