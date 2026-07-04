@@ -17,7 +17,7 @@ import pyarrow.parquet as pq
 
 from forest_n3p.rl_rs.env import AnalyticExpansionContext, AnalyticExpansionEnv
 from forest_n3p.rl_rs.obs import ObservationConfig, RlRsObservation, build_patch_observation
-from forest_n3p.scripts.run_oracle_connector_analysis import _grid_for_row, _profiles_from_bucket_mode
+from forest_n3p.scripts.run_oracle_connector_analysis import MapCacheKey, _grid_for_row, _profiles_from_bucket_mode
 from forest_n3p.main_evaluation import MainEvaluationConfig
 from forest_n3p.third_party.pathplan import AckermannParams, AckermannState, TwoCircleFootprint
 from forest_n3p.third_party.pathplan.geometry import GridFootprintChecker
@@ -328,7 +328,7 @@ def _feature_matrix(
         raise ValueError(f"unsupported feature_mode: {feature_mode}")
     if cfg is None or footprint is None or obs_config is None:
         raise ValueError("cfg, footprint, and obs_config are required for obstacle_summary features")
-    map_cache: dict[int, Any] = {}
+    map_cache: dict[MapCacheKey, Any] = {}
     features: list[np.ndarray] = []
     for row in rows:
         grid_map = _grid_for_row(row, cfg, footprint, map_cache)
@@ -438,7 +438,7 @@ def _closed_loop_metrics(
         enforce_t14_scale=False,
     )
     footprint = TwoCircleFootprint.from_box(length=0.924, width=0.740)
-    map_cache: dict[int, Any] = {}
+    map_cache: dict[MapCacheKey, Any] = {}
     first_by_source: dict[int, dict[str, Any]] = {}
     for row in val_rows:
         first_by_source.setdefault(int(row["source_row_index"]), row)
