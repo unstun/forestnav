@@ -63,6 +63,9 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["current_state"]["remaining_deliverables_acceptance_matrix_count"] == 10
     assert manifest["current_state"]["remaining_deliverables_acceptance_missing_row_count"] == 10
     assert manifest["current_state"]["remaining_deliverables_acceptance_blocked_category_count"] == 4
+    assert manifest["current_state"]["remaining_deliverables_proof_plan_present"] is True
+    assert manifest["current_state"]["remaining_deliverables_proof_plan_matrix_row_count"] == 10
+    assert manifest["current_state"]["remaining_deliverables_proof_plan_command_count"] == 20
     assert manifest["missing_counts_by_category"]["training"] == 3
     assert len(manifest["training_artifacts_required"]) == 3
     assert len(manifest["evaluation_artifacts_required"]) == 2
@@ -170,6 +173,8 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert remaining["blocked_category_count"] == 4
     assert remaining["rows"]["training:train_final_model_zip"]["responsible_stage_id"] == "gate3_remote_training"
     assert remaining["rows"]["training:train_final_model_zip"]["acceptance_predicate_count"] > 0
+    assert remaining["rows"]["training:train_final_model_zip"]["proof_command_count"] == 2
+    assert "train_final_model_zip_schema" in remaining["rows"]["training:train_final_model_zip"]["proof_command_ids"]
     assert remaining["rows"]["training:train_final_model_zip"]["invalid_substitute_count"] > 0
     remaining_gap = manifest["remaining_deliverables_gap_summary"]
     assert remaining_gap["present"] is True
@@ -185,7 +190,18 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
         "training:train_summary_json",
         "training:train_training_manifest_json",
     ]
+    assert "train_final_model_zip_schema" in remaining_gap["categories"]["training"]["proof_command_ids"]
     assert remaining_gap["categories"]["formal_acceptance"]["missing_count"] == 2
+    proof_plan = manifest["remaining_deliverables_proof_command_plan"]
+    assert proof_plan["present"] is True
+    assert proof_plan["plan_id"] == "module2_formal_gate_local_read_only_proof_commands"
+    assert proof_plan["execution_boundary"] == "local_read_only_after_formal_remote_pullback"
+    assert proof_plan["not_paper_result_material"] is True
+    assert proof_plan["runs_training"] is False
+    assert proof_plan["runs_remote_preflight"] is False
+    assert proof_plan["total_matrix_rows"] == 10
+    assert proof_plan["total_proof_command_count"] == 20
+    assert proof_plan["rows"]["training:train_final_model_zip"]["proof_command_count"] == 2
     formal_gate_gap = manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]
     assert formal_gate_gap["present"] is True
     assert formal_gate_gap["total_missing_deliverables"] == 10
@@ -244,6 +260,8 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     assert manifest["h02_formal_acceptance_requirement_summary"]["status_counts"] == {"satisfied": 4}
     assert manifest["remaining_deliverables_acceptance_summary"]["matrix_row_count"] == 10
     assert manifest["remaining_deliverables_acceptance_summary"]["missing_row_count"] == 0
+    assert manifest["remaining_deliverables_proof_command_plan"]["total_matrix_rows"] == 10
+    assert manifest["remaining_deliverables_proof_command_plan"]["total_proof_command_count"] == 20
     assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 0
     assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 0
     assert manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 0
