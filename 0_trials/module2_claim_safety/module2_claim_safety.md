@@ -7,15 +7,15 @@
 
 - paper_tables_not_formal
 - h02_verdict_not_formal
+- h02_formal_acceptance_not_accepted
 - h01_manifest_not_ready
 - f02_6_warm_start_decision_pending
 - missing_module2_rl_rs_checkpoint
-- missing_ppo_result_rows
-- h02_formal_acceptance_not_accepted
 - remote_execution_packet_not_ready
 - requires_dr_sun_approval
 - missing_gate3_formal_audit
 - h02_scale_below_h01_manifest
+- missing_ppo_result_rows
 - missing_remote_pullback_artifacts
 - f02_6_formal_chain_pending
 - f02_6_pending

@@ -2,21 +2,21 @@
   "schema_version": 1,
   "artifact_name": "module2_claim_safety",
   "status": "blocked_formal_performance_claims",
-  "created_at_utc": "2026-07-04T09:00:18.870447+00:00",
-  "source_head": "9c9c8a86dcefd1b8d045b5bda45f0114f28083be",
+  "created_at_utc": "2026-07-04T09:01:52.420256+00:00",
+  "source_head": "5efd2487d2ea2cbb28afdb5fbf4f8dfa36b9a457",
   "formal_performance_claim_allowed": false,
   "formal_performance_blockers": [
     "paper_tables_not_formal",
     "h02_verdict_not_formal",
+    "h02_formal_acceptance_not_accepted",
     "h01_manifest_not_ready",
     "f02_6_warm_start_decision_pending",
     "missing_module2_rl_rs_checkpoint",
-    "missing_ppo_result_rows",
-    "h02_formal_acceptance_not_accepted",
     "remote_execution_packet_not_ready",
     "requires_dr_sun_approval",
     "missing_gate3_formal_audit",
     "h02_scale_below_h01_manifest",
+    "missing_ppo_result_rows",
     "missing_remote_pullback_artifacts",
     "f02_6_formal_chain_pending",
     "f02_6_pending"
@@ -153,7 +153,7 @@
   "code_anchors": [
     {
       "path": "2_experiment/forest_n3p/scripts/build_module2_paper_tables.py",
-      "line": 100,
+      "line": 105,
       "symbol": "paper_table_formal_gate",
       "pattern": "formal_claim_allowed = not blockers"
     },

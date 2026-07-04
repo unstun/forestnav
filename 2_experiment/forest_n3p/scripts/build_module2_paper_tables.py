@@ -18,7 +18,7 @@ DEFAULT_H02_FORMAL_ACCEPTANCE = Path("0_trials/module2_h02_formal_acceptance/h02
 DEFAULT_H01_MANIFEST = Path("0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json")
 DEFAULT_METRIC_PROTOCOL = Path("0_trials/module2_metric_protocol/module2_metric_protocol.json")
 DEFAULT_OUTPUT_DIR = Path("0_trials/module2_paper_tables")
-READY_H01_STATUSES = {"ready", "formal_ready", "ready_for_formal_evaluation"}
+READY_H01_STATUSES = {"ready", "formal_ready", "ready_for_formal_run", "ready_for_formal_evaluation"}
 MAIN_TABLE_COLUMNS = (
     "method",
     "record_count",

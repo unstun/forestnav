@@ -10,9 +10,18 @@ This artifact is not formal unless `formal_claim_allowed=true`.
 ## Blockers
 
 - h02_verdict_not_formal
+- h02_formal_acceptance_not_accepted
 - h01_manifest_not_ready
 - f02_6_warm_start_decision_pending
 - missing_module2_rl_rs_checkpoint
+- remote_execution_packet_not_ready
+- requires_dr_sun_approval
+- missing_gate3_formal_audit
+- h02_scale_below_h01_manifest
+- missing_ppo_result_rows
+- missing_remote_pullback_artifacts
+- f02_6_formal_chain_pending
+- h01_manifest_not_ready
 - missing_ppo_result_rows
 
 ## I02.1 Main Table Preview
@@ -63,7 +72,7 @@ This artifact is not formal unless `formal_claim_allowed=true`.
 ## Claim Boundaries
 
 - Do not use preview_not_formal rows as paper results.
-- Main paper claims require H02 formal_acceptance=true, H01 formal-ready status, frozen metric protocol, and no missing PPO checkpoint blocker.
+- Main paper claims require H02 formal_acceptance=true, H02 formal acceptance paper_result_input_allowed=true, H01 formal-ready status, frozen metric protocol, and no missing PPO checkpoint blocker.
 - Use records.csv.total_time_s for timing claims; planner_time_s is diagnostic only.
 - Use paired Wilcoxon for total_time_s and total_expansions and bootstrap CI for success/failure/timeout-rate differences.
 - PPO formal training and checkpoint production must run on gpu3070ti-relay or another explicitly approved remote GPU, not locally.
