@@ -548,6 +548,7 @@ def test_remote_packet_safety_audit_cli_writes_json_and_markdown(tmp_path):
     assert manifest["status"] == "remote_packet_safety_audit_passed"
     assert "Module2 Remote Packet Safety Audit" in markdown
     assert "post_plan_execution_veto_remote_training_allowed_now" in markdown
+    assert "post_plan_remaining_deliverables_gap_total_missing" in markdown
     assert "does not execute any command" in markdown
 
 
