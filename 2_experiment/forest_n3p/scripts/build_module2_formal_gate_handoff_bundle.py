@@ -366,6 +366,11 @@ def _requirements(artifact: dict[str, Any], key: str) -> list[dict[str, Any]]:
                 "complete": bool(req.get("complete")),
                 "execution_allowed_now": bool(req.get("execution_allowed_now")),
                 "missing_artifact_ids": [str(item) for item in req.get("missing_artifact_ids", []) if item],
+                "responsible_stage_id": req.get("responsible_stage_id"),
+                "responsible_stage_status": req.get("responsible_stage_status"),
+                "responsible_stage_allowed_now": req.get("responsible_stage_allowed_now"),
+                "responsible_stage_blocked_by": [str(item) for item in req.get("responsible_stage_blocked_by", []) if item],
+                "responsible_stage_evidence_paths": [str(item) for item in req.get("responsible_stage_evidence_paths", []) if item],
                 "acceptable_evidence": [str(item) for item in req.get("acceptable_evidence", []) if item],
                 "invalid_substitutes": [str(item) for item in req.get("invalid_substitutes", []) if item],
             }
