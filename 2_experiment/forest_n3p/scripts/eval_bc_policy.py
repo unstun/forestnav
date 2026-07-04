@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import random
 import socket
 import subprocess
 import sys
@@ -43,6 +44,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     rows = pq.read_table(args.dataset).to_pylist()
     split = _split_by_source(rows, val_fraction=float(args.val_fraction), seed=int(args.seed))
     val_rows = [row for row in rows if int(row["source_row_index"]) in split["val_sources"]]
+    full_val_rows = list(val_rows)
+    val_rows = _bounded_rows(val_rows, max_rows=args.max_val_rows, seed=int(args.seed) + 1)
     params = AckermannParams(wheelbase=float(args.wheelbase_m), min_turn_radius=float(args.turning_radius_m))
     obs_config = _observation_config_from_checkpoint(checkpoint)
     eval_args = argparse.Namespace(
@@ -72,12 +75,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         "checkpoint": str(args.checkpoint),
         "dataset": str(args.dataset),
         "dataset_rows": int(len(rows)),
+        "full_val_rows": int(len(full_val_rows)),
+        "full_val_source_rows": int(len(split["val_sources"])),
         "val_rows": int(len(val_rows)),
-        "val_source_rows": int(len(split["val_sources"])),
+        "val_source_rows": int(len({int(row["source_row_index"]) for row in val_rows})),
         "feature_mode": feature_mode,
         "config": {
             "seed": int(args.seed),
             "val_fraction": float(args.val_fraction),
+            "max_val_rows": args.max_val_rows if args.max_val_rows is None else int(args.max_val_rows),
             "rollout_max_steps": int(args.rollout_max_steps),
             "rollout_action_step_m": float(args.rollout_action_step_m),
             "collision_sample_step_m": float(args.collision_sample_step_m),
@@ -101,6 +107,7 @@ def _parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--seed", type=int, default=20260703)
     parser.add_argument("--val-fraction", type=float, default=0.25)
+    parser.add_argument("--max-val-rows", type=int, default=None)
     parser.add_argument("--device", default="auto")
     parser.add_argument("--rollout-max-steps", type=int, default=96)
     parser.add_argument("--rollout-action-step-m", type=float, default=0.1)
@@ -121,6 +128,8 @@ def _validate_args(args: argparse.Namespace) -> None:
         raise FileNotFoundError(args.dataset)
     if not (0.0 < float(args.val_fraction) < 1.0):
         raise ValueError("--val-fraction must be in (0, 1)")
+    if args.max_val_rows is not None and int(args.max_val_rows) <= 0:
+        raise ValueError("--max-val-rows must be positive when set")
     for name in ("rollout_max_steps", "theta_bins"):
         if int(getattr(args, name)) <= 0:
             raise ValueError(f"--{name.replace('_', '-')} must be positive")
@@ -137,6 +146,14 @@ def _observation_config_from_checkpoint(checkpoint: dict[str, Any]) -> Observati
         include_edt=bool(raw.get("include_edt", True)),
         edt_clip_m=float(raw.get("edt_clip_m", 3.0)),
     )
+
+
+def _bounded_rows(rows: list[dict[str, Any]], *, max_rows: int | None, seed: int) -> list[dict[str, Any]]:
+    if max_rows is None or int(max_rows) >= len(rows):
+        return rows
+    rng = random.Random(int(seed))
+    indices = sorted(rng.sample(range(len(rows)), int(max_rows)))
+    return [rows[index] for index in indices]
 
 
 def _observation_config_record(obs_config: ObservationConfig) -> dict[str, Any]:
