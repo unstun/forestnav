@@ -5,6 +5,8 @@
 - effective warm-start decision: `pending`
 - decider: `None`
 - remote training allowed: `False`
+- remote preflight allowed now: `False`
+- remote training allowed now: `False`
 - local training allowed: `False`
 - formal claim allowed: `False`
 - next remote preflight status: `blocked_until_decision`
@@ -27,6 +29,6 @@ python -m forest_n3p.scripts.preflight_rl_rs_gate3_formal_trial --output-dir 0_t
 
 ## Claim Boundaries
 - This record only stores Dr Sun's F02.6 decision state; it is not a training result.
-- Approval unlocks remote preflight regeneration but does not allow a paper performance claim.
+- Approval unlocks source-fresh regeneration and approved preflight regeneration, but does not itself allow remote execution now.
 - Formal PPO warm-start training must run on gpu3070ti-relay, not on the local Mac.
 - A rejected obstacle-summary warm-start requires a stronger/full patch-CNN protocol before a warm-start formal run.

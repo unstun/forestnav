@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_f02_6_decision_gate_audit",
   "status": "f02_6_decision_gate_pending_clean",
-  "created_at_utc": "2026-07-04T11:25:03.453534+00:00",
-  "source_head": "e0e5c100c6a5fe777648a91e2039f1f40ed88262+dirty",
+  "created_at_utc": "2026-07-04T20:06:41.556937+00:00",
+  "source_head": "849c39867a5e867d9f78579c176e3b61d04d7556+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -24,11 +24,12 @@
     "record_decider": null,
     "effective_warm_start_decision": "pending",
     "remote_training_allowed": false,
+    "remote_preflight_allowed_now": false,
+    "remote_training_allowed_now": false,
     "local_training_allowed": false,
     "formal_claim_allowed": false,
     "post_plan_status": "blocked_until_f02_6_decision",
-    "training_allowed_now": false,
-    "remote_preflight_allowed_now": false
+    "training_allowed_now": false
   },
   "audit_issue_count": 0,
   "audit_issues": [],
@@ -54,10 +55,17 @@
         "f02_6_decision_not_approved"
       ],
       "evidence_paths": [
+        "0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json",
+        "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
         "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+        "0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json",
+        "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
         "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
+        "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
         "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
-        "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json"
+        "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
+        "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json",
+        "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json"
       ]
     },
     {
@@ -151,7 +159,9 @@
         "source_fresh_claim_targets_open"
       ],
       "evidence_paths": [
-        "0_trials/module2_claim_safety/module2_claim_safety.json",
+        "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
+        "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
+        "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
         "0_trials/module2_paper_readiness/module2_paper_readiness.json"
       ]
     }

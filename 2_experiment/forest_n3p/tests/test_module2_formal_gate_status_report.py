@@ -246,6 +246,24 @@ def test_formal_gate_status_report_requires_clean_decision_intake(tmp_path):
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
 
 
+def test_formal_gate_status_report_rejects_decision_record_current_permission_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    decision_record = json.loads(config.decision_record_path.read_text(encoding="utf-8"))
+    decision_record["remote_preflight_allowed_now"] = True
+    decision_record["remote_training_allowed_now"] = True
+    config.decision_record_path.write_text(json.dumps(decision_record), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert manifest["status"] == "formal_gate_status_blocked"
+    assert "decision_record_allows_remote_preflight_now" in issue_ids
+    assert "decision_record_allows_remote_training_now" in issue_ids
+    assert manifest["permissions_now"]["remote_preflight_allowed_now"] is False
+    assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+
+
 def test_formal_gate_status_report_requires_decision_intake_contract(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
     config = _config(tmp_path, complete=False)
@@ -763,6 +781,8 @@ def _decision_record(*, complete):
     return {
         "status": "approved" if complete else "pending_human_decision",
         "decider": "Dr Sun" if complete else None,
+        "remote_preflight_allowed_now": False,
+        "remote_training_allowed_now": False,
         "local_training_allowed": False,
         "formal_claim_allowed": False,
     }

@@ -2,9 +2,9 @@
   "schema_version": 1,
   "record_name": "module2_f02_6_decision_record",
   "status": "pending_human_decision",
-  "created_at_utc": "2026-07-04T07:05:45.747108+00:00",
+  "created_at_utc": "2026-07-04T20:06:41.468171+00:00",
   "execution_host": "MacBook-Pro.local",
-  "source_head": "b9c4085a20ce37a5dbcc9dffb0a707403eb8e6fb+dirty",
+  "source_head": "849c39867a5e867d9f78579c176e3b61d04d7556+dirty",
   "decision_owner_required": "Dr Sun",
   "requested_decision": "pending",
   "decider": null,
@@ -35,6 +35,8 @@
   },
   "effective_warm_start_decision": "pending",
   "remote_training_allowed": false,
+  "remote_preflight_allowed_now": false,
+  "remote_training_allowed_now": false,
   "local_training_allowed": false,
   "formal_claim_allowed": false,
   "next_remote_preflight_status": "blocked_until_decision",
@@ -76,11 +78,13 @@
     "h01_manifest_decision_value": "pending",
     "preflight_warm_start_decision_value": "pending",
     "audit_warm_start_decision_value": "pending",
-    "record_is_sufficient_to_claim_performance": false
+    "record_is_sufficient_to_claim_performance": false,
+    "record_is_sufficient_to_run_remote_preflight_now": false,
+    "record_is_sufficient_to_run_remote_training_now": false
   },
   "claim_boundaries": [
     "This record only stores Dr Sun's F02.6 decision state; it is not a training result.",
-    "Approval unlocks remote preflight regeneration but does not allow a paper performance claim.",
+    "Approval unlocks source-fresh regeneration and approved preflight regeneration, but does not itself allow remote execution now.",
     "Formal PPO warm-start training must run on gpu3070ti-relay, not on the local Mac.",
     "A rejected obstacle-summary warm-start requires a stronger/full patch-CNN protocol before a warm-start formal run."
   ]
