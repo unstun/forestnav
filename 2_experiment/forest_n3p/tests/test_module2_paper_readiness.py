@@ -231,6 +231,8 @@ def test_paper_readiness_accepts_synthetic_complete_evidence(tmp_path):
     assert manifest["input_status"]["claim_safety_decision_intake_remote_training_allowed_now"] is True
     assert manifest["input_status"]["claim_safety_remaining_deliverables_acceptance_matrix_row_count"] == 10
     assert manifest["input_status"]["claim_safety_remaining_deliverables_acceptance_missing_row_count"] == 0
+    assert manifest["input_status"]["claim_safety_remaining_deliverables_proof_command_plan_matrix_row_count"] == 10
+    assert manifest["input_status"]["claim_safety_remaining_deliverables_proof_command_plan_command_count"] == 20
     assert (
         manifest["input_status"][
             "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_total_missing_deliverables"
