@@ -158,6 +158,7 @@ def _formal_performance_blockers(
     h02_formal_acceptance: dict[str, Any],
     h01_manifest: dict[str, Any],
     f02_6_packet: dict[str, Any],
+    closure_checklist: dict[str, Any],
 ) -> list[str]:
     blockers: list[str] = []
     if paper_tables.get("formal_claim_allowed") is not True:
@@ -176,6 +177,20 @@ def _formal_performance_blockers(
         _append_unique(blockers, "f02_6_pending")
     for blocker in f02_6_packet.get("blockers") or ():
         _append_unique(blockers, str(blocker))
+    if closure_checklist.get("status") != "formal_gate_closure_ready_for_result_audit":
+        _append_unique(blockers, "formal_gate_closure_checklist_open")
+    if closure_checklist.get("executes_commands") is not False:
+        _append_unique(blockers, "closure_checklist_executes_commands")
+    if closure_checklist.get("runs_training") is not False:
+        _append_unique(blockers, "closure_checklist_runs_training")
+    if closure_checklist.get("runs_remote_preflight") is not False:
+        _append_unique(blockers, "closure_checklist_runs_remote_preflight")
+    if closure_checklist.get("local_training_allowed") is not False:
+        _append_unique(blockers, "closure_checklist_allows_local_training")
+    if closure_checklist.get("formal_claim_allowed") is not False:
+        _append_unique(blockers, "closure_checklist_allows_formal_claim")
+    if int(closure_checklist.get("input_safety_issue_count") or 0) > 0:
+        _append_unique(blockers, "closure_checklist_input_safety_issues_open")
     return blockers
 
 
