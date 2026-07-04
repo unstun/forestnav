@@ -668,6 +668,66 @@ def _claim_safety_decision_intake_blockers(claim_safety: dict[str, Any]) -> list
     return blockers
 
 
+def _claim_safety_remaining_deliverables_acceptance_summary(claim_safety: dict[str, Any]) -> dict[str, Any]:
+    summary = claim_safety.get("status_report_remaining_deliverables_acceptance_summary")
+    summary = summary if isinstance(summary, dict) else {}
+    raw_rows = summary.get("rows") if isinstance(summary.get("rows"), dict) else {}
+    rows: dict[str, dict[str, Any]] = {}
+    for matrix_id in CLAIM_SAFETY_REMAINING_DELIVERABLE_MATRIX_IDS:
+        row = raw_rows.get(matrix_id) if isinstance(raw_rows.get(matrix_id), dict) else {}
+        rows[matrix_id] = {
+            "present": bool(row),
+            "missing": row.get("missing") if isinstance(row.get("missing"), bool) else None,
+            "responsible_stage_id": row.get("responsible_stage_id"),
+            "responsible_stage_allowed_now": row.get("responsible_stage_allowed_now")
+            if isinstance(row.get("responsible_stage_allowed_now"), bool)
+            else None,
+            "acceptance_predicate_count": int(row.get("acceptance_predicate_count") or 0),
+            "invalid_substitute_count": int(row.get("invalid_substitute_count") or 0),
+        }
+    return {
+        "present": bool(summary),
+        "status": summary.get("status"),
+        "missing_deliverable_count": int(summary.get("missing_deliverable_count") or 0),
+        "matrix_row_count": int(summary.get("matrix_row_count") or 0),
+        "expected_matrix_row_count": int(
+            summary.get("expected_matrix_row_count") or len(CLAIM_SAFETY_REMAINING_DELIVERABLE_MATRIX_IDS)
+        ),
+        "missing_row_count": int(summary.get("missing_row_count") or 0),
+        "blocked_category_count": int(summary.get("blocked_category_count") or 0),
+        "missing_expected_matrix_ids": [str(value) for value in summary.get("missing_expected_matrix_ids", []) if value]
+        if isinstance(summary.get("missing_expected_matrix_ids"), list)
+        else [],
+        "rows": rows,
+    }
+
+
+def _claim_safety_remaining_deliverables_acceptance_blockers(claim_safety: dict[str, Any]) -> list[str]:
+    summary = _claim_safety_remaining_deliverables_acceptance_summary(claim_safety)
+    blockers: list[str] = []
+    if not summary["present"]:
+        blockers.append("claim_safety_missing_remaining_deliverables_acceptance_summary")
+        return blockers
+    if summary["matrix_row_count"] != len(CLAIM_SAFETY_REMAINING_DELIVERABLE_MATRIX_IDS):
+        blockers.append("claim_safety_remaining_deliverables_acceptance_matrix_count_mismatch")
+    for matrix_id in summary["missing_expected_matrix_ids"]:
+        _append_unique(blockers, f"claim_safety_remaining_deliverables_acceptance_missing_{matrix_id.replace(':', '_')}")
+    if summary["missing_row_count"] > 0:
+        blockers.append("claim_safety_remaining_deliverables_acceptance_rows_missing")
+    if summary["blocked_category_count"] > 0:
+        blockers.append("claim_safety_remaining_deliverables_acceptance_categories_blocked")
+    for matrix_id, row in summary["rows"].items():
+        safe_matrix_id = matrix_id.replace(":", "_")
+        if not row["present"]:
+            _append_unique(blockers, f"claim_safety_remaining_deliverables_acceptance_missing_{safe_matrix_id}")
+            continue
+        if row["acceptance_predicate_count"] <= 0:
+            _append_unique(blockers, f"claim_safety_remaining_deliverables_acceptance_{safe_matrix_id}_missing_predicates")
+        if row["invalid_substitute_count"] <= 0:
+            _append_unique(blockers, f"claim_safety_remaining_deliverables_acceptance_{safe_matrix_id}_missing_invalid_substitutes")
+    return blockers
+
+
 def _claim_safety_remote_requirement_group_blockers(
     *,
     summary: dict[str, Any],
