@@ -12,6 +12,7 @@ from typing import Any, Sequence
 DEFAULT_OUTPUT_DIR = Path("0_trials/module2_formal_gate_missing_artifacts")
 DEFAULT_DECISION_RECORD = Path("0_trials/module2_f02_6_decision_record/f02_6_decision_record.json")
 DEFAULT_DECISION_GATE_AUDIT = Path("0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json")
+DEFAULT_TRANSITION_GATE_AUDIT = Path("0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json")
 DEFAULT_POST_PLAN = Path("0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json")
 DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_freshness_audit.json")
 DEFAULT_REMOTE_PACKET = Path("0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json")
@@ -41,6 +42,7 @@ class FormalGateMissingArtifactsAuditConfig:
     markdown_out: Path | None = None
     decision_record_path: Path = DEFAULT_DECISION_RECORD
     decision_gate_audit_path: Path = DEFAULT_DECISION_GATE_AUDIT
+    transition_gate_audit_path: Path = DEFAULT_TRANSITION_GATE_AUDIT
     post_plan_path: Path = DEFAULT_POST_PLAN
     source_freshness_path: Path = DEFAULT_SOURCE_FRESHNESS
     remote_packet_path: Path = DEFAULT_REMOTE_PACKET
@@ -57,6 +59,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         markdown_out=args.markdown_out,
         decision_record_path=args.decision_record,
         decision_gate_audit_path=args.decision_gate_audit,
+        transition_gate_audit_path=args.transition_gate_audit,
         post_plan_path=args.post_plan,
         source_freshness_path=args.source_freshness_audit,
         remote_packet_path=args.remote_packet,
@@ -80,6 +83,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 def build_manifest(config: FormalGateMissingArtifactsAuditConfig) -> dict[str, Any]:
     decision = _read_json(config.decision_record_path)
     decision_gate = _read_json(config.decision_gate_audit_path)
+    transition_gate = _read_json(config.transition_gate_audit_path)
     post_plan = _read_json(config.post_plan_path)
     source_freshness = _read_json(config.source_freshness_path)
     remote_packet = _read_json(config.remote_packet_path)
@@ -89,6 +93,7 @@ def build_manifest(config: FormalGateMissingArtifactsAuditConfig) -> dict[str, A
 
     groups = _missing_evidence_groups(
         decision=decision,
+        transition_gate=transition_gate,
         post_plan=post_plan,
         source_freshness=source_freshness,
         remote_packet=remote_packet,
@@ -98,6 +103,7 @@ def build_manifest(config: FormalGateMissingArtifactsAuditConfig) -> dict[str, A
     current_gate_summary = _current_gate_summary(
         decision=decision,
         decision_gate=decision_gate,
+        transition_gate=transition_gate,
         post_plan=post_plan,
         source_freshness=source_freshness,
         remote_packet=remote_packet,
@@ -112,6 +118,7 @@ def build_manifest(config: FormalGateMissingArtifactsAuditConfig) -> dict[str, A
     audit_issues = _audit_issues(
         decision=decision,
         decision_gate=decision_gate,
+        transition_gate=transition_gate,
         post_plan=post_plan,
         source_freshness=source_freshness,
         remote_packet=remote_packet,
@@ -137,6 +144,7 @@ def build_manifest(config: FormalGateMissingArtifactsAuditConfig) -> dict[str, A
         "inputs": {
             "decision_record": str(config.decision_record_path),
             "f02_6_decision_gate_audit": str(config.decision_gate_audit_path),
+            "f02_6_transition_gate_audit": str(config.transition_gate_audit_path),
             "post_f02_6_regeneration_plan": str(config.post_plan_path),
             "source_freshness_audit": str(config.source_freshness_path),
             "remote_formal_execution_packet": str(config.remote_packet_path),
@@ -169,6 +177,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--markdown-out", type=Path, default=None)
     parser.add_argument("--decision-record", type=Path, default=DEFAULT_DECISION_RECORD)
     parser.add_argument("--decision-gate-audit", type=Path, default=DEFAULT_DECISION_GATE_AUDIT)
+    parser.add_argument("--transition-gate-audit", type=Path, default=DEFAULT_TRANSITION_GATE_AUDIT)
     parser.add_argument("--post-plan", type=Path, default=DEFAULT_POST_PLAN)
     parser.add_argument("--source-freshness-audit", type=Path, default=DEFAULT_SOURCE_FRESHNESS)
     parser.add_argument("--remote-packet", type=Path, default=DEFAULT_REMOTE_PACKET)
@@ -181,6 +190,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
 def _missing_evidence_groups(
     *,
     decision: dict[str, Any],
+    transition_gate: dict[str, Any],
     post_plan: dict[str, Any],
     source_freshness: dict[str, Any],
     remote_packet: dict[str, Any],
@@ -189,6 +199,7 @@ def _missing_evidence_groups(
 ) -> list[dict[str, Any]]:
     return [
         _decision_group(decision),
+        _transition_gate_group(transition_gate),
         _source_regeneration_group(source_freshness),
         _post_plan_group(post_plan),
         _remote_artifact_group(
@@ -235,6 +246,32 @@ def _decision_group(decision: dict[str, Any]) -> dict[str, Any]:
                 "state": status,
                 "missing": not complete,
                 "reason": "requires Dr Sun approval record before warm-start formal chain",
+            }
+        ],
+    }
+
+
+def _transition_gate_group(transition_gate: dict[str, Any]) -> dict[str, Any]:
+    status = str(transition_gate.get("status") or "missing")
+    issue_count = int(transition_gate.get("audit_issue_count") or 0)
+    complete = bool(transition_gate) and status == "f02_6_transition_gate_audit_passed" and issue_count == 0
+    blocked_by = [] if complete else ["f02_6_transition_gate_audit_not_passed"]
+    if issue_count > 0:
+        blocked_by.append("f02_6_transition_gate_audit_issues_open")
+    return {
+        "group_id": "f02_6_transition_gate_audit",
+        "category": "decision_gate",
+        "required_before": "source_fresh_regeneration",
+        "complete": complete,
+        "blocked_by": blocked_by,
+        "items": [
+            {
+                "artifact_id": "f02_6_transition_gate_audit",
+                "path": "0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json",
+                "exists": bool(transition_gate),
+                "state": status,
+                "missing": not complete,
+                "reason": "transition audit must pass before the missing-artifacts inventory can represent the formal gate chain",
             }
         ],
     }
@@ -538,6 +575,7 @@ def _audit_issues(
     *,
     decision: dict[str, Any],
     decision_gate: dict[str, Any],
+    transition_gate: dict[str, Any],
     post_plan: dict[str, Any],
     source_freshness: dict[str, Any],
     remote_packet: dict[str, Any],
@@ -547,11 +585,22 @@ def _audit_issues(
     groups: Sequence[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     issues: list[dict[str, Any]] = []
-    inputs = [decision, decision_gate, post_plan, source_freshness, remote_packet, remote_packet_audit, h01_manifest, h02_acceptance]
+    inputs = [
+        decision,
+        decision_gate,
+        transition_gate,
+        post_plan,
+        source_freshness,
+        remote_packet,
+        remote_packet_audit,
+        h01_manifest,
+        h02_acceptance,
+    ]
     for name, payload in zip(
         (
             "decision",
             "decision_gate",
+            "transition_gate",
             "post_plan",
             "source_freshness",
             "remote_packet",
@@ -565,6 +614,16 @@ def _audit_issues(
             issues.append(_issue(f"{name}_allows_local_training", f"{name} must not allow local training."))
         if payload.get("formal_claim_allowed") is True or payload.get("formal_claim_allowed_before_audit") is True:
             issues.append(_issue(f"{name}_allows_formal_claim", f"{name} must not allow formal claims before acceptance."))
+        if payload.get("runs_training") is True:
+            issues.append(_issue(f"{name}_runs_training", f"{name} must be an audit artifact, not a training entrypoint."))
+        if payload.get("runs_remote_preflight") is True:
+            issues.append(_issue(f"{name}_runs_remote_preflight", f"{name} must not execute remote preflight."))
+    if not transition_gate:
+        issues.append(_issue("transition_gate_audit_missing", "F02.6 transition gate audit must feed the missing-artifacts inventory."))
+    elif transition_gate.get("status") != "f02_6_transition_gate_audit_passed":
+        issues.append(_issue("transition_gate_audit_not_passed", "F02.6 transition gate audit must pass before listing downstream formal artifacts as executable."))
+    if int(transition_gate.get("audit_issue_count") or 0) > 0:
+        issues.append(_issue("transition_gate_audit_issues_open", "F02.6 transition gate audit reports open issues."))
     decision_status = str(decision.get("status") or "")
     if decision_status in {"pending_human_decision", "pending"} and remote_packet.get("ready_to_run_remote_training") is True:
         issues.append(_issue("pending_decision_remote_packet_ready", "Remote packet must not be ready while F02.6 is pending."))
@@ -581,6 +640,7 @@ def _current_gate_summary(
     *,
     decision: dict[str, Any],
     decision_gate: dict[str, Any],
+    transition_gate: dict[str, Any],
     post_plan: dict[str, Any],
     source_freshness: dict[str, Any],
     remote_packet: dict[str, Any],
@@ -592,6 +652,8 @@ def _current_gate_summary(
     return {
         "f02_6_decision_record_status": decision.get("status"),
         "f02_6_decision_gate_status": decision_gate.get("status"),
+        "f02_6_transition_gate_status": transition_gate.get("status"),
+        "f02_6_transition_gate_audit_issue_count": transition_gate.get("audit_issue_count"),
         "post_f02_6_plan_status": post_plan.get("status"),
         "post_plan_training_allowed_now": post_summary.get("training_allowed_now"),
         "post_plan_remote_preflight_allowed_now": post_summary.get("remote_preflight_allowed_now"),
