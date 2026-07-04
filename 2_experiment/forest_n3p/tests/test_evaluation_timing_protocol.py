@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import csv
 
+import numpy as np
 import pytest
 
 from forest_n3p.evaluation import evaluate_run, planner_run_from_path_stats, planner_run_from_result, write_evaluation_outputs
@@ -138,7 +139,7 @@ def test_evaluation_outputs_expose_rl_rs_analytic_telemetry_columns(tmp_path):
     )
     record = evaluate_run(
         run,
-        GridMap(__import__("numpy").zeros((40, 40), dtype=__import__("numpy").uint8), resolution=0.1, origin=(0.0, 0.0)),
+        GridMap(np.zeros((40, 40), dtype=np.uint8), resolution=0.1, origin=(0.0, 0.0)),
         TwoCircleFootprint.from_box(length=0.4, width=0.2),
     )
 
