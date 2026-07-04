@@ -386,10 +386,13 @@ def _cross_gate_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any],
         issues.append(_issue("post_plan_missing_status_report_summary", "Post-F02.6 plan audit must expose status_report_summary before remote packet safety can pass."))
     status_step_summary = status_summary.get("remote_execution_step_summary") if isinstance(status_summary.get("remote_execution_step_summary"), dict) else {}
     handoff_summary = status_summary.get("formal_gate_handoff_summary") if isinstance(status_summary.get("formal_gate_handoff_summary"), dict) else {}
+    execution_veto = status_summary.get("formal_gate_execution_veto_summary") if isinstance(status_summary.get("formal_gate_execution_veto_summary"), dict) else {}
     if plan_audit and status_summary and not status_step_summary:
         issues.append(_issue("post_plan_missing_status_report_remote_step_summary", "Post-F02.6 plan audit must forward status report remote execution step summary."))
     if plan_audit and status_summary and not handoff_summary:
         issues.append(_issue("post_plan_missing_status_report_handoff_summary", "Post-F02.6 plan audit must forward status report handoff summary."))
+    if plan_audit and status_summary and not execution_veto:
+        issues.append(_issue("post_plan_missing_status_report_execution_veto_summary", "Post-F02.6 plan audit must forward status report execution veto summary."))
     if status_step_summary:
         packet_summary = _packet_summary(packet)
         for step_id, (allowed_key, blocked_key) in REMOTE_STATUS_STEP_MAP.items():
@@ -451,6 +454,8 @@ def _cross_gate_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any],
                     )
     if status_summary.get("local_training_allowed_now") is not False:
         issues.append(_issue("status_report_allows_local_training_now", "Remote packet safety requires status report to preserve local-training prohibition."))
+    if execution_veto:
+        issues.extend(_status_report_execution_veto_issues(packet=packet, status_summary=status_summary, execution_veto=execution_veto))
     if status_summary.get("status") != "formal_gate_status_ready_for_claim_audit":
         steps = packet.get("execution_steps", {}) if isinstance(packet.get("execution_steps"), dict) else {}
         if packet.get("ready_to_run_remote_training") is True:
