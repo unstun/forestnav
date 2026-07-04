@@ -40,6 +40,12 @@ from forest_n3p.rl_rs.reward import (
 from forest_n3p.rl_rs.rollout import RolloutStepResult, rollout_constant_steer_step
 from forest_n3p.rl_rs.telemetry import RlRsEpisodeTelemetry, RlRsStepTelemetry
 from forest_n3p.rl_rs.terminal import TerminalRsCheckResult, check_terminal_rs_connectable
+from forest_n3p.rl_rs.training_logging import (
+    RlRsEpisodeLoggingWrapper,
+    create_tensorboard_writer,
+    file_sha256,
+    write_training_manifest,
+)
 
 __all__ = [
     "AnalyticExpansionContext",
@@ -59,6 +65,7 @@ __all__ = [
     "RewardConfig",
     "RewardTermSwitches",
     "RlRsEpisodeTelemetry",
+    "RlRsEpisodeLoggingWrapper",
     "RlRsObservation",
     "RlRsStepTelemetry",
     "RolloutStepResult",
@@ -78,8 +85,11 @@ __all__ = [
     "compute_decomposed_reward",
     "compute_terminal_success_reward",
     "decode_steering_action",
+    "create_tensorboard_writer",
+    "file_sha256",
     "make_f03_curriculum_sampler",
     "min_rollout_clearance_m",
     "rollout_constant_steer_step",
     "steering_action_to_primitive",
+    "write_training_manifest",
 ]
