@@ -87,6 +87,13 @@ class EvaluationRecord:
     analytic_attempts: int | None
     analytic_successes: int | None
     analytic_failure_count: int | None
+    rl_attempts: int | None
+    rl_successes: int | None
+    rs_attempts: int | None
+    nn_forward_time_s: float | None
+    fallback_to_primitives_count: int | None
+    rollout_protocol: str | None
+    collision_checker: str | None
     rl_rollout_steps: int | None
     rl_rollout_collision_checks: int | None
     rl_rollout_sample_time_s: float | None
@@ -125,6 +132,12 @@ class GroupSummary:
     collision_violation_total: int
     timeout_failure_count: int
     timeout_failure_rate: float
+    mean_nn_forward_time_s: float | None
+    p95_nn_forward_time_s: float | None
+    rl_attempts_total: int
+    rl_successes_total: int
+    rs_attempts_total: int
+    fallback_to_primitives_total: int
     fallback_trigger_rate: float
     fallback_f1_rate: float
     fallback_f2_rate: float
