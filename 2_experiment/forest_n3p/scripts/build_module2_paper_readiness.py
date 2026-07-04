@@ -205,6 +205,24 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_decision_intake_status": claim_decision_intake_summary["status"],
         "claim_safety_decision_intake_record_status": claim_decision_intake_summary["record_status"],
         "claim_safety_decision_intake_audit_issue_count": claim_decision_intake_summary["audit_issue_count"],
+        "claim_safety_decision_intake_decision_owner_required": claim_decision_intake_summary[
+            "decision_owner_required"
+        ],
+        "claim_safety_decision_intake_valid_decision_count": claim_decision_intake_summary[
+            "valid_decision_count"
+        ],
+        "claim_safety_decision_intake_required_record_field_count": claim_decision_intake_summary[
+            "required_record_field_count"
+        ],
+        "claim_safety_decision_intake_decision_note_required": claim_decision_intake_summary[
+            "decision_note_required"
+        ],
+        "claim_safety_decision_intake_invalid_input_count": claim_decision_intake_summary[
+            "invalid_input_count"
+        ],
+        "claim_safety_decision_intake_post_decision_non_authorization_count": claim_decision_intake_summary[
+            "post_decision_non_authorization_count"
+        ],
         "claim_safety_decision_intake_next_blocked_lane": claim_decision_intake_summary["next_blocked_lane"],
         "claim_safety_decision_intake_remote_preflight_allowed_now": claim_decision_intake_summary[
             "remote_preflight_allowed_now"
@@ -621,6 +639,8 @@ def _claim_safety_decision_intake_summary(claim_safety: dict[str, Any]) -> dict[
     summary = claim_safety.get("status_report_decision_intake_summary")
     if not isinstance(summary, dict):
         summary = {}
+    valid_decisions = _string_list(summary.get("valid_decisions"))
+    required_fields = _string_list(summary.get("required_record_fields"))
     return {
         "present": bool(summary),
         "status": summary.get("status"),
@@ -628,6 +648,14 @@ def _claim_safety_decision_intake_summary(claim_safety: dict[str, Any]) -> dict[
         "record_status": summary.get("record_status"),
         "record_decider": summary.get("record_decider"),
         "next_blocked_lane": summary.get("next_blocked_lane"),
+        "decision_owner_required": summary.get("decision_owner_required"),
+        "valid_decisions": valid_decisions,
+        "valid_decision_count": int(summary.get("valid_decision_count") or len(valid_decisions)),
+        "required_record_fields": required_fields,
+        "required_record_field_count": int(summary.get("required_record_field_count") or len(required_fields)),
+        "decision_note_required": bool(summary.get("decision_note_required")),
+        "invalid_input_count": int(summary.get("invalid_input_count") or 0),
+        "post_decision_non_authorization_count": int(summary.get("post_decision_non_authorization_count") or 0),
         "remote_preflight_allowed_now": summary.get("remote_preflight_allowed_now")
         if isinstance(summary.get("remote_preflight_allowed_now"), bool)
         else None,
@@ -650,6 +678,20 @@ def _claim_safety_decision_intake_blockers(claim_safety: dict[str, Any]) -> list
         blockers.append("claim_safety_f02_6_decision_intake_not_clean")
     if summary["audit_issue_count"] > 0:
         blockers.append("claim_safety_f02_6_decision_intake_audit_issues_open")
+    if summary["decision_owner_required"] != "Dr Sun":
+        blockers.append("claim_safety_f02_6_decision_intake_decision_owner_not_dr_sun")
+    expected_decisions = {"approve_obstacle_summary_warm_start", "reject_obstacle_summary_warm_start"}
+    if not expected_decisions.issubset(set(summary["valid_decisions"])):
+        blockers.append("claim_safety_f02_6_decision_intake_valid_decisions_incomplete")
+    expected_fields = {"decision", "decider", "decision_note"}
+    if not expected_fields.issubset(set(summary["required_record_fields"])):
+        blockers.append("claim_safety_f02_6_decision_intake_required_fields_incomplete")
+    if not summary["decision_note_required"]:
+        blockers.append("claim_safety_f02_6_decision_intake_decision_note_not_required")
+    if summary["invalid_input_count"] == 0:
+        blockers.append("claim_safety_f02_6_decision_intake_invalid_inputs_missing")
+    if summary["post_decision_non_authorization_count"] == 0:
+        blockers.append("claim_safety_f02_6_decision_intake_non_authorizations_missing")
     if summary["record_status"] == "pending_human_decision":
         blockers.append("claim_safety_f02_6_decision_intake_pending")
         if summary["next_blocked_lane"] != "decision":
@@ -666,6 +708,12 @@ def _claim_safety_decision_intake_blockers(claim_safety: dict[str, Any]) -> list
     elif summary["record_status"] not in CLAIM_SAFETY_DECISION_INTAKE_RECORD_STATUSES:
         blockers.append("claim_safety_f02_6_decision_intake_unknown_record_status")
     return blockers
+
+
+def _string_list(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [str(item) for item in value if isinstance(item, str)]
 
 
 def _claim_safety_remaining_deliverables_acceptance_summary(claim_safety: dict[str, Any]) -> dict[str, Any]:
