@@ -49,6 +49,14 @@ topic: module2 RL-RS evidence source index
 | S025 | A | code | ucsdarclab/motion_planning_transformer | GitHub API no license; `eval_model_car.py#L128-L208`, `#L220-L343`, `transformer/Models.py#L89-L164` | learned search mask / MPT code; not connector |
 | S026 | A | code | tedhuang96/nirrt_star | GitHub API license MIT; `nirrt_star_png_2d.py#L56-L175`, `train_pointnet_pointnet2.py#L15-L18`, `#L82-L108`, `#L153-L190` | learned sampling distribution, not connector |
 | S027 | A | code | mihdalal/neuralmotionplanner | GitHub API no license; `neural_motion_planner.py#L20-L68`, `#L209-L324`, `#L326-L420` | manipulator reactive planner; license blocked |
+| S028 | A | docs | GitHub Docs, Licensing a repository | `https://docs.github.com/articles/licensing-a-repository` opened 2026-07-04; no-license section checked | Project policy for no-license public repositories: do not copy/vendor code |
+| S029 | A | code-license | jiamiya/HOPE | GitHub API `license.spdx_id=GPL-3.0`; `LICENSE#L1-L2` | GPL-3.0: idea-only for ForestNav core |
+| S030 | A | code-license | karlkurzer/path_planner | GitHub API `BSD-3-Clause`; `LICENSE.txt#L1-L18` | Permissive reference for Hybrid A* shot/fallback control flow |
+| S031 | A | code-license | AtsushiSakai/PythonRobotics | GitHub API `NOASSERTION/Other`; raw `LICENSE#L1-L14` is MIT text | Permissive reference, but record SPDX caveat |
+| S032 | A | code-license | omron-sinicx/neural-astar | GitHub API `NOASSERTION/Other`; raw `LICENSE#L1-L17` is MIT text | Permissive search-guidance reference, not connector |
+| S033 | A | code-license | sldai/crl_kino, ahq1993/MPNet, tedhuang96/nirrt_star, reiniscimurs/DRL-robot-navigation | GitHub API MIT; raw `LICENSE#L1-L13` checked for each repo | Permissive code sources, subject to technical-slot mismatch |
+| S034 | A | code-license | MRSTechnion/DiTree, ucsdarclab/mpnet_local_planner, ucsdarclab/motion_planning_transformer, mihdalal/neuralmotionplanner, pkicki/neural_path_planning | GitHub API license endpoint 404; root raw `LICENSE`/`LICENSE.txt` 404 | No code copy/vendor/line-by-line porting |
+| S035 | A | local-report | A01.5 license audit | `0_trials/module2_rl_rs_evidence/license_audit.md` | Three-tier code reuse decision: copyable / idea-only / not usable |
 | L001 | A | local | ForestNav HybridAStarPlanner | `2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py:204-245`, `:454-500` | 本项目真实插入点 |
 | L002 | A | local | ForestNav collision checkers | `2_experiment/forest_n3p/third_party/pathplan/geometry.py:398-425`, `:449-518` | 训练/推理碰撞语义统一 |
 | L003 | A | local | ForestNav evaluation | `2_experiment/forest_n3p/evaluation.py:39-84`, `:216-260` | 主实验指标地基 |

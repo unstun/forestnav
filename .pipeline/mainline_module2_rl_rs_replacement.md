@@ -241,9 +241,13 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 近正例: S3F、RL-RRT/`crl_kino`、Learned Goal-Reaching Controllers、DiTree 均证明 learned steering/local connector/action sampler 可以嵌入 SBP/RRT-style planner。
   - 负面边界: 未发现公开来源直接替换 Hybrid A* analytic expansion / RS shot 并保留 ForestNav fallback + terminal RS certificate 语义。
   - 记录: `.pipeline/experiments/20260704_module2_a01_4_learned_connector_survey.md`。
-- [ ] A01.5 许可证审计。
+- [x] A01.5 许可证审计。
   - 输出: 可复制代码、只能读思想、不可用 三档。
   - 必查: HOPE GPL-3.0, Karl Kurzer BSD-3-Clause, PythonRobotics license, Neural A* license。
+  - 已完成: 新增 `0_trials/module2_rl_rs_evidence/license_audit.md`, 核验 GitHub API、raw `LICENSE`/`LICENSE.txt`、root license missing 404、GitHub no-license policy docs。
+  - 判定: 可复制代码包括 Karl Kurzer BSD-3-Clause、PythonRobotics raw MIT、Neural A* raw MIT、`crl_kino`/MPNet/NIRRT*/DRL-robot-navigation MIT, 但仍需技术适配审计。
+  - 判定: HOPE GPL-3.0 只能读思想; DiTree/Dynamic MPNet local planner/MPT/NeuralMP/`pkicki/neural_path_planning` 无可用 license, 不复制代码。
+  - 记录: `.pipeline/experiments/20260704_module2_a01_5_license_audit.md`。
 
 #### A02. 本地代码审计
 

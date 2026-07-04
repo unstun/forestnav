@@ -83,3 +83,11 @@ topic: module2 RL-RS negative results
   - NIRRT* 预测 optimal-path point cloud, 影响 RRT* sampling。
   - Neural A* 学 cost/search guidance。
 - 结论: 这类工作属于 learned heuristic / sampling / search-space restriction, 不是从当前 HA* node 生成连续 local edge 的 analytic operator。
+
+## N009: Public GitHub repo is not automatically reusable code
+
+- 外部依据:
+  - HOPE 的 GitHub API license 是 GPL-3.0, raw `LICENSE#L1-L2` 也是 GPL v3。
+  - DiTree, Dynamic MPNet local planner, Motion Planning Transformers, NeuralMP, `pkicki/neural_path_planning` 的 GitHub license endpoint/root raw license checks did not find a license。
+  - GitHub Docs licensing page was opened as policy reference for repositories without a license。
+- 结论: 这些仓库可以作为 related work 或 clean-room 设计线索, 但不能把代码复制、vendor、逐行移植到 ForestNav core。

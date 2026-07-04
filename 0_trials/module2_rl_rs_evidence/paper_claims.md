@@ -157,3 +157,16 @@ topic: module2 RL-RS paper claim audit
 - 不能外推:
   - MPNet-family/MPT 不能被写成 HA* analytic connector replacement。
   - Dynamic MPNet 的 ROS local planner不是本项目的 planner-internal analytic slot。
+
+## C007: 代码复用 claim 必须带许可证边界
+
+- 来源:
+  - `0_trials/module2_rl_rs_evidence/license_audit.md`
+  - GitHub raw license/API checks on 2026-07-04。
+- 可写:
+  - Permissively licensed codebases were used only as implementation references where technically appropriate。
+  - GPL-3.0/no-license repositories were treated as related work or clean-room design inspiration, not copied implementation。
+- 不能外推:
+  - 不能写 "public GitHub implementation was reused" 而不列许可证、commit 和 reuse scope。
+  - 不能把 GPL/no-license code 作为 ForestNav core 的实现来源。
+  - 不能把许可证允许复制的 search-guidance/whole-planner code 写成同槽 analytic connector。

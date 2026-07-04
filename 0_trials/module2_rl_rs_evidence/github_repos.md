@@ -7,6 +7,16 @@ topic: module2 RL-RS GitHub evidence
 
 # GitHub 仓库证据表
 
+## A01.5 许可证审计总表
+
+完整审计见 `0_trials/module2_rl_rs_evidence/license_audit.md`。
+
+| 分档 | 仓库 | 决策 |
+|---|---|---|
+| 可复制代码 | `karlkurzer/path_planner` (BSD-3-Clause), `AtsushiSakai/PythonRobotics` (raw MIT), `omron-sinicx/neural-astar` (raw MIT), `sldai/crl_kino` (MIT), `ahq1993/MPNet` (MIT), `tedhuang96/nirrt_star` (MIT), `reiniscimurs/DRL-robot-navigation` (MIT) | 许可证允许复制/修改, 但必须保留 notice, 并且技术适配另审 |
+| 只能读思想 | `jiamiya/HOPE` (GPL-3.0), `MRSTechnion/DiTree` (no license), `ucsdarclab/mpnet_local_planner` (no license), `ucsdarclab/motion_planning_transformer` (no license) | 作为论文/架构线索, 不复制代码 |
+| 不可用作 module2 code | `mihdalal/neuralmotionplanner` (no license), `pkicki/neural_path_planning` (no license), `PRX-Kinodynamic/ML4KP` (本轮未核验完成) | 不作为本轮实现来源 |
+
 ## jiamiya/HOPE
 
 - URL: https://github.com/jiamiya/HOPE
@@ -40,7 +50,7 @@ topic: module2 RL-RS GitHub evidence
 ## omron-sinicx/neural-astar
 
 - URL: https://github.com/omron-sinicx/neural-astar
-- License: GitHub API 未返回 SPDX, 需继续核验。
+- License: GitHub API returned `NOASSERTION/Other`; raw `LICENSE` is MIT text (`minimal/LICENSE#L1-L17`)。
 - 当前判断: 相关工作/模块1线索, 不是模块2可复用实现。
 - 关键代码:
   - `src/neural_astar/planner/astar.py#L105-L153`: `NeuralAstar` 构造 encoder + differentiable A*。
@@ -66,7 +76,7 @@ topic: module2 RL-RS GitHub evidence
 ## AtsushiSakai/PythonRobotics
 
 - URL: https://github.com/AtsushiSakai/PythonRobotics
-- License: MIT, 已打开 `LICENSE` 文件核验。
+- License: GitHub API returned `NOASSERTION/Other`; raw `LICENSE` is MIT text (`master/LICENSE#L1-L14`)。
 - 当前判断: 可直接复用少量 MIT 参考实现或作为 baseline, 但本项目已有 RS/HA* 实现, 不应无必要替换。
 - 关键代码:
   - `PathPlanning/ReedsSheppPath/reeds_shepp_path_planning.py#L22-L37`: RS Path 数据结构含 lengths/ctypes/directions。
@@ -79,7 +89,7 @@ topic: module2 RL-RS GitHub evidence
 ## pkicki/neural_path_planning
 
 - URL: https://github.com/pkicki/neural_path_planning
-- License: 未发现 LICENSE, 不能直接复用。
+- License: GitHub API license endpoint 404; raw root `LICENSE`/`LICENSE.txt` 404。
 - 当前判断: 只能作为概念线索。
 - 关键文件:
   - `models/planner.py`
@@ -127,7 +137,7 @@ topic: module2 RL-RS GitHub evidence
 
 - URL: https://github.com/MRSTechnion/DiTree
 - Pinned HEAD: `150d0932c13e3edc4fe9144fb822486894418838` (`main`)
-- License: GitHub API 未发现 license, 暂不可复制。
+- License: GitHub API license endpoint 404; raw root `LICENSE`/`LICENSE.txt` 404。
 - 当前判断: 技术上强相关, 许可证阻塞。
 - 关键代码:
   - `planners/RRT.py#L42-L122`: RRT loop 选 node、构造 local map、调用 diffusion sampler、propagate action sequence, collision 后丢弃, success 后返回 path/actions。
@@ -156,7 +166,7 @@ topic: module2 RL-RS GitHub evidence
 
 - URL: https://github.com/ucsdarclab/mpnet_local_planner
 - Pinned branch: `suppl`-related Dynamic MPNet code; repo default `master`
-- License: GitHub API 未发现 license。
+- License: GitHub API license endpoint 404; raw root `LICENSE`/`LICENSE.txt` 404。
 - 当前判断: non-holonomic neural local planner 代码, license blocked。
 - 关键代码:
   - `src/mpnet_plan.cpp#L244-L264`: TorchScript model predicts target point from start/goal/costmap。
@@ -170,7 +180,7 @@ topic: module2 RL-RS GitHub evidence
 
 - URL: https://github.com/ucsdarclab/motion_planning_transformer
 - Pinned HEAD: `70d8973c15f3bfd3bec26aab0b591c7e298d755f` (`suppl`)
-- License: GitHub API 未发现 license。
+- License: GitHub API license endpoint 404; raw root `LICENSE`/`LICENSE.txt` 404。
 - 当前判断: search-space guidance code, not connector。
 - 关键代码:
   - `eval_model_car.py#L128-L208`: OMPL SST setup for car model。
@@ -196,7 +206,7 @@ topic: module2 RL-RS GitHub evidence
 
 - URL: https://github.com/mihdalal/neuralmotionplanner
 - Pinned HEAD: `5b1e7095c8031b4f011806ac2a58bbe80a2292e6` (`main`)
-- License: GitHub API 未发现 license。
+- License: GitHub API license endpoint 404; raw root `LICENSE`/`LICENSE.txt` 404。
 - 当前判断: learned reactive motion planner for Franka; related but not module2 code。
 - 关键代码:
   - `neural_mp/real_utils/neural_motion_planner.py#L20-L68`: initializes NeuralMP policy/env。
