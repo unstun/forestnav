@@ -15,6 +15,7 @@ def test_post_f02_6_regeneration_plan_blocks_current_pending_decision_without_ex
             formal_gate_path=_formal_gate(tmp_path, decision_status="pending_human_decision"),
             source_freshness_path=_source_freshness(tmp_path, required=True),
             remote_packet_path=_remote_packet(tmp_path, ready=False),
+            remaining_deliverables_path=_remaining_deliverables(tmp_path, open_gaps=True),
         )
     )
 
@@ -29,6 +30,10 @@ def test_post_f02_6_regeneration_plan_blocks_current_pending_decision_without_ex
     assert manifest["formal_claim_allowed"] is False
     assert manifest["blocking_summary"]["training_allowed_now"] is False
     assert manifest["blocking_summary"]["remote_preflight_allowed_now"] is False
+    assert manifest["remaining_deliverables_gap_summary"]["present"] is True
+    assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
+    assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 4
+    assert manifest["remaining_deliverables_gap_summary"]["categories"]["training"]["missing_count"] == 3
 
     stages = {stage["stage_id"]: stage for stage in manifest["ordered_stages"]}
     assert stages["f02_6_decision_record"]["requires_human_input"] is True
@@ -53,6 +58,7 @@ def test_post_f02_6_regeneration_plan_allows_only_regeneration_after_approval_wh
             formal_gate_path=_formal_gate(tmp_path, decision_status="approved"),
             source_freshness_path=_source_freshness(tmp_path, required=True),
             remote_packet_path=_remote_packet(tmp_path, ready=False),
+            remaining_deliverables_path=_remaining_deliverables(tmp_path, open_gaps=True),
         )
     )
 
@@ -100,6 +106,7 @@ def test_post_f02_6_regeneration_plan_marks_remote_training_ready_only_from_read
             formal_gate_path=_formal_gate(tmp_path, decision_status="approved"),
             source_freshness_path=_source_freshness(tmp_path, required=False),
             remote_packet_path=_remote_packet(tmp_path, ready=True),
+            remaining_deliverables_path=_remaining_deliverables(tmp_path, open_gaps=False),
         )
     )
 
@@ -135,6 +142,8 @@ def test_post_f02_6_regeneration_plan_cli_writes_json_and_markdown(tmp_path):
             str(_source_freshness(tmp_path, required=True)),
             "--remote-packet",
             str(_remote_packet(tmp_path, ready=False)),
+            "--remaining-deliverables",
+            str(_remaining_deliverables(tmp_path, open_gaps=True)),
         ]
     )
 
@@ -145,6 +154,7 @@ def test_post_f02_6_regeneration_plan_cli_writes_json_and_markdown(tmp_path):
     assert manifest["status"] == "blocked_until_f02_6_decision"
     assert "Module2 Post-F02.6 Regeneration Plan" in markdown
     assert "Source Regeneration Command Index" in markdown
+    assert "Remaining Deliverables Gap Summary" in markdown
     assert "build_module2_f02_6_decision_intake" in markdown
     assert "does not execute commands" in markdown
 
