@@ -830,6 +830,21 @@ def _markdown(manifest: dict[str, Any]) -> str:
                 f"required before `{target.get('required_before')}`, path `{target.get('path')}`"
             )
         lines.append("")
+    lines.extend(
+        [
+            "## Missing Artifacts Inventory",
+            "",
+            f"- path: `{manifest['missing_artifacts_inventory']['path']}`",
+            f"- status: `{manifest['missing_artifacts_inventory']['status']}`",
+            f"- executes_commands: `{manifest['missing_artifacts_inventory']['executes_commands']}`",
+            f"- runs_training: `{manifest['missing_artifacts_inventory']['runs_training']}`",
+            f"- runs_remote_preflight: `{manifest['missing_artifacts_inventory']['runs_remote_preflight']}`",
+            f"- all_required_evidence_present: `{manifest['missing_artifacts_inventory']['all_required_evidence_present']}`",
+            f"- audit_issue_count: `{manifest['missing_artifacts_inventory']['audit_issue_count']}`",
+            f"- missing_counts_by_category: `{manifest['missing_artifacts_inventory']['missing_counts_by_category']}`",
+            "",
+        ]
+    )
     for title, key in [
         ("Decision Gaps", "missing_decision_items"),
         ("Training Artifact Gaps", "missing_training_artifacts"),
