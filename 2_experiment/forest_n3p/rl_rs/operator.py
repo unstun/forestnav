@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any, Optional
@@ -21,7 +22,14 @@ class RlRsFunnelTelemetry:
     rollout: RlRsEpisodeTelemetry
     terminal_rs_used: bool
     terminal_rs_action_count: int
+    rl_success: bool = False
     operator: str = "rl_rs_funnel"
+    rollout_protocol: str = "constant_steer_grid_footprint_terminal_rs"
+    collision_checker: str | None = None
+    rollout_max_steps: int | None = None
+    rollout_action_step_m: float | None = None
+    rollout_collision_sample_step_m: float | None = None
+    terminal_success_mode: str | None = None
 
     @property
     def failure_reason(self) -> str | None:
@@ -32,6 +40,17 @@ class RlRsFunnelTelemetry:
         rollout_record = self.rollout.to_record()
         return {
             "analytic_operator": self.operator,
+            "rl_attempts": 1,
+            "rl_successes": 1 if bool(self.rl_success) else 0,
+            "rs_attempts": int(rollout_record.get("terminal_rs_check_count", 0) or 0),
+            "nn_forward_time_s": float(rollout_record.get("nn_forward_time_s", 0.0) or 0.0),
+            "fallback_to_primitives_count": 0 if bool(self.rl_success) else 1,
+            "rollout_protocol": self.rollout_protocol,
+            "collision_checker": self.collision_checker,
+            "rollout_max_steps": self.rollout_max_steps,
+            "rollout_action_step_m": self.rollout_action_step_m,
+            "rollout_collision_sample_step_m": self.rollout_collision_sample_step_m,
+            "terminal_success_mode": self.terminal_success_mode,
             "rl_rollout_steps": int(rollout_record.get("rollout_steps", 0) or 0),
             "rl_rollout_collision_checks": int(rollout_record.get("rollout_collision_checks", 0) or 0),
             "rl_rollout_sample_time_s": float(rollout_record.get("rollout_sample_time_s", 0.0) or 0.0),
@@ -74,7 +93,10 @@ class RlRsFunnelOperator:
         terminal_action_count = 0
 
         while True:
-            step = env.step(self.action_policy(observation))
+            policy_started_at = time.perf_counter()
+            action = self.action_policy(observation)
+            policy_elapsed = time.perf_counter() - policy_started_at
+            step = env.step(action, nn_forward_time_s=policy_elapsed)
             rollout_states.append(step.next_state)
             rollout_actions.append(step.primitive)
             observation = step.observation
@@ -85,7 +107,9 @@ class RlRsFunnelOperator:
                     env.telemetry,
                     terminal_rs_used=False,
                     terminal_rs_action_count=0,
+                    rl_success=bool(step.terminated and not step.telemetry.collided and step.goal_tolerance_reached),
                     operator=self.name,
+                    **self._telemetry_protocol_fields(env_context),
                 )
                 self.last_telemetry = telemetry
                 if step.terminated and not step.telemetry.collided and step.goal_tolerance_reached:
@@ -106,7 +130,9 @@ class RlRsFunnelOperator:
                         env.telemetry,
                         terminal_rs_used=False,
                         terminal_rs_action_count=0,
+                        rl_success=False,
                         operator=self.name,
+                        **self._telemetry_protocol_fields(env_context),
                     )
                     self.last_telemetry = telemetry
                     return None
@@ -117,7 +143,9 @@ class RlRsFunnelOperator:
                 env.telemetry,
                 terminal_rs_used=terminal_used,
                 terminal_rs_action_count=terminal_action_count,
+                rl_success=bool(terminal_used),
                 operator=self.name,
+                **self._telemetry_protocol_fields(env_context),
             )
             self.last_telemetry = telemetry
             if not terminal_used:
@@ -160,3 +188,14 @@ class RlRsFunnelOperator:
         if result is None:
             return None
         return list(result.endpoints), list(result.actions)
+
+    @staticmethod
+    def _telemetry_protocol_fields(context: AnalyticExpansionContext) -> dict[str, Any]:
+        checker = context.collision_checker()
+        return {
+            "collision_checker": type(checker).__name__,
+            "rollout_max_steps": int(context.max_steps),
+            "rollout_action_step_m": float(context.action_step_m),
+            "rollout_collision_sample_step_m": float(context.collision_sample_step_m),
+            "terminal_success_mode": str(context.terminal_success_mode),
+        }
