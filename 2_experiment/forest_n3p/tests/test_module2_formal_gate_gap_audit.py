@@ -98,6 +98,33 @@ def test_formal_gate_gap_audit_can_be_clean_only_after_remote_artifacts_and_acce
     assert manifest["ordered_next_steps"][-1]["status"] == "ready"
 
 
+def test_formal_gate_gap_audit_does_not_treat_expected_training_outputs_as_training_preconditions(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_gap_audit")
+
+    manifest = builder.build_manifest(
+        builder.FormalGateGapAuditConfig(
+            output_dir=tmp_path,
+            contract_path=_contract(tmp_path),
+            decision_record_path=_decision_record(tmp_path, pending=False),
+            h01_manifest_path=_h01_manifest(tmp_path, ready=True),
+            remote_packet_path=_remote_packet(tmp_path, ready=True, artifacts_present=False),
+            h02_acceptance_path=_h02_acceptance(tmp_path, accepted=False),
+            claim_safety_path=_claim_safety(tmp_path, allowed=False),
+            readiness_path=_readiness(tmp_path, ready=False),
+        )
+    )
+
+    steps = {step["step_id"]: step for step in manifest["ordered_next_steps"]}
+    assert steps["remote_preflight"]["status"] == "pending_execution"
+    assert steps["gate3_remote_training"]["status"] == "pending_execution"
+    assert steps["gate3_remote_training"]["blocked_by"] == []
+    assert steps["gate3_remote_audit_pullback"]["status"] == "blocked"
+    assert "missing_remote_pullback_artifact" in steps["gate3_remote_audit_pullback"]["blocked_by"]
+    assert steps["h01_h02_regeneration"]["status"] == "blocked"
+    assert "missing_ppo_result_rows" in steps["h01_h02_regeneration"]["blocked_by"]
+    assert steps["claim_safety_final_gate"]["status"] == "blocked"
+
+
 def test_formal_gate_gap_audit_does_not_allow_local_training_even_when_remote_is_ready(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_gap_audit")
 
