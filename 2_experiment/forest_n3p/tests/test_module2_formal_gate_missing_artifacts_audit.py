@@ -30,6 +30,26 @@ def test_missing_artifacts_audit_blocks_pending_formal_chain(tmp_path):
     assert manifest["missing_counts_by_category"]["acceptance"] == 3
     assert manifest["formal_gate_requirement_counts"] == {"blocked_missing_outputs": 4}
 
+    handoff = manifest["formal_gate_handoff_index"]
+    assert handoff["status"] == "blocked_until_f02_6_decision"
+    assert handoff["next_action"]["action_id"] == "record_f02_6_decision"
+    assert handoff["next_action"]["requires_dr_sun"] is True
+    assert handoff["next_action"]["allowed_for_agent_now"] is False
+    assert handoff["local_training_allowed_now"] is False
+    assert handoff["remote_training_allowed_now"] is False
+    assert handoff["formal_result_material_allowed_now"] is False
+    assert handoff["open_requirement_count"] == 5
+    assert handoff["authority_artifacts"]["remote_formal_execution_packet"].endswith("remote_packet.json")
+    handoff_requirements = {item["requirement_id"]: item for item in handoff["requirements"]}
+    assert handoff_requirements["f02_6_human_decision"]["missing_artifact_count"] == 1
+    assert handoff_requirements["f02_6_human_decision"]["source_artifacts"] == [
+        str(config.decision_record_path),
+        str(config.transition_gate_audit_path),
+    ]
+    assert handoff_requirements["training_remote_ppo_checkpoint"]["missing_artifact_count"] == 3
+    assert str(config.remote_packet_path) in handoff_requirements["training_remote_ppo_checkpoint"]["source_artifacts"]
+    assert str(config.h02_acceptance_path) in handoff_requirements["acceptance_remote_pullback_and_audit"]["downstream_consumers"]
+
     requirements = {item["requirement_id"]: item for item in manifest["formal_gate_requirements"]}
     assert requirements["training_remote_ppo_checkpoint"]["phase"] == "training"
     assert requirements["training_remote_ppo_checkpoint"]["status"] == "blocked_missing_outputs"
@@ -76,6 +96,9 @@ def test_missing_artifacts_audit_accepts_synthetic_complete_formal_chain(tmp_pat
     assert all(count == 0 for count in manifest["missing_counts_by_category"].values())
     assert manifest["formal_gate_requirement_counts"] == {"satisfied": 4}
     assert all(item["status"] == "satisfied" for item in manifest["formal_gate_requirements"])
+    assert manifest["formal_gate_handoff_index"]["status"] == "formal_gate_evidence_ready_for_h01_h02_claim_gates"
+    assert manifest["formal_gate_handoff_index"]["open_requirement_count"] == 0
+    assert manifest["formal_gate_handoff_index"]["next_action"]["action_id"] == "no_open_formal_gate_handoff_requirements"
     assert manifest["current_gate_summary"]["f02_6_transition_gate_status"] == "f02_6_transition_gate_audit_passed"
     assert manifest["current_gate_summary"]["h01_manifest_status"] == "ready_for_formal_run"
     assert manifest["current_gate_summary"]["h02_acceptance_status"] == "formal_output_accepted"
@@ -138,6 +161,9 @@ def test_missing_artifacts_audit_cli_writes_json_and_markdown(tmp_path):
     markdown = markdown_path.read_text(encoding="utf-8")
     assert manifest["status"] == "formal_gate_missing_artifacts_open"
     assert "Module2 Formal Gate Missing Artifacts Audit" in markdown
+    assert "Formal Gate Handoff Index" in markdown
+    assert "record_f02_6_decision" in markdown
+    assert "Authority Artifacts" in markdown
     assert "Formal Gate Requirements" in markdown
     assert "f02_6_transition_gate_status" in markdown
     assert "training_remote_ppo_checkpoint" in markdown
