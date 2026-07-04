@@ -24,6 +24,13 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
     assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
     assert manifest["current_state"]["decision_status"] == "pending_human_decision"
+    assert manifest["current_state"]["decision_intake_status"] == "f02_6_decision_intake_pending_clean"
+    assert manifest["current_state"]["decision_intake_record_status"] == "pending_human_decision"
+    assert manifest["current_state"]["decision_intake_next_blocked_lane"] == "decision"
+    assert manifest["current_state"]["decision_intake_audit_issue_count"] == 0
+    assert manifest["current_state"]["decision_intake_remote_preflight_allowed_now"] is False
+    assert manifest["current_state"]["decision_intake_remote_training_allowed_now"] is False
+    assert manifest["current_state"]["decision_intake_formal_claim_allowed_now"] is False
     assert manifest["current_state"]["missing_artifacts_handoff_index_status"] == "blocked_until_f02_6_decision"
     assert manifest["current_state"]["missing_artifacts_handoff_next_action"] == "record_f02_6_decision"
     assert manifest["current_state"]["missing_artifacts_handoff_open_requirement_count"] == 5
@@ -72,6 +79,14 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert post_run_requirements["status_counts"] == {"blocked_until_remote_audit": 4}
     assert post_run_requirements["blocked_requirement_count"] == 4
     assert post_run_requirements["requirements"]["checkpoint_hash_manifest_recorded"]["status"] == "blocked_until_remote_audit"
+    intake = manifest["f02_6_decision_intake_summary"]
+    assert intake["present"] is True
+    assert intake["status"] == "f02_6_decision_intake_pending_clean"
+    assert intake["record_status"] == "pending_human_decision"
+    assert intake["next_blocked_lane"] == "decision"
+    assert intake["remote_preflight_allowed_now"] is False
+    assert intake["remote_training_allowed_now"] is False
+    assert intake["formal_claim_allowed_now"] is False
     h02_requirements = manifest["h02_formal_acceptance_requirement_summary"]
     assert h02_requirements["present"] is True
     assert h02_requirements["required_requirement_count"] == 4
@@ -158,6 +173,9 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     assert manifest["missing_artifacts_handoff_index_summary"]["status"] == "formal_gate_evidence_ready_for_h01_h02_claim_gates"
     assert manifest["missing_artifacts_handoff_index_summary"]["open_requirement_count"] == 0
     assert manifest["formal_gate_requirement_stage_summary"]["mapped_requirement_count"] == 4
+    assert manifest["f02_6_decision_intake_summary"]["status"] == "f02_6_decision_intake_closed_clean"
+    assert manifest["f02_6_decision_intake_summary"]["record_status"] == "approved"
+    assert manifest["f02_6_decision_intake_summary"]["record_decider"] == "Dr Sun"
     assert manifest["remote_preflight_requirement_summary"]["status_counts"] == {"satisfied": 4}
     assert manifest["post_run_acceptance_requirement_summary"]["status_counts"] == {"satisfied": 4}
     assert manifest["h02_formal_acceptance_requirement_summary"]["status_counts"] == {"satisfied": 4}
@@ -177,6 +195,25 @@ def test_formal_gate_status_report_catches_status_input_drift(tmp_path):
     assert "missing_artifacts_handoff_allows_result_material" in issue_ids
     assert "handoff_bundle_safety_issues_open" in issue_ids
     assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
+
+
+def test_formal_gate_status_report_requires_clean_decision_intake(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    intake = json.loads(config.decision_intake_path.read_text(encoding="utf-8"))
+    intake["status"] = "f02_6_decision_intake_failed"
+    intake["audit_issue_count"] = 1
+    intake["current_state"]["status_report_remote_training_allowed_now"] = True
+    config.decision_intake_path.write_text(json.dumps(intake), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert manifest["status"] == "formal_gate_status_blocked"
+    assert "decision_intake_not_clean" in issue_ids
+    assert "decision_intake_audit_issues_open" in issue_ids
+    assert "decision_intake_remote_training_allowed_now_not_false" in issue_ids
+    assert manifest["permissions_now"]["remote_training_allowed_now"] is False
 
 
 def test_formal_gate_status_report_requires_missing_artifacts_handoff_index(tmp_path):
@@ -424,6 +461,7 @@ def _config(tmp_path, *, complete, drift=False):
         missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts(complete=complete, drift=drift)),
         closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist(complete=complete, drift=drift)),
         decision_record_path=_json(tmp_path, "decision_record.json", _decision_record(complete=complete)),
+        decision_intake_path=_json(tmp_path, "decision_intake.json", _decision_intake(complete=complete)),
         remote_packet_path=_json(tmp_path, "remote_packet.json", _remote_packet(complete=complete, drift=drift)),
         h01_manifest_path=_json(tmp_path, "h01_manifest.json", _h01_manifest(complete=complete)),
         h02_acceptance_path=_json(tmp_path, "h02_acceptance.json", _h02_acceptance(complete=complete)),
