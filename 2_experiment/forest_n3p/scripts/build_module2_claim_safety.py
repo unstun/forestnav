@@ -174,6 +174,7 @@ def _formal_performance_blockers(
     h01_manifest: dict[str, Any],
     f02_6_packet: dict[str, Any],
     closure_checklist: dict[str, Any],
+    status_report: dict[str, Any],
 ) -> list[str]:
     blockers: list[str] = []
     if paper_tables.get("formal_claim_allowed") is not True:
@@ -206,6 +207,23 @@ def _formal_performance_blockers(
         _append_unique(blockers, "closure_checklist_allows_formal_claim")
     if int(closure_checklist.get("input_safety_issue_count") or 0) > 0:
         _append_unique(blockers, "closure_checklist_input_safety_issues_open")
+    permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
+    if status_report.get("status") != "formal_gate_status_ready_for_claim_audit":
+        _append_unique(blockers, "formal_gate_status_report_blocked")
+    if status_report.get("executes_commands") is not False:
+        _append_unique(blockers, "status_report_executes_commands")
+    if status_report.get("runs_training") is not False:
+        _append_unique(blockers, "status_report_runs_training")
+    if status_report.get("runs_remote_preflight") is not False:
+        _append_unique(blockers, "status_report_runs_remote_preflight")
+    if status_report.get("local_training_allowed") is not False:
+        _append_unique(blockers, "status_report_allows_local_training")
+    if status_report.get("formal_claim_allowed") is not False:
+        _append_unique(blockers, "status_report_allows_formal_claim")
+    if permissions.get("local_training_allowed_now") is True:
+        _append_unique(blockers, "status_report_allows_local_training_now")
+    if int(status_report.get("input_safety_issue_count") or 0) > 0:
+        _append_unique(blockers, "status_report_input_safety_issues_open")
     return blockers
 
 
