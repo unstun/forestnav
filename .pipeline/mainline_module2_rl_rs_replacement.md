@@ -974,6 +974,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 47. [x] Paper section seed 已完成: readiness 放行的 method/system/no-warm failure 被转成 evidence-bound draft seed, draft audit clean; formal results 和 warm-start effect 继续 blocked。
 48. [x] Paper section LaTeX hook 已完成: `module2_paper_section_seed.tex` 已生成并由 `3_paper/main.tex` method 段 input; maintex static audit 和 pdflatex draftmode 均通过, Results 未接 formal Module2 claim。
 49. [x] Manuscript claim audit 已完成: 展开 `3_paper/main.tex` 后执行 Module2 prohibited-claim scan, 当前 clean; formal results/warm-start effect 仍由 readiness 和 section seed 双重证明 blocked。
+50. [x] Manuscript evidence map 已完成: 展开 `3_paper/main.tex` 后将 method/no-warm/formal-blocked/warm-start-blocked 四类 Module2 claim unit 映射到 I01/I03/readiness/Gate3/F02.6/remote packet 证据; formal results 与 warm-start effect 仍是 blocked placeholders, 不作为论文结果 claim。
 
 ## 7. 完成记录
 
@@ -1038,3 +1039,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 完成 paper section seed。新增 `build_module2_paper_section_seed.py`, 生成 `3_paper/module2_section_seed/module2_paper_section_seed.json` 和 `.md`; 当前 `method_sections_ready_results_blocked`, method/system/no-warm failure 三段已形成 evidence-bound draft seed 且 claim audit clean, formal results/main table/warm-start effect 继续 blocked。记录见 `.pipeline/experiments/20260704_module2_paper_section_seed.md`。
 - 2026-07-04: 完成 paper section LaTeX hook。`build_module2_paper_section_seed.py` 新增 `.tex` 输出, `3_paper/main.tex` 在 Method/Experiments 分界前 input `module2_section_seed/module2_paper_section_seed.tex`; 静态 claim audit 通过, `pdflatex -draftmode` 通过, formal results/warm-start effect 仍只保留 blocked 注释。记录见 `.pipeline/experiments/20260704_module2_paper_section_seed.md`。
 - 2026-07-04: 完成 manuscript claim audit。新增 `build_module2_manuscript_claim_audit.py`, 展开 `3_paper/main.tex` 的 LaTeX input 后扫描 I03 prohibited claims, 并交叉检查 paper readiness 与 section seed 中 formal results / warm-start effect 均为 blocked；当前 `maintex_module2_claim_audit_passed`。记录见 `.pipeline/experiments/20260704_module2_manuscript_claim_audit.md`。
+- 2026-07-04: 完成 manuscript evidence map。新增 `build_module2_manuscript_evidence_map.py`, 生成 `3_paper/module2_evidence_map/module2_manuscript_evidence_map.json` 和 `.md`; 当前 `module2_manuscript_evidence_mapped`, method/no-warm scoped units 均 mapped, formal results 与 warm-start effect 均 `blocked_as_expected`。记录见 `.pipeline/experiments/20260704_module2_manuscript_evidence_map.md`。
