@@ -772,8 +772,8 @@ def _status_report(tmp_path, *, ready, invalid=False):
                 "input_safety_issue_count": 1 if invalid else 0,
                 "permissions_now": {
                     "local_training_allowed_now": bool(invalid),
-                    "remote_preflight_allowed_now": False,
-                    "remote_training_allowed_now": False,
+                    "remote_preflight_allowed_now": bool(ready),
+                    "remote_training_allowed_now": bool(ready),
                     "formal_h01_evaluation_allowed_now": bool(ready),
                     "formal_h02_acceptance_allowed_now": bool(ready),
                     "formal_claim_allowed_now": bool(ready),
