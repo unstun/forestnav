@@ -1,0 +1,399 @@
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+from dataclasses import dataclass
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any, Sequence
+
+
+DEFAULT_OUTPUT_DIR = Path("0_trials/module2_formal_gate_remaining_deliverables")
+DEFAULT_STATUS_REPORT = Path("0_trials/module2_formal_gate_status_report/formal_gate_status_report.json")
+DEFAULT_MISSING_ARTIFACTS = Path("0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json")
+DEFAULT_CLOSURE_CHECKLIST = Path("0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json")
+DEFAULT_REMOTE_PACKET = Path("0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json")
+DEFAULT_H01_MANIFEST = Path("0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json")
+DEFAULT_H02_ACCEPTANCE = Path("0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json")
+
+DELIVERABLE_CATEGORIES = (
+    ("training", "training_artifacts_required"),
+    ("evaluation", "evaluation_artifacts_required"),
+    ("acceptance", "acceptance_artifacts_required"),
+    ("formal_acceptance", "evaluation_acceptance_required"),
+)
+FORMAL_REQUIREMENT_PHASE_BY_CATEGORY = {
+    "training": "training",
+    "evaluation": "evaluation",
+    "acceptance": "acceptance",
+    "formal_acceptance": "evaluation_acceptance",
+}
+
+
+@dataclass(frozen=True)
+class FormalGateRemainingDeliverablesConfig:
+    output_dir: Path
+    manifest_out: Path | None = None
+    markdown_out: Path | None = None
+    status_report_path: Path = DEFAULT_STATUS_REPORT
+    missing_artifacts_path: Path = DEFAULT_MISSING_ARTIFACTS
+    closure_checklist_path: Path = DEFAULT_CLOSURE_CHECKLIST
+    remote_packet_path: Path = DEFAULT_REMOTE_PACKET
+    h01_manifest_path: Path = DEFAULT_H01_MANIFEST
+    h02_acceptance_path: Path = DEFAULT_H02_ACCEPTANCE
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    args = _parse_args(argv)
+    config = FormalGateRemainingDeliverablesConfig(
+        output_dir=args.output_dir,
+        manifest_out=args.manifest_out,
+        markdown_out=args.markdown_out,
+        status_report_path=args.status_report,
+        missing_artifacts_path=args.missing_artifacts,
+        closure_checklist_path=args.closure_checklist,
+        remote_packet_path=args.remote_packet,
+        h01_manifest_path=args.h01_manifest,
+        h02_acceptance_path=args.h02_acceptance,
+    )
+    manifest = build_manifest(config)
+    output_dir = Path(config.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    manifest_out = config.manifest_out or output_dir / "formal_gate_remaining_deliverables.json"
+    markdown_out = config.markdown_out or output_dir / "formal_gate_remaining_deliverables.md"
+    manifest_out.parent.mkdir(parents=True, exist_ok=True)
+    markdown_out.parent.mkdir(parents=True, exist_ok=True)
+    manifest_out.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    markdown_out.write_text(_markdown(manifest), encoding="utf-8")
+    print(json.dumps({"manifest": str(manifest_out), "markdown": str(markdown_out), "status": manifest["status"]}, indent=2, ensure_ascii=False))
+    return 0
+
+
+def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, Any]:
+    status_report = _read_json(config.status_report_path)
+    missing_artifacts = _read_json(config.missing_artifacts_path)
+    closure_checklist = _read_json(config.closure_checklist_path)
+    remote_packet = _read_json(config.remote_packet_path)
+    h01_manifest = _read_json(config.h01_manifest_path)
+    h02_acceptance = _read_json(config.h02_acceptance_path)
+
+    deliverable_groups = _deliverable_groups(
+        status_report=status_report,
+        closure_checklist=closure_checklist,
+        missing_artifacts=missing_artifacts,
+    )
+    category_counts = _category_counts(deliverable_groups)
+    audit_issues = _audit_issues(
+        status_report=status_report,
+        missing_artifacts=missing_artifacts,
+        closure_checklist=closure_checklist,
+        remote_packet=remote_packet,
+        h01_manifest=h01_manifest,
+        h02_acceptance=h02_acceptance,
+        deliverable_groups=deliverable_groups,
+    )
+    missing_count = sum(group["missing_count"] for group in deliverable_groups)
+    ready = missing_count == 0 and not audit_issues and status_report.get("status") == "formal_gate_status_ready_for_claim_audit"
+    return {
+        "schema_version": 1,
+        "artifact_name": "module2_formal_gate_remaining_deliverables",
+        "status": "formal_gate_deliverables_ready_for_claim_audit" if ready else "formal_gate_deliverables_blocked",
+        "created_at_utc": datetime.now(UTC).isoformat(),
+        "source_head": _source_head(),
+        "not_paper_result_material": True,
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+        "inputs": {
+            "formal_gate_status_report": str(config.status_report_path),
+            "formal_gate_missing_artifacts": str(config.missing_artifacts_path),
+            "formal_gate_closure_checklist": str(config.closure_checklist_path),
+            "remote_formal_execution_packet": str(config.remote_packet_path),
+            "h01_manifest": str(config.h01_manifest_path),
+            "h02_formal_acceptance": str(config.h02_acceptance_path),
+        },
+        "current_gate_summary": {
+            "status_report_status": status_report.get("status"),
+            "next_blocked_lane": _next_blocked_lane_id(status_report),
+            "missing_counts_by_category": status_report.get("missing_counts_by_category")
+            if isinstance(status_report.get("missing_counts_by_category"), dict)
+            else {},
+            "remote_packet_status": remote_packet.get("status"),
+            "ready_to_run_remote_training": remote_packet.get("ready_to_run_remote_training"),
+            "h01_status": h01_manifest.get("status"),
+            "h02_status": h02_acceptance.get("status"),
+            "h02_formal_output_accepted": h02_acceptance.get("formal_output_accepted"),
+            "h02_paper_result_input_allowed": h02_acceptance.get("paper_result_input_allowed"),
+        },
+        "permissions_now": _permissions(status_report=status_report, remote_packet=remote_packet),
+        "category_counts": category_counts,
+        "deliverable_groups": deliverable_groups,
+        "missing_deliverable_count": missing_count,
+        "open_category_count": sum(1 for group in deliverable_groups if group["missing_count"] > 0),
+        "audit_issue_count": len(audit_issues),
+        "audit_issues": audit_issues,
+        "claim_boundaries": [
+            "This ledger lists remaining formal training, evaluation, and acceptance deliverables only.",
+            "It does not approve F02.6, run ssh/rsync, run remote preflight, train, evaluate, audit, or pull back artifacts.",
+            "Local training remains prohibited; formal PPO training remains gpu3070ti-relay-only after the formal gate opens.",
+            "Smoke, preview, no-warm failure, stdout-only logs, and partial pullbacks are invalid substitutes for the listed deliverables.",
+            "This ledger is not paper result material and must not be cited as a performance result.",
+        ],
+    }
+
+
+def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Build a read-only ledger of remaining Module2 formal gate deliverables.")
+    parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    parser.add_argument("--manifest-out", type=Path, default=None)
+    parser.add_argument("--markdown-out", type=Path, default=None)
+    parser.add_argument("--status-report", type=Path, default=DEFAULT_STATUS_REPORT)
+    parser.add_argument("--missing-artifacts", type=Path, default=DEFAULT_MISSING_ARTIFACTS)
+    parser.add_argument("--closure-checklist", type=Path, default=DEFAULT_CLOSURE_CHECKLIST)
+    parser.add_argument("--remote-packet", type=Path, default=DEFAULT_REMOTE_PACKET)
+    parser.add_argument("--h01-manifest", type=Path, default=DEFAULT_H01_MANIFEST)
+    parser.add_argument("--h02-acceptance", type=Path, default=DEFAULT_H02_ACCEPTANCE)
+    return parser.parse_args(list(argv) if argv is not None else None)
+
+
+def _deliverable_groups(
+    *,
+    status_report: dict[str, Any],
+    closure_checklist: dict[str, Any],
+    missing_artifacts: dict[str, Any],
+) -> list[dict[str, Any]]:
+    requirement_by_phase = _formal_requirement_by_phase(missing_artifacts)
+    groups: list[dict[str, Any]] = []
+    for category, artifact_key in DELIVERABLE_CATEGORIES:
+        raw_items = status_report.get(artifact_key)
+        if not isinstance(raw_items, list):
+            raw_items = closure_checklist.get(artifact_key)
+        raw_list = raw_items if isinstance(raw_items, list) else []
+        items = [_deliverable_item(item) for item in raw_list if isinstance(item, dict)]
+        requirement = requirement_by_phase.get(FORMAL_REQUIREMENT_PHASE_BY_CATEGORY[category], {})
+        invalid_substitutes = _strings(requirement.get("invalid_substitutes"))
+        acceptable_evidence = _strings(requirement.get("acceptable_evidence"))
+        groups.append(
+            {
+                "category": category,
+                "status": "complete" if items and all(not item["missing"] for item in items) else "blocked",
+                "item_count": len(items),
+                "missing_count": sum(1 for item in items if item["missing"]),
+                "present_count": sum(1 for item in items if item["exists"] and not item["missing"]),
+                "responsible_stage_id": requirement.get("responsible_stage_id"),
+                "responsible_stage_status": requirement.get("responsible_stage_status"),
+                "responsible_stage_allowed_now": requirement.get("responsible_stage_allowed_now")
+                if isinstance(requirement.get("responsible_stage_allowed_now"), bool)
+                else None,
+                "responsible_stage_blocked_by": _strings(requirement.get("responsible_stage_blocked_by")),
+                "acceptable_evidence": acceptable_evidence,
+                "invalid_substitutes": invalid_substitutes,
+                "items": items,
+            }
+        )
+    return groups
+
+
+def _deliverable_item(item: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "artifact_id": item.get("artifact_id"),
+        "path": item.get("path"),
+        "exists": item.get("exists") if isinstance(item.get("exists"), bool) else None,
+        "state": item.get("state"),
+        "missing": item.get("missing") is True,
+        "reason": item.get("reason"),
+    }
+
+
+def _formal_requirement_by_phase(missing_artifacts: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    requirements = missing_artifacts.get("formal_gate_requirements")
+    requirements = requirements if isinstance(requirements, list) else []
+    out: dict[str, dict[str, Any]] = {}
+    for item in requirements:
+        if isinstance(item, dict) and item.get("phase"):
+            out[str(item["phase"])] = item
+    return out
+
+
+def _category_counts(deliverable_groups: Sequence[dict[str, Any]]) -> dict[str, dict[str, int]]:
+    return {
+        str(group["category"]): {
+            "item_count": int(group["item_count"]),
+            "missing_count": int(group["missing_count"]),
+            "present_count": int(group["present_count"]),
+        }
+        for group in deliverable_groups
+    }
+
+
+def _permissions(*, status_report: dict[str, Any], remote_packet: dict[str, Any]) -> dict[str, Any]:
+    permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
+    return {
+        "local_training_allowed_now": False,
+        "remote_preflight_allowed_now": permissions.get("remote_preflight_allowed_now"),
+        "remote_training_allowed_now": permissions.get("remote_training_allowed_now"),
+        "formal_h01_evaluation_allowed_now": permissions.get("formal_h01_evaluation_allowed_now"),
+        "formal_h02_acceptance_allowed_now": permissions.get("formal_h02_acceptance_allowed_now"),
+        "formal_claim_allowed_now": permissions.get("formal_claim_allowed_now"),
+        "remote_packet_ready_to_run_remote_training": remote_packet.get("ready_to_run_remote_training"),
+    }
+
+
+def _audit_issues(
+    *,
+    status_report: dict[str, Any],
+    missing_artifacts: dict[str, Any],
+    closure_checklist: dict[str, Any],
+    remote_packet: dict[str, Any],
+    h01_manifest: dict[str, Any],
+    h02_acceptance: dict[str, Any],
+    deliverable_groups: Sequence[dict[str, Any]],
+) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    for name, payload in (
+        ("status_report", status_report),
+        ("missing_artifacts", missing_artifacts),
+        ("closure_checklist", closure_checklist),
+        ("remote_packet", remote_packet),
+        ("h01_manifest", h01_manifest),
+        ("h02_acceptance", h02_acceptance),
+    ):
+        issues.extend(_read_only_payload_issues(name, payload))
+    categories = {str(group["category"]): group for group in deliverable_groups}
+    for category, _artifact_key in DELIVERABLE_CATEGORIES:
+        group = categories.get(category)
+        if not group:
+            issues.append(_issue(f"{category}_deliverable_group_missing", f"{category} deliverable group is missing."))
+            continue
+        if group["item_count"] == 0:
+            issues.append(_issue(f"{category}_deliverable_items_missing", f"{category} deliverable group has no items."))
+        if group["missing_count"] > 0 and group["status"] == "complete":
+            issues.append(_issue(f"{category}_marked_complete_with_missing_items", f"{category} cannot be complete with missing items."))
+        if category == "training":
+            if group["responsible_stage_id"] != "gate3_remote_training":
+                issues.append(_issue("training_wrong_responsible_stage", "training deliverables must be owned by gate3_remote_training."))
+            if group["responsible_stage_allowed_now"] is True and status_report.get("status") != "formal_gate_status_ready_for_claim_audit":
+                issues.append(_issue("training_allowed_while_status_report_blocked", "training stage cannot be allowed while status report is blocked."))
+        if category in {"evaluation", "acceptance"} and group["responsible_stage_id"] != "gate3_remote_audit_pullback":
+            issues.append(_issue(f"{category}_wrong_responsible_stage", f"{category} deliverables must be owned by gate3_remote_audit_pullback."))
+        if category == "formal_acceptance" and group["responsible_stage_id"] != "regenerate_h01_h02_formal_artifacts":
+            issues.append(_issue("formal_acceptance_wrong_responsible_stage", "formal acceptance must be owned by regenerate_h01_h02_formal_artifacts."))
+        if group["missing_count"] > 0 and not group["invalid_substitutes"]:
+            issues.append(_issue(f"{category}_missing_invalid_substitutes", f"{category} group must list invalid substitutes while blocked."))
+    return _unique_issues(issues)
+
+
+def _read_only_payload_issues(name: str, payload: dict[str, Any]) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    if payload.get("executes_commands") is True:
+        issues.append(_issue(f"{name}_executes_commands", f"{name} must be read-only."))
+    if payload.get("runs_training") is True:
+        issues.append(_issue(f"{name}_runs_training", f"{name} must not run training."))
+    if payload.get("runs_remote_preflight") is True:
+        issues.append(_issue(f"{name}_runs_remote_preflight", f"{name} must not run remote preflight."))
+    if payload.get("local_training_allowed") is True:
+        issues.append(_issue(f"{name}_allows_local_training", f"{name} must preserve the local-training prohibition."))
+    if payload.get("formal_claim_allowed") is True:
+        issues.append(_issue(f"{name}_allows_formal_claim", f"{name} must not allow formal claims."))
+    return issues
+
+
+def _next_blocked_lane_id(status_report: dict[str, Any]) -> str | None:
+    lane = status_report.get("next_blocked_lane")
+    return lane.get("lane_id") if isinstance(lane, dict) else None
+
+
+def _strings(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [str(item) for item in value if item]
+
+
+def _issue(issue_id: str, message: str) -> dict[str, str]:
+    return {"issue_id": issue_id, "message": message}
+
+
+def _unique_issues(issues: Sequence[dict[str, str]]) -> list[dict[str, str]]:
+    seen: set[str] = set()
+    out: list[dict[str, str]] = []
+    for issue in issues:
+        issue_id = issue.get("issue_id") or ""
+        if not issue_id or issue_id in seen:
+            continue
+        seen.add(issue_id)
+        out.append(issue)
+    return out
+
+
+def _read_json(path: Path) -> dict[str, Any]:
+    if not Path(path).is_file():
+        return {}
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def _source_head() -> str:
+    try:
+        head = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL).strip()
+        dirty = subprocess.check_output(["git", "status", "--short"], text=True, stderr=subprocess.DEVNULL).strip()
+        return f"{head}+dirty" if dirty else head
+    except Exception:
+        return "unknown"
+
+
+def _markdown(manifest: dict[str, Any]) -> str:
+    lines = [
+        "# Module2 Formal Gate Remaining Deliverables",
+        "",
+        "This ledger is read-only. It lists remaining formal training, evaluation, and acceptance deliverables; it does not execute commands or write paper results.",
+        "",
+        f"- status: `{manifest['status']}`",
+        f"- source_head: `{manifest['source_head']}`",
+        f"- missing_deliverable_count: `{manifest['missing_deliverable_count']}`",
+        f"- open_category_count: `{manifest['open_category_count']}`",
+        f"- audit_issue_count: `{manifest['audit_issue_count']}`",
+        f"- local_training_allowed_now: `{manifest['permissions_now']['local_training_allowed_now']}`",
+        f"- remote_training_allowed_now: `{manifest['permissions_now']['remote_training_allowed_now']}`",
+        f"- formal_claim_allowed_now: `{manifest['permissions_now']['formal_claim_allowed_now']}`",
+        "",
+        "## Current Gate Summary",
+        "",
+    ]
+    for key, value in manifest["current_gate_summary"].items():
+        lines.append(f"- {key}: `{value}`")
+    lines.extend(["", "## Deliverable Groups", ""])
+    for group in manifest["deliverable_groups"]:
+        lines.append(f"### {group['category']}")
+        lines.append(f"- status: `{group['status']}`")
+        lines.append(f"- missing_count: `{group['missing_count']}`")
+        lines.append(f"- responsible_stage_id: `{group['responsible_stage_id']}`")
+        lines.append(f"- responsible_stage_allowed_now: `{group['responsible_stage_allowed_now']}`")
+        blocked_by = ", ".join(group["responsible_stage_blocked_by"]) if group["responsible_stage_blocked_by"] else "none"
+        lines.append(f"- responsible_stage_blocked_by: `{blocked_by}`")
+        lines.append("- items:")
+        for item in group["items"]:
+            lines.append(
+                f"  - `{item['artifact_id']}`: missing=`{item['missing']}`, exists=`{item['exists']}`, "
+                f"state=`{item['state']}`, path=`{item['path']}`"
+            )
+        if group["acceptable_evidence"]:
+            lines.append("- acceptable_evidence:")
+            lines.extend(f"  - {item}" for item in group["acceptable_evidence"])
+        if group["invalid_substitutes"]:
+            lines.append("- invalid_substitutes:")
+            lines.extend(f"  - {item}" for item in group["invalid_substitutes"])
+    lines.extend(["", "## Audit Issues", ""])
+    if manifest["audit_issues"]:
+        for issue in manifest["audit_issues"]:
+            lines.append(f"- `{issue['issue_id']}`: {issue['message']}")
+    else:
+        lines.append("- none")
+    lines.extend(["", "## Claim Boundaries", ""])
+    lines.extend(f"- {item}" for item in manifest["claim_boundaries"])
+    return "\n".join(lines) + "\n"
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
