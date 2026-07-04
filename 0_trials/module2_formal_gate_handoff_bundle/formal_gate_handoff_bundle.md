@@ -27,6 +27,10 @@
 ## Requirement Summary
 
 - formal gate requirements: `4`
+  - `training_remote_ppo_checkpoint`: status=`blocked_missing_outputs`, responsible_stage=`gate3_remote_training`
+  - `evaluation_gate3_episode_outputs`: status=`blocked_missing_outputs`, responsible_stage=`gate3_remote_audit_pullback`
+  - `acceptance_remote_pullback_and_audit`: status=`blocked_missing_outputs`, responsible_stage=`gate3_remote_audit_pullback`
+  - `h01_h02_formal_evaluation_acceptance`: status=`blocked_missing_outputs`, responsible_stage=`regenerate_h01_h02_formal_artifacts`
 - H02 acceptance requirements: `4`
 - safety issues: `0`
 

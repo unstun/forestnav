@@ -30,6 +30,15 @@ def test_formal_gate_handoff_bundle_blocks_pending_decision_without_execution(tm
     assert manifest["remote_execution_steps"]["run_remote_training"]["allowed_now"] is False
     assert "requires_dr_sun_approval" in manifest["remote_execution_steps"]["run_remote_training"]["blocked_by"]
     assert len(manifest["formal_gate_requirements"]) == 4
+    formal_reqs = {req["requirement_id"]: req for req in manifest["formal_gate_requirements"]}
+    assert formal_reqs["training_remote_ppo_checkpoint"]["responsible_stage_id"] == "gate3_remote_training"
+    assert formal_reqs["training_remote_ppo_checkpoint"]["responsible_stage_status"] == "blocked"
+    assert formal_reqs["training_remote_ppo_checkpoint"]["responsible_stage_allowed_now"] is False
+    assert "remote_packet_not_ready" in formal_reqs["training_remote_ppo_checkpoint"]["responsible_stage_blocked_by"]
+    assert "final_model.zip" in ";".join(formal_reqs["training_remote_ppo_checkpoint"]["responsible_stage_evidence_paths"])
+    assert formal_reqs["evaluation_gate3_episode_outputs"]["responsible_stage_id"] == "gate3_remote_audit_pullback"
+    assert formal_reqs["acceptance_remote_pullback_and_audit"]["responsible_stage_id"] == "gate3_remote_audit_pullback"
+    assert formal_reqs["h01_h02_formal_evaluation_acceptance"]["responsible_stage_id"] == "regenerate_h01_h02_formal_artifacts"
     assert len(manifest["h02_formal_acceptance_requirements"]) == 4
     assert len(manifest["post_run_expected_artifacts"]) == 7
     assert manifest["safety_issue_count"] == 0
@@ -138,6 +147,7 @@ def test_formal_gate_handoff_bundle_cli_writes_json_and_markdown(tmp_path):
     assert "Module2 Formal Gate Handoff Bundle" in markdown
     assert "Remote Steps" in markdown
     assert "Handoff Stages" in markdown
+    assert "responsible_stage=`gate3_remote_training`" in markdown
     assert "does not execute commands" in markdown
 
 
@@ -321,10 +331,15 @@ def _missing_artifacts(*, complete):
         "local_training_allowed": False,
         "formal_claim_allowed": False,
         "formal_gate_requirements": [
-            _requirement("training_remote_ppo_checkpoint", "training", complete=complete),
-            _requirement("evaluation_gate3_episode_outputs", "evaluation", complete=complete),
-            _requirement("acceptance_remote_pullback_and_audit", "acceptance", complete=complete),
-            _requirement("h01_h02_formal_evaluation_acceptance", "evaluation_acceptance", complete=complete),
+            _requirement("training_remote_ppo_checkpoint", "training", complete=complete, stage_id="gate3_remote_training"),
+            _requirement("evaluation_gate3_episode_outputs", "evaluation", complete=complete, stage_id="gate3_remote_audit_pullback"),
+            _requirement("acceptance_remote_pullback_and_audit", "acceptance", complete=complete, stage_id="gate3_remote_audit_pullback"),
+            _requirement(
+                "h01_h02_formal_evaluation_acceptance",
+                "evaluation_acceptance",
+                complete=complete,
+                stage_id="regenerate_h01_h02_formal_artifacts",
+            ),
         ],
     }
 
@@ -349,8 +364,8 @@ def _h02(*, complete):
     }
 
 
-def _requirement(requirement_id, phase, *, complete):
-    return {
+def _requirement(requirement_id, phase, *, complete, stage_id=None):
+    payload = {
         "requirement_id": requirement_id,
         "phase": phase,
         "status": "satisfied" if complete else "blocked_missing_outputs",
@@ -360,6 +375,19 @@ def _requirement(requirement_id, phase, *, complete):
         "acceptable_evidence": [f"{requirement_id}_evidence"],
         "invalid_substitutes": [f"{requirement_id}_invalid_substitute"],
     }
+    if stage_id:
+        payload.update(
+            {
+                "responsible_stage_id": stage_id,
+                "responsible_stage_status": "ready" if complete else "blocked",
+                "responsible_stage_allowed_now": complete,
+                "responsible_stage_blocked_by": [] if complete else ["remote_packet_not_ready"],
+                "responsible_stage_evidence_paths": [
+                    "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip"
+                ],
+            }
+        )
+    return payload
 
 
 def _json(tmp_path, name, payload):
