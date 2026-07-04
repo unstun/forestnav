@@ -15,6 +15,7 @@ from forest_n3p.rl_rs import (
     build_egocentric_edt_patch,
     build_egocentric_occupancy_patch,
     build_patch_observation,
+    check_terminal_rs_connectable,
     clip_steering_action,
     rollout_constant_steer_step,
     steering_action_to_primitive,
@@ -242,6 +243,47 @@ def test_env_step_terminates_on_terminal_rs_success():
     assert step.telemetry.goal_distance_m > 0.0
     assert step.reward.success == 1.0
     assert step.reward.total == 1.0
+
+
+def test_terminal_rs_success_set_distinguishes_free_and_blocked_connections():
+    free_context = _empty_context(goal=(2.0, 1.0, 0.0))
+    free = check_terminal_rs_connectable(
+        grid_map=free_context.grid_map,
+        footprint=free_context.footprint,
+        state=free_context.start,
+        goal=free_context.goal,
+        turning_radius_m=free_context.params.min_turn_radius,
+        wheelbase_m=free_context.params.wheelbase,
+        sample_step_m=free_context.collision_sample_step_m,
+        theta_bins=free_context.theta_bins,
+        checker=free_context.collision_checker(),
+    )
+
+    assert free.success
+    assert free.failure_reason is None
+    assert free.path_length_m is not None
+    assert free.path_length_m > 0.0
+    assert free.sample_count > 0
+
+    blocked_data = np.zeros((60, 60), dtype=np.uint8)
+    blocked_data[10, 15] = 1
+    blocked_context = _context_with_grid(blocked_data, goal=(2.0, 1.0, 0.0))
+    blocked = check_terminal_rs_connectable(
+        grid_map=blocked_context.grid_map,
+        footprint=blocked_context.footprint,
+        state=blocked_context.start,
+        goal=blocked_context.goal,
+        turning_radius_m=blocked_context.params.min_turn_radius,
+        wheelbase_m=blocked_context.params.wheelbase,
+        sample_step_m=blocked_context.collision_sample_step_m,
+        theta_bins=blocked_context.theta_bins,
+        checker=blocked_context.collision_checker(),
+    )
+
+    assert not blocked.success
+    assert blocked.failure_reason == "terminal_rs_collision"
+    assert blocked.path_length_m is not None
+    assert blocked.sample_count > 0
 
 
 def test_reward_config_controls_terminal_rs_success_reward():
