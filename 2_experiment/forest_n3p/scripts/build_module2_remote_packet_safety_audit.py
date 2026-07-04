@@ -385,8 +385,11 @@ def _cross_gate_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any],
     if plan_audit and not status_summary:
         issues.append(_issue("post_plan_missing_status_report_summary", "Post-F02.6 plan audit must expose status_report_summary before remote packet safety can pass."))
     status_step_summary = status_summary.get("remote_execution_step_summary") if isinstance(status_summary.get("remote_execution_step_summary"), dict) else {}
+    handoff_summary = status_summary.get("formal_gate_handoff_summary") if isinstance(status_summary.get("formal_gate_handoff_summary"), dict) else {}
     if plan_audit and status_summary and not status_step_summary:
         issues.append(_issue("post_plan_missing_status_report_remote_step_summary", "Post-F02.6 plan audit must forward status report remote execution step summary."))
+    if plan_audit and status_summary and not handoff_summary:
+        issues.append(_issue("post_plan_missing_status_report_handoff_summary", "Post-F02.6 plan audit must forward status report handoff summary."))
     if status_step_summary:
         packet_summary = _packet_summary(packet)
         for step_id, (allowed_key, blocked_key) in REMOTE_STATUS_STEP_MAP.items():
@@ -402,6 +405,42 @@ def _cross_gate_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any],
                         observed={"status_report": status_step.get("allowed_now"), "packet": packet_summary.get(allowed_key)},
                     )
                 )
+    if handoff_summary:
+        if int(handoff_summary.get("safety_issue_count") or 0) > 0:
+            issues.append(_issue("post_plan_handoff_safety_issues_open", "Post-F02.6 plan audit reports handoff safety issues."))
+        if status_summary.get("status") != "formal_gate_status_ready_for_claim_audit" and handoff_summary.get("remote_training_allowed_now") is True:
+            issues.append(
+                _issue(
+                    "blocked_status_report_handoff_allows_training",
+                    "Handoff summary must not allow remote training while the status report is blocked.",
+                )
+            )
+        handoff_steps = handoff_summary.get("remote_execution_steps") if isinstance(handoff_summary.get("remote_execution_steps"), dict) else {}
+        if not handoff_steps:
+            issues.append(_issue("post_plan_handoff_missing_remote_steps", "Handoff summary must expose remote execution steps."))
+        else:
+            packet_summary = _packet_summary(packet)
+            for step_id, (allowed_key, blocked_key) in REMOTE_STATUS_STEP_MAP.items():
+                handoff_step = handoff_steps.get(step_id)
+                if not isinstance(handoff_step, dict):
+                    issues.append(_issue(f"post_plan_handoff_missing_{step_id}", f"Handoff summary missing {step_id}."))
+                    continue
+                if handoff_step.get("allowed_now") != packet_summary.get(allowed_key):
+                    issues.append(
+                        _issue(
+                            f"post_plan_handoff_{step_id}_allowed_mismatch",
+                            "Handoff remote step allowed_now must match the remote packet.",
+                            observed={"handoff": handoff_step.get("allowed_now"), "packet": packet_summary.get(allowed_key)},
+                        )
+                    )
+                if _strings(handoff_step.get("blocked_by")) != packet_summary.get(blocked_key):
+                    issues.append(
+                        _issue(
+                            f"post_plan_handoff_{step_id}_blockers_mismatch",
+                            "Handoff remote step blocked_by must match the remote packet.",
+                            observed={"handoff": _strings(handoff_step.get("blocked_by")), "packet": packet_summary.get(blocked_key)},
+                        )
+                    )
             if _strings(status_step.get("blocked_by")) != packet_summary.get(blocked_key):
                 issues.append(
                     _issue(
@@ -462,6 +501,7 @@ def _cross_gate_summary(*, decision_gate: dict[str, Any], plan_audit: dict[str, 
     blocking = plan_audit.get("current_blocking_summary") if isinstance(plan_audit.get("current_blocking_summary"), dict) else {}
     status_summary = plan_audit.get("status_report_summary") if isinstance(plan_audit.get("status_report_summary"), dict) else {}
     remote_steps = status_summary.get("remote_execution_step_summary") if isinstance(status_summary.get("remote_execution_step_summary"), dict) else {}
+    handoff_summary = status_summary.get("formal_gate_handoff_summary") if isinstance(status_summary.get("formal_gate_handoff_summary"), dict) else {}
     return {
         "decision_gate_status": decision_gate.get("status"),
         "f02_6_record_status": decision.get("record_status"),
@@ -474,6 +514,7 @@ def _cross_gate_summary(*, decision_gate: dict[str, Any], plan_audit: dict[str, 
         "post_plan_status_report_local_training_allowed_now": status_summary.get("local_training_allowed_now"),
         "post_plan_status_report_next_blocked_lane_id": status_summary.get("next_blocked_lane_id"),
         "post_plan_status_report_remote_execution_step_summary": remote_steps,
+        "post_plan_status_report_handoff_summary": handoff_summary,
     }
 
 
@@ -536,6 +577,8 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- pullback_artifact_count: `{manifest['packet_summary']['pullback_artifact_count']}`",
         f"- post_plan_status_report_status: `{manifest['cross_gate_summary']['post_plan_status_report_status']}`",
         f"- post_plan_status_report_next_blocked_lane_id: `{manifest['cross_gate_summary']['post_plan_status_report_next_blocked_lane_id']}`",
+        f"- post_plan_handoff_status: `{manifest['cross_gate_summary']['post_plan_status_report_handoff_summary'].get('status')}`",
+        f"- post_plan_handoff_remote_training_allowed_now: `{manifest['cross_gate_summary']['post_plan_status_report_handoff_summary'].get('remote_training_allowed_now')}`",
         "",
         "## Audit Issues",
         "",
