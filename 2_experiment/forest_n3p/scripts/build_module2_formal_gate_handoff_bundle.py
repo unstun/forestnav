@@ -501,6 +501,17 @@ def _markdown(manifest: dict[str, Any]) -> str:
         blockers = ", ".join(stage["blocked_by"]) or "none"
         lines.append(f"- {stage['order']}. `{stage['stage_id']}`: allowed_now=`{stage['source_allowed_now']}`, blocked_by=`{blockers}`")
     lines.extend(["", "## Requirement Summary", ""])
+    gap = manifest["remaining_deliverables_gap_summary"]
+    lines.append(
+        f"- remaining deliverables gap: total_missing=`{gap['total_missing_deliverables']}`, "
+        f"open_categories=`{gap['open_category_count']}`"
+    )
+    for category in gap["category_order"]:
+        item = gap["categories"].get(category, {})
+        lines.append(
+            f"  - `{category}`: missing=`{item.get('missing_count')}`, "
+            f"responsible_stage=`{item.get('responsible_stage_id')}`"
+        )
     lines.append(f"- formal gate requirements: `{len(manifest['formal_gate_requirements'])}`")
     for requirement in manifest["formal_gate_requirements"]:
         stage = requirement.get("responsible_stage_id") or "unmapped"
