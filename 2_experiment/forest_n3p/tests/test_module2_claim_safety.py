@@ -1200,6 +1200,9 @@ def _status_report_payload(*, ready, invalid=False):
         "formal_gate_gap_audit_remaining_deliverables_gap_summary": _status_report_remaining_deliverables_gap_summary_payload(
             ready=ready
         ),
+        "remaining_deliverables_proof_command_plan": _status_report_remaining_deliverables_proof_command_plan_payload(
+            ready=ready
+        ),
         "remote_packet_safety_claim_gate_command_index_summary": _status_report_command_index_summary(),
         "closure_remote_stage_summary": {
             "approved_remote_preflight": {
@@ -1482,6 +1485,8 @@ def _status_report_remaining_deliverables_acceptance_summary_payload(*, ready):
             else "gate3_remote_audit_pullback",
             "responsible_stage_allowed_now": ready,
             "acceptance_predicate_count": 1,
+            "proof_command_count": 2,
+            "proof_command_ids": [f"{artifact_id}_exists", f"{artifact_id}_schema"],
             "invalid_substitute_count": 1,
         }
     return {
@@ -1530,6 +1535,16 @@ def _status_report_remaining_deliverables_gap_summary_payload(*, ready):
             else "gate3_remote_audit_pullback",
             "responsible_stage_allowed_now": ready,
             "missing_artifact_matrix_ids": [] if ready else matrix_ids,
+            "proof_command_ids": []
+            if ready
+            else [
+                command_id
+                for matrix_id in matrix_ids
+                for command_id in (
+                    f"{matrix_id.split(':', 1)[1]}_exists",
+                    f"{matrix_id.split(':', 1)[1]}_schema",
+                )
+            ],
         }
     return {
         "present": True,
@@ -1538,6 +1553,42 @@ def _status_report_remaining_deliverables_gap_summary_payload(*, ready):
         "open_category_count": 0 if ready else len(category_artifacts),
         "category_order": list(category_artifacts),
         "categories": categories,
+    }
+
+
+def _status_report_remaining_deliverables_proof_command_plan_payload(*, ready):
+    matrix_ids = [
+        "training:train_final_model_zip",
+        "training:train_summary_json",
+        "training:train_training_manifest_json",
+        "evaluation:eval_gate3_eval_episodes_csv",
+        "evaluation:eval_gate3_summary_json",
+        "acceptance:gate3_trial_manifest_json",
+        "acceptance:gate3_formal_audit_json",
+        "acceptance:pulled_back_checkpoint_hash_record",
+        "formal_acceptance:h01_ready_for_formal_run",
+        "formal_acceptance:h02_formal_output_acceptance",
+    ]
+    rows = {}
+    for matrix_id in matrix_ids:
+        category, artifact_id = matrix_id.split(":", 1)
+        rows[matrix_id] = {
+            "present": True,
+            "category": category,
+            "artifact_id": artifact_id,
+            "proof_command_count": 2,
+            "proof_command_ids": [f"{artifact_id}_exists", f"{artifact_id}_schema"],
+        }
+    return {
+        "present": True,
+        "plan_id": "module2_formal_gate_local_read_only_proof_commands",
+        "execution_boundary": "local_read_only_after_formal_remote_pullback",
+        "not_paper_result_material": True,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "total_matrix_rows": len(matrix_ids),
+        "total_proof_command_count": sum(row["proof_command_count"] for row in rows.values()),
+        "rows": rows,
     }
 
 
