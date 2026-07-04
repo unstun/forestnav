@@ -28,12 +28,12 @@ This file inventories missing formal-gate evidence. It does not execute commands
 ## Missing Counts
 
 - acceptance: `3`
-- claim_gate: `3`
+- claim_gate: `4`
 - decision: `1`
 - evaluation: `2`
 - evaluation_acceptance: `2`
 - gate_sequence: `7`
-- regeneration: `8`
+- regeneration: `10`
 - training: `3`
 
 ## Evidence Groups
@@ -44,19 +44,21 @@ This file inventories missing formal-gate evidence. It does not execute commands
   - missing `f02_6_decision_record`: `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `formal_gate_gap_audit`: `0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `gpu3070ti_readiness_refresh`: `0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json` (source freshness audit requires regeneration before the corresponding formal gate)
+  - missing `post_f02_6_plan_audit`: `0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `remote_formal_execution_packet`: `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `h01_evaluation_manifest`: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `h02_formal_acceptance`: `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `claim_safety`: `0_trials/module2_claim_safety/module2_claim_safety.json` (source freshness audit requires regeneration before the corresponding formal gate)
+  - missing `formal_gate_missing_artifacts`: `0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `paper_readiness`: `0_trials/module2_paper_readiness/module2_paper_readiness.json` (source freshness audit requires regeneration before the corresponding formal gate)
 - `post_f02_6_ordered_stages` (gate_sequence): complete=`False`, blocked_by=`regenerate_preflight_gate_artifacts, approved_remote_preflight, regenerate_remote_execution_packet, gate3_remote_training, gate3_remote_audit_pullback, regenerate_h01_h02_formal_artifacts, regenerate_claim_gate_artifacts`
-  - missing `regenerate_preflight_gate_artifacts`: `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json; 0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json; 0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json; 0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json` (f02_6_decision_not_approved)
+  - missing `regenerate_preflight_gate_artifacts`: `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json; 0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json; 0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json; 0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json; 0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json` (f02_6_decision_not_approved)
   - missing `approved_remote_preflight`: `0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1/gate3_preflight_manifest.json` (f02_6_decision_not_approved, source_fresh_preflight_targets_open)
   - missing `regenerate_remote_execution_packet`: `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json` (f02_6_decision_not_approved, source_fresh_preflight_targets_open)
   - missing `gate3_remote_training`: `0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json` (f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready)
   - missing `gate3_remote_audit_pullback`: `0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json` (f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready)
   - missing `regenerate_h01_h02_formal_artifacts`: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json` (missing_remote_audit_pullback, source_fresh_h01_h02_targets_open)
-  - missing `regenerate_claim_gate_artifacts`: `0_trials/module2_claim_safety/module2_claim_safety.json; 0_trials/module2_paper_readiness/module2_paper_readiness.json` (h02_formal_acceptance_not_ready, source_fresh_claim_targets_open)
+  - missing `regenerate_claim_gate_artifacts`: `0_trials/module2_claim_safety/module2_claim_safety.json; 0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json; 0_trials/module2_paper_readiness/module2_paper_readiness.json` (h02_formal_acceptance_not_ready, source_fresh_claim_targets_open)
 - `remote_training_outputs` (training): complete=`False`, blocked_by=`train_final_model_zip, train_summary_json, train_training_manifest_json`
   - missing `train_final_model_zip`: `0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip` (required formal Gate3 training artifact)
   - missing `train_summary_json`: `0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json` (required formal Gate3 training artifact)
@@ -71,8 +73,9 @@ This file inventories missing formal-gate evidence. It does not execute commands
 - `h01_h02_formal_evaluation_acceptance` (evaluation_acceptance): complete=`False`, blocked_by=`h01_ready_for_formal_run, h02_formal_output_acceptance`
   - missing `h01_ready_for_formal_run`: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json` (f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint)
   - missing `h02_formal_output_acceptance`: `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json` (h02_verdict_not_formal, h01_manifest_not_ready, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_execution_packet_not_ready, requires_dr_sun_approval, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts, f02_6_formal_chain_pending)
-- `claim_gate_regeneration` (claim_gate): complete=`False`, blocked_by=`claim_safety, paper_readiness, h02_formal_acceptance_before_claim_gate`
+- `claim_gate_regeneration` (claim_gate): complete=`False`, blocked_by=`claim_safety, formal_gate_missing_artifacts, paper_readiness, h02_formal_acceptance_before_claim_gate`
   - missing `claim_safety`: `0_trials/module2_claim_safety/module2_claim_safety.json` (claim gate artifact must be regenerated after H02 formal acceptance)
+  - missing `formal_gate_missing_artifacts`: `0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json` (claim gate artifact must be regenerated after H02 formal acceptance)
   - missing `paper_readiness`: `0_trials/module2_paper_readiness/module2_paper_readiness.json` (claim gate artifact must be regenerated after H02 formal acceptance)
   - missing `h02_formal_acceptance_before_claim_gate`: `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json` (claim gate cannot be regenerated from blocked H02 outputs)
 

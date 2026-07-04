@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_regeneration_plan",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-04T11:13:38.070852+00:00",
-  "source_head": "fe2cd21e368ebda6adf0bf80a8d87b96e88c76fa+dirty",
+  "created_at_utc": "2026-07-04T11:59:54.738227+00:00",
+  "source_head": "0482f63d6adcf0d1006897b7d2214675fac0212e+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -42,6 +42,11 @@
         "freshness_state": "historical_clean"
       },
       {
+        "artifact_id": "post_f02_6_plan_audit",
+        "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
+        "freshness_state": "historical_dirty"
+      },
+      {
         "artifact_id": "remote_formal_execution_packet",
         "path": "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json",
         "freshness_state": "historical_dirty"
@@ -64,6 +69,11 @@
         "artifact_id": "claim_safety",
         "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
         "freshness_state": "historical_clean"
+      },
+      {
+        "artifact_id": "formal_gate_missing_artifacts",
+        "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
+        "freshness_state": "historical_dirty"
       },
       {
         "artifact_id": "paper_readiness",
@@ -108,12 +118,14 @@
         "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
         "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
         "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
+        "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
         "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json"
       ],
       "command_templates": [
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_gap_audit",
         "manual read-only gpu3070ti readiness refresh; no local training, no approved preflight",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_plan_audit",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_formal_execution_packet"
       ]
     },
@@ -268,6 +280,7 @@
       "action": "Regenerate claim safety and paper readiness only after H02 formal acceptance.",
       "evidence_paths": [
         "0_trials/module2_claim_safety/module2_claim_safety.json",
+        "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
         "0_trials/module2_paper_readiness/module2_paper_readiness.json"
       ],
       "command_templates": [

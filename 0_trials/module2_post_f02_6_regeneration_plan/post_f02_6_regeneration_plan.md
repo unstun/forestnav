@@ -24,7 +24,7 @@ This file is an ordered plan. It does not execute commands, train, preflight, au
   - evidence: `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json`
 - `regenerate_preflight_gate_artifacts` (regeneration): status=`blocked`, allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`False`
   - blocked_by: `f02_6_decision_not_approved`
-  - evidence: `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json; 0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json; 0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json; 0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json`
+  - evidence: `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json; 0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json; 0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json; 0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json; 0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json`
 - `approved_remote_preflight` (remote_preflight): status=`blocked`, allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`True`, host=`gpu3070ti-relay`
   - blocked_by: `f02_6_decision_not_approved, source_fresh_preflight_targets_open`
   - evidence: `0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1/gate3_preflight_manifest.json`
@@ -42,7 +42,7 @@ This file is an ordered plan. It does not execute commands, train, preflight, au
   - evidence: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
 - `regenerate_claim_gate_artifacts` (claim_gate): status=`blocked`, allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`False`
   - blocked_by: `h02_formal_acceptance_not_ready, source_fresh_claim_targets_open`
-  - evidence: `0_trials/module2_claim_safety/module2_claim_safety.json; 0_trials/module2_paper_readiness/module2_paper_readiness.json`
+  - evidence: `0_trials/module2_claim_safety/module2_claim_safety.json; 0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json; 0_trials/module2_paper_readiness/module2_paper_readiness.json`
 
 ## Claim Boundaries
 

@@ -2,17 +2,17 @@
   "schema_version": 1,
   "artifact_name": "module2_source_freshness_audit",
   "status": "source_freshness_risks_recorded_gate_still_blocked",
-  "created_at_utc": "2026-07-04T10:53:22.811694+00:00",
-  "source_head": "75430fd83c32e0e1f667407f54cf8b987b1cd849",
+  "created_at_utc": "2026-07-04T11:59:54.677598+00:00",
+  "source_head": "0482f63d6adcf0d1006897b7d2214675fac0212e+dirty",
   "not_paper_result_material": true,
   "runs_training": false,
   "runs_remote_preflight": false,
   "local_training_allowed": false,
   "formal_claim_allowed": false,
-  "current_head": "75430fd83c32e0e1f667407f54cf8b987b1cd849",
-  "artifact_count": 8,
+  "current_head": "0482f63d6adcf0d1006897b7d2214675fac0212e",
+  "artifact_count": 10,
   "risk_counts": {
-    "historical_dirty": 6,
+    "historical_dirty": 8,
     "historical_clean": 2
   },
   "regeneration_required_before_remote_formal_execution": true,
@@ -113,8 +113,23 @@
       "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
       "exists": true,
       "status": "blocked_formal_gate_gaps_open",
-      "source_head": "be670b451f57f661180f7a5e82de3be19965bb35+dirty",
-      "source_commit": "be670b451f57f661180f7a5e82de3be19965bb35",
+      "source_head": "1b275e39f5556a85c1651acc65ffc0bc52534d6d+dirty",
+      "source_commit": "1b275e39f5556a85c1651acc65ffc0bc52534d6d",
+      "source_head_dirty": true,
+      "source_commit_exists": true,
+      "matches_current_head": false,
+      "freshness_state": "historical_dirty",
+      "required_before": "approved_remote_preflight",
+      "regenerate_before_formal_execution": true
+    },
+    {
+      "artifact_id": "post_f02_6_plan_audit",
+      "category": "formal_gate",
+      "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
+      "exists": true,
+      "status": "post_f02_6_plan_audit_passed",
+      "source_head": "ff3940bef0406ae1a1590268a1854d7e60d4af78+dirty",
+      "source_commit": "ff3940bef0406ae1a1590268a1854d7e60d4af78",
       "source_head_dirty": true,
       "source_commit_exists": true,
       "matches_current_head": false,
@@ -136,6 +151,21 @@
       "freshness_state": "historical_clean",
       "required_before": "approved_remote_preflight",
       "regenerate_before_formal_execution": true
+    },
+    {
+      "artifact_id": "formal_gate_missing_artifacts",
+      "category": "formal_gate",
+      "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
+      "exists": true,
+      "status": "formal_gate_missing_artifacts_open",
+      "source_head": "ae13e8acc7ad2e006956caec2d001af00e064f78+dirty",
+      "source_commit": "ae13e8acc7ad2e006956caec2d001af00e064f78",
+      "source_head_dirty": true,
+      "source_commit_exists": true,
+      "matches_current_head": false,
+      "freshness_state": "historical_dirty",
+      "required_before": "formal_claim_gate",
+      "regenerate_before_formal_execution": true
     }
   ],
   "ordered_regeneration_targets": [
@@ -155,6 +185,12 @@
       "artifact_id": "gpu3070ti_readiness_refresh",
       "path": "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
       "freshness_state": "historical_clean",
+      "required_before": "approved_remote_preflight"
+    },
+    {
+      "artifact_id": "post_f02_6_plan_audit",
+      "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
+      "freshness_state": "historical_dirty",
       "required_before": "approved_remote_preflight"
     },
     {
@@ -179,6 +215,12 @@
       "artifact_id": "claim_safety",
       "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
       "freshness_state": "historical_clean",
+      "required_before": "formal_claim_gate"
+    },
+    {
+      "artifact_id": "formal_gate_missing_artifacts",
+      "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
+      "freshness_state": "historical_dirty",
       "required_before": "formal_claim_gate"
     },
     {

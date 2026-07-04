@@ -314,6 +314,10 @@ def _regeneration_commands(targets: Sequence[dict[str, Any]]) -> list[str]:
             commands.append("PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_gap_audit")
         elif artifact_id == "remote_formal_execution_packet":
             commands.append("PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_formal_execution_packet")
+        elif artifact_id == "post_f02_6_plan_audit":
+            commands.append("PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
+        elif artifact_id == "formal_gate_missing_artifacts":
+            commands.append("PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_missing_artifacts_audit")
         elif artifact_id == "gpu3070ti_readiness_refresh":
             commands.append("manual read-only gpu3070ti readiness refresh; no local training, no approved preflight")
         else:

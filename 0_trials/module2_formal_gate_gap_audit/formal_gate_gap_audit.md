@@ -24,17 +24,19 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - runs_remote_preflight: `False`
 - formal_claim_allowed: `False`
 - regeneration_required_before_remote_formal_execution: `True`
-- ordered_regeneration_target_count: `8`
+- ordered_regeneration_target_count: `10`
 
 ### Source Freshness Regeneration Targets
 
 - `f02_6_decision_record`: `historical_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json`
 - `formal_gate_gap_audit`: `historical_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json`
 - `gpu3070ti_readiness_refresh`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json`
+- `post_f02_6_plan_audit`: `historical_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json`
 - `remote_formal_execution_packet`: `historical_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json`
 - `h01_evaluation_manifest`: `historical_dirty`, required before `formal_h01_h02`, path `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`
 - `h02_formal_acceptance`: `historical_dirty`, required before `formal_h01_h02`, path `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
 - `claim_safety`: `historical_clean`, required before `formal_claim_gate`, path `0_trials/module2_claim_safety/module2_claim_safety.json`
+- `formal_gate_missing_artifacts`: `historical_dirty`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json`
 - `paper_readiness`: `historical_dirty`, required before `formal_claim_gate`, path `0_trials/module2_paper_readiness/module2_paper_readiness.json`
 
 ## Missing Artifacts Inventory
@@ -46,7 +48,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - runs_remote_preflight: `False`
 - all_required_evidence_present: `False`
 - audit_issue_count: `0`
-- missing_counts_by_category: `{'decision': 1, 'regeneration': 8, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 3}`
+- missing_counts_by_category: `{'decision': 1, 'regeneration': 10, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 4}`
 
 ## Decision Gaps
 
@@ -153,7 +155,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
   - needed: Use readiness only as a gate; do not write result material until it reports formal_results_ready=true.
 - `formal_gate_missing_artifacts_open`
   - evidence: `0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json`
-  - why: Formal gate inventory still reports missing evidence counts: {'decision': 1, 'regeneration': 8, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 3}.
+  - why: Formal gate inventory still reports missing evidence counts: {'decision': 1, 'regeneration': 10, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 4}.
   - needed: Close every missing-artifacts group before final H02/claim readiness can pass.
 
 ## Ordered Next Steps
