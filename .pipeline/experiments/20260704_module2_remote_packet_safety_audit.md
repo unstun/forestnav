@@ -65,4 +65,3 @@ contract: .pipeline/contracts/module2-ppo-funnel-expansion.md
 - 本轮没有生成 formal PPO checkpoint。
 - 本轮没有放行 formal performance claim。
 - audit pass 不能被解释成实验结果或论文结果。
-
