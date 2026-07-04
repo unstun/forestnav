@@ -901,6 +901,10 @@ def test_claim_safety_rejects_status_report_remaining_deliverables_acceptance_dr
     gap_summary["category_order"] = ["training", "evaluation"]
     gap_summary["categories"]["training"]["missing_count"] = 1
     gap_summary["categories"]["training"]["missing_artifact_matrix_ids"] = []
+    formal_gate_gap_summary = status_payload["formal_gate_gap_audit_remaining_deliverables_gap_summary"]
+    formal_gate_gap_summary["total_missing_deliverables"] = 2
+    formal_gate_gap_summary["open_category_count"] = 1
+    formal_gate_gap_summary["categories"]["training"]["missing_count"] = 2
     status_report = tmp_path / "status_report.json"
     status_report.write_text(json.dumps(status_payload), encoding="utf-8")
 
@@ -925,8 +929,12 @@ def test_claim_safety_rejects_status_report_remaining_deliverables_acceptance_dr
     assert "status_report_remaining_deliverables_gap_rows_missing_while_status_ready" in blockers
     assert "status_report_remaining_deliverables_gap_categories_blocked_while_status_ready" in blockers
     assert "status_report_remaining_deliverables_gap_training_missing_artifact_count_mismatch" in blockers
+    assert "status_report_formal_gate_gap_audit_remaining_deliverables_gap_mismatch" in blockers
+    assert "status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing" in blockers
+    assert "status_report_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked" in blockers
     assert manifest["status_report_remaining_deliverables_acceptance_summary"]["matrix_row_count"] == 9
     assert manifest["status_report_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 1
+    assert manifest["status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 2
 
 
 def test_claim_safety_rejects_status_report_decision_intake_contract_drift(tmp_path):
