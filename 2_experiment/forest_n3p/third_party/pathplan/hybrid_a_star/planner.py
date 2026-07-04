@@ -126,6 +126,7 @@ class HybridAStarPlanner:
         # Analytical expansion (thesis §6.1.2).
         analytic_expansion: bool = True,
         analytic_operator: Optional[str] = None,
+        analytic_expansion_operator=None,
         analytic_expansion_interval: int = 8,
         analytic_expansion_distance_scale: float = 10.0,
         # ── Dang 2022 多曲率 RS 解析扩展参数 ──
@@ -171,14 +172,17 @@ class HybridAStarPlanner:
         self.max_curvature_ratio = max(1.0, float(max_curvature_ratio))
         self.sigma1 = max(0.0, float(sigma1))
         self.sigma2 = max(0.0, float(sigma2))
-        if analytic_operator is None:
+        self.analytic_expansion_operator = analytic_expansion_operator
+        if self.analytic_expansion_operator is not None:
+            analytic_operator = str(getattr(self.analytic_expansion_operator, "name", analytic_operator or "custom"))
+        elif analytic_operator is None:
             if not bool(analytic_expansion):
                 analytic_operator = "disabled"
             elif self.curvature_step > 0.0 and self.max_curvature_ratio > 1.0:
                 analytic_operator = "dang_multi_rs"
             else:
                 analytic_operator = "single_rs"
-        if analytic_operator not in ANALYTIC_OPERATORS:
+        if self.analytic_expansion_operator is None and analytic_operator not in ANALYTIC_OPERATORS:
             allowed = ", ".join(ANALYTIC_OPERATORS)
             raise ValueError(f"analytic_operator must be one of {allowed}, got {analytic_operator!r}")
         self.analytic_operator = str(analytic_operator)
@@ -288,6 +292,20 @@ class HybridAStarPlanner:
         return max(1, int(round(self.analytic_expansion_interval * scale)))
 
     def _try_analytic_expansion(self, state: AckermannState, goal: AckermannState) -> Optional[Tuple[List[AckermannState], List[MotionPrimitive]]]:
+        if self.analytic_expansion_operator is not None:
+            return self._try_custom_analytic_expansion(state, goal)
+        return self._try_builtin_analytic_expansion(state, goal)
+
+    def _try_custom_analytic_expansion(self, state: AckermannState, goal: AckermannState) -> Optional[Tuple[List[AckermannState], List[MotionPrimitive]]]:
+        self._last_analytic_failed_radii = []
+        result = self.analytic_expansion_operator.try_connect(state, goal, self)
+        if result is None:
+            self._last_analytic_telemetry = getattr(self.analytic_expansion_operator, "last_telemetry", None)
+            return None
+        self._last_analytic_telemetry = result.telemetry
+        return result.to_legacy_tuple()
+
+    def _try_builtin_analytic_expansion(self, state: AckermannState, goal: AckermannState) -> Optional[Tuple[List[AckermannState], List[MotionPrimitive]]]:
         """Dang et al. (2022) 多曲率 RS 解析展开 (§3)。
 
         以等步长 Δκ 扫描曲率区间 [κ_min, κ_max]，对每个候选曲率
@@ -389,8 +407,19 @@ class HybridAStarPlanner:
             "failed_radius_count": int(len(radii)),
         }
         telemetry = getattr(self, "_last_analytic_telemetry", None)
+        telemetry_record = self._analytic_telemetry_record(telemetry)
+        if telemetry_record is not None:
+            record.update(telemetry_record)
+        return record
+
+    def _analytic_telemetry_record(self, telemetry) -> Optional[Dict[str, Any]]:
         if isinstance(telemetry, AnalyticExpansionTelemetry):
-            record.update(telemetry.summary())
+            return telemetry.to_record()
+        to_record = getattr(telemetry, "to_record", None)
+        if not callable(to_record):
+            return None
+        record = dict(to_record())
+        record.setdefault("analytic_operator", self.analytic_operator)
         return record
 
     def _dang2022_cost(self, states: List[AckermannState], actions: List[MotionPrimitive]) -> float:
