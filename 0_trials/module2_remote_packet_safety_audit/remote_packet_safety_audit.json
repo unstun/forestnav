@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_remote_packet_safety_audit",
   "status": "remote_packet_safety_audit_passed",
-  "created_at_utc": "2026-07-04T13:39:30.476343+00:00",
-  "source_head": "ea099a0093efa84f2b535ddec1a5290c3497e07a+dirty",
+  "created_at_utc": "2026-07-04T13:44:43.690618+00:00",
+  "source_head": "d85cecce085b77a59b83ea0604feb4bf3fc2939a+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -27,6 +27,24 @@
     "remote_preflight_allowed_now": false,
     "remote_training_allowed_now": false,
     "remote_audit_allowed_now": false,
+    "sync_blocked_by": [
+      "requires_dr_sun_approval"
+    ],
+    "remote_preflight_blocked_by": [
+      "requires_dr_sun_approval"
+    ],
+    "remote_training_blocked_by": [
+      "requires_dr_sun_approval",
+      "f02_6_warm_start_decision_pending",
+      "missing_module2_rl_rs_checkpoint",
+      "remote_packet_not_ready"
+    ],
+    "remote_audit_blocked_by": [
+      "requires_dr_sun_approval",
+      "f02_6_warm_start_decision_pending",
+      "missing_module2_rl_rs_checkpoint",
+      "remote_packet_not_ready"
+    ],
     "pullback_artifact_count": 7,
     "hash_manifest_required": true
   },

@@ -32,6 +32,8 @@ def test_remote_packet_safety_audit_passes_current_blocked_packet(tmp_path):
     assert manifest["packet_summary"]["embedded_preflight_ready"] is False
     assert manifest["packet_summary"]["embedded_preflight_warm_start_decision"] == "pending"
     assert manifest["packet_summary"]["remote_training_allowed_now"] is False
+    assert "requires_dr_sun_approval" in manifest["packet_summary"]["sync_blocked_by"]
+    assert "remote_packet_not_ready" in manifest["packet_summary"]["remote_training_blocked_by"]
     assert manifest["packet_summary"]["pullback_artifact_count"] == 7
     assert manifest["cross_gate_summary"]["post_plan_status_report_status"] == "formal_gate_status_blocked"
     assert manifest["cross_gate_summary"]["post_plan_status_report_next_blocked_lane_id"] == "decision"
@@ -63,6 +65,29 @@ def test_remote_packet_safety_audit_catches_pending_packet_that_allows_training(
     assert "blocked_status_report_packet_ready" in issue_ids
     assert "blocked_status_report_allows_remote_sync" in issue_ids
     assert "blocked_status_report_allows_remote_training" in issue_ids
+
+
+def test_remote_packet_safety_audit_requires_blocked_steps_to_explain_blockers(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
+    packet = _packet_payload()
+    packet["execution_steps"]["sync_to_remote"]["blocked_by"] = []
+    packet["execution_steps"]["run_remote_training"]["blocked_by"] = []
+
+    manifest = auditor.build_manifest(
+        auditor.RemotePacketSafetyAuditConfig(
+            output_dir=tmp_path,
+            remote_packet_path=_json(tmp_path, "packet.json", packet),
+            decision_gate_audit_path=_json(tmp_path, "decision_gate.json", _decision_gate_payload()),
+            post_plan_audit_path=_json(tmp_path, "plan_audit.json", _plan_audit_payload()),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "remote_packet_safety_audit_failed"
+    assert "sync_to_remote_missing_blocked_by" in issue_ids
+    assert "sync_to_remote_missing_requires_dr_sun_approval" in issue_ids
+    assert "run_remote_training_missing_blocked_by" in issue_ids
+    assert "run_remote_training_missing_remote_packet_not_ready" in issue_ids
 
 
 def test_remote_packet_safety_audit_catches_pending_embedded_preflight_ready(tmp_path):
@@ -275,16 +300,19 @@ def _packet_payload():
             "sync_to_remote": {
                 "allowed_now": False,
                 "runs_training": False,
+                "blocked_by": ["requires_dr_sun_approval"],
                 "command": "rsync -az --exclude .git --exclude '.venv*' --exclude __pycache__ --exclude .pytest_cache --exclude 1_survey /local/ForestNav/ 'gpu3070ti-relay:~/ForestNav/'",
             },
             "run_remote_preflight": {
                 "allowed_now": False,
                 "runs_training": False,
+                "blocked_by": ["requires_dr_sun_approval"],
                 "command": "ssh gpu3070ti-relay 'cd ~/ForestNav && PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.preflight_rl_rs_gate3_formal_trial'",
             },
             "run_remote_training": {
                 "allowed_now": False,
                 "runs_training": True,
+                "blocked_by": ["requires_dr_sun_approval", "remote_packet_not_ready"],
                 "command": (
                     "ssh gpu3070ti-relay 'cd ~/ForestNav && PYTHONPATH=2_experiment .venv/bin/python "
                     "-m forest_n3p.scripts.run_rl_rs_gate3_trial --device cuda --bc-checkpoint checkpoint.pt "
@@ -294,6 +322,7 @@ def _packet_payload():
             "run_remote_audit": {
                 "allowed_now": False,
                 "runs_training": False,
+                "blocked_by": ["requires_dr_sun_approval", "remote_packet_not_ready"],
                 "command": "ssh gpu3070ti-relay 'cd ~/ForestNav && PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.audit_rl_rs_gate3_trial --warm-start-decision approved_obstacle_summary'",
             },
         },
