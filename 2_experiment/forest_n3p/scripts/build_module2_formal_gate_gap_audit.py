@@ -399,6 +399,19 @@ def _ordered_next_steps(
     remote: dict[str, Any],
 ) -> list[dict[str, Any]]:
     steps: list[dict[str, Any]] = []
+    remote_readiness_gaps = _gaps_with_ids(
+        training_gaps,
+        {
+            "remote_readiness_refresh_missing",
+            "remote_readiness_ran_training",
+            "remote_readiness_ran_preflight",
+            "remote_readiness_allows_local_training",
+            "remote_readiness_allows_formal_claim",
+            "remote_readiness_wrong_training_resource",
+            "remote_readiness_oracle_connector_results_mismatch",
+            "remote_readiness_obstacle_summary_bc_checkpoint_mismatch",
+        },
+    )
     remote_preflight_gaps = _gaps_with_ids(training_gaps, {"remote_training_packet_not_ready"})
     post_training_output_gaps = _gaps_with_ids(
         training_gaps,
@@ -408,7 +421,7 @@ def _ordered_next_steps(
             "missing_ppo_checkpoint_hash",
         },
     )
-    training_precondition_gaps = list(decision_gaps) + remote_preflight_gaps
+    training_precondition_gaps = list(decision_gaps) + remote_readiness_gaps + remote_preflight_gaps
     audit_precondition_gaps = training_precondition_gaps + post_training_output_gaps
     evaluation_precondition_gaps = audit_precondition_gaps + list(evaluation_gaps)
     claim_precondition_gaps = evaluation_precondition_gaps + list(acceptance_gaps)
@@ -427,8 +440,8 @@ def _ordered_next_steps(
         {
             "step_id": "remote_preflight",
             "phase": "training",
-            "status": "blocked" if decision_gaps else "pending_execution",
-            "blocked_by": _gap_ids(decision_gaps),
+            "status": "blocked" if decision_gaps or remote_readiness_gaps else "pending_execution",
+            "blocked_by": _gap_ids(list(decision_gaps) + remote_readiness_gaps),
             "runs_training": False,
             "host": _remote_training_resource(remote),
             "action": "Regenerate approved gpu3070ti preflight and require formal_trial_ready=true.",
@@ -524,6 +537,27 @@ def _current_gate_state(
     }
 
 
+def _remote_readiness_record(path: Path, readiness: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "path": str(path),
+        "exists": Path(path).is_file(),
+        "status": readiness.get("status"),
+        "runs_training": readiness.get("runs_training"),
+        "runs_remote_preflight": readiness.get("runs_remote_preflight"),
+        "local_training_allowed": readiness.get("local_training_allowed"),
+        "formal_claim_allowed": readiness.get("formal_claim_allowed"),
+        "remote_training_resource": readiness.get("remote_training_resource"),
+        "oracle_connector_results_match": _critical_input_matches(readiness, "oracle_connector_results"),
+        "obstacle_summary_bc_checkpoint_match": _critical_input_matches(readiness, "obstacle_summary_bc_checkpoint"),
+    }
+
+
+def _critical_input_matches(readiness: dict[str, Any], input_id: str) -> bool:
+    critical_inputs = readiness.get("critical_inputs") if isinstance(readiness.get("critical_inputs"), dict) else {}
+    item = critical_inputs.get(input_id) if isinstance(critical_inputs.get(input_id), dict) else {}
+    return item.get("local_remote_match") is True
+
+
 def _markdown(manifest: dict[str, Any]) -> str:
     lines = [
         "# Module2 PPO-RS Formal Gate Gap Audit",
@@ -534,6 +568,15 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- local_training_allowed: `{manifest['local_training_allowed']}`",
         f"- remote_training_resource: `{manifest['remote_training_resource']}`",
         f"- formal_performance_claim_allowed: `{manifest['current_gate_state']['formal_performance_claim_allowed']}`",
+        "",
+        "## Remote Readiness",
+        "",
+        f"- path: `{manifest['remote_readiness']['path']}`",
+        f"- status: `{manifest['remote_readiness']['status']}`",
+        f"- runs_training: `{manifest['remote_readiness']['runs_training']}`",
+        f"- runs_remote_preflight: `{manifest['remote_readiness']['runs_remote_preflight']}`",
+        f"- oracle_connector_results_match: `{manifest['remote_readiness']['oracle_connector_results_match']}`",
+        f"- obstacle_summary_bc_checkpoint_match: `{manifest['remote_readiness']['obstacle_summary_bc_checkpoint_match']}`",
         "",
     ]
     for title, key in [
