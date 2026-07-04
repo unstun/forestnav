@@ -1472,7 +1472,7 @@ def _formal_gate_proof_audit(*, complete):
                     "command_id": command["command_id"],
                     "status": status,
                     "expected_path": row["expected_path"],
-                    "expected_evidence": command["expected_evidence"],
+                    "expected_evidence": command.get("expected_evidence", "exit_code=0"),
                     "command_was_executed": False,
                     "diagnostic": f"{command['command_id']} {status}",
                 }
