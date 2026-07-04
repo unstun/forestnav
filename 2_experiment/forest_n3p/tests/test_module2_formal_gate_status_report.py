@@ -499,7 +499,7 @@ def test_formal_gate_status_report_requires_remaining_deliverables_proof_command
     config = _config(tmp_path, complete=False)
     remaining = json.loads(config.remaining_deliverables_path.read_text(encoding="utf-8"))
     remaining["proof_command_plan"]["total_matrix_rows"] = 9
-    remaining["proof_command_plan"]["total_proof_command_count"] = 18
+    remaining["proof_command_plan"]["total_proof_command_count"] = 17
     remaining["proof_command_plan"]["rows"] = remaining["proof_command_plan"]["rows"][:-1]
     remaining["proof_command_plan"]["runs_training"] = True
     remaining["deliverable_acceptance_matrix"][0]["proof_commands"] = []
