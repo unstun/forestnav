@@ -1311,6 +1311,20 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.append(f"- matrix_row_count=`{remaining['matrix_row_count']}`")
     lines.append(f"- missing_row_count=`{remaining['missing_row_count']}`")
     lines.append(f"- blocked_category_count=`{remaining['blocked_category_count']}`")
+    lines.extend(["", "## Status Report Remaining Deliverables Gap Summary", ""])
+    gap = manifest["status_report_remaining_deliverables_gap_summary"]
+    lines.append(f"- present=`{gap['present']}`")
+    lines.append(f"- summary_id=`{gap['summary_id']}`")
+    lines.append(f"- total_missing_deliverables=`{gap['total_missing_deliverables']}`")
+    lines.append(f"- open_category_count=`{gap['open_category_count']}`")
+    for category, payload in gap["categories"].items():
+        missing_ids = ", ".join(payload["missing_artifact_matrix_ids"]) if payload["missing_artifact_matrix_ids"] else "none"
+        lines.append(
+            f"- `{category}`: missing_count=`{payload['missing_count']}`, "
+            f"stage=`{payload['responsible_stage_id']}`, "
+            f"stage_allowed_now=`{payload['responsible_stage_allowed_now']}`, "
+            f"missing_artifacts=`{missing_ids}`"
+        )
     lines.extend(["", "## Prohibited Claims", ""])
     for claim in manifest["prohibited_claims"]:
         lines.append(f"- `{claim['claim_id']}`: not allowed; patterns={', '.join(claim['patterns'])}")
