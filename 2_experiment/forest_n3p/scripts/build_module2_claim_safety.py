@@ -384,6 +384,56 @@ def _status_report_handoff_summary(status_report: dict[str, Any]) -> dict[str, A
     }
 
 
+def _status_report_decision_intake_summary(status_report: dict[str, Any]) -> dict[str, Any]:
+    summary = status_report.get("f02_6_decision_intake_summary")
+    if not isinstance(summary, dict):
+        summary = {}
+    return {
+        "present": bool(summary),
+        "status": summary.get("status"),
+        "audit_issue_count": int(summary.get("audit_issue_count") or 0),
+        "record_status": summary.get("record_status"),
+        "record_decider": summary.get("record_decider"),
+        "next_blocked_lane": summary.get("next_blocked_lane"),
+        "remote_preflight_allowed_now": summary.get("remote_preflight_allowed_now")
+        if isinstance(summary.get("remote_preflight_allowed_now"), bool)
+        else None,
+        "remote_training_allowed_now": summary.get("remote_training_allowed_now")
+        if isinstance(summary.get("remote_training_allowed_now"), bool)
+        else None,
+        "formal_claim_allowed_now": summary.get("formal_claim_allowed_now")
+        if isinstance(summary.get("formal_claim_allowed_now"), bool)
+        else None,
+    }
+
+
+def _status_report_decision_intake_blockers(status_report: dict[str, Any]) -> list[str]:
+    summary = _status_report_decision_intake_summary(status_report)
+    blockers: list[str] = []
+    if not summary["present"]:
+        blockers.append("status_report_missing_f02_6_decision_intake_summary")
+        return blockers
+    if summary["status"] not in {"f02_6_decision_intake_pending_clean", "f02_6_decision_intake_closed_clean"}:
+        blockers.append("status_report_f02_6_decision_intake_not_clean")
+    if summary["audit_issue_count"] > 0:
+        blockers.append("status_report_f02_6_decision_intake_audit_issues_open")
+    if summary["record_status"] == "pending_human_decision":
+        if summary["next_blocked_lane"] != "decision":
+            blockers.append("status_report_pending_f02_6_intake_next_lane_not_decision")
+        if summary["remote_preflight_allowed_now"] is not False:
+            blockers.append("status_report_pending_f02_6_intake_allows_remote_preflight")
+        if summary["remote_training_allowed_now"] is not False:
+            blockers.append("status_report_pending_f02_6_intake_allows_remote_training")
+        if summary["formal_claim_allowed_now"] is not False:
+            blockers.append("status_report_pending_f02_6_intake_allows_formal_claim")
+    elif summary["record_status"] in {"approved", "rejected"}:
+        if summary["record_decider"] != "Dr Sun":
+            blockers.append("status_report_closed_f02_6_intake_decider_not_dr_sun")
+    else:
+        blockers.append("status_report_f02_6_decision_intake_unknown_record_status")
+    return blockers
+
+
 def _status_report_handoff_blockers(status_report: dict[str, Any]) -> list[str]:
     summary = _status_report_handoff_summary(status_report)
     blockers: list[str] = []
