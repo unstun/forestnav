@@ -71,6 +71,10 @@ STATUS_REPORT_REMAINING_DELIVERABLE_CATEGORY_IDS = (
     "acceptance",
     "formal_acceptance",
 )
+STATUS_REPORT_CLAIM_GATE_REGENERATION_ARTIFACT_IDS = (
+    "claim_safety",
+    "paper_readiness",
+)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
