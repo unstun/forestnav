@@ -1499,6 +1499,21 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- `{requirement_id}`: status=`{row['status']}`, complete=`{row['complete']}`, "
             f"paper_result_input_allowed_now=`{row['paper_result_input_allowed_now']}`"
         )
+    lines.extend(["", "## Remaining Deliverables Acceptance Matrix", ""])
+    remaining = manifest["remaining_deliverables_acceptance_summary"]
+    lines.append(f"- present: `{remaining['present']}`")
+    lines.append(f"- status: `{remaining['status']}`")
+    lines.append(f"- matrix_row_count: `{remaining['matrix_row_count']}`")
+    lines.append(f"- missing_row_count: `{remaining['missing_row_count']}`")
+    lines.append(f"- blocked_category_count: `{remaining['blocked_category_count']}`")
+    for matrix_id, row in remaining["rows"].items():
+        blocked_by = ", ".join(row["responsible_stage_blocked_by"]) if row["responsible_stage_blocked_by"] else "none"
+        lines.append(
+            f"- `{matrix_id}`: missing=`{row['missing']}`, current_state=`{row['current_state']}`, "
+            f"stage=`{row['responsible_stage_id']}`, stage_allowed_now=`{row['responsible_stage_allowed_now']}`, "
+            f"acceptance_predicate_count=`{row['acceptance_predicate_count']}`, "
+            f"invalid_substitute_count=`{row['invalid_substitute_count']}`, blocked_by=`{blocked_by}`"
+        )
     lines.extend(["", "## Closure Remote Stages", ""])
     for stage_id, stage in manifest["closure_remote_stage_summary"].items():
         blocked_by = ", ".join(stage["blocked_by"]) if stage["blocked_by"] else "none"
