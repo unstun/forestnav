@@ -11,6 +11,7 @@ def test_reviewer_evidence_cards_build_traceable_cards(tmp_path):
     evidence_map = _write_json(tmp_path / "evidence_map.json", _evidence_map_payload(anchor=True))
     manifest_path = tmp_path / "cards.json"
     markdown_path = tmp_path / "cards.md"
+    latex_path = tmp_path / "cards.tex"
 
     rc = builder.main(
         [
@@ -22,12 +23,15 @@ def test_reviewer_evidence_cards_build_traceable_cards(tmp_path):
             str(manifest_path),
             "--markdown-out",
             str(markdown_path),
+            "--latex-out",
+            str(latex_path),
         ]
     )
 
     assert rc == 0
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     markdown = markdown_path.read_text(encoding="utf-8")
+    latex = latex_path.read_text(encoding="utf-8")
 
     assert manifest["artifact_name"] == "module2_reviewer_evidence_cards"
     assert manifest["status"] == "reviewer_evidence_cards_ready"
@@ -42,6 +46,10 @@ def test_reviewer_evidence_cards_build_traceable_cards(tmp_path):
     assert "Do not write this as a result claim" in cards["formal_results_blocked"]["writing_instruction"]
     assert "module2_reviewer_evidence_cards" in markdown
     assert "3_paper/module2_section_seed/module2_paper_section_seed.tex:16" in markdown
+    assert manifest["generated_outputs"]["latex"] == str(latex_path)
+    assert r"\section{Module2 Reviewer Evidence Cards}" in latex
+    assert r"3\_paper/module2\_section\_seed/module2\_paper\_section\_seed.tex:16" in latex
+    assert "Do not write this as a result claim" in latex
 
 
 def test_reviewer_evidence_cards_blocks_missing_anchors(tmp_path):
