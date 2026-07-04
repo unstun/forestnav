@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `cc62641f843986bd4f33904a9c6d6fea8b5b5ebd+dirty`
+- source_head: `5c57bd520100776c878f3235dd6d203b236770b7+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -14,6 +14,13 @@ This file is a read-only formal-gate status report. It does not execute commands
 
 - decision_status: `pending_human_decision`
 - decision_decider: `None`
+- decision_intake_status: `f02_6_decision_intake_pending_clean`
+- decision_intake_record_status: `pending_human_decision`
+- decision_intake_next_blocked_lane: `decision`
+- decision_intake_audit_issue_count: `0`
+- decision_intake_remote_preflight_allowed_now: `False`
+- decision_intake_remote_training_allowed_now: `False`
+- decision_intake_formal_claim_allowed_now: `False`
 - formal_gate_status: `blocked_formal_gate_gaps_open`
 - missing_artifacts_status: `formal_gate_missing_artifacts_open`
 - missing_artifacts_handoff_index_status: `blocked_until_f02_6_decision`
@@ -62,6 +69,20 @@ This file is a read-only formal-gate status report. It does not execute commands
 - phase: `decision`
 - blocked_by: `f02_6_decision_not_approved, f02_6_warm_start_decision_pending, requires_dr_sun_approval`
 - action: Record Dr Sun's F02.6 decision before any formal preflight or training.
+
+## F02.6 Decision Intake
+
+- present: `True`
+- status: `f02_6_decision_intake_pending_clean`
+- record_status: `pending_human_decision`
+- record_decider: `None`
+- effective_warm_start_decision: `pending`
+- next_blocked_lane: `decision`
+- audit_issue_count: `0`
+- missing_deliverable_count: `10`
+- remote_preflight_allowed_now: `False`
+- remote_training_allowed_now: `False`
+- formal_claim_allowed_now: `False`
 
 ## Formal Gate Lanes
 

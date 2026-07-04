@@ -94,6 +94,7 @@ def test_source_freshness_audit_cli_writes_json_and_markdown(tmp_path):
     assert manifest["runs_training"] is False
     records = {record["artifact_id"]: record for record in manifest["artifact_records"]}
     artifact_ids = set(records)
+    assert "f02_6_decision_intake" in artifact_ids
     assert "f02_6_decision_gate_audit" in artifact_ids
     assert "f02_6_transition_gate_audit" in artifact_ids
     assert "formal_gate_closure_checklist" in artifact_ids
@@ -102,6 +103,7 @@ def test_source_freshness_audit_cli_writes_json_and_markdown(tmp_path):
     assert "formal_gate_missing_artifacts" in artifact_ids
     assert "formal_gate_status_report" in artifact_ids
     assert "formal_gate_handoff_bundle" in artifact_ids
+    assert records["f02_6_decision_intake"]["required_before"] == "approved_remote_preflight"
     assert records["f02_6_transition_gate_audit"]["required_before"] == "approved_remote_preflight"
     assert records["formal_gate_closure_checklist"]["required_before"] == "approved_remote_preflight"
     assert records["post_f02_6_plan_audit"]["required_before"] == "approved_remote_preflight"
@@ -109,6 +111,7 @@ def test_source_freshness_audit_cli_writes_json_and_markdown(tmp_path):
     assert records["formal_gate_handoff_bundle"]["required_before"] == "approved_remote_preflight"
     assert records["formal_gate_status_report"]["required_before"] == "formal_claim_gate"
     required_before = {target["artifact_id"]: target["required_before"] for target in manifest["ordered_regeneration_targets"]}
+    assert required_before.get("f02_6_decision_intake") == "approved_remote_preflight"
     assert required_before.get("f02_6_decision_gate_audit") == "approved_remote_preflight"
     assert required_before.get("f02_6_transition_gate_audit") == "approved_remote_preflight"
     if records["formal_gate_closure_checklist"]["freshness_state"] != "current_clean":

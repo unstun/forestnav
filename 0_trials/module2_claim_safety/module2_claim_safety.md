@@ -38,6 +38,10 @@
 
 - present=`True`, status=`blocked_until_f02_6_decision`, transition_gate_status=`f02_6_transition_gate_audit_passed`, transition_gate_audit_issue_count=`0`, safety_issue_count=`0`, remote_training_allowed_now=`False`
 
+## F02.6 Decision Intake Summary
+
+- present=`True`, status=`f02_6_decision_intake_pending_clean`, record_status=`pending_human_decision`, record_decider=`None`, next_blocked_lane=`decision`, audit_issue_count=`0`, remote_training_allowed_now=`False`, formal_claim_allowed_now=`False`
+
 ## Status Report Missing-Artifacts Handoff Index
 
 - present=`True`, status=`blocked_until_f02_6_decision`, next_action=`record_f02_6_decision`, open_requirement_count=`5`, remote_training_allowed_now=`False`, formal_result_material_allowed_now=`False`
