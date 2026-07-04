@@ -105,6 +105,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--exclude-oracle-b-candidate-sources", default=None)
     parser.add_argument("--max-records", type=int, default=None)
     parser.add_argument("--row-offset", type=int, default=0)
+    parser.add_argument("--progress-every", type=int, default=0)
     parser.add_argument("--oracle-a-timeout-s", type=float, default=8.0)
     parser.add_argument("--oracle-a-max-nodes", type=int, default=50_000)
     parser.add_argument("--oracle-b-segment-timeout-s", type=float, default=4.0)
@@ -145,7 +146,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     demo_rows: list[dict[str, Any]] = []
     stats = ExtractionStats(selected_rows=len(rows_with_index))
 
-    for source_row_index, row in rows_with_index:
+    for ordinal, (source_row_index, row) in enumerate(rows_with_index, start=1):
         if not bool(row.get("oracle_connectable")):
             stats = stats.add(skipped_not_connectable=1)
             continue
@@ -173,6 +174,21 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         demo_rows.extend(extracted)
         stats = stats.add(demo_rows=len(extracted), **path_stats)
+        if int(args.progress_every) > 0 and (ordinal % int(args.progress_every) == 0 or ordinal == len(rows_with_index)):
+            print(
+                json.dumps(
+                    {
+                        "progress": ordinal,
+                        "selected_rows": len(rows_with_index),
+                        "replay_success_rows": stats.replay_success_rows,
+                        "demo_rows": stats.demo_rows,
+                        "skipped_oracle_replay_failed": stats.skipped_oracle_replay_failed,
+                    },
+                    ensure_ascii=False,
+                ),
+                file=sys.stderr,
+                flush=True,
+            )
 
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -214,6 +230,8 @@ def _validate_args(args: argparse.Namespace) -> None:
     for name in ("oracle_a_max_nodes", "oracle_b_segment_max_nodes", "theta_bins", "obs_patch_cells"):
         if int(getattr(args, name)) <= 0:
             raise ValueError(f"--{name.replace('_', '-')} must be positive")
+    if int(args.progress_every) < 0:
+        raise ValueError("--progress-every must be non-negative")
 
 
 def _selected_rows(args: argparse.Namespace) -> list[tuple[int, dict[str, Any]]]:
@@ -259,11 +277,12 @@ def _row_matches_selection(
     best_oracle = str(row.get("best_oracle"))
     if filter_best_oracle != "any" and best_oracle != filter_best_oracle:
         return False
-    b_source = str(row.get("oracle_b_selected_candidate_source"))
-    if include_b_sources and b_source not in include_b_sources:
-        return False
-    if exclude_b_sources and b_source in exclude_b_sources:
-        return False
+    if best_oracle == "oracle_b":
+        b_source = str(row.get("oracle_b_selected_candidate_source"))
+        if include_b_sources and b_source not in include_b_sources:
+            return False
+        if exclude_b_sources and b_source in exclude_b_sources:
+            return False
     return True
 
 
@@ -452,6 +471,7 @@ def _summary_payload(
             "exclude_oracle_b_candidate_sources": args.exclude_oracle_b_candidate_sources,
             "max_records": args.max_records,
             "row_offset": int(args.row_offset),
+            "progress_every": int(args.progress_every),
             "stop_at_terminal_rs": bool(args.stop_at_terminal_rs),
             "min_step_length_m": float(args.min_step_length_m),
             "turning_radius_m": float(args.turning_radius_m),
