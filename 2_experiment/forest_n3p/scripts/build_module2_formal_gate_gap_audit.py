@@ -22,6 +22,9 @@ DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_
 DEFAULT_MISSING_ARTIFACTS = Path("0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json")
 DEFAULT_CLOSURE_CHECKLIST = Path("0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json")
 DEFAULT_STATUS_REPORT = Path("0_trials/module2_formal_gate_status_report/formal_gate_status_report.json")
+DEFAULT_REMAINING_DELIVERABLES = Path(
+    "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json"
+)
 DEFAULT_HANDOFF_BUNDLE = Path("0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json")
 DEFAULT_REMOTE_PACKET_SAFETY = Path("0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json")
 REMOTE_EXECUTION_STEP_IDS = (
@@ -55,6 +58,7 @@ class FormalGateGapAuditConfig:
     missing_artifacts_path: Path = DEFAULT_MISSING_ARTIFACTS
     closure_checklist_path: Path = DEFAULT_CLOSURE_CHECKLIST
     status_report_path: Path = DEFAULT_STATUS_REPORT
+    remaining_deliverables_path: Path = DEFAULT_REMAINING_DELIVERABLES
     handoff_bundle_path: Path = DEFAULT_HANDOFF_BUNDLE
     remote_packet_safety_path: Path = DEFAULT_REMOTE_PACKET_SAFETY
 
@@ -77,6 +81,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         missing_artifacts_path=args.missing_artifacts_audit,
         closure_checklist_path=args.closure_checklist,
         status_report_path=args.status_report,
+        remaining_deliverables_path=args.remaining_deliverables,
         handoff_bundle_path=args.handoff_bundle,
         remote_packet_safety_path=args.remote_packet_safety_audit,
     )
@@ -112,6 +117,7 @@ def build_manifest(config: FormalGateGapAuditConfig) -> dict[str, Any]:
     missing_artifacts = _read_json(config.missing_artifacts_path)
     closure_checklist = _read_json(config.closure_checklist_path)
     status_report = _read_json(config.status_report_path)
+    remaining_deliverables = _read_json(config.remaining_deliverables_path)
     handoff_bundle = _read_json(config.handoff_bundle_path)
     remote_packet_safety = _read_json(config.remote_packet_safety_path)
 
@@ -139,6 +145,12 @@ def build_manifest(config: FormalGateGapAuditConfig) -> dict[str, Any]:
         + _missing_artifacts_gaps(missing_artifacts=missing_artifacts, missing_artifacts_path=config.missing_artifacts_path)
         + _closure_checklist_gaps(closure_checklist=closure_checklist, closure_checklist_path=config.closure_checklist_path)
         + _status_report_gaps(status_report=status_report, status_report_path=config.status_report_path)
+        + _remaining_deliverables_gaps(
+            remaining_deliverables=remaining_deliverables,
+            remaining_deliverables_path=config.remaining_deliverables_path,
+            closure_checklist=closure_checklist,
+            status_report=status_report,
+        )
     )
     all_gaps = decision_gaps + training_gaps + evaluation_gaps + acceptance_gaps
     status = "formal_gate_ready_for_result_audit" if not all_gaps else "blocked_formal_gate_gaps_open"
@@ -164,6 +176,14 @@ def build_manifest(config: FormalGateGapAuditConfig) -> dict[str, Any]:
         "missing_artifacts_inventory": _missing_artifacts_record(config.missing_artifacts_path, missing_artifacts),
         "closure_checklist": _closure_checklist_record(config.closure_checklist_path, closure_checklist),
         "formal_gate_status_report": _status_report_record(config.status_report_path, status_report),
+        "remaining_deliverables_ledger": _remaining_deliverables_record(config.remaining_deliverables_path, remaining_deliverables),
+        "remaining_deliverables_gap_summary": _remaining_deliverables_gap_summary(remaining_deliverables),
+        "status_report_remaining_deliverables_gap_summary": _normalize_gap_summary(
+            status_report.get("remaining_deliverables_gap_summary")
+        ),
+        "closure_checklist_remaining_deliverables_gap_summary": _normalize_gap_summary(
+            closure_checklist.get("remaining_deliverables_gap_summary")
+        ),
         "current_gate_state": _current_gate_state(
             decision=decision,
             h01=h01,
@@ -174,6 +194,7 @@ def build_manifest(config: FormalGateGapAuditConfig) -> dict[str, Any]:
             missing_artifacts=missing_artifacts,
             closure_checklist=closure_checklist,
             status_report=status_report,
+            remaining_deliverables=remaining_deliverables,
             handoff_bundle=handoff_bundle,
             remote_packet_safety=remote_packet_safety,
         ),
@@ -222,6 +243,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--missing-artifacts-audit", type=Path, default=DEFAULT_MISSING_ARTIFACTS)
     parser.add_argument("--closure-checklist", type=Path, default=DEFAULT_CLOSURE_CHECKLIST)
     parser.add_argument("--status-report", type=Path, default=DEFAULT_STATUS_REPORT)
+    parser.add_argument("--remaining-deliverables", type=Path, default=DEFAULT_REMAINING_DELIVERABLES)
     parser.add_argument("--handoff-bundle", type=Path, default=DEFAULT_HANDOFF_BUNDLE)
     parser.add_argument("--remote-packet-safety-audit", type=Path, default=DEFAULT_REMOTE_PACKET_SAFETY)
     return parser.parse_args(list(argv) if argv is not None else None)
