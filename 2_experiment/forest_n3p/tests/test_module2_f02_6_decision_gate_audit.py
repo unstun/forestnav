@@ -29,6 +29,8 @@ def test_f02_6_decision_gate_audit_passes_current_pending_gate_without_decision(
     assert manifest["decision_state"]["record_status"] == "pending_human_decision"
     assert manifest["decision_state"]["packet_recommendation"] == "approve_obstacle_summary_warm_start"
     assert manifest["decision_state"]["training_allowed_now"] is False
+    assert manifest["decision_state"]["remote_preflight_allowed_now"] is False
+    assert manifest["decision_state"]["remote_training_allowed_now"] is False
     actions = {item["decision"]: item for item in manifest["allowed_next_human_actions"]}
     assert set(actions) == {"approve_obstacle_summary_warm_start", "reject_obstacle_summary_warm_start"}
 
@@ -82,6 +84,27 @@ def test_f02_6_decision_gate_audit_catches_packet_branch_drift(tmp_path):
     assert "packet_approved_runner_missing_bc_checkpoint" in issue_ids
     assert "packet_approved_runner_missing_cuda" in issue_ids
     assert "packet_reject_branch_missing_stronger_protocol" in issue_ids
+
+
+def test_f02_6_decision_gate_audit_catches_record_current_permission_drift(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_f02_6_decision_gate_audit")
+    record = _record_payload(status="approved")
+    record["remote_preflight_allowed_now"] = True
+    record["remote_training_allowed_now"] = True
+
+    manifest = auditor.build_manifest(
+        auditor.F026DecisionGateAuditConfig(
+            output_dir=tmp_path,
+            packet_path=_json(tmp_path, "packet.json", _packet_payload()),
+            decision_record_path=_json(tmp_path, "record.json", record),
+            post_plan_path=_json(tmp_path, "plan.json", _plan_payload(status="approved")),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "f02_6_decision_gate_audit_failed"
+    assert "record_allows_remote_preflight_now" in issue_ids
+    assert "record_allows_remote_training_now" in issue_ids
 
 
 def test_f02_6_decision_gate_audit_accepts_approved_record_only_when_decider_is_dr_sun(tmp_path):
@@ -215,6 +238,8 @@ def _record_payload(*, status):
             "decider": None,
             "effective_warm_start_decision": "pending",
             "remote_training_allowed": False,
+            "remote_preflight_allowed_now": False,
+            "remote_training_allowed_now": False,
             "local_training_allowed": False,
             "formal_claim_allowed": False,
             "blockers": ["requires_dr_sun_approval"],
@@ -228,6 +253,8 @@ def _record_payload(*, status):
             "decider": "Dr Sun",
             "effective_warm_start_decision": "approved_obstacle_summary",
             "remote_training_allowed": True,
+            "remote_preflight_allowed_now": False,
+            "remote_training_allowed_now": False,
             "local_training_allowed": False,
             "formal_claim_allowed": False,
             "blockers": [],
@@ -247,6 +274,8 @@ def _record_payload(*, status):
             "decider": "Dr Sun",
             "effective_warm_start_decision": "no_warm_only",
             "remote_training_allowed": False,
+            "remote_preflight_allowed_now": False,
+            "remote_training_allowed_now": False,
             "local_training_allowed": False,
             "formal_claim_allowed": False,
             "blockers": ["obstacle_summary_warm_start_rejected"],
