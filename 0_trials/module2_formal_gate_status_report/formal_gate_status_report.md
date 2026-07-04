@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `e052663be69ee0c9f89072b3d7e28c6b1910a2a7+dirty`
+- source_head: `58793d6f6cb5ec699e8102842d9836d121b57a4f`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
