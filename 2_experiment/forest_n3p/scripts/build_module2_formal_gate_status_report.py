@@ -760,6 +760,18 @@ def _decision_intake_summary(decision_intake: dict[str, Any]) -> dict[str, Any]:
         if isinstance(decision_intake.get("post_decision_non_authorizations"), list)
         else []
     )
+    route_matrix = (
+        decision_intake.get("post_decision_route_matrix")
+        if isinstance(decision_intake.get("post_decision_route_matrix"), list)
+        else []
+    )
+    routes = {
+        str(item.get("decision")): item
+        for item in route_matrix
+        if isinstance(item, dict) and item.get("decision")
+    }
+    approved_route = routes.get("approve_obstacle_summary_warm_start", {})
+    rejected_route = routes.get("reject_obstacle_summary_warm_start", {})
     return {
         "present": bool(decision_intake),
         "status": decision_intake.get("status"),
@@ -791,6 +803,16 @@ def _decision_intake_summary(decision_intake: dict[str, Any]) -> dict[str, Any]:
         "allowed_next_human_action_count": len(human_actions),
         "invalid_input_count": len(invalid_inputs),
         "post_decision_non_authorization_count": len(non_authorizations),
+        "post_decision_route_count": len(route_matrix),
+        "post_decision_route_decisions": sorted(routes),
+        "approved_route_next_lane": approved_route.get("next_lane_after_record"),
+        "approved_route_allows_local_training_now": approved_route.get("allows_local_training_now"),
+        "approved_route_allows_remote_preflight_now": approved_route.get("allows_remote_preflight_now"),
+        "approved_route_allows_remote_training_now": approved_route.get("allows_remote_training_now"),
+        "approved_route_allows_formal_claim_now": approved_route.get("allows_formal_claim_now"),
+        "rejected_route_next_lane": rejected_route.get("next_lane_after_record"),
+        "rejected_route_allows_remote_training_now": rejected_route.get("allows_remote_training_now"),
+        "rejected_route_requires_new_protocol_contract": rejected_route.get("requires_new_protocol_contract"),
     }
 
 
@@ -815,6 +837,26 @@ def _decision_intake_safety_issues(decision_intake: dict[str, Any]) -> list[dict
         issues.append(_issue("decision_intake_invalid_inputs_missing", "F02.6 intake must list invalid substitutes and malformed inputs."))
     if summary["post_decision_non_authorization_count"] == 0:
         issues.append(_issue("decision_intake_post_decision_non_authorizations_missing", "F02.6 intake must state what approval still does not authorize."))
+    if summary["post_decision_route_count"] == 0:
+        issues.append(_issue("decision_intake_post_decision_route_matrix_missing", "F02.6 intake must include approve/reject post-decision routes."))
+    if not expected_decisions.issubset(set(summary["post_decision_route_decisions"])):
+        issues.append(_issue("decision_intake_post_decision_route_matrix_missing_decisions", "F02.6 route matrix must include approve and reject decisions."))
+    if summary["approved_route_next_lane"] != "source_fresh_regeneration":
+        issues.append(_issue("decision_intake_approved_route_next_lane_invalid", "Approval must route first to source-fresh regeneration."))
+    for field in (
+        "approved_route_allows_local_training_now",
+        "approved_route_allows_remote_preflight_now",
+        "approved_route_allows_remote_training_now",
+        "approved_route_allows_formal_claim_now",
+    ):
+        if summary[field] is not False:
+            issues.append(_issue(f"decision_intake_{field}_not_false", "Approval route must not directly authorize execution or claims."))
+    if summary["rejected_route_next_lane"] != "protocol_redesign":
+        issues.append(_issue("decision_intake_rejected_route_next_lane_invalid", "Rejection must route to protocol redesign."))
+    if summary["rejected_route_requires_new_protocol_contract"] is not True:
+        issues.append(_issue("decision_intake_rejected_route_missing_protocol_contract", "Rejection route must require a new or revised protocol contract."))
+    if summary["rejected_route_allows_remote_training_now"] is not False:
+        issues.append(_issue("decision_intake_rejected_route_allows_remote_training", "Rejection route must keep remote training blocked."))
     record_status = summary["record_status"]
     if record_status == "pending_human_decision":
         if summary["next_blocked_lane"] != "decision":
@@ -2593,6 +2635,12 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.append(f"- decision_note_required: `{intake['decision_note_required']}`")
     lines.append(f"- invalid_input_count: `{intake['invalid_input_count']}`")
     lines.append(f"- post_decision_non_authorization_count: `{intake['post_decision_non_authorization_count']}`")
+    lines.append(f"- post_decision_route_count: `{intake['post_decision_route_count']}`")
+    lines.append(f"- post_decision_route_decisions: `{', '.join(intake['post_decision_route_decisions'])}`")
+    lines.append(f"- approved_route_next_lane: `{intake['approved_route_next_lane']}`")
+    lines.append(f"- approved_route_allows_remote_training_now: `{intake['approved_route_allows_remote_training_now']}`")
+    lines.append(f"- rejected_route_next_lane: `{intake['rejected_route_next_lane']}`")
+    lines.append(f"- rejected_route_requires_new_protocol_contract: `{intake['rejected_route_requires_new_protocol_contract']}`")
     lines.append(f"- missing_deliverable_count: `{intake['missing_deliverable_count']}`")
     lines.append(f"- remote_preflight_allowed_now: `{intake['remote_preflight_allowed_now']}`")
     lines.append(f"- remote_training_allowed_now: `{intake['remote_training_allowed_now']}`")

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_f02_6_decision_intake",
   "status": "f02_6_decision_intake_pending_clean",
-  "created_at_utc": "2026-07-04T18:40:18.318152+00:00",
-  "source_head": "8b76a651a8a34e20390979a8e22a6ce05a3e06fd+dirty",
+  "created_at_utc": "2026-07-04T23:45:07.559816+00:00",
+  "source_head": "858ece7f044510d35900ae0fa133b33e375e3dcf+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -91,6 +91,46 @@
       }
     ]
   },
+  "post_decision_route_matrix": [
+    {
+      "decision": "approve_obstacle_summary_warm_start",
+      "record_status_after_command": "approved",
+      "next_lane_after_record": "source_fresh_regeneration",
+      "next_protocol": "obstacle-summary BC warm-start PPO formal gate",
+      "requires_new_protocol_contract": false,
+      "allows_local_training_now": false,
+      "allows_remote_preflight_now": false,
+      "allows_remote_training_now": false,
+      "allows_formal_claim_now": false,
+      "required_next_artifacts": [
+        "source_freshness_audit",
+        "post_f02_6_regeneration_plan",
+        "post_f02_6_plan_audit"
+      ],
+      "first_remote_stage_after_regeneration": "approved_remote_preflight",
+      "remote_training_stage": "gate3_remote_training",
+      "claim_boundary": "Approval records Dr Sun's decision; it does not directly run preflight, train, or allow paper claims."
+    },
+    {
+      "decision": "reject_obstacle_summary_warm_start",
+      "record_status_after_command": "rejected",
+      "next_lane_after_record": "protocol_redesign",
+      "next_protocol": "stronger/full patch-CNN warm-start protocol",
+      "requires_new_protocol_contract": true,
+      "allows_local_training_now": false,
+      "allows_remote_preflight_now": false,
+      "allows_remote_training_now": false,
+      "allows_formal_claim_now": false,
+      "required_next_artifacts": [
+        "new_or_revised_research_contract",
+        "stronger_patch_cnn_protocol_spec",
+        "fresh_formal_gate_artifact_plan"
+      ],
+      "first_remote_stage_after_regeneration": null,
+      "remote_training_stage": null,
+      "claim_boundary": "Rejection blocks obstacle-summary warm-start PPO until a stronger protocol is approved."
+    }
+  ],
   "post_decision_non_authorizations": [
     {
       "action": "local_training",

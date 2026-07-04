@@ -32,6 +32,30 @@ PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decisio
 PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision reject_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun rejection note>'
 ```
 
+## Post-Decision Route Matrix
+
+### approve_obstacle_summary_warm_start
+- next_lane_after_record: `source_fresh_regeneration`
+- next_protocol: `obstacle-summary BC warm-start PPO formal gate`
+- requires_new_protocol_contract: `False`
+- allows_local_training_now: `False`
+- allows_remote_preflight_now: `False`
+- allows_remote_training_now: `False`
+- allows_formal_claim_now: `False`
+- required_next_artifacts: `source_freshness_audit, post_f02_6_regeneration_plan, post_f02_6_plan_audit`
+- claim_boundary: Approval records Dr Sun's decision; it does not directly run preflight, train, or allow paper claims.
+
+### reject_obstacle_summary_warm_start
+- next_lane_after_record: `protocol_redesign`
+- next_protocol: `stronger/full patch-CNN warm-start protocol`
+- requires_new_protocol_contract: `True`
+- allows_local_training_now: `False`
+- allows_remote_preflight_now: `False`
+- allows_remote_training_now: `False`
+- allows_formal_claim_now: `False`
+- required_next_artifacts: `new_or_revised_research_contract, stronger_patch_cnn_protocol_spec, fresh_formal_gate_artifact_plan`
+- claim_boundary: Rejection blocks obstacle-summary warm-start PPO until a stronger protocol is approved.
+
 ## Invalid Inputs
 
 - `decider other than Dr Sun`: Only Dr Sun can close F02.6.

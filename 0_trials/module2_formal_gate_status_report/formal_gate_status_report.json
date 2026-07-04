@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-04T23:37:52.624645+00:00",
-  "source_head": "4e88777f45f83989bc9fc74090404c86a034ee79+dirty",
+  "created_at_utc": "2026-07-04T23:45:41.094994+00:00",
+  "source_head": "858ece7f044510d35900ae0fa133b33e375e3dcf+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -599,7 +599,20 @@
     "record_command_template_count": 2,
     "allowed_next_human_action_count": 2,
     "invalid_input_count": 5,
-    "post_decision_non_authorization_count": 4
+    "post_decision_non_authorization_count": 4,
+    "post_decision_route_count": 2,
+    "post_decision_route_decisions": [
+      "approve_obstacle_summary_warm_start",
+      "reject_obstacle_summary_warm_start"
+    ],
+    "approved_route_next_lane": "source_fresh_regeneration",
+    "approved_route_allows_local_training_now": false,
+    "approved_route_allows_remote_preflight_now": false,
+    "approved_route_allows_remote_training_now": false,
+    "approved_route_allows_formal_claim_now": false,
+    "rejected_route_next_lane": "protocol_redesign",
+    "rejected_route_allows_remote_training_now": false,
+    "rejected_route_requires_new_protocol_contract": true
   },
   "formal_gate_handoff_summary": {
     "present": true,

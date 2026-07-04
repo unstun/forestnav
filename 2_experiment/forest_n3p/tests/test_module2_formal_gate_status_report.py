@@ -117,6 +117,14 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert intake["decision_note_required"] is True
     assert intake["invalid_input_count"] == 2
     assert intake["post_decision_non_authorization_count"] == 2
+    assert intake["post_decision_route_count"] == 2
+    assert set(intake["post_decision_route_decisions"]) == {
+        "approve_obstacle_summary_warm_start",
+        "reject_obstacle_summary_warm_start",
+    }
+    assert intake["approved_route_next_lane"] == "source_fresh_regeneration"
+    assert intake["approved_route_allows_remote_training_now"] is False
+    assert intake["rejected_route_requires_new_protocol_contract"] is True
     h02_requirements = manifest["h02_formal_acceptance_requirement_summary"]
     assert h02_requirements["present"] is True
     assert h02_requirements["required_requirement_count"] == 4
@@ -413,6 +421,7 @@ def test_formal_gate_status_report_requires_decision_intake_contract(tmp_path):
     intake["decision_intake_contract"]["required_record_fields_for_non_pending_decision"] = ["decision", "decider"]
     intake["invalid_inputs"] = []
     intake["post_decision_non_authorizations"] = []
+    intake["post_decision_route_matrix"] = []
     config.decision_intake_path.write_text(json.dumps(intake), encoding="utf-8")
 
     manifest = builder.build_manifest(config)
@@ -423,6 +432,7 @@ def test_formal_gate_status_report_requires_decision_intake_contract(tmp_path):
     assert "decision_intake_contract_missing_required_record_fields" in issue_ids
     assert "decision_intake_invalid_inputs_missing" in issue_ids
     assert "decision_intake_post_decision_non_authorizations_missing" in issue_ids
+    assert "decision_intake_post_decision_route_matrix_missing" in issue_ids
     summary = manifest["f02_6_decision_intake_summary"]
     assert summary["decision_owner_required"] == "Assistant"
     assert summary["decision_note_required"] is False
@@ -1194,6 +1204,26 @@ def _decision_intake(*, complete):
         "post_decision_non_authorizations": [
             {"action": "local_training", "allowed_after_decision_record": False},
             {"action": "paper_formal_result_claim", "allowed_after_decision_record": False},
+        ],
+        "post_decision_route_matrix": [
+            {
+                "decision": "approve_obstacle_summary_warm_start",
+                "next_lane_after_record": "source_fresh_regeneration",
+                "allows_local_training_now": False,
+                "allows_remote_preflight_now": False,
+                "allows_remote_training_now": False,
+                "allows_formal_claim_now": False,
+                "requires_new_protocol_contract": False,
+            },
+            {
+                "decision": "reject_obstacle_summary_warm_start",
+                "next_lane_after_record": "protocol_redesign",
+                "allows_local_training_now": False,
+                "allows_remote_preflight_now": False,
+                "allows_remote_training_now": False,
+                "allows_formal_claim_now": False,
+                "requires_new_protocol_contract": True,
+            },
         ],
     }
 

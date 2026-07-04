@@ -103,6 +103,7 @@ def build_manifest(config: F026DecisionIntakeConfig) -> dict[str, Any]:
         },
         "current_state": current_state,
         "decision_intake_contract": _decision_intake_contract(gate_audit),
+        "post_decision_route_matrix": _post_decision_route_matrix(),
         "post_decision_non_authorizations": _post_decision_non_authorizations(),
         "invalid_inputs": _invalid_inputs(),
         "audit_issue_count": len(issues),
@@ -238,6 +239,49 @@ def _post_decision_non_authorizations() -> list[dict[str, Any]]:
             "action": "treat_smoke_or_no_warm_failure_as_warm_start_result",
             "allowed_after_decision_record": False,
             "reason": "Smoke and no-warm failure artifacts are invalid substitutes for the approved warm-start formal run.",
+        },
+    ]
+
+
+def _post_decision_route_matrix() -> list[dict[str, Any]]:
+    return [
+        {
+            "decision": APPROVE_OBSTACLE_SUMMARY,
+            "record_status_after_command": "approved",
+            "next_lane_after_record": "source_fresh_regeneration",
+            "next_protocol": "obstacle-summary BC warm-start PPO formal gate",
+            "requires_new_protocol_contract": False,
+            "allows_local_training_now": False,
+            "allows_remote_preflight_now": False,
+            "allows_remote_training_now": False,
+            "allows_formal_claim_now": False,
+            "required_next_artifacts": [
+                "source_freshness_audit",
+                "post_f02_6_regeneration_plan",
+                "post_f02_6_plan_audit",
+            ],
+            "first_remote_stage_after_regeneration": "approved_remote_preflight",
+            "remote_training_stage": "gate3_remote_training",
+            "claim_boundary": "Approval records Dr Sun's decision; it does not directly run preflight, train, or allow paper claims.",
+        },
+        {
+            "decision": REJECT_OBSTACLE_SUMMARY,
+            "record_status_after_command": "rejected",
+            "next_lane_after_record": "protocol_redesign",
+            "next_protocol": "stronger/full patch-CNN warm-start protocol",
+            "requires_new_protocol_contract": True,
+            "allows_local_training_now": False,
+            "allows_remote_preflight_now": False,
+            "allows_remote_training_now": False,
+            "allows_formal_claim_now": False,
+            "required_next_artifacts": [
+                "new_or_revised_research_contract",
+                "stronger_patch_cnn_protocol_spec",
+                "fresh_formal_gate_artifact_plan",
+            ],
+            "first_remote_stage_after_regeneration": None,
+            "remote_training_stage": None,
+            "claim_boundary": "Rejection blocks obstacle-summary warm-start PPO until a stronger protocol is approved.",
         },
     ]
 
@@ -408,6 +452,23 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.extend(["", "## Command Templates", ""])
     for template in manifest["decision_intake_contract"]["record_command_templates"]:
         lines.extend([f"### {template['decision']}", "```bash", template["command"], "```", ""])
+    lines.extend(["## Post-Decision Route Matrix", ""])
+    for route in manifest["post_decision_route_matrix"]:
+        lines.extend(
+            [
+                f"### {route['decision']}",
+                f"- next_lane_after_record: `{route['next_lane_after_record']}`",
+                f"- next_protocol: `{route['next_protocol']}`",
+                f"- requires_new_protocol_contract: `{route['requires_new_protocol_contract']}`",
+                f"- allows_local_training_now: `{route['allows_local_training_now']}`",
+                f"- allows_remote_preflight_now: `{route['allows_remote_preflight_now']}`",
+                f"- allows_remote_training_now: `{route['allows_remote_training_now']}`",
+                f"- allows_formal_claim_now: `{route['allows_formal_claim_now']}`",
+                f"- required_next_artifacts: `{', '.join(route['required_next_artifacts'])}`",
+                f"- claim_boundary: {route['claim_boundary']}",
+                "",
+            ]
+        )
     lines.extend(["## Invalid Inputs", ""])
     for invalid in manifest["invalid_inputs"]:
         lines.append(f"- `{invalid['input']}`: {invalid['why_invalid']}")

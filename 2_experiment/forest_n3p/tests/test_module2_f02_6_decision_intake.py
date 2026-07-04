@@ -46,6 +46,22 @@ def test_f02_6_decision_intake_pending_clean_lists_required_human_fields(tmp_pat
     assert "approve_obstacle_summary_warm_start" in commands
     assert "--decider 'Dr Sun'" in commands["approve_obstacle_summary_warm_start"]
     assert "reject_obstacle_summary_warm_start" in commands
+    route_matrix = {item["decision"]: item for item in manifest["post_decision_route_matrix"]}
+    approved_route = route_matrix["approve_obstacle_summary_warm_start"]
+    assert approved_route["next_lane_after_record"] == "source_fresh_regeneration"
+    assert approved_route["allows_local_training_now"] is False
+    assert approved_route["allows_remote_preflight_now"] is False
+    assert approved_route["allows_remote_training_now"] is False
+    assert approved_route["allows_formal_claim_now"] is False
+    assert approved_route["required_next_artifacts"] == [
+        "source_freshness_audit",
+        "post_f02_6_regeneration_plan",
+        "post_f02_6_plan_audit",
+    ]
+    rejected_route = route_matrix["reject_obstacle_summary_warm_start"]
+    assert rejected_route["next_lane_after_record"] == "protocol_redesign"
+    assert rejected_route["requires_new_protocol_contract"] is True
+    assert rejected_route["allows_remote_training_now"] is False
 
 
 def test_f02_6_decision_intake_catches_pending_gate_permission_leak(tmp_path):
