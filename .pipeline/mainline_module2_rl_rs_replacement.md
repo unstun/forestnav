@@ -574,15 +574,20 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - formal-v2 产物: `2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v2.parquet`, 83809 rows, 1032 source rows。
   - formal-v2 审计: 0 current collision, 0 next collision, 0 any collision。
   - 记录: `.pipeline/experiments/20260704_module2_f02_map_cache_formal_v2_rebuild.md`。
-- [>] F02.5 在 formal-v2 上重跑 BC baseline。
+- [x] F02.5 在 formal-v2 上重跑 BC baseline。
   - 最低重跑: scalar lower-bound、obstacle-summary、patch+scalar CNN bounded pilot。
   - 判定: 只用 formal-v2 的 0.1m closed-loop terminal-RS-success / collision / runtime_error 做 warm-start 决策; action MSE 只作辅助。
   - 禁止: 继续引用 formal-v1 模型结果作为当前方法排名。
-  - 已完成子项: scalar lower-bound 和 obstacle-summary MLP rerun。
+  - 已完成子项: scalar lower-bound、obstacle-summary MLP、patch+scalar CNN bounded pilot。
   - scalar formal-v2: 0.3m success 6/258, collision 252/258; 0.1m success 38/258, collision 200/258。
   - obstacle-summary formal-v2: 0.1m success 67/258, collision 178/258, truncated 13/258, runtime_error 0。
-  - 当前边界: obstacle-summary 仍强于 scalar, 但不足以 planner insertion; patch+scalar CNN formal-v2 尚未重跑。
+  - patch+scalar CNN formal-v2 bounded: 0.1m success 63/242, collision 171/242, truncated 8/242, runtime_error 0。
+  - 当前边界: obstacle-summary 仍强于 scalar; patch-CNN 没有明确超过 obstacle-summary; 两者均不足以 planner insertion。
   - 记录: `.pipeline/experiments/20260704_module2_f02_formal_v2_mlp_bc_baselines.md`。
+- [?] F02.6 PPO warm-start 决策门。
+  - 候选: obstacle-summary checkpoint, patch-CNN bounded checkpoint, 或 stronger/full patch-CNN protocol 后再决策。
+  - 当前证据: patch-CNN bounded pilot 没有明确超过 obstacle-summary, 且只用 4096/1024 bounded rows; obstacle-summary 是当前 practical candidate, 但也只有 67/258 success。
+  - 需要 Dr Sun 决策: 直接用 obstacle-summary 做 PPO 初始化, 还是先投入 stronger/full patch-CNN。
 
 #### F03. PPO 最大实现
 
@@ -719,7 +724,8 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 20. [!] F02.2 formal-v1 BC baseline 已被 map-cache audit 失效。
 21. [!] F02.3 formal-v1 patch-CNN pilot 已被 map-cache audit 失效。
 22. [x] F02.4 修复 profile-aware map cache 并重建 formal-v2 corpus。
-23. [>] F02.5 在 formal-v2 上重跑 BC baseline。
+23. [x] F02.5 在 formal-v2 上重跑 BC baseline。
+24. [?] F02.6 PPO warm-start 决策门。
 
 ## 7. 完成记录
 
@@ -750,4 +756,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-03: 完成 F01.1 oracle demonstration extraction pipeline。新增 C02 oracle replay extractor, 已产出 oracle A smoke、B-only smoke 和 20-row preview dataset; 尚未声明完整 BC corpus。记录见 `.pipeline/experiments/20260703_module2_f01_oracle_demonstration_extraction.md`。
 - 2026-07-03: 完成 F01.2 dataset manifest。`module2_rl_rs_bc/manifest.json` 记录 preview dataset 的 source hash、schema、filters、file hash 和边界; 尚未开始 BC/PPO 训练。记录见 `.pipeline/experiments/20260703_module2_f01_dataset_manifest.md`。
 - 2026-07-04: 完成 F02.4 profile-aware map cache 修复与 formal-v2 corpus 重建。formal-v1 在真实 profile 地图下有 4764 colliding demo rows, 因此 F02.2/F02.3 formal-v1 结果失效; formal-v2 产出 83809 demo rows / 1032 source rows, current/next collision audit 均为 0。记录见 `.pipeline/experiments/20260704_module2_f02_map_cache_formal_v2_rebuild.md`。
-- 2026-07-04: 完成 F02.5 的 formal-v2 scalar 与 obstacle-summary MLP baseline rerun。scalar 0.1m success 38/258; obstacle-summary 0.1m success 67/258; 二者均不足以 planner insertion, patch+scalar CNN formal-v2 仍待跑。记录见 `.pipeline/experiments/20260704_module2_f02_formal_v2_mlp_bc_baselines.md`。
+- 2026-07-04: 完成 F02.5 formal-v2 BC baseline rerun。scalar 0.1m success 38/258; obstacle-summary 0.1m success 67/258; patch+scalar CNN bounded success 63/242; patch-CNN 未明确超过 obstacle-summary, 二者均不足以 planner insertion。记录见 `.pipeline/experiments/20260704_module2_f02_formal_v2_mlp_bc_baselines.md`。
