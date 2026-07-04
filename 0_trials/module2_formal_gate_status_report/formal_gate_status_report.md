@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `55b9d6cafb37ec302fc45094411f7b0be53da29e+dirty`
+- source_head: `25fb11b063be241b86421de3808a5cc9a267183b+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -73,6 +73,10 @@ This file is a read-only formal-gate status report. It does not execute commands
 - formal_gate_execution_veto_formal_claim_allowed_now: `False`
 - formal_gate_gap_audit_remaining_total_missing_deliverables: `10`
 - formal_gate_gap_audit_remaining_open_category_count: `4`
+- remote_packet_safety_command_index_present: `True`
+- remote_packet_safety_command_index_row_count: `18`
+- remote_packet_safety_command_index_source_target_count: `18`
+- remote_packet_safety_command_index_missing_target_count: `0`
 
 ## Next Blocked Lane
 
@@ -206,6 +210,17 @@ This file is a read-only formal-gate status report. It does not execute commands
 - total_missing_deliverables: `10`
 - open_category_count: `4`
 - matches_ledger_signature: `True`
+
+## Remote Packet Safety Claim-Gate Command Index
+
+- present: `True`
+- index_row_count: `18`
+- source_target_count: `18`
+- missing_target_ids: `[]`
+- unknown_manual_count: `0`
+- forbidden_command_count: `0`
+- `claim_safety`: present=`True`, stage=`regenerate_claim_gate_artifacts`, required_before=`formal_claim_gate`, command_kind=`known_builder`
+- `paper_readiness`: present=`True`, stage=`regenerate_claim_gate_artifacts`, required_before=`formal_claim_gate`, command_kind=`known_builder`
 
 ## Closure Remote Stages
 
