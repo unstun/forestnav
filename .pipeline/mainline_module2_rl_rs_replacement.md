@@ -978,6 +978,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 51. [x] Reviewer evidence cards 已完成: 从 manuscript evidence map 生成审稿人可复查 claim cards, 每张卡包含正文 `.tex` 行号、primary evidence、code anchors/metric/blockers、写作指令和验证命令; formal results 与 warm-start cards 仍显式标为 blocked placeholders。
 52. [x] Supplement LaTeX evidence appendix 已完成: reviewer evidence cards 现在生成可 input 的 `module2_reviewer_evidence_cards.tex`, 并带 supplement static audit; wrapper pdflatex draftmode 通过, 但长路径存在 overfull warning, 不影响硬编译。
 53. [x] gpu3070ti readiness refresh 已完成: 只读核验 `gpu3070ti-relay` SSH/GPU/CUDA/Python 依赖、oracle parquet 和 obstacle-summary BC checkpoint 的本地/远端 hash 一致; 本轮不训练、不运行 approved preflight, F02.6 仍 pending, formal gate 仍 blocked。
+54. [x] Formal gate consumes gpu3070ti readiness 已完成: `formal_gate_gap_audit` 默认读取 readiness refresh 并检查只读边界、训练/claim 禁止、`gpu3070ti-relay` 资源和关键输入本地/远端 match; 当前 readiness 通过, 但 F02.6/remote packet/正式 PPO checkpoint 仍阻塞 formal gate。
 
 ## 7. 完成记录
 
@@ -1046,3 +1047,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 完成 reviewer evidence cards。新增 `build_module2_reviewer_evidence_cards.py`, 生成 `3_paper/module2_reviewer_evidence_cards/module2_reviewer_evidence_cards.json` 和 `.md`; 当前 `reviewer_evidence_cards_ready`, method/no-warm cards 为 `claim_traceable_with_scope_limit`, formal/warm-start cards 为 `blocked_placeholder_traceable`。记录见 `.pipeline/experiments/20260704_module2_reviewer_evidence_cards.md`。
 - 2026-07-04: 完成 supplement LaTeX evidence appendix。`build_module2_reviewer_evidence_cards.py` 生成 `3_paper/module2_reviewer_evidence_cards/module2_reviewer_evidence_cards.tex`; supplement audit 为 `clean`, wrapper pdflatex draftmode pass。记录见 `.pipeline/experiments/20260704_module2_reviewer_evidence_cards.md`。
 - 2026-07-04: 完成 gpu3070ti readiness refresh。只读核验 `gpu3070ti-relay` 仍可连, GPU free 7812 MiB, torch/CUDA/SB3/pyarrow/gymnasium 可用, oracle parquet 本地/远端均为 7860 rows 且 SHA-256 一致, obstacle-summary BC checkpoint 本地/远端 SHA-256 一致。本轮未训练、未同步、未安装、未运行 approved preflight; F02.6 仍 pending。记录见 `.pipeline/experiments/20260704_module2_gpu3070ti_readiness_refresh.md`。
+- 2026-07-04: 完成 formal gate consumes gpu3070ti readiness。`build_module2_formal_gate_gap_audit.py` 现在读取 readiness refresh 并检查 runs_training/runs_remote_preflight/local_training_allowed/formal_claim_allowed、训练资源和关键输入 match; 当前 artifact 仍为 `blocked_formal_gate_gaps_open`, 不改变 F02.6 pending 边界。记录见 `.pipeline/experiments/20260704_module2_formal_gate_readiness_consumption.md`。
