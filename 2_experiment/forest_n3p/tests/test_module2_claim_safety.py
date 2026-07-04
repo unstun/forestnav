@@ -170,6 +170,9 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert manifest["input_status"]["status_report_remaining_deliverables_gap_present"] is True
     assert manifest["input_status"]["status_report_remaining_deliverables_gap_total_missing_deliverables"] == 0
     assert manifest["input_status"]["status_report_remaining_deliverables_gap_open_category_count"] == 0
+    assert manifest["input_status"]["status_report_formal_gate_gap_audit_remaining_deliverables_gap_present"] is True
+    assert manifest["input_status"]["status_report_formal_gate_gap_audit_remaining_deliverables_gap_total_missing_deliverables"] == 0
+    assert manifest["input_status"]["status_report_formal_gate_gap_audit_remaining_deliverables_gap_open_category_count"] == 0
     assert manifest["status_report_handoff_summary"]["transition_gate_status"] == "f02_6_transition_gate_audit_passed"
     assert manifest["status_report_missing_artifacts_handoff_summary"]["status"] == "formal_gate_evidence_ready_for_h01_h02_claim_gates"
     assert manifest["status_report_requirement_stage_summary"]["mapped_requirement_count"] == 4
@@ -199,6 +202,8 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert manifest["status_report_remaining_deliverables_acceptance_summary"]["missing_row_count"] == 0
     assert manifest["status_report_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 0
     assert manifest["status_report_remaining_deliverables_gap_summary"]["open_category_count"] == 0
+    assert manifest["status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 0
+    assert manifest["status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary"]["open_category_count"] == 0
     assert manifest["status_report_decision_intake_summary"]["status"] == "f02_6_decision_intake_closed_clean"
     assert manifest["status_report_decision_intake_summary"]["record_status"] == "approved"
     assert manifest["status_report_decision_intake_summary"]["decision_owner_required"] == "Dr Sun"
@@ -408,6 +413,8 @@ def test_claim_safety_blocks_formal_claim_when_status_report_is_blocked(tmp_path
     assert "formal_gate_status_report_blocked" in manifest["formal_performance_blockers"]
     assert "status_report_remaining_deliverables_gap_rows_missing" in manifest["formal_performance_blockers"]
     assert "status_report_remaining_deliverables_gap_categories_blocked" in manifest["formal_performance_blockers"]
+    assert "status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing" in manifest["formal_performance_blockers"]
+    assert "status_report_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked" in manifest["formal_performance_blockers"]
     assert manifest["input_status"]["status_report_status"] == "formal_gate_status_blocked"
     assert manifest["input_status"]["status_report_next_blocked_lane_id"] == "decision"
     assert manifest["input_status"]["status_report_decision_intake_status"] == "f02_6_decision_intake_pending_clean"
