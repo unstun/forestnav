@@ -68,7 +68,7 @@ def test_manuscript_evidence_map_links_claim_units_to_sources(tmp_path):
     assert units["formal_results_blocked"]["evidence_state"] == "blocked_as_expected"
     assert "missing_module2_rl_rs_checkpoint" in units["formal_results_blocked"]["paper_blockers"]
     formal_comment_cue = units["formal_results_blocked"]["manuscript_cues"][1]
-    assert formal_comment_cue["source_anchors"][0]["line"] == 8
+    assert formal_comment_cue["source_anchors"][0]["line"] == 7
     assert formal_comment_cue["source_anchors"][0]["cue_in_raw_line"] is True
     assert formal_comment_cue["source_anchors"][0]["cue_in_comment_stripped_line"] is False
     assert units["warm_start_effect_blocked"]["evidence_state"] == "blocked_as_expected"

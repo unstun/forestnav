@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_manuscript_evidence_map",
   "status": "module2_manuscript_evidence_mapped",
-  "created_at_utc": "2026-07-04T09:45:09.232643+00:00",
-  "source_head": "8a835f210cc22c66d780d88b14ce55a45b3f4e3b+dirty",
+  "created_at_utc": "2026-07-04T09:52:46.964936+00:00",
+  "source_head": "1cd80e84890635848b82e2670ef2bd4a96b48335+dirty",
   "local_training_allowed": false,
   "remote_training_resource": "gpu3070ti-relay",
   "inputs": {
@@ -50,17 +50,44 @@
         {
           "cue": "learned analytic-expansion operator inside",
           "present_in_comment_stripped_text": true,
-          "present_in_expanded_text": true
+          "present_in_expanded_text": true,
+          "source_anchors": [
+            {
+              "path": "3_paper/module2_section_seed/module2_paper_section_seed.tex",
+              "line": 8,
+              "cue_in_raw_line": true,
+              "cue_in_comment_stripped_line": true,
+              "excerpt": "Module2 is implemented as a learned analytic-expansion operator inside the existing Hybrid A* search loop. The operator is invoked only at the planner's analytic-expansion hook; it rolls out steering actions from the current search node, th"
+            }
+          ]
         },
         {
           "cue": "not a standalone global planner",
           "present_in_comment_stripped_text": true,
-          "present_in_expanded_text": true
+          "present_in_expanded_text": true,
+          "source_anchors": [
+            {
+              "path": "3_paper/module2_section_seed/module2_paper_section_seed.tex",
+              "line": 8,
+              "cue_in_raw_line": true,
+              "cue_in_comment_stripped_line": true,
+              "excerpt": "Module2 is implemented as a learned analytic-expansion operator inside the existing Hybrid A* search loop. The operator is invoked only at the planner's analytic-expansion hook; it rolls out steering actions from the current search node, th"
+            }
+          ]
         },
         {
           "cue": "terminal RS",
           "present_in_comment_stripped_text": true,
-          "present_in_expanded_text": true
+          "present_in_expanded_text": true,
+          "source_anchors": [
+            {
+              "path": "3_paper/module2_section_seed/module2_paper_section_seed.tex",
+              "line": 11,
+              "cue_in_raw_line": true,
+              "cue_in_comment_stripped_line": true,
+              "excerpt": "Figure caption seed: RL-RS analytic expansion is placed inside the Hybrid A* loop. The figure should show the analytic trigger, custom operator dispatch, checkpoint-policy rollout, terminal RS certificate, accepted shortcut path, and fallba"
+            }
+          ]
         }
       ],
       "evidence_state": "mapped",
@@ -210,22 +237,58 @@
         {
           "cue": "No-warm PPO Gate",
           "present_in_comment_stripped_text": true,
-          "present_in_expanded_text": true
+          "present_in_expanded_text": true,
+          "source_anchors": [
+            {
+              "path": "3_paper/module2_section_seed/module2_paper_section_seed.tex",
+              "line": 14,
+              "cue_in_raw_line": true,
+              "cue_in_comment_stripped_line": true,
+              "excerpt": "No-warm PPO Gate \\#3 formal trial failed: terminal-RS success rate was 0.453125 over 64 episodes, below threshold 0.8. This does not evaluate obstacle-summary warm-start PPO and does not reject the whole RL-RS direction. This scoped result "
+            }
+          ]
         },
         {
           "cue": "0.453125",
           "present_in_comment_stripped_text": true,
-          "present_in_expanded_text": true
+          "present_in_expanded_text": true,
+          "source_anchors": [
+            {
+              "path": "3_paper/module2_section_seed/module2_paper_section_seed.tex",
+              "line": 14,
+              "cue_in_raw_line": true,
+              "cue_in_comment_stripped_line": true,
+              "excerpt": "No-warm PPO Gate \\#3 formal trial failed: terminal-RS success rate was 0.453125 over 64 episodes, below threshold 0.8. This does not evaluate obstacle-summary warm-start PPO and does not reject the whole RL-RS direction. This scoped result "
+            }
+          ]
         },
         {
           "cue": "does not evaluate obstacle-summary warm-start",
           "present_in_comment_stripped_text": true,
-          "present_in_expanded_text": true
+          "present_in_expanded_text": true,
+          "source_anchors": [
+            {
+              "path": "3_paper/module2_section_seed/module2_paper_section_seed.tex",
+              "line": 14,
+              "cue_in_raw_line": true,
+              "cue_in_comment_stripped_line": true,
+              "excerpt": "No-warm PPO Gate \\#3 formal trial failed: terminal-RS success rate was 0.453125 over 64 episodes, below threshold 0.8. This does not evaluate obstacle-summary warm-start PPO and does not reject the whole RL-RS direction. This scoped result "
+            }
+          ]
         },
         {
           "cue": "Formal performance claims remain blocked",
           "present_in_comment_stripped_text": true,
-          "present_in_expanded_text": true
+          "present_in_expanded_text": true,
+          "source_anchors": [
+            {
+              "path": "3_paper/module2_section_seed/module2_paper_section_seed.tex",
+              "line": 14,
+              "cue_in_raw_line": true,
+              "cue_in_comment_stripped_line": true,
+              "excerpt": "No-warm PPO Gate \\#3 formal trial failed: terminal-RS success rate was 0.453125 over 64 episodes, below threshold 0.8. This does not evaluate obstacle-summary warm-start PPO and does not reject the whole RL-RS direction. This scoped result "
+            }
+          ]
         }
       ],
       "evidence_state": "mapped",
@@ -277,12 +340,30 @@
         {
           "cue": "Formal performance claims remain blocked",
           "present_in_comment_stripped_text": true,
-          "present_in_expanded_text": true
+          "present_in_expanded_text": true,
+          "source_anchors": [
+            {
+              "path": "3_paper/module2_section_seed/module2_paper_section_seed.tex",
+              "line": 14,
+              "cue_in_raw_line": true,
+              "cue_in_comment_stripped_line": true,
+              "excerpt": "No-warm PPO Gate \\#3 formal trial failed: terminal-RS success rate was 0.453125 over 64 episodes, below threshold 0.8. This does not evaluate obstacle-summary warm-start PPO and does not reject the whole RL-RS direction. This scoped result "
+            }
+          ]
         },
         {
           "cue": "% BLOCKED: formal_results",
           "present_in_comment_stripped_text": false,
-          "present_in_expanded_text": true
+          "present_in_expanded_text": true,
+          "source_anchors": [
+            {
+              "path": "3_paper/module2_section_seed/module2_paper_section_seed.tex",
+              "line": 16,
+              "cue_in_raw_line": true,
+              "cue_in_comment_stripped_line": false,
+              "excerpt": "% BLOCKED: formal_results :: paper_tables_not_formal, h02_verdict_not_formal, h02_formal_acceptance_not_accepted, h01_manifest_not_ready, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_execution_packet_not_ready"
+            }
+          ]
         }
       ],
       "evidence_state": "blocked_as_expected",
@@ -373,12 +454,30 @@
         {
           "cue": "% BLOCKED: warm_start_effect",
           "present_in_comment_stripped_text": false,
-          "present_in_expanded_text": true
+          "present_in_expanded_text": true,
+          "source_anchors": [
+            {
+              "path": "3_paper/module2_section_seed/module2_paper_section_seed.tex",
+              "line": 17,
+              "cue_in_raw_line": true,
+              "cue_in_comment_stripped_line": false,
+              "excerpt": "% BLOCKED: warm_start_effect :: f02_6_not_approved, requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint"
+            }
+          ]
         },
         {
           "cue": "does not evaluate obstacle-summary warm-start",
           "present_in_comment_stripped_text": true,
-          "present_in_expanded_text": true
+          "present_in_expanded_text": true,
+          "source_anchors": [
+            {
+              "path": "3_paper/module2_section_seed/module2_paper_section_seed.tex",
+              "line": 14,
+              "cue_in_raw_line": true,
+              "cue_in_comment_stripped_line": true,
+              "excerpt": "No-warm PPO Gate \\#3 formal trial failed: terminal-RS success rate was 0.453125 over 64 episodes, below threshold 0.8. This does not evaluate obstacle-summary warm-start PPO and does not reject the whole RL-RS direction. This scoped result "
+            }
+          ]
         }
       ],
       "evidence_state": "blocked_as_expected",
