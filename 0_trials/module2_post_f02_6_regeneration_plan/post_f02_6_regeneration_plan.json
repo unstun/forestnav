@@ -1,0 +1,302 @@
+{
+  "schema_version": 1,
+  "artifact_name": "module2_post_f02_6_regeneration_plan",
+  "status": "blocked_until_f02_6_decision",
+  "created_at_utc": "2026-07-04T11:13:38.070852+00:00",
+  "source_head": "fe2cd21e368ebda6adf0bf80a8d87b96e88c76fa+dirty",
+  "not_paper_result_material": true,
+  "executes_commands": false,
+  "runs_training": false,
+  "runs_remote_preflight": false,
+  "local_training_allowed": false,
+  "formal_claim_allowed": false,
+  "inputs": {
+    "decision_record": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+    "formal_gate_gap_audit": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
+    "source_freshness_audit": "0_trials/module2_source_freshness_audit/source_freshness_audit.json",
+    "remote_formal_execution_packet": "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json"
+  },
+  "current_gate_summary": {
+    "f02_6_decision_status": "pending_human_decision",
+    "formal_gate_status": "blocked_formal_gate_gaps_open",
+    "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
+    "source_freshness_regeneration_required": true,
+    "remote_packet_status": "blocked_until_f02_6_decision",
+    "ready_to_run_remote_training": false
+  },
+  "source_regeneration_targets_by_gate": {
+    "approved_remote_preflight": [
+      {
+        "artifact_id": "f02_6_decision_record",
+        "path": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+        "freshness_state": "historical_dirty"
+      },
+      {
+        "artifact_id": "formal_gate_gap_audit",
+        "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
+        "freshness_state": "historical_dirty"
+      },
+      {
+        "artifact_id": "gpu3070ti_readiness_refresh",
+        "path": "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
+        "freshness_state": "historical_clean"
+      },
+      {
+        "artifact_id": "remote_formal_execution_packet",
+        "path": "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json",
+        "freshness_state": "historical_dirty"
+      }
+    ],
+    "formal_h01_h02": [
+      {
+        "artifact_id": "h01_evaluation_manifest",
+        "path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
+        "freshness_state": "historical_dirty"
+      },
+      {
+        "artifact_id": "h02_formal_acceptance",
+        "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+        "freshness_state": "historical_dirty"
+      }
+    ],
+    "formal_claim_gate": [
+      {
+        "artifact_id": "claim_safety",
+        "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
+        "freshness_state": "historical_clean"
+      },
+      {
+        "artifact_id": "paper_readiness",
+        "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
+        "freshness_state": "historical_dirty"
+      }
+    ]
+  },
+  "ordered_stages": [
+    {
+      "stage_id": "f02_6_decision_record",
+      "phase": "decision",
+      "status": "ready",
+      "allowed_now": true,
+      "blocked_by": [],
+      "runs_training": false,
+      "runs_remote_preflight": false,
+      "host": null,
+      "requires_human_input": true,
+      "action": "Record Dr Sun's F02.6 approve/reject decision without running training.",
+      "evidence_paths": [
+        "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json"
+      ],
+      "command_templates": [
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'"
+      ]
+    },
+    {
+      "stage_id": "regenerate_preflight_gate_artifacts",
+      "phase": "regeneration",
+      "status": "blocked",
+      "allowed_now": false,
+      "blocked_by": [
+        "f02_6_decision_not_approved"
+      ],
+      "runs_training": false,
+      "runs_remote_preflight": false,
+      "host": null,
+      "requires_human_input": false,
+      "action": "Regenerate source-stale artifacts required before approved remote preflight.",
+      "evidence_paths": [
+        "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+        "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
+        "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
+        "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json"
+      ],
+      "command_templates": [
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_gap_audit",
+        "manual read-only gpu3070ti readiness refresh; no local training, no approved preflight",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_formal_execution_packet"
+      ]
+    },
+    {
+      "stage_id": "approved_remote_preflight",
+      "phase": "remote_preflight",
+      "status": "blocked",
+      "allowed_now": false,
+      "blocked_by": [
+        "f02_6_decision_not_approved",
+        "source_fresh_preflight_targets_open"
+      ],
+      "runs_training": false,
+      "runs_remote_preflight": true,
+      "host": "gpu3070ti-relay",
+      "requires_human_input": false,
+      "action": "Run approved gpu3070ti preflight after decision and source-fresh regeneration.",
+      "evidence_paths": [
+        "0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1/gate3_preflight_manifest.json"
+      ],
+      "command_templates": [
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.preflight_rl_rs_gate3_formal_trial --output-dir 0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1 --manifest-out 0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1/gate3_preflight_manifest.json --warm-start-decision approved_obstacle_summary --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt --device cuda --allow-duplicate-openmp --allow-existing-output-dir"
+      ],
+      "formal_gate_blockers_snapshot": [
+        "f02_6_warm_start_decision_pending",
+        "requires_dr_sun_approval",
+        "source_freshness_regeneration_required",
+        "remote_training_packet_not_ready"
+      ]
+    },
+    {
+      "stage_id": "regenerate_remote_execution_packet",
+      "phase": "regeneration",
+      "status": "blocked",
+      "allowed_now": false,
+      "blocked_by": [
+        "f02_6_decision_not_approved",
+        "source_fresh_preflight_targets_open"
+      ],
+      "runs_training": false,
+      "runs_remote_preflight": false,
+      "host": null,
+      "requires_human_input": false,
+      "action": "Regenerate remote formal execution packet from the approved preflight manifest.",
+      "evidence_paths": [
+        "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json"
+      ],
+      "command_templates": [
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_formal_execution_packet"
+      ]
+    },
+    {
+      "stage_id": "gate3_remote_training",
+      "phase": "training",
+      "status": "blocked",
+      "allowed_now": false,
+      "blocked_by": [
+        "f02_6_decision_not_approved",
+        "source_fresh_preflight_targets_open",
+        "remote_packet_not_ready"
+      ],
+      "runs_training": true,
+      "runs_remote_preflight": false,
+      "host": "gpu3070ti-relay",
+      "requires_human_input": false,
+      "action": "Run the formal PPO Gate3 trial remotely only after the packet reports ready.",
+      "evidence_paths": [
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json"
+      ],
+      "command_templates": [
+        "ssh gpu3070ti-relay 'cd ~/ForestNav && PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 --seed 20260704 --device cuda --train-curriculum-preset f03 --eval-curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260704 --train-total-timesteps 100000 --train-n-envs 1 --train-n-steps 128 --train-batch-size 64 --train-n-epochs 4 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --allow-duplicate-openmp --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt'"
+      ],
+      "formal_gate_blockers_snapshot": [
+        "f02_6_warm_start_decision_pending",
+        "requires_dr_sun_approval",
+        "source_freshness_regeneration_required",
+        "remote_training_packet_not_ready"
+      ]
+    },
+    {
+      "stage_id": "gate3_remote_audit_pullback",
+      "phase": "acceptance",
+      "status": "blocked",
+      "allowed_now": false,
+      "blocked_by": [
+        "f02_6_decision_not_approved",
+        "source_fresh_preflight_targets_open",
+        "remote_packet_not_ready"
+      ],
+      "runs_training": false,
+      "runs_remote_preflight": false,
+      "host": "gpu3070ti-relay",
+      "requires_human_input": false,
+      "action": "Audit the remote trial and pull back all required artifacts with hashes.",
+      "evidence_paths": [
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json"
+      ],
+      "command_templates": [
+        "ssh gpu3070ti-relay 'cd ~/ForestNav && PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.audit_rl_rs_gate3_trial --trial-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 --min-formal-episodes 64 --required-success-threshold 0.8 --required-train-curriculum f03 --required-eval-curriculum f03 --warm-start-decision approved_obstacle_summary'",
+        "rsync -az 'gpu3070ti-relay:~/ForestNav/0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/' /Users/sun/tongbu/study/phdproject/ForestNav/0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/"
+      ]
+    },
+    {
+      "stage_id": "regenerate_h01_h02_formal_artifacts",
+      "phase": "evaluation",
+      "status": "blocked",
+      "allowed_now": false,
+      "blocked_by": [
+        "missing_remote_audit_pullback",
+        "source_fresh_h01_h02_targets_open"
+      ],
+      "runs_training": false,
+      "runs_remote_preflight": false,
+      "host": null,
+      "requires_human_input": false,
+      "action": "Regenerate H01/H02 with the audited checkpoint and formal-scale outputs.",
+      "evidence_paths": [
+        "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
+        "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+        "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
+      ],
+      "command_templates": [
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_evaluation_manifest --module2-rl-rs-checkpoint <pulled-back-final_model.zip>",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_h02_formal_acceptance"
+      ]
+    },
+    {
+      "stage_id": "regenerate_claim_gate_artifacts",
+      "phase": "claim_gate",
+      "status": "blocked",
+      "allowed_now": false,
+      "blocked_by": [
+        "h02_formal_acceptance_not_ready",
+        "source_fresh_claim_targets_open"
+      ],
+      "runs_training": false,
+      "runs_remote_preflight": false,
+      "host": null,
+      "requires_human_input": false,
+      "action": "Regenerate claim safety and paper readiness only after H02 formal acceptance.",
+      "evidence_paths": [
+        "0_trials/module2_claim_safety/module2_claim_safety.json",
+        "0_trials/module2_paper_readiness/module2_paper_readiness.json"
+      ],
+      "command_templates": [
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_paper_readiness"
+      ]
+    }
+  ],
+  "blocking_summary": {
+    "blocked_stage_ids": [
+      "regenerate_preflight_gate_artifacts",
+      "approved_remote_preflight",
+      "regenerate_remote_execution_packet",
+      "gate3_remote_training",
+      "gate3_remote_audit_pullback",
+      "regenerate_h01_h02_formal_artifacts",
+      "regenerate_claim_gate_artifacts"
+    ],
+    "ready_stage_ids": [
+      "f02_6_decision_record"
+    ],
+    "training_allowed_now": false,
+    "remote_preflight_allowed_now": false
+  },
+  "claim_boundaries": [
+    "This artifact is an ordered plan, not an executor, result table, or paper appendix.",
+    "It must not be used to bypass Dr Sun's F02.6 decision record.",
+    "It does not run local training, remote preflight, remote training, or remote audit.",
+    "The only training stage in the plan is remote-only on gpu3070ti-relay after all upstream gates pass.",
+    "Source freshness risks are regeneration requirements, not formal algorithm failures."
+  ]
+}
