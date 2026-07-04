@@ -58,18 +58,22 @@ This file inventories missing formal-gate evidence. It does not execute commands
   - missing_artifact_ids: `train_final_model_zip, train_summary_json, train_training_manifest_json`
   - source_artifacts: `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json; 0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
   - downstream_consumers: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
+  - responsible_stage: `gate3_remote_training` (status=`blocked`, allowed_now=`False`)
 - `evaluation_gate3_episode_outputs` (evaluation): status=`blocked_missing_outputs`, missing_count=`2`, execution_allowed_now=`False`
   - missing_artifact_ids: `eval_gate3_eval_episodes_csv, eval_gate3_summary_json`
   - source_artifacts: `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
   - downstream_consumers: `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
+  - responsible_stage: `gate3_remote_audit_pullback` (status=`blocked`, allowed_now=`False`)
 - `acceptance_remote_pullback_and_audit` (acceptance): status=`blocked_missing_outputs`, missing_count=`3`, execution_allowed_now=`False`
   - missing_artifact_ids: `gate3_trial_manifest_json, gate3_formal_audit_json, pulled_back_checkpoint_hash_record`
   - source_artifacts: `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json; 0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
   - downstream_consumers: `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
+  - responsible_stage: `gate3_remote_audit_pullback` (status=`blocked`, allowed_now=`False`)
 - `h01_h02_formal_evaluation_acceptance` (evaluation_acceptance): status=`blocked_missing_outputs`, missing_count=`2`, execution_allowed_now=`False`
   - missing_artifact_ids: `h01_ready_for_formal_run, h02_formal_output_acceptance`
   - source_artifacts: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
   - downstream_consumers: `0_trials/module2_claim_safety/module2_claim_safety.json; 0_trials/module2_paper_readiness/module2_paper_readiness.json`
+  - responsible_stage: `regenerate_h01_h02_formal_artifacts` (status=`blocked`, allowed_now=`False`)
 
 ## Missing Counts
 
@@ -88,21 +92,29 @@ This file inventories missing formal-gate evidence. It does not execute commands
 - `training_remote_ppo_checkpoint` (training): status=`blocked_missing_outputs`, execution_allowed_now=`False`
   - missing_artifact_ids: `train_final_model_zip, train_summary_json, train_training_manifest_json`
   - blocked_by: `train_final_model_zip, train_summary_json, train_training_manifest_json`
+  - responsible_stage: `gate3_remote_training` (status=`blocked`, allowed_now=`False`)
+  - responsible_stage_blocked_by: `f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
   - acceptable_evidence: `remote-produced train/final_model.zip pulled back to the local formal Gate3 trial directory; train/summary.json with PPO run metadata and terminal-RS training signals; train/training_manifest.json with protocol label, source head, host, seed, and command provenance`
   - invalid_substitutes: `local training output; available-subset smoke model; no-warm Gate3 failed checkpoint; stdout without pulled-back checkpoint and manifest`
 - `evaluation_gate3_episode_outputs` (evaluation): status=`blocked_missing_outputs`, execution_allowed_now=`False`
   - missing_artifact_ids: `eval_gate3_eval_episodes_csv, eval_gate3_summary_json`
   - blocked_by: `eval_gate3_eval_episodes_csv, eval_gate3_summary_json`
+  - responsible_stage: `gate3_remote_audit_pullback` (status=`blocked`, allowed_now=`False`)
+  - responsible_stage_blocked_by: `f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
   - acceptable_evidence: `eval/gate3_eval_episodes.csv from the approved formal remote run; eval/gate3_summary.json with formal terminal-RS success, collision, truncation, and timing fields`
   - invalid_substitutes: `H02 available-subset smoke CSV; paper table preview; no-warm formal failure eval reused as warm-start evidence`
 - `acceptance_remote_pullback_and_audit` (acceptance): status=`blocked_missing_outputs`, execution_allowed_now=`False`
   - missing_artifact_ids: `gate3_trial_manifest_json, gate3_formal_audit_json, pulled_back_checkpoint_hash_record`
   - blocked_by: `gate3_trial_manifest_json, gate3_formal_audit_json, pulled_back_checkpoint_hash_record`
+  - responsible_stage: `gate3_remote_audit_pullback` (status=`blocked`, allowed_now=`False`)
+  - responsible_stage_blocked_by: `f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
   - acceptable_evidence: `gate3_trial_manifest.json copied back from the formal remote run; gate3_formal_audit.json marking the run formal, scoped, and non-smoke; checkpoint SHA-256 record for the pulled-back final_model.zip`
   - invalid_substitutes: `remote command success without local pullback; checkpoint file without hash record; audit marked candidate, smoke, preview, or not_formal`
 - `h01_h02_formal_evaluation_acceptance` (evaluation_acceptance): status=`blocked_missing_outputs`, execution_allowed_now=`False`
   - missing_artifact_ids: `h01_ready_for_formal_run, h02_formal_output_acceptance`
   - blocked_by: `h01_ready_for_formal_run, h02_formal_output_acceptance`
+  - responsible_stage: `regenerate_h01_h02_formal_artifacts` (status=`blocked`, allowed_now=`False`)
+  - responsible_stage_blocked_by: `missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
   - acceptable_evidence: `H01 manifest status ready_for_formal_run or ready_for_formal_evaluation after F02.6 is closed; H02 acceptance with formal_output_accepted=true and paper_result_input_allowed=true; formal PPO rows present and accepted against the H01 required output schema`
   - invalid_substitutes: `blocked H01 manifest; blocked H02 acceptance audit; formal-looking tables generated from smoke or missing PPO rows`
 

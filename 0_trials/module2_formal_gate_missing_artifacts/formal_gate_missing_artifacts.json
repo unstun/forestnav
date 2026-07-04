@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_missing_artifacts_audit",
   "status": "formal_gate_missing_artifacts_open",
-  "created_at_utc": "2026-07-04T16:58:52.122279+00:00",
-  "source_head": "d32387144eee6dad7f4bd934a918b06ba604586d+dirty",
+  "created_at_utc": "2026-07-04T17:25:47.997006+00:00",
+  "source_head": "50a9e69e33097099933bdd028ff9a9166dff5461+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -123,6 +123,23 @@
           "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
           "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
         ],
+        "responsible_stage_id": "gate3_remote_training",
+        "responsible_stage_status": "blocked",
+        "responsible_stage_allowed_now": false,
+        "responsible_stage_blocked_by": [
+          "f02_6_decision_not_approved",
+          "source_fresh_preflight_targets_open",
+          "remote_packet_not_ready"
+        ],
+        "responsible_stage_evidence_paths": [
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json"
+        ],
         "acceptable_evidence": [
           "remote-produced train/final_model.zip pulled back to the local formal Gate3 trial directory",
           "train/summary.json with PPO run metadata and terminal-RS training signals",
@@ -156,6 +173,23 @@
         ],
         "downstream_consumers": [
           "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
+        ],
+        "responsible_stage_id": "gate3_remote_audit_pullback",
+        "responsible_stage_status": "blocked",
+        "responsible_stage_allowed_now": false,
+        "responsible_stage_blocked_by": [
+          "f02_6_decision_not_approved",
+          "source_fresh_preflight_targets_open",
+          "remote_packet_not_ready"
+        ],
+        "responsible_stage_evidence_paths": [
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json"
         ],
         "acceptable_evidence": [
           "eval/gate3_eval_episodes.csv from the approved formal remote run",
@@ -192,6 +226,23 @@
         "downstream_consumers": [
           "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
         ],
+        "responsible_stage_id": "gate3_remote_audit_pullback",
+        "responsible_stage_status": "blocked",
+        "responsible_stage_allowed_now": false,
+        "responsible_stage_blocked_by": [
+          "f02_6_decision_not_approved",
+          "source_fresh_preflight_targets_open",
+          "remote_packet_not_ready"
+        ],
+        "responsible_stage_evidence_paths": [
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json"
+        ],
         "acceptable_evidence": [
           "gate3_trial_manifest.json copied back from the formal remote run",
           "gate3_formal_audit.json marking the run formal, scoped, and non-smoke",
@@ -225,6 +276,18 @@
         "downstream_consumers": [
           "0_trials/module2_claim_safety/module2_claim_safety.json",
           "0_trials/module2_paper_readiness/module2_paper_readiness.json"
+        ],
+        "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
+        "responsible_stage_status": "blocked",
+        "responsible_stage_allowed_now": false,
+        "responsible_stage_blocked_by": [
+          "missing_remote_audit_pullback",
+          "source_fresh_h01_h02_targets_open"
+        ],
+        "responsible_stage_evidence_paths": [
+          "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
+          "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+          "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
         ],
         "acceptable_evidence": [
           "H01 manifest status ready_for_formal_run or ready_for_formal_evaluation after F02.6 is closed",
@@ -446,7 +509,7 @@
           "artifact_id": "paper_readiness",
           "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
           "exists": true,
-          "state": "current_dirty",
+          "state": "historical_dirty",
           "missing": true,
           "required_before": "formal_claim_gate",
           "reason": "source freshness audit requires regeneration before the corresponding formal gate"
@@ -705,7 +768,7 @@
           "artifact_id": "paper_readiness",
           "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
           "exists": true,
-          "state": "current_dirty",
+          "state": "historical_dirty",
           "missing": true,
           "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
         },
@@ -743,6 +806,23 @@
         "train_summary_json",
         "train_training_manifest_json"
       ],
+      "responsible_stage_id": "gate3_remote_training",
+      "responsible_stage_status": "blocked",
+      "responsible_stage_allowed_now": false,
+      "responsible_stage_blocked_by": [
+        "f02_6_decision_not_approved",
+        "source_fresh_preflight_targets_open",
+        "remote_packet_not_ready"
+      ],
+      "responsible_stage_evidence_paths": [
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json"
+      ],
       "acceptable_evidence": [
         "remote-produced train/final_model.zip pulled back to the local formal Gate3 trial directory",
         "train/summary.json with PPO run metadata and terminal-RS training signals",
@@ -773,6 +853,23 @@
       "blocked_by": [
         "eval_gate3_eval_episodes_csv",
         "eval_gate3_summary_json"
+      ],
+      "responsible_stage_id": "gate3_remote_audit_pullback",
+      "responsible_stage_status": "blocked",
+      "responsible_stage_allowed_now": false,
+      "responsible_stage_blocked_by": [
+        "f02_6_decision_not_approved",
+        "source_fresh_preflight_targets_open",
+        "remote_packet_not_ready"
+      ],
+      "responsible_stage_evidence_paths": [
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json"
       ],
       "acceptable_evidence": [
         "eval/gate3_eval_episodes.csv from the approved formal remote run",
@@ -806,6 +903,23 @@
         "gate3_formal_audit_json",
         "pulled_back_checkpoint_hash_record"
       ],
+      "responsible_stage_id": "gate3_remote_audit_pullback",
+      "responsible_stage_status": "blocked",
+      "responsible_stage_allowed_now": false,
+      "responsible_stage_blocked_by": [
+        "f02_6_decision_not_approved",
+        "source_fresh_preflight_targets_open",
+        "remote_packet_not_ready"
+      ],
+      "responsible_stage_evidence_paths": [
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json"
+      ],
       "acceptable_evidence": [
         "gate3_trial_manifest.json copied back from the formal remote run",
         "gate3_formal_audit.json marking the run formal, scoped, and non-smoke",
@@ -835,6 +949,18 @@
       "blocked_by": [
         "h01_ready_for_formal_run",
         "h02_formal_output_acceptance"
+      ],
+      "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
+      "responsible_stage_status": "blocked",
+      "responsible_stage_allowed_now": false,
+      "responsible_stage_blocked_by": [
+        "missing_remote_audit_pullback",
+        "source_fresh_h01_h02_targets_open"
+      ],
+      "responsible_stage_evidence_paths": [
+        "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
+        "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+        "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
       ],
       "acceptable_evidence": [
         "H01 manifest status ready_for_formal_run or ready_for_formal_evaluation after F02.6 is closed",

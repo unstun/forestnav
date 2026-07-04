@@ -55,6 +55,11 @@ def test_missing_artifacts_audit_blocks_pending_formal_chain(tmp_path):
     assert requirements["training_remote_ppo_checkpoint"]["phase"] == "training"
     assert requirements["training_remote_ppo_checkpoint"]["status"] == "blocked_missing_outputs"
     assert requirements["training_remote_ppo_checkpoint"]["execution_allowed_now"] is False
+    assert requirements["training_remote_ppo_checkpoint"]["responsible_stage_id"] == "gate3_remote_training"
+    assert requirements["training_remote_ppo_checkpoint"]["responsible_stage_status"] == "blocked"
+    assert requirements["training_remote_ppo_checkpoint"]["responsible_stage_allowed_now"] is False
+    assert requirements["training_remote_ppo_checkpoint"]["responsible_stage_blocked_by"] == ["remote_packet_not_ready"]
+    assert "final_model.zip" in ";".join(requirements["training_remote_ppo_checkpoint"]["responsible_stage_evidence_paths"])
     assert requirements["training_remote_ppo_checkpoint"]["missing_artifact_ids"] == [
         "train_final_model_zip",
         "train_summary_json",
@@ -65,13 +70,21 @@ def test_missing_artifacts_audit_blocks_pending_formal_chain(tmp_path):
         "eval_gate3_eval_episodes_csv",
         "eval_gate3_summary_json",
     ]
+    assert requirements["evaluation_gate3_episode_outputs"]["responsible_stage_id"] == "gate3_remote_audit_pullback"
     assert "H02 available-subset smoke CSV" in requirements["evaluation_gate3_episode_outputs"]["invalid_substitutes"]
     assert requirements["acceptance_remote_pullback_and_audit"]["missing_artifact_ids"] == [
         "gate3_trial_manifest_json",
         "gate3_formal_audit_json",
         "pulled_back_checkpoint_hash_record",
     ]
+    assert requirements["acceptance_remote_pullback_and_audit"]["responsible_stage_id"] == "gate3_remote_audit_pullback"
     assert "checkpoint file without hash record" in requirements["acceptance_remote_pullback_and_audit"]["invalid_substitutes"]
+    assert requirements["h01_h02_formal_evaluation_acceptance"]["responsible_stage_id"] == "regenerate_h01_h02_formal_artifacts"
+
+    handoff_training = handoff_requirements["training_remote_ppo_checkpoint"]
+    assert handoff_training["responsible_stage_id"] == "gate3_remote_training"
+    assert handoff_training["responsible_stage_status"] == "blocked"
+    assert handoff_training["responsible_stage_allowed_now"] is False
 
     groups = {group["group_id"]: group for group in manifest["missing_evidence_groups"]}
     assert groups["f02_6_decision_record"]["complete"] is False
@@ -168,6 +181,8 @@ def test_missing_artifacts_audit_cli_writes_json_and_markdown(tmp_path):
     assert "Formal Gate Requirements" in markdown
     assert "f02_6_transition_gate_status" in markdown
     assert "training_remote_ppo_checkpoint" in markdown
+    assert "responsible_stage" in markdown
+    assert "gate3_remote_training" in markdown
     assert "invalid_substitutes" in markdown
     assert "remote_training_outputs" in markdown
     assert "does not execute commands" in markdown
@@ -247,18 +262,43 @@ def _transition_gate(*, drift=False):
 
 
 def _post_plan(*, complete):
+    gate3_artifacts = [
+        "final_model.zip",
+        "summary.json",
+        "training_manifest.json",
+        "gate3_eval_episodes.csv",
+        "gate3_summary.json",
+        "gate3_trial_manifest.json",
+        "gate3_formal_audit.json",
+    ]
     stages = [
         {
             "stage_id": "f02_6_decision_record",
             "status": "ready" if not complete else "complete",
+            "allowed_now": not complete,
             "blocked_by": [],
             "evidence_paths": ["decision_record.json"],
         },
         {
             "stage_id": "gate3_remote_training",
             "status": "complete" if complete else "blocked",
+            "allowed_now": complete,
             "blocked_by": [] if complete else ["remote_packet_not_ready"],
-            "evidence_paths": ["final_model.zip"],
+            "evidence_paths": gate3_artifacts[:3],
+        },
+        {
+            "stage_id": "gate3_remote_audit_pullback",
+            "status": "complete" if complete else "blocked",
+            "allowed_now": complete,
+            "blocked_by": [] if complete else ["remote_packet_not_ready"],
+            "evidence_paths": gate3_artifacts,
+        },
+        {
+            "stage_id": "regenerate_h01_h02_formal_artifacts",
+            "status": "complete" if complete else "blocked",
+            "allowed_now": complete,
+            "blocked_by": [] if complete else ["missing_remote_audit_pullback"],
+            "evidence_paths": ["module2_v1_evaluation_manifest.json", "h02_formal_acceptance.json"],
         },
     ]
     return {
