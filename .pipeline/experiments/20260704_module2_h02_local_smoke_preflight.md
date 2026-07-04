@@ -48,6 +48,8 @@ H02.1 不能完整完成, 因为 all-method smoke 需要 `ppo_analytic_operator`
 - Method exception total: `0`
 - BC checkpoint SHA-256: `3156df44ca7f26da7f2e635707554bb1cd486164638b3a2d11075c3787670683`
 - Timeout metric columns present in `summary_by_method_bucket.csv`: yes
+- A02.3 telemetry columns present in `records.csv`: `rl_attempts`, `rl_successes`, `rs_attempts`, `nn_forward_time_s`, `fallback_to_primitives_count`, `rollout_protocol`, `collision_checker`
+- A02.3 telemetry summary columns present in `summary_by_method_bucket.csv`: `mean_nn_forward_time_s`, `p95_nn_forward_time_s`, `rl_attempts_total`, `rl_successes_total`, `rs_attempts_total`, `fallback_to_primitives_total`
 
 ## 命令
 
@@ -70,6 +72,7 @@ PYTHONPATH=2_experiment python -m forest_n3p.scripts.run_main_evaluation --outpu
 - Syntax: `python -m py_compile 2_experiment/forest_n3p/scripts/build_module2_h02_smoke_preflight.py`。
 - Preflight-only: `ok_to_run=true`, blocking issues empty, warning 仅为 smoke scale 非 formal scale。
 - Subset smoke: `record_count=15`, `query_count=3`, `status=candidate_or_smoke`, `formal_acceptance=false`。
+- 2026-07-04 telemetry refresh: same available subset rerun after A02.3 P0; schema now includes runtime NN forward and RL/RS attempt telemetry. Full regression `KMP_DUPLICATE_LIB_OK=TRUE PYTHONPATH=2_experiment pytest -q 2_experiment/forest_n3p/tests` -> `112 passed in 12.15s`。
 
 ## 边界
 

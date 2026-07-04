@@ -33,6 +33,7 @@ depends_on:
 - formal_claim_allowed: `false`
 - local_training_allowed: `false`
 - remote_training_resource: `gpu3070ti-relay`
+- A02.3 telemetry refresh: `module2_paper_tables.json` now includes `telemetry_diagnostic_table` sourced from runtime/evaluation telemetry columns.
 - blockers:
   - `h02_verdict_not_formal`
   - `h01_manifest_not_ready`
@@ -52,6 +53,10 @@ depends_on:
   - status: `blocked_missing_formal_data`
 - I02.3 failure-analysis table:
   - failure buckets: timeout, collision, terminal_rs_fail, oscillation, oracle_no_solution, other
+  - status: `preview_not_formal`
+- Diagnostic telemetry table:
+  - columns: RL attempts/successes, RS attempts, NN forward mean/p95, primitive fallback total, rollout protocol, collision checker
+  - source: A02.3 runtime/evaluation telemetry columns
   - status: `preview_not_formal`
 
 ## 关键代码/数据锚点
@@ -76,6 +81,7 @@ depends_on:
 - Adjacent: `PYTHONPATH=2_experiment pytest -q 2_experiment/forest_n3p/tests/test_module2_paper_tables.py 2_experiment/forest_n3p/tests/test_module2_metric_protocol.py 2_experiment/forest_n3p/tests/test_evaluation_timing_protocol.py` -> `10 passed in 1.08s`.
 - Syntax: `python -m py_compile 2_experiment/forest_n3p/scripts/build_module2_paper_tables.py`.
 - Artifact audit: `module2_paper_tables_artifact=ok`.
+- 2026-07-04 telemetry refresh: RED failed on missing `telemetry_diagnostic_table`; GREEN targeted `9 passed`; full `2_experiment/forest_n3p/tests` -> `112 passed in 12.15s`.
 
 ## 边界
 

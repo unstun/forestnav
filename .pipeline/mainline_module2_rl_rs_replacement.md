@@ -828,8 +828,10 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - full-smoke blockers: `ppo_analytic_operator` 和 `ppo_rs_funnel` 均缺 `missing_module2_rl_rs_checkpoint`, 且 F02.6 decision packet 仍 pending。
   - available subset smoke: 已本地跑 `ha_no_analytic,ha_single_rs,ha_dang_multi_rs,mlp,bc_analytic_operator` x 3 queries, 产出 `0_trials/module2_h02_local_smoke/h02_1_available_subset/`; record_count=15, query_count=3, status=`candidate_or_smoke`, formal_acceptance=false, collision_violation_total=0, method_exception_total=0。
   - 统计输出更新: available subset summary 现在包含 `bc_analytic_operator` vs `ha_dang_multi_rs` 的 paired time/expansions tests, 以及 success/failure/timeout bootstrap CI slots; 这只是 runner/stat output smoke, 不是性能 claim。
+  - A02.3 后刷新: available subset 已重跑, `records.csv` 现在含 `rl_attempts`, `rl_successes`, `rs_attempts`, `nn_forward_time_s`, `fallback_to_primitives_count`, `rollout_protocol`, `collision_checker`; `summary_by_method_bucket.csv` 含 NN forward 与 attempts totals。
   - 边界: 这不是 all-method H02.1 完成, 不能填补 PPO 缺 checkpoint, 不能作为 formal 结果; full smoke 仍等待 F02.6 决策和远端 PPO checkpoint。
   - 记录: `.pipeline/experiments/20260704_module2_h02_local_smoke_preflight.md`。
+  - 刷新记录: `.pipeline/experiments/20260704_module2_h02_i02_telemetry_refresh.md`。
 - [ ] H02.2 远端完整运行。
   - 必须同步回本地: stdout/stderr, CSV, manifest, config, checkpoints, source hash。
 - [>] H02.3 统计检验。
@@ -877,8 +879,10 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 已完成子项: 新增 `build_module2_paper_tables.py`, 可从 `records.csv`/`summary.json` 生成 method-level paper table preview。
   - 当前产物: `0_trials/module2_paper_tables/module2_paper_tables.json`, `0_trials/module2_paper_tables/module2_paper_tables.md`。
   - 当前状态: `blocked_no_formal_h02_data`, `formal_claim_allowed=false`; blockers 包含 `h02_verdict_not_formal`, `h01_manifest_not_ready`, `missing_module2_rl_rs_checkpoint`, `missing_ppo_result_rows`。
+  - A02.3 后刷新: I02 artifact 新增 `telemetry_diagnostic_table`, 单独展示 `rl_attempts_total`, `rl_successes_total`, `rs_attempts_total`, `nn_forward_time_mean_s`, `nn_forward_time_p95_s`, `fallback_to_primitives_total`, `rollout_protocol`, `collision_checker`。
   - 边界: 当前表只验证 schema 和渲染口径, 不能作为论文结果表; formal 主表必须等 H02.2 all-method formal run。
   - 记录: `.pipeline/experiments/20260704_module2_i02_paper_table_protocol.md`。
+  - 刷新记录: `.pipeline/experiments/20260704_module2_h02_i02_telemetry_refresh.md`。
 - [>] I02.2 消融表。
   - occupancy only vs occupancy+EDT。
   - BC vs PPO。
@@ -957,6 +961,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 38. [>] I02 paper table protocol/preview 已生成: 可从 H02 evaluation outputs 生成主表、消融计划和失败分析 preview; 当前因 H02 非 formal、H01 blocked 和缺 PPO checkpoint 正确阻塞 formal claim。
 39. [>] I03 claim safety guard 已生成: 允许方法结构 claim 和 no-warm Gate #3 formal failure claim; formal performance improvement 继续 blocked; 全局最优/完备性增强/RL替代HA*/泛化所有森林等 claim 已 hard-block。
 40. [x] A02.3 P0 telemetry implementation 已完成: runtime NN forward timing、RL/RS canonical attempt columns、primitive fallback count 和 rollout/collision protocol metadata 已进入 evaluation outputs。
+41. [x] H02/I02 telemetry refresh 已完成: H02 available-subset 重跑后输出新 telemetry schema, I02 paper table artifact 新增 telemetry diagnostic table; 仍为 non-formal preview。
 
 ## 7. 完成记录
 
@@ -1012,3 +1017,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 推进 I03 claim safety。新增 `build_module2_claim_safety.py`, 汇总 I01/I02/H01/F02.6/Gate3 audit 生成 allowed/conditional/prohibited claim guard; 当前 formal performance claim blocked, no-warm Gate #3 failure claim allowed only in no-warm scope, 全局最优/完备性增强/RL替代HA*/泛化所有森林/warm-start approved 均 hard-block。记录见 `.pipeline/experiments/20260704_module2_i03_claim_safety.md`。
 - 2026-07-04: 完成 A00.2 项目状态记忆刷新。bigmemory 热区已从 2026-07-02 的 “Contract 未起草/未写实验代码” 旧状态更新为当前真实边界: Contract approved, no-warm Gate #3 formal fail, F02.6 pending, 缺 PPO checkpoint, H01/H02 formal blocked, PPO formal training 只能走 `gpu3070ti-relay` 且禁止本地训练。记录见 `bigmemory/冷区/改动记录/2026-07-04.md`。
 - 2026-07-04: 完成 A02.3 P0 telemetry implementation。RL-RS operator/evaluation records 现在输出 `rl_attempts`, `rl_successes`, `rs_attempts`, `nn_forward_time_s`, `fallback_to_primitives_count`, `rollout_protocol`, `collision_checker`; summary 输出 NN forward 聚合与 attempts totals。I01 code-anchored method/system diagram 已按 timed policy call 更新锚点并再生成。验证: full `2_experiment/forest_n3p/tests` 112 passed。记录见 `.pipeline/experiments/20260704_module2_a02_3_telemetry_implementation.md`。
+- 2026-07-04: 完成 H02/I02 telemetry refresh。重跑 H02.1 available subset 后 records/summary 均含 A02.3 新 telemetry columns; I02 paper table artifact 新增 `telemetry_diagnostic_table`。BC analytic 3-query smoke 暴露 `rl_attempts_total=126`, `rl_successes_total=3`, `fallback_to_primitives_total=123`; 这是 schema/diagnostic preview, 非 formal result。记录见 `.pipeline/experiments/20260704_module2_h02_i02_telemetry_refresh.md`。
