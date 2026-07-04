@@ -755,6 +755,8 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
             str(config.handoff_bundle_path),
             "--remaining-deliverables",
             str(config.remaining_deliverables_path),
+            "--formal-gate-proof-audit",
+            str(config.formal_gate_proof_audit_path),
             "--decision-intake",
             str(config.decision_intake_path),
         ]
@@ -778,6 +780,8 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
     assert "Formal Gate Execution Veto Matrix" in markdown
     assert "Remote Packet Safety Claim-Gate Command Index" in markdown
     assert "Remaining Deliverables Acceptance Matrix" in markdown
+    assert "Formal Gate Proof Audit" in markdown
+    assert "formal_gate_proof_audit_blocked" in markdown
     assert "training:train_final_model_zip" in markdown
     assert "decision_owner_required" in markdown
     assert "decision_note_required" in markdown
