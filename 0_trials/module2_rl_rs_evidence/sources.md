@@ -61,6 +61,7 @@ topic: module2 RL-RS evidence source index
 | L002 | A | local | ForestNav collision checkers | `2_experiment/forest_n3p/third_party/pathplan/geometry.py:398-425`, `:449-518` | 训练/推理碰撞语义统一 |
 | L003 | A | local | ForestNav evaluation | `2_experiment/forest_n3p/evaluation.py:39-84`, `:216-260` | 主实验指标地基 |
 | L004 | A | local | ForestNav collision protocol audit | `0_trials/module2_rl_rs_evidence/collision_checker_unification.md`; `geometry.py:262-416`, `:419-518`; `rl_rs/env.py:86-92`, `:191-222`; `rl_rs/rollout.py:42-56`; `rl_rs/terminal.py:44-50`; `rl_rs/operator.py:133-162` | A02.2 训练/推理共享碰撞语义方案 |
+| L005 | A | local | ForestNav evaluation telemetry gap audit | `0_trials/module2_rl_rs_evidence/evaluation_telemetry_gap.md`; `evaluation.py:62-103`, `:238-303`, `:336-409`, `:437-477`; `planner.py:680-831`, `:873-967`; `rl_rs/telemetry.py:6-66`; `rl_rs/operator.py:31-44`, `:76-80` | A02.3 records.csv / summary / telemetry 字段缺口清单 |
 
 ## 待核验来源
 

@@ -261,10 +261,13 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 已完成: 新增 `0_trials/module2_rl_rs_evidence/collision_checker_unification.md`, 核验 `GridFootprintChecker`、`EDTCollisionChecker`、HA* primitive/RS analytic collision path、RL-RS env/operator/terminal 复用 checker 的代码入口。
   - 判定: 当前主线应默认用 `GridFootprintChecker + TwoCircleFootprint + planner.collision_step` 作为 formal protocol, 但必须在后续 telemetry/data/train/eval artifact 中记录 checker manifest; EDT 统一属于后续 protocol change。
   - 记录: `.pipeline/experiments/20260704_module2_a02_2_collision_checker_unification.md`。
-- [ ] A02.3 评估当前 evaluation 字段缺口。
+- [x] A02.3 评估当前 evaluation 字段缺口。
   - 输入: `evaluation.py:39-84`, `evaluation.py:216-260`
   - 输出: 需要新增 telemetry 字段列表。
   - 必含: analytic_attempts, rs_attempts, rl_attempts, rl_successes, terminal_rs_successes, nn_forward_time_s, rollout_collision_checks, rollout_steps, fallback_to_primitives_count。
+  - 已完成: 新增 `0_trials/module2_rl_rs_evidence/evaluation_telemetry_gap.md`, 核验 `EvaluationRecord`、`planner_run_from_path_stats()`、`evaluate_run()`、`_update_rl_rs_telemetry_summary()`、planner stats、RL-RS telemetry/operator 和 H01 metric protocol。
+  - 判定: 当前 records 已有 `analytic_attempts/successes/failure_count`, `rl_rollout_steps`, `rl_rollout_collision_checks`, `terminal_rs_success_count/used_count`, checkpoint path/hash; 缺 `rs_attempts`, `rl_attempts`, `rl_successes`, runtime `nn_forward_time_s`, `fallback_to_primitives_count`, checker/rollout protocol manifest。
+  - 记录: `.pipeline/experiments/20260704_module2_a02_3_evaluation_telemetry_gap.md`。
 
 ### Phase B: 诚实计时和基线可比性
 
