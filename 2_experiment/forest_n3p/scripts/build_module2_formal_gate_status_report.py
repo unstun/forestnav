@@ -1085,7 +1085,8 @@ def _remaining_deliverables_acceptance_issues(
             )
         )
     for matrix_id in summary["missing_expected_matrix_ids"]:
-        issues.append(_issue(f"remaining_deliverables_acceptance_missing_{matrix_id}", f"missing matrix row {matrix_id}."))
+        safe_matrix_id = matrix_id.replace(":", "_")
+        issues.append(_issue(f"remaining_deliverables_acceptance_missing_{safe_matrix_id}", f"missing matrix row {matrix_id}."))
     permissions = summary["permissions_now"]
     if permissions.get("local_training_allowed_now") is True:
         issues.append(_issue("remaining_deliverables_allows_local_training", "remaining-deliverables must not allow local training."))
