@@ -765,6 +765,68 @@ def _status_report_h02_acceptance_requirement_blockers(status_report: dict[str, 
     return blockers
 
 
+def _status_report_remaining_deliverables_acceptance_summary(status_report: dict[str, Any]) -> dict[str, Any]:
+    summary = status_report.get("remaining_deliverables_acceptance_summary")
+    summary = summary if isinstance(summary, dict) else {}
+    raw_rows = summary.get("rows") if isinstance(summary.get("rows"), dict) else {}
+    rows: dict[str, dict[str, Any]] = {}
+    for matrix_id in STATUS_REPORT_REMAINING_DELIVERABLE_MATRIX_IDS:
+        row = raw_rows.get(matrix_id) if isinstance(raw_rows.get(matrix_id), dict) else {}
+        rows[matrix_id] = {
+            "present": bool(row),
+            "missing": row.get("missing") if isinstance(row.get("missing"), bool) else None,
+            "responsible_stage_id": row.get("responsible_stage_id"),
+            "responsible_stage_allowed_now": row.get("responsible_stage_allowed_now")
+            if isinstance(row.get("responsible_stage_allowed_now"), bool)
+            else None,
+            "acceptance_predicate_count": int(row.get("acceptance_predicate_count") or 0),
+            "invalid_substitute_count": int(row.get("invalid_substitute_count") or 0),
+        }
+    return {
+        "present": bool(summary),
+        "status": summary.get("status"),
+        "missing_deliverable_count": int(summary.get("missing_deliverable_count") or 0),
+        "matrix_row_count": int(summary.get("matrix_row_count") or 0),
+        "expected_matrix_row_count": int(
+            summary.get("expected_matrix_row_count") or len(STATUS_REPORT_REMAINING_DELIVERABLE_MATRIX_IDS)
+        ),
+        "missing_row_count": int(summary.get("missing_row_count") or 0),
+        "blocked_category_count": int(summary.get("blocked_category_count") or 0),
+        "missing_expected_matrix_ids": _strings(summary.get("missing_expected_matrix_ids")),
+        "rows": rows,
+    }
+
+
+def _status_report_remaining_deliverables_acceptance_blockers(status_report: dict[str, Any]) -> list[str]:
+    summary = _status_report_remaining_deliverables_acceptance_summary(status_report)
+    blockers: list[str] = []
+    if not summary["present"]:
+        blockers.append("status_report_missing_remaining_deliverables_acceptance_summary")
+        return blockers
+    if summary["matrix_row_count"] != len(STATUS_REPORT_REMAINING_DELIVERABLE_MATRIX_IDS):
+        blockers.append("status_report_remaining_deliverables_acceptance_matrix_count_mismatch")
+    for matrix_id in summary["missing_expected_matrix_ids"]:
+        _append_unique(blockers, f"status_report_remaining_deliverables_acceptance_missing_{matrix_id.replace(':', '_')}")
+    if status_report.get("status") == "formal_gate_status_ready_for_claim_audit":
+        if summary["missing_row_count"] > 0:
+            blockers.append("status_report_remaining_deliverables_missing_rows_while_status_ready")
+        if summary["blocked_category_count"] > 0:
+            blockers.append("status_report_remaining_deliverables_blocked_categories_while_status_ready")
+    for matrix_id, row in summary["rows"].items():
+        safe_matrix_id = matrix_id.replace(":", "_")
+        if not row["present"]:
+            _append_unique(blockers, f"status_report_remaining_deliverables_acceptance_missing_{safe_matrix_id}")
+            continue
+        if row["acceptance_predicate_count"] <= 0:
+            _append_unique(blockers, f"status_report_remaining_deliverables_acceptance_{safe_matrix_id}_missing_predicates")
+        if row["invalid_substitute_count"] <= 0:
+            _append_unique(blockers, f"status_report_remaining_deliverables_acceptance_{safe_matrix_id}_missing_invalid_substitutes")
+        if status_report.get("status") != "formal_gate_status_ready_for_claim_audit":
+            if row["responsible_stage_allowed_now"] is True:
+                _append_unique(blockers, f"status_report_remaining_deliverables_acceptance_{safe_matrix_id}_stage_allowed_while_blocked")
+    return blockers
+
+
 def _remote_requirement_matrix_blockers(
     *,
     status_report: dict[str, Any],
