@@ -292,6 +292,7 @@ def _formal_performance_blockers(
         _append_unique(blockers, "status_report_input_safety_issues_open")
     blockers.extend(_status_report_handoff_blockers(status_report))
     blockers.extend(_status_report_missing_artifacts_handoff_blockers(status_report))
+    blockers.extend(_status_report_requirement_stage_blockers(status_report))
     blockers.extend(_status_report_remote_summary_blockers(status_report))
     return blockers
 
@@ -380,6 +381,75 @@ def _status_report_missing_artifacts_handoff_blockers(status_report: dict[str, A
             blockers.append("status_report_ready_but_missing_artifacts_handoff_not_clear")
         if int(summary["open_requirement_count"] or 0) > 0:
             blockers.append("status_report_ready_but_missing_artifacts_handoff_requirements_open")
+    return blockers
+
+
+def _status_report_requirement_stage_summary(status_report: dict[str, Any]) -> dict[str, Any]:
+    summary = status_report.get("formal_gate_requirement_stage_summary")
+    summary = summary if isinstance(summary, dict) else {}
+    raw_requirements = summary.get("requirements") if isinstance(summary.get("requirements"), dict) else {}
+    requirements: dict[str, dict[str, Any]] = {}
+    for requirement_id in STATUS_REPORT_REQUIREMENT_IDS:
+        row = raw_requirements.get(requirement_id) if isinstance(raw_requirements.get(requirement_id), dict) else {}
+        stage_blockers = row.get("responsible_stage_blocked_by")
+        requirements[requirement_id] = {
+            "present": bool(row),
+            "status": row.get("status"),
+            "expected_stage_id": row.get("expected_stage_id"),
+            "responsible_stage_id": row.get("responsible_stage_id"),
+            "responsible_stage_status": row.get("responsible_stage_status"),
+            "responsible_stage_allowed_now": row.get("responsible_stage_allowed_now")
+            if isinstance(row.get("responsible_stage_allowed_now"), bool)
+            else None,
+            "responsible_stage_blocked_by": [str(value) for value in stage_blockers if value]
+            if isinstance(stage_blockers, list)
+            else [],
+            "mapping_present": row.get("mapping_present") if isinstance(row.get("mapping_present"), bool) else None,
+            "mapping_matches_expected": row.get("mapping_matches_expected")
+            if isinstance(row.get("mapping_matches_expected"), bool)
+            else None,
+        }
+    return {
+        "present": bool(summary),
+        "mapped_requirement_count": int(summary.get("mapped_requirement_count") or 0),
+        "unmapped_requirement_count": int(summary.get("unmapped_requirement_count") or 0),
+        "mismatched_requirement_count": int(summary.get("mismatched_requirement_count") or 0),
+        "blocked_stage_count": int(summary.get("blocked_stage_count") or 0),
+        "unmapped_requirement_ids": [str(value) for value in summary.get("unmapped_requirement_ids", []) if value]
+        if isinstance(summary.get("unmapped_requirement_ids"), list)
+        else [],
+        "mismatched_requirement_ids": [
+            str(value) for value in summary.get("mismatched_requirement_ids", []) if value
+        ]
+        if isinstance(summary.get("mismatched_requirement_ids"), list)
+        else [],
+        "requirements": requirements,
+    }
+
+
+def _status_report_requirement_stage_blockers(status_report: dict[str, Any]) -> list[str]:
+    summary = _status_report_requirement_stage_summary(status_report)
+    blockers: list[str] = []
+    if not summary["present"]:
+        blockers.append("status_report_missing_requirement_stage_summary")
+        return blockers
+    if summary["unmapped_requirement_count"] > 0:
+        blockers.append("status_report_requirement_stage_unmapped")
+    if summary["mismatched_requirement_count"] > 0:
+        blockers.append("status_report_requirement_stage_mismatched")
+    for requirement_id, row in summary["requirements"].items():
+        if not row["present"]:
+            _append_unique(blockers, f"status_report_requirement_stage_missing_{requirement_id}")
+            continue
+        if row["mapping_present"] is not True:
+            _append_unique(blockers, f"status_report_{requirement_id}_missing_responsible_stage")
+        if row["mapping_matches_expected"] is not True:
+            _append_unique(blockers, f"status_report_{requirement_id}_wrong_responsible_stage")
+        if row["responsible_stage_allowed_now"] is False and not row["responsible_stage_blocked_by"]:
+            _append_unique(blockers, f"status_report_{requirement_id}_responsible_stage_missing_blocked_by")
+        if status_report.get("status") != "formal_gate_status_ready_for_claim_audit":
+            if row["responsible_stage_allowed_now"] is True:
+                _append_unique(blockers, f"status_report_blocked_but_{requirement_id}_responsible_stage_allowed")
     return blockers
 
 
