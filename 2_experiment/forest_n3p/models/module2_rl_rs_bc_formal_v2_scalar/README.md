@@ -34,6 +34,7 @@ python -m forest_n3p.scripts.train_bc_policy \
 | `history.json` | `f57440f6d094391dc5ebc9ff516dddfff7bf475e4ee89cf292231b96b489c1d3` |
 | `summary.json` | `cc8e7fd50180d437d62e2b5e4d4db745e038f34c53bb406fe41b12dd61e52a5f` |
 | `eval_rollout_step01.json` | `62037ed1999cb6cd5e02452c8fb686a6785226ff06ca229895223bd79d853d63` |
+| `eval_patch_bounded_rows.json` | `06f784583cdf119ea1c337ae824c690c504451b9cbca09f17bf155c33282e9d8` |
 
 ## Metrics
 
@@ -68,6 +69,17 @@ Posthoc closed loop with 0.1m rollout step:
 | terminal RS success | 38 |
 | collision | 200 |
 | truncated | 20 |
+| runtime error | 0 |
+
+Posthoc closed loop on the same 1024 bounded validation rows used by the
+patch-CNN pilot:
+
+| Metric | Value |
+|---|---:|
+| episodes | 242 |
+| terminal RS success | 65 |
+| collision | 162 |
+| truncated | 15 |
 | runtime error | 0 |
 
 ## Boundary

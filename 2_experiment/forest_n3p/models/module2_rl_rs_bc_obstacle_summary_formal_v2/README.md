@@ -39,6 +39,7 @@ python -m forest_n3p.scripts.train_bc_policy \
 | `checkpoint.pt` | `3156df44ca7f26da7f2e635707554bb1cd486164638b3a2d11075c3787670683` |
 | `history.json` | `3bc13c766f566ba2e0985bbb8d9a3f54a301cca1f450d3b6f7421b83f5df3491` |
 | `summary.json` | `73baacd42654fa63b94b2323d5612098e55a870a0e81064d53880f80d342a2d7` |
+| `eval_patch_bounded_rows.json` | `391ee3c26d8b578b24a463df4ff55583f1ebbc59acaec23ec8f74b30a56d3a3b` |
 
 ## Metrics
 
@@ -65,8 +66,21 @@ Closed loop with 0.1m rollout step:
 | truncated | 13 |
 | runtime error | 0 |
 
+Posthoc closed loop on the same 1024 bounded validation rows used by the
+patch-CNN pilot:
+
+| Metric | Value |
+|---|---:|
+| episodes | 242 |
+| terminal RS success | 101 |
+| collision | 131 |
+| truncated | 10 |
+| runtime error | 0 |
+
 ## Boundary
 
-Obstacle-summary BC remains stronger than scalar-only BC on formal-v2, but
-67/258 success is not enough for planner insertion. Patch-CNN formal-v2 must be
-rerun before selecting a PPO warm start.
+Obstacle-summary BC remains stronger than scalar-only BC on formal-v2. On the
+same bounded validation rows as the patch-CNN pilot, obstacle-summary reaches
+101/242 success versus patch-CNN's 63/242, making it the current practical
+PPO warm-start candidate. This is still not strong enough for planner insertion
+without PPO improvement.
