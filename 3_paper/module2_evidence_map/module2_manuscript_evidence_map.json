@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_manuscript_evidence_map",
   "status": "module2_manuscript_evidence_mapped",
-  "created_at_utc": "2026-07-04T09:52:46.964936+00:00",
-  "source_head": "1cd80e84890635848b82e2670ef2bd4a96b48335+dirty",
+  "created_at_utc": "2026-07-04T09:53:15.768062+00:00",
+  "source_head": "96f7c7dda7a1fe7a46fa4837caa057e6750f518c+dirty",
   "local_training_allowed": false,
   "remote_training_resource": "gpu3070ti-relay",
   "inputs": {

@@ -16,6 +16,10 @@
 - claim status: `allowed_method_structure`
 - evidence state: `mapped`
 - mapping blockers: none
+- manuscript source anchors:
+  - `learned analytic-expansion operator inside`: 3_paper/module2_section_seed/module2_paper_section_seed.tex:8 raw=True stripped=True
+  - `not a standalone global planner`: 3_paper/module2_section_seed/module2_paper_section_seed.tex:8 raw=True stripped=True
+  - `terminal RS`: 3_paper/module2_section_seed/module2_paper_section_seed.tex:11 raw=True stripped=True
 - evidence:
   - `0_trials/module2_claim_safety/module2_claim_safety.json` status=`blocked_formal_performance_claims`
   - `0_trials/module2_method_algorithms/module2_method_algorithms.json` status=`code_anchored`
@@ -27,6 +31,11 @@
 - claim status: `allowed_with_no_warm_scope_limit`
 - evidence state: `mapped`
 - mapping blockers: none
+- manuscript source anchors:
+  - `No-warm PPO Gate`: 3_paper/module2_section_seed/module2_paper_section_seed.tex:14 raw=True stripped=True
+  - `0.453125`: 3_paper/module2_section_seed/module2_paper_section_seed.tex:14 raw=True stripped=True
+  - `does not evaluate obstacle-summary warm-start`: 3_paper/module2_section_seed/module2_paper_section_seed.tex:14 raw=True stripped=True
+  - `Formal performance claims remain blocked`: 3_paper/module2_section_seed/module2_paper_section_seed.tex:14 raw=True stripped=True
 - evidence:
   - `0_trials/module2_claim_safety/module2_claim_safety.json` status=`blocked_formal_performance_claims`
   - `0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/gate3_formal_audit.json` status=`fail`
@@ -38,6 +47,9 @@
 - claim status: `blocked_placeholder_not_a_result_claim`
 - evidence state: `blocked_as_expected`
 - mapping blockers: none
+- manuscript source anchors:
+  - `Formal performance claims remain blocked`: 3_paper/module2_section_seed/module2_paper_section_seed.tex:14 raw=True stripped=True
+  - `% BLOCKED: formal_results`: 3_paper/module2_section_seed/module2_paper_section_seed.tex:16 raw=True stripped=False
 - evidence:
   - `3_paper/module2_claim_audit/module2_manuscript_claim_audit.json` status=`maintex_module2_claim_audit_passed`
   - `0_trials/module2_claim_safety/module2_claim_safety.json` status=`blocked_formal_performance_claims`
@@ -49,6 +61,9 @@
 - claim status: `blocked_placeholder_pending_f02_6`
 - evidence state: `blocked_as_expected`
 - mapping blockers: none
+- manuscript source anchors:
+  - `% BLOCKED: warm_start_effect`: 3_paper/module2_section_seed/module2_paper_section_seed.tex:17 raw=True stripped=False
+  - `does not evaluate obstacle-summary warm-start`: 3_paper/module2_section_seed/module2_paper_section_seed.tex:14 raw=True stripped=True
 - evidence:
   - `0_trials/module2_paper_readiness/module2_paper_readiness.json` status=`blocked`
   - `3_paper/module2_section_seed/module2_paper_section_seed.json` status=`blocked`

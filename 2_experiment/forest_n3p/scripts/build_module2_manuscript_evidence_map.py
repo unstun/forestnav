@@ -624,6 +624,18 @@ def _markdown(manifest: dict[str, Any]) -> str:
             lines.append("- mapping blockers: " + ", ".join(f"`{item}`" for item in unit["mapping_blockers"]))
         else:
             lines.append("- mapping blockers: none")
+        lines.append("- manuscript source anchors:")
+        for cue in unit.get("manuscript_cues", []):
+            cue_label = cue.get("cue")
+            anchors = cue.get("source_anchors", [])
+            if not anchors:
+                lines.append(f"  - `{cue_label}`: missing")
+                continue
+            anchor_text = "; ".join(
+                f"{anchor['path']}:{anchor['line']} raw={anchor['cue_in_raw_line']} stripped={anchor['cue_in_comment_stripped_line']}"
+                for anchor in anchors[:3]
+            )
+            lines.append(f"  - `{cue_label}`: {anchor_text}")
         lines.append("- evidence:")
         for evidence in unit.get("evidence", []):
             status = evidence.get("status")
