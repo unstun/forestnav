@@ -431,6 +431,55 @@ def _paper_readiness(*, complete):
     }
 
 
+def _handoff_bundle(*, complete, drift=False):
+    step_blockers = [] if complete else ["requires_dr_sun_approval"]
+    training_blockers = [] if complete else ["requires_dr_sun_approval", "remote_packet_not_ready"]
+    payload = {
+        "status": "ready_for_manual_remote_execution_review" if complete else "blocked_until_f02_6_decision",
+        "not_paper_result_material": True,
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+        "current_state": {
+            "decision_status": "approved" if complete else "pending_human_decision",
+            "ready_to_run_remote_training": complete,
+        },
+        "permissions_now": {
+            "remote_preflight_allowed_now": complete,
+            "remote_training_allowed_now": complete,
+            "formal_claim_allowed_now": complete,
+            "local_training_allowed_now": False,
+        },
+        "next_handoff_action": {
+            "action_id": "manual_execution_review" if complete else "record_f02_6_decision",
+            "requires_dr_sun": not complete,
+            "allowed_for_agent_now": False,
+        },
+        "remote_execution_steps": {
+            "sync_to_remote": _handoff_step(complete, False, step_blockers),
+            "run_remote_preflight": _handoff_step(complete, False, step_blockers),
+            "run_remote_training": _handoff_step(complete, True, training_blockers),
+            "run_remote_audit": _handoff_step(complete, False, training_blockers),
+        },
+        "safety_issue_count": 0,
+        "safety_issues": [],
+    }
+    if drift:
+        payload["safety_issue_count"] = 1
+        payload["safety_issues"] = [{"issue_id": "synthetic_handoff_drift"}]
+    return payload
+
+
+def _handoff_step(allowed, runs_training, blockers):
+    return {
+        "allowed_now": allowed,
+        "runs_training": runs_training,
+        "blocked_by": blockers,
+    }
+
+
 def _group(group_id, category, artifact_ids, *, complete):
     return {
         "group_id": group_id,

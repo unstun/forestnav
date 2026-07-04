@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_regeneration_plan",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-04T15:10:06.103810+00:00",
-  "source_head": "a75f74e3e639328a71d189ed8df34c46018b5ccd+dirty",
+  "created_at_utc": "2026-07-04T15:15:38.239714+00:00",
+  "source_head": "d457f8b63bfd6fb549463eeee64911d87ad76f95+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -86,11 +86,6 @@
     ],
     "formal_claim_gate": [
       {
-        "artifact_id": "claim_safety",
-        "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
-        "freshness_state": "historical_clean"
-      },
-      {
         "artifact_id": "formal_gate_missing_artifacts",
         "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
         "freshness_state": "historical_dirty"
@@ -98,12 +93,12 @@
       {
         "artifact_id": "formal_gate_status_report",
         "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
-        "freshness_state": "historical_dirty"
+        "freshness_state": "current_dirty"
       },
       {
         "artifact_id": "paper_readiness",
         "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
-        "freshness_state": "historical_dirty"
+        "freshness_state": "current_dirty"
       }
     ]
   },
@@ -312,7 +307,6 @@
       "requires_human_input": false,
       "action": "Regenerate claim safety and paper readiness only after H02 formal acceptance.",
       "evidence_paths": [
-        "0_trials/module2_claim_safety/module2_claim_safety.json",
         "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
         "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
         "0_trials/module2_paper_readiness/module2_paper_readiness.json"

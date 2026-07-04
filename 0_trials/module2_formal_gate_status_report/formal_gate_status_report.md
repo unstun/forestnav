@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `01c57e4da7473cff42e2aafbd62431772eae0bb6+dirty`
+- source_head: `d457f8b63bfd6fb549463eeee64911d87ad76f95+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -34,6 +34,10 @@ This file is a read-only formal-gate status report. It does not execute commands
 - claim_safety_formal_performance_claim_allowed: `False`
 - paper_readiness_status: `partial_methods_ready_results_blocked`
 - paper_readiness_formal_results_ready: `False`
+- handoff_bundle_status: `blocked_until_f02_6_decision`
+- handoff_bundle_next_action: `record_f02_6_decision`
+- handoff_bundle_safety_issue_count: `0`
+- handoff_bundle_remote_training_allowed_now: `False`
 
 ## Next Blocked Lane
 
@@ -85,6 +89,18 @@ This file is a read-only formal-gate status report. It does not execute commands
 - `approved_remote_preflight`: present=`True`, allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`True`, host=`gpu3070ti-relay`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open`
 - `gate3_remote_training`: present=`True`, allowed_now=`False`, runs_training=`True`, runs_remote_preflight=`False`, host=`gpu3070ti-relay`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 - `gate3_remote_audit_pullback`: present=`True`, allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`False`, host=`gpu3070ti-relay`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
+
+## Formal Gate Handoff Bundle
+
+- present: `True`
+- status: `blocked_until_f02_6_decision`
+- next_handoff_action: `record_f02_6_decision`
+- safety_issue_count: `0`
+- remote_training_allowed_now: `False`
+- `sync_to_remote`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`requires_dr_sun_approval`
+- `run_remote_preflight`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`requires_dr_sun_approval`
+- `run_remote_training`: present=`True`, allowed_now=`False`, runs_training=`True`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_packet_not_ready`
+- `run_remote_audit`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_packet_not_ready`
 
 ## Required Training Artifacts
 

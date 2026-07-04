@@ -24,7 +24,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - runs_remote_preflight: `False`
 - formal_claim_allowed: `False`
 - regeneration_required_before_remote_formal_execution: `True`
-- ordered_regeneration_target_count: `15`
+- ordered_regeneration_target_count: `14`
 
 ### Source Freshness Regeneration Targets
 
@@ -39,10 +39,9 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - `remote_packet_safety_audit`: `historical_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
 - `h01_evaluation_manifest`: `historical_dirty`, required before `formal_h01_h02`, path `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`
 - `h02_formal_acceptance`: `historical_dirty`, required before `formal_h01_h02`, path `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
-- `claim_safety`: `historical_clean`, required before `formal_claim_gate`, path `0_trials/module2_claim_safety/module2_claim_safety.json`
 - `formal_gate_missing_artifacts`: `historical_dirty`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json`
-- `formal_gate_status_report`: `historical_dirty`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`
-- `paper_readiness`: `historical_dirty`, required before `formal_claim_gate`, path `0_trials/module2_paper_readiness/module2_paper_readiness.json`
+- `formal_gate_status_report`: `current_dirty`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`
+- `paper_readiness`: `current_dirty`, required before `formal_claim_gate`, path `0_trials/module2_paper_readiness/module2_paper_readiness.json`
 
 ## Missing Artifacts Inventory
 
