@@ -320,6 +320,48 @@ def test_remote_packet_safety_audit_requires_post_plan_status_report_execution_v
     assert "post_plan_missing_status_report_execution_veto_summary" in issue_ids
 
 
+def test_remote_packet_safety_audit_requires_remaining_deliverables_gap_summary(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
+    plan_audit = _plan_audit_payload()
+    plan_audit.pop("remaining_deliverables_gap_summary")
+    plan_audit["status_report_summary"].pop("remaining_deliverables_gap_summary")
+
+    manifest = auditor.build_manifest(
+        auditor.RemotePacketSafetyAuditConfig(
+            output_dir=tmp_path,
+            remote_packet_path=_json(tmp_path, "packet.json", _packet_payload()),
+            decision_gate_audit_path=_json(tmp_path, "decision_gate.json", _decision_gate_payload()),
+            post_plan_audit_path=_json(tmp_path, "plan_audit.json", plan_audit),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "remote_packet_safety_audit_failed"
+    assert "post_plan_missing_remaining_deliverables_gap_summary" in issue_ids
+    assert "post_plan_missing_status_report_remaining_deliverables_gap_summary" in issue_ids
+
+
+def test_remote_packet_safety_audit_rejects_remaining_deliverables_gap_summary_drift(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
+    plan_audit = _plan_audit_payload()
+    plan_audit["remaining_deliverables_gap_summary"]["categories"]["training"]["missing_count"] = 2
+    plan_audit["status_report_summary"]["formal_claim_allowed_now"] = True
+
+    manifest = auditor.build_manifest(
+        auditor.RemotePacketSafetyAuditConfig(
+            output_dir=tmp_path,
+            remote_packet_path=_json(tmp_path, "packet.json", _packet_payload()),
+            decision_gate_audit_path=_json(tmp_path, "decision_gate.json", _decision_gate_payload()),
+            post_plan_audit_path=_json(tmp_path, "plan_audit.json", plan_audit),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "remote_packet_safety_audit_failed"
+    assert "post_plan_status_report_remaining_deliverables_gap_summary_mismatch" in issue_ids
+    assert "status_report_allows_formal_claim_with_remaining_gap_open" in issue_ids
+
+
 def test_remote_packet_safety_audit_catches_status_report_execution_veto_drift(tmp_path):
     auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
     plan_audit = _plan_audit_payload()
