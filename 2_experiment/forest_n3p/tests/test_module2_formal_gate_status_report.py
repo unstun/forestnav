@@ -325,7 +325,7 @@ def test_formal_gate_status_report_requires_remaining_deliverables_acceptance_ma
     assert "remaining_deliverables_acceptance_matrix_count_mismatch" in issue_ids
     assert "remaining_deliverables_training_train_final_model_zip_missing_acceptance_predicates" in issue_ids
     assert "remaining_deliverables_training_train_summary_json_stage_allowed_while_blocked" in issue_ids
-    assert "remaining_deliverables_acceptance_missing_formal_acceptance:h02_formal_output_acceptance" in issue_ids
+    assert "remaining_deliverables_acceptance_missing_formal_acceptance_h02_formal_output_acceptance" in issue_ids
     assert manifest["remaining_deliverables_acceptance_summary"]["matrix_row_count"] == 9
 
 
