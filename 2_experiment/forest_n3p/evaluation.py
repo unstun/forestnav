@@ -123,6 +123,8 @@ class GroupSummary:
     mean_direction_switches: float | None
     median_min_clearance_m: float | None
     collision_violation_total: int
+    timeout_failure_count: int
+    timeout_failure_rate: float
     fallback_trigger_rate: float
     fallback_f1_rate: float
     fallback_f2_rate: float
@@ -440,6 +442,8 @@ def summarize_by_method_bucket(records: Iterable[EvaluationRecord]) -> tuple[Gro
                 mean_direction_switches=_mean(row.direction_switches for row in group),
                 median_min_clearance_m=_percentile((row.min_clearance_m for row in group), 50),
                 collision_violation_total=sum(int(row.collision_violation_count) for row in group),
+                timeout_failure_count=sum(1 for row in group if _is_timeout_failure(row.failure_reason)),
+                timeout_failure_rate=_ratio(sum(1 for row in group if _is_timeout_failure(row.failure_reason)), count),
                 fallback_trigger_rate=_ratio(sum(1 for row in group if row.fallback_triggered), count),
                 fallback_f1_rate=_ratio(sum(1 for row in group if row.fallback_f1_count > 0), count),
                 fallback_f2_rate=_ratio(sum(1 for row in group if row.fallback_f2_count > 0), count),
@@ -717,6 +721,10 @@ def _safe_rate(numerator: int | None, denominator: int | None) -> float | None:
 
 def _ratio(numerator: int, denominator: int) -> float:
     return 0.0 if int(denominator) <= 0 else float(numerator) / float(denominator)
+
+
+def _is_timeout_failure(failure_reason: str | None) -> bool:
+    return failure_reason is not None and "timeout" in str(failure_reason).lower()
 
 
 def _finite(values: Iterable[float | int | None]) -> list[float]:
