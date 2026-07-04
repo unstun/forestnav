@@ -453,6 +453,220 @@ def _source_freshness_gaps(*, source_freshness: dict[str, Any], source_freshness
     return _unique_gaps(gaps)
 
 
+def _handoff_bundle_gaps(*, handoff_bundle: dict[str, Any], handoff_bundle_path: Path, remote: dict[str, Any]) -> list[dict[str, Any]]:
+    if not Path(handoff_bundle_path).is_file():
+        return [
+            _gap(
+                "training",
+                "handoff_bundle_missing",
+                "No formal gate handoff bundle is available for execution veto cross-checking.",
+                str(handoff_bundle_path),
+                "Regenerate the read-only handoff bundle before approved remote preflight or formal training.",
+            )
+        ]
+    gaps: list[dict[str, Any]] = []
+    for key, gap_id, why in (
+        ("executes_commands", "handoff_bundle_executes_commands", "Handoff bundle must be read-only and must not execute commands."),
+        ("runs_training", "handoff_bundle_runs_training", "Handoff bundle claims it ran training; handoff must remain non-executing."),
+        ("runs_remote_preflight", "handoff_bundle_runs_preflight", "Handoff bundle claims it ran remote preflight; handoff must remain non-executing."),
+        ("local_training_allowed", "handoff_bundle_allows_local_training", "Handoff bundle does not preserve the local-training prohibition."),
+        ("formal_claim_allowed", "handoff_bundle_allows_formal_claim", "Handoff bundle incorrectly allows formal claims."),
+    ):
+        if handoff_bundle.get(key) is not False:
+            gaps.append(_gap("training", gap_id, why, str(handoff_bundle_path), "Regenerate handoff as a read-only non-result gate artifact."))
+
+    if int(handoff_bundle.get("safety_issue_count") or 0) > 0:
+        gaps.append(
+            _gap(
+                "training",
+                "handoff_safety_issues_open",
+                f"Handoff bundle reports {handoff_bundle.get('safety_issue_count')} safety issues.",
+                str(handoff_bundle_path),
+                "Resolve handoff safety issues before approved remote execution.",
+            )
+        )
+
+    permissions = handoff_bundle.get("permissions_now") if isinstance(handoff_bundle.get("permissions_now"), dict) else {}
+    current_state = handoff_bundle.get("current_state") if isinstance(handoff_bundle.get("current_state"), dict) else {}
+    if current_state.get("decision_status") == "pending_human_decision":
+        for permission_key in ("remote_preflight_allowed_now", "remote_training_allowed_now", "formal_claim_allowed_now"):
+            if permissions.get(permission_key) is True:
+                gaps.append(
+                    _gap(
+                        "training",
+                        f"handoff_pending_allows_{permission_key}",
+                        f"Handoff permission {permission_key} is true while F02.6 is still pending.",
+                        str(handoff_bundle_path),
+                        "Keep all executable and formal-claim permissions false until Dr Sun closes F02.6.",
+                    )
+                )
+
+    handoff_steps = handoff_bundle.get("remote_execution_steps") if isinstance(handoff_bundle.get("remote_execution_steps"), dict) else {}
+    if not handoff_steps:
+        gaps.append(
+            _gap(
+                "training",
+                "handoff_missing_remote_execution_steps",
+                "Handoff bundle does not expose remote_execution_steps for cross-checking.",
+                str(handoff_bundle_path),
+                "Regenerate handoff with sync/preflight/training/audit step summaries.",
+            )
+        )
+        return _unique_gaps(gaps)
+
+    for step_id in REMOTE_EXECUTION_STEP_IDS:
+        handoff_step = _step(handoff_steps, step_id)
+        remote_step = _remote_packet_step(remote, step_id)
+        if not handoff_step:
+            gaps.append(
+                _gap(
+                    "training",
+                    f"handoff_missing_{step_id}",
+                    f"Handoff bundle is missing remote execution step {step_id}.",
+                    str(handoff_bundle_path),
+                    "Regenerate handoff with every remote packet step represented.",
+                )
+            )
+            continue
+        if step_id == "run_remote_training" and handoff_step.get("runs_training") is not True:
+            gaps.append(
+                _gap(
+                    "training",
+                    "handoff_training_step_not_marked_training",
+                    "Handoff run_remote_training is not marked as the training step.",
+                    str(handoff_bundle_path),
+                    "Keep exactly the remote training step marked runs_training=true.",
+                )
+            )
+        if step_id != "run_remote_training" and handoff_step.get("runs_training") is True:
+            gaps.append(
+                _gap(
+                    "training",
+                    f"handoff_{step_id}_claims_training",
+                    f"Handoff {step_id} is incorrectly marked as training.",
+                    str(handoff_bundle_path),
+                    "Only run_remote_training may be marked as training.",
+                )
+            )
+        if handoff_step.get("allowed_now") != remote_step.get("allowed_now"):
+            gaps.append(
+                _gap(
+                    "training",
+                    f"handoff_step_allowed_mismatch_{step_id}",
+                    f"Handoff {step_id}.allowed_now={handoff_step.get('allowed_now')} does not match remote packet {remote_step.get('allowed_now')}.",
+                    str(handoff_bundle_path),
+                    "Regenerate handoff from the current remote execution packet.",
+                )
+            )
+        if _strings(handoff_step.get("blocked_by")) != _strings(remote_step.get("blocked_by")):
+            gaps.append(
+                _gap(
+                    "training",
+                    f"handoff_step_blockers_mismatch_{step_id}",
+                    f"Handoff {step_id}.blocked_by does not match the remote packet.",
+                    str(handoff_bundle_path),
+                    "Regenerate handoff from the current remote execution packet blockers.",
+                )
+            )
+    return _unique_gaps(gaps)
+
+
+def _remote_packet_safety_gaps(
+    *,
+    remote_packet_safety: dict[str, Any],
+    remote_packet_safety_path: Path,
+    remote: dict[str, Any],
+) -> list[dict[str, Any]]:
+    if not Path(remote_packet_safety_path).is_file():
+        return [
+            _gap(
+                "training",
+                "remote_packet_safety_audit_missing",
+                "No remote packet safety audit is available for execution veto cross-checking.",
+                str(remote_packet_safety_path),
+                "Regenerate remote packet safety audit before approved remote preflight or formal training.",
+            )
+        ]
+    gaps: list[dict[str, Any]] = []
+    for key, gap_id, why in (
+        ("executes_commands", "remote_packet_safety_executes_commands", "Remote packet safety audit must be read-only."),
+        ("runs_training", "remote_packet_safety_runs_training", "Remote packet safety audit must not run training."),
+        ("runs_remote_preflight", "remote_packet_safety_runs_preflight", "Remote packet safety audit must not run remote preflight."),
+        ("local_training_allowed", "remote_packet_safety_allows_local_training", "Remote packet safety audit must preserve local-training prohibition."),
+        ("formal_claim_allowed", "remote_packet_safety_allows_formal_claim", "Remote packet safety audit must not allow formal claims."),
+    ):
+        if remote_packet_safety.get(key) is not False:
+            gaps.append(_gap("training", gap_id, why, str(remote_packet_safety_path), "Regenerate the audit as a read-only non-result gate artifact."))
+
+    if remote_packet_safety.get("status") != "remote_packet_safety_audit_passed":
+        gaps.append(
+            _gap(
+                "training",
+                "remote_packet_safety_audit_failed",
+                f"Remote packet safety audit status is {remote_packet_safety.get('status')}.",
+                str(remote_packet_safety_path),
+                "Fix the remote execution packet or post-plan/status cross-gates before approved remote execution.",
+            )
+        )
+    if int(remote_packet_safety.get("audit_issue_count") or 0) > 0:
+        gaps.append(
+            _gap(
+                "training",
+                "remote_packet_safety_audit_issues_open",
+                f"Remote packet safety audit reports {remote_packet_safety.get('audit_issue_count')} issues.",
+                str(remote_packet_safety_path),
+                "Resolve every remote packet safety issue before approved remote execution.",
+            )
+        )
+
+    packet_summary = remote_packet_safety.get("packet_summary") if isinstance(remote_packet_safety.get("packet_summary"), dict) else {}
+    if not packet_summary:
+        gaps.append(
+            _gap(
+                "training",
+                "remote_packet_safety_missing_packet_summary",
+                "Remote packet safety audit does not expose packet_summary.",
+                str(remote_packet_safety_path),
+                "Regenerate safety audit with a remote packet summary.",
+            )
+        )
+        return _unique_gaps(gaps)
+
+    if packet_summary.get("status") != remote.get("status"):
+        gaps.append(
+            _gap(
+                "training",
+                "remote_packet_safety_stale_status",
+                f"Safety audit packet status {packet_summary.get('status')} does not match remote packet {remote.get('status')}.",
+                str(remote_packet_safety_path),
+                "Regenerate safety audit from the current remote execution packet.",
+            )
+        )
+    for step_id, (allowed_key, blocked_key) in REMOTE_PACKET_SAFETY_STEP_MAP.items():
+        remote_step = _remote_packet_step(remote, step_id)
+        if packet_summary.get(allowed_key) != remote_step.get("allowed_now"):
+            gaps.append(
+                _gap(
+                    "training",
+                    f"remote_packet_safety_allowed_mismatch_{step_id}",
+                    f"Safety audit {allowed_key}={packet_summary.get(allowed_key)} does not match remote packet {remote_step.get('allowed_now')}.",
+                    str(remote_packet_safety_path),
+                    "Regenerate safety audit from the current remote execution packet.",
+                )
+            )
+        if _strings(packet_summary.get(blocked_key)) != _strings(remote_step.get("blocked_by")):
+            gaps.append(
+                _gap(
+                    "training",
+                    f"remote_packet_safety_blockers_mismatch_{step_id}",
+                    f"Safety audit {blocked_key} does not match remote packet blockers.",
+                    str(remote_packet_safety_path),
+                    "Regenerate safety audit from the current remote execution packet blockers.",
+                )
+            )
+    return _unique_gaps(gaps)
+
+
 def _evaluation_gaps(*, h01: dict[str, Any], h02: dict[str, Any]) -> list[dict[str, Any]]:
     gaps: list[dict[str, Any]] = []
     if str(h01.get("status")) not in {"ready", "formal_ready", "ready_for_formal_run", "ready_for_formal_evaluation"}:
