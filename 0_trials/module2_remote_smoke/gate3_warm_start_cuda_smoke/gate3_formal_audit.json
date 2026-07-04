@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "audit_name": "module2_f03_gate3_formal_audit",
+  "created_at_utc": "2026-07-04T05:45:47.921031+00:00",
+  "execution_host": "ubuntu-OMEN-by-HP-Laptop-17-ck1xxx",
+  "source_head": "unknown",
+  "command": "python -m forest_n3p.scripts.audit_rl_rs_gate3_trial --trial-dir 0_trials/module2_remote_smoke/gate3_warm_start_cuda_smoke --min-formal-episodes 64 --required-success-threshold 0.8 --required-train-curriculum f03 --required-eval-curriculum f03 --warm-start-decision pending",
+  "trial_dir": "0_trials/module2_remote_smoke/gate3_warm_start_cuda_smoke",
+  "contract": ".pipeline/contracts/module2-ppo-funnel-expansion.md",
+  "formal_decision": "not_formal",
+  "formal_claim_allowed": false,
+  "formal_blockers": [
+    {
+      "code": "smoke_trial",
+      "message": "runner manifest has smoke=true"
+    },
+    {
+      "code": "train_curriculum_not_f03",
+      "message": "train curriculum is 'open', expected 'f03'",
+      "observed": "open",
+      "expected": "f03"
+    },
+    {
+      "code": "eval_curriculum_not_f03",
+      "message": "eval curriculum is 'open', expected 'f03'",
+      "observed": "open",
+      "expected": "f03"
+    },
+    {
+      "code": "insufficient_eval_episodes",
+      "message": "episodes=4, min_episodes=4, required=64",
+      "observed": {
+        "episodes": 4,
+        "min_episodes": 4
+      },
+      "expected": {
+        ">=": 64
+      }
+    },
+    {
+      "code": "warm_start_decision_pending",
+      "message": "warm-start was used but F02.6 is still pending",
+      "observed": "applied_obstacle_summary_bc",
+      "expected": "approved_obstacle_summary or not_used"
+    }
+  ],
+  "formal_warnings": [],
+  "evaluator_decision": "pass",
+  "episodes": 4,
+  "min_formal_episodes": 64,
+  "terminal_rs_success_rate": 1.0,
+  "success_threshold": 0.8,
+  "required_success_threshold": 0.8,
+  "train_curriculum_preset": "open",
+  "eval_curriculum_preset": "open",
+  "warm_start_status": "applied_obstacle_summary_bc",
+  "warm_start_decision": "pending",
+  "artifact_manifest": "0_trials/module2_remote_smoke/gate3_warm_start_cuda_smoke/gate3_trial_manifest.json"
+}
