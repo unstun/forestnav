@@ -58,10 +58,19 @@ def test_manuscript_evidence_map_links_claim_units_to_sources(tmp_path):
     units = {item["unit_id"]: item for item in manifest["claim_units"]}
     assert units["method_is_ha_star_analytic_operator"]["evidence_state"] == "mapped"
     assert units["method_is_ha_star_analytic_operator"]["code_anchors"]
+    method_cue = units["method_is_ha_star_analytic_operator"]["manuscript_cues"][0]
+    assert method_cue["source_anchors"]
+    assert method_cue["source_anchors"][0]["path"].endswith("module2_paper_section_seed.tex")
+    assert method_cue["source_anchors"][0]["line"] == 3
+    assert method_cue["source_anchors"][0]["cue_in_comment_stripped_line"] is True
     assert units["no_warm_gate3_formal_failure"]["evidence_state"] == "mapped"
     assert units["no_warm_gate3_formal_failure"]["metric_values"]["terminal_rs_success_rate"] == 0.453125
     assert units["formal_results_blocked"]["evidence_state"] == "blocked_as_expected"
     assert "missing_module2_rl_rs_checkpoint" in units["formal_results_blocked"]["paper_blockers"]
+    formal_comment_cue = units["formal_results_blocked"]["manuscript_cues"][1]
+    assert formal_comment_cue["source_anchors"][0]["line"] == 8
+    assert formal_comment_cue["source_anchors"][0]["cue_in_raw_line"] is True
+    assert formal_comment_cue["source_anchors"][0]["cue_in_comment_stripped_line"] is False
     assert units["warm_start_effect_blocked"]["evidence_state"] == "blocked_as_expected"
     assert "requires_dr_sun_approval" in units["warm_start_effect_blocked"]["paper_blockers"]
     assert "module2_manuscript_evidence_mapped" in markdown
