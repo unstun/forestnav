@@ -139,10 +139,18 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert manifest["input_status"]["status_report_missing_artifacts_open_requirement_count"] == 0
     assert manifest["input_status"]["status_report_missing_artifacts_remote_training_allowed_now"] is True
     assert manifest["input_status"]["status_report_missing_artifacts_formal_result_material_allowed_now"] is False
+    assert manifest["input_status"]["status_report_requirement_stage_mapped_count"] == 4
+    assert manifest["input_status"]["status_report_requirement_stage_unmapped_count"] == 0
+    assert manifest["input_status"]["status_report_requirement_stage_mismatched_count"] == 0
+    assert manifest["input_status"]["status_report_requirement_stage_blocked_stage_count"] == 0
     assert manifest["input_status"]["status_report_closure_remote_training_allowed_now"] is True
     assert manifest["input_status"]["status_report_remote_packet_training_allowed_now"] is True
     assert manifest["status_report_handoff_summary"]["transition_gate_status"] == "f02_6_transition_gate_audit_passed"
     assert manifest["status_report_missing_artifacts_handoff_summary"]["status"] == "formal_gate_evidence_ready_for_h01_h02_claim_gates"
+    assert manifest["status_report_requirement_stage_summary"]["mapped_requirement_count"] == 4
+    assert manifest["status_report_requirement_stage_summary"]["requirements"]["training_remote_ppo_checkpoint"][
+        "responsible_stage_id"
+    ] == "gate3_remote_training"
     assert manifest["status_report_remote_gate_summary"]["closure_remote_stage_summary"]["gate3_remote_training"] == {
         "present": True,
         "status": "ready",
