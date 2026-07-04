@@ -3,7 +3,7 @@
 This file records gate artifact source-head freshness. It is not a training run, remote preflight, paper table, or result claim.
 
 - status: `source_freshness_risks_recorded_gate_still_blocked`
-- current_head: `1cb9f5e32e3b27b40e32bc591c5ed5d83766eb87`
+- current_head: `59caee5cc01ed95e6e8d5d82384dafdb09292d45`
 - runs_training: `False`
 - runs_remote_preflight: `False`
 - formal_claim_allowed: `False`
@@ -11,8 +11,9 @@ This file records gate artifact source-head freshness. It is not a training run,
 
 ## Risk Counts
 
+- `current_dirty`: `1`
 - `historical_clean`: `3`
-- `historical_dirty`: `13`
+- `historical_dirty`: `12`
 
 ## Regeneration Targets
 
@@ -31,7 +32,7 @@ This file records gate artifact source-head freshness. It is not a training run,
 - `claim_safety`: `historical_clean`, required before `formal_claim_gate`, path `0_trials/module2_claim_safety/module2_claim_safety.json`
 - `formal_gate_missing_artifacts`: `historical_dirty`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json`
 - `formal_gate_status_report`: `historical_dirty`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`
-- `paper_readiness`: `historical_dirty`, required before `formal_claim_gate`, path `0_trials/module2_paper_readiness/module2_paper_readiness.json`
+- `paper_readiness`: `current_dirty`, required before `formal_claim_gate`, path `0_trials/module2_paper_readiness/module2_paper_readiness.json`
 
 ## Artifact Records
 
@@ -41,16 +42,16 @@ This file records gate artifact source-head freshness. It is not a training run,
 - `remote_formal_execution_packet`: status=`blocked_until_f02_6_decision`, freshness=`historical_dirty`, source_head=`01c57e4da7473cff42e2aafbd62431772eae0bb6+dirty`
 - `h01_evaluation_manifest`: status=`blocked_pending_decisions`, freshness=`historical_dirty`, source_head=`4887f66ce6b4d32ce269d9da7d4a691e0ba5e5f6+dirty`
 - `h02_formal_acceptance`: status=`blocked_formal_output_acceptance`, freshness=`historical_dirty`, source_head=`5c4bf4a43c55f74b14f893e8f64dec84eb9d66ad+dirty`
-- `claim_safety`: status=`blocked_formal_performance_claims`, freshness=`historical_clean`, source_head=`073c271fb77714de6c498cd5114704d239faf8f8`
-- `paper_readiness`: status=`partial_methods_ready_results_blocked`, freshness=`historical_dirty`, source_head=`073c271fb77714de6c498cd5114704d239faf8f8+dirty`
-- `formal_gate_gap_audit`: status=`blocked_formal_gate_gaps_open`, freshness=`historical_dirty`, source_head=`6448a955286c0d56b8d8744c9885fa12f6f71120+dirty`
-- `post_f02_6_plan_audit`: status=`post_f02_6_plan_audit_failed`, freshness=`historical_dirty`, source_head=`6448a955286c0d56b8d8744c9885fa12f6f71120+dirty`
-- `remote_packet_safety_audit`: status=`remote_packet_safety_audit_passed`, freshness=`historical_dirty`, source_head=`6448a955286c0d56b8d8744c9885fa12f6f71120+dirty`
-- `formal_gate_closure_checklist`: status=`formal_gate_closure_blocked`, freshness=`historical_dirty`, source_head=`6448a955286c0d56b8d8744c9885fa12f6f71120+dirty`
+- `claim_safety`: status=`blocked_formal_performance_claims`, freshness=`historical_clean`, source_head=`3a61e339f6feda7c73ce96789159f32ba20b4168`
+- `paper_readiness`: status=`partial_methods_ready_results_blocked`, freshness=`current_dirty`, source_head=`59caee5cc01ed95e6e8d5d82384dafdb09292d45+dirty`
+- `formal_gate_gap_audit`: status=`blocked_formal_gate_gaps_open`, freshness=`historical_dirty`, source_head=`1cb9f5e32e3b27b40e32bc591c5ed5d83766eb87+dirty`
+- `post_f02_6_plan_audit`: status=`post_f02_6_plan_audit_passed`, freshness=`historical_dirty`, source_head=`1cb9f5e32e3b27b40e32bc591c5ed5d83766eb87+dirty`
+- `remote_packet_safety_audit`: status=`remote_packet_safety_audit_passed`, freshness=`historical_dirty`, source_head=`1cb9f5e32e3b27b40e32bc591c5ed5d83766eb87+dirty`
+- `formal_gate_closure_checklist`: status=`formal_gate_closure_blocked`, freshness=`historical_dirty`, source_head=`1cb9f5e32e3b27b40e32bc591c5ed5d83766eb87+dirty`
 - `gpu3070ti_readiness_refresh`: status=`remote_readiness_refreshed_f02_6_still_blocked`, freshness=`historical_clean`, source_head=`033356f27e5255c60d64a78753054b86ef2a0428`
-- `formal_gate_missing_artifacts`: status=`formal_gate_missing_artifacts_open`, freshness=`historical_dirty`, source_head=`6448a955286c0d56b8d8744c9885fa12f6f71120+dirty`
-- `formal_gate_status_report`: status=`formal_gate_status_blocked`, freshness=`historical_dirty`, source_head=`6448a955286c0d56b8d8744c9885fa12f6f71120+dirty`
-- `formal_gate_handoff_bundle`: status=`blocked_until_f02_6_decision`, freshness=`historical_clean`, source_head=`6448a955286c0d56b8d8744c9885fa12f6f71120`
+- `formal_gate_missing_artifacts`: status=`formal_gate_missing_artifacts_open`, freshness=`historical_dirty`, source_head=`1cb9f5e32e3b27b40e32bc591c5ed5d83766eb87+dirty`
+- `formal_gate_status_report`: status=`formal_gate_status_blocked`, freshness=`historical_dirty`, source_head=`1cb9f5e32e3b27b40e32bc591c5ed5d83766eb87+dirty`
+- `formal_gate_handoff_bundle`: status=`blocked_until_f02_6_decision`, freshness=`historical_clean`, source_head=`1cb9f5e32e3b27b40e32bc591c5ed5d83766eb87`
 
 ## Claim Boundaries
 

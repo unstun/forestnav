@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_gap_audit",
   "status": "blocked_formal_gate_gaps_open",
-  "created_at_utc": "2026-07-04T16:34:44.437687+00:00",
-  "source_head": "1cb9f5e32e3b27b40e32bc591c5ed5d83766eb87+dirty",
+  "created_at_utc": "2026-07-04T16:43:01.275758+00:00",
+  "source_head": "59caee5cc01ed95e6e8d5d82384dafdb09292d45+dirty",
   "not_paper_result_material": true,
   "local_training_allowed": false,
   "remote_training_resource": "gpu3070ti-relay",
@@ -36,8 +36,9 @@
     "formal_claim_allowed": false,
     "regeneration_required_before_remote_formal_execution": true,
     "risk_counts": {
-      "historical_dirty": 13,
-      "historical_clean": 3
+      "historical_dirty": 12,
+      "historical_clean": 3,
+      "current_dirty": 1
     },
     "ordered_regeneration_target_count": 16,
     "ordered_regeneration_targets": [
@@ -134,7 +135,7 @@
       {
         "artifact_id": "paper_readiness",
         "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
-        "freshness_state": "historical_dirty",
+        "freshness_state": "current_dirty",
         "required_before": "formal_claim_gate"
       }
     ]

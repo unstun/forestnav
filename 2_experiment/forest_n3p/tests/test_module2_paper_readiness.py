@@ -55,6 +55,10 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert "f02_6_pending" in manifest["global_blockers"]
     assert "formal_gate_status_report_blocked" in manifest["global_blockers"]
     assert manifest["input_status"]["status_report_status"] == "formal_gate_status_blocked"
+    assert manifest["input_status"]["claim_safety_handoff_status"] == "blocked_until_f02_6_decision"
+    assert manifest["input_status"]["claim_safety_transition_gate_status"] == "f02_6_transition_gate_audit_passed"
+    assert manifest["input_status"]["claim_safety_transition_gate_audit_issue_count"] == 0
+    assert manifest["input_status"]["claim_safety_handoff_safety_issue_count"] == 0
 
     sections = {item["section_id"]: item for item in manifest["section_readiness"]}
     assert sections["method_algorithm"]["status"] == "ready_to_write"
@@ -90,6 +94,8 @@ def test_paper_readiness_accepts_synthetic_complete_evidence(tmp_path):
     assert manifest["status"] == "paper_evidence_ready"
     assert manifest["manuscript_ready"] is True
     assert manifest["global_blockers"] == []
+    assert manifest["input_status"]["claim_safety_handoff_status"] == "ready_for_manual_remote_execution_review"
+    assert manifest["input_status"]["claim_safety_transition_gate_status"] == "f02_6_transition_gate_audit_passed"
     assert all(item["status"] != "blocked" for item in manifest["section_readiness"])
     assert "formal_performance_improvement" in manifest["conditional_claim_ids"]
 
@@ -150,6 +156,16 @@ def _write_inputs(tmp_path, *, formal):
             "status": "formal_performance_claims_allowed" if formal else "blocked_formal_performance_claims",
             "formal_performance_claim_allowed": formal,
             "formal_performance_blockers": [] if formal else ["h02_formal_acceptance_not_accepted", "f02_6_pending"],
+            "status_report_handoff_summary": {
+                "present": True,
+                "status": "ready_for_manual_remote_execution_review" if formal else "blocked_until_f02_6_decision",
+                "transition_gate_status": "f02_6_transition_gate_audit_passed",
+                "transition_gate_audit_issue_count": 0,
+                "safety_issue_count": 0,
+                "remote_training_allowed_now": formal,
+                "remote_preflight_allowed_now": formal,
+                "formal_claim_allowed_now": formal,
+            },
             "allowed_claims": [
                 {"claim_id": "method_is_ha_star_analytic_operator", "scope": "method_structure"},
                 {"claim_id": "no_warm_gate3_formal_failure", "scope": "no_warm_only"},
