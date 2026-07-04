@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `d2fb6171ad9c587543dc72a5308780acfad9fea8+dirty`
+- source_head: `4368599f29da0e63bc272d3ef2facfcc942c5d47+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -32,6 +32,10 @@ This file is a read-only formal-gate status report. It does not execute commands
 - remote_packet_preflight_allowed_now: `False`
 - remote_packet_training_allowed_now: `False`
 - remote_packet_audit_allowed_now: `False`
+- remote_preflight_requirement_satisfied_count: `2`
+- remote_preflight_requirement_blocked_count: `2`
+- post_run_acceptance_requirement_satisfied_count: `0`
+- post_run_acceptance_requirement_blocked_count: `4`
 - h01_status: `blocked_pending_decisions`
 - h02_status: `blocked_formal_output_acceptance`
 - h02_formal_output_accepted: `False`
@@ -94,6 +98,26 @@ This file is a read-only formal-gate status report. It does not execute commands
 - `run_remote_preflight`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`requires_dr_sun_approval`
 - `run_remote_training`: present=`True`, allowed_now=`False`, runs_training=`True`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_packet_not_ready`
 - `run_remote_audit`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_packet_not_ready`
+
+## Remote Preflight Requirement Matrix
+
+- present: `True`
+- status_counts: `{'blocked_missing_preflight': 2, 'satisfied': 2}`
+- blocked_requirement_count: `2`
+- `f02_6_decision_closed_for_preflight`: status=`blocked_missing_preflight`, complete=`False`, execution_allowed_now=`False`, blocked_by=`requires_dr_sun_approval`
+- `approved_remote_preflight_manifest`: status=`blocked_missing_preflight`, complete=`False`, execution_allowed_now=`False`, blocked_by=`warm_start_decision_pending`
+- `remote_preflight_protocol_contract`: status=`satisfied`, complete=`True`, execution_allowed_now=`False`, blocked_by=`none`
+- `remote_preflight_command_packetized`: status=`satisfied`, complete=`True`, execution_allowed_now=`False`, blocked_by=`requires_dr_sun_approval`
+
+## Post-Run Acceptance Requirement Matrix
+
+- present: `True`
+- status_counts: `{'blocked_until_remote_audit': 4}`
+- blocked_requirement_count: `4`
+- `pullback_expected_artifacts_complete`: status=`blocked_until_remote_audit`, complete=`False`, remote_training_ready_now=`False`
+- `checkpoint_hash_manifest_recorded`: status=`blocked_until_remote_audit`, complete=`False`, remote_training_ready_now=`False`
+- `gate3_formal_audit_accepts_remote_run`: status=`blocked_until_remote_audit`, complete=`False`, remote_training_ready_now=`False`
+- `h01_h02_regenerated_from_audited_checkpoint`: status=`blocked_until_remote_audit`, complete=`False`, remote_training_ready_now=`False`
 
 ## Closure Remote Stages
 

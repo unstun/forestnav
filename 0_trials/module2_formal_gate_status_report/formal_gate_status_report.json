@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-04T17:33:30.076784+00:00",
-  "source_head": "d2fb6171ad9c587543dc72a5308780acfad9fea8+dirty",
+  "created_at_utc": "2026-07-04T17:52:45.832253+00:00",
+  "source_head": "4368599f29da0e63bc272d3ef2facfcc942c5d47+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -43,6 +43,10 @@
     "remote_packet_preflight_allowed_now": false,
     "remote_packet_training_allowed_now": false,
     "remote_packet_audit_allowed_now": false,
+    "remote_preflight_requirement_satisfied_count": 2,
+    "remote_preflight_requirement_blocked_count": 2,
+    "post_run_acceptance_requirement_satisfied_count": 0,
+    "post_run_acceptance_requirement_blocked_count": 4,
     "h01_status": "blocked_pending_decisions",
     "h02_status": "blocked_formal_output_acceptance",
     "h02_formal_output_accepted": false,
@@ -290,6 +294,147 @@
         "missing_module2_rl_rs_checkpoint",
         "remote_packet_not_ready"
       ]
+    }
+  },
+  "remote_preflight_requirement_summary": {
+    "present": true,
+    "required_requirement_count": 4,
+    "present_requirement_count": 4,
+    "blocked_requirement_count": 2,
+    "status_counts": {
+      "blocked_missing_preflight": 2,
+      "satisfied": 2
+    },
+    "missing_requirement_ids": [],
+    "requirements": {
+      "f02_6_decision_closed_for_preflight": {
+        "present": true,
+        "status": "blocked_missing_preflight",
+        "phase": "decision",
+        "complete": false,
+        "execution_allowed_now": false,
+        "remote_training_ready_now": null,
+        "required_before": "run_remote_preflight",
+        "missing_artifact_ids": [
+          "f02_6_decision_record_approved_by_dr_sun"
+        ],
+        "blocked_by": [
+          "requires_dr_sun_approval"
+        ],
+        "acceptable_evidence_count": 3,
+        "invalid_substitute_count": 3
+      },
+      "approved_remote_preflight_manifest": {
+        "present": true,
+        "status": "blocked_missing_preflight",
+        "phase": "remote_preflight",
+        "complete": false,
+        "execution_allowed_now": false,
+        "remote_training_ready_now": null,
+        "required_before": "run_remote_training",
+        "missing_artifact_ids": [
+          "approved_remote_preflight_manifest_ready"
+        ],
+        "blocked_by": [
+          "warm_start_decision_pending"
+        ],
+        "acceptable_evidence_count": 3,
+        "invalid_substitute_count": 3
+      },
+      "remote_preflight_protocol_contract": {
+        "present": true,
+        "status": "satisfied",
+        "phase": "remote_preflight",
+        "complete": true,
+        "execution_allowed_now": false,
+        "remote_training_ready_now": null,
+        "required_before": "run_remote_training",
+        "missing_artifact_ids": [],
+        "blocked_by": [],
+        "acceptable_evidence_count": 3,
+        "invalid_substitute_count": 3
+      },
+      "remote_preflight_command_packetized": {
+        "present": true,
+        "status": "satisfied",
+        "phase": "remote_preflight",
+        "complete": true,
+        "execution_allowed_now": false,
+        "remote_training_ready_now": null,
+        "required_before": "run_remote_preflight",
+        "missing_artifact_ids": [],
+        "blocked_by": [
+          "requires_dr_sun_approval"
+        ],
+        "acceptable_evidence_count": 3,
+        "invalid_substitute_count": 3
+      }
+    }
+  },
+  "post_run_acceptance_requirement_summary": {
+    "present": true,
+    "required_requirement_count": 4,
+    "present_requirement_count": 4,
+    "blocked_requirement_count": 4,
+    "status_counts": {
+      "blocked_until_remote_audit": 4
+    },
+    "missing_requirement_ids": [],
+    "requirements": {
+      "pullback_expected_artifacts_complete": {
+        "present": true,
+        "status": "blocked_until_remote_audit",
+        "phase": "pullback",
+        "complete": false,
+        "execution_allowed_now": false,
+        "remote_training_ready_now": false,
+        "required_before": "local_gate3_formal_audit_review",
+        "missing_artifact_ids": [],
+        "blocked_by": [],
+        "acceptable_evidence_count": 3,
+        "invalid_substitute_count": 3
+      },
+      "checkpoint_hash_manifest_recorded": {
+        "present": true,
+        "status": "blocked_until_remote_audit",
+        "phase": "pullback",
+        "complete": false,
+        "execution_allowed_now": false,
+        "remote_training_ready_now": false,
+        "required_before": "h01_h02_regeneration",
+        "missing_artifact_ids": [],
+        "blocked_by": [],
+        "acceptable_evidence_count": 2,
+        "invalid_substitute_count": 3
+      },
+      "gate3_formal_audit_accepts_remote_run": {
+        "present": true,
+        "status": "blocked_until_remote_audit",
+        "phase": "acceptance",
+        "complete": false,
+        "execution_allowed_now": false,
+        "remote_training_ready_now": false,
+        "required_before": "formal_claim_gate",
+        "missing_artifact_ids": [
+          "gate3_formal_audit_formal_decision_pass"
+        ],
+        "blocked_by": [],
+        "acceptable_evidence_count": 3,
+        "invalid_substitute_count": 3
+      },
+      "h01_h02_regenerated_from_audited_checkpoint": {
+        "present": true,
+        "status": "blocked_until_remote_audit",
+        "phase": "evaluation_acceptance",
+        "complete": false,
+        "execution_allowed_now": false,
+        "remote_training_ready_now": false,
+        "required_before": "paper_result_gate",
+        "missing_artifact_ids": [],
+        "blocked_by": [],
+        "acceptable_evidence_count": 3,
+        "invalid_substitute_count": 3
+      }
     }
   },
   "formal_gate_handoff_summary": {

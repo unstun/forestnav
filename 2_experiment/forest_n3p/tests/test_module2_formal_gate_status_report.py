@@ -59,6 +59,19 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert steps["run_remote_training"]["allowed_now"] is False
     assert steps["run_remote_training"]["runs_training"] is True
     assert "remote_packet_not_ready" in steps["run_remote_training"]["blocked_by"]
+    preflight_requirements = manifest["remote_preflight_requirement_summary"]
+    assert preflight_requirements["present"] is True
+    assert preflight_requirements["required_requirement_count"] == 4
+    assert preflight_requirements["status_counts"] == {"blocked_missing_preflight": 2, "satisfied": 2}
+    assert preflight_requirements["blocked_requirement_count"] == 2
+    assert preflight_requirements["requirements"]["f02_6_decision_closed_for_preflight"]["status"] == "blocked_missing_preflight"
+    assert preflight_requirements["requirements"]["remote_preflight_command_packetized"]["status"] == "satisfied"
+    post_run_requirements = manifest["post_run_acceptance_requirement_summary"]
+    assert post_run_requirements["present"] is True
+    assert post_run_requirements["required_requirement_count"] == 4
+    assert post_run_requirements["status_counts"] == {"blocked_until_remote_audit": 4}
+    assert post_run_requirements["blocked_requirement_count"] == 4
+    assert post_run_requirements["requirements"]["checkpoint_hash_manifest_recorded"]["status"] == "blocked_until_remote_audit"
     closure_stages = manifest["closure_remote_stage_summary"]
     assert closure_stages["approved_remote_preflight"]["allowed_now"] is False
     assert closure_stages["approved_remote_preflight"]["runs_remote_preflight"] is True
@@ -130,6 +143,8 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     assert manifest["missing_artifacts_handoff_index_summary"]["status"] == "formal_gate_evidence_ready_for_h01_h02_claim_gates"
     assert manifest["missing_artifacts_handoff_index_summary"]["open_requirement_count"] == 0
     assert manifest["formal_gate_requirement_stage_summary"]["mapped_requirement_count"] == 4
+    assert manifest["remote_preflight_requirement_summary"]["status_counts"] == {"satisfied": 4}
+    assert manifest["post_run_acceptance_requirement_summary"]["status_counts"] == {"satisfied": 4}
 
 
 def test_formal_gate_status_report_catches_status_input_drift(tmp_path):
@@ -177,6 +192,26 @@ def test_formal_gate_status_report_requires_remote_step_blockers(tmp_path):
     assert "remote_packet_sync_to_remote_missing_blocked_by" in issue_ids
     assert "remote_packet_run_remote_training_missing_blocked_by" in issue_ids
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+
+
+def test_formal_gate_status_report_requires_remote_requirement_matrices(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    remote_packet = json.loads(config.remote_packet_path.read_text(encoding="utf-8"))
+    remote_packet.pop("remote_preflight_requirements")
+    remote_packet.pop("remote_preflight_requirement_counts")
+    remote_packet["post_run_acceptance_requirements"][0].pop("acceptable_evidence")
+    remote_packet["post_run_acceptance_requirements"][1]["execution_allowed_now"] = True
+    config.remote_packet_path.write_text(json.dumps(remote_packet), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert "remote_preflight_requirement_matrix_missing" in issue_ids
+    assert "post_run_acceptance_requirement_pullback_expected_artifacts_complete_missing_acceptable_evidence" in issue_ids
+    assert "post_run_acceptance_requirement_checkpoint_hash_manifest_recorded_allowed_while_packet_blocked" in issue_ids
+    assert manifest["remote_preflight_requirement_summary"]["present"] is False
+    assert manifest["post_run_acceptance_requirement_summary"]["blocked_requirement_count"] == 4
 
 
 def test_formal_gate_status_report_consumes_handoff_bundle_safety(tmp_path):
@@ -594,10 +629,114 @@ def _remote_packet(*, complete, drift=False):
                 "blocked_by": training_blockers,
             },
         },
+        "remote_preflight_requirements": _remote_preflight_requirements(complete=complete),
+        "remote_preflight_requirement_counts": {"satisfied": 4} if complete else {"blocked_missing_preflight": 2, "satisfied": 2},
+        "post_run_acceptance_requirements": _post_run_acceptance_requirements(complete=complete),
+        "post_run_acceptance_requirement_counts": {"satisfied": 4} if complete else {"blocked_until_remote_audit": 4},
     }
     if drift:
         payload["formal_claim_allowed_before_audit"] = True
     return payload
+
+
+def _remote_preflight_requirements(*, complete):
+    return [
+        _remote_requirement(
+            "f02_6_decision_closed_for_preflight",
+            "decision",
+            "satisfied" if complete else "blocked_missing_preflight",
+            complete=complete,
+            execution_allowed_now=complete,
+            blocked_by=[] if complete else ["requires_dr_sun_approval"],
+        ),
+        _remote_requirement(
+            "approved_remote_preflight_manifest",
+            "remote_preflight",
+            "satisfied" if complete else "blocked_missing_preflight",
+            complete=complete,
+            execution_allowed_now=complete,
+            blocked_by=[] if complete else ["warm_start_decision_pending"],
+        ),
+        _remote_requirement(
+            "remote_preflight_protocol_contract",
+            "remote_preflight",
+            "satisfied",
+            complete=True,
+            execution_allowed_now=complete,
+            blocked_by=[],
+        ),
+        _remote_requirement(
+            "remote_preflight_command_packetized",
+            "remote_preflight",
+            "satisfied",
+            complete=True,
+            execution_allowed_now=complete,
+            blocked_by=[] if complete else ["requires_dr_sun_approval"],
+        ),
+    ]
+
+
+def _post_run_acceptance_requirements(*, complete):
+    status = "satisfied" if complete else "blocked_until_remote_audit"
+    return [
+        _remote_requirement(
+            "pullback_expected_artifacts_complete",
+            "pullback",
+            status,
+            complete=complete,
+            execution_allowed_now=False,
+            remote_training_ready_now=complete,
+        ),
+        _remote_requirement(
+            "checkpoint_hash_manifest_recorded",
+            "pullback",
+            status,
+            complete=complete,
+            execution_allowed_now=False,
+            remote_training_ready_now=complete,
+        ),
+        _remote_requirement(
+            "gate3_formal_audit_accepts_remote_run",
+            "acceptance",
+            status,
+            complete=complete,
+            execution_allowed_now=False,
+            remote_training_ready_now=complete,
+        ),
+        _remote_requirement(
+            "h01_h02_regenerated_from_audited_checkpoint",
+            "evaluation_acceptance",
+            status,
+            complete=complete,
+            execution_allowed_now=False,
+            remote_training_ready_now=complete,
+        ),
+    ]
+
+
+def _remote_requirement(
+    requirement_id,
+    phase,
+    status,
+    *,
+    complete,
+    execution_allowed_now,
+    blocked_by=None,
+    remote_training_ready_now=None,
+):
+    return {
+        "requirement_id": requirement_id,
+        "phase": phase,
+        "status": status,
+        "complete": complete,
+        "execution_allowed_now": execution_allowed_now,
+        "remote_training_ready_now": remote_training_ready_now,
+        "required_before": "formal_gate_close",
+        "missing_artifact_ids": [] if complete else [f"{requirement_id}_missing"],
+        "blocked_by": [] if blocked_by is None else blocked_by,
+        "acceptable_evidence": [f"{requirement_id}_acceptable_evidence"],
+        "invalid_substitutes": [f"{requirement_id}_invalid_substitute"],
+    }
 
 
 def _h01_manifest(*, complete):
