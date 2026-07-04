@@ -109,6 +109,7 @@ def _audit_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any], plan
     issues: list[dict[str, Any]] = []
     issues.extend(_packet_top_level_issues(packet))
     issues.extend(_environment_issues(packet))
+    issues.extend(_embedded_preflight_issues(packet=packet, decision_gate=decision_gate))
     issues.extend(_execution_step_issues(packet))
     issues.extend(_pullback_issues(packet))
     issues.extend(_downstream_issues(packet))
@@ -140,6 +141,45 @@ def _environment_issues(packet: dict[str, Any]) -> list[dict[str, Any]]:
         issues.append(_issue("packet_wrong_remote_workdir", "remote_workdir must remain ~/ForestNav.", observed=env.get("remote_workdir")))
     if env.get("remote_python") != ".venv/bin/python":
         issues.append(_issue("packet_wrong_remote_python", "remote_python must remain .venv/bin/python.", observed=env.get("remote_python")))
+    return issues
+
+
+def _embedded_preflight_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any]) -> list[dict[str, Any]]:
+    preflight = packet.get("remote_preflight") if isinstance(packet.get("remote_preflight"), dict) else {}
+    decision = decision_gate.get("decision_state") if isinstance(decision_gate.get("decision_state"), dict) else {}
+    issues: list[dict[str, Any]] = []
+    if not preflight:
+        return [_issue("packet_missing_embedded_remote_preflight", "Remote packet must embed the remote preflight record it was built from.")]
+    if preflight.get("exists") is not True:
+        issues.append(_issue("embedded_remote_preflight_missing", "Embedded remote preflight record must point to an existing manifest."))
+    if decision.get("record_status") == "pending_human_decision":
+        if preflight.get("formal_trial_ready") is not False:
+            issues.append(_issue("pending_decision_preflight_ready", "Embedded remote preflight must not be formal-trial-ready while F02.6 is pending."))
+        if preflight.get("preflight_status") == "ready":
+            issues.append(_issue("pending_decision_preflight_status_ready", "Embedded remote preflight status must remain blocked while F02.6 is pending."))
+        if preflight.get("warm_start_decision") != "pending":
+            issues.append(
+                _issue(
+                    "pending_decision_preflight_warm_start_not_pending",
+                    "Embedded remote preflight warm-start decision must stay pending until Dr Sun closes F02.6.",
+                    observed=preflight.get("warm_start_decision"),
+                )
+            )
+        if "warm_start_decision_pending" not in _strings(preflight.get("blocker_codes")):
+            issues.append(_issue("pending_decision_preflight_missing_pending_blocker", "Embedded remote preflight must expose warm_start_decision_pending blocker."))
+    if packet.get("status") == "ready_for_gpu3070ti_remote_training":
+        if preflight.get("formal_trial_ready") is not True:
+            issues.append(_issue("ready_packet_preflight_not_ready", "Remote packet cannot be ready for training unless embedded preflight is formal-trial-ready."))
+        if preflight.get("preflight_status") != "ready":
+            issues.append(_issue("ready_packet_preflight_status_not_ready", "Remote packet ready state requires embedded preflight_status=ready."))
+        if preflight.get("warm_start_decision") != "approved_obstacle_summary":
+            issues.append(
+                _issue(
+                    "ready_packet_preflight_warm_start_not_approved",
+                    "Warm-start formal packet readiness requires approved_obstacle_summary preflight decision.",
+                    observed=preflight.get("warm_start_decision"),
+                )
+            )
     return issues
 
 
@@ -263,6 +303,9 @@ def _packet_summary(packet: dict[str, Any]) -> dict[str, Any]:
     return {
         "status": packet.get("status"),
         "ready_to_run_remote_training": packet.get("ready_to_run_remote_training"),
+        "embedded_preflight_status": preflight.get("preflight_status"),
+        "embedded_preflight_ready": preflight.get("formal_trial_ready"),
+        "embedded_preflight_warm_start_decision": preflight.get("warm_start_decision"),
         "gpu_alias": env.get("gpu_alias"),
         "training_host_required": env.get("training_host_required"),
         "sync_allowed_now": _step(steps, "sync_to_remote").get("allowed_now"),
