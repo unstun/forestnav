@@ -151,6 +151,9 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert manifest["input_status"]["status_report_post_run_acceptance_requirement_present"] is True
     assert manifest["input_status"]["status_report_post_run_acceptance_requirement_satisfied_count"] == 4
     assert manifest["input_status"]["status_report_post_run_acceptance_requirement_blocked_count"] == 0
+    assert manifest["input_status"]["status_report_h02_formal_acceptance_requirement_present"] is True
+    assert manifest["input_status"]["status_report_h02_formal_acceptance_requirement_satisfied_count"] == 4
+    assert manifest["input_status"]["status_report_h02_formal_acceptance_requirement_blocked_count"] == 0
     assert manifest["status_report_handoff_summary"]["transition_gate_status"] == "f02_6_transition_gate_audit_passed"
     assert manifest["status_report_missing_artifacts_handoff_summary"]["status"] == "formal_gate_evidence_ready_for_h01_h02_claim_gates"
     assert manifest["status_report_requirement_stage_summary"]["mapped_requirement_count"] == 4
@@ -175,6 +178,7 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
         "host": None,
         "blocked_by": [],
     }
+    assert manifest["status_report_h02_acceptance_requirement_summary"]["status_counts"] == {"satisfied": 4}
 
     allowed_ids = {item["claim_id"] for item in manifest["allowed_claims"]}
     assert "method_is_ha_star_analytic_operator" in allowed_ids
@@ -728,6 +732,61 @@ def test_claim_safety_rejects_status_report_remote_requirement_matrix_drift(tmp_
     assert manifest["status_report_remote_requirement_summary"]["remote_preflight_requirement_summary"]["present"] is False
 
 
+def test_claim_safety_rejects_status_report_h02_acceptance_requirement_matrix_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_claim_safety")
+    paper_tables = tmp_path / "paper_tables.json"
+    paper_tables.write_text(json.dumps({"status": "formal_ready", "formal_claim_allowed": True, "blockers": []}), encoding="utf-8")
+    h02_formal_acceptance = tmp_path / "h02_formal_acceptance.json"
+    h02_formal_acceptance.write_text(json.dumps({"status": "formal_output_accepted", "formal_output_accepted": True, "paper_result_input_allowed": True, "blockers": []}), encoding="utf-8")
+    h01_manifest = tmp_path / "h01.json"
+    h01_manifest.write_text(json.dumps({"status": "ready_for_formal_evaluation", "blockers": []}), encoding="utf-8")
+    f02_6_packet = tmp_path / "f02_6.json"
+    f02_6_packet.write_text(json.dumps({"status": "approved", "blockers": []}), encoding="utf-8")
+    gate3_audit = tmp_path / "gate3_audit.json"
+    gate3_audit.write_text(json.dumps({"formal_decision": "pass", "formal_claim_allowed": True}), encoding="utf-8")
+    method_algorithms = tmp_path / "method_algorithms.json"
+    method_algorithms.write_text(json.dumps({"status": "code_anchored"}), encoding="utf-8")
+    system_diagram = tmp_path / "system_diagram.json"
+    system_diagram.write_text(json.dumps({"status": "code_anchored_drawio"}), encoding="utf-8")
+    closure_checklist = tmp_path / "closure_checklist.json"
+    closure_checklist.write_text(json.dumps(_closure_checklist_payload(open_checklist=False)), encoding="utf-8")
+    status_payload = _status_report_payload(ready=False)
+    h02_summary = status_payload["h02_formal_acceptance_requirement_summary"]
+    h02_summary["requirements"]["h02_formal_scope_and_scale_match_h01"]["paper_result_input_allowed_now"] = True
+    h02_summary["requirements"]["gate3_audit_and_pullback_acceptance"]["acceptable_evidence_count"] = 0
+    h02_summary["missing_requirement_ids"] = ["ppo_rows_and_checkpoint_hash_present"]
+    h02_summary["requirements"].pop("ppo_rows_and_checkpoint_hash_present")
+    status_report = tmp_path / "status_report.json"
+    status_report.write_text(json.dumps(status_payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        repo_root=builder._repo_root(),
+        paper_tables_path=paper_tables,
+        h02_formal_acceptance_path=h02_formal_acceptance,
+        h01_manifest_path=h01_manifest,
+        f02_6_packet_path=f02_6_packet,
+        gate3_audit_path=gate3_audit,
+        method_algorithms_path=method_algorithms,
+        system_diagram_path=system_diagram,
+        closure_checklist_path=closure_checklist,
+        status_report_path=status_report,
+    )
+
+    blockers = set(manifest["formal_performance_blockers"])
+    assert (
+        "status_report_h02_formal_acceptance_requirement_h02_formal_scope_and_scale_match_h01_allows_paper_result_while_status_blocked"
+        in blockers
+    )
+    assert (
+        "status_report_h02_formal_acceptance_requirement_gate3_audit_and_pullback_acceptance_missing_acceptable_evidence"
+        in blockers
+    )
+    assert "status_report_h02_formal_acceptance_requirement_missing_ppo_rows_and_checkpoint_hash_present" in blockers
+    assert manifest["status_report_h02_acceptance_requirement_summary"]["requirements"][
+        "ppo_rows_and_checkpoint_hash_present"
+    ]["present"] is False
+
+
 def test_claim_safety_rejects_status_report_that_runs_or_claims(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_claim_safety")
     paper_tables = tmp_path / "paper_tables.json"
@@ -844,6 +903,9 @@ def _status_report_payload(*, ready, invalid=False):
         "formal_gate_requirement_stage_summary": _status_report_requirement_stage_summary_payload(ready=ready),
         "remote_preflight_requirement_summary": _status_report_remote_preflight_requirement_summary_payload(ready=ready),
         "post_run_acceptance_requirement_summary": _status_report_post_run_acceptance_requirement_summary_payload(
+            ready=ready
+        ),
+        "h02_formal_acceptance_requirement_summary": _status_report_h02_acceptance_requirement_summary_payload(
             ready=ready
         ),
         "closure_remote_stage_summary": {
@@ -984,6 +1046,69 @@ def _status_report_post_run_acceptance_requirement_summary_payload(*, ready):
         requirements=requirements,
         status_counts={"satisfied": 4} if ready else {"blocked_until_remote_audit": 4},
     )
+
+
+def _status_report_h02_acceptance_requirement_summary_payload(*, ready):
+    requirements = {
+        "h01_schema_and_h02_output_schema_match": _status_report_h02_acceptance_requirement_row(
+            requirement_id="h01_schema_and_h02_output_schema_match",
+            phase="schema_acceptance",
+            status="satisfied",
+            complete=True,
+            paper_result_input_allowed_now=ready,
+        ),
+        "h02_formal_scope_and_scale_match_h01": _status_report_h02_acceptance_requirement_row(
+            requirement_id="h02_formal_scope_and_scale_match_h01",
+            phase="formal_scope",
+            status="satisfied" if ready else "blocked_formal_acceptance",
+            complete=ready,
+            paper_result_input_allowed_now=ready,
+        ),
+        "gate3_audit_and_pullback_acceptance": _status_report_h02_acceptance_requirement_row(
+            requirement_id="gate3_audit_and_pullback_acceptance",
+            phase="remote_acceptance",
+            status="satisfied" if ready else "blocked_formal_acceptance",
+            complete=ready,
+            paper_result_input_allowed_now=ready,
+        ),
+        "ppo_rows_and_checkpoint_hash_present": _status_report_h02_acceptance_requirement_row(
+            requirement_id="ppo_rows_and_checkpoint_hash_present",
+            phase="result_rows",
+            status="satisfied" if ready else "blocked_formal_acceptance",
+            complete=ready,
+            paper_result_input_allowed_now=ready,
+        ),
+    }
+    return {
+        "present": True,
+        "required_requirement_count": len(requirements),
+        "present_requirement_count": len(requirements),
+        "blocked_requirement_count": sum(1 for row in requirements.values() if row["status"] != "satisfied"),
+        "status_counts": {"satisfied": 4} if ready else {"satisfied": 1, "blocked_formal_acceptance": 3},
+        "missing_requirement_ids": [],
+        "requirements": requirements,
+    }
+
+
+def _status_report_h02_acceptance_requirement_row(
+    *,
+    requirement_id,
+    phase,
+    status,
+    complete,
+    paper_result_input_allowed_now,
+):
+    return {
+        "requirement_id": requirement_id,
+        "present": True,
+        "status": status,
+        "phase": phase,
+        "complete": complete,
+        "paper_result_input_allowed_now": paper_result_input_allowed_now,
+        "missing_artifact_ids": [] if complete else [f"{requirement_id}_missing"],
+        "acceptable_evidence_count": 1,
+        "invalid_substitute_count": 1,
+    }
 
 
 def _status_report_remote_requirement_summary(*, requirements, status_counts):
