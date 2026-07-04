@@ -515,6 +515,53 @@ def _claim_safety_remote_requirement_blockers(claim_safety: dict[str, Any]) -> l
     return blockers
 
 
+def _claim_safety_h02_acceptance_requirement_summary(claim_safety: dict[str, Any]) -> dict[str, Any]:
+    summary = claim_safety.get("status_report_h02_acceptance_requirement_summary")
+    summary = summary if isinstance(summary, dict) else {}
+    raw_requirements = summary.get("requirements") if isinstance(summary.get("requirements"), dict) else {}
+    requirements: dict[str, dict[str, Any]] = {}
+    for requirement_id in CLAIM_SAFETY_H02_FORMAL_ACCEPTANCE_REQUIREMENT_IDS:
+        row = raw_requirements.get(requirement_id) if isinstance(raw_requirements.get(requirement_id), dict) else {}
+        requirements[requirement_id] = {
+            "present": bool(row),
+            "status": row.get("status"),
+            "complete": row.get("complete") if isinstance(row.get("complete"), bool) else None,
+            "paper_result_input_allowed_now": row.get("paper_result_input_allowed_now")
+            if isinstance(row.get("paper_result_input_allowed_now"), bool)
+            else None,
+        }
+    status_counts = summary.get("status_counts") if isinstance(summary.get("status_counts"), dict) else {}
+    return {
+        "present": bool(summary),
+        "required_requirement_count": int(
+            summary.get("required_requirement_count") or len(CLAIM_SAFETY_H02_FORMAL_ACCEPTANCE_REQUIREMENT_IDS)
+        ),
+        "present_requirement_count": int(summary.get("present_requirement_count") or 0),
+        "blocked_requirement_count": int(summary.get("blocked_requirement_count") or 0),
+        "status_counts": {str(key): int(value or 0) for key, value in status_counts.items()},
+        "missing_requirement_ids": [str(value) for value in summary.get("missing_requirement_ids", []) if value]
+        if isinstance(summary.get("missing_requirement_ids"), list)
+        else [],
+        "requirements": requirements,
+    }
+
+
+def _claim_safety_h02_acceptance_requirement_blockers(claim_safety: dict[str, Any]) -> list[str]:
+    summary = _claim_safety_h02_acceptance_requirement_summary(claim_safety)
+    blockers: list[str] = []
+    if not summary["present"]:
+        blockers.append("claim_safety_missing_h02_acceptance_requirement_summary")
+        return blockers
+    if int(summary["required_requirement_count"] or 0) != len(CLAIM_SAFETY_H02_FORMAL_ACCEPTANCE_REQUIREMENT_IDS):
+        blockers.append("claim_safety_h02_acceptance_requirement_required_count_mismatch")
+    for requirement_id in summary["missing_requirement_ids"]:
+        _append_unique(blockers, f"claim_safety_h02_acceptance_requirement_missing_{requirement_id}")
+    for requirement_id, row in summary["requirements"].items():
+        if not row["present"]:
+            _append_unique(blockers, f"claim_safety_h02_acceptance_requirement_missing_{requirement_id}")
+    return blockers
+
+
 def _claim_safety_remote_requirement_group_blockers(
     *,
     summary: dict[str, Any],
