@@ -568,6 +568,8 @@ def _deliverable_gap_summary(
             row = matrix_by_artifact_id.get(artifact_id, {})
             acceptance_predicates = row.get("acceptance_predicates")
             invalid_substitutes = row.get("invalid_substitutes")
+            proof_commands = row.get("proof_commands")
+            proof_commands = proof_commands if isinstance(proof_commands, list) else []
             missing_artifacts.append(
                 {
                     "matrix_id": row.get("matrix_id"),
@@ -578,6 +580,12 @@ def _deliverable_gap_summary(
                     "acceptance_predicate_count": len(acceptance_predicates)
                     if isinstance(acceptance_predicates, list)
                     else 0,
+                    "proof_command_count": len(proof_commands),
+                    "proof_command_ids": [
+                        str(command.get("command_id"))
+                        for command in proof_commands
+                        if isinstance(command, dict) and command.get("command_id")
+                    ],
                     "invalid_substitutes": list(invalid_substitutes) if isinstance(invalid_substitutes, list) else [],
                 }
             )
@@ -636,6 +644,12 @@ def _plain_formal_gate_closure_checklist(
                     for item in missing_artifacts
                     if isinstance(item, dict)
                     for substitute in item.get("invalid_substitutes", [])
+                ),
+                "proof_command_ids": _unique_strings(
+                    command_id
+                    for item in missing_artifacts
+                    if isinstance(item, dict)
+                    for command_id in item.get("proof_command_ids", [])
                 ),
             }
         )
