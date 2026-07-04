@@ -1,0 +1,113 @@
+{
+  "dataset_id": "module2_rl_rs_bc",
+  "dataset_status": "preview",
+  "created_at_utc": "2026-07-04T00:17:40.680759+00:00",
+  "source_head": "96be287b3ab67f4899d4f2ab765c21f75c5661e8",
+  "source_input": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+  "source_input_row_count": 7860,
+  "source_contract": ".pipeline/contracts/module2-ppo-funnel-expansion.md",
+  "source_extractor": "2_experiment/forest_n3p/scripts/extract_oracle_demonstrations.py",
+  "preview_file": {
+    "path": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_preview20.parquet",
+    "sha256": "a9fda719c255197190cbc3a379d39ee9a991702e4c5f2625e9d7cfea051aadc3",
+    "row_count": 1109,
+    "selected_source_rows": 20,
+    "replay_success_rows": 20,
+    "oracle_types": {
+      "oracle_a": 1109
+    },
+    "expert_directions": {
+      "forward": 1109,
+      "reverse": 0
+    },
+    "terminal_rs_success_rows": 0
+  },
+  "preview_summary": {
+    "path": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_preview20_summary.json",
+    "sha256": "846fa284d08016d478130e0d17926ae1b9062ae2d3144d19b2326aa48f79d16c"
+  },
+  "smoke_artifacts": [
+    {
+      "path": "0_trials/module2_rl_rs_bc_demo_smoke/demonstrations_smoke3.parquet",
+      "sha256": "adfb8da59ae6dbae726e416ef46aace19683ffe93149669fe5e86ed8e5f352de",
+      "row_count": 202,
+      "purpose": "first 3 connectable rows, oracle_a replay smoke"
+    },
+    {
+      "path": "0_trials/module2_rl_rs_bc_demo_smoke/demonstrations_bonly_smoke1.parquet",
+      "sha256": "000a6b90df7ce88457e79d7888a247a8d808cae57f4fd42dde23838b9c0b4a7b",
+      "row_count": 136,
+      "purpose": "first B-only goal_annulus row, oracle_b replay smoke"
+    }
+  ],
+  "schema": {
+    "sample_id": "int64",
+    "source_row_index": "int64",
+    "query_id": "string",
+    "difficulty_bucket": "string",
+    "profile_name": "string",
+    "map_seed": "int64",
+    "query_seed": "int64",
+    "distance_bin_key": "string",
+    "dedup_key": "string",
+    "expansion_idx": "int64",
+    "oracle_type": "string",
+    "path_step_index": "int64",
+    "remaining_oracle_steps": "int64",
+    "current_x": "float64",
+    "current_y": "float64",
+    "current_theta": "float64",
+    "next_x": "float64",
+    "next_y": "float64",
+    "next_theta": "float64",
+    "goal_x": "float64",
+    "goal_y": "float64",
+    "goal_theta": "float64",
+    "expert_steering_rad": "float64",
+    "expert_curvature": "float64",
+    "expert_direction": "int64",
+    "step_length_m": "float64",
+    "obs_scalar": "list<float32>[8]",
+    "terminal_rs_checked": "bool",
+    "terminal_rs_success": "bool",
+    "terminal_rs_path_length_m": "float64",
+    "source_head": "string"
+  },
+  "extraction_config": {
+    "density_profile_buckets": "validation_t06",
+    "buckets": "Complex,Extreme",
+    "oracle_types": "best",
+    "max_records": 20,
+    "row_offset": 0,
+    "stop_at_terminal_rs": true,
+    "min_step_length_m": 0.0001,
+    "turning_radius_m": 1.0,
+    "wheelbase_m": 0.6,
+    "theta_bins": 72,
+    "rs_sample_step_m": 0.05,
+    "observation": {
+      "scalar": "stored",
+      "patch_storage": "reconstructable_from_map_seed_pose_goal_not_inlined",
+      "patch_size_m": 6.4,
+      "patch_cells": 64,
+      "include_edt": true,
+      "edt_clip_m": 3.0
+    }
+  },
+  "filters": {
+    "oracle_connectable_required": true,
+    "colliding_current_or_next_pose": "skip",
+    "reverse_direction": "skip",
+    "short_segment": "skip",
+    "terminal_rs_ready": "skip_and_stop_remaining_path_when stop_at_terminal_rs=true",
+    "invalid_endpoint": "excluded by oracle_connectable filter; unresolved C02 rows are not in this preview"
+  },
+  "known_boundaries": {
+    "full_bc_corpus_materialized": false,
+    "bc_training_started": false,
+    "ppo_training_started": false,
+    "planner_integration_exists": false,
+    "voronoi_skeleton_b_only_claim_allowed": false,
+    "notes": "C02 contains 5 voronoi_skeleton B-only rows that were previously not replayable for visualization; they must be audited before being used as paper evidence."
+  }
+}
