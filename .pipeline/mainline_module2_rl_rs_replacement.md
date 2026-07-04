@@ -701,14 +701,24 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_rl_rs_api.py 2_experiment/forest_n3p/tests/test_rl_rs_gym_env.py 2_experiment/forest_n3p/tests/test_rl_rs_training_logging.py 2_experiment/forest_n3p/tests/test_hybrid_astar_operator_protocol.py 2_experiment/forest_n3p/tests/test_rl_rs_funnel_operator.py -q` -> `32 passed in 0.93s`。
   - 边界: 尚未切换 Hybrid A* 主循环, 尚未加载正式 checkpoint, 不关闭 F02.6 warm-start 决策。
   - 记录: `.pipeline/experiments/20260704_module2_g01_rl_rs_funnel_operator_skeleton.md`。
-- [ ] G01.4 CLI/config 选择 operator。
+- [>] G01.4 CLI/config 选择 operator。
   - 默认不变。
   - 实验脚本显式写 operator 名称。
+  - 已完成子项: planner constructor-level custom operator dispatch, 参数为 `HybridAStarPlanner(..., analytic_expansion_operator=...)`。
+  - 当前实现: 传入 custom operator 时, planner 使用 `operator.name` 作为 `stats["analytic_operator"]`, 并调用 `operator.try_connect(state, goal, planner_context)`。
+  - 默认边界: 未传 custom operator 时, 内置 `disabled/single_rs/dang_multi_rs` 路径保持不变。
+  - 未完成边界: CLI/script symbolic operator selection 仍未接线, 因此 G01.4 只标为 `[>]`。
+  - 记录: `.pipeline/experiments/20260704_module2_g01_operator_dispatch_stub_integration.md`。
 
 #### G02. 集成测试
 
-- [ ] G02.1 无模型 stub operator 测试。
+- [x] G02.1 无模型 stub operator 测试。
   - 用 deterministic steering mock 验证 planner 调用和 fallback。
+  - 已完成: `DirectStubOperator` success path 验证 planner 会调用 custom operator, stats/telemetry 写入 `stub_direct`, analytic attempts/successes 为 `1/1`。
+  - 已完成: `FailingStubOperator` failure path 验证 operator 返回 `None` 后 planner 继续 primitive fallback, 不写入 `analytic_expansion` remediation, `analytic_failure_records` 写入 `stub_failing` 与 `stub_failure`。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_hybrid_astar_operator_protocol.py -q` -> `5 passed in 0.22s`。
+  - 回归: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q` -> `70 passed in 9.98s`。
+  - 记录: `.pipeline/experiments/20260704_module2_g01_operator_dispatch_stub_integration.md`。
 - [ ] G02.2 加载 checkpoint 测试。
   - 缺 checkpoint 必须报错, 不能静默退回 RS 并声称 RL 生效。
 - [ ] G02.3 telemetry 测试。
@@ -806,6 +816,8 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 23. [x] F02.5 在 formal-v2 上重跑 BC baseline。
 24. [?] F02.6 PPO warm-start 决策门。
 25. [!] F03.5 no-warm formal Gate #3 已失败: `formal_decision=fail`, terminal-RS-success 29/64=0.453125; F02.6 warm-start 决策仍未关闭。
+26. [>] G01.4 constructor-level custom operator dispatch 已完成; CLI/script selection 未完成。
+27. [x] G02.1 无模型 stub operator planner integration/fallback 测试。
 
 ## 7. 完成记录
 
@@ -842,3 +854,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 修复 Gate #3 evaluator neural forward timing telemetry。`eval_rl_rs_gate3.py` 现在记录 `model.predict()` wall-clock; smoke summary 写出 `nn_forward_time_s=0.000748333000956336`。同一 no-warm formal model 的 `eval_timing_v2/` 保持 `29/64=0.453125` fail 不变, 并补出 `nn_forward_time_s=0.050569629958772566`。记录见 `.pipeline/experiments/20260704_module2_f03_eval_timing_telemetry.md`。
 - 2026-07-04: 完成 G01.1/G01.2 analytic expansion operator protocol 和 DangRsOperator adapter。当前 adapter 暴露统一 `AnalyticExpansionResult` contract, 但仍委托 planner-owned `_try_analytic_expansion()` 且未切换 planner 主循环; 这是后续 RL-RS funnel operator 的接口地基, 不是 planner integration 完成。记录见 `.pipeline/experiments/20260704_module2_g01_operator_protocol.md`。
 - 2026-07-04: 完成 G01.3 RL-RS funnel operator skeleton。`RlRsFunnelOperator` 已能用显式 stub policy 执行真实 env rollout, terminal RS success 时追加 planner RS 收尾段, collision/no-progress 时返回 `None` 并保留 telemetry。当前仍未切换 Hybrid A* 主循环、未加载正式 checkpoint、未关闭 F02.6。记录见 `.pipeline/experiments/20260704_module2_g01_rl_rs_funnel_operator_skeleton.md`。
+- 2026-07-04: 完成 G02.1 无模型 stub operator planner integration 测试, 并完成 G01.4 的 constructor-level custom operator dispatch 子项。`HybridAStarPlanner(..., analytic_expansion_operator=...)` 现在可调用 custom operator; success path 写入 `stub_direct` telemetry, failure path 返回 `None` 后继续 primitive fallback 并写入 `stub_failing/stub_failure` failure record。CLI/script symbolic operator selection 仍未完成, F02.6 warm-start 决策仍 pending。记录见 `.pipeline/experiments/20260704_module2_g01_operator_dispatch_stub_integration.md`。
