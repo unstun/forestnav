@@ -216,7 +216,7 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert proof_audit["blocked_proof_command_count"] == 16
     assert proof_audit["category_status_counts"]["training"]["blocked_missing_artifact"] == 6
     assert proof_audit["category_status_counts"]["formal_acceptance"]["failed"] == 2
-    assert proof_audit["results_by_id"]["h02_formal_output_acceptance_status"]["status"] == "failed"
+    assert proof_audit["results_by_id"]["h02_formal_output_acceptance_schema"]["status"] == "failed"
     formal_gate_gap = manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]
     assert formal_gate_gap["present"] is True
     assert formal_gate_gap["total_missing_deliverables"] == 10
@@ -548,7 +548,7 @@ def test_formal_gate_status_report_requires_formal_gate_proof_audit_summary(tmp_
     proof_audit["total_proof_command_count"] = 19
     proof_audit["passed_proof_command_count"] = 19
     proof_audit["proof_command_results"].pop()
-    proof_audit["proof_command_results_by_id"].pop("h02_formal_output_acceptance_status")
+    proof_audit["proof_command_results_by_id"].pop("h02_formal_output_acceptance_schema")
     config.formal_gate_proof_audit_path.write_text(json.dumps(proof_audit), encoding="utf-8")
 
     manifest = builder.build_manifest(config)
@@ -559,7 +559,7 @@ def test_formal_gate_status_report_requires_formal_gate_proof_audit_summary(tmp_
     assert "formal_gate_proof_audit_runs_remote_preflight" in issue_ids
     assert "formal_gate_proof_audit_matrix_count_mismatch" in issue_ids
     assert "formal_gate_proof_audit_command_count_mismatch" in issue_ids
-    assert "formal_gate_proof_audit_missing_h02_formal_output_acceptance_status" in issue_ids
+    assert "formal_gate_proof_audit_missing_h02_formal_output_acceptance_schema" in issue_ids
     assert manifest["formal_gate_proof_audit_summary"]["total_matrix_rows"] == 9
 
 
