@@ -689,6 +689,7 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
     assert "Missing-Artifacts Handoff Index" in markdown
     assert "record_f02_6_decision" in markdown
     assert "Formal Gate Execution Veto Matrix" in markdown
+    assert "Remote Packet Safety Claim-Gate Command Index" in markdown
     assert "Remaining Deliverables Acceptance Matrix" in markdown
     assert "training:train_final_model_zip" in markdown
     assert "decision_owner_required" in markdown
@@ -726,6 +727,9 @@ def _formal_gate(*, complete):
         "formal_claim_allowed": False,
         "execution_veto_matrix": _execution_veto_matrix(complete=complete),
         "remaining_deliverables_gap_summary": _remaining_deliverables(complete=complete)["deliverable_gap_summary"],
+        "remote_packet_safety": {
+            "claim_gate_command_index_summary": _command_index_summary(),
+        },
         "ordered_next_steps": [
             {"step_id": "F02.6", "status": "complete" if complete else "blocked", "blocked_by": [] if complete else ["f02_6_decision_not_approved"]},
             {"step_id": "remote_preflight", "status": "complete" if complete else "blocked", "blocked_by": [] if complete else ["source_freshness_regeneration_required"]},
