@@ -40,6 +40,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--idb-rrt-dynoplan-root", type=Path, default=None)
     parser.add_argument("--idb-rrt-motion-file", type=Path, default=None)
     parser.add_argument("--idb-rrt-timeout-s", type=float, default=None)
+    parser.add_argument("--module2-bc-checkpoint", type=Path, default=None)
+    parser.add_argument("--module2-bc-device", default=MainEvaluationConfig().module2_bc_device)
     parser.add_argument("--module2-rl-rs-checkpoint", type=Path, default=None)
     parser.add_argument("--module2-rl-rs-device", default=MainEvaluationConfig().module2_rl_rs_device)
     parser.add_argument("--module2-rl-rs-obs-patch-size-m", type=float, default=MainEvaluationConfig().module2_rl_rs_obs_patch_size_m)
@@ -86,6 +88,8 @@ def main(argv: list[str] | None = None) -> int:
         idb_rrt_dynoplan_root=args.idb_rrt_dynoplan_root,
         idb_rrt_motion_file=args.idb_rrt_motion_file,
         idb_rrt_timeout_s=args.idb_rrt_timeout_s,
+        module2_bc_checkpoint=args.module2_bc_checkpoint,
+        module2_bc_device=str(args.module2_bc_device),
         module2_rl_rs_checkpoint=args.module2_rl_rs_checkpoint,
         module2_rl_rs_device=str(args.module2_rl_rs_device),
         module2_rl_rs_obs_patch_size_m=float(args.module2_rl_rs_obs_patch_size_m),
