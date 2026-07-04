@@ -682,6 +682,29 @@ def _decision_record(*, complete):
     }
 
 
+def _decision_intake(*, complete):
+    return {
+        "status": "f02_6_decision_intake_closed_clean" if complete else "f02_6_decision_intake_pending_clean",
+        "audit_issue_count": 0,
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+        "current_state": {
+            "record_status": "approved" if complete else "pending_human_decision",
+            "record_decider": "Dr Sun" if complete else None,
+            "effective_warm_start_decision": "approved_obstacle_summary" if complete else "pending",
+            "next_blocked_lane": None if complete else "decision",
+            "missing_deliverable_count": 0 if complete else 10,
+            "status_report_local_training_allowed_now": False,
+            "status_report_remote_preflight_allowed_now": complete,
+            "status_report_remote_training_allowed_now": complete,
+            "status_report_formal_claim_allowed_now": complete,
+        },
+    }
+
+
 def _remote_packet(*, complete, drift=False):
     step_blockers = [] if complete else ["requires_dr_sun_approval"]
     training_blockers = [] if complete else ["requires_dr_sun_approval", "remote_packet_not_ready"]
