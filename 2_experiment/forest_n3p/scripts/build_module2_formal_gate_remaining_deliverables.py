@@ -316,6 +316,61 @@ def _category_counts(deliverable_groups: Sequence[dict[str, Any]]) -> dict[str, 
     }
 
 
+def _deliverable_gap_summary(
+    *,
+    deliverable_groups: Sequence[dict[str, Any]],
+    deliverable_acceptance_matrix: Sequence[dict[str, Any]],
+) -> dict[str, Any]:
+    matrix_by_artifact_id = {
+        str(row.get("artifact_id")): row for row in deliverable_acceptance_matrix if row.get("artifact_id")
+    }
+    categories: list[dict[str, Any]] = []
+    for group in deliverable_groups:
+        missing_artifacts: list[dict[str, Any]] = []
+        for item in group["items"]:
+            if item.get("missing") is not True:
+                continue
+            artifact_id = str(item.get("artifact_id"))
+            row = matrix_by_artifact_id.get(artifact_id, {})
+            acceptance_predicates = row.get("acceptance_predicates")
+            invalid_substitutes = row.get("invalid_substitutes")
+            missing_artifacts.append(
+                {
+                    "matrix_id": row.get("matrix_id"),
+                    "artifact_id": artifact_id,
+                    "expected_path": item.get("path"),
+                    "current_state": item.get("state"),
+                    "missing_reason": item.get("reason"),
+                    "acceptance_predicate_count": len(acceptance_predicates)
+                    if isinstance(acceptance_predicates, list)
+                    else 0,
+                    "invalid_substitutes": list(invalid_substitutes) if isinstance(invalid_substitutes, list) else [],
+                }
+            )
+        categories.append(
+            {
+                "category": group.get("category"),
+                "status": group.get("status"),
+                "missing_count": group.get("missing_count"),
+                "present_count": group.get("present_count"),
+                "responsible_stage_id": group.get("responsible_stage_id"),
+                "responsible_stage_allowed_now": group.get("responsible_stage_allowed_now"),
+                "responsible_stage_blocked_by": list(group.get("responsible_stage_blocked_by", [])),
+                "next_required_evidence": list(group.get("acceptable_evidence", [])),
+                "missing_artifacts": missing_artifacts,
+            }
+        )
+    return {
+        "summary_id": "module2_formal_gate_missing_training_eval_acceptance_summary",
+        "execution_boundary": "read_only_no_execution",
+        "not_paper_result_material": True,
+        "total_missing_deliverables": sum(int(group.get("missing_count", 0)) for group in deliverable_groups),
+        "open_category_count": sum(1 for group in deliverable_groups if int(group.get("missing_count", 0)) > 0),
+        "category_order": [str(group.get("category")) for group in deliverable_groups],
+        "categories": categories,
+    }
+
+
 def _permissions(*, status_report: dict[str, Any], remote_packet: dict[str, Any]) -> dict[str, Any]:
     permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
     return {
