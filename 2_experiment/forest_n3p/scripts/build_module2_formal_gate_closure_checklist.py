@@ -1,0 +1,439 @@
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+from dataclasses import dataclass
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any, Sequence
+
+
+DEFAULT_OUTPUT_DIR = Path("0_trials/module2_formal_gate_closure_checklist")
+DEFAULT_MISSING_ARTIFACTS = Path("0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json")
+DEFAULT_FORMAL_GATE = Path("0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json")
+DEFAULT_POST_PLAN = Path("0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json")
+DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_freshness_audit.json")
+
+
+@dataclass(frozen=True)
+class FormalGateClosureChecklistConfig:
+    output_dir: Path
+    manifest_out: Path | None = None
+    markdown_out: Path | None = None
+    missing_artifacts_path: Path = DEFAULT_MISSING_ARTIFACTS
+    formal_gate_path: Path = DEFAULT_FORMAL_GATE
+    post_plan_path: Path = DEFAULT_POST_PLAN
+    source_freshness_path: Path = DEFAULT_SOURCE_FRESHNESS
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    args = _parse_args(argv)
+    config = FormalGateClosureChecklistConfig(
+        output_dir=args.output_dir,
+        manifest_out=args.manifest_out,
+        markdown_out=args.markdown_out,
+        missing_artifacts_path=args.missing_artifacts,
+        formal_gate_path=args.formal_gate,
+        post_plan_path=args.post_plan,
+        source_freshness_path=args.source_freshness_audit,
+    )
+    manifest = build_manifest(config)
+    output_dir = Path(config.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    manifest_out = config.manifest_out or output_dir / "formal_gate_closure_checklist.json"
+    markdown_out = config.markdown_out or output_dir / "formal_gate_closure_checklist.md"
+    manifest_out.parent.mkdir(parents=True, exist_ok=True)
+    markdown_out.parent.mkdir(parents=True, exist_ok=True)
+    manifest_out.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    markdown_out.write_text(_markdown(manifest), encoding="utf-8")
+    print(json.dumps({"manifest": str(manifest_out), "markdown": str(markdown_out), "status": manifest["status"]}, indent=2, ensure_ascii=False))
+    return 0
+
+
+def build_manifest(config: FormalGateClosureChecklistConfig) -> dict[str, Any]:
+    missing_artifacts = _read_json(config.missing_artifacts_path)
+    formal_gate = _read_json(config.formal_gate_path)
+    post_plan = _read_json(config.post_plan_path)
+    source_freshness = _read_json(config.source_freshness_path)
+    missing_groups = _missing_groups(missing_artifacts)
+    checklist = _closure_checklist(missing_groups=missing_groups, formal_gate=formal_gate, post_plan=post_plan)
+    safety_issues = _input_safety_issues(
+        missing_artifacts=missing_artifacts,
+        formal_gate=formal_gate,
+        post_plan=post_plan,
+        source_freshness=source_freshness,
+    )
+    all_items_closed = all(item["complete"] for item in checklist)
+    gate_status = str(formal_gate.get("status") or "")
+    status = "formal_gate_closure_ready_for_result_audit" if all_items_closed and not safety_issues and gate_status == "formal_gate_ready_for_result_audit" else "formal_gate_closure_blocked"
+    return {
+        "schema_version": 1,
+        "artifact_name": "module2_formal_gate_closure_checklist",
+        "status": status,
+        "created_at_utc": datetime.now(UTC).isoformat(),
+        "source_head": _source_head(),
+        "not_paper_result_material": True,
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+        "inputs": {
+            "missing_artifacts": str(config.missing_artifacts_path),
+            "formal_gate_gap_audit": str(config.formal_gate_path),
+            "post_f02_6_regeneration_plan": str(config.post_plan_path),
+            "source_freshness_audit": str(config.source_freshness_path),
+        },
+        "current_gate_summary": {
+            "formal_gate_status": formal_gate.get("status"),
+            "missing_artifacts_status": missing_artifacts.get("status"),
+            "post_plan_status": post_plan.get("status"),
+            "source_freshness_status": source_freshness.get("status"),
+            "missing_counts_by_category": missing_artifacts.get("missing_counts_by_category") if isinstance(missing_artifacts.get("missing_counts_by_category"), dict) else {},
+            "formal_ordered_next_step_count": len(formal_gate.get("ordered_next_steps") if isinstance(formal_gate.get("ordered_next_steps"), list) else []),
+            "post_plan_blocked_stage_ids": _post_plan_blocked_stage_ids(post_plan),
+            "source_regeneration_target_count": len(source_freshness.get("ordered_regeneration_targets") if isinstance(source_freshness.get("ordered_regeneration_targets"), list) else []),
+        },
+        "closure_item_count": len(checklist),
+        "open_item_count": sum(1 for item in checklist if not item["complete"]),
+        "training_artifacts_required": _artifacts_for_category(missing_groups, "training"),
+        "evaluation_artifacts_required": _artifacts_for_category(missing_groups, "evaluation"),
+        "acceptance_artifacts_required": _artifacts_for_category(missing_groups, "acceptance"),
+        "evaluation_acceptance_required": _artifacts_for_category(missing_groups, "evaluation_acceptance"),
+        "claim_gate_artifacts_required": _artifacts_for_category(missing_groups, "claim_gate"),
+        "closure_checklist": checklist,
+        "input_safety_issue_count": len(safety_issues),
+        "input_safety_issues": safety_issues,
+        "claim_boundaries": [
+            "This checklist is a formal-gate execution ledger, not a result table, paper appendix, or permission to train.",
+            "It does not execute local commands, remote preflight, remote training, remote audit, sync, pullback, or evaluation.",
+            "The only training item in the checklist remains gpu3070ti-relay-only and blocked until F02.6 and source-fresh preflight gates close.",
+            "A closed checklist is still not a paper claim unless H02 formal acceptance and claim safety pass after audited pullback hashes are recorded.",
+        ],
+    }
+
+
+def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Build Module2 formal gate closure checklist without executing training or preflight.")
+    parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    parser.add_argument("--manifest-out", type=Path, default=None)
+    parser.add_argument("--markdown-out", type=Path, default=None)
+    parser.add_argument("--missing-artifacts", type=Path, default=DEFAULT_MISSING_ARTIFACTS)
+    parser.add_argument("--formal-gate", type=Path, default=DEFAULT_FORMAL_GATE)
+    parser.add_argument("--post-plan", type=Path, default=DEFAULT_POST_PLAN)
+    parser.add_argument("--source-freshness-audit", type=Path, default=DEFAULT_SOURCE_FRESHNESS)
+    return parser.parse_args(list(argv) if argv is not None else None)
+
+
+def _closure_checklist(
+    *,
+    missing_groups: Sequence[dict[str, Any]],
+    formal_gate: dict[str, Any],
+    post_plan: dict[str, Any],
+) -> list[dict[str, Any]]:
+    groups = {str(group.get("group_id")): group for group in missing_groups}
+    ordered_next_steps = {
+        str(step.get("step_id")): step
+        for step in formal_gate.get("ordered_next_steps", ())
+        if isinstance(step, dict)
+    }
+    post_stages = {
+        str(stage.get("stage_id")): stage
+        for stage in post_plan.get("ordered_stages", ())
+        if isinstance(stage, dict)
+    }
+    return [
+        _item(
+            checklist_id="F02.6_decision",
+            phase="decision",
+            group=groups.get("f02_6_decision_record"),
+            formal_step=ordered_next_steps.get("F02.6"),
+            post_stage=post_stages.get("f02_6_decision_record"),
+            completion_signal="Dr Sun approved/rejected decision record is present and source-fresh.",
+            next_action="Close the F02.6 warm-start decision record before any approved preflight.",
+        ),
+        _item(
+            checklist_id="preflight_source_fresh_regeneration",
+            phase="regeneration",
+            group=groups.get("source_fresh_regeneration_targets"),
+            formal_step=ordered_next_steps.get("remote_preflight"),
+            post_stage=post_stages.get("regenerate_preflight_gate_artifacts"),
+            completion_signal="All approved_remote_preflight source-fresh targets are regenerated from the current head.",
+            next_action="Regenerate source freshness targets only after F02.6 is closed.",
+        ),
+        _item(
+            checklist_id="approved_remote_preflight_and_packet",
+            phase="remote_preflight",
+            group=groups.get("post_f02_6_ordered_stages"),
+            formal_step=ordered_next_steps.get("remote_preflight"),
+            post_stage=post_stages.get("approved_remote_preflight"),
+            completion_signal="Approved gpu3070ti preflight passes and the remote execution packet becomes ready.",
+            next_action="Run only the approved remote preflight path; do not train locally.",
+        ),
+        _item(
+            checklist_id="gate3_remote_training_outputs",
+            phase="training",
+            group=groups.get("remote_training_outputs"),
+            formal_step=ordered_next_steps.get("gate3_remote_training"),
+            post_stage=post_stages.get("gate3_remote_training"),
+            completion_signal="Remote formal Gate3 PPO training returns final_model.zip, summary.json, and training_manifest.json.",
+            next_action="Run formal PPO only on gpu3070ti-relay after the packet reports ready.",
+            runs_training=True,
+            host="gpu3070ti-relay",
+        ),
+        _item(
+            checklist_id="gate3_formal_eval_outputs",
+            phase="evaluation",
+            group=groups.get("gate3_evaluation_outputs"),
+            formal_step=ordered_next_steps.get("gate3_remote_audit_pullback"),
+            post_stage=post_stages.get("gate3_remote_audit_pullback"),
+            completion_signal="Formal Gate3 eval CSV and summary are present in the pulled-back trial directory.",
+            next_action="Audit and pull back evaluation outputs with the remote formal trial.",
+        ),
+        _item(
+            checklist_id="gate3_audit_pullback_hashes",
+            phase="acceptance",
+            group=groups.get("gate3_acceptance_pullback"),
+            formal_step=ordered_next_steps.get("gate3_remote_audit_pullback"),
+            post_stage=post_stages.get("gate3_remote_audit_pullback"),
+            completion_signal="Trial manifest, formal audit, and checkpoint SHA-256 record are present.",
+            next_action="Record pullback hashes before any H01/H02 or claim gate regeneration.",
+        ),
+        _item(
+            checklist_id="h01_h02_formal_acceptance",
+            phase="evaluation_acceptance",
+            group=groups.get("h01_h02_formal_evaluation_acceptance"),
+            formal_step=ordered_next_steps.get("h01_h02_regeneration"),
+            post_stage=post_stages.get("regenerate_h01_h02_formal_artifacts"),
+            completion_signal="H01 exposes the formal run command and H02 accepts formal-scale PPO outputs.",
+            next_action="Regenerate H01/H02 after audited checkpoint pullback, not before.",
+        ),
+        _item(
+            checklist_id="claim_gate_regeneration",
+            phase="claim_gate",
+            group=groups.get("claim_gate_regeneration"),
+            formal_step=ordered_next_steps.get("claim_safety_final_gate"),
+            post_stage=post_stages.get("regenerate_claim_gate_artifacts"),
+            completion_signal="Claim safety, missing-artifacts inventory, and paper readiness are regenerated after H02 acceptance.",
+            next_action="Only then can formal result writing be considered; this checklist itself does not allow claims.",
+        ),
+    ]
+
+
+def _item(
+    *,
+    checklist_id: str,
+    phase: str,
+    group: dict[str, Any] | None,
+    formal_step: dict[str, Any] | None,
+    post_stage: dict[str, Any] | None,
+    completion_signal: str,
+    next_action: str,
+    runs_training: bool = False,
+    host: str | None = None,
+) -> dict[str, Any]:
+    group = group or {}
+    required_items = _group_items(group)
+    missing_items = [item for item in required_items if item.get("missing")]
+    formal_blockers = _strings((formal_step or {}).get("blocked_by"))
+    post_blockers = _strings((post_stage or {}).get("blocked_by"))
+    blocked_by = _unique(_strings(group.get("blocked_by")) + formal_blockers + post_blockers)
+    complete = bool(group.get("complete")) and not missing_items and not blocked_by
+    return {
+        "checklist_id": checklist_id,
+        "phase": phase,
+        "status": "complete" if complete else "blocked",
+        "complete": complete,
+        "runs_training": bool(runs_training),
+        "host": host,
+        "group_id": group.get("group_id"),
+        "formal_step_status": (formal_step or {}).get("status"),
+        "post_plan_stage_status": (post_stage or {}).get("status"),
+        "blocked_by": blocked_by,
+        "missing_item_count": len(missing_items),
+        "required_items": required_items,
+        "completion_signal": completion_signal,
+        "next_action": next_action,
+    }
+
+
+def _missing_groups(missing_artifacts: dict[str, Any]) -> list[dict[str, Any]]:
+    groups = missing_artifacts.get("missing_evidence_groups")
+    if not isinstance(groups, list):
+        return []
+    return [group for group in groups if isinstance(group, dict)]
+
+
+def _group_items(group: dict[str, Any]) -> list[dict[str, Any]]:
+    items = group.get("items")
+    if not isinstance(items, list):
+        return []
+    out = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        out.append(
+            {
+                "artifact_id": item.get("artifact_id"),
+                "path": item.get("path"),
+                "exists": bool(item.get("exists")),
+                "state": item.get("state"),
+                "missing": bool(item.get("missing")),
+                "reason": item.get("reason"),
+            }
+        )
+    return out
+
+
+def _artifacts_for_category(groups: Sequence[dict[str, Any]], category: str) -> list[dict[str, Any]]:
+    artifacts: list[dict[str, Any]] = []
+    for group in groups:
+        if str(group.get("category")) != category:
+            continue
+        artifacts.extend(_group_items(group))
+    return artifacts
+
+
+def _input_safety_issues(
+    *,
+    missing_artifacts: dict[str, Any],
+    formal_gate: dict[str, Any],
+    post_plan: dict[str, Any],
+    source_freshness: dict[str, Any],
+) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    for name, payload in (
+        ("missing_artifacts", missing_artifacts),
+        ("formal_gate", formal_gate),
+        ("post_plan", post_plan),
+        ("source_freshness", source_freshness),
+    ):
+        if payload.get("executes_commands") is True:
+            issues.append(_issue(f"{name}_executes_commands", f"{name} must be read-only for closure checklist input."))
+        if payload.get("runs_training") is True:
+            issues.append(_issue(f"{name}_runs_training", f"{name} must not run training as checklist input."))
+        if payload.get("runs_remote_preflight") is True:
+            issues.append(_issue(f"{name}_runs_remote_preflight", f"{name} must not run remote preflight as checklist input."))
+        if payload.get("local_training_allowed") is True:
+            issues.append(_issue(f"{name}_allows_local_training", f"{name} must preserve local-training prohibition."))
+        if payload.get("formal_claim_allowed") is True:
+            issues.append(_issue(f"{name}_allows_formal_claim", f"{name} must not allow formal claims."))
+    return _unique_issues(issues)
+
+
+def _post_plan_blocked_stage_ids(post_plan: dict[str, Any]) -> list[str]:
+    summary = post_plan.get("blocking_summary") if isinstance(post_plan.get("blocking_summary"), dict) else {}
+    blocked = summary.get("blocked_stage_ids")
+    if isinstance(blocked, list):
+        return [str(item) for item in blocked if item]
+    return []
+
+
+def _strings(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [str(item) for item in value if item]
+
+
+def _issue(issue_id: str, message: str) -> dict[str, str]:
+    return {"issue_id": issue_id, "message": message}
+
+
+def _unique(items: Sequence[str]) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
+    for item in items:
+        if not item or item in seen:
+            continue
+        seen.add(item)
+        out.append(item)
+    return out
+
+
+def _unique_issues(issues: Sequence[dict[str, str]]) -> list[dict[str, str]]:
+    seen: set[str] = set()
+    out: list[dict[str, str]] = []
+    for issue in issues:
+        issue_id = issue.get("issue_id") or ""
+        if not issue_id or issue_id in seen:
+            continue
+        seen.add(issue_id)
+        out.append(issue)
+    return out
+
+
+def _read_json(path: Path) -> dict[str, Any]:
+    if not Path(path).is_file():
+        return {}
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def _source_head() -> str:
+    try:
+        head = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL).strip()
+        dirty = subprocess.check_output(["git", "status", "--short"], text=True, stderr=subprocess.DEVNULL).strip()
+        return f"{head}+dirty" if dirty else head
+    except Exception:
+        return "unknown"
+
+
+def _markdown(manifest: dict[str, Any]) -> str:
+    lines = [
+        "# Module2 Formal Gate Closure Checklist",
+        "",
+        "This file is a formal-gate closure checklist. It does not execute commands, train, preflight, audit, pull back artifacts, or write paper results.",
+        "",
+        f"- status: `{manifest['status']}`",
+        f"- closure_item_count: `{manifest['closure_item_count']}`",
+        f"- open_item_count: `{manifest['open_item_count']}`",
+        f"- input_safety_issue_count: `{manifest['input_safety_issue_count']}`",
+        f"- runs_training: `{manifest['runs_training']}`",
+        f"- runs_remote_preflight: `{manifest['runs_remote_preflight']}`",
+        f"- formal_claim_allowed: `{manifest['formal_claim_allowed']}`",
+        "",
+        "## Current Gate Summary",
+        "",
+    ]
+    for key, value in manifest["current_gate_summary"].items():
+        lines.append(f"- {key}: `{value}`")
+    lines.extend(["", "## Closure Checklist", ""])
+    for item in manifest["closure_checklist"]:
+        host = f", host=`{item['host']}`" if item.get("host") else ""
+        lines.append(
+            f"- `{item['checklist_id']}` ({item['phase']}): status=`{item['status']}`, "
+            f"missing=`{item['missing_item_count']}`, runs_training=`{item['runs_training']}`{host}"
+        )
+        if item["blocked_by"]:
+            lines.append(f"  - blocked_by: `{', '.join(item['blocked_by'])}`")
+        lines.append(f"  - completion_signal: {item['completion_signal']}")
+        lines.append(f"  - next_action: {item['next_action']}")
+    lines.extend(["", "## Required Training Artifacts", ""])
+    _append_artifacts(lines, manifest["training_artifacts_required"])
+    lines.extend(["", "## Required Evaluation Artifacts", ""])
+    _append_artifacts(lines, manifest["evaluation_artifacts_required"])
+    lines.extend(["", "## Required Acceptance Artifacts", ""])
+    _append_artifacts(lines, manifest["acceptance_artifacts_required"])
+    lines.extend(["", "## Input Safety Issues", ""])
+    if manifest["input_safety_issues"]:
+        lines.extend(f"- `{issue['issue_id']}`: {issue['message']}" for issue in manifest["input_safety_issues"])
+    else:
+        lines.append("- none")
+    lines.extend(["", "## Claim Boundaries", ""])
+    lines.extend(f"- {item}" for item in manifest["claim_boundaries"])
+    return "\n".join(lines) + "\n"
+
+
+def _append_artifacts(lines: list[str], artifacts: Sequence[dict[str, Any]]) -> None:
+    if not artifacts:
+        lines.append("- none")
+        return
+    for artifact in artifacts:
+        lines.append(
+            f"- `{artifact.get('artifact_id')}`: missing=`{artifact.get('missing')}`, "
+            f"path=`{artifact.get('path')}`"
+        )
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
