@@ -169,6 +169,21 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert remaining["rows"]["training:train_final_model_zip"]["responsible_stage_id"] == "gate3_remote_training"
     assert remaining["rows"]["training:train_final_model_zip"]["acceptance_predicate_count"] > 0
     assert remaining["rows"]["training:train_final_model_zip"]["invalid_substitute_count"] > 0
+    remaining_gap = manifest["remaining_deliverables_gap_summary"]
+    assert remaining_gap["present"] is True
+    assert remaining_gap["summary_id"] == "module2_formal_gate_missing_training_eval_acceptance_summary"
+    assert remaining_gap["total_missing_deliverables"] == 10
+    assert remaining_gap["open_category_count"] == 4
+    assert remaining_gap["category_order"] == ["training", "evaluation", "acceptance", "formal_acceptance"]
+    assert remaining_gap["categories"]["training"]["missing_count"] == 3
+    assert remaining_gap["categories"]["training"]["responsible_stage_id"] == "gate3_remote_training"
+    assert remaining_gap["categories"]["training"]["responsible_stage_allowed_now"] is False
+    assert remaining_gap["categories"]["training"]["missing_artifact_matrix_ids"] == [
+        "training:train_final_model_zip",
+        "training:train_summary_json",
+        "training:train_training_manifest_json",
+    ]
+    assert remaining_gap["categories"]["formal_acceptance"]["missing_count"] == 2
 
     lanes = {lane["lane_id"]: lane for lane in manifest["formal_gate_lanes"]}
     assert lanes["gate3_remote_training"]["runs_training"] is True
@@ -209,6 +224,12 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     assert manifest["h02_formal_acceptance_requirement_summary"]["status_counts"] == {"satisfied": 4}
     assert manifest["remaining_deliverables_acceptance_summary"]["matrix_row_count"] == 10
     assert manifest["remaining_deliverables_acceptance_summary"]["missing_row_count"] == 0
+    assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 0
+    assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 0
+    assert all(
+        category["missing_artifact_matrix_ids"] == []
+        for category in manifest["remaining_deliverables_gap_summary"]["categories"].values()
+    )
 
 
 def test_formal_gate_status_report_catches_status_input_drift(tmp_path):
