@@ -545,6 +545,7 @@ def _handoff_bundle_safety_issues(handoff_bundle: dict[str, Any]) -> list[dict[s
         return [_issue("handoff_bundle_missing", "formal gate status report must consume the handoff bundle.")]
     issues: list[dict[str, str]] = []
     summary = _handoff_bundle_summary(handoff_bundle)
+    issues.extend(_formal_gate_requirement_stage_issues(handoff_bundle))
     if summary["safety_issue_count"] > 0:
         issues.append(_issue("handoff_bundle_safety_issues_open", "handoff bundle reports open safety issues."))
     pending = handoff_bundle.get("current_state", {}).get("decision_status") == "pending_human_decision" if isinstance(handoff_bundle.get("current_state"), dict) else False
@@ -560,6 +561,87 @@ def _handoff_bundle_safety_issues(handoff_bundle: dict[str, Any]) -> list[dict[s
     for step_id, step in summary["remote_execution_steps"].items():
         if step_id != "run_remote_training" and step.get("runs_training") is True:
             issues.append(_issue(f"handoff_bundle_{step_id}_claims_training", f"handoff bundle {step_id} must not be marked as training."))
+    return issues
+
+
+def _formal_gate_requirement_stage_summary(handoff_bundle: dict[str, Any]) -> dict[str, Any]:
+    requirements = handoff_bundle.get("formal_gate_requirements")
+    requirements = requirements if isinstance(requirements, list) else []
+    by_id = {
+        str(req.get("requirement_id")): req
+        for req in requirements
+        if isinstance(req, dict) and req.get("requirement_id")
+    }
+    rows: dict[str, dict[str, Any]] = {}
+    for requirement_id, expected_stage_id in FORMAL_REQUIREMENT_RESPONSIBLE_STAGES.items():
+        req = by_id.get(requirement_id, {})
+        responsible_stage_id = req.get("responsible_stage_id")
+        stage_allowed = req.get("responsible_stage_allowed_now")
+        mapped = bool(responsible_stage_id)
+        rows[requirement_id] = {
+            "present": bool(req),
+            "status": req.get("status"),
+            "phase": req.get("phase"),
+            "complete": req.get("complete") if isinstance(req.get("complete"), bool) else None,
+            "execution_allowed_now": req.get("execution_allowed_now") if isinstance(req.get("execution_allowed_now"), bool) else None,
+            "expected_stage_id": expected_stage_id,
+            "responsible_stage_id": responsible_stage_id,
+            "responsible_stage_status": req.get("responsible_stage_status"),
+            "responsible_stage_allowed_now": stage_allowed if isinstance(stage_allowed, bool) else None,
+            "responsible_stage_blocked_by": _strings(req.get("responsible_stage_blocked_by")),
+            "responsible_stage_evidence_paths": _strings(req.get("responsible_stage_evidence_paths")),
+            "mapping_present": mapped,
+            "mapping_matches_expected": responsible_stage_id == expected_stage_id,
+        }
+    unmapped = [req_id for req_id, row in rows.items() if not row["mapping_present"]]
+    mismatched = [req_id for req_id, row in rows.items() if row["mapping_present"] and not row["mapping_matches_expected"]]
+    blocked_stage_count = sum(1 for row in rows.values() if row["responsible_stage_allowed_now"] is False)
+    return {
+        "required_requirement_count": len(FORMAL_REQUIREMENT_RESPONSIBLE_STAGES),
+        "present_requirement_count": sum(1 for row in rows.values() if row["present"]),
+        "mapped_requirement_count": sum(1 for row in rows.values() if row["mapping_present"]),
+        "unmapped_requirement_count": len(unmapped),
+        "mismatched_requirement_count": len(mismatched),
+        "blocked_stage_count": blocked_stage_count,
+        "unmapped_requirement_ids": unmapped,
+        "mismatched_requirement_ids": mismatched,
+        "requirements": rows,
+    }
+
+
+def _formal_gate_requirement_stage_issues(handoff_bundle: dict[str, Any]) -> list[dict[str, str]]:
+    summary = _formal_gate_requirement_stage_summary(handoff_bundle)
+    issues: list[dict[str, str]] = []
+    if summary["present_requirement_count"] == 0:
+        issues.append(_issue("handoff_bundle_missing_formal_gate_requirements", "handoff bundle must expose formal_gate_requirements."))
+    for requirement_id, row in summary["requirements"].items():
+        if not row["present"]:
+            issues.append(_issue(f"handoff_bundle_missing_{requirement_id}", f"handoff bundle missing formal requirement {requirement_id}."))
+            continue
+        if not row["mapping_present"]:
+            issues.append(_issue(f"handoff_bundle_{requirement_id}_missing_responsible_stage", f"{requirement_id} must expose responsible_stage_id."))
+            continue
+        if not row["mapping_matches_expected"]:
+            issues.append(
+                _issue(
+                    f"handoff_bundle_{requirement_id}_wrong_responsible_stage",
+                    f"{requirement_id} must map to {row['expected_stage_id']}.",
+                )
+            )
+        if row["responsible_stage_allowed_now"] is False and not row["responsible_stage_blocked_by"]:
+            issues.append(
+                _issue(
+                    f"handoff_bundle_{requirement_id}_stage_missing_blocked_by",
+                    f"disabled responsible stage for {requirement_id} must explain blocked_by.",
+                )
+            )
+        if row["status"] != "satisfied" and row["responsible_stage_allowed_now"] is True:
+            issues.append(
+                _issue(
+                    f"handoff_bundle_{requirement_id}_stage_ready_while_requirement_blocked",
+                    f"responsible stage for blocked requirement {requirement_id} must not be ready.",
+                )
+            )
     return issues
 
 
