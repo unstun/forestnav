@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
 
@@ -116,7 +117,7 @@ def test_obstacle_summary_bc_warm_start_matches_bc_normalized_action(tmp_path):
     env.close()
 
     assert record["status"] == "applied_obstacle_summary_bc"
-    assert float(action.reshape(-1)[0]) == pytest_approx(expected, abs=1e-5)
+    assert float(action.reshape(-1)[0]) == pytest.approx(expected, abs=1e-5)
 
 
 def _bc_normalized_action(obs) -> float:
@@ -138,9 +139,3 @@ def _bc_normalized_action(obs) -> float:
     with torch.no_grad():
         physical = float(bc_model(torch.as_tensor(normalized.reshape(1, -1), dtype=torch.float32)).detach().cpu().numpy()[0, 0])
     return physical / float(checkpoint["max_steer"])
-
-
-def pytest_approx(value: float, *, abs: float):
-    import pytest
-
-    return pytest.approx(value, abs=abs)
