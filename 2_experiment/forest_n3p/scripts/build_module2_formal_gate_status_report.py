@@ -2127,6 +2127,23 @@ def _strings(value: Any) -> list[str]:
     return [str(item) for item in value if item]
 
 
+def _proof_commands(value: Any) -> list[dict[str, str]]:
+    if not isinstance(value, list):
+        return []
+    commands: list[dict[str, str]] = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        commands.append(
+            {
+                "command_id": str(item.get("command_id") or ""),
+                "command": str(item.get("command") or ""),
+                "execution_boundary": str(item.get("execution_boundary") or ""),
+            }
+        )
+    return commands
+
+
 def _issue(issue_id: str, message: str) -> dict[str, str]:
     return {"issue_id": issue_id, "message": message}
 
