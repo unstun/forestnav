@@ -25,6 +25,8 @@ scalar-only BC。patch+scalar CNN bounded pilot 的成功率与 obstacle-summary
 | scalar | 0.3m | 6/258 | 252/258 | 0/258 | 0 |
 | scalar | 0.1m | 38/258 | 200/258 | 20/258 | 0 |
 | obstacle-summary | 0.1m | 67/258 | 178/258 | 13/258 | 0 |
+| scalar, patch-bounded rows | 0.1m | 65/242 | 162/242 | 15/242 | 0 |
+| obstacle-summary, patch-bounded rows | 0.1m | 101/242 | 131/242 | 10/242 | 0 |
 | patch+scalar CNN bounded | 0.1m | 63/242 | 171/242 | 8/242 | 0 |
 
 这说明:
@@ -32,7 +34,8 @@ scalar-only BC。patch+scalar CNN bounded pilot 的成功率与 obstacle-summary
 1. action MAE 仍不能替代闭环指标;
 2. step-aligned 0.1m eval 对 scalar 有帮助, 但仍弱;
 3. obstacle features 仍有真实闭环收益;
-4. patch-CNN bounded pilot 不能自动替代 obstacle-summary 作为 PPO warm-start。
+4. 同一组 bounded validation rows 上, obstacle-summary 明显强于 patch-CNN,
+   因此当前 warm-start 推荐是 obstacle-summary, 不是 patch-CNN。
 
 ## Dataset
 
@@ -96,6 +99,7 @@ Artifacts:
 | `2_experiment/forest_n3p/models/module2_rl_rs_bc_formal_v2_scalar/history.json` | `f57440f6d094391dc5ebc9ff516dddfff7bf475e4ee89cf292231b96b489c1d3` |
 | `2_experiment/forest_n3p/models/module2_rl_rs_bc_formal_v2_scalar/summary.json` | `cc8e7fd50180d437d62e2b5e4d4db745e038f34c53bb406fe41b12dd61e52a5f` |
 | `2_experiment/forest_n3p/models/module2_rl_rs_bc_formal_v2_scalar/eval_rollout_step01.json` | `62037ed1999cb6cd5e02452c8fb686a6785226ff06ca229895223bd79d853d63` |
+| `2_experiment/forest_n3p/models/module2_rl_rs_bc_formal_v2_scalar/eval_patch_bounded_rows.json` | `06f784583cdf119ea1c337ae824c690c504451b9cbca09f17bf155c33282e9d8` |
 
 ## Obstacle-Summary BC
 
@@ -143,6 +147,18 @@ Artifacts:
 | `2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt` | `3156df44ca7f26da7f2e635707554bb1cd486164638b3a2d11075c3787670683` |
 | `2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/history.json` | `3bc13c766f566ba2e0985bbb8d9a3f54a301cca1f450d3b6f7421b83f5df3491` |
 | `2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/summary.json` | `73baacd42654fa63b94b2323d5612098e55a870a0e81064d53880f80d342a2d7` |
+| `2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/eval_patch_bounded_rows.json` | `391ee3c26d8b578b24a463df4ff55583f1ebbc59acaec23ec8f74b30a56d3a3b` |
+
+Comparable bounded-row eval:
+
+| Metric | Value |
+|---|---:|
+| val rows | 1024 |
+| val source rows | 242 |
+| terminal RS success | 101/242 |
+| collision | 131/242 |
+| truncated | 10/242 |
+| runtime error | 0/242 |
 
 ## Patch-Scalar CNN Bounded Pilot
 
@@ -220,15 +236,18 @@ jq empty \
 - Obstacle-summary is the stronger MLP BC baseline under formal-v2.
 - Neither MLP baseline is strong enough for planner insertion.
 - Patch-CNN bounded pilot did not clearly beat obstacle-summary.
+- Same-row bounded eval shows obstacle-summary clearly beats patch-CNN
+  (101/242 vs 63/242 success).
 
 ## Disallowed Conclusions
 
-- Do not select patch-CNN as PPO warm-start from this bounded pilot alone.
+- Do not select patch-CNN as PPO warm-start from this bounded pilot.
 - Do not compare these formal-v2 metrics numerically against formal-v1 as if the
   datasets shared the same map semantics.
 - Do not claim PPO training or planner integration exists.
 
 ## Next Step
 
-Make an explicit warm-start decision before PPO: either use obstacle-summary as
-the practical initialization, or run a stronger/full patch-CNN protocol first.
+Recommended F02.6 decision: use obstacle-summary as the practical PPO warm-start
+unless Dr Sun explicitly wants to spend another round on a stronger/full
+patch-CNN protocol.
