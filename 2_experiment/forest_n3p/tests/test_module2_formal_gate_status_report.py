@@ -1195,6 +1195,60 @@ def _remaining_deliverables(*, complete):
             "formal_claim_allowed_now": complete,
         },
         "deliverable_acceptance_matrix": matrix,
+        "deliverable_gap_summary": _remaining_deliverable_gap_summary(
+            category_artifacts=category_artifacts,
+            matrix=matrix,
+            complete=complete,
+        ),
+    }
+
+
+def _remaining_deliverable_gap_summary(*, category_artifacts, matrix, complete):
+    stage_by_category = {
+        "training": "gate3_remote_training",
+        "evaluation": "gate3_remote_audit_pullback",
+        "acceptance": "gate3_remote_audit_pullback",
+        "formal_acceptance": "regenerate_h01_h02_formal_artifacts",
+    }
+    rows_by_category = {}
+    for row in matrix:
+        rows_by_category.setdefault(row["category"], []).append(row)
+    categories = []
+    for category, artifact_ids in category_artifacts.items():
+        rows = rows_by_category[category]
+        missing_rows = [row for row in rows if row["missing"]]
+        categories.append(
+            {
+                "category": category,
+                "status": "complete" if complete else "blocked",
+                "missing_count": 0 if complete else len(artifact_ids),
+                "present_count": len(artifact_ids) if complete else 0,
+                "responsible_stage_id": stage_by_category[category],
+                "responsible_stage_allowed_now": complete,
+                "responsible_stage_blocked_by": [] if complete else ["remote_packet_not_ready"],
+                "next_required_evidence": [f"{category}_acceptable_evidence"],
+                "missing_artifacts": [
+                    {
+                        "matrix_id": row["matrix_id"],
+                        "artifact_id": row["artifact_id"],
+                        "expected_path": row["expected_path"],
+                        "current_state": row["current_state"],
+                        "missing_reason": row["missing_reason"],
+                        "acceptance_predicate_count": len(row["acceptance_predicates"]),
+                        "invalid_substitutes": row["invalid_substitutes"],
+                    }
+                    for row in missing_rows
+                ],
+            }
+        )
+    return {
+        "summary_id": "module2_formal_gate_missing_training_eval_acceptance_summary",
+        "execution_boundary": "read_only_no_execution",
+        "not_paper_result_material": True,
+        "total_missing_deliverables": 0 if complete else len(matrix),
+        "open_category_count": 0 if complete else len(category_artifacts),
+        "category_order": list(category_artifacts),
+        "categories": categories,
     }
 
 
