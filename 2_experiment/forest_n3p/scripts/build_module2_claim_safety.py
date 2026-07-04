@@ -385,6 +385,7 @@ def _formal_performance_blockers(
     blockers.extend(_status_report_requirement_stage_blockers(status_report))
     blockers.extend(_status_report_remote_requirement_blockers(status_report))
     blockers.extend(_status_report_h02_acceptance_requirement_blockers(status_report))
+    blockers.extend(_status_report_remaining_deliverables_acceptance_blockers(status_report))
     blockers.extend(_status_report_decision_intake_blockers(status_report))
     blockers.extend(_status_report_remote_summary_blockers(status_report))
     return blockers
