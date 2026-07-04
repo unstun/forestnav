@@ -24,6 +24,7 @@ DEFAULT_HANDOFF_BUNDLE = Path("0_trials/module2_formal_gate_handoff_bundle/forma
 DEFAULT_REMAINING_DELIVERABLES = Path(
     "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json"
 )
+DEFAULT_FORMAL_GATE_PROOF_AUDIT = Path("0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json")
 REMOTE_EXECUTION_STEP_IDS = (
     "sync_to_remote",
     "run_remote_preflight",
@@ -102,6 +103,7 @@ class FormalGateStatusReportConfig:
     paper_readiness_path: Path = DEFAULT_PAPER_READINESS
     handoff_bundle_path: Path = DEFAULT_HANDOFF_BUNDLE
     remaining_deliverables_path: Path = DEFAULT_REMAINING_DELIVERABLES
+    formal_gate_proof_audit_path: Path = DEFAULT_FORMAL_GATE_PROOF_AUDIT
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -122,6 +124,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         paper_readiness_path=args.paper_readiness,
         handoff_bundle_path=args.handoff_bundle,
         remaining_deliverables_path=args.remaining_deliverables,
+        formal_gate_proof_audit_path=args.formal_gate_proof_audit,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -149,6 +152,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     paper_readiness = _read_json(config.paper_readiness_path)
     handoff_bundle = _read_json(config.handoff_bundle_path)
     remaining_deliverables = _read_json(config.remaining_deliverables_path)
+    formal_gate_proof_audit = _read_json(config.formal_gate_proof_audit_path)
     remote_execution_steps = _remote_execution_step_summary(remote_packet)
     remote_preflight_requirements = _remote_requirement_matrix_summary(
         remote_packet=remote_packet,
@@ -172,6 +176,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     remaining_deliverables_acceptance_summary = _remaining_deliverables_acceptance_summary(remaining_deliverables)
     remaining_deliverables_gap_summary = _remaining_deliverables_gap_summary(remaining_deliverables)
     remaining_deliverables_proof_command_plan = _remaining_deliverables_proof_command_plan(remaining_deliverables)
+    formal_gate_proof_audit_summary = _formal_gate_proof_audit_summary(formal_gate_proof_audit)
     formal_gate_gap_audit_remaining_deliverables_gap_summary = (
         _formal_gate_gap_audit_remaining_deliverables_gap_summary(formal_gate)
     )
@@ -193,6 +198,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "paper_readiness": paper_readiness,
             "handoff_bundle": handoff_bundle,
             "remaining_deliverables": remaining_deliverables,
+            "formal_gate_proof_audit": formal_gate_proof_audit,
         }
     )
     input_safety_issues = _unique_issues(
@@ -214,6 +220,11 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             remaining_deliverables=remaining_deliverables,
             acceptance_summary=remaining_deliverables_acceptance_summary,
             gap_summary=remaining_deliverables_gap_summary,
+            proof_plan=remaining_deliverables_proof_command_plan,
+        )
+        + _formal_gate_proof_audit_issues(
+            proof_audit=formal_gate_proof_audit,
+            summary=formal_gate_proof_audit_summary,
             proof_plan=remaining_deliverables_proof_command_plan,
         )
         + _formal_gate_gap_audit_remaining_deliverables_gap_summary_issues(
@@ -273,6 +284,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "paper_readiness": str(config.paper_readiness_path),
             "formal_gate_handoff_bundle": str(config.handoff_bundle_path),
             "formal_gate_remaining_deliverables": str(config.remaining_deliverables_path),
+            "formal_gate_proof_audit": str(config.formal_gate_proof_audit_path),
         },
         "current_state": {
             "decision_status": decision.get("status"),
@@ -348,6 +360,19 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "remaining_deliverables_proof_plan_command_count": remaining_deliverables_proof_command_plan[
                 "total_proof_command_count"
             ],
+            "formal_gate_proof_audit_status": formal_gate_proof_audit_summary["status"],
+            "formal_gate_proof_audit_command_count": formal_gate_proof_audit_summary[
+                "total_proof_command_count"
+            ],
+            "formal_gate_proof_audit_passed_count": formal_gate_proof_audit_summary[
+                "passed_proof_command_count"
+            ],
+            "formal_gate_proof_audit_failed_count": formal_gate_proof_audit_summary[
+                "failed_proof_command_count"
+            ],
+            "formal_gate_proof_audit_blocked_count": formal_gate_proof_audit_summary[
+                "blocked_proof_command_count"
+            ],
             "handoff_bundle_next_action": handoff_summary["next_handoff_action_id"],
             "handoff_bundle_safety_issue_count": handoff_summary["safety_issue_count"],
             "handoff_bundle_remote_training_allowed_now": handoff_summary["remote_training_allowed_now"],
@@ -396,6 +421,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "remaining_deliverables_acceptance_summary": remaining_deliverables_acceptance_summary,
         "remaining_deliverables_gap_summary": remaining_deliverables_gap_summary,
         "remaining_deliverables_proof_command_plan": remaining_deliverables_proof_command_plan,
+        "formal_gate_proof_audit_summary": formal_gate_proof_audit_summary,
         "formal_gate_gap_audit_remaining_deliverables_gap_summary": (
             formal_gate_gap_audit_remaining_deliverables_gap_summary
         ),
@@ -439,6 +465,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--paper-readiness", type=Path, default=DEFAULT_PAPER_READINESS)
     parser.add_argument("--handoff-bundle", type=Path, default=DEFAULT_HANDOFF_BUNDLE)
     parser.add_argument("--remaining-deliverables", type=Path, default=DEFAULT_REMAINING_DELIVERABLES)
+    parser.add_argument("--formal-gate-proof-audit", type=Path, default=DEFAULT_FORMAL_GATE_PROOF_AUDIT)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
