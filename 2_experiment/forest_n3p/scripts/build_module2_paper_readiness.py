@@ -154,6 +154,9 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         claim_safety
     )
     claim_remaining_deliverables_gap_summary = _claim_safety_remaining_deliverables_gap_summary(claim_safety)
+    claim_formal_gate_gap_audit_remaining_deliverables_gap_summary = (
+        _claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_summary(claim_safety)
+    )
     input_status = {
         "method_algorithms_status": method_algorithms.get("status"),
         "system_diagram_status": system_diagram.get("status"),
@@ -259,6 +262,15 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_remaining_deliverables_gap_open_category_count": claim_remaining_deliverables_gap_summary[
             "open_category_count"
         ],
+        "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_present": claim_formal_gate_gap_audit_remaining_deliverables_gap_summary[
+            "present"
+        ],
+        "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_total_missing_deliverables": claim_formal_gate_gap_audit_remaining_deliverables_gap_summary[
+            "total_missing_deliverables"
+        ],
+        "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_open_category_count": claim_formal_gate_gap_audit_remaining_deliverables_gap_summary[
+            "open_category_count"
+        ],
         "h02_formal_acceptance_status": h02_acceptance.get("status"),
         "h02_formal_output_accepted": h02_acceptance.get("formal_output_accepted"),
         "h02_paper_result_input_allowed": h02_acceptance.get("paper_result_input_allowed"),
@@ -313,6 +325,7 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_decision_intake_summary": claim_decision_intake_summary,
         "claim_safety_remaining_deliverables_acceptance_summary": claim_remaining_deliverables_acceptance_summary,
         "claim_safety_remaining_deliverables_gap_summary": claim_remaining_deliverables_gap_summary,
+        "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_summary": claim_formal_gate_gap_audit_remaining_deliverables_gap_summary,
         "global_blockers": global_blockers,
         "allowed_claim_ids": allowed_claim_ids,
         "conditional_claim_ids": conditional_claim_ids,
@@ -371,6 +384,7 @@ def _global_blockers(
     _extend_unique(blockers, _claim_safety_decision_intake_blockers(claim_safety))
     _extend_unique(blockers, _claim_safety_remaining_deliverables_acceptance_blockers(claim_safety))
     _extend_unique(blockers, _claim_safety_remaining_deliverables_gap_blockers(claim_safety))
+    _extend_unique(blockers, _claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_blockers(claim_safety))
     _extend_unique(blockers, h01_manifest.get("blockers", []))
     if str(decision_record.get("status")) == "pending_human_decision":
         _append_unique(blockers, "f02_6_pending")
@@ -793,7 +807,19 @@ def _claim_safety_remaining_deliverables_acceptance_blockers(claim_safety: dict[
 
 
 def _claim_safety_remaining_deliverables_gap_summary(claim_safety: dict[str, Any]) -> dict[str, Any]:
-    summary = claim_safety.get("status_report_remaining_deliverables_gap_summary")
+    return _claim_safety_gap_summary(claim_safety.get("status_report_remaining_deliverables_gap_summary"))
+
+
+def _claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_summary(
+    claim_safety: dict[str, Any],
+) -> dict[str, Any]:
+    return _claim_safety_gap_summary(
+        claim_safety.get("status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary")
+    )
+
+
+def _claim_safety_gap_summary(raw_summary: Any) -> dict[str, Any]:
+    summary = raw_summary
     summary = summary if isinstance(summary, dict) else {}
     raw_categories = summary.get("categories") if isinstance(summary.get("categories"), dict) else {}
     categories: dict[str, dict[str, Any]] = {}
@@ -823,23 +849,40 @@ def _claim_safety_remaining_deliverables_gap_summary(claim_safety: dict[str, Any
 
 
 def _claim_safety_remaining_deliverables_gap_blockers(claim_safety: dict[str, Any]) -> list[str]:
-    summary = _claim_safety_remaining_deliverables_gap_summary(claim_safety)
+    return _claim_safety_gap_blockers(
+        summary=_claim_safety_remaining_deliverables_gap_summary(claim_safety),
+        prefix="claim_safety_remaining_deliverables_gap",
+        missing_summary_id="claim_safety_missing_remaining_deliverables_gap_summary",
+    )
+
+
+def _claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_blockers(
+    claim_safety: dict[str, Any],
+) -> list[str]:
+    return _claim_safety_gap_blockers(
+        summary=_claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_summary(claim_safety),
+        prefix="claim_safety_formal_gate_gap_audit_remaining_deliverables_gap",
+        missing_summary_id="claim_safety_missing_formal_gate_gap_audit_remaining_deliverables_gap_summary",
+    )
+
+
+def _claim_safety_gap_blockers(*, summary: dict[str, Any], prefix: str, missing_summary_id: str) -> list[str]:
     blockers: list[str] = []
     if not summary["present"]:
-        blockers.append("claim_safety_missing_remaining_deliverables_gap_summary")
+        blockers.append(missing_summary_id)
         return blockers
     if summary["category_order"] != list(CLAIM_SAFETY_REMAINING_DELIVERABLE_CATEGORY_IDS):
-        blockers.append("claim_safety_remaining_deliverables_gap_category_order_mismatch")
+        blockers.append(f"{prefix}_category_order_mismatch")
     if summary["total_missing_deliverables"] > 0:
-        blockers.append("claim_safety_remaining_deliverables_gap_rows_missing")
+        blockers.append(f"{prefix}_rows_missing")
     if summary["open_category_count"] > 0:
-        blockers.append("claim_safety_remaining_deliverables_gap_categories_blocked")
+        blockers.append(f"{prefix}_categories_blocked")
     for category, payload in summary["categories"].items():
         if not payload["present"]:
-            _append_unique(blockers, f"claim_safety_remaining_deliverables_gap_missing_{category}")
+            _append_unique(blockers, f"{prefix}_missing_{category}")
             continue
         if payload["missing_count"] != len(payload["missing_artifact_matrix_ids"]):
-            _append_unique(blockers, f"claim_safety_remaining_deliverables_gap_{category}_missing_artifact_count_mismatch")
+            _append_unique(blockers, f"{prefix}_{category}_missing_artifact_count_mismatch")
     return blockers
 
 
