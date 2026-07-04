@@ -48,6 +48,13 @@ def test_remote_formal_execution_packet_blocks_pending_decision_and_freezes_pull
     assert packet["execution_steps"]["run_remote_training"]["allowed_now"] is False
     assert "remote_packet_not_ready" in packet["execution_steps"]["run_remote_training"]["blocked_by"]
     assert "remote_packet_not_ready" in packet["execution_steps"]["run_remote_audit"]["blocked_by"]
+    assert packet["remote_preflight_requirement_counts"] == {"blocked_missing_preflight": 2, "satisfied": 2}
+    requirements = {item["requirement_id"]: item for item in packet["remote_preflight_requirements"]}
+    assert requirements["f02_6_decision_closed_for_preflight"]["status"] == "blocked_missing_preflight"
+    assert requirements["approved_remote_preflight_manifest"]["status"] == "blocked_missing_preflight"
+    assert requirements["remote_preflight_protocol_contract"]["status"] == "satisfied"
+    assert requirements["remote_preflight_command_packetized"]["status"] == "satisfied"
+    assert "local preflight output" in requirements["approved_remote_preflight_manifest"]["invalid_substitutes"]
     assert "ssh gpu3070ti-relay" in packet["execution_steps"]["run_remote_training"]["command"]
     assert "--device cuda" in packet["execution_steps"]["run_remote_training"]["command"]
     assert packet["post_run_pullback"]["required_before_local_claim"] is True
@@ -55,6 +62,7 @@ def test_remote_formal_execution_packet_blocks_pending_decision_and_freezes_pull
     assert "gate3_formal_audit.json" in "\n".join(packet["post_run_pullback"]["expected_artifacts"])
     assert "required_output_schema" in packet["h01_manifest"]["schema_checks"]
     assert "blocked_until_f02_6_decision" in markdown
+    assert "Remote Preflight Requirements" in markdown
     assert "gpu3070ti-relay" in markdown
 
 
@@ -78,6 +86,8 @@ def test_remote_formal_execution_packet_allows_only_approved_ready_remote_traini
     assert packet["execution_steps"]["sync_to_remote"]["blocked_by"] == []
     assert packet["execution_steps"]["run_remote_training"]["allowed_now"] is True
     assert packet["execution_steps"]["run_remote_training"]["blocked_by"] == []
+    assert packet["remote_preflight_requirement_counts"] == {"satisfied": 4}
+    assert all(item["status"] == "satisfied" for item in packet["remote_preflight_requirements"])
     runner_command = packet["execution_steps"]["run_remote_training"]["command"]
     assert runner_command.startswith("ssh gpu3070ti-relay")
     assert "run_rl_rs_gate3_trial" in runner_command
@@ -124,6 +134,14 @@ def _decision_record(tmp_path, *, status):
                 "conditional_actions": {
                     "if_approved_obstacle_summary": {
                         "host": "gpu3070ti-relay",
+                        "preflight_command": (
+                            "python -m forest_n3p.scripts.preflight_rl_rs_gate3_formal_trial "
+                            "--output-dir 0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1 "
+                            "--manifest-out 0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1/gate3_preflight_manifest.json "
+                            "--warm-start-decision approved_obstacle_summary --bc-checkpoint "
+                            "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt "
+                            "--device cuda --allow-duplicate-openmp --allow-existing-output-dir"
+                        ),
                         "runner_command_after_ready_preflight": (
                             "python -m forest_n3p.scripts.run_rl_rs_gate3_trial "
                             "--output-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 "
@@ -178,6 +196,30 @@ def _remote_preflight(tmp_path, *, ready):
                 "formal_trial_ready": ready,
                 "warm_start_decision": "approved_obstacle_summary" if ready else "pending",
                 "formal_blockers": [] if ready else [{"code": "warm_start_decision_pending"}],
+                "command": (
+                    "python -m forest_n3p.scripts.preflight_rl_rs_gate3_formal_trial "
+                    "--output-dir 0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1 "
+                    "--manifest-out 0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1/gate3_preflight_manifest.json "
+                    "--warm-start-decision approved_obstacle_summary --bc-checkpoint "
+                    "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt "
+                    "--device cuda --allow-duplicate-openmp --allow-existing-output-dir"
+                ),
+                "protocol": {
+                    "trial_name": "module2_f03_gate3_formal_train_eval",
+                    "runner": "forest_n3p.scripts.run_rl_rs_gate3_trial",
+                    "audit": "forest_n3p.scripts.audit_rl_rs_gate3_trial",
+                    "smoke": False,
+                    "formal_audit_required": True,
+                    "seed": 20260704,
+                    "device": "cuda",
+                    "bc_checkpoint": "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt",
+                    "train_curriculum_preset": "f03",
+                    "eval_curriculum_preset": "f03",
+                    "train_total_timesteps": 100000,
+                    "eval_episodes": 64,
+                    "eval_min_episodes": 64,
+                    "eval_success_threshold": 0.8,
+                },
                 "runner_command": (
                     "python -m forest_n3p.scripts.run_rl_rs_gate3_trial "
                     "--output-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 "
@@ -190,6 +232,11 @@ def _remote_preflight(tmp_path, *, ready):
                 ),
                 "expected_artifacts": [
                     "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
+                    "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
+                    "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json",
+                    "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv",
+                    "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json",
+                    "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json",
                     "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json",
                 ],
             }
