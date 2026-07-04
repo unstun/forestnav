@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 import numpy as np
@@ -10,9 +10,48 @@ from scipy.ndimage import distance_transform_edt
 from forest_n3p.rl_rs.terminal import TerminalRsCheckResult
 from forest_n3p.third_party.pathplan import AckermannState, GridMap, TwoCircleFootprint
 
+REWARD_TERM_NAMES = (
+    "success",
+    "terminal",
+    "collision",
+    "progress",
+    "rs_progress",
+    "clearance",
+    "curvature",
+    "path_length",
+    "step",
+)
+
+
+@dataclass(frozen=True)
+class RewardTermSwitches:
+    success: bool = True
+    terminal: bool = True
+    collision: bool = True
+    progress: bool = True
+    rs_progress: bool = True
+    clearance: bool = True
+    curvature: bool = True
+    path_length: bool = True
+    step: bool = True
+
+    def __post_init__(self) -> None:
+        for name in REWARD_TERM_NAMES:
+            if not isinstance(getattr(self, name), bool):
+                raise ValueError(f"{name} reward switch must be bool")
+
+    def is_enabled(self, name: str) -> bool:
+        if name not in REWARD_TERM_NAMES:
+            raise KeyError(f"Unknown reward term: {name}")
+        return bool(getattr(self, name))
+
+    def to_record(self) -> dict[str, bool]:
+        return {name: self.is_enabled(name) for name in REWARD_TERM_NAMES}
+
 
 @dataclass(frozen=True)
 class RewardConfig:
+    enabled_terms: RewardTermSwitches = field(default_factory=RewardTermSwitches)
     terminal_rs_success: float = 1.0
     collision_penalty: float = -1.0
     terminal_rs_failure_penalty: float = -0.25
@@ -42,7 +81,7 @@ class RewardConfig:
 @dataclass(frozen=True)
 class RewardBreakdown:
     total: float
-    status: str = "e02_2_decomposed_shaping"
+    status: str = "e02_3_reward_ablation_hooks"
     success: float = 0.0
     terminal: float = 0.0
     collision: float = 0.0
@@ -52,9 +91,26 @@ class RewardBreakdown:
     curvature: float = 0.0
     path_length: float = 0.0
     step: float = 0.0
+    enabled_terms: tuple[str, ...] = REWARD_TERM_NAMES
 
     def to_record(self) -> dict[str, float | str]:
-        return asdict(self)
+        return {
+            "total": float(self.total),
+            "status": self.status,
+            "success": float(self.success),
+            "terminal": float(self.terminal),
+            "collision": float(self.collision),
+            "progress": float(self.progress),
+            "rs_progress": float(self.rs_progress),
+            "clearance": float(self.clearance),
+            "curvature": float(self.curvature),
+            "path_length": float(self.path_length),
+            "step": float(self.step),
+        }
+
+    def ablation_record(self) -> dict[str, bool]:
+        enabled = set(self.enabled_terms)
+        return {name: name in enabled for name in REWARD_TERM_NAMES}
 
 
 def compute_terminal_success_reward(
@@ -63,8 +119,9 @@ def compute_terminal_success_reward(
     collided: bool,
     config: RewardConfig,
 ) -> RewardBreakdown:
-    success = _success_reward(terminal_rs=terminal_rs, collided=collided, config=config)
-    return RewardBreakdown(total=success, success=success)
+    enabled = _enabled_terms(config)
+    success = _apply_term("success", _success_reward(terminal_rs=terminal_rs, collided=collided, config=config), config)
+    return RewardBreakdown(total=success, success=success, enabled_terms=enabled)
 
 
 def compute_decomposed_reward(
@@ -79,15 +136,17 @@ def compute_decomposed_reward(
     rollout_path_length_m: float,
     config: RewardConfig,
 ) -> RewardBreakdown:
-    success = _success_reward(terminal_rs=terminal_rs, collided=collided, config=config)
-    terminal = _terminal_penalty(failure_reason=failure_reason, config=config)
-    collision = float(config.collision_penalty) if collided else 0.0
-    progress = float(config.distance_progress_scale) * float(progress_to_goal_m)
+    enabled = _enabled_terms(config)
+    success = _apply_term("success", _success_reward(terminal_rs=terminal_rs, collided=collided, config=config), config)
+    terminal = _apply_term("terminal", _terminal_penalty(failure_reason=failure_reason, config=config), config)
+    collision = _apply_term("collision", float(config.collision_penalty) if collided else 0.0, config)
+    progress = _apply_term("progress", float(config.distance_progress_scale) * float(progress_to_goal_m), config)
     rs_progress = 0.0 if rs_distance_progress_m is None else float(config.rs_distance_progress_scale) * float(rs_distance_progress_m)
-    clearance = _clearance_reward(min_clearance_m=min_clearance_m, config=config)
-    curvature = -float(config.curvature_rate_penalty_scale) * abs(float(curvature_delta_abs))
-    path_length = -float(config.path_length_penalty_scale) * max(0.0, float(rollout_path_length_m))
-    step = float(config.step_penalty)
+    rs_progress = _apply_term("rs_progress", rs_progress, config)
+    clearance = _apply_term("clearance", _clearance_reward(min_clearance_m=min_clearance_m, config=config), config)
+    curvature = _apply_term("curvature", -float(config.curvature_rate_penalty_scale) * abs(float(curvature_delta_abs)), config)
+    path_length = _apply_term("path_length", -float(config.path_length_penalty_scale) * max(0.0, float(rollout_path_length_m)), config)
+    step = _apply_term("step", float(config.step_penalty), config)
     total = success + terminal + collision + progress + rs_progress + clearance + curvature + path_length + step
     return RewardBreakdown(
         total=float(total),
@@ -100,6 +159,7 @@ def compute_decomposed_reward(
         curvature=curvature,
         path_length=path_length,
         step=step,
+        enabled_terms=enabled,
     )
 
 
@@ -137,6 +197,14 @@ def pending_reward_breakdown() -> RewardBreakdown:
     """E02 前的占位: API 可运行, 但不得当作最终 reward 配方。"""
 
     return RewardBreakdown(total=0.0, status="pending_e02")
+
+
+def _enabled_terms(config: RewardConfig) -> tuple[str, ...]:
+    return tuple(name for name in REWARD_TERM_NAMES if config.enabled_terms.is_enabled(name))
+
+
+def _apply_term(name: str, value: float, config: RewardConfig) -> float:
+    return float(value) if config.enabled_terms.is_enabled(name) else 0.0
 
 
 def _success_reward(*, terminal_rs: TerminalRsCheckResult, collided: bool, config: RewardConfig) -> float:

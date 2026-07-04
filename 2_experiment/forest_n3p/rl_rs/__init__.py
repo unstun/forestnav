@@ -20,6 +20,7 @@ from forest_n3p.rl_rs.policy import SteeringPolicy
 from forest_n3p.rl_rs.reward import (
     RewardBreakdown,
     RewardConfig,
+    RewardTermSwitches,
     build_clearance_distance_field,
     compute_decomposed_reward,
     compute_terminal_success_reward,
@@ -38,6 +39,7 @@ __all__ = [
     "ObservationConfig",
     "RewardBreakdown",
     "RewardConfig",
+    "RewardTermSwitches",
     "RlRsEpisodeTelemetry",
     "RlRsObservation",
     "RlRsStepTelemetry",
