@@ -150,6 +150,8 @@ def _record_issues(record: dict[str, Any]) -> list[dict[str, Any]]:
     if status == "pending_human_decision":
         if record.get("decider") is not None:
             issues.append(_issue("pending_record_has_decider", "Pending record must not name a decider.", observed=record.get("decider")))
+        if record.get("decision_note") not in {None, ""}:
+            issues.append(_issue("pending_record_has_decision_note", "Pending record must not contain a decision note.", observed=record.get("decision_note")))
         if record.get("remote_training_allowed") is not False:
             issues.append(_issue("pending_record_allows_remote_training", "Pending F02.6 must not allow remote training."))
         if record.get("effective_warm_start_decision") != "pending":
@@ -159,12 +161,18 @@ def _record_issues(record: dict[str, Any]) -> list[dict[str, Any]]:
     elif status == "approved":
         if record.get("decider") != DECISION_OWNER:
             issues.append(_issue("approved_record_decider_not_dr_sun", "Approved record must have decider Dr Sun.", observed=record.get("decider")))
+        if not str(record.get("decision_note") or "").strip():
+            issues.append(_issue("approved_record_missing_decision_note", "Approved F02.6 record must include Dr Sun's decision note."))
         if record.get("remote_training_allowed") is not True:
             issues.append(_issue("approved_record_does_not_allow_remote_training", "Approved record should allow the remote-only downstream path."))
         approved = _branch(record, "if_approved_obstacle_summary", key="conditional_actions")
         if approved.get("runs_training") is not False:
             issues.append(_issue("approved_preflight_action_claims_training", "Decision approval action must only regenerate preflight, not train."))
     elif status == "rejected":
+        if record.get("decider") != DECISION_OWNER:
+            issues.append(_issue("rejected_record_decider_not_dr_sun", "Rejected record must have decider Dr Sun.", observed=record.get("decider")))
+        if not str(record.get("decision_note") or "").strip():
+            issues.append(_issue("rejected_record_missing_decision_note", "Rejected F02.6 record must include Dr Sun's decision note."))
         if record.get("remote_training_allowed") is not False:
             issues.append(_issue("rejected_record_allows_remote_training", "Rejected obstacle-summary warm-start must not allow remote training."))
         if "obstacle_summary_warm_start_rejected" not in _strings(record.get("blockers")):
