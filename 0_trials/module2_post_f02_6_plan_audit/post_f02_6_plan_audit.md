@@ -52,7 +52,19 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - remote_training_allowed_now: `False`
 - safety_issue_count: `0`
 
+### Status Report Execution Veto Matrix
+
+- present: `True`
+- all_rows_consistent: `True`
+- mismatch_rows: `[]`
+
 ### Status Report Remote Execution Steps
+
+- `local_training`: consensus_allowed_now=`False`
+- `remote_preflight`: consensus_allowed_now=`False`
+- `remote_training`: consensus_allowed_now=`False`
+- `remote_audit`: consensus_allowed_now=`False`
+- `formal_claim`: consensus_allowed_now=`False`
 
 - `sync_to_remote`: allowed_now=`False`, runs_training=`False`, blocked_by=`requires_dr_sun_approval`
 - `run_remote_preflight`: allowed_now=`False`, runs_training=`False`, blocked_by=`requires_dr_sun_approval`

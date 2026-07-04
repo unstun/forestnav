@@ -714,6 +714,72 @@ def _status_report_payload(*, ready, invalid=False):
             "remote_preflight_allowed_now": ready,
             "formal_claim_allowed_now": ready,
         },
+        "formal_gate_execution_veto_summary": _execution_veto_summary(ready=ready),
+    }
+
+
+def _execution_veto_summary(*, ready):
+    rows = {
+        "local_training": _veto_row(
+            False,
+            {
+                "formal_gate_gap_audit": False,
+                "status_report": False,
+                "handoff_bundle": False,
+                "remote_packet": False,
+            },
+        ),
+        "remote_preflight": _veto_row(
+            ready,
+            {
+                "status_report": ready,
+                "handoff_bundle": ready,
+                "remote_packet": ready,
+                "remote_packet_safety": ready,
+            },
+        ),
+        "remote_training": _veto_row(
+            ready,
+            {
+                "decision_record": ready,
+                "status_report": ready,
+                "handoff_bundle": ready,
+                "remote_packet": ready,
+                "remote_packet_safety": ready,
+            },
+        ),
+        "remote_audit": _veto_row(
+            ready,
+            {
+                "handoff_bundle": ready,
+                "remote_packet": ready,
+                "remote_packet_safety": ready,
+            },
+        ),
+        "formal_claim": _veto_row(
+            ready,
+            {
+                "status_report": ready,
+                "handoff_bundle": ready,
+            },
+        ),
+    }
+    return {
+        "present": True,
+        "matrix_version": 1,
+        "all_rows_consistent": True,
+        "mismatch_rows": [],
+        "row_count": len(rows),
+        "row_consensus": {row_id: row["consensus_allowed_now"] for row_id, row in rows.items()},
+        "rows": rows,
+    }
+
+
+def _veto_row(consensus, sources):
+    return {
+        "consistent": len(set(sources.values())) <= 1,
+        "consensus_allowed_now": consensus,
+        "allowed_now_by_source": sources,
     }
 
 
