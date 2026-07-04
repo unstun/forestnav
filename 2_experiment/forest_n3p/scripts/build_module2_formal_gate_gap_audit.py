@@ -17,6 +17,7 @@ DEFAULT_REMOTE_PACKET = Path("0_trials/module2_remote_formal_execution_packet/re
 DEFAULT_H02_ACCEPTANCE = Path("0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json")
 DEFAULT_CLAIM_SAFETY = Path("0_trials/module2_claim_safety/module2_claim_safety.json")
 DEFAULT_READINESS = Path("0_trials/module2_paper_readiness/module2_paper_readiness.json")
+DEFAULT_REMOTE_READINESS = Path("0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json")
 
 
 @dataclass(frozen=True)
@@ -31,6 +32,7 @@ class FormalGateGapAuditConfig:
     h02_acceptance_path: Path = DEFAULT_H02_ACCEPTANCE
     claim_safety_path: Path = DEFAULT_CLAIM_SAFETY
     readiness_path: Path = DEFAULT_READINESS
+    remote_readiness_path: Path = DEFAULT_REMOTE_READINESS
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -46,6 +48,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         h02_acceptance_path=args.h02_acceptance,
         claim_safety_path=args.claim_safety,
         readiness_path=args.readiness,
+        remote_readiness_path=args.remote_readiness_refresh,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -74,9 +77,10 @@ def build_manifest(config: FormalGateGapAuditConfig) -> dict[str, Any]:
     h02 = _read_json(config.h02_acceptance_path)
     claim_safety = _read_json(config.claim_safety_path)
     readiness = _read_json(config.readiness_path)
+    remote_readiness = _read_json(config.remote_readiness_path)
 
     decision_gaps = _decision_gaps(decision=decision, h01=h01, remote=remote)
-    training_gaps = _training_gaps(remote=remote, h02=h02)
+    training_gaps = _training_gaps(remote=remote, h02=h02, remote_readiness=remote_readiness, remote_readiness_path=config.remote_readiness_path)
     evaluation_gaps = _evaluation_gaps(h01=h01, h02=h02)
     acceptance_gaps = _acceptance_gaps(h02=h02, claim_safety=claim_safety, readiness=readiness)
     all_gaps = decision_gaps + training_gaps + evaluation_gaps + acceptance_gaps
@@ -98,6 +102,7 @@ def build_manifest(config: FormalGateGapAuditConfig) -> dict[str, Any]:
             "approved_by": contract.get("approved_by"),
             "approved_date": contract.get("approved_date"),
         },
+        "remote_readiness": _remote_readiness_record(config.remote_readiness_path, remote_readiness),
         "current_gate_state": _current_gate_state(decision=decision, h01=h01, remote=remote, h02=h02, claim_safety=claim_safety),
         "missing_decision_items": decision_gaps,
         "missing_training_artifacts": training_gaps,
@@ -126,6 +131,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--h02-acceptance", type=Path, default=DEFAULT_H02_ACCEPTANCE)
     parser.add_argument("--claim-safety", type=Path, default=DEFAULT_CLAIM_SAFETY)
     parser.add_argument("--readiness", type=Path, default=DEFAULT_READINESS)
+    parser.add_argument("--remote-readiness-refresh", type=Path, default=DEFAULT_REMOTE_READINESS)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
@@ -155,8 +161,9 @@ def _decision_gaps(*, decision: dict[str, Any], h01: dict[str, Any], remote: dic
     return _unique_gaps(gaps)
 
 
-def _training_gaps(*, remote: dict[str, Any], h02: dict[str, Any]) -> list[dict[str, Any]]:
+def _training_gaps(*, remote: dict[str, Any], h02: dict[str, Any], remote_readiness: dict[str, Any], remote_readiness_path: Path) -> list[dict[str, Any]]:
     gaps: list[dict[str, Any]] = []
+    gaps.extend(_remote_readiness_gaps(remote_readiness=remote_readiness, remote_readiness_path=remote_readiness_path))
     if remote.get("ready_to_run_remote_training") is not True:
         gaps.append(
             _gap(
@@ -211,6 +218,82 @@ def _training_gaps(*, remote: dict[str, Any], h02: dict[str, Any]) -> list[dict[
             )
         )
     return _unique_gaps(gaps)
+
+
+def _remote_readiness_gaps(*, remote_readiness: dict[str, Any], remote_readiness_path: Path) -> list[dict[str, Any]]:
+    if not Path(remote_readiness_path).is_file():
+        return [
+            _gap(
+                "training",
+                "remote_readiness_refresh_missing",
+                "No gpu3070ti readiness refresh artifact is available for the formal gate.",
+                str(remote_readiness_path),
+                "Run a read-only gpu3070ti readiness refresh before approved remote preflight or training.",
+            )
+        ]
+    gaps: list[dict[str, Any]] = []
+    if remote_readiness.get("runs_training") is not False:
+        gaps.append(
+            _gap(
+                "training",
+                "remote_readiness_ran_training",
+                "Readiness artifact claims it ran training; readiness checks must be read-only.",
+                str(remote_readiness_path),
+                "Replace with a read-only readiness refresh before using it as gate evidence.",
+            )
+        )
+    if remote_readiness.get("runs_remote_preflight") is not False:
+        gaps.append(
+            _gap(
+                "training",
+                "remote_readiness_ran_preflight",
+                "Readiness artifact claims it ran remote preflight while F02.6 may still be pending.",
+                str(remote_readiness_path),
+                "Keep readiness refresh separate from approved preflight execution.",
+            )
+        )
+    if remote_readiness.get("local_training_allowed") is not False:
+        gaps.append(
+            _gap(
+                "training",
+                "remote_readiness_allows_local_training",
+                "Readiness artifact does not preserve the local-training prohibition.",
+                str(remote_readiness_path),
+                "Regenerate readiness with local_training_allowed=false.",
+            )
+        )
+    if remote_readiness.get("formal_claim_allowed") is not False:
+        gaps.append(
+            _gap(
+                "training",
+                "remote_readiness_allows_formal_claim",
+                "Readiness artifact incorrectly allows formal claims.",
+                str(remote_readiness_path),
+                "Regenerate readiness as non-result evidence only.",
+            )
+        )
+    if str(remote_readiness.get("remote_training_resource")) != "gpu3070ti-relay":
+        gaps.append(
+            _gap(
+                "training",
+                "remote_readiness_wrong_training_resource",
+                f"Readiness artifact points at {remote_readiness.get('remote_training_resource')!r}, not gpu3070ti-relay.",
+                str(remote_readiness_path),
+                "Use gpu3070ti-relay for Module2 formal PPO unless the contract is explicitly changed.",
+            )
+        )
+    for input_id in ("oracle_connector_results", "obstacle_summary_bc_checkpoint"):
+        if not _critical_input_matches(remote_readiness, input_id):
+            gaps.append(
+                _gap(
+                    "training",
+                    f"remote_readiness_{input_id}_mismatch",
+                    f"Readiness artifact does not prove local/remote match for {input_id}.",
+                    str(remote_readiness_path),
+                    "Refresh readiness and require local/remote bytes and SHA-256 to match before approved remote execution.",
+                )
+            )
+    return gaps
 
 
 def _evaluation_gaps(*, h01: dict[str, Any], h02: dict[str, Any]) -> list[dict[str, Any]]:
