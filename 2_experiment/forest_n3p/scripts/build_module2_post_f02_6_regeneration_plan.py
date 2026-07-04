@@ -310,10 +310,14 @@ def _regeneration_commands(targets: Sequence[dict[str, Any]]) -> list[str]:
             commands.append(
                 "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'"
             )
+        elif artifact_id == "f02_6_decision_gate_audit":
+            commands.append("PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_gate_audit")
         elif artifact_id == "formal_gate_gap_audit":
             commands.append("PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_gap_audit")
         elif artifact_id == "remote_formal_execution_packet":
             commands.append("PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_formal_execution_packet")
+        elif artifact_id == "remote_packet_safety_audit":
+            commands.append("PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_packet_safety_audit")
         elif artifact_id == "post_f02_6_plan_audit":
             commands.append("PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
         elif artifact_id == "formal_gate_missing_artifacts":
