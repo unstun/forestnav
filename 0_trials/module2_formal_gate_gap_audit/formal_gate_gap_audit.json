@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_gap_audit",
   "status": "blocked_formal_gate_gaps_open",
-  "created_at_utc": "2026-07-04T14:09:14.705694+00:00",
-  "source_head": "1c4364955a1f03c5120fc05ec1fce353a4b283a8+dirty",
+  "created_at_utc": "2026-07-04T14:32:13.654618+00:00",
+  "source_head": "7eabdc6deedfb42b4fdfa39c19157db9c87c4c48+dirty",
   "not_paper_result_material": true,
   "local_training_allowed": false,
   "remote_training_resource": "gpu3070ti-relay",
@@ -36,11 +36,11 @@
     "formal_claim_allowed": false,
     "regeneration_required_before_remote_formal_execution": true,
     "risk_counts": {
-      "historical_dirty": 10,
-      "historical_clean": 3,
-      "current_clean": 1
+      "historical_dirty": 9,
+      "historical_clean": 4,
+      "current_dirty": 1
     },
-    "ordered_regeneration_target_count": 13,
+    "ordered_regeneration_target_count": 14,
     "ordered_regeneration_targets": [
       {
         "artifact_id": "f02_6_decision_gate_audit",
@@ -52,6 +52,12 @@
         "artifact_id": "f02_6_decision_record",
         "path": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
         "freshness_state": "historical_dirty",
+        "required_before": "approved_remote_preflight"
+      },
+      {
+        "artifact_id": "formal_gate_closure_checklist",
+        "path": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
+        "freshness_state": "historical_clean",
         "required_before": "approved_remote_preflight"
       },
       {
@@ -105,7 +111,7 @@
       {
         "artifact_id": "formal_gate_missing_artifacts",
         "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
-        "freshness_state": "historical_dirty",
+        "freshness_state": "current_dirty",
         "required_before": "formal_claim_gate"
       },
       {

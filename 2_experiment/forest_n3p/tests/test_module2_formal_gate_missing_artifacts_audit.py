@@ -26,6 +26,29 @@ def test_missing_artifacts_audit_blocks_pending_formal_chain(tmp_path):
     assert manifest["missing_counts_by_category"]["training"] == 3
     assert manifest["missing_counts_by_category"]["evaluation"] == 2
     assert manifest["missing_counts_by_category"]["acceptance"] == 3
+    assert manifest["formal_gate_requirement_counts"] == {"blocked_missing_outputs": 4}
+
+    requirements = {item["requirement_id"]: item for item in manifest["formal_gate_requirements"]}
+    assert requirements["training_remote_ppo_checkpoint"]["phase"] == "training"
+    assert requirements["training_remote_ppo_checkpoint"]["status"] == "blocked_missing_outputs"
+    assert requirements["training_remote_ppo_checkpoint"]["execution_allowed_now"] is False
+    assert requirements["training_remote_ppo_checkpoint"]["missing_artifact_ids"] == [
+        "train_final_model_zip",
+        "train_summary_json",
+        "train_training_manifest_json",
+    ]
+    assert "local training output" in requirements["training_remote_ppo_checkpoint"]["invalid_substitutes"]
+    assert requirements["evaluation_gate3_episode_outputs"]["missing_artifact_ids"] == [
+        "eval_gate3_eval_episodes_csv",
+        "eval_gate3_summary_json",
+    ]
+    assert "H02 available-subset smoke CSV" in requirements["evaluation_gate3_episode_outputs"]["invalid_substitutes"]
+    assert requirements["acceptance_remote_pullback_and_audit"]["missing_artifact_ids"] == [
+        "gate3_trial_manifest_json",
+        "gate3_formal_audit_json",
+        "pulled_back_checkpoint_hash_record",
+    ]
+    assert "checkpoint file without hash record" in requirements["acceptance_remote_pullback_and_audit"]["invalid_substitutes"]
 
     groups = {group["group_id"]: group for group in manifest["missing_evidence_groups"]}
     assert groups["f02_6_decision_record"]["complete"] is False
@@ -48,6 +71,8 @@ def test_missing_artifacts_audit_accepts_synthetic_complete_formal_chain(tmp_pat
     assert manifest["all_required_evidence_present"] is True
     assert manifest["audit_issue_count"] == 0
     assert all(count == 0 for count in manifest["missing_counts_by_category"].values())
+    assert manifest["formal_gate_requirement_counts"] == {"satisfied": 4}
+    assert all(item["status"] == "satisfied" for item in manifest["formal_gate_requirements"])
     assert manifest["current_gate_summary"]["h01_manifest_status"] == "ready_for_formal_run"
     assert manifest["current_gate_summary"]["h02_acceptance_status"] == "formal_output_accepted"
 
@@ -104,6 +129,9 @@ def test_missing_artifacts_audit_cli_writes_json_and_markdown(tmp_path):
     markdown = markdown_path.read_text(encoding="utf-8")
     assert manifest["status"] == "formal_gate_missing_artifacts_open"
     assert "Module2 Formal Gate Missing Artifacts Audit" in markdown
+    assert "Formal Gate Requirements" in markdown
+    assert "training_remote_ppo_checkpoint" in markdown
+    assert "invalid_substitutes" in markdown
     assert "remote_training_outputs" in markdown
     assert "does not execute commands" in markdown
 
