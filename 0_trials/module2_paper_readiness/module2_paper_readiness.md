@@ -41,6 +41,14 @@
 - claim_safety_missing_artifacts_remote_training_allowed_now: `False`
 - claim_safety_missing_artifacts_formal_result_material_allowed_now: `False`
 
+## Claim Safety Requirement Stage Summary
+
+- claim_safety_requirement_stage_present: `True`
+- claim_safety_requirement_stage_mapped_count: `4`
+- claim_safety_requirement_stage_unmapped_count: `0`
+- claim_safety_requirement_stage_mismatched_count: `0`
+- claim_safety_requirement_stage_blocked_stage_count: `4`
+
 ## Section Readiness
 
 ### method_algorithm

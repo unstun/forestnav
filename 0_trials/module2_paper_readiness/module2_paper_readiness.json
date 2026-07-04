@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_paper_readiness",
   "status": "partial_methods_ready_results_blocked",
-  "created_at_utc": "2026-07-04T17:44:48.728114+00:00",
-  "source_head": "fb1ea54652a2b7c064d0d22e0dcf52fc10db8f87+dirty",
+  "created_at_utc": "2026-07-04T17:47:15.028248+00:00",
+  "source_head": "87bf1f96238a64a364e0b11ed07e14bcbb8ac4e5+dirty",
   "manuscript_ready": false,
   "formal_results_ready": false,
   "local_training_allowed": false,
@@ -35,6 +35,11 @@
     "claim_safety_missing_artifacts_open_requirement_count": 5,
     "claim_safety_missing_artifacts_remote_training_allowed_now": false,
     "claim_safety_missing_artifacts_formal_result_material_allowed_now": false,
+    "claim_safety_requirement_stage_present": true,
+    "claim_safety_requirement_stage_mapped_count": 4,
+    "claim_safety_requirement_stage_unmapped_count": 0,
+    "claim_safety_requirement_stage_mismatched_count": 0,
+    "claim_safety_requirement_stage_blocked_stage_count": 4,
     "h02_formal_acceptance_status": "blocked_formal_output_acceptance",
     "h02_formal_output_accepted": false,
     "h02_paper_result_input_allowed": false,
@@ -45,6 +50,51 @@
     "status_report_status": "formal_gate_status_blocked",
     "status_report_formal_claim_allowed_now": false,
     "status_report_input_safety_issue_count": 0
+  },
+  "claim_safety_requirement_stage_summary": {
+    "present": true,
+    "mapped_requirement_count": 4,
+    "unmapped_requirement_count": 0,
+    "mismatched_requirement_count": 0,
+    "blocked_stage_count": 4,
+    "requirements": {
+      "training_remote_ppo_checkpoint": {
+        "present": true,
+        "status": "blocked_missing_outputs",
+        "responsible_stage_id": "gate3_remote_training",
+        "responsible_stage_status": "blocked",
+        "responsible_stage_allowed_now": false,
+        "mapping_present": true,
+        "mapping_matches_expected": true
+      },
+      "evaluation_gate3_episode_outputs": {
+        "present": true,
+        "status": "blocked_missing_outputs",
+        "responsible_stage_id": "gate3_remote_audit_pullback",
+        "responsible_stage_status": "blocked",
+        "responsible_stage_allowed_now": false,
+        "mapping_present": true,
+        "mapping_matches_expected": true
+      },
+      "acceptance_remote_pullback_and_audit": {
+        "present": true,
+        "status": "blocked_missing_outputs",
+        "responsible_stage_id": "gate3_remote_audit_pullback",
+        "responsible_stage_status": "blocked",
+        "responsible_stage_allowed_now": false,
+        "mapping_present": true,
+        "mapping_matches_expected": true
+      },
+      "h01_h02_formal_evaluation_acceptance": {
+        "present": true,
+        "status": "blocked_missing_outputs",
+        "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
+        "responsible_stage_status": "blocked",
+        "responsible_stage_allowed_now": false,
+        "mapping_present": true,
+        "mapping_matches_expected": true
+      }
+    }
   },
   "global_blockers": [
     "paper_tables_not_formal",
