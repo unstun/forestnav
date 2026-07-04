@@ -537,6 +537,32 @@ def test_formal_gate_status_report_requires_remaining_deliverables_proof_command
     assert manifest["remaining_deliverables_proof_command_plan"]["total_matrix_rows"] == 9
 
 
+def test_formal_gate_status_report_requires_formal_gate_proof_audit_summary(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=True)
+    proof_audit = json.loads(config.formal_gate_proof_audit_path.read_text(encoding="utf-8"))
+    proof_audit["executes_commands"] = True
+    proof_audit["runs_training"] = True
+    proof_audit["runs_remote_preflight"] = True
+    proof_audit["total_matrix_rows"] = 9
+    proof_audit["total_proof_command_count"] = 19
+    proof_audit["passed_proof_command_count"] = 19
+    proof_audit["proof_command_results"].pop()
+    proof_audit["proof_command_results_by_id"].pop("h02_formal_output_acceptance_status")
+    config.formal_gate_proof_audit_path.write_text(json.dumps(proof_audit), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert "formal_gate_proof_audit_executes_commands" in issue_ids
+    assert "formal_gate_proof_audit_runs_training" in issue_ids
+    assert "formal_gate_proof_audit_runs_remote_preflight" in issue_ids
+    assert "formal_gate_proof_audit_matrix_count_mismatch" in issue_ids
+    assert "formal_gate_proof_audit_command_count_mismatch" in issue_ids
+    assert "formal_gate_proof_audit_missing_h02_formal_output_acceptance_status" in issue_ids
+    assert manifest["formal_gate_proof_audit_summary"]["total_matrix_rows"] == 9
+
+
 def test_formal_gate_status_report_consumes_handoff_bundle_safety(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
     config = _config(tmp_path, complete=False)
