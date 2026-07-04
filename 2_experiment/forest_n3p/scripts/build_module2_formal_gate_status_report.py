@@ -1930,6 +1930,101 @@ def _remaining_deliverables_proof_command_plan_issues(
     return issues
 
 
+def _formal_gate_proof_audit_issues(
+    *,
+    proof_audit: dict[str, Any],
+    summary: dict[str, Any],
+    proof_plan: dict[str, Any],
+) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    if not proof_audit:
+        return [_issue("formal_gate_proof_audit_missing", "status report must consume formal gate proof audit.")]
+    if summary["proof_command_plan_id"] != "module2_formal_gate_local_read_only_proof_commands":
+        issues.append(
+            _issue(
+                "formal_gate_proof_audit_plan_id_invalid",
+                "formal gate proof audit must reference the formal gate proof command plan.",
+            )
+        )
+    if summary["execution_boundary"] != "local_read_only_after_formal_remote_pullback":
+        issues.append(
+            _issue(
+                "formal_gate_proof_audit_boundary_invalid",
+                "formal gate proof audit must stay within the local read-only post-pullback boundary.",
+            )
+        )
+    if not summary["not_paper_result_material"]:
+        issues.append(
+            _issue(
+                "formal_gate_proof_audit_marked_as_paper_result",
+                "formal gate proof audit must not be marked as paper result material.",
+            )
+        )
+    if summary["formal_claim_allowed"]:
+        issues.append(
+            _issue(
+                "formal_gate_proof_audit_allows_formal_claim",
+                "formal gate proof audit must not directly allow formal claims.",
+            )
+        )
+    if summary["input_safety_issue_count"] > 0:
+        issues.append(
+            _issue(
+                "formal_gate_proof_audit_input_safety_issues_open",
+                "formal gate proof audit input safety issues must be resolved before status reporting.",
+            )
+        )
+    if summary["total_matrix_rows"] != proof_plan["total_matrix_rows"]:
+        issues.append(
+            _issue(
+                "formal_gate_proof_audit_matrix_count_mismatch",
+                "formal gate proof audit matrix row count must match the proof command plan.",
+            )
+        )
+    if summary["total_proof_command_count"] != proof_plan["total_proof_command_count"]:
+        issues.append(
+            _issue(
+                "formal_gate_proof_audit_command_count_mismatch",
+                "formal gate proof audit command count must match the proof command plan.",
+            )
+        )
+    observed_count = len(summary["results_by_id"])
+    if observed_count != proof_plan["total_proof_command_count"]:
+        issues.append(
+            _issue(
+                "formal_gate_proof_audit_result_count_mismatch",
+                "formal gate proof audit must include one result per proof command.",
+            )
+        )
+    for matrix_id, proof_row in proof_plan["rows"].items():
+        safe_matrix_id = matrix_id.replace(":", "_")
+        for command_id in proof_row["proof_command_ids"]:
+            result = summary["results_by_id"].get(command_id)
+            if not result:
+                issues.append(
+                    _issue(
+                        f"formal_gate_proof_audit_missing_{command_id}",
+                        f"formal gate proof audit must include result {command_id}.",
+                    )
+                )
+                continue
+            if result["matrix_id"] != matrix_id:
+                issues.append(
+                    _issue(
+                        f"formal_gate_proof_audit_{command_id}_matrix_mismatch",
+                        f"proof audit result {command_id} must point to {safe_matrix_id}.",
+                    )
+                )
+            if result["command_was_executed"]:
+                issues.append(
+                    _issue(
+                        f"formal_gate_proof_audit_{command_id}_executed_command",
+                        f"proof audit result {command_id} must be derived from local checks, not command execution.",
+                    )
+                )
+    return issues
+
+
 def _formal_gate_gap_audit_remaining_deliverables_gap_summary_issues(
     *,
     formal_gate: dict[str, Any],
