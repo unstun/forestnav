@@ -132,10 +132,17 @@ def test_evaluation_outputs_expose_rl_rs_analytic_telemetry_columns(tmp_path):
                     "rl_rollout_collision_checks": 9,
                     "rl_rollout_sample_time_s": 0.001,
                     "rl_rollout_collision_time_s": 0.002,
+                    "nn_forward_time_s": 0.004,
+                    "rl_attempts": 1,
+                    "rl_successes": 1,
+                    "rs_attempts": 2,
                     "terminal_rs_time_s": 0.003,
                     "terminal_rs_success": True,
                     "terminal_rs_used": True,
                     "terminal_rs_action_count": 2,
+                    "fallback_to_primitives_count": 0,
+                    "rollout_protocol": "constant_steer_grid_footprint_terminal_rs",
+                    "collision_checker": "GridFootprintChecker",
                 }
             ],
         },
@@ -158,6 +165,13 @@ def test_evaluation_outputs_expose_rl_rs_analytic_telemetry_columns(tmp_path):
     assert record.analytic_attempts == 2
     assert record.analytic_successes == 1
     assert record.analytic_failure_count == 1
+    assert record.rl_attempts == 1
+    assert record.rl_successes == 1
+    assert record.rs_attempts == 2
+    assert record.nn_forward_time_s == pytest.approx(0.004)
+    assert record.fallback_to_primitives_count == 1
+    assert record.rollout_protocol == "constant_steer_grid_footprint_terminal_rs"
+    assert record.collision_checker == "GridFootprintChecker"
     assert record.rl_rollout_steps == 3
     assert record.terminal_rs_success_count == 1
     assert record.terminal_rs_used_count == 1
@@ -171,11 +185,22 @@ def test_evaluation_outputs_expose_rl_rs_analytic_telemetry_columns(tmp_path):
     assert rows[0]["analytic_attempts"] == "2"
     assert rows[0]["analytic_successes"] == "1"
     assert rows[0]["analytic_failure_count"] == "1"
+    assert rows[0]["rl_attempts"] == "1"
+    assert rows[0]["rl_successes"] == "1"
+    assert rows[0]["rs_attempts"] == "2"
+    assert float(rows[0]["nn_forward_time_s"]) == pytest.approx(0.004)
+    assert rows[0]["fallback_to_primitives_count"] == "1"
+    assert rows[0]["rollout_protocol"] == "constant_steer_grid_footprint_terminal_rs"
+    assert rows[0]["collision_checker"] == "GridFootprintChecker"
     assert rows[0]["rl_rollout_steps"] == "3"
     assert rows[0]["terminal_rs_success_count"] == "1"
     assert rows[0]["terminal_rs_used_count"] == "1"
     assert rows[0]["rl_rs_checkpoint"] == "models/final_model.zip"
     assert rows[0]["rl_rs_checkpoint_sha256"] == "abc123"
+
+    summary_rows = list(csv.DictReader(paths["summary_csv"].open(newline="", encoding="utf-8")))
+    assert float(summary_rows[0]["mean_nn_forward_time_s"]) == pytest.approx(0.004)
+    assert float(summary_rows[0]["p95_nn_forward_time_s"]) == pytest.approx(0.004)
 
 
 def test_evaluation_outputs_expose_bc_operator_checkpoint_columns(tmp_path):
@@ -336,6 +361,13 @@ def _record(
         analytic_attempts=None,
         analytic_successes=None,
         analytic_failure_count=None,
+        rl_attempts=None,
+        rl_successes=None,
+        rs_attempts=None,
+        nn_forward_time_s=None,
+        fallback_to_primitives_count=None,
+        rollout_protocol=None,
+        collision_checker=None,
         rl_rollout_steps=None,
         rl_rollout_collision_checks=None,
         rl_rollout_sample_time_s=None,
