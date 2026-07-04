@@ -633,6 +633,11 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - [ ] F03.5 Gate #3 判定。
   - 通过: 小规模单一密度地图中 RS-connectable terminal success > 80%。
   - 失败: 按 Contract 记录 PPO 不收敛, 不改任务定义。
+  - 入口基础设施已完成: 新增 `RlRsObstacleSummaryExtractor` 与 `train_rl_rs_ppo.py`, 使用 SB3 `MultiInputPolicy`, F03 curriculum, episode CSV, SB3 model zip, training manifest。
+  - smoke 产物: `0_trials/module2_ppo_smoke/f03_train_entry_smoke/`。
+  - 验证: `KMP_DUPLICATE_LIB_OK=TRUE PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q` -> `54 passed in 7.17s`; `train_rl_rs_ppo --smoke` 通过。
+  - 边界: smoke 是 open-connector 极小训练, manifest 写明 `warm_start_status=not_applied_f02_6_pending`; F03.5 Gate 结果仍未判定。
+  - 记录: `.pipeline/experiments/20260704_module2_f03_ppo_training_entry.md`。
 
 ### Phase G: Planner 集成
 
