@@ -39,4 +39,3 @@ contract: .pipeline/contracts/module2-ppo-funnel-expansion.md
 - F02.6 仍是 `pending_human_decision`。
 - `remote_formal_execution_packet.status` 仍是 `blocked_until_f02_6_decision`。
 - 不得把本轮 readiness refresh 写成 PPO checkpoint、H02 formal output、warm-start effect 或 formal performance result。
-

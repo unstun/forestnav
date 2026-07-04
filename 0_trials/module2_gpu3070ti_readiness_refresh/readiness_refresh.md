@@ -38,4 +38,3 @@ remote_sha256=3156df44ca7f26da7f2e635707554bb1cd486164638b3a2d11075c3787670683
 ## Gate Boundary
 
 F02.6 is still `pending_human_decision`. This refresh does not approve warm-start, does not run approved remote preflight, and does not unlock formal PPO training. The next formal step remains Dr Sun's F02.6 decision.
-
