@@ -130,6 +130,17 @@
 - open_category_count=`4`
 - matches_status_report_remaining_gap=`True`
 
+## Status Report Remote-Safety Claim-Gate Command Index
+
+- present=`True`
+- index_row_count=`18`
+- source_target_count=`18`
+- missing_target_ids=`[]`
+- unknown_manual_count=`0`
+- forbidden_command_count=`0`
+- `claim_safety`: present=`True`, stage=`regenerate_claim_gate_artifacts`, required_before=`formal_claim_gate`, command_kind=`known_builder`
+- `paper_readiness`: present=`True`, stage=`regenerate_claim_gate_artifacts`, required_before=`formal_claim_gate`, command_kind=`known_builder`
+
 ## Prohibited Claims
 
 - `global_optimality`: not allowed; patterns=全局最优, globally optimal, global optimality

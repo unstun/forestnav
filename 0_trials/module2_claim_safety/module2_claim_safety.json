@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_claim_safety",
   "status": "blocked_formal_performance_claims",
-  "created_at_utc": "2026-07-04T21:25:42.425864+00:00",
-  "source_head": "657b68e7fe2c9cd715d94a58f059b60043aa6480",
+  "created_at_utc": "2026-07-04T22:15:13.649140+00:00",
+  "source_head": "f055b9d26937578e8a234026d891d7848cfa4afc",
   "formal_performance_claim_allowed": false,
   "formal_performance_blockers": [
     "paper_tables_not_formal",
@@ -103,7 +103,11 @@
     "status_report_remaining_deliverables_gap_open_category_count": 4,
     "status_report_formal_gate_gap_audit_remaining_deliverables_gap_present": true,
     "status_report_formal_gate_gap_audit_remaining_deliverables_gap_total_missing_deliverables": 10,
-    "status_report_formal_gate_gap_audit_remaining_deliverables_gap_open_category_count": 4
+    "status_report_formal_gate_gap_audit_remaining_deliverables_gap_open_category_count": 4,
+    "status_report_remote_packet_safety_command_index_present": true,
+    "status_report_remote_packet_safety_command_index_row_count": 18,
+    "status_report_remote_packet_safety_command_index_source_target_count": 18,
+    "status_report_remote_packet_safety_command_index_missing_target_count": 0
   },
   "status_report_handoff_summary": {
     "present": true,
@@ -606,6 +610,32 @@
           "formal_acceptance:h01_ready_for_formal_run",
           "formal_acceptance:h02_formal_output_acceptance"
         ]
+      }
+    }
+  },
+  "status_report_remote_packet_safety_claim_gate_command_index_summary": {
+    "present": true,
+    "index_row_count": 18,
+    "source_target_count": 18,
+    "missing_target_ids": [],
+    "unknown_manual_count": 0,
+    "unknown_manual_ids": [],
+    "forbidden_command_count": 0,
+    "forbidden_command_ids": [],
+    "claim_gate_rows": {
+      "claim_safety": {
+        "present": true,
+        "stage_id": "regenerate_claim_gate_artifacts",
+        "required_before": "formal_claim_gate",
+        "command_kind": "known_builder",
+        "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety"
+      },
+      "paper_readiness": {
+        "present": true,
+        "stage_id": "regenerate_claim_gate_artifacts",
+        "required_before": "formal_claim_gate",
+        "command_kind": "known_builder",
+        "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_paper_readiness"
       }
     }
   },

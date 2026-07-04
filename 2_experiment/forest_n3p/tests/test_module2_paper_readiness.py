@@ -989,6 +989,56 @@ def _claim_safety_remaining_deliverables_gap_summary_payload(*, formal):
     }
 
 
+def _claim_safety_command_index_summary_payload():
+    rows = {
+        f"source_target_{index}": {
+            "stage_id": "regenerate_preflight_gate_artifacts",
+            "required_before": "approved_remote_preflight",
+            "command_kind": "known_builder",
+            "command_template": f"PYTHONPATH=2_experiment python -m builder_{index}",
+        }
+        for index in range(16)
+    }
+    rows["claim_safety"] = {
+        "stage_id": "regenerate_claim_gate_artifacts",
+        "required_before": "formal_claim_gate",
+        "command_kind": "known_builder",
+        "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety",
+    }
+    rows["paper_readiness"] = {
+        "stage_id": "regenerate_claim_gate_artifacts",
+        "required_before": "formal_claim_gate",
+        "command_kind": "known_builder",
+        "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_paper_readiness",
+    }
+    return {
+        "present": True,
+        "index_row_count": 18,
+        "source_target_count": 18,
+        "missing_target_ids": [],
+        "unknown_manual_count": 0,
+        "unknown_manual_ids": [],
+        "forbidden_command_count": 0,
+        "forbidden_command_ids": [],
+        "claim_gate_rows": {
+            "claim_safety": {
+                "present": True,
+                "stage_id": rows["claim_safety"]["stage_id"],
+                "required_before": rows["claim_safety"]["required_before"],
+                "command_kind": rows["claim_safety"]["command_kind"],
+                "command_template": rows["claim_safety"]["command_template"],
+            },
+            "paper_readiness": {
+                "present": True,
+                "stage_id": rows["paper_readiness"]["stage_id"],
+                "required_before": rows["paper_readiness"]["required_before"],
+                "command_kind": rows["paper_readiness"]["command_kind"],
+                "command_template": rows["paper_readiness"]["command_template"],
+            },
+        },
+    }
+
+
 def _claim_safety_remote_requirement_row(
     *,
     requirement_id,

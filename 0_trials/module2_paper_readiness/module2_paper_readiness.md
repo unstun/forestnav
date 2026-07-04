@@ -111,6 +111,13 @@
 - claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_total_missing_deliverables: `10`
 - claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_open_category_count: `4`
 
+## Claim Safety Remote-Safety Claim-Gate Command Index
+
+- claim_safety_remote_packet_safety_command_index_present: `True`
+- claim_safety_remote_packet_safety_command_index_row_count: `18`
+- claim_safety_remote_packet_safety_command_index_source_target_count: `18`
+- claim_safety_remote_packet_safety_command_index_missing_target_count: `0`
+
 ## Section Readiness
 
 ### method_algorithm
