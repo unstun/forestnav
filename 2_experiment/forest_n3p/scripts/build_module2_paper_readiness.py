@@ -18,6 +18,7 @@ DEFAULT_H02_FORMAL_ACCEPTANCE = Path("0_trials/module2_h02_formal_acceptance/h02
 DEFAULT_H01_MANIFEST = Path("0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json")
 DEFAULT_F02_6_DECISION_RECORD = Path("0_trials/module2_f02_6_decision_record/f02_6_decision_record.json")
 DEFAULT_REMOTE_EXECUTION_PACKET = Path("0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json")
+DEFAULT_STATUS_REPORT = Path("0_trials/module2_formal_gate_status_report/formal_gate_status_report.json")
 
 
 @dataclass(frozen=True)
@@ -33,6 +34,7 @@ class PaperReadinessConfig:
     h01_manifest_path: Path = DEFAULT_H01_MANIFEST
     f02_6_decision_record_path: Path = DEFAULT_F02_6_DECISION_RECORD
     remote_execution_packet_path: Path = DEFAULT_REMOTE_EXECUTION_PACKET
+    status_report_path: Path = DEFAULT_STATUS_REPORT
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -49,6 +51,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         h01_manifest_path=args.h01_manifest,
         f02_6_decision_record_path=args.f02_6_decision_record,
         remote_execution_packet_path=args.remote_execution_packet,
+        status_report_path=args.status_report,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -72,6 +75,7 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
     h01_manifest = _read_json(config.h01_manifest_path)
     decision_record = _read_json(config.f02_6_decision_record_path)
     remote_packet = _read_json(config.remote_execution_packet_path)
+    status_report = _read_json(config.status_report_path)
 
     inputs = {
         "method_algorithms": str(config.method_algorithms_path),
@@ -82,7 +86,9 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "h01_manifest": str(config.h01_manifest_path),
         "f02_6_decision_record": str(config.f02_6_decision_record_path),
         "remote_execution_packet": str(config.remote_execution_packet_path),
+        "formal_gate_status_report": str(config.status_report_path),
     }
+    status_permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
     input_status = {
         "method_algorithms_status": method_algorithms.get("status"),
         "system_diagram_status": system_diagram.get("status"),
@@ -97,6 +103,9 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "f02_6_decision_status": decision_record.get("status"),
         "remote_execution_packet_status": remote_packet.get("status"),
         "remote_execution_ready": remote_packet.get("ready_to_run_remote_training"),
+        "status_report_status": status_report.get("status"),
+        "status_report_formal_claim_allowed_now": status_permissions.get("formal_claim_allowed_now"),
+        "status_report_input_safety_issue_count": status_report.get("input_safety_issue_count"),
     }
     allowed_claims = [item for item in claim_safety.get("allowed_claims", []) if isinstance(item, dict)]
     conditional_claims = [item for item in claim_safety.get("conditional_claims", []) if isinstance(item, dict)]
@@ -109,6 +118,7 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         h01_manifest=h01_manifest,
         decision_record=decision_record,
         remote_packet=remote_packet,
+        status_report=status_report,
     )
     section_readiness = _section_readiness(
         method_algorithms=method_algorithms,
@@ -118,6 +128,7 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         h02_acceptance=h02_acceptance,
         decision_record=decision_record,
         remote_packet=remote_packet,
+        status_report=status_report,
         inputs=inputs,
     )
     manuscript_ready = not global_blockers and all(item["status"] != "blocked" for item in section_readiness)
@@ -143,6 +154,7 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
             "No-warm Gate #3 failure can be written only with no-warm scope qualification.",
             "Obstacle-summary warm-start effect remains blocked until F02.6 closes and a remote formal run/audit is pulled back.",
             "Do not use this readiness ledger as a performance result; it only routes paper writing work to evidence.",
+            "Formal gate status report must be ready before formal result sections can be treated as ready.",
         ],
     }
 
@@ -160,6 +172,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--h01-manifest", type=Path, default=DEFAULT_H01_MANIFEST)
     parser.add_argument("--f02-6-decision-record", type=Path, default=DEFAULT_F02_6_DECISION_RECORD)
     parser.add_argument("--remote-execution-packet", type=Path, default=DEFAULT_REMOTE_EXECUTION_PACKET)
+    parser.add_argument("--status-report", type=Path, default=DEFAULT_STATUS_REPORT)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
@@ -171,6 +184,7 @@ def _global_blockers(
     h01_manifest: dict[str, Any],
     decision_record: dict[str, Any],
     remote_packet: dict[str, Any],
+    status_report: dict[str, Any],
 ) -> list[str]:
     blockers: list[str] = []
     if paper_tables.get("formal_claim_allowed") is not True:
@@ -189,6 +203,7 @@ def _global_blockers(
     if remote_packet.get("ready_to_run_remote_training") is not True:
         _append_unique(blockers, "remote_execution_packet_not_ready")
     _extend_unique(blockers, remote_packet.get("blockers", []))
+    _extend_unique(blockers, _status_report_blockers(status_report))
     return blockers
 
 
@@ -201,6 +216,7 @@ def _section_readiness(
     h02_acceptance: dict[str, Any],
     decision_record: dict[str, Any],
     remote_packet: dict[str, Any],
+    status_report: dict[str, Any],
     inputs: dict[str, str],
 ) -> list[dict[str, Any]]:
     method_ready = method_algorithms.get("status") == "code_anchored"
@@ -213,6 +229,7 @@ def _section_readiness(
         h01_manifest={},
         decision_record=decision_record,
         remote_packet=remote_packet,
+        status_report=status_report,
     )
     table_blockers = _unique([str(item) for item in paper_tables.get("blockers", [])] + [str(item) for item in h02_acceptance.get("blockers", [])])
     warm_start_blockers = _unique([str(item) for item in decision_record.get("blockers", [])] + [str(item) for item in remote_packet.get("blockers", [])])
@@ -252,7 +269,7 @@ def _section_readiness(
             "section_id": "formal_results",
             "paper_target": "Results: formal performance improvement claims",
             "status": "ready_to_write" if claim_safety.get("formal_performance_claim_allowed") is True and not formal_blockers else "blocked",
-            "evidence": [inputs["claim_safety"], inputs["h02_formal_acceptance"], inputs["paper_tables"]],
+            "evidence": [inputs["claim_safety"], inputs["h02_formal_acceptance"], inputs["paper_tables"], inputs["formal_gate_status_report"]],
             "blockers": formal_blockers,
         },
         {
@@ -263,6 +280,28 @@ def _section_readiness(
             "blockers": warm_start_blockers,
         },
     ]
+
+
+def _status_report_blockers(status_report: dict[str, Any]) -> list[str]:
+    blockers: list[str] = []
+    permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
+    if status_report.get("status") != "formal_gate_status_ready_for_claim_audit":
+        _append_unique(blockers, "formal_gate_status_report_blocked")
+    if status_report.get("executes_commands") is not False:
+        _append_unique(blockers, "status_report_executes_commands")
+    if status_report.get("runs_training") is not False:
+        _append_unique(blockers, "status_report_runs_training")
+    if status_report.get("runs_remote_preflight") is not False:
+        _append_unique(blockers, "status_report_runs_remote_preflight")
+    if status_report.get("local_training_allowed") is not False:
+        _append_unique(blockers, "status_report_allows_local_training")
+    if status_report.get("formal_claim_allowed") is not False:
+        _append_unique(blockers, "status_report_allows_formal_claim")
+    if permissions.get("local_training_allowed_now") is True:
+        _append_unique(blockers, "status_report_allows_local_training_now")
+    if int(status_report.get("input_safety_issue_count") or 0) > 0:
+        _append_unique(blockers, "status_report_input_safety_issues_open")
+    return blockers
 
 
 def _read_json(path: Path) -> dict[str, Any]:
