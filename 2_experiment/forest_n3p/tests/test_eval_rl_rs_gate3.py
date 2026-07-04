@@ -61,3 +61,4 @@ def test_eval_rl_rs_gate3_smoke_loads_model_runs_deterministic_episodes_and_writ
     rows = list(csv.DictReader((eval_dir / "gate3_eval_episodes.csv").open(newline="", encoding="utf-8")))
     assert len(rows) == 4
     assert rows[0]["terminal_rs_success"] == "True"
+    assert float(rows[0]["nn_forward_time_s"]) > 0.0
