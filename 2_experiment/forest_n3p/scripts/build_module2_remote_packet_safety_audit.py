@@ -228,6 +228,8 @@ def _cross_gate_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any],
             issues.append(_issue("pending_decision_packet_not_blocked", "Remote packet must be blocked while F02.6 is pending.", observed=packet.get("status")))
         if packet.get("ready_to_run_remote_training") is not False:
             issues.append(_issue("pending_decision_packet_ready", "Remote packet must not be ready while F02.6 is pending."))
+        if _step(packet.get("execution_steps", {}), "sync_to_remote").get("allowed_now") is True:
+            issues.append(_issue("pending_decision_packet_allows_sync", "Remote sync must remain disallowed while F02.6 is pending."))
     if decision and decision.get("training_allowed_now") is False and _step(packet.get("execution_steps", {}), "run_remote_training").get("allowed_now") is True:
         issues.append(_issue("decision_gate_blocks_but_packet_allows_training", "Decision gate blocks training but remote packet allows it."))
     blocking = plan_audit.get("current_blocking_summary") if isinstance(plan_audit.get("current_blocking_summary"), dict) else {}
@@ -243,6 +245,8 @@ def _cross_gate_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any],
         steps = packet.get("execution_steps", {}) if isinstance(packet.get("execution_steps"), dict) else {}
         if packet.get("ready_to_run_remote_training") is True:
             issues.append(_issue("blocked_status_report_packet_ready", "Remote packet must not be ready while the formal gate status report is blocked."))
+        if _step(steps, "sync_to_remote").get("allowed_now") is True:
+            issues.append(_issue("blocked_status_report_allows_remote_sync", "Remote sync must remain disallowed while the formal gate status report is blocked."))
         if _step(steps, "run_remote_preflight").get("allowed_now") is True:
             issues.append(_issue("blocked_status_report_allows_remote_preflight", "Remote preflight must remain disallowed while the formal gate status report is blocked."))
         if _step(steps, "run_remote_training").get("allowed_now") is True:
