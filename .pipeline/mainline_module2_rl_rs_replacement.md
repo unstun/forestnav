@@ -593,8 +593,12 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 2026-07-04 决策包: 新增 `0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json` 和 `.md`, status=`pending_human_decision`, recommendation=`approve_obstacle_summary_warm_start`, blocker=`requires_dr_sun_approval`。
   - 决策包依据: no-warm formal Gate #3 已可审计失败 29/64=0.453125; obstacle-summary formal-v2 为 67/258, 同 bounded rows 为 101/242; patch+scalar CNN bounded 为 63/242; `gpu3070ti-relay` no-warm preflight ready, obstacle-summary warm-start preflight 仍被 `warm_start_decision_pending` 阻塞。
   - 决策包边界: 这是 evidence-bound recommendation, 不关闭 F02.6, 不开始正式 warm-start 训练, 不把远端 CUDA smoke 当 Gate #3 证据。
+  - 2026-07-04 决策记录协议: 新增 `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json` 和 `.md`, status=`pending_human_decision`, effective decision=`pending`, blocker=`requires_dr_sun_approval`。
+  - 决策记录语义: 只有 `decider=Dr Sun` 才能记录 `approve_obstacle_summary_warm_start` 或 `reject_obstacle_summary_warm_start`; approve 映射为 H01/preflight/audit 的 `approved_obstacle_summary`, reject 映射为 H01 的 `no_warm_only` 和 preflight/audit 的 `not_used`。
+  - 当前记录边界: `remote_training_allowed=false`, `local_training_allowed=false`, `formal_claim_allowed=false`; 不批准 F02.6, 不启动本地或远端训练。
   - 记录: `.pipeline/experiments/20260704_module2_f03_obstacle_summary_warm_start.md`。
   - 决策包记录: `.pipeline/experiments/20260704_module2_f02_6_warm_start_decision_packet.md`。
+  - 决策记录协议: `.pipeline/experiments/20260704_module2_f02_6_decision_record_protocol.md`。
   - 仍需 Dr Sun 决策: 接受 obstacle-summary warm-start 进入 F03, 或明确要求先做 stronger/full patch-CNN protocol。
 
 #### F03. PPO 最大实现
