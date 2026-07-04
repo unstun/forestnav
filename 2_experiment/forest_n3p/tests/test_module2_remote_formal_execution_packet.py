@@ -60,9 +60,20 @@ def test_remote_formal_execution_packet_blocks_pending_decision_and_freezes_pull
     assert packet["post_run_pullback"]["required_before_local_claim"] is True
     assert "train/final_model.zip" in "\n".join(packet["post_run_pullback"]["expected_artifacts"])
     assert "gate3_formal_audit.json" in "\n".join(packet["post_run_pullback"]["expected_artifacts"])
+    assert packet["post_run_acceptance_requirement_counts"] == {"blocked_until_remote_audit": 4}
+    post_run = {item["requirement_id"]: item for item in packet["post_run_acceptance_requirements"]}
+    assert post_run["pullback_expected_artifacts_complete"]["remote_training_ready_now"] is False
+    assert post_run["pullback_expected_artifacts_complete"]["execution_allowed_now"] is False
+    assert post_run["checkpoint_hash_manifest_recorded"]["status"] == "blocked_until_remote_audit"
+    assert "checkpoint file without hash" in post_run["checkpoint_hash_manifest_recorded"]["invalid_substitutes"]
+    assert post_run["gate3_formal_audit_accepts_remote_run"]["missing_artifact_ids"] == [
+        "gate3_formal_audit_formal_decision_pass"
+    ]
+    assert "no-warm Gate3 audit reused as warm-start audit" in post_run["gate3_formal_audit_accepts_remote_run"]["invalid_substitutes"]
     assert "required_output_schema" in packet["h01_manifest"]["schema_checks"]
     assert "blocked_until_f02_6_decision" in markdown
     assert "Remote Preflight Requirements" in markdown
+    assert "Post-Run Acceptance Requirements" in markdown
     assert "gpu3070ti-relay" in markdown
 
 
@@ -88,6 +99,9 @@ def test_remote_formal_execution_packet_allows_only_approved_ready_remote_traini
     assert packet["execution_steps"]["run_remote_training"]["blocked_by"] == []
     assert packet["remote_preflight_requirement_counts"] == {"satisfied": 4}
     assert all(item["status"] == "satisfied" for item in packet["remote_preflight_requirements"])
+    assert packet["post_run_acceptance_requirement_counts"] == {"blocked_until_remote_audit": 4}
+    assert all(item["remote_training_ready_now"] is True for item in packet["post_run_acceptance_requirements"])
+    assert all(item["execution_allowed_now"] is False for item in packet["post_run_acceptance_requirements"])
     runner_command = packet["execution_steps"]["run_remote_training"]["command"]
     assert runner_command.startswith("ssh gpu3070ti-relay")
     assert "run_rl_rs_gate3_trial" in runner_command
