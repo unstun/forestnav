@@ -405,6 +405,14 @@ def _cross_gate_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any],
                         observed={"status_report": status_step.get("allowed_now"), "packet": packet_summary.get(allowed_key)},
                     )
                 )
+            if _strings(status_step.get("blocked_by")) != packet_summary.get(blocked_key):
+                issues.append(
+                    _issue(
+                        f"post_plan_status_report_{step_id}_blockers_mismatch",
+                        "Status report remote step blocked_by must match the remote packet.",
+                        observed={"status_report": _strings(status_step.get("blocked_by")), "packet": packet_summary.get(blocked_key)},
+                    )
+                )
     if handoff_summary:
         if int(handoff_summary.get("safety_issue_count") or 0) > 0:
             issues.append(_issue("post_plan_handoff_safety_issues_open", "Post-F02.6 plan audit reports handoff safety issues."))
@@ -441,14 +449,6 @@ def _cross_gate_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any],
                             observed={"handoff": _strings(handoff_step.get("blocked_by")), "packet": packet_summary.get(blocked_key)},
                         )
                     )
-            if _strings(status_step.get("blocked_by")) != packet_summary.get(blocked_key):
-                issues.append(
-                    _issue(
-                        f"post_plan_status_report_{step_id}_blockers_mismatch",
-                        "Status report remote step blocked_by must match the remote packet.",
-                        observed={"status_report": _strings(status_step.get("blocked_by")), "packet": packet_summary.get(blocked_key)},
-                    )
-                )
     if status_summary.get("local_training_allowed_now") is not False:
         issues.append(_issue("status_report_allows_local_training_now", "Remote packet safety requires status report to preserve local-training prohibition."))
     if status_summary.get("status") != "formal_gate_status_ready_for_claim_audit":

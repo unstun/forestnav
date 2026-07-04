@@ -9,6 +9,8 @@ This file audits the remote formal execution packet. It does not execute any com
 - pullback_artifact_count: `7`
 - post_plan_status_report_status: `formal_gate_status_blocked`
 - post_plan_status_report_next_blocked_lane_id: `decision`
+- post_plan_handoff_status: `blocked_until_f02_6_decision`
+- post_plan_handoff_remote_training_allowed_now: `False`
 
 ## Audit Issues
 

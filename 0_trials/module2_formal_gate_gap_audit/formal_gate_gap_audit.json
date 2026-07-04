@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_gap_audit",
   "status": "blocked_formal_gate_gaps_open",
-  "created_at_utc": "2026-07-04T15:19:57.299574+00:00",
-  "source_head": "073c271fb77714de6c498cd5114704d239faf8f8+dirty",
+  "created_at_utc": "2026-07-04T15:23:44.837825+00:00",
+  "source_head": "f26e179fa2eda43225a02a46e4e8406673b07b7e+dirty",
   "not_paper_result_material": true,
   "local_training_allowed": false,
   "remote_training_resource": "gpu3070ti-relay",
@@ -36,12 +36,11 @@
     "formal_claim_allowed": false,
     "regeneration_required_before_remote_formal_execution": true,
     "risk_counts": {
-      "historical_dirty": 10,
-      "current_clean": 1,
-      "current_dirty": 2,
-      "historical_clean": 2
+      "historical_dirty": 11,
+      "historical_clean": 3,
+      "current_dirty": 1
     },
-    "ordered_regeneration_target_count": 14,
+    "ordered_regeneration_target_count": 15,
     "ordered_regeneration_targets": [
       {
         "artifact_id": "f02_6_decision_gate_audit",
@@ -94,7 +93,7 @@
       {
         "artifact_id": "remote_packet_safety_audit",
         "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
-        "freshness_state": "historical_dirty",
+        "freshness_state": "current_dirty",
         "required_before": "approved_remote_preflight"
       },
       {
@@ -110,6 +109,12 @@
         "required_before": "formal_h01_h02"
       },
       {
+        "artifact_id": "claim_safety",
+        "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
+        "freshness_state": "historical_clean",
+        "required_before": "formal_claim_gate"
+      },
+      {
         "artifact_id": "formal_gate_missing_artifacts",
         "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
         "freshness_state": "historical_dirty",
@@ -118,13 +123,13 @@
       {
         "artifact_id": "formal_gate_status_report",
         "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
-        "freshness_state": "current_dirty",
+        "freshness_state": "historical_dirty",
         "required_before": "formal_claim_gate"
       },
       {
         "artifact_id": "paper_readiness",
         "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
-        "freshness_state": "current_dirty",
+        "freshness_state": "historical_dirty",
         "required_before": "formal_claim_gate"
       }
     ]
