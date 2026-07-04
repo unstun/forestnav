@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "packet_name": "module2_remote_formal_execution_packet",
+  "status": "blocked_until_f02_6_decision",
+  "created_at_utc": "2026-07-04T08:47:01.477033+00:00",
+  "source_head": "bca5a976bff4950e62e419ebd0b87ba2acfb0bae+dirty",
+  "ready_to_run_remote_training": false,
+  "local_training_allowed": false,
+  "formal_claim_allowed_before_audit": false,
+  "blockers": [
+    "requires_dr_sun_approval",
+    "f02_6_warm_start_decision_pending",
+    "missing_module2_rl_rs_checkpoint"
+  ],
+  "execution_environment": {
+    "gpu_alias": "gpu3070ti-relay",
+    "remote_workdir": "~/ForestNav",
+    "remote_python": ".venv/bin/python",
+    "local_root": "/Users/sun/tongbu/study/phdproject/ForestNav",
+    "training_host_required": "gpu3070ti-relay"
+  },
+  "decision_record": {
+    "path": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+    "exists": true,
+    "status": "pending_human_decision",
+    "effective_warm_start_decision": "pending",
+    "remote_training_allowed": false,
+    "local_training_allowed": false,
+    "formal_claim_allowed": false,
+    "blockers": [
+      "requires_dr_sun_approval"
+    ]
+  },
+  "h01_manifest": {
+    "path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
+    "exists": true,
+    "status": "blocked_pending_decisions",
+    "blockers": [
+      "f02_6_warm_start_decision_pending",
+      "missing_module2_rl_rs_checkpoint"
+    ],
+    "schema_checks": {
+      "required_output_schema": "present",
+      "schema_status": "frozen_for_module2_v1",
+      "records_csv_required_columns": 36,
+      "summary_by_method_bucket_required_columns": 24,
+      "summary_json_required_sections": 7
+    }
+  },
+  "remote_preflight": {
+    "path": "0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_pending_remote_v1/gate3_preflight_manifest.json",
+    "exists": true,
+    "preflight_status": "blocked",
+    "formal_trial_ready": false,
+    "warm_start_decision": "pending",
+    "blocker_codes": [
+      "warm_start_decision_pending"
+    ]
+  },
+  "execution_steps": {
+    "trial_dir": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1",
+    "sync_to_remote": {
+      "allowed_now": true,
+      "runs_training": false,
+      "command": "rsync -az --exclude .git --exclude '.venv*' --exclude __pycache__ --exclude .pytest_cache --exclude 1_survey /Users/sun/tongbu/study/phdproject/ForestNav/ 'gpu3070ti-relay:~/ForestNav/'",
+      "note": "No --delete: preserve remote virtualenvs and prior artifacts unless manually reviewed."
+    },
+    "run_remote_preflight": {
+      "allowed_now": false,
+      "runs_training": false,
+      "command": "ssh gpu3070ti-relay 'cd ~/ForestNav && PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.preflight_rl_rs_gate3_formal_trial --output-dir 0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1 --manifest-out 0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1/gate3_preflight_manifest.json --warm-start-decision approved_obstacle_summary --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt --device cuda --allow-duplicate-openmp --allow-existing-output-dir'"
+    },
+    "run_remote_training": {
+      "allowed_now": false,
+      "runs_training": true,
+      "command": "ssh gpu3070ti-relay 'cd ~/ForestNav && PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 --seed 20260704 --device cuda --train-curriculum-preset f03 --eval-curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260704 --train-total-timesteps 100000 --train-n-envs 1 --train-n-steps 128 --train-batch-size 64 --train-n-epochs 4 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --allow-duplicate-openmp --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt'"
+    },
+    "run_remote_audit": {
+      "allowed_now": false,
+      "runs_training": false,
+      "command": "ssh gpu3070ti-relay 'cd ~/ForestNav && PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.audit_rl_rs_gate3_trial --trial-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 --min-formal-episodes 64 --required-success-threshold 0.8 --required-train-curriculum f03 --required-eval-curriculum f03 --warm-start-decision approved_obstacle_summary'"
+    }
+  },
+  "post_run_pullback": {
+    "required_before_local_claim": true,
+    "expected_artifacts": [
+      "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
+      "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
+      "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json",
+      "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv",
+      "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json",
+      "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json",
+      "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json"
+    ],
+    "pullback_command": "rsync -az 'gpu3070ti-relay:~/ForestNav/0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/' /Users/sun/tongbu/study/phdproject/ForestNav/0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/",
+    "hash_manifest_required": true
+  },
+  "downstream_after_successful_audit": {
+    "h01_manifest_must_be_regenerated": true,
+    "h02_full_smoke_must_be_regenerated": true,
+    "paper_tables_must_be_regenerated_from_h02_formal_outputs": true,
+    "checkpoint_candidate": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
+    "formal_claim_requires": [
+      "gate3_formal_audit.formal_decision is pass",
+      "pulled-back checkpoint hash is recorded",
+      "H01 manifest status becomes ready_for_formal_run with this checkpoint",
+      "H02 full all-method smoke and formal evaluation outputs include required_output_schema columns"
+    ]
+  },
+  "claim_boundaries": [
+    "This packet is an execution protocol, not a training result.",
+    "It must not be used to run PPO on the local Mac.",
+    "F02.6 approval by Dr Sun is required before warm-start formal training.",
+    "Remote runner completion is still insufficient for a paper claim until formal audit passes and artifacts are pulled back.",
+    "H01/H02 must be regenerated with the audited checkpoint before any formal performance table is written."
+  ]
+}
