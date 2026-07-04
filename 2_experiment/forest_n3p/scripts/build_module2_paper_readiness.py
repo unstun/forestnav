@@ -19,6 +19,12 @@ DEFAULT_H01_MANIFEST = Path("0_trials/module2_v1_evaluation_manifest/module2_v1_
 DEFAULT_F02_6_DECISION_RECORD = Path("0_trials/module2_f02_6_decision_record/f02_6_decision_record.json")
 DEFAULT_REMOTE_EXECUTION_PACKET = Path("0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json")
 DEFAULT_STATUS_REPORT = Path("0_trials/module2_formal_gate_status_report/formal_gate_status_report.json")
+CLAIM_SAFETY_REQUIREMENT_IDS = (
+    "training_remote_ppo_checkpoint",
+    "evaluation_gate3_episode_outputs",
+    "acceptance_remote_pullback_and_audit",
+    "h01_h02_formal_evaluation_acceptance",
+)
 
 
 @dataclass(frozen=True)
@@ -95,6 +101,7 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
     claim_missing_handoff = claim_safety.get("status_report_missing_artifacts_handoff_summary")
     if not isinstance(claim_missing_handoff, dict):
         claim_missing_handoff = {}
+    claim_requirement_stage_summary = _claim_safety_requirement_stage_summary(claim_safety)
     input_status = {
         "method_algorithms_status": method_algorithms.get("status"),
         "system_diagram_status": system_diagram.get("status"),
@@ -115,6 +122,13 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_missing_artifacts_formal_result_material_allowed_now": claim_missing_handoff.get(
             "formal_result_material_allowed_now"
         ),
+        "claim_safety_requirement_stage_present": claim_requirement_stage_summary["present"],
+        "claim_safety_requirement_stage_mapped_count": claim_requirement_stage_summary["mapped_requirement_count"],
+        "claim_safety_requirement_stage_unmapped_count": claim_requirement_stage_summary["unmapped_requirement_count"],
+        "claim_safety_requirement_stage_mismatched_count": claim_requirement_stage_summary[
+            "mismatched_requirement_count"
+        ],
+        "claim_safety_requirement_stage_blocked_stage_count": claim_requirement_stage_summary["blocked_stage_count"],
         "h02_formal_acceptance_status": h02_acceptance.get("status"),
         "h02_formal_output_accepted": h02_acceptance.get("formal_output_accepted"),
         "h02_paper_result_input_allowed": h02_acceptance.get("paper_result_input_allowed"),
@@ -163,6 +177,7 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "remote_training_resource": "gpu3070ti-relay",
         "inputs": inputs,
         "input_status": input_status,
+        "claim_safety_requirement_stage_summary": claim_requirement_stage_summary,
         "global_blockers": global_blockers,
         "allowed_claim_ids": allowed_claim_ids,
         "conditional_claim_ids": conditional_claim_ids,
@@ -215,6 +230,7 @@ def _global_blockers(
     if claim_safety.get("formal_performance_claim_allowed") is not True:
         _append_unique(blockers, "claim_safety_blocks_formal_performance")
     _extend_unique(blockers, claim_safety.get("formal_performance_blockers", []))
+    _extend_unique(blockers, _claim_safety_requirement_stage_blockers(claim_safety))
     _extend_unique(blockers, h01_manifest.get("blockers", []))
     if str(decision_record.get("status")) == "pending_human_decision":
         _append_unique(blockers, "f02_6_pending")
@@ -323,6 +339,57 @@ def _status_report_blockers(status_report: dict[str, Any]) -> list[str]:
     return blockers
 
 
+def _claim_safety_requirement_stage_summary(claim_safety: dict[str, Any]) -> dict[str, Any]:
+    summary = claim_safety.get("status_report_requirement_stage_summary")
+    if not isinstance(summary, dict):
+        summary = {}
+    raw_requirements = summary.get("requirements") if isinstance(summary.get("requirements"), dict) else {}
+    requirements: dict[str, dict[str, Any]] = {}
+    for requirement_id in CLAIM_SAFETY_REQUIREMENT_IDS:
+        row = raw_requirements.get(requirement_id) if isinstance(raw_requirements.get(requirement_id), dict) else {}
+        requirements[requirement_id] = {
+            "present": bool(row),
+            "status": row.get("status"),
+            "responsible_stage_id": row.get("responsible_stage_id"),
+            "responsible_stage_status": row.get("responsible_stage_status"),
+            "responsible_stage_allowed_now": row.get("responsible_stage_allowed_now")
+            if isinstance(row.get("responsible_stage_allowed_now"), bool)
+            else None,
+            "mapping_present": row.get("mapping_present") if isinstance(row.get("mapping_present"), bool) else None,
+            "mapping_matches_expected": row.get("mapping_matches_expected")
+            if isinstance(row.get("mapping_matches_expected"), bool)
+            else None,
+        }
+    return {
+        "present": bool(summary),
+        "mapped_requirement_count": int(summary.get("mapped_requirement_count") or 0),
+        "unmapped_requirement_count": int(summary.get("unmapped_requirement_count") or 0),
+        "mismatched_requirement_count": int(summary.get("mismatched_requirement_count") or 0),
+        "blocked_stage_count": int(summary.get("blocked_stage_count") or 0),
+        "requirements": requirements,
+    }
+
+
+def _claim_safety_requirement_stage_blockers(claim_safety: dict[str, Any]) -> list[str]:
+    summary = _claim_safety_requirement_stage_summary(claim_safety)
+    blockers: list[str] = []
+    if not summary["present"]:
+        blockers.append("claim_safety_missing_requirement_stage_summary")
+        return blockers
+    if summary["mapped_requirement_count"] != len(CLAIM_SAFETY_REQUIREMENT_IDS):
+        blockers.append("claim_safety_requirement_stage_mapping_incomplete")
+    if summary["unmapped_requirement_count"] > 0:
+        blockers.append("claim_safety_requirement_stage_unmapped")
+    if summary["mismatched_requirement_count"] > 0:
+        blockers.append("claim_safety_requirement_stage_mismatched")
+    for requirement_id, row in summary["requirements"].items():
+        if not row["present"]:
+            _append_unique(blockers, f"claim_safety_requirement_stage_missing_{requirement_id}")
+        elif row["mapping_present"] is not True or row["mapping_matches_expected"] is not True:
+            _append_unique(blockers, f"claim_safety_requirement_stage_invalid_{requirement_id}")
+    return blockers
+
+
 def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
@@ -388,6 +455,14 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- claim_safety_missing_artifacts_open_requirement_count: `{input_status.get('claim_safety_missing_artifacts_open_requirement_count')}`",
             f"- claim_safety_missing_artifacts_remote_training_allowed_now: `{input_status.get('claim_safety_missing_artifacts_remote_training_allowed_now')}`",
             f"- claim_safety_missing_artifacts_formal_result_material_allowed_now: `{input_status.get('claim_safety_missing_artifacts_formal_result_material_allowed_now')}`",
+            "",
+            "## Claim Safety Requirement Stage Summary",
+            "",
+            f"- claim_safety_requirement_stage_present: `{input_status.get('claim_safety_requirement_stage_present')}`",
+            f"- claim_safety_requirement_stage_mapped_count: `{input_status.get('claim_safety_requirement_stage_mapped_count')}`",
+            f"- claim_safety_requirement_stage_unmapped_count: `{input_status.get('claim_safety_requirement_stage_unmapped_count')}`",
+            f"- claim_safety_requirement_stage_mismatched_count: `{input_status.get('claim_safety_requirement_stage_mismatched_count')}`",
+            f"- claim_safety_requirement_stage_blocked_stage_count: `{input_status.get('claim_safety_requirement_stage_blocked_stage_count')}`",
         ]
     )
     lines.extend(["", "## Section Readiness", ""])
