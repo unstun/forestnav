@@ -77,6 +77,40 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - next_blocked_lane_id: `decision`
 - input_safety_issue_count: `0`
 
+## Formal Gate Handoff
+
+- path: `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`
+- status: `blocked_until_f02_6_decision`
+- executes_commands: `False`
+- runs_training: `False`
+- runs_remote_preflight: `False`
+- remote_training_allowed_now: `False`
+- formal_claim_allowed_now: `False`
+- safety_issue_count: `0`
+- next_handoff_action_id: `record_f02_6_decision`
+
+## Remote Packet Safety
+
+- path: `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
+- status: `remote_packet_safety_audit_passed`
+- executes_commands: `False`
+- runs_training: `False`
+- runs_remote_preflight: `False`
+- packet_status: `blocked_until_f02_6_decision`
+- remote_training_allowed_now: `False`
+- audit_issue_count: `0`
+
+## Execution Veto Matrix
+
+- all_rows_consistent: `True`
+- mismatch_rows: `[]`
+
+- `local_training`: consistent=`True`, consensus_allowed_now=`False`, sources=`{'formal_gate_gap_audit': False, 'status_report': False, 'handoff_bundle': False, 'remote_packet': False}`
+- `remote_preflight`: consistent=`True`, consensus_allowed_now=`False`, sources=`{'status_report': False, 'handoff_bundle': False, 'remote_packet': False, 'remote_packet_safety': False}`
+- `remote_training`: consistent=`True`, consensus_allowed_now=`False`, sources=`{'decision_record': False, 'status_report': False, 'handoff_bundle': False, 'remote_packet': False, 'remote_packet_safety': False}`
+- `remote_audit`: consistent=`True`, consensus_allowed_now=`False`, sources=`{'handoff_bundle': False, 'remote_packet': False, 'remote_packet_safety': False}`
+- `formal_claim`: consistent=`True`, consensus_allowed_now=`False`, sources=`{'status_report': False, 'handoff_bundle': False}`
+
 ## Decision Gaps
 
 - `f02_6_warm_start_decision_pending`
@@ -212,3 +246,4 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - Remote completion is insufficient until audit artifacts, checkpoint hashes, H01/H02 regeneration, and claim safety all pass.
 - The closure checklist must be complete before the final claim gate can be treated as ready.
 - The formal gate status report must be ready before the final claim gate can be treated as ready.
+- The handoff bundle and remote packet safety audit must agree with the remote packet before any remote execution.

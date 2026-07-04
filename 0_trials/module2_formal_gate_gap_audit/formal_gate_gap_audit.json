@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_gap_audit",
   "status": "blocked_formal_gate_gaps_open",
-  "created_at_utc": "2026-07-04T15:23:44.837825+00:00",
-  "source_head": "f26e179fa2eda43225a02a46e4e8406673b07b7e+dirty",
+  "created_at_utc": "2026-07-04T15:35:15.142158+00:00",
+  "source_head": "ec92396b2920fd0487dab90182df44889f6de2f1+dirty",
   "not_paper_result_material": true,
   "local_training_allowed": false,
   "remote_training_resource": "gpu3070ti-relay",
@@ -202,7 +202,12 @@
     "formal_gate_closure_checklist_status": "formal_gate_closure_blocked",
     "formal_gate_closure_checklist_open": true,
     "formal_gate_status_report_status": "formal_gate_status_blocked",
-    "formal_gate_status_report_formal_claim_allowed_now": false
+    "formal_gate_status_report_formal_claim_allowed_now": false,
+    "formal_gate_handoff_status": "blocked_until_f02_6_decision",
+    "formal_gate_handoff_safety_issue_count": 0,
+    "formal_gate_handoff_remote_training_allowed_now": false,
+    "remote_packet_safety_status": "remote_packet_safety_audit_passed",
+    "remote_packet_safety_audit_issue_count": 0
   },
   "missing_decision_items": [
     {
@@ -394,6 +399,137 @@
       "required_next_artifact": "Regenerate the status report only after all formal gate lanes are complete."
     }
   ],
+  "formal_gate_handoff": {
+    "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
+    "exists": true,
+    "status": "blocked_until_f02_6_decision",
+    "executes_commands": false,
+    "runs_training": false,
+    "runs_remote_preflight": false,
+    "local_training_allowed": false,
+    "formal_claim_allowed": false,
+    "safety_issue_count": 0,
+    "next_handoff_action_id": "record_f02_6_decision",
+    "remote_preflight_allowed_now": false,
+    "remote_training_allowed_now": false,
+    "formal_claim_allowed_now": false,
+    "remote_execution_steps": {
+      "sync_to_remote": {
+        "present": true,
+        "allowed_now": false,
+        "runs_training": false,
+        "blocked_by": [
+          "requires_dr_sun_approval"
+        ]
+      },
+      "run_remote_preflight": {
+        "present": true,
+        "allowed_now": false,
+        "runs_training": false,
+        "blocked_by": [
+          "requires_dr_sun_approval"
+        ]
+      },
+      "run_remote_training": {
+        "present": true,
+        "allowed_now": false,
+        "runs_training": true,
+        "blocked_by": [
+          "requires_dr_sun_approval",
+          "f02_6_warm_start_decision_pending",
+          "missing_module2_rl_rs_checkpoint",
+          "remote_packet_not_ready"
+        ]
+      },
+      "run_remote_audit": {
+        "present": true,
+        "allowed_now": false,
+        "runs_training": false,
+        "blocked_by": [
+          "requires_dr_sun_approval",
+          "f02_6_warm_start_decision_pending",
+          "missing_module2_rl_rs_checkpoint",
+          "remote_packet_not_ready"
+        ]
+      }
+    }
+  },
+  "remote_packet_safety": {
+    "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
+    "exists": true,
+    "status": "remote_packet_safety_audit_passed",
+    "executes_commands": false,
+    "runs_training": false,
+    "runs_remote_preflight": false,
+    "local_training_allowed": false,
+    "formal_claim_allowed": false,
+    "audit_issue_count": 0,
+    "packet_status": "blocked_until_f02_6_decision",
+    "remote_preflight_allowed_now": false,
+    "remote_training_allowed_now": false,
+    "remote_audit_allowed_now": false
+  },
+  "execution_veto_matrix": {
+    "matrix_version": 1,
+    "f02_6_decision_status": "pending_human_decision",
+    "all_rows_consistent": true,
+    "mismatch_rows": [],
+    "rows": [
+      {
+        "row_id": "local_training",
+        "allowed_now_by_source": {
+          "formal_gate_gap_audit": false,
+          "status_report": false,
+          "handoff_bundle": false,
+          "remote_packet": false
+        },
+        "consistent": true,
+        "consensus_allowed_now": false
+      },
+      {
+        "row_id": "remote_preflight",
+        "allowed_now_by_source": {
+          "status_report": false,
+          "handoff_bundle": false,
+          "remote_packet": false,
+          "remote_packet_safety": false
+        },
+        "consistent": true,
+        "consensus_allowed_now": false
+      },
+      {
+        "row_id": "remote_training",
+        "allowed_now_by_source": {
+          "decision_record": false,
+          "status_report": false,
+          "handoff_bundle": false,
+          "remote_packet": false,
+          "remote_packet_safety": false
+        },
+        "consistent": true,
+        "consensus_allowed_now": false
+      },
+      {
+        "row_id": "remote_audit",
+        "allowed_now_by_source": {
+          "handoff_bundle": false,
+          "remote_packet": false,
+          "remote_packet_safety": false
+        },
+        "consistent": true,
+        "consensus_allowed_now": false
+      },
+      {
+        "row_id": "formal_claim",
+        "allowed_now_by_source": {
+          "status_report": false,
+          "handoff_bundle": false
+        },
+        "consistent": true,
+        "consensus_allowed_now": false
+      }
+    ]
+  },
   "ordered_next_steps": [
     {
       "step_id": "F02.6",
@@ -516,6 +652,7 @@
     "Source freshness risks are regeneration blockers, not formal algorithm failures.",
     "Remote completion is insufficient until audit artifacts, checkpoint hashes, H01/H02 regeneration, and claim safety all pass.",
     "The closure checklist must be complete before the final claim gate can be treated as ready.",
-    "The formal gate status report must be ready before the final claim gate can be treated as ready."
+    "The formal gate status report must be ready before the final claim gate can be treated as ready.",
+    "The handoff bundle and remote packet safety audit must agree with the remote packet before any remote execution."
   ]
 }

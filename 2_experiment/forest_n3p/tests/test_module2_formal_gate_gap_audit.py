@@ -41,7 +41,11 @@ def test_formal_gate_gap_audit_blocks_current_pending_gate_and_lists_missing_art
             "--closure-checklist",
             str(_closure_checklist(tmp_path, complete=True)),
             "--status-report",
-            str(_status_report(tmp_path, ready=True)),
+            str(_status_report(tmp_path, ready=False)),
+            "--handoff-bundle",
+            str(_handoff_bundle(tmp_path, ready=False, pending=True)),
+            "--remote-packet-safety-audit",
+            str(_remote_packet_safety(tmp_path, ready=False)),
         ]
     )
 
@@ -59,6 +63,9 @@ def test_formal_gate_gap_audit_blocks_current_pending_gate_and_lists_missing_art
     assert manifest["remote_readiness"]["oracle_connector_results_match"] is True
     assert manifest["remote_readiness"]["obstacle_summary_bc_checkpoint_match"] is True
     assert manifest["source_freshness"]["regeneration_required_before_remote_formal_execution"] is False
+    assert manifest["formal_gate_handoff"]["status"] == "blocked_until_f02_6_decision"
+    assert manifest["remote_packet_safety"]["status"] == "remote_packet_safety_audit_passed"
+    assert manifest["execution_veto_matrix"]["all_rows_consistent"] is True
 
     gap_ids = {
         gap["gap_id"]
