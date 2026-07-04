@@ -670,6 +670,9 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - no-warm 解释: 这是可审计的 no-warm-start Gate #3 失败, 不是 smoke, 不是运行崩溃; 但 F02.6 obstacle-summary warm-start 决策仍 pending, 不能把 no-warm 失败偷换成 warm-start 失败。
   - no-warm formal 产物: `0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/`。
   - no-warm formal 记录: `.pipeline/experiments/20260704_module2_f03_gate3_no_warm_formal_trial.md`。
+  - no-warm failure analysis: open_connector 15/15 success, 但 `rs_failure_node` 6/24 success、collision rate 0.583333, `heldout_procedural` 2/14 success、truncation rate 0.571429; 训练末 1000 episode 的 `rs_failure_node` success 仍只有 0.365239。
+  - timing 边界: eval CSV 中 `nn_forward_time_s` 全为 0.0, 因此本 trial 只能支持 Gate #3 success/failure 与 failure-mode claim, 不能支持端到端 timing claim。
+  - no-warm failure analysis 记录: `.pipeline/experiments/20260704_module2_f03_no_warm_failure_analysis.md`。
 
 ### Phase G: Planner 集成
 
@@ -820,3 +823,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 完成 F02.4 profile-aware map cache 修复与 formal-v2 corpus 重建。formal-v1 在真实 profile 地图下有 4764 colliding demo rows, 因此 F02.2/F02.3 formal-v1 结果失效; formal-v2 产出 83809 demo rows / 1032 source rows, current/next collision audit 均为 0。记录见 `.pipeline/experiments/20260704_module2_f02_map_cache_formal_v2_rebuild.md`。
 - 2026-07-04: 完成 F02.5 formal-v2 BC baseline rerun。scalar 0.1m success 38/258; obstacle-summary 0.1m success 67/258; patch+scalar CNN bounded success 63/242; 同口径 bounded eval 下 obstacle-summary 101/242 明显强于 patch-CNN 63/242, 推荐 obstacle-summary 作为 PPO practical warm-start。记录见 `.pipeline/experiments/20260704_module2_f02_formal_v2_mlp_bc_baselines.md`。
 - 2026-07-04: 完成 F03.5 no-warm-start formal Gate #3 trial。attempt 01 因 oracle sampler 抽到 profile-aware 重建后碰撞 row 中断, 已修复为跳过无效 rows; attempt 02 完成 100000 timesteps PPO train 和 64 episode eval。formal audit 输出 `formal_decision=fail`, `formal_claim_allowed=true`, `formal_blockers=[]`; terminal-RS-success 29/64=0.453125, 低于 0.8 阈值。记录见 `.pipeline/experiments/20260704_module2_f03_gate3_no_warm_formal_trial.md`。
+- 2026-07-04: 完成 F03 no-warm failure analysis。失败主要集中在 hard distribution: `rs_failure_node` 6/24 success、collision 14/24, `heldout_procedural` 2/14 success、truncation 8/14; open_connector 15/15 成功说明基础接线没有整体断裂。训练末 1000 episode 的 `rs_failure_node` success 仍只有 0.365239, 与 formal eval fail 一致。记录见 `.pipeline/experiments/20260704_module2_f03_no_warm_failure_analysis.md`。
