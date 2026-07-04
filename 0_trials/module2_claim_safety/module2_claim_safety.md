@@ -23,6 +23,8 @@
 - formal_gate_status_report_blocked
 - status_report_remaining_deliverables_gap_rows_missing
 - status_report_remaining_deliverables_gap_categories_blocked
+- status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing
+- status_report_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked
 
 ## Allowed Claims
 
@@ -119,6 +121,14 @@
 - `evaluation`: missing_count=`2`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`evaluation:eval_gate3_eval_episodes_csv, evaluation:eval_gate3_summary_json`
 - `acceptance`: missing_count=`3`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`acceptance:gate3_trial_manifest_json, acceptance:gate3_formal_audit_json, acceptance:pulled_back_checkpoint_hash_record`
 - `formal_acceptance`: missing_count=`2`, stage=`regenerate_h01_h02_formal_artifacts`, stage_allowed_now=`False`, missing_artifacts=`formal_acceptance:h01_ready_for_formal_run, formal_acceptance:h02_formal_output_acceptance`
+
+## Status Report Formal Gate Gap Audit Remaining Deliverables Gap Summary
+
+- present=`True`
+- summary_id=`module2_formal_gate_missing_training_eval_acceptance_summary`
+- total_missing_deliverables=`10`
+- open_category_count=`4`
+- matches_status_report_remaining_gap=`True`
 
 ## Prohibited Claims
 

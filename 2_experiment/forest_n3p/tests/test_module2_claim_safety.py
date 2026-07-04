@@ -1136,6 +1136,9 @@ def _status_report_payload(*, ready, invalid=False):
             ready=ready
         ),
         "remaining_deliverables_gap_summary": _status_report_remaining_deliverables_gap_summary_payload(ready=ready),
+        "formal_gate_gap_audit_remaining_deliverables_gap_summary": _status_report_remaining_deliverables_gap_summary_payload(
+            ready=ready
+        ),
         "closure_remote_stage_summary": {
             "approved_remote_preflight": {
                 "present": True,
