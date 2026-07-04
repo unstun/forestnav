@@ -9,6 +9,7 @@ depends_on:
   - .pipeline/experiments/20260704_module2_i01_method_algorithms.md
   - .pipeline/experiments/20260704_module2_i01_system_diagram.md
   - .pipeline/experiments/20260704_module2_i02_paper_table_protocol.md
+  - .pipeline/experiments/20260704_module2_h02_formal_acceptance_audit.md
   - .pipeline/experiments/20260704_module2_f03_gate3_no_warm_formal_trial.md
   - .pipeline/experiments/20260704_module2_f02_6_warm_start_decision_packet.md
 ---
@@ -19,7 +20,7 @@ depends_on:
 
 本轮完成 I03 claim safety guard。它的作用不是生成漂亮文字, 而是在写论文前先把哪些 claim 可以写、哪些 claim 只能条件性写、哪些 claim 必须禁止固定下来。
 
-当前 formal performance claim 仍被阻塞, 因为 H02 不是 formal, H01 不是 ready, F02.6 仍 pending, PPO checkpoint/rows 仍缺。允许写的只有两类:
+当前 formal performance claim 仍被阻塞, 因为 H02 不是 formal, H02 formal acceptance 未通过, H01 不是 ready, F02.6 仍 pending, PPO checkpoint/rows 仍缺。允许写的只有两类:
 
 - 方法结构 claim: Module2 是 Hybrid A* 内部 learned analytic-expansion operator, 有 terminal RS certificate 和 primitive fallback, 不是 standalone RL global planner。
 - no-warm failure claim: no-warm PPO Gate #3 formal branch 失败, terminal-RS success 29/64=0.453125, 低于 0.8 阈值。这个 claim 只限 no-warm branch, 不评价 obstacle-summary warm-start。
@@ -38,6 +39,7 @@ depends_on:
 - blockers:
   - `paper_tables_not_formal`
   - `h02_verdict_not_formal`
+  - `h02_formal_acceptance_not_accepted`
   - `h01_manifest_not_ready`
   - `f02_6_warm_start_decision_pending`
   - `f02_6_decision_packet_pending`
@@ -79,6 +81,7 @@ The builder also supports `--draft-text` audit and reports matched prohibited pa
 - Adjacent: `PYTHONPATH=2_experiment pytest -q 2_experiment/forest_n3p/tests/test_module2_claim_safety.py 2_experiment/forest_n3p/tests/test_module2_paper_tables.py 2_experiment/forest_n3p/tests/test_module2_method_algorithms.py 2_experiment/forest_n3p/tests/test_module2_system_diagram.py` -> `4 passed in 0.13s`.
 - Syntax: `python -m py_compile 2_experiment/forest_n3p/scripts/build_module2_claim_safety.py`.
 - Artifact audit: `module2_claim_safety_artifact=ok`.
+- 2026-07-04 H02 acceptance integration: `--h02-formal-acceptance` 已接入; 即使 paper tables/H01/F02.6 都看似 formal, 只要 H02 acceptance blocked, I03 仍输出 `blocked_formal_performance_claims`; I02/I03 targeted `4 passed in 0.12s`。
 
 ## 边界
 

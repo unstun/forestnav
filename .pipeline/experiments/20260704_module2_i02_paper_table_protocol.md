@@ -10,6 +10,7 @@ depends_on:
   - .pipeline/experiments/20260704_module2_h02_local_smoke_preflight.md
   - .pipeline/experiments/20260704_module2_h02_statistical_ci_infra.md
   - .pipeline/experiments/20260704_module2_f02_6_warm_start_decision_packet.md
+  - .pipeline/experiments/20260704_module2_h02_formal_acceptance_audit.md
 ---
 
 # I02 Paper Table Protocol
@@ -34,8 +35,10 @@ depends_on:
 - local_training_allowed: `false`
 - remote_training_resource: `gpu3070ti-relay`
 - A02.3 telemetry refresh: `module2_paper_tables.json` now includes `telemetry_diagnostic_table` sourced from runtime/evaluation telemetry columns.
+- H02 acceptance integration: `module2_paper_tables.json` now reads `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`; current `h02_formal_acceptance_status=blocked_formal_output_acceptance` and `h02_formal_acceptance_not_accepted` blocks formal tables.
 - blockers:
   - `h02_verdict_not_formal`
+  - `h02_formal_acceptance_not_accepted`
   - `h01_manifest_not_ready`
   - `f02_6_warm_start_decision_pending`
   - `f02_6_decision_packet_pending`
@@ -82,9 +85,10 @@ depends_on:
 - Syntax: `python -m py_compile 2_experiment/forest_n3p/scripts/build_module2_paper_tables.py`.
 - Artifact audit: `module2_paper_tables_artifact=ok`.
 - 2026-07-04 telemetry refresh: RED failed on missing `telemetry_diagnostic_table`; GREEN targeted `9 passed`; full `2_experiment/forest_n3p/tests` -> `112 passed in 12.15s`.
+- 2026-07-04 H02 acceptance integration: `--h02-formal-acceptance` 已接入; synthetic formal table + blocked H02 acceptance 仍会输出 `blocked_no_formal_h02_data`; I02/I03 targeted `4 passed in 0.12s`。
 
 ## 边界
 
 - Current preview rows must not be used as paper results.
-- Formal paper tables require H02 `formal_acceptance=true`, H01 formal-ready status, frozen metric protocol, and real PPO checkpoint/result rows.
+- Formal paper tables require H02 `formal_acceptance=true`, H02 formal acceptance `paper_result_input_allowed=true`, H01 formal-ready status, frozen metric protocol, and real PPO checkpoint/result rows.
 - PPO formal training/checkpoint production must run on `gpu3070ti-relay`; this task did not train locally.
