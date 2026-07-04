@@ -941,6 +941,17 @@ def _status_report_payload(*, ready, invalid=False):
             "remote_preflight_allowed_now": bool(ready),
             "formal_claim_allowed_now": bool(ready),
         },
+        "f02_6_decision_intake_summary": {
+            "present": True,
+            "status": "f02_6_decision_intake_closed_clean" if ready else "f02_6_decision_intake_pending_clean",
+            "audit_issue_count": 0,
+            "record_status": "approved" if ready else "pending_human_decision",
+            "record_decider": "Dr Sun" if ready else None,
+            "next_blocked_lane": None if ready else "decision",
+            "remote_preflight_allowed_now": bool(ready),
+            "remote_training_allowed_now": bool(ready),
+            "formal_claim_allowed_now": bool(ready),
+        },
         "missing_artifacts_handoff_index_summary": {
             "present": True,
             "status": "formal_gate_evidence_ready_for_h01_h02_claim_gates"
