@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_paper_readiness",
   "status": "partial_methods_ready_results_blocked",
-  "created_at_utc": "2026-07-04T09:09:09.176388+00:00",
-  "source_head": "6689b3ab720df72d364492094379eb76a8b09ef2+dirty",
+  "created_at_utc": "2026-07-04T12:35:09.119795+00:00",
+  "source_head": "b7460f0222750cd2d385719781aeff66a7f5e6ef+dirty",
   "manuscript_ready": false,
   "formal_results_ready": false,
   "local_training_allowed": false,
@@ -48,7 +48,8 @@
     "missing_remote_pullback_artifacts",
     "f02_6_formal_chain_pending",
     "claim_safety_blocks_formal_performance",
-    "f02_6_pending"
+    "f02_6_pending",
+    "formal_gate_closure_checklist_open"
   ],
   "allowed_claim_ids": [
     "method_is_ha_star_analytic_operator",
@@ -133,7 +134,8 @@
         "missing_remote_pullback_artifacts",
         "f02_6_formal_chain_pending",
         "claim_safety_blocks_formal_performance",
-        "f02_6_pending"
+        "f02_6_pending",
+        "formal_gate_closure_checklist_open"
       ]
     },
     {
