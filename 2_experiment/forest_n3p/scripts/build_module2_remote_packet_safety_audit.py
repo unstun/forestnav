@@ -221,6 +221,8 @@ def _downstream_issues(packet: dict[str, Any]) -> list[dict[str, Any]]:
 def _cross_gate_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any], plan_audit: dict[str, Any]) -> list[dict[str, Any]]:
     issues: list[dict[str, Any]] = []
     decision = decision_gate.get("decision_state") if isinstance(decision_gate.get("decision_state"), dict) else {}
+    status_summary = plan_audit.get("status_report_summary") if isinstance(plan_audit.get("status_report_summary"), dict) else {}
+    plan_inputs = plan_audit.get("inputs") if isinstance(plan_audit.get("inputs"), dict) else {}
     if decision_gate and decision_gate.get("status") == "f02_6_decision_gate_pending_clean":
         if packet.get("status") != "blocked_until_f02_6_decision":
             issues.append(_issue("pending_decision_packet_not_blocked", "Remote packet must be blocked while F02.6 is pending.", observed=packet.get("status")))
@@ -231,6 +233,22 @@ def _cross_gate_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any],
     blocking = plan_audit.get("current_blocking_summary") if isinstance(plan_audit.get("current_blocking_summary"), dict) else {}
     if plan_audit and blocking.get("training_allowed_now") is False and _step(packet.get("execution_steps", {}), "run_remote_training").get("allowed_now") is True:
         issues.append(_issue("post_plan_blocks_but_packet_allows_training", "Post-F02.6 plan audit blocks training but remote packet allows it."))
+    if plan_audit and "formal_gate_status_report" not in plan_inputs:
+        issues.append(_issue("post_plan_missing_status_report_input", "Post-F02.6 plan audit must consume the formal gate status report before remote packet safety can pass."))
+    if plan_audit and not status_summary:
+        issues.append(_issue("post_plan_missing_status_report_summary", "Post-F02.6 plan audit must expose status_report_summary before remote packet safety can pass."))
+    if status_summary.get("local_training_allowed_now") is not False:
+        issues.append(_issue("status_report_allows_local_training_now", "Remote packet safety requires status report to preserve local-training prohibition."))
+    if status_summary.get("status") != "formal_gate_status_ready_for_claim_audit":
+        steps = packet.get("execution_steps", {}) if isinstance(packet.get("execution_steps"), dict) else {}
+        if packet.get("ready_to_run_remote_training") is True:
+            issues.append(_issue("blocked_status_report_packet_ready", "Remote packet must not be ready while the formal gate status report is blocked."))
+        if _step(steps, "run_remote_preflight").get("allowed_now") is True:
+            issues.append(_issue("blocked_status_report_allows_remote_preflight", "Remote preflight must remain disallowed while the formal gate status report is blocked."))
+        if _step(steps, "run_remote_training").get("allowed_now") is True:
+            issues.append(_issue("blocked_status_report_allows_remote_training", "Remote training must remain disallowed while the formal gate status report is blocked."))
+        if _step(steps, "run_remote_audit").get("allowed_now") is True:
+            issues.append(_issue("blocked_status_report_allows_remote_audit", "Remote audit must remain disallowed while the formal gate status report is blocked."))
     return issues
 
 
@@ -255,6 +273,7 @@ def _packet_summary(packet: dict[str, Any]) -> dict[str, Any]:
 def _cross_gate_summary(*, decision_gate: dict[str, Any], plan_audit: dict[str, Any]) -> dict[str, Any]:
     decision = decision_gate.get("decision_state") if isinstance(decision_gate.get("decision_state"), dict) else {}
     blocking = plan_audit.get("current_blocking_summary") if isinstance(plan_audit.get("current_blocking_summary"), dict) else {}
+    status_summary = plan_audit.get("status_report_summary") if isinstance(plan_audit.get("status_report_summary"), dict) else {}
     return {
         "decision_gate_status": decision_gate.get("status"),
         "f02_6_record_status": decision.get("record_status"),
@@ -262,6 +281,10 @@ def _cross_gate_summary(*, decision_gate: dict[str, Any], plan_audit: dict[str, 
         "post_plan_audit_status": plan_audit.get("status"),
         "post_plan_training_allowed_now": blocking.get("training_allowed_now"),
         "post_plan_remote_preflight_allowed_now": blocking.get("remote_preflight_allowed_now"),
+        "post_plan_status_report_status": status_summary.get("status"),
+        "post_plan_status_report_formal_claim_allowed_now": status_summary.get("formal_claim_allowed_now"),
+        "post_plan_status_report_local_training_allowed_now": status_summary.get("local_training_allowed_now"),
+        "post_plan_status_report_next_blocked_lane_id": status_summary.get("next_blocked_lane_id"),
     }
 
 
@@ -322,6 +345,8 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- packet_status: `{manifest['packet_summary']['status']}`",
         f"- remote_training_allowed_now: `{manifest['packet_summary']['remote_training_allowed_now']}`",
         f"- pullback_artifact_count: `{manifest['packet_summary']['pullback_artifact_count']}`",
+        f"- post_plan_status_report_status: `{manifest['cross_gate_summary']['post_plan_status_report_status']}`",
+        f"- post_plan_status_report_next_blocked_lane_id: `{manifest['cross_gate_summary']['post_plan_status_report_next_blocked_lane_id']}`",
         "",
         "## Audit Issues",
         "",
