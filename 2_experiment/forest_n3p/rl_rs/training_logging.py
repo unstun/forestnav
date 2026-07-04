@@ -62,6 +62,7 @@ class RlRsEpisodeLoggingWrapper(gym.Wrapper):
         self._reward_total = 0.0
         self._reward_terms = {name: 0.0 for name in REWARD_TERM_NAMES}
         self._step_infos: list[dict[str, Any]] = []
+        self._nn_forward_time_s = 0.0
 
     def reset(self, **kwargs: Any):
         observation, info = self.env.reset(**kwargs)
@@ -69,7 +70,14 @@ class RlRsEpisodeLoggingWrapper(gym.Wrapper):
         self._reward_total = 0.0
         self._reward_terms = {name: 0.0 for name in REWARD_TERM_NAMES}
         self._step_infos = []
+        self._nn_forward_time_s = 0.0
         return observation, info
+
+    def record_nn_forward_time(self, elapsed_s: float) -> None:
+        elapsed = _optional_finite_float(elapsed_s)
+        if elapsed is None or elapsed < 0.0:
+            raise ValueError("elapsed_s must be a finite non-negative value")
+        self._nn_forward_time_s += float(elapsed)
 
     def step(self, action: Any):
         observation, reward, terminated, truncated, info = self.env.step(action)
@@ -142,7 +150,7 @@ class RlRsEpisodeLoggingWrapper(gym.Wrapper):
             "min_clearance_m": min_clearance_m,
             "mean_abs_curvature_delta": float(mean_abs_curvature_delta),
             "mean_abs_curvature_rate": float(mean_abs_curvature_rate),
-            "nn_forward_time_s": _finite_float(telemetry.get("nn_forward_time_s"), default=0.0),
+            "nn_forward_time_s": self._nn_forward_time_s + _finite_float(telemetry.get("nn_forward_time_s"), default=0.0),
             "rollout_sample_time_s": _finite_float(telemetry.get("rollout_sample_time_s"), default=0.0),
             "rollout_collision_time_s": _finite_float(telemetry.get("rollout_collision_time_s"), default=0.0),
             "terminal_rs_time_s": _finite_float(telemetry.get("terminal_rs_time_s"), default=0.0),
@@ -183,6 +191,7 @@ class RlRsEpisodeLoggingWrapper(gym.Wrapper):
             "timing/rollout_sample_time_s": record["rollout_sample_time_s"],
             "timing/rollout_collision_time_s": record["rollout_collision_time_s"],
             "timing/terminal_rs_time_s": record["terminal_rs_time_s"],
+            "timing/nn_forward_time_s": record["nn_forward_time_s"],
         }
         for name in REWARD_TERM_NAMES:
             scalar_tags[f"episode/reward_term_{name}"] = record[f"reward_term_{name}"]

@@ -7,6 +7,7 @@ import os
 import socket
 import subprocess
 import sys
+from time import perf_counter
 from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
@@ -39,7 +40,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             obs, _info = env.reset(seed=int(args.seed) + int(episode_idx))
             done = False
             while not done:
+                predict_start_s = perf_counter()
                 action, _state = model.predict(obs, deterministic=True)
+                env.record_nn_forward_time(perf_counter() - predict_start_s)
                 obs, _reward, terminated, truncated, _info = env.step(action)
                 done = bool(terminated or truncated)
     finally:
@@ -127,6 +130,7 @@ def _gate_summary(*, args: argparse.Namespace, raw_argv: Sequence[str], rows: li
     successes = sum(1 for row in rows if _csv_bool(row.get("terminal_rs_success")))
     collisions = sum(1 for row in rows if _csv_bool(row.get("collision")))
     truncated = sum(1 for row in rows if _csv_bool(row.get("truncated")))
+    nn_forward_time_s = sum(_csv_float(row.get("nn_forward_time_s")) for row in rows)
     success_rate = float(successes) / float(episodes) if episodes else 0.0
     threshold = float(args.success_threshold)
     enough_episodes = episodes >= int(args.min_episodes)
@@ -146,6 +150,8 @@ def _gate_summary(*, args: argparse.Namespace, raw_argv: Sequence[str], rows: li
         "collision_rate": float(collisions) / float(episodes) if episodes else 0.0,
         "truncated": int(truncated),
         "truncation_rate": float(truncated) / float(episodes) if episodes else 0.0,
+        "nn_forward_time_s": float(nn_forward_time_s),
+        "mean_nn_forward_time_s": float(nn_forward_time_s) / float(episodes) if episodes else 0.0,
         "model": str(args.model),
         "model_sha256": file_sha256(args.model),
         "episodes_csv": str(episodes_csv),
@@ -179,6 +185,13 @@ def _gate_summary(*, args: argparse.Namespace, raw_argv: Sequence[str], rows: li
 
 def _csv_bool(value: object) -> bool:
     return str(value).strip().lower() in {"true", "1", "yes"}
+
+
+def _csv_float(value: object) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return 0.0
 
 
 def _source_head() -> str:
