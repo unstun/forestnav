@@ -151,6 +151,9 @@ def build_manifest(
     status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary = (
         _status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary(status_report)
     )
+    status_report_remote_packet_safety_claim_gate_command_index_summary = (
+        _status_report_remote_packet_safety_claim_gate_command_index_summary(status_report)
+    )
     status_report_decision_intake_summary = _status_report_decision_intake_summary(status_report)
     formal_allowed = not formal_blockers
     prohibited = _prohibited_claims()
