@@ -496,6 +496,63 @@ def _handoff_bundle_safety_issues(handoff_bundle: dict[str, Any]) -> list[dict[s
     return issues
 
 
+def _formal_gate_execution_veto_summary(formal_gate: dict[str, Any]) -> dict[str, Any]:
+    veto = formal_gate.get("execution_veto_matrix") if isinstance(formal_gate.get("execution_veto_matrix"), dict) else {}
+    rows = veto.get("rows") if isinstance(veto.get("rows"), list) else []
+    row_summary: dict[str, dict[str, Any]] = {}
+    row_consensus: dict[str, bool | None] = {}
+    for row in rows:
+        if not isinstance(row, dict) or not row.get("row_id"):
+            continue
+        row_id = str(row["row_id"])
+        row_summary[row_id] = {
+            "consistent": row.get("consistent") if isinstance(row.get("consistent"), bool) else None,
+            "consensus_allowed_now": row.get("consensus_allowed_now") if isinstance(row.get("consensus_allowed_now"), bool) else None,
+            "allowed_now_by_source": row.get("allowed_now_by_source") if isinstance(row.get("allowed_now_by_source"), dict) else {},
+        }
+        row_consensus[row_id] = row_summary[row_id]["consensus_allowed_now"]
+    return {
+        "present": bool(veto),
+        "matrix_version": veto.get("matrix_version"),
+        "f02_6_decision_status": veto.get("f02_6_decision_status"),
+        "all_rows_consistent": veto.get("all_rows_consistent") if isinstance(veto.get("all_rows_consistent"), bool) else None,
+        "mismatch_rows": _strings(veto.get("mismatch_rows")),
+        "row_count": len(row_summary),
+        "row_consensus": row_consensus,
+        "rows": row_summary,
+    }
+
+
+def _formal_gate_execution_veto_issues(
+    *,
+    formal_gate: dict[str, Any],
+    formal_gate_execution_veto: dict[str, Any],
+) -> list[dict[str, str]]:
+    if not formal_gate_execution_veto["present"]:
+        return [_issue("formal_gate_missing_execution_veto_matrix", "formal gate gap audit must expose execution_veto_matrix.")]
+    issues: list[dict[str, str]] = []
+    if formal_gate_execution_veto["all_rows_consistent"] is not True:
+        issues.append(_issue("formal_gate_execution_veto_rows_inconsistent", "formal gate execution veto matrix has inconsistent rows."))
+    if formal_gate_execution_veto["mismatch_rows"]:
+        issues.append(_issue("formal_gate_execution_veto_mismatch_rows_open", "formal gate execution veto matrix reports mismatch rows."))
+    required_rows = {
+        "local_training",
+        "remote_preflight",
+        "remote_training",
+        "remote_audit",
+        "formal_claim",
+    }
+    observed_rows = set(formal_gate_execution_veto["rows"])
+    for row_id in sorted(required_rows - observed_rows):
+        issues.append(_issue(f"formal_gate_execution_veto_missing_{row_id}", f"formal gate execution veto matrix missing row {row_id}."))
+    blocked_gate = formal_gate.get("status") != "formal_gate_ready_for_result_audit"
+    if blocked_gate:
+        for row_id in ("local_training", "remote_preflight", "remote_training", "remote_audit", "formal_claim"):
+            if formal_gate_execution_veto["row_consensus"].get(row_id) is True:
+                issues.append(_issue(f"blocked_formal_gate_execution_veto_allows_{row_id}", f"blocked formal gate must not allow {row_id}."))
+    return issues
+
+
 def _closure_remote_stage_summary(closure_checklist: dict[str, Any]) -> dict[str, dict[str, Any]]:
     raw = closure_checklist.get("post_plan_remote_stage_summary")
     stages = raw if isinstance(raw, dict) else {}
