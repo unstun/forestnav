@@ -44,6 +44,15 @@ def test_remote_packet_safety_audit_passes_current_blocked_packet(tmp_path):
     assert manifest["cross_gate_summary"]["post_plan_status_report_execution_veto_summary"]["all_rows_consistent"] is True
     assert manifest["cross_gate_summary"]["post_plan_status_report_execution_veto_summary"]["row_consensus"]["remote_training"] is False
     assert manifest["cross_gate_summary"]["post_plan_status_report_execution_veto_summary"]["row_consensus"]["formal_claim"] is False
+    command_index = manifest["cross_gate_summary"]["post_plan_source_regeneration_command_index_summary"]
+    assert command_index["present"] is True
+    assert command_index["index_row_count"] == 18
+    assert command_index["source_target_count"] == 18
+    assert command_index["missing_target_ids"] == []
+    assert command_index["unknown_manual_count"] == 0
+    assert command_index["forbidden_command_count"] == 0
+    assert command_index["rows"]["claim_safety"]["stage_id"] == "regenerate_claim_gate_artifacts"
+    assert command_index["rows"]["paper_readiness"]["stage_id"] == "regenerate_claim_gate_artifacts"
     assert manifest["cross_gate_summary"]["post_plan_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
     assert manifest["cross_gate_summary"]["post_plan_remaining_deliverables_gap_summary"]["open_category_count"] == 4
     assert (
@@ -320,6 +329,36 @@ def test_remote_packet_safety_audit_requires_post_plan_status_report_execution_v
     assert "post_plan_missing_status_report_execution_veto_summary" in issue_ids
 
 
+def test_remote_packet_safety_audit_requires_post_plan_command_index_summary(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
+    plan_audit = _plan_audit_payload()
+    summary = plan_audit["source_regeneration_command_index_summary"]
+    summary["missing_target_ids"] = ["paper_readiness"]
+    summary["unknown_manual_count"] = 1
+    summary["unknown_manual_ids"] = ["claim_safety"]
+    summary["forbidden_command_count"] = 1
+    summary["forbidden_command_ids"] = ["paper_readiness"]
+    summary["rows"].pop("paper_readiness")
+    summary["rows"]["claim_safety"]["stage_id"] = "manual_review"
+
+    manifest = auditor.build_manifest(
+        auditor.RemotePacketSafetyAuditConfig(
+            output_dir=tmp_path,
+            remote_packet_path=_json(tmp_path, "packet.json", _packet_payload()),
+            decision_gate_audit_path=_json(tmp_path, "decision_gate.json", _decision_gate_payload()),
+            post_plan_audit_path=_json(tmp_path, "plan_audit.json", plan_audit),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "remote_packet_safety_audit_failed"
+    assert "post_plan_source_regeneration_command_index_missing_targets" in issue_ids
+    assert "post_plan_source_regeneration_command_index_unknown_manual_rows" in issue_ids
+    assert "post_plan_source_regeneration_command_index_forbidden_commands" in issue_ids
+    assert "post_plan_source_regeneration_command_index_claim_safety_wrong_stage" in issue_ids
+    assert "post_plan_source_regeneration_command_index_missing_paper_readiness" in issue_ids
+
+
 def test_remote_packet_safety_audit_requires_remaining_deliverables_gap_summary(tmp_path):
     auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
     plan_audit = _plan_audit_payload()
@@ -548,6 +587,7 @@ def test_remote_packet_safety_audit_cli_writes_json_and_markdown(tmp_path):
     assert manifest["status"] == "remote_packet_safety_audit_passed"
     assert "Module2 Remote Packet Safety Audit" in markdown
     assert "post_plan_execution_veto_remote_training_allowed_now" in markdown
+    assert "post_plan_command_index_row_count" in markdown
     assert "post_plan_remaining_deliverables_gap_total_missing" in markdown
     assert "does not execute any command" in markdown
 
@@ -764,6 +804,7 @@ def _plan_audit_payload(*, training_allowed=False, status_report_ready=False):
             "training_allowed_now": training_allowed,
             "remote_preflight_allowed_now": training_allowed,
         },
+        "source_regeneration_command_index_summary": _source_regeneration_command_index_summary(),
         "remaining_deliverables_gap_summary": _gap_summary(open_gaps=not status_report_ready),
         "status_report_summary": {
             "status": "formal_gate_status_ready_for_claim_audit" if status_report_ready else "formal_gate_status_blocked",
@@ -833,6 +874,34 @@ def _plan_audit_payload(*, training_allowed=False, status_report_ready=False):
             },
             "formal_gate_execution_veto_summary": _execution_veto_summary(ready=status_report_ready),
         },
+    }
+
+
+def _source_regeneration_command_index_summary():
+    rows = {
+        "claim_safety": {
+            "required_before": "formal_claim_gate",
+            "stage_id": "regenerate_claim_gate_artifacts",
+            "command_kind": "known_builder",
+            "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety",
+        },
+        "paper_readiness": {
+            "required_before": "formal_claim_gate",
+            "stage_id": "regenerate_claim_gate_artifacts",
+            "command_kind": "known_builder",
+            "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_paper_readiness",
+        },
+    }
+    return {
+        "present": True,
+        "index_row_count": 18,
+        "source_target_count": 18,
+        "missing_target_ids": [],
+        "unknown_manual_count": 0,
+        "unknown_manual_ids": [],
+        "forbidden_command_count": 0,
+        "forbidden_command_ids": [],
+        "rows": rows,
     }
 
 
