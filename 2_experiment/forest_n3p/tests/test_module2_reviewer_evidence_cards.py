@@ -38,6 +38,9 @@ def test_reviewer_evidence_cards_build_traceable_cards(tmp_path):
     assert manifest["local_training_allowed"] is False
     assert manifest["remote_training_resource"] == "gpu3070ti-relay"
     assert manifest["blocking_reasons"] == []
+    assert manifest["supplement_latex_audit"]["status"] == "clean"
+    assert manifest["supplement_latex_audit"]["missing_required_fragments"] == []
+    assert manifest["supplement_latex_audit"]["matched_prohibited_fragments"] == []
 
     cards = {item["card_id"]: item for item in manifest["cards"]}
     assert cards["method_is_ha_star_analytic_operator"]["reviewer_verdict"] == "claim_traceable_with_scope_limit"
@@ -65,6 +68,7 @@ def test_reviewer_evidence_cards_blocks_missing_anchors(tmp_path):
 
     assert manifest["status"] == "blocked_by_incomplete_reviewer_cards"
     assert "method_is_ha_star_analytic_operator:missing_manuscript_anchors" in manifest["blocking_reasons"]
+    assert manifest["supplement_latex_audit"]["status"] == "clean"
 
 
 def _evidence_map_payload(*, anchor):

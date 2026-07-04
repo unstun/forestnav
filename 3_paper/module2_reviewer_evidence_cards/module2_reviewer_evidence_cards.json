@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_reviewer_evidence_cards",
   "status": "reviewer_evidence_cards_ready",
-  "created_at_utc": "2026-07-04T10:02:43.852842+00:00",
-  "source_head": "acda7cd03c0a9d0c9277b8caa0a3229f2782f2f6+dirty",
+  "created_at_utc": "2026-07-04T10:04:00.116922+00:00",
+  "source_head": "3dda48b4bda3fb0821f9b0bd877eed53bf1954eb+dirty",
   "local_training_allowed": false,
   "remote_training_resource": "gpu3070ti-relay",
   "inputs": {
@@ -473,5 +473,16 @@
     "These cards are for reviewer-facing traceability, not formal performance evidence.",
     "Cards with claim_status beginning with blocked_ are placeholders only and must not be rewritten as result claims.",
     "No local training is allowed; formal PPO checkpoint production remains gated on F02.6 and gpu3070ti-relay."
-  ]
+  ],
+  "supplement_latex_audit": {
+    "status": "clean",
+    "required_fragments_present": [
+      "not formal performance evidence",
+      "Formal performance claim allowed: \\texttt{False}",
+      "Do not write this as a result claim",
+      "blocked\\_placeholder\\_traceable"
+    ],
+    "missing_required_fragments": [],
+    "matched_prohibited_fragments": []
+  }
 }
