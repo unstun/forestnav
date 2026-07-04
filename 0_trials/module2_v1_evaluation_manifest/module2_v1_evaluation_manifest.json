@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "manifest_name": "module2_v1_evaluation",
+  "status": "blocked_pending_decisions",
+  "created_at_utc": "2026-07-04T05:00:28.120731+00:00",
+  "source_head": "dc91c070870682f7cec6b3d1e9c3d8d32e23394c+dirty",
+  "contract": {
+    "path": ".pipeline/contracts/module2-ppo-funnel-expansion.md",
+    "exists": true,
+    "status": "approved",
+    "version": "v1",
+    "approved_by": "Dr Sun",
+    "approved_date": "2026-07-02",
+    "reviewed": "false"
+  },
+  "cutpoint_supplement": {
+    "path": ".pipeline/contracts/v9-forest-n3p-t06-calibration-supplement.md",
+    "exists": true,
+    "reviewed": "true",
+    "status": "reviewed-for-framework"
+  },
+  "scale": {
+    "queries_per_bucket": 100,
+    "seed_count": 5,
+    "queries_per_map": 5,
+    "bucket_names": [
+      "Easy",
+      "Complex",
+      "Extreme"
+    ],
+    "density_profile_buckets": "validation_t06",
+    "distance_bins": "8:12,12:16,16:20,20:",
+    "minimum_total_procedural_queries": 300
+  },
+  "methods": [
+    {
+      "method_id": "ha_no_analytic",
+      "label": "HA* no analytic",
+      "main_evaluation_method": "ha_no_analytic",
+      "status": "ready",
+      "blockers": [],
+      "checkpoint": null
+    },
+    {
+      "method_id": "ha_single_rs",
+      "label": "HA* single RS analytic expansion",
+      "main_evaluation_method": "ha_single_rs",
+      "status": "ready",
+      "blockers": [],
+      "checkpoint": null
+    },
+    {
+      "method_id": "ha_dang_multi_rs",
+      "label": "HA* Dang multi-RS analytic expansion",
+      "main_evaluation_method": "ha_dang_multi_rs",
+      "status": "ready",
+      "blockers": [],
+      "checkpoint": null
+    },
+    {
+      "method_id": "f_n3p_knn",
+      "label": "F-N3P KNN subgoal baseline",
+      "main_evaluation_method": "f_n3p_knn",
+      "status": "ready_if_preflight_passes",
+      "blockers": [],
+      "checkpoint": null
+    },
+    {
+      "method_id": "mlp",
+      "label": "F-N3P MLP subgoal baseline",
+      "main_evaluation_method": "mlp",
+      "status": "ready",
+      "blockers": [],
+      "checkpoint": null
+    },
+    {
+      "method_id": "bc_analytic_operator",
+      "label": "BC analytic operator",
+      "main_evaluation_method": null,
+      "status": "blocked",
+      "blockers": [
+        "missing_main_evaluation_method",
+        "bc_operator_loader_not_implemented"
+      ],
+      "checkpoint": null
+    },
+    {
+      "method_id": "ppo_analytic_operator",
+      "label": "PPO analytic operator without terminal RS",
+      "main_evaluation_method": null,
+      "status": "blocked",
+      "blockers": [
+        "missing_main_evaluation_method",
+        "outside_current_funnel_contract_until_explicitly_added"
+      ],
+      "checkpoint": null
+    },
+    {
+      "method_id": "ppo_rs_funnel",
+      "label": "PPO + terminal RS funnel analytic operator",
+      "main_evaluation_method": "ha_rl_rs_ppo",
+      "status": "blocked",
+      "blockers": [
+        "missing_module2_rl_rs_checkpoint",
+        "f02_6_warm_start_decision_pending"
+      ],
+      "checkpoint": null
+    }
+  ],
+  "metrics": [
+    {
+      "metric_id": "total_expansions",
+      "role": "contract_primary",
+      "definition": "Hybrid A* node expansions per query"
+    },
+    {
+      "metric_id": "total_time_s",
+      "role": "contract_primary",
+      "definition": "end-to-end wall-clock planning time per query"
+    },
+    {
+      "metric_id": "timeout_failure_rate",
+      "role": "contract_primary",
+      "definition": "fraction of queries failing by timeout"
+    },
+    {
+      "metric_id": "path_inflation_ratio",
+      "role": "contract_primary",
+      "definition": "path length / reference length - 1 for feasible paths"
+    },
+    {
+      "metric_id": "mean_abs_curvature",
+      "role": "path_quality",
+      "definition": "mean absolute heading change per meter"
+    },
+    {
+      "metric_id": "min_clearance_m",
+      "role": "path_quality",
+      "definition": "minimum footprint clearance along densified path"
+    },
+    {
+      "metric_id": "analytic_success_rate",
+      "role": "diagnostic",
+      "definition": "analytic_successes / analytic_attempts"
+    },
+    {
+      "metric_id": "terminal_rs_success_rate",
+      "role": "diagnostic",
+      "definition": "terminal_rs_success_count / analytic_attempts for RL-RS operators"
+    },
+    {
+      "metric_id": "fallback_count",
+      "role": "diagnostic",
+      "definition": "F-N3P fallback usage and planner primitive fallback evidence"
+    },
+    {
+      "metric_id": "nn_forward_time_s",
+      "role": "diagnostic",
+      "definition": "neural policy forward wall-clock time when available"
+    }
+  ],
+  "real_maps": {
+    "manifest": "2_experiment/forest_n3p/assets/realmaps/manifest.json",
+    "usable_map_count": 2,
+    "maps": [
+      {
+        "id": "dqn_realmap_a",
+        "pgm": "2_experiment/forest_n3p/assets/realmaps/dqn_realmap_a/map.pgm",
+        "yaml": "2_experiment/forest_n3p/assets/realmaps/dqn_realmap_a/map.yaml",
+        "loader_grid_sha256": "b7aa11d982ac18bf172f5769bc40c03a6fc5a8057fa80b6b09e0bd27ffe86597"
+      },
+      {
+        "id": "willow_garage_0p10",
+        "pgm": "2_experiment/forest_n3p/assets/realmaps/willow_garage_0p10/map.pgm",
+        "yaml": "2_experiment/forest_n3p/assets/realmaps/willow_garage_0p10/map.yaml",
+        "loader_grid_sha256": "dfc9030d73b3ead3e13243ec13ca5ca6aa5f880a01c1c46698856228d138f3ec"
+      }
+    ],
+    "status": "inventory_available"
+  },
+  "blockers": [
+    "f02_6_warm_start_decision_pending",
+    "missing_required_method_implementation",
+    "realmap_query_generation_not_frozen"
+  ],
+  "run_command": {
+    "formal_main_evaluation": null,
+    "blocked_reasons": [
+      "missing_module2_rl_rs_checkpoint",
+      "f02_6_warm_start_decision_pending"
+    ]
+  },
+  "claim_boundaries": [
+    "manifest is a protocol artifact, not an experiment result",
+    "F02.6 warm-start decision remains external unless warm_start_decision is not pending",
+    "real SLAM map query generation is inventoried but not frozen here",
+    "missing method implementations cannot be counted as evaluated methods"
+  ]
+}
