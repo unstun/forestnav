@@ -14,6 +14,7 @@ class RlRsStepTelemetry:
     goal_distance_m: float
     progress_to_goal_m: float
     no_progress_count: int
+    oscillation_detected: bool
     sample_time_s: float
     collision_check_time_s: float
     terminal_rs_time_s: float

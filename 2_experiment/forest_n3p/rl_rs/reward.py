@@ -56,6 +56,7 @@ class RewardConfig:
     collision_penalty: float = -1.0
     terminal_rs_failure_penalty: float = -0.25
     no_progress_penalty: float = -0.25
+    oscillation_penalty: float = -0.25
     distance_progress_scale: float = 0.0
     rs_distance_progress_scale: float = 0.0
     clearance_scale: float = 0.0
@@ -69,6 +70,7 @@ class RewardConfig:
         _validate_non_positive("collision_penalty", self.collision_penalty)
         _validate_non_positive("terminal_rs_failure_penalty", self.terminal_rs_failure_penalty)
         _validate_non_positive("no_progress_penalty", self.no_progress_penalty)
+        _validate_non_positive("oscillation_penalty", self.oscillation_penalty)
         _validate_non_negative("distance_progress_scale", self.distance_progress_scale)
         _validate_non_negative("rs_distance_progress_scale", self.rs_distance_progress_scale)
         _validate_non_negative("clearance_scale", self.clearance_scale)
@@ -214,6 +216,8 @@ def _success_reward(*, terminal_rs: TerminalRsCheckResult, collided: bool, confi
 def _terminal_penalty(*, failure_reason: str | None, config: RewardConfig) -> float:
     if failure_reason == "no_progress":
         return float(config.no_progress_penalty)
+    if failure_reason == "oscillation":
+        return float(config.oscillation_penalty)
     if failure_reason is not None and failure_reason.startswith("no_rs_terminal:"):
         return float(config.terminal_rs_failure_penalty)
     return 0.0

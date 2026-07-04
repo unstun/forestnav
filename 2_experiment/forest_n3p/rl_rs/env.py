@@ -40,6 +40,10 @@ class AnalyticExpansionContext:
     reward_config: RewardConfig = field(default_factory=RewardConfig)
     min_progress_m: float = 1e-3
     no_progress_patience: int = 3
+    oscillation_window: int = 4
+    oscillation_min_sign_flips: int = 3
+    oscillation_progress_tolerance_m: float = 0.05
+    oscillation_steering_eps: float = 1e-6
 
     def __post_init__(self) -> None:
         _validate_state("start", self.start)
@@ -56,6 +60,14 @@ class AnalyticExpansionContext:
             raise ValueError("min_progress_m must be non-negative")
         if int(self.no_progress_patience) < 0:
             raise ValueError("no_progress_patience must be non-negative")
+        if int(self.oscillation_window) < 0:
+            raise ValueError("oscillation_window must be non-negative")
+        if int(self.oscillation_min_sign_flips) < 0:
+            raise ValueError("oscillation_min_sign_flips must be non-negative")
+        if float(self.oscillation_progress_tolerance_m) < 0.0:
+            raise ValueError("oscillation_progress_tolerance_m must be non-negative")
+        if float(self.oscillation_steering_eps) < 0.0:
+            raise ValueError("oscillation_steering_eps must be non-negative")
 
     def collision_checker(self):
         return self.checker or GridFootprintChecker(
@@ -90,6 +102,7 @@ class AnalyticExpansionStep:
             "goal_distance_m": self.telemetry.goal_distance_m,
             "progress_to_goal_m": self.telemetry.progress_to_goal_m,
             "no_progress_count": self.telemetry.no_progress_count,
+            "oscillation_detected": self.telemetry.oscillation_detected,
         }
 
 
@@ -106,6 +119,8 @@ class AnalyticExpansionEnv:
         self._last_terminal_rs_path_length_m: float | None = None
         self._last_curvature: float = 0.0
         self._no_progress_count = 0
+        self._recent_steering_signs: list[int] = []
+        self._recent_progresses: list[float] = []
         self._clearance_field_m = None
 
     @property
@@ -124,6 +139,8 @@ class AnalyticExpansionEnv:
         self._last_terminal_rs_path_length_m = _estimate_rs_path_length(context.start, context.goal, context.params)
         self._last_curvature = 0.0
         self._no_progress_count = 0
+        self._recent_steering_signs = []
+        self._recent_progresses = []
         self._clearance_field_m = build_clearance_distance_field(context.grid_map)
         return build_observation(
             context.start,
@@ -191,12 +208,26 @@ class AnalyticExpansionEnv:
             int(context.no_progress_patience) > 0
             and self._no_progress_count >= int(context.no_progress_patience)
         )
-        truncated = bool(not terminated and (budget_exhausted or no_progress))
+        steering_sign = _steering_sign(float(rollout.applied_steering_rad), float(context.oscillation_steering_eps))
+        self._recent_steering_signs.append(steering_sign)
+        self._recent_progresses.append(progress_to_goal)
+        _trim_recent(self._recent_steering_signs, int(context.oscillation_window))
+        _trim_recent(self._recent_progresses, int(context.oscillation_window))
+        oscillation = _detect_oscillation(
+            signs=self._recent_steering_signs,
+            progresses=self._recent_progresses,
+            window=int(context.oscillation_window),
+            min_sign_flips=int(context.oscillation_min_sign_flips),
+            progress_tolerance_m=float(context.oscillation_progress_tolerance_m),
+        )
+        truncated = bool(not terminated and (budget_exhausted or no_progress or oscillation))
         failure_reason = None
         if rollout.collided:
             failure_reason = "collision"
         elif no_progress and truncated:
             failure_reason = "no_progress"
+        elif oscillation and truncated:
+            failure_reason = "oscillation"
         elif truncated:
             detail = terminal.failure_reason or "terminal_rs_not_checked"
             failure_reason = f"no_rs_terminal:{detail}"
@@ -221,6 +252,7 @@ class AnalyticExpansionEnv:
             goal_distance_m=goal_distance,
             progress_to_goal_m=progress_to_goal,
             no_progress_count=int(self._no_progress_count),
+            oscillation_detected=bool(oscillation),
             sample_time_s=rollout.sample_time_s,
             collision_check_time_s=rollout.collision_check_time_s,
             terminal_rs_time_s=terminal.time_s,
@@ -289,3 +321,35 @@ def _path_length(samples: tuple[AckermannState, ...]) -> float:
     for start, end in zip(samples[:-1], samples[1:]):
         total += math.hypot(float(end.x) - float(start.x), float(end.y) - float(start.y))
     return float(total)
+
+
+def _steering_sign(steering_rad: float, eps: float) -> int:
+    if abs(float(steering_rad)) <= float(eps):
+        return 0
+    return 1 if float(steering_rad) > 0.0 else -1
+
+
+def _trim_recent(values: list, window: int) -> None:
+    if int(window) <= 0:
+        values.clear()
+        return
+    del values[: max(0, len(values) - int(window))]
+
+
+def _detect_oscillation(
+    *,
+    signs: list[int],
+    progresses: list[float],
+    window: int,
+    min_sign_flips: int,
+    progress_tolerance_m: float,
+) -> bool:
+    if int(window) <= 1 or len(signs) < int(window) or len(progresses) < int(window):
+        return False
+    recent_signs = list(signs[-int(window) :])
+    recent_progresses = list(progresses[-int(window) :])
+    if any(sign == 0 for sign in recent_signs):
+        return False
+    sign_flips = sum(1 for prev, cur in zip(recent_signs[:-1], recent_signs[1:]) if prev != cur)
+    net_progress = sum(float(value) for value in recent_progresses)
+    return bool(sign_flips >= int(min_sign_flips) and net_progress <= float(progress_tolerance_m))
