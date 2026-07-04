@@ -18,6 +18,7 @@ import pandas as pd
 from forest_n3p.scripts.run_oracle_connector_analysis import (
     Candidate,
     CandidateSet,
+    MapCacheKey,
     _append_without_duplicate,
     _distance_field_m,
     _generate_candidate_set,
@@ -80,7 +81,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     oracle_args = _oracle_default_args()
     footprint = TwoCircleFootprint.from_box(length=0.924, width=0.740)
-    map_cache: dict[int, GridMap] = {}
+    map_cache: dict[MapCacheKey, GridMap] = {}
     records: list[dict[str, Any]] = []
     for case in cases:
         records.append(_render_case(case, cfg, oracle_args, footprint, map_cache, args.output_dir))
@@ -203,7 +204,7 @@ def _render_case(
     cfg: MainEvaluationConfig,
     oracle_args: argparse.Namespace,
     footprint: TwoCircleFootprint,
-    map_cache: dict[int, GridMap],
+    map_cache: dict[MapCacheKey, GridMap],
     output_dir: Path,
 ) -> dict[str, Any]:
     row = case.row
