@@ -11,6 +11,7 @@ from typing import Any, Sequence
 
 DEFAULT_OUTPUT_DIR = Path("0_trials/module2_formal_gate_handoff_bundle")
 DEFAULT_DECISION_RECORD = Path("0_trials/module2_f02_6_decision_record/f02_6_decision_record.json")
+DEFAULT_TRANSITION_GATE_AUDIT = Path("0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json")
 DEFAULT_POST_PLAN = Path("0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json")
 DEFAULT_STATUS_REPORT = Path("0_trials/module2_formal_gate_status_report/formal_gate_status_report.json")
 DEFAULT_REMOTE_PACKET = Path("0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json")
@@ -35,6 +36,7 @@ class FormalGateHandoffBundleConfig:
     manifest_out: Path | None = None
     markdown_out: Path | None = None
     decision_record_path: Path = DEFAULT_DECISION_RECORD
+    transition_gate_audit_path: Path = DEFAULT_TRANSITION_GATE_AUDIT
     post_plan_path: Path = DEFAULT_POST_PLAN
     status_report_path: Path = DEFAULT_STATUS_REPORT
     remote_packet_path: Path = DEFAULT_REMOTE_PACKET
@@ -49,6 +51,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         manifest_out=args.manifest_out,
         markdown_out=args.markdown_out,
         decision_record_path=args.decision_record,
+        transition_gate_audit_path=args.transition_gate_audit,
         post_plan_path=args.post_plan,
         status_report_path=args.status_report,
         remote_packet_path=args.remote_packet,
@@ -76,6 +79,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
     decision = _read_json(config.decision_record_path)
+    transition_gate = _read_json(config.transition_gate_audit_path)
     post_plan = _read_json(config.post_plan_path)
     status_report = _read_json(config.status_report_path)
     remote_packet = _read_json(config.remote_packet_path)
@@ -86,6 +90,7 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
     remote_steps = _remote_steps(remote_packet)
     safety_issues = _safety_issues(
         decision=decision,
+        transition_gate=transition_gate,
         post_plan=post_plan,
         status_report=status_report,
         remote_packet=remote_packet,
@@ -109,6 +114,7 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
         "formal_claim_allowed": False,
         "inputs": {
             "decision_record": str(config.decision_record_path),
+            "f02_6_transition_gate_audit": str(config.transition_gate_audit_path),
             "post_f02_6_regeneration_plan": str(config.post_plan_path),
             "formal_gate_status_report": str(config.status_report_path),
             "remote_formal_execution_packet": str(config.remote_packet_path),
@@ -118,6 +124,8 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
         "current_state": {
             "decision_status": decision.get("status"),
             "decision_decider": decision.get("decider"),
+            "transition_gate_status": transition_gate.get("status"),
+            "transition_gate_audit_issue_count": transition_gate.get("audit_issue_count"),
             "post_plan_status": post_plan.get("status"),
             "status_report_status": status_report.get("status"),
             "remote_packet_status": remote_packet.get("status"),
@@ -152,6 +160,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--manifest-out", type=Path, default=None)
     parser.add_argument("--markdown-out", type=Path, default=None)
     parser.add_argument("--decision-record", type=Path, default=DEFAULT_DECISION_RECORD)
+    parser.add_argument("--transition-gate-audit", type=Path, default=DEFAULT_TRANSITION_GATE_AUDIT)
     parser.add_argument("--post-plan", type=Path, default=DEFAULT_POST_PLAN)
     parser.add_argument("--status-report", type=Path, default=DEFAULT_STATUS_REPORT)
     parser.add_argument("--remote-packet", type=Path, default=DEFAULT_REMOTE_PACKET)
@@ -221,6 +230,7 @@ def _remote_steps(remote_packet: dict[str, Any]) -> dict[str, dict[str, Any]]:
 def _safety_issues(
     *,
     decision: dict[str, Any],
+    transition_gate: dict[str, Any],
     post_plan: dict[str, Any],
     status_report: dict[str, Any],
     remote_packet: dict[str, Any],
@@ -230,6 +240,7 @@ def _safety_issues(
     remote_steps: dict[str, dict[str, Any]],
 ) -> list[dict[str, str]]:
     issues: list[dict[str, str]] = []
+    issues.extend(_transition_gate_issues(transition_gate))
     for name, artifact in (
         ("post_plan", post_plan),
         ("status_report", status_report),
@@ -263,6 +274,52 @@ def _safety_issues(
             issues.append(_issue(f"{stage['stage_id']}_wrong_training_host", "formal training stage must target gpu3070ti-relay"))
         if not stage["source_allowed_now"] and stage["stage_id"] in {"approved_remote_preflight", "gate3_remote_training"} and not stage["blocked_by"]:
             issues.append(_issue(f"{stage['stage_id']}_missing_blocked_by", "disabled remote stages must explain their blockers"))
+    return issues
+
+
+def _transition_gate_issues(transition_gate: dict[str, Any]) -> list[dict[str, str]]:
+    if not transition_gate:
+        return [_issue("transition_gate_audit_missing", "F02.6 transition gate audit must be present in the handoff bundle")]
+    issues: list[dict[str, str]] = []
+    for key, issue_id, detail in (
+        ("executes_commands", "transition_gate_executes_commands", "transition audit must be read-only"),
+        ("runs_training", "transition_gate_runs_training", "transition audit must not run training"),
+        ("runs_remote_preflight", "transition_gate_runs_remote_preflight", "transition audit must not run remote preflight"),
+        ("local_training_allowed", "transition_gate_allows_local_training", "transition audit must preserve local-training prohibition"),
+        ("formal_claim_allowed", "transition_gate_allows_formal_claim", "transition audit must not allow formal claims"),
+    ):
+        if transition_gate.get(key) is not False:
+            issues.append(_issue(issue_id, detail))
+    if transition_gate.get("status") != "f02_6_transition_gate_audit_passed":
+        issues.append(_issue("transition_gate_audit_not_passed", "F02.6 transition gate audit must pass before handoff is safe"))
+    if int(transition_gate.get("audit_issue_count") or 0) > 0:
+        issues.append(_issue("transition_gate_audit_issues_open", "F02.6 transition gate audit has open issues"))
+
+    scenarios = transition_gate.get("scenario_summaries") if isinstance(transition_gate.get("scenario_summaries"), list) else []
+    by_id = {str(item.get("scenario_id")): item for item in scenarios if isinstance(item, dict)}
+    for scenario_id in ("pending", "approved", "rejected"):
+        if scenario_id not in by_id:
+            issues.append(_issue(f"transition_gate_missing_{scenario_id}_scenario", f"transition audit missing {scenario_id} scenario"))
+    for scenario_id, scenario in by_id.items():
+        permissions = scenario.get("formal_gate_status_report_permissions_now") if isinstance(scenario.get("formal_gate_status_report_permissions_now"), dict) else {}
+        if permissions.get("remote_training_allowed_now") is True:
+            issues.append(_issue(f"transition_gate_{scenario_id}_allows_remote_training", "transition audit scenario must not directly allow remote training"))
+        if permissions.get("formal_claim_allowed_now") is True:
+            issues.append(_issue(f"transition_gate_{scenario_id}_allows_formal_claim", "transition audit scenario must not directly allow formal claims"))
+        if scenario_id in {"pending", "rejected"} and permissions.get("remote_preflight_allowed_now") is True:
+            issues.append(_issue(f"transition_gate_{scenario_id}_allows_remote_preflight", "pending/rejected transition scenarios must not allow remote preflight"))
+
+    approved = by_id.get("approved", {})
+    approved_stages = approved.get("post_plan_stage_summary") if isinstance(approved.get("post_plan_stage_summary"), dict) else {}
+    if approved_stages.get("regenerate_preflight_gate_artifacts", {}).get("allowed_now") is not True:
+        issues.append(_issue("transition_gate_approved_regeneration_not_ready", "approved scenario should expose source-fresh regeneration as next local gate"))
+    for stage_id in ("approved_remote_preflight", "gate3_remote_training", "regenerate_claim_gate_artifacts"):
+        if approved_stages.get(stage_id, {}).get("allowed_now") is True:
+            issues.append(_issue(f"transition_gate_approved_{stage_id}_ready_too_early", "approved scenario must not bypass downstream formal gates"))
+
+    rejected = by_id.get("rejected", {})
+    if rejected and rejected.get("post_plan_status") != "blocked_by_f02_6_rejected":
+        issues.append(_issue("transition_gate_rejected_not_routed_away", "rejected scenario must block the obstacle-summary warm-start formal path"))
     return issues
 
 

@@ -312,6 +312,8 @@ def _regeneration_commands(targets: Sequence[dict[str, Any]]) -> list[str]:
             )
         elif artifact_id == "f02_6_decision_gate_audit":
             commands.append("PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_gate_audit")
+        elif artifact_id == "f02_6_transition_gate_audit":
+            commands.append("PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_transition_gate_audit")
         elif artifact_id == "formal_gate_gap_audit":
             commands.append("PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_gap_audit")
         elif artifact_id == "remote_formal_execution_packet":
