@@ -363,6 +363,8 @@ def _regeneration_command_entry(target: dict[str, Any]) -> dict[str, Any]:
         command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_status_report"
     elif artifact_id == "formal_gate_remaining_deliverables":
         command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_remaining_deliverables"
+    elif artifact_id == "formal_gate_proof_audit":
+        command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_audit"
     elif artifact_id == "h01_evaluation_manifest":
         command_template = (
             "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_evaluation_manifest "
