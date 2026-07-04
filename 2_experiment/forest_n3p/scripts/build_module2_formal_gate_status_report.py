@@ -428,7 +428,58 @@ def _input_safety_issues(named_payloads: dict[str, dict[str, Any]]) -> list[dict
             issues.extend(_closure_remote_stage_safety_issues(payload))
         if name == "remote_packet":
             issues.extend(_remote_execution_step_safety_issues(payload))
+        if name == "handoff_bundle":
+            issues.extend(_handoff_bundle_safety_issues(payload))
     return _unique_issues(issues)
+
+
+def _handoff_bundle_summary(handoff_bundle: dict[str, Any]) -> dict[str, Any]:
+    permissions = handoff_bundle.get("permissions_now") if isinstance(handoff_bundle.get("permissions_now"), dict) else {}
+    next_action = handoff_bundle.get("next_handoff_action") if isinstance(handoff_bundle.get("next_handoff_action"), dict) else {}
+    steps = handoff_bundle.get("remote_execution_steps") if isinstance(handoff_bundle.get("remote_execution_steps"), dict) else {}
+    step_summary: dict[str, dict[str, Any]] = {}
+    for step_id in REMOTE_EXECUTION_STEP_IDS:
+        step = steps.get(step_id) if isinstance(steps.get(step_id), dict) else {}
+        step_summary[step_id] = {
+            "present": bool(step),
+            "allowed_now": step.get("allowed_now") if isinstance(step.get("allowed_now"), bool) else None,
+            "runs_training": step.get("runs_training") if isinstance(step.get("runs_training"), bool) else None,
+            "blocked_by": _strings(step.get("blocked_by")),
+        }
+    return {
+        "present": bool(handoff_bundle),
+        "status": handoff_bundle.get("status"),
+        "next_handoff_action_id": next_action.get("action_id"),
+        "next_action_requires_dr_sun": next_action.get("requires_dr_sun"),
+        "safety_issue_count": int(handoff_bundle.get("safety_issue_count") or 0),
+        "remote_training_allowed_now": bool(permissions.get("remote_training_allowed_now")),
+        "remote_preflight_allowed_now": bool(permissions.get("remote_preflight_allowed_now")),
+        "formal_claim_allowed_now": bool(permissions.get("formal_claim_allowed_now")),
+        "remote_execution_steps": step_summary,
+    }
+
+
+def _handoff_bundle_safety_issues(handoff_bundle: dict[str, Any]) -> list[dict[str, str]]:
+    if not handoff_bundle:
+        return [_issue("handoff_bundle_missing", "formal gate status report must consume the handoff bundle.")]
+    issues: list[dict[str, str]] = []
+    summary = _handoff_bundle_summary(handoff_bundle)
+    if summary["safety_issue_count"] > 0:
+        issues.append(_issue("handoff_bundle_safety_issues_open", "handoff bundle reports open safety issues."))
+    pending = handoff_bundle.get("current_state", {}).get("decision_status") == "pending_human_decision" if isinstance(handoff_bundle.get("current_state"), dict) else False
+    if pending:
+        for step_id, step in summary["remote_execution_steps"].items():
+            if step["allowed_now"] is True:
+                issues.append(_issue(f"handoff_bundle_pending_allows_{step_id}", "handoff bundle must not allow remote steps while F02.6 is pending."))
+    if summary["remote_training_allowed_now"] and handoff_bundle.get("status") != "ready_for_manual_remote_execution_review":
+        issues.append(_issue("handoff_bundle_training_allowed_without_ready_status", "handoff bundle remote training permission requires ready_for_manual_remote_execution_review."))
+    training_step = summary["remote_execution_steps"].get("run_remote_training", {})
+    if training_step.get("present") and training_step.get("runs_training") is not True:
+        issues.append(_issue("handoff_bundle_training_step_not_marked_training", "handoff bundle run_remote_training must remain marked as training."))
+    for step_id, step in summary["remote_execution_steps"].items():
+        if step_id != "run_remote_training" and step.get("runs_training") is True:
+            issues.append(_issue(f"handoff_bundle_{step_id}_claims_training", f"handoff bundle {step_id} must not be marked as training."))
+    return issues
 
 
 def _closure_remote_stage_summary(closure_checklist: dict[str, Any]) -> dict[str, dict[str, Any]]:
