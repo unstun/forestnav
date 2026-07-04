@@ -19,6 +19,12 @@ DEFAULT_H01_MANIFEST = Path("0_trials/module2_v1_evaluation_manifest/module2_v1_
 DEFAULT_H02_ACCEPTANCE = Path("0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json")
 DEFAULT_CLAIM_SAFETY = Path("0_trials/module2_claim_safety/module2_claim_safety.json")
 DEFAULT_PAPER_READINESS = Path("0_trials/module2_paper_readiness/module2_paper_readiness.json")
+REMOTE_EXECUTION_STEP_IDS = (
+    "sync_to_remote",
+    "run_remote_preflight",
+    "run_remote_training",
+    "run_remote_audit",
+)
 
 
 @dataclass(frozen=True)
@@ -76,6 +82,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     h02 = _read_json(config.h02_acceptance_path)
     claim_safety = _read_json(config.claim_safety_path)
     paper_readiness = _read_json(config.paper_readiness_path)
+    remote_execution_steps = _remote_execution_step_summary(remote_packet)
 
     input_safety_issues = _input_safety_issues(
         {
@@ -145,6 +152,10 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "closure_open_item_count": closure_checklist.get("open_item_count"),
             "remote_packet_status": remote_packet.get("status"),
             "ready_to_run_remote_training": remote_packet.get("ready_to_run_remote_training"),
+            "remote_packet_sync_allowed_now": remote_execution_steps["sync_to_remote"]["allowed_now"],
+            "remote_packet_preflight_allowed_now": remote_execution_steps["run_remote_preflight"]["allowed_now"],
+            "remote_packet_training_allowed_now": remote_execution_steps["run_remote_training"]["allowed_now"],
+            "remote_packet_audit_allowed_now": remote_execution_steps["run_remote_audit"]["allowed_now"],
             "h01_status": h01.get("status"),
             "h02_status": h02.get("status"),
             "h02_formal_output_accepted": h02.get("formal_output_accepted"),
@@ -160,6 +171,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "acceptance_artifacts_required": _artifact_list(closure_checklist, "acceptance_artifacts_required"),
         "evaluation_acceptance_required": _artifact_list(closure_checklist, "evaluation_acceptance_required"),
         "claim_gate_artifacts_required": _artifact_list(closure_checklist, "claim_gate_artifacts_required"),
+        "remote_execution_step_summary": remote_execution_steps,
         "formal_gate_lanes": lanes,
         "next_blocked_lane": _next_blocked_lane(lanes),
         "input_safety_issue_count": len(input_safety_issues),
@@ -389,7 +401,45 @@ def _input_safety_issues(named_payloads: dict[str, dict[str, Any]]) -> list[dict
             issues.append(_issue(f"{name}_allows_formal_claim", f"{name} must not allow formal claims through status reporting."))
         if name == "remote_packet" and payload.get("formal_claim_allowed_before_audit") is True:
             issues.append(_issue("remote_packet_allows_claim_before_audit", "remote packet must not allow claims before audit."))
+        if name == "remote_packet":
+            issues.extend(_remote_execution_step_safety_issues(payload))
     return _unique_issues(issues)
+
+
+def _remote_execution_step_summary(remote_packet: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    steps = remote_packet.get("execution_steps") if isinstance(remote_packet.get("execution_steps"), dict) else {}
+    summary: dict[str, dict[str, Any]] = {}
+    for step_id in REMOTE_EXECUTION_STEP_IDS:
+        step = steps.get(step_id) if isinstance(steps.get(step_id), dict) else {}
+        summary[step_id] = {
+            "present": bool(step),
+            "allowed_now": step.get("allowed_now") if isinstance(step.get("allowed_now"), bool) else None,
+            "runs_training": step.get("runs_training") if isinstance(step.get("runs_training"), bool) else None,
+            "blocked_by": _strings(step.get("blocked_by")),
+        }
+    return summary
+
+
+def _remote_execution_step_safety_issues(remote_packet: dict[str, Any]) -> list[dict[str, str]]:
+    steps = remote_packet.get("execution_steps")
+    if not isinstance(steps, dict):
+        return [_issue("remote_packet_missing_execution_steps", "remote packet must expose execution_steps for status reporting.")]
+    issues: list[dict[str, str]] = []
+    for step_id in REMOTE_EXECUTION_STEP_IDS:
+        step = steps.get(step_id)
+        if not isinstance(step, dict):
+            issues.append(_issue(f"remote_packet_missing_{step_id}", f"remote packet missing execution step {step_id}."))
+            continue
+        blockers = _strings(step.get("blocked_by"))
+        if step.get("allowed_now") is False and not blockers:
+            issues.append(_issue(f"remote_packet_{step_id}_missing_blocked_by", f"disabled remote step {step_id} must explain blocked_by."))
+        if step.get("allowed_now") is True and blockers:
+            issues.append(_issue(f"remote_packet_{step_id}_allowed_with_blockers", f"allowed remote step {step_id} must not carry blocked_by."))
+        if step_id == "run_remote_training" and step.get("runs_training") is not True:
+            issues.append(_issue("remote_packet_training_step_not_marked_training", "run_remote_training must remain marked as the only training step."))
+        if step_id != "run_remote_training" and step.get("runs_training") is True:
+            issues.append(_issue(f"remote_packet_{step_id}_claims_training", f"{step_id} must not be marked as a training step."))
+    return issues
 
 
 def _group_missing_items(group: dict[str, Any]) -> list[dict[str, Any]]:
@@ -517,6 +567,13 @@ def _markdown(manifest: dict[str, Any]) -> str:
             lines.append(f"  - blocked_by: `{', '.join(lane['blocked_by'])}`")
         lines.append(f"  - completion_signal: {lane['completion_signal']}")
         lines.append(f"  - action_when_blocked: {lane['action_when_blocked']}")
+    lines.extend(["", "## Remote Execution Steps", ""])
+    for step_id, step in manifest["remote_execution_step_summary"].items():
+        blocked_by = ", ".join(step["blocked_by"]) if step["blocked_by"] else "none"
+        lines.append(
+            f"- `{step_id}`: present=`{step['present']}`, allowed_now=`{step['allowed_now']}`, "
+            f"runs_training=`{step['runs_training']}`, blocked_by=`{blocked_by}`"
+        )
     lines.extend(["", "## Required Training Artifacts", ""])
     _append_artifacts(lines, manifest["training_artifacts_required"])
     lines.extend(["", "## Required Evaluation Artifacts", ""])
