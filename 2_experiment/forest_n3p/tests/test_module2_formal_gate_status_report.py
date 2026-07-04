@@ -250,7 +250,7 @@ def test_formal_gate_status_report_requires_decision_intake_contract(tmp_path):
     intake = json.loads(config.decision_intake_path.read_text(encoding="utf-8"))
     intake["decision_intake_contract"]["decision_owner_required"] = "Assistant"
     intake["decision_intake_contract"]["valid_decisions"] = ["approve_obstacle_summary_warm_start"]
-    intake["decision_intake_contract"]["required_record_fields"] = ["decision", "decider"]
+    intake["decision_intake_contract"]["required_record_fields_for_non_pending_decision"] = ["decision", "decider"]
     intake["invalid_inputs"] = []
     intake["post_decision_non_authorizations"] = []
     config.decision_intake_path.write_text(json.dumps(intake), encoding="utf-8")
