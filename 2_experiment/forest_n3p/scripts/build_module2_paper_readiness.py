@@ -61,6 +61,50 @@ CLAIM_SAFETY_REMAINING_DELIVERABLE_CATEGORY_IDS = (
     "acceptance",
     "formal_acceptance",
 )
+CLAIM_SAFETY_REMAINING_DELIVERABLE_PROOF_COMMAND_IDS = {
+    "training:train_final_model_zip": (
+        "train_final_model_zip_exists_nonempty",
+        "train_final_model_zip_valid_zip",
+    ),
+    "training:train_summary_json": (
+        "train_summary_json_exists_nonempty",
+        "train_summary_json_formal_warm_start_metadata",
+    ),
+    "training:train_training_manifest_json": (
+        "train_training_manifest_json_exists_nonempty",
+        "train_training_manifest_json_provenance",
+    ),
+    "evaluation:eval_gate3_eval_episodes_csv": (
+        "eval_gate3_eval_episodes_csv_exists_nonempty",
+        "eval_gate3_eval_episodes_csv_schema",
+    ),
+    "evaluation:eval_gate3_summary_json": (
+        "eval_gate3_summary_json_exists_nonempty",
+        "eval_gate3_summary_json_formal_scope",
+    ),
+    "acceptance:gate3_trial_manifest_json": (
+        "gate3_trial_manifest_json_exists_nonempty",
+        "gate3_trial_manifest_json_formal_warm_start_scope",
+    ),
+    "acceptance:gate3_formal_audit_json": (
+        "gate3_formal_audit_json_exists_nonempty",
+        "gate3_formal_audit_json_accepts_formal_scope",
+    ),
+    "acceptance:pulled_back_checkpoint_hash_record": (
+        "pulled_back_checkpoint_hash_record_exists_nonempty",
+        "pulled_back_checkpoint_hash_record_matches_model",
+    ),
+    "formal_acceptance:h01_ready_for_formal_run": (
+        "h01_ready_for_formal_run_exists_nonempty",
+        "h01_ready_for_formal_run_status",
+    ),
+    "formal_acceptance:h02_formal_output_acceptance": (
+        "h02_formal_output_acceptance_exists_nonempty",
+        "h02_formal_output_acceptance_status",
+    ),
+}
+CLAIM_SAFETY_REMAINING_DELIVERABLE_PROOF_PLAN_ID = "module2_formal_gate_local_read_only_proof_commands"
+CLAIM_SAFETY_REMAINING_DELIVERABLE_PROOF_EXECUTION_BOUNDARY = "local_read_only_after_formal_remote_pullback"
 CLAIM_SAFETY_DECISION_INTAKE_CLEAN_STATUSES = (
     "f02_6_decision_intake_pending_clean",
     "f02_6_decision_intake_closed_clean",
