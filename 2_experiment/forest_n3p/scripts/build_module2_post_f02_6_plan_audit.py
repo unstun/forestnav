@@ -16,6 +16,12 @@ DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_
 DEFAULT_MISSING_ARTIFACTS = Path("0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json")
 DEFAULT_CLOSURE_CHECKLIST = Path("0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json")
 DEFAULT_STATUS_REPORT = Path("0_trials/module2_formal_gate_status_report/formal_gate_status_report.json")
+REMOTE_EXECUTION_STEP_IDS = (
+    "sync_to_remote",
+    "run_remote_preflight",
+    "run_remote_training",
+    "run_remote_audit",
+)
 REQUIRED_STAGE_ORDER = (
     "f02_6_decision_record",
     "regenerate_preflight_gate_artifacts",
@@ -386,6 +392,18 @@ def _status_report_issues(
         )
     if int(status_report.get("input_safety_issue_count") or 0) > 0:
         issues.append(_issue("formal_gate_status_report_has_input_safety_issues", "Status report reports open input safety issues."))
+    remote_steps = _status_report_remote_steps(status_report)
+    if not remote_steps:
+        issues.append(_issue("formal_gate_status_report_missing_remote_step_summary", "Status report must expose remote execution step blockers."))
+    elif status_report.get("status") != "formal_gate_status_ready_for_claim_audit":
+        for step_id, step in remote_steps.items():
+            if step.get("allowed_now") is True:
+                issues.append(
+                    _issue(
+                        f"formal_gate_status_report_blocked_but_{step_id}_allowed",
+                        "Status report must not allow remote execution steps while the formal gate is blocked.",
+                    )
+                )
     claim_stage = _stage_by_id(plan, "regenerate_claim_gate_artifacts")
     if status_report.get("status") != "formal_gate_status_ready_for_claim_audit" and claim_stage.get("allowed_now") is True:
         issues.append(
@@ -467,6 +485,7 @@ def _closure_checklist_summary(path: Path, closure_checklist: dict[str, Any]) ->
 def _status_report_summary(path: Path, status_report: dict[str, Any]) -> dict[str, Any]:
     permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
     next_lane = status_report.get("next_blocked_lane") if isinstance(status_report.get("next_blocked_lane"), dict) else {}
+    remote_steps = _status_report_remote_steps(status_report)
     return {
         "path": str(path),
         "exists": Path(path).is_file(),
@@ -480,7 +499,27 @@ def _status_report_summary(path: Path, status_report: dict[str, Any]) -> dict[st
         "local_training_allowed_now": permissions.get("local_training_allowed_now"),
         "input_safety_issue_count": status_report.get("input_safety_issue_count"),
         "next_blocked_lane_id": next_lane.get("lane_id"),
+        "remote_execution_step_summary": remote_steps,
     }
+
+
+def _status_report_remote_steps(status_report: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    raw = status_report.get("remote_execution_step_summary")
+    if not isinstance(raw, dict):
+        return {}
+    out: dict[str, dict[str, Any]] = {}
+    for step_id in REMOTE_EXECUTION_STEP_IDS:
+        step = raw.get(step_id)
+        if not isinstance(step, dict):
+            continue
+        blocked_by = step.get("blocked_by")
+        out[step_id] = {
+            "present": bool(step.get("present")),
+            "allowed_now": step.get("allowed_now") if isinstance(step.get("allowed_now"), bool) else None,
+            "runs_training": step.get("runs_training") if isinstance(step.get("runs_training"), bool) else None,
+            "blocked_by": [str(item) for item in blocked_by if item] if isinstance(blocked_by, list) else [],
+        }
+    return out
 
 
 def _stage_by_id(plan: dict[str, Any], stage_id: str) -> dict[str, Any]:
@@ -571,6 +610,18 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- local_training_allowed_now: `{manifest['status_report_summary']['local_training_allowed_now']}`",
             f"- input_safety_issue_count: `{manifest['status_report_summary']['input_safety_issue_count']}`",
             f"- next_blocked_lane_id: `{manifest['status_report_summary']['next_blocked_lane_id']}`",
+            "",
+            "### Status Report Remote Execution Steps",
+            "",
+        ]
+    )
+    for step_id, step in manifest["status_report_summary"]["remote_execution_step_summary"].items():
+        blocked_by = ", ".join(step["blocked_by"]) if step["blocked_by"] else "none"
+        lines.append(
+            f"- `{step_id}`: allowed_now=`{step['allowed_now']}`, runs_training=`{step['runs_training']}`, blocked_by=`{blocked_by}`"
+        )
+    lines.extend(
+        [
             "",
             "## Audit Issues",
             "",
