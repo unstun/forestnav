@@ -1411,6 +1411,69 @@ def _formal_gate_proof_audit_summary(proof_audit: dict[str, Any]) -> dict[str, A
     }
 
 
+def _formal_gate_proof_audit_gap_summary(summary: dict[str, Any]) -> dict[str, Any]:
+    categories: dict[str, dict[str, Any]] = {
+        category: {
+            "missing_artifact_count": 0,
+            "failed_acceptance_artifact_count": 0,
+            "blocked_proof_command_count": 0,
+            "failed_proof_command_count": 0,
+            "missing_artifact_ids": [],
+            "failed_artifact_ids": [],
+            "blocked_proof_command_ids": [],
+            "failed_proof_command_ids": [],
+            "expected_paths": [],
+        }
+        for category in REMAINING_DELIVERABLE_ACCEPTANCE_MATRIX_IDS
+    }
+    for command_id, result in summary["results_by_id"].items():
+        category = str(result.get("category") or "")
+        if category not in categories:
+            continue
+        payload = categories[category]
+        status = result.get("status")
+        artifact_id = str(result.get("artifact_id") or "")
+        expected_path = str(result.get("expected_path") or "")
+        if status == "blocked_missing_artifact":
+            payload["blocked_proof_command_ids"].append(command_id)
+            if artifact_id:
+                payload["missing_artifact_ids"].append(artifact_id)
+            if expected_path:
+                payload["expected_paths"].append(expected_path)
+        elif status == "failed":
+            payload["failed_proof_command_ids"].append(command_id)
+            if artifact_id:
+                payload["failed_artifact_ids"].append(artifact_id)
+            if expected_path:
+                payload["expected_paths"].append(expected_path)
+    for payload in categories.values():
+        payload["missing_artifact_ids"] = _ordered_unique(payload["missing_artifact_ids"])
+        payload["failed_artifact_ids"] = _ordered_unique(payload["failed_artifact_ids"])
+        payload["blocked_proof_command_ids"] = _ordered_unique(payload["blocked_proof_command_ids"])
+        payload["failed_proof_command_ids"] = _ordered_unique(payload["failed_proof_command_ids"])
+        payload["expected_paths"] = _ordered_unique(payload["expected_paths"])
+        payload["missing_artifact_count"] = len(payload["missing_artifact_ids"])
+        payload["failed_acceptance_artifact_count"] = len(payload["failed_artifact_ids"])
+        payload["blocked_proof_command_count"] = len(payload["blocked_proof_command_ids"])
+        payload["failed_proof_command_count"] = len(payload["failed_proof_command_ids"])
+    return {
+        "present": summary["present"],
+        "status": summary["status"],
+        "total_proof_command_count": summary["total_proof_command_count"],
+        "passed_proof_command_count": summary["passed_proof_command_count"],
+        "failed_proof_command_count": summary["failed_proof_command_count"],
+        "blocked_proof_command_count": summary["blocked_proof_command_count"],
+        "missing_artifact_count": sum(
+            payload["missing_artifact_count"] for payload in categories.values()
+        ),
+        "failed_acceptance_artifact_count": sum(
+            payload["failed_acceptance_artifact_count"] for payload in categories.values()
+        ),
+        "category_order": list(REMAINING_DELIVERABLE_ACCEPTANCE_MATRIX_IDS),
+        "categories": categories,
+    }
+
+
 def _formal_gate_gap_audit_remaining_deliverables_gap_summary(formal_gate: dict[str, Any]) -> dict[str, Any]:
     return _normalize_gap_summary(formal_gate.get("remaining_deliverables_gap_summary"))
 
