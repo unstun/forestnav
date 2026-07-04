@@ -424,6 +424,12 @@ def _markdown(manifest: dict[str, Any]) -> str:
         lines.append(f"- {stage['order']}. `{stage['stage_id']}`: allowed_now=`{stage['source_allowed_now']}`, blocked_by=`{blockers}`")
     lines.extend(["", "## Requirement Summary", ""])
     lines.append(f"- formal gate requirements: `{len(manifest['formal_gate_requirements'])}`")
+    for requirement in manifest["formal_gate_requirements"]:
+        stage = requirement.get("responsible_stage_id") or "unmapped"
+        lines.append(
+            f"  - `{requirement.get('requirement_id')}`: status=`{requirement.get('status')}`, "
+            f"responsible_stage=`{stage}`"
+        )
     lines.append(f"- H02 acceptance requirements: `{len(manifest['h02_formal_acceptance_requirements'])}`")
     lines.append(f"- safety issues: `{manifest['safety_issue_count']}`")
     lines.extend(["", "This artifact is read-only and does not execute commands."])
