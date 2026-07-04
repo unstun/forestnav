@@ -135,6 +135,7 @@ def test_env_reset_step_returns_telemetry_and_reward_marker():
     assert step.info["truncated"] == step.truncated
     assert step.info["failure_reason"] == step.telemetry.failure_reason
     assert step.info["no_progress_count"] == step.telemetry.no_progress_count
+    assert step.info["oscillation_detected"] == step.telemetry.oscillation_detected
     assert step.telemetry.sample_count == 4
     assert step.telemetry.primitive_direction == 1
     assert env.telemetry.rollout_steps == 1
@@ -308,6 +309,7 @@ def test_reward_breakdown_records_configured_shaping_terms():
             collision_penalty=0.0,
             terminal_rs_failure_penalty=0.0,
             no_progress_penalty=0.0,
+            oscillation_penalty=0.0,
             distance_progress_scale=1.0,
             rs_distance_progress_scale=1.0,
             clearance_scale=1.0,
@@ -350,6 +352,7 @@ def test_reward_ablation_switches_disable_selected_terms():
             collision_penalty=0.0,
             terminal_rs_failure_penalty=0.0,
             no_progress_penalty=0.0,
+            oscillation_penalty=0.0,
             distance_progress_scale=1.0,
             rs_distance_progress_scale=1.0,
             clearance_scale=1.0,
@@ -419,6 +422,35 @@ def test_env_step_truncates_on_no_progress_before_budget_exhausted():
     assert second.telemetry.no_progress_count == 2
     assert second.telemetry.progress_to_goal_m < 0.0
     assert second.reward.terminal == -0.25
+
+
+def test_env_step_truncates_on_oscillation_before_no_progress_patience():
+    env = AnalyticExpansionEnv()
+    context = _empty_context(
+        goal=(0.0, 1.0, math.pi),
+        max_steps=8,
+        terminal_check_every=10,
+        no_progress_patience=10,
+    )
+    context = replace(
+        context,
+        action_step_m=0.01,
+        oscillation_window=4,
+        oscillation_min_sign_flips=3,
+        oscillation_progress_tolerance_m=0.05,
+    )
+    env.reset(context)
+
+    steps = [env.step(action) for action in (0.2, -0.2, 0.2, -0.2)]
+
+    assert not steps[0].truncated
+    assert not steps[1].truncated
+    assert not steps[2].truncated
+    assert steps[3].truncated
+    assert steps[3].telemetry.failure_reason == "oscillation"
+    assert steps[3].telemetry.oscillation_detected
+    assert steps[3].info["oscillation_detected"]
+    assert steps[3].reward.terminal == -0.25
 
 
 def test_egocentric_occupancy_patch_aligns_obstacle_in_robot_frame():
