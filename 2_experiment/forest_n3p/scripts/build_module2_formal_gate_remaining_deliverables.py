@@ -260,6 +260,37 @@ def _deliverable_acceptance_matrix(deliverable_groups: Sequence[dict[str, Any]])
     return rows
 
 
+def _proof_command_plan(deliverable_acceptance_matrix: Sequence[dict[str, Any]]) -> dict[str, Any]:
+    rows: list[dict[str, Any]] = []
+    for row in deliverable_acceptance_matrix:
+        proof_commands = row.get("proof_commands")
+        proof_commands = proof_commands if isinstance(proof_commands, list) else []
+        rows.append(
+            {
+                "matrix_id": row.get("matrix_id"),
+                "category": row.get("category"),
+                "artifact_id": row.get("artifact_id"),
+                "expected_path": row.get("expected_path"),
+                "proof_command_count": len(proof_commands),
+                "proof_command_ids": [
+                    str(command.get("command_id"))
+                    for command in proof_commands
+                    if isinstance(command, dict) and command.get("command_id")
+                ],
+            }
+        )
+    return {
+        "plan_id": "module2_formal_gate_local_read_only_proof_commands",
+        "execution_boundary": "local_read_only_after_formal_remote_pullback",
+        "not_paper_result_material": True,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "total_matrix_rows": len(rows),
+        "total_proof_command_count": sum(int(row["proof_command_count"]) for row in rows),
+        "rows": rows,
+    }
+
+
 def _acceptance_predicates(*, category: str, artifact_id: str) -> list[str]:
     generic = [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
@@ -309,6 +340,193 @@ def _acceptance_predicates(*, category: str, artifact_id: str) -> list[str]:
         ],
     }
     return generic + specific.get(artifact_id, [f"{category} artifact has an explicit formal acceptance check"])
+
+
+def _acceptance_proof_commands(*, category: str, artifact_id: str, expected_path: str) -> list[dict[str, str]]:
+    common = [
+        _proof_command(
+            command_id=f"{artifact_id}_exists_nonempty",
+            purpose="verify the expected formal artifact exists locally after pullback",
+            command=_python_exists_nonempty_command(expected_path),
+            expected_evidence="exit_code=0",
+        )
+    ]
+    specific = {
+        "train_final_model_zip": [
+            _proof_command(
+                command_id="train_final_model_zip_valid_zip",
+                purpose="verify the pulled-back PPO checkpoint is a readable SB3 zip",
+                command=_python_zipfile_command(expected_path),
+                expected_evidence="zipfile.is_zipfile(path) is true",
+            )
+        ],
+        "train_summary_json": [
+            _proof_command(
+                command_id="train_summary_json_formal_warm_start_metadata",
+                purpose="verify PPO training summary metadata matches the approved warm-start formal run",
+                command=_python_json_assert_command(
+                    expected_path,
+                    "assert data.get('status') == 'complete'; "
+                    "assert data.get('warm_start_status') == 'applied_obstacle_summary_bc'; "
+                    "assert data.get('config', {}).get('curriculum_preset') == 'f03'; "
+                    "assert data.get('config', {}).get('smoke') is False",
+                ),
+                expected_evidence="status=complete, warm_start_status=applied_obstacle_summary_bc, curriculum=f03, smoke=false",
+            )
+        ],
+        "train_training_manifest_json": [
+            _proof_command(
+                command_id="train_training_manifest_json_provenance",
+                purpose="verify training manifest records command provenance and source hashes",
+                command=_python_json_assert_command(
+                    expected_path,
+                    "assert isinstance(data.get('command'), dict); "
+                    "assert data.get('command', {}).get('argv') or data.get('command', {}).get('shell'); "
+                    "assert isinstance(data.get('source_hashes'), dict) and data['source_hashes']; "
+                    "assert data.get('config', {}).get('curriculum_preset') == 'f03'",
+                ),
+                expected_evidence="command provenance, source_hashes, and f03 curriculum are present",
+            )
+        ],
+        "eval_gate3_eval_episodes_csv": [
+            _proof_command(
+                command_id="eval_gate3_eval_episodes_csv_schema",
+                purpose="verify formal episode CSV row count and telemetry columns",
+                command=_python_eval_csv_command(expected_path),
+                expected_evidence="rows>=64 and terminal_rs_success/collision/truncated/nn_forward_time_s columns are present",
+            )
+        ],
+        "eval_gate3_summary_json": [
+            _proof_command(
+                command_id="eval_gate3_summary_json_formal_scope",
+                purpose="verify formal evaluation summary scope and minimum episode count",
+                command=_python_json_assert_command(
+                    expected_path,
+                    "assert data.get('gate_name') == 'module2_f03_gate3'; "
+                    "assert data.get('contract') == '.pipeline/contracts/module2-ppo-funnel-expansion.md'; "
+                    "assert int(data.get('episodes', 0)) >= int(data.get('min_episodes', 64)) >= 64; "
+                    "assert data.get('config', {}).get('curriculum_preset') == 'f03'",
+                ),
+                expected_evidence="gate_name, contract, f03 curriculum, and >=64 formal episodes are present",
+            )
+        ],
+        "gate3_trial_manifest_json": [
+            _proof_command(
+                command_id="gate3_trial_manifest_json_formal_warm_start_scope",
+                purpose="verify trial manifest is complete, non-smoke, and warm-start scoped",
+                command=_python_json_assert_command(
+                    expected_path,
+                    "assert data.get('trial_name') == 'module2_f03_gate3_train_eval'; "
+                    "assert data.get('status') == 'complete'; "
+                    "assert data.get('smoke') is False; "
+                    "assert data.get('formal_gate_claim') is False; "
+                    "assert data.get('warm_start_status') == 'applied_obstacle_summary_bc'",
+                ),
+                expected_evidence="complete non-smoke trial with applied_obstacle_summary_bc warm start",
+            )
+        ],
+        "gate3_formal_audit_json": [
+            _proof_command(
+                command_id="gate3_formal_audit_json_accepts_formal_scope",
+                purpose="verify Gate3 audit accepts the pulled-back run as formal evidence",
+                command=_python_json_assert_command(
+                    expected_path,
+                    "assert data.get('audit_name') == 'module2_f03_gate3_formal_audit'; "
+                    "assert data.get('formal_decision') in {'pass', 'fail'}; "
+                    "assert data.get('formal_claim_allowed') is True; "
+                    "assert not data.get('formal_blockers')",
+                ),
+                expected_evidence="formal_decision is pass/fail and formal_blockers is empty",
+            )
+        ],
+        "pulled_back_checkpoint_hash_record": [
+            _proof_command(
+                command_id="pulled_back_checkpoint_hash_record_matches_model",
+                purpose="verify SHA-256 record matches the pulled-back final_model.zip",
+                command=_python_sha256_match_command(expected_path),
+                expected_evidence="recorded digest contains sha256(train/final_model.zip)",
+            )
+        ],
+        "h01_ready_for_formal_run": [
+            _proof_command(
+                command_id="h01_ready_for_formal_run_status",
+                purpose="verify H01 manifest is regenerated into formal-run-ready state",
+                command=_python_json_assert_command(
+                    expected_path,
+                    "assert data.get('status') in {'ready_for_formal_run', 'ready_for_formal_evaluation'}",
+                ),
+                expected_evidence="H01 status is ready_for_formal_run or ready_for_formal_evaluation",
+            )
+        ],
+        "h02_formal_output_acceptance": [
+            _proof_command(
+                command_id="h02_formal_output_acceptance_status",
+                purpose="verify H02 accepts formal outputs for paper-result input",
+                command=_python_json_assert_command(
+                    expected_path,
+                    "assert data.get('status') == 'formal_output_accepted'; "
+                    "assert data.get('formal_output_accepted') is True; "
+                    "assert data.get('paper_result_input_allowed') is True",
+                ),
+                expected_evidence="formal_output_accepted=true and paper_result_input_allowed=true",
+            )
+        ],
+    }
+    fallback = [
+        _proof_command(
+            command_id=f"{artifact_id}_{category}_explicit_acceptance",
+            purpose="verify the artifact has an explicit formal acceptance check",
+            command=_python_exists_nonempty_command(expected_path),
+            expected_evidence="exit_code=0",
+        )
+    ]
+    return common + specific.get(artifact_id, fallback)
+
+
+def _proof_command(*, command_id: str, purpose: str, command: str, expected_evidence: str) -> dict[str, str]:
+    return {
+        "command_id": command_id,
+        "purpose": purpose,
+        "command": command,
+        "expected_evidence": expected_evidence,
+        "execution_boundary": "local_read_only_after_formal_remote_pullback",
+    }
+
+
+def _python_exists_nonempty_command(path: str) -> str:
+    return f"python -c \"from pathlib import Path; p=Path({path!r}); assert p.is_file() and p.stat().st_size > 0, p\""
+
+
+def _python_zipfile_command(path: str) -> str:
+    return f"python -c \"from pathlib import Path; import zipfile; p=Path({path!r}); assert p.is_file() and zipfile.is_zipfile(p), p\""
+
+
+def _python_json_assert_command(path: str, assertion_source: str) -> str:
+    return (
+        "python -c "
+        f"\"import json; from pathlib import Path; p=Path({path!r}); "
+        "data=json.loads(p.read_text(encoding='utf-8')); assert isinstance(data, dict); "
+        f"{assertion_source}\""
+    )
+
+
+def _python_eval_csv_command(path: str) -> str:
+    required = "{'terminal_rs_success','collision','truncated','nn_forward_time_s'}"
+    return (
+        "python -c "
+        f"\"import csv; from pathlib import Path; p=Path({path!r}); "
+        "rows=list(csv.DictReader(p.open(newline='', encoding='utf-8'))); "
+        f"required={required}; assert len(rows) >= 64; assert required.issubset(rows[0])\""
+    )
+
+
+def _python_sha256_match_command(path: str) -> str:
+    model_path = str(Path(path).with_name("final_model.zip"))
+    return (
+        "python -c "
+        f"\"from pathlib import Path; import hashlib; record=Path({path!r}); model=Path({model_path!r}); "
+        "digest=hashlib.sha256(model.read_bytes()).hexdigest(); assert digest in record.read_text(encoding='utf-8')\""
+    )
 
 
 def _formal_requirement_by_phase(missing_artifacts: dict[str, Any]) -> dict[str, dict[str, Any]]:
