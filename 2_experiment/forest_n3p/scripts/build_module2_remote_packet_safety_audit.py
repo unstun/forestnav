@@ -111,6 +111,7 @@ def _audit_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any], plan
     issues.extend(_environment_issues(packet))
     issues.extend(_embedded_preflight_issues(packet=packet, decision_gate=decision_gate))
     issues.extend(_execution_step_issues(packet))
+    issues.extend(_execution_step_blocker_issues(packet=packet, decision_gate=decision_gate))
     issues.extend(_pullback_issues(packet))
     issues.extend(_downstream_issues(packet))
     issues.extend(_cross_gate_issues(packet=packet, decision_gate=decision_gate, plan_audit=plan_audit))
@@ -223,6 +224,29 @@ def _execution_step_issues(packet: dict[str, Any]) -> list[dict[str, Any]]:
     return issues
 
 
+def _execution_step_blocker_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any]) -> list[dict[str, Any]]:
+    steps = packet.get("execution_steps") if isinstance(packet.get("execution_steps"), dict) else {}
+    decision = decision_gate.get("decision_state") if isinstance(decision_gate.get("decision_state"), dict) else {}
+    issues: list[dict[str, Any]] = []
+    for step_id in ("sync_to_remote", "run_remote_preflight", "run_remote_training", "run_remote_audit"):
+        step = _step(steps, step_id)
+        blockers = _strings(step.get("blocked_by"))
+        if step.get("allowed_now") is False and not blockers:
+            issues.append(_issue(f"{step_id}_missing_blocked_by", f"{step_id} must explain why it is not allowed now."))
+        if step.get("allowed_now") is True and blockers:
+            issues.append(_issue(f"{step_id}_allowed_with_blockers", f"{step_id} must not carry blocked_by when allowed_now=true.", observed=blockers))
+    if decision.get("record_status") == "pending_human_decision":
+        for step_id in ("sync_to_remote", "run_remote_preflight"):
+            blockers = _strings(_step(steps, step_id).get("blocked_by"))
+            if "requires_dr_sun_approval" not in blockers:
+                issues.append(_issue(f"{step_id}_missing_requires_dr_sun_approval", f"{step_id} must be blocked by Dr Sun approval while F02.6 is pending."))
+        for step_id in ("run_remote_training", "run_remote_audit"):
+            blockers = _strings(_step(steps, step_id).get("blocked_by"))
+            if "remote_packet_not_ready" not in blockers:
+                issues.append(_issue(f"{step_id}_missing_remote_packet_not_ready", f"{step_id} must include remote_packet_not_ready while packet is blocked."))
+    return issues
+
+
 def _pullback_issues(packet: dict[str, Any]) -> list[dict[str, Any]]:
     pullback = packet.get("post_run_pullback") if isinstance(packet.get("post_run_pullback"), dict) else {}
     artifacts = _strings(pullback.get("expected_artifacts"))
@@ -313,6 +337,10 @@ def _packet_summary(packet: dict[str, Any]) -> dict[str, Any]:
         "remote_preflight_allowed_now": _step(steps, "run_remote_preflight").get("allowed_now"),
         "remote_training_allowed_now": _step(steps, "run_remote_training").get("allowed_now"),
         "remote_audit_allowed_now": _step(steps, "run_remote_audit").get("allowed_now"),
+        "sync_blocked_by": _strings(_step(steps, "sync_to_remote").get("blocked_by")),
+        "remote_preflight_blocked_by": _strings(_step(steps, "run_remote_preflight").get("blocked_by")),
+        "remote_training_blocked_by": _strings(_step(steps, "run_remote_training").get("blocked_by")),
+        "remote_audit_blocked_by": _strings(_step(steps, "run_remote_audit").get("blocked_by")),
         "pullback_artifact_count": len(_strings(pullback.get("expected_artifacts"))),
         "hash_manifest_required": pullback.get("hash_manifest_required"),
     }
