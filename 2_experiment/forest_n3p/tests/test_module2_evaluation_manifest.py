@@ -49,10 +49,12 @@ def test_module2_manifest_freezes_h01_methods_metrics_and_pending_decision_block
     assert methods["ha_dang_multi_rs"]["main_evaluation_method"] == "ha_dang_multi_rs"
     assert methods["bc_analytic_operator"]["main_evaluation_method"] == "bc_analytic_operator"
     assert "missing_module2_bc_checkpoint" in methods["bc_analytic_operator"]["blockers"]
+    assert methods["ppo_analytic_operator"]["main_evaluation_method"] == "ppo_analytic_operator"
+    assert "missing_module2_rl_rs_checkpoint" in methods["ppo_analytic_operator"]["blockers"]
+    assert "f02_6_warm_start_decision_pending" in methods["ppo_analytic_operator"]["blockers"]
     assert methods["ppo_rs_funnel"]["main_evaluation_method"] == "ha_rl_rs_ppo"
     assert "missing_module2_rl_rs_checkpoint" in methods["ppo_rs_funnel"]["blockers"]
     assert "f02_6_warm_start_decision_pending" in methods["ppo_rs_funnel"]["blockers"]
-    assert "missing_main_evaluation_method" in methods["ppo_analytic_operator"]["blockers"]
 
     metric_ids = {metric["metric_id"] for metric in manifest["metrics"]}
     assert {"total_time_s", "total_expansions", "timeout_failure_rate", "path_inflation_ratio"}.issubset(metric_ids)
@@ -62,6 +64,7 @@ def test_module2_manifest_freezes_h01_methods_metrics_and_pending_decision_block
     assert manifest["real_maps"]["usable_map_count"] >= 2
     assert "realmap_query_generation_not_frozen" in manifest["blockers"]
     assert "f02_6_warm_start_decision_pending" in manifest["blockers"]
+    assert "missing_required_method_implementation" not in manifest["blockers"]
     assert manifest["run_command"]["formal_main_evaluation"] is None
 
 
@@ -102,21 +105,28 @@ def test_module2_manifest_cli_writes_json_and_markdown_with_checkpoint_unblocked
     payload = json.loads(manifest_path.read_text(encoding="utf-8"))
     markdown = markdown_path.read_text(encoding="utf-8")
     bc = next(method for method in payload["methods"] if method["method_id"] == "bc_analytic_operator")
+    ppo_analytic = next(method for method in payload["methods"] if method["method_id"] == "ppo_analytic_operator")
     ppo_rs = next(method for method in payload["methods"] if method["method_id"] == "ppo_rs_funnel")
 
     assert rc == 0
-    assert payload["status"] == "blocked_missing_implementation"
+    assert payload["status"] == "ready_for_formal_run"
     assert bc["status"] == "ready"
     assert bc["main_evaluation_method"] == "bc_analytic_operator"
     assert bc["checkpoint"] == str(bc_checkpoint)
+    assert ppo_analytic["status"] == "ready"
+    assert ppo_analytic["main_evaluation_method"] == "ppo_analytic_operator"
+    assert ppo_analytic["checkpoint"] == str(checkpoint)
     assert "missing_module2_rl_rs_checkpoint" not in ppo_rs["blockers"]
     assert "f02_6_warm_start_decision_pending" not in ppo_rs["blockers"]
     assert ppo_rs["checkpoint"] == str(checkpoint)
-    assert "--methods ha_no_analytic,ha_single_rs,ha_dang_multi_rs,mlp,bc_analytic_operator,ha_rl_rs_ppo" in payload["run_command"]["formal_main_evaluation"]
+    assert (
+        "--methods ha_no_analytic,ha_single_rs,ha_dang_multi_rs,mlp,bc_analytic_operator,ppo_analytic_operator,ha_rl_rs_ppo"
+        in payload["run_command"]["formal_main_evaluation"]
+    )
     assert "--module2-bc-checkpoint" in payload["run_command"]["formal_main_evaluation"]
     assert "--module2-rl-rs-checkpoint" in payload["run_command"]["formal_main_evaluation"]
     assert "# Module2 v1 Evaluation Manifest" in markdown
-    assert "blocked_missing_implementation" in markdown
+    assert "ready_for_formal_run" in markdown
 
 
 def test_module2_manifest_unblocks_realmap_gap_when_query_protocol_is_frozen(tmp_path):
@@ -144,6 +154,7 @@ def test_module2_manifest_unblocks_realmap_gap_when_query_protocol_is_frozen(tmp
     assert manifest["realmap_query_protocol"]["endpoint_audit_pass"] is True
     assert "realmap_query_generation_not_frozen" not in manifest["blockers"]
     assert "missing_module2_bc_checkpoint" not in manifest["blockers"]
+    assert "missing_required_method_implementation" not in manifest["blockers"]
     assert manifest["run_command"]["formal_main_evaluation"] is not None
 
 
