@@ -405,6 +405,42 @@ def _status_report_issues(
                         "Status report must not allow remote execution steps while the formal gate is blocked.",
                     )
                 )
+    execution_veto = _status_report_execution_veto(status_report)
+    if not execution_veto["present"]:
+        issues.append(_issue("formal_gate_status_report_missing_execution_veto_summary", "Status report must expose formal_gate_execution_veto_summary."))
+    else:
+        if execution_veto["all_rows_consistent"] is not True:
+            issues.append(_issue("formal_gate_status_report_execution_veto_inconsistent", "Status report execution veto matrix must have all_rows_consistent=true."))
+        if execution_veto["mismatch_rows"]:
+            issues.append(_issue("formal_gate_status_report_execution_veto_mismatch_rows_open", "Status report execution veto matrix reports mismatch rows."))
+        for row_id in sorted({"local_training", "remote_preflight", "remote_training", "remote_audit", "formal_claim"} - set(execution_veto["row_consensus"])):
+            issues.append(_issue(f"formal_gate_status_report_execution_veto_missing_{row_id}", f"Status report execution veto matrix missing row {row_id}."))
+        if status_report.get("status") != "formal_gate_status_ready_for_claim_audit":
+            for row_id in ("local_training", "remote_preflight", "remote_training", "remote_audit", "formal_claim"):
+                if execution_veto["row_consensus"].get(row_id) is True:
+                    issues.append(
+                        _issue(
+                            f"formal_gate_status_report_blocked_veto_allows_{row_id}",
+                            f"Blocked status report must not allow {row_id} in execution veto matrix.",
+                        )
+                    )
+        permission_map = {
+            "local_training": "local_training_allowed_now",
+            "remote_preflight": "remote_preflight_allowed_now",
+            "remote_training": "remote_training_allowed_now",
+            "formal_claim": "formal_claim_allowed_now",
+        }
+        for row_id, permission_key in permission_map.items():
+            row_value = execution_veto["row_consensus"].get(row_id)
+            permission_value = permissions.get(permission_key)
+            if isinstance(row_value, bool) and isinstance(permission_value, bool) and row_value != permission_value:
+                issues.append(
+                    _issue(
+                        f"formal_gate_status_report_execution_veto_permission_mismatch_{row_id}",
+                        "Status report execution veto consensus must match permissions_now.",
+                        observed={"row_consensus": row_value, permission_key: permission_value},
+                    )
+                )
     claim_stage = _stage_by_id(plan, "regenerate_claim_gate_artifacts")
     if status_report.get("status") != "formal_gate_status_ready_for_claim_audit" and claim_stage.get("allowed_now") is True:
         issues.append(
