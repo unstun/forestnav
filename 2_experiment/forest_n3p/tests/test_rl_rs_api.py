@@ -10,6 +10,7 @@ from forest_n3p.rl_rs import (
     AnalyticExpansionEnv,
     ObservationConfig,
     RewardConfig,
+    RewardTermSwitches,
     SteeringAction,
     build_egocentric_edt_patch,
     build_egocentric_occupancy_patch,
@@ -91,8 +92,10 @@ def test_env_reset_step_returns_telemetry_and_reward_marker():
 
     assert step.reward.total == 0.0
     assert step.reward.success == 0.0
-    assert step.info["reward_status"] == "e02_2_decomposed_shaping"
+    assert step.info["reward_status"] == "e02_3_reward_ablation_hooks"
     assert step.info["reward_total"] == step.reward.total
+    assert step.info["reward_ablation"]["success"]
+    assert step.info["reward_ablation"]["progress"]
     assert step.info["reward_terms"]["progress"] == step.reward.progress
     assert step.info["reward_terms"]["rs_progress"] == step.reward.rs_progress
     assert step.info["reward_terms"]["clearance"] == step.reward.clearance
@@ -226,6 +229,55 @@ def test_reward_breakdown_records_configured_shaping_terms():
     assert terms["total"] == step.reward.total
     assert terms["success"] == 0.0
     assert terms["terminal"] == 0.0
+
+
+def test_reward_ablation_switches_disable_selected_terms():
+    env = AnalyticExpansionEnv()
+    context = replace(
+        _empty_context(goal=(1.6, 1.0, 0.0)),
+        reward_config=RewardConfig(
+            enabled_terms=RewardTermSwitches(
+                success=False,
+                progress=False,
+                rs_progress=False,
+                clearance=False,
+                curvature=False,
+                path_length=False,
+            ),
+            terminal_rs_success=3.0,
+            collision_penalty=0.0,
+            terminal_rs_failure_penalty=0.0,
+            no_progress_penalty=0.0,
+            distance_progress_scale=1.0,
+            rs_distance_progress_scale=1.0,
+            clearance_scale=1.0,
+            curvature_rate_penalty_scale=1.0,
+            path_length_penalty_scale=1.0,
+            step_penalty=-0.1,
+        ),
+    )
+    env.reset(context)
+
+    step = env.step(SteeringAction(0.1))
+    ablation = step.info["reward_ablation"]
+
+    assert step.terminal_rs.success
+    assert step.telemetry.progress_to_goal_m > 0.0
+    assert not ablation["success"]
+    assert not ablation["progress"]
+    assert not ablation["rs_progress"]
+    assert not ablation["clearance"]
+    assert not ablation["curvature"]
+    assert not ablation["path_length"]
+    assert ablation["step"]
+    assert step.reward.success == 0.0
+    assert step.reward.progress == 0.0
+    assert step.reward.rs_progress == 0.0
+    assert step.reward.clearance == 0.0
+    assert step.reward.curvature == 0.0
+    assert step.reward.path_length == 0.0
+    assert step.reward.step == -0.1
+    assert step.reward.total == -0.1
 
 
 def test_env_step_truncates_with_no_terminal_rs_when_budget_exhausted():
