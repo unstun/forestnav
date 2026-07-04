@@ -671,8 +671,11 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - no-warm formal 产物: `0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/`。
   - no-warm formal 记录: `.pipeline/experiments/20260704_module2_f03_gate3_no_warm_formal_trial.md`。
   - no-warm failure analysis: open_connector 15/15 success, 但 `rs_failure_node` 6/24 success、collision rate 0.583333, `heldout_procedural` 2/14 success、truncation rate 0.571429; 训练末 1000 episode 的 `rs_failure_node` success 仍只有 0.365239。
-  - timing 边界: eval CSV 中 `nn_forward_time_s` 全为 0.0, 因此本 trial 只能支持 Gate #3 success/failure 与 failure-mode claim, 不能支持端到端 timing claim。
+  - timing telemetry 修复: evaluator 现在在 `model.predict()` 周围记录 `nn_forward_time_s`, summary 写出 `nn_forward_time_s` 和 `mean_nn_forward_time_s`; eval timing smoke 为 4/4 open success 且总 forward time 0.000748333s。
+  - no-warm formal model 补充 eval timing: `eval_timing_v2/` 使用同一 `final_model.zip` 和同一 64 episode 协议, success/collision/truncation 与原 formal eval 完全一致; 新增 `nn_forward_time_s=0.050569629958772566`, `mean_nn_forward_time_s=0.0007901504681058213`, 64/64 episode rows 非零。
+  - timing 边界: 这只补齐 evaluator 的 `model.predict()` wall-clock, 仍不能支持 planner integration 端到端 timing claim。
   - no-warm failure analysis 记录: `.pipeline/experiments/20260704_module2_f03_no_warm_failure_analysis.md`。
+  - timing telemetry 记录: `.pipeline/experiments/20260704_module2_f03_eval_timing_telemetry.md`。
 
 ### Phase G: Planner 集成
 
@@ -824,3 +827,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 完成 F02.5 formal-v2 BC baseline rerun。scalar 0.1m success 38/258; obstacle-summary 0.1m success 67/258; patch+scalar CNN bounded success 63/242; 同口径 bounded eval 下 obstacle-summary 101/242 明显强于 patch-CNN 63/242, 推荐 obstacle-summary 作为 PPO practical warm-start。记录见 `.pipeline/experiments/20260704_module2_f02_formal_v2_mlp_bc_baselines.md`。
 - 2026-07-04: 完成 F03.5 no-warm-start formal Gate #3 trial。attempt 01 因 oracle sampler 抽到 profile-aware 重建后碰撞 row 中断, 已修复为跳过无效 rows; attempt 02 完成 100000 timesteps PPO train 和 64 episode eval。formal audit 输出 `formal_decision=fail`, `formal_claim_allowed=true`, `formal_blockers=[]`; terminal-RS-success 29/64=0.453125, 低于 0.8 阈值。记录见 `.pipeline/experiments/20260704_module2_f03_gate3_no_warm_formal_trial.md`。
 - 2026-07-04: 完成 F03 no-warm failure analysis。失败主要集中在 hard distribution: `rs_failure_node` 6/24 success、collision 14/24, `heldout_procedural` 2/14 success、truncation 8/14; open_connector 15/15 成功说明基础接线没有整体断裂。训练末 1000 episode 的 `rs_failure_node` success 仍只有 0.365239, 与 formal eval fail 一致。记录见 `.pipeline/experiments/20260704_module2_f03_no_warm_failure_analysis.md`。
+- 2026-07-04: 修复 Gate #3 evaluator neural forward timing telemetry。`eval_rl_rs_gate3.py` 现在记录 `model.predict()` wall-clock; smoke summary 写出 `nn_forward_time_s=0.000748333000956336`。同一 no-warm formal model 的 `eval_timing_v2/` 保持 `29/64=0.453125` fail 不变, 并补出 `nn_forward_time_s=0.050569629958772566`。记录见 `.pipeline/experiments/20260704_module2_f03_eval_timing_telemetry.md`。
