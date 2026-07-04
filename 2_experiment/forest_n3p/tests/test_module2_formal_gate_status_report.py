@@ -538,6 +538,34 @@ def test_formal_gate_status_report_requires_execution_veto_matrix(tmp_path):
     assert manifest["formal_gate_execution_veto_summary"]["present"] is False
 
 
+def test_formal_gate_status_report_requires_formal_gate_gap_summary(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    formal_gate = json.loads(config.formal_gate_path.read_text(encoding="utf-8"))
+    formal_gate.pop("remaining_deliverables_gap_summary", None)
+    config.formal_gate_path.write_text(json.dumps(formal_gate), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert "formal_gate_gap_audit_missing_remaining_deliverables_gap_summary" in issue_ids
+    assert manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]["present"] is False
+
+
+def test_formal_gate_status_report_rejects_formal_gate_gap_summary_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    formal_gate = json.loads(config.formal_gate_path.read_text(encoding="utf-8"))
+    formal_gate["remaining_deliverables_gap_summary"]["categories"][0]["missing_count"] = 2
+    config.formal_gate_path.write_text(json.dumps(formal_gate), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert "formal_gate_gap_audit_remaining_deliverables_gap_summary_mismatch" in issue_ids
+    assert manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]["categories"]["training"]["missing_count"] == 2
+
+
 def test_formal_gate_status_report_requires_closure_remote_stage_summary(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
     config = _config(tmp_path, complete=False)
