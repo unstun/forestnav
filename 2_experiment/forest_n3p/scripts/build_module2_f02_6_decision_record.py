@@ -66,6 +66,7 @@ def build_record(config: F026DecisionRecordConfig) -> dict[str, Any]:
     remote_warm_preflight = _read_json(config.remote_warm_preflight_path)
     requested_decision = str(config.decision)
     _validate_requested_decision(requested_decision)
+    _validate_decision_note(requested_decision=requested_decision, decision_note=config.decision_note)
     normalized = _normalize_decision(
         requested_decision=requested_decision,
         decider=config.decider,
@@ -131,6 +132,13 @@ def _validate_requested_decision(decision: str) -> None:
     allowed = {"pending", APPROVE_OBSTACLE_SUMMARY, REJECT_OBSTACLE_SUMMARY}
     if decision not in allowed:
         raise ValueError(f"unsupported F02.6 decision {decision!r}; expected one of {sorted(allowed)}")
+
+
+def _validate_decision_note(*, requested_decision: str, decision_note: str | None) -> None:
+    if requested_decision == "pending":
+        return
+    if not isinstance(decision_note, str) or not decision_note.strip():
+        raise ValueError("non-pending F02.6 decisions require a non-empty --decision-note")
 
 
 def _normalize_decision(*, requested_decision: str, decider: str | None, packet: dict[str, Any]) -> dict[str, Any]:
