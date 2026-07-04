@@ -41,6 +41,8 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["current_state"]["handoff_bundle_next_action"] == "record_f02_6_decision"
     assert manifest["current_state"]["handoff_bundle_safety_issue_count"] == 0
     assert manifest["current_state"]["handoff_bundle_remote_training_allowed_now"] is False
+    assert manifest["current_state"]["handoff_requirement_stage_mapped_count"] == 4
+    assert manifest["current_state"]["handoff_requirement_stage_unmapped_count"] == 0
     assert manifest["current_state"]["formal_gate_execution_veto_present"] is True
     assert manifest["current_state"]["formal_gate_execution_veto_all_rows_consistent"] is True
     assert manifest["current_state"]["formal_gate_execution_veto_remote_training_allowed_now"] is False
@@ -73,6 +75,17 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert handoff["remote_training_allowed_now"] is False
     assert handoff["remote_execution_steps"]["run_remote_training"]["allowed_now"] is False
     assert "remote_packet_not_ready" in handoff["remote_execution_steps"]["run_remote_training"]["blocked_by"]
+    requirement_stage_summary = manifest["formal_gate_requirement_stage_summary"]
+    assert requirement_stage_summary["mapped_requirement_count"] == 4
+    assert requirement_stage_summary["unmapped_requirement_count"] == 0
+    assert requirement_stage_summary["mismatched_requirement_count"] == 0
+    req_stages = requirement_stage_summary["requirements"]
+    assert req_stages["training_remote_ppo_checkpoint"]["responsible_stage_id"] == "gate3_remote_training"
+    assert req_stages["training_remote_ppo_checkpoint"]["responsible_stage_allowed_now"] is False
+    assert "remote_packet_not_ready" in req_stages["training_remote_ppo_checkpoint"]["responsible_stage_blocked_by"]
+    assert req_stages["evaluation_gate3_episode_outputs"]["responsible_stage_id"] == "gate3_remote_audit_pullback"
+    assert req_stages["acceptance_remote_pullback_and_audit"]["responsible_stage_id"] == "gate3_remote_audit_pullback"
+    assert req_stages["h01_h02_formal_evaluation_acceptance"]["responsible_stage_id"] == "regenerate_h01_h02_formal_artifacts"
     missing_handoff = manifest["missing_artifacts_handoff_index_summary"]
     assert missing_handoff["present"] is True
     assert missing_handoff["status"] == "blocked_until_f02_6_decision"
@@ -116,6 +129,7 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     assert manifest["formal_gate_execution_veto_summary"]["row_consensus"]["remote_training"] is True
     assert manifest["missing_artifacts_handoff_index_summary"]["status"] == "formal_gate_evidence_ready_for_h01_h02_claim_gates"
     assert manifest["missing_artifacts_handoff_index_summary"]["open_requirement_count"] == 0
+    assert manifest["formal_gate_requirement_stage_summary"]["mapped_requirement_count"] == 4
 
 
 def test_formal_gate_status_report_catches_status_input_drift(tmp_path):
@@ -179,6 +193,24 @@ def test_formal_gate_status_report_consumes_handoff_bundle_safety(tmp_path):
     assert manifest["status"] == "formal_gate_status_blocked"
     assert "handoff_bundle_pending_allows_run_remote_training" in issue_ids
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+
+
+def test_formal_gate_status_report_requires_handoff_requirement_stage_mapping(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    handoff = json.loads(config.handoff_bundle_path.read_text(encoding="utf-8"))
+    handoff["formal_gate_requirements"][0].pop("responsible_stage_id")
+    handoff["formal_gate_requirements"][1]["responsible_stage_id"] = "wrong_stage"
+    config.handoff_bundle_path.write_text(json.dumps(handoff), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert manifest["status"] == "formal_gate_status_blocked"
+    assert "handoff_bundle_training_remote_ppo_checkpoint_missing_responsible_stage" in issue_ids
+    assert "handoff_bundle_evaluation_gate3_episode_outputs_wrong_responsible_stage" in issue_ids
+    assert manifest["formal_gate_requirement_stage_summary"]["unmapped_requirement_count"] == 1
+    assert manifest["formal_gate_requirement_stage_summary"]["mismatched_requirement_count"] == 1
 
 
 def test_formal_gate_status_report_consumes_execution_veto_matrix(tmp_path):
@@ -295,6 +327,8 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
     assert "Remote Execution Steps" in markdown
     assert "Closure Remote Stages" in markdown
     assert "Formal Gate Handoff Bundle" in markdown
+    assert "Formal Gate Requirement Stage Summary" in markdown
+    assert "training_remote_ppo_checkpoint" in markdown
     assert "Missing-Artifacts Handoff Index" in markdown
     assert "record_f02_6_decision" in markdown
     assert "Formal Gate Execution Veto Matrix" in markdown
