@@ -39,6 +39,8 @@ def test_remaining_deliverables_blocks_pending_formal_gate(tmp_path):
     assert gap_categories["training"]["responsible_stage_allowed_now"] is False
     assert gap_categories["training"]["missing_artifacts"][0]["matrix_id"] == "training:train_final_model_zip"
     assert gap_categories["training"]["missing_artifacts"][0]["current_state"] == "missing"
+    assert gap_categories["training"]["missing_artifacts"][0]["proof_command_count"] == 2
+    assert "train_final_model_zip_valid_zip" in gap_categories["training"]["missing_artifacts"][0]["proof_command_ids"]
     assert "local training output" in gap_categories["training"]["missing_artifacts"][0]["invalid_substitutes"]
     assert gap_categories["evaluation"]["missing_count"] == 2
     assert gap_categories["acceptance"]["missing_count"] == 3
@@ -72,6 +74,8 @@ def test_remaining_deliverables_blocks_pending_formal_gate(tmp_path):
         "formal_acceptance:h01_ready_for_formal_run",
         "formal_acceptance:h02_formal_output_acceptance",
     ]
+    assert "train_final_model_zip_valid_zip" in plain_categories["training"]["proof_command_ids"]
+    assert "eval_gate3_eval_episodes_csv_schema" in plain_categories["evaluation"]["proof_command_ids"]
 
     groups = {group["category"]: group for group in manifest["deliverable_groups"]}
     assert groups["training"]["responsible_stage_id"] == "gate3_remote_training"
@@ -91,15 +95,30 @@ def test_remaining_deliverables_blocks_pending_formal_gate(tmp_path):
     assert "blocked H02 acceptance audit" in groups["formal_acceptance"]["invalid_substitutes"]
     matrix = {row["artifact_id"]: row for row in manifest["deliverable_acceptance_matrix"]}
     assert len(matrix) == 10
+    proof_plan = manifest["proof_command_plan"]
+    assert proof_plan["plan_id"] == "module2_formal_gate_local_read_only_proof_commands"
+    assert proof_plan["execution_boundary"] == "local_read_only_after_formal_remote_pullback"
+    assert proof_plan["not_paper_result_material"] is True
+    assert proof_plan["runs_training"] is False
+    assert proof_plan["runs_remote_preflight"] is False
+    assert proof_plan["total_matrix_rows"] == 10
+    assert proof_plan["total_proof_command_count"] == sum(row["proof_command_count"] for row in matrix.values())
     assert matrix["train_final_model_zip"]["matrix_id"] == "training:train_final_model_zip"
     assert matrix["train_final_model_zip"]["execution_boundary"] == "read_only_no_execution"
     assert matrix["train_final_model_zip"]["responsible_stage_id"] == "gate3_remote_training"
     assert matrix["train_final_model_zip"]["responsible_stage_allowed_now"] is False
     assert "remote_packet_not_ready" in matrix["train_final_model_zip"]["responsible_stage_blocked_by"]
     assert any("gpu3070ti-relay" in item for item in matrix["train_final_model_zip"]["acceptance_predicates"])
+    assert matrix["train_final_model_zip"]["proof_command_count"] == 2
+    assert "zipfile.is_zipfile" in matrix["train_final_model_zip"]["proof_commands"][1]["command"]
     assert "local training output" in matrix["train_final_model_zip"]["invalid_substitutes"]
+    assert matrix["eval_gate3_eval_episodes_csv"]["proof_command_count"] == 2
+    assert "len(rows) >= 64" in matrix["eval_gate3_eval_episodes_csv"]["proof_commands"][1]["command"]
+    assert matrix["gate3_formal_audit_json"]["proof_command_count"] == 2
+    assert "formal_blockers" in matrix["gate3_formal_audit_json"]["proof_commands"][1]["command"]
     assert matrix["h02_formal_output_acceptance"]["category"] == "formal_acceptance"
     assert any("formal_output_accepted=true" in item for item in matrix["h02_formal_output_acceptance"]["acceptance_predicates"])
+    assert "paper_result_input_allowed" in matrix["h02_formal_output_acceptance"]["proof_commands"][1]["command"]
     assert manifest["audit_issue_count"] == 0
 
 
@@ -117,6 +136,10 @@ def test_remaining_deliverables_accepts_synthetic_complete_gate(tmp_path):
     assert manifest["audit_issue_count"] == 0
     assert all(group["status"] == "complete" for group in manifest["deliverable_groups"])
     assert all(row["missing"] is False for row in manifest["deliverable_acceptance_matrix"])
+    assert manifest["proof_command_plan"]["total_matrix_rows"] == 10
+    assert manifest["proof_command_plan"]["total_proof_command_count"] == sum(
+        row["proof_command_count"] for row in manifest["deliverable_acceptance_matrix"]
+    )
     assert manifest["permissions_now"]["remote_training_allowed_now"] is True
     assert manifest["permissions_now"]["formal_claim_allowed_now"] is True
 
@@ -190,11 +213,16 @@ def test_remaining_deliverables_cli_writes_json_and_markdown(tmp_path):
     assert "Deliverable Acceptance Matrix" in markdown
     assert "Human-Readable Gate Closure Checklist" in markdown
     assert "Formal Gate Gap Summary" in markdown
+    assert "Proof Command Plan" in markdown
     assert "total_missing_deliverables" in markdown
+    assert "total_proof_command_count" in markdown
     assert "gap:training" in markdown
     assert "missing_artifacts=`training:train_final_model_zip" in markdown
+    assert "proof_commands=`train_final_model_zip_exists_nonempty" in markdown
     assert "training:train_final_model_zip" in markdown
     assert "acceptance_predicates" in markdown
+    assert "zipfile.is_zipfile" in markdown
+    assert "eval_gate3_eval_episodes_csv_schema" in markdown
     assert "gpu3070ti-relay formal run" in markdown
     assert "invalid_substitutes" in markdown
 

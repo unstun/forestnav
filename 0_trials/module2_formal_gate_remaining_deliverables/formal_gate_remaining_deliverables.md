@@ -3,9 +3,10 @@
 This ledger is read-only. It lists remaining formal training, evaluation, and acceptance deliverables; it does not execute commands or write paper results.
 
 - status: `formal_gate_deliverables_blocked`
-- source_head: `a116592f7f8475dd2a0e44bd9f4930561765969f+dirty`
+- source_head: `8eb1d1c32f1aa93389be88bf25e2b5bf19b44f48+dirty`
 - missing_deliverable_count: `10`
 - open_category_count: `4`
+- proof_command_count: `20`
 - audit_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_training_allowed_now: `False`
@@ -19,10 +20,10 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - local_training_allowed_now: `False`
 - remote_training_allowed_now: `False`
 - formal_claim_allowed_now: `False`
-- `training`: missing=`3`, stage=`gate3_remote_training`, stage_allowed_now=`False`, missing_artifacts=`training:train_final_model_zip, training:train_summary_json, training:train_training_manifest_json`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
-- `evaluation`: missing=`2`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`evaluation:eval_gate3_eval_episodes_csv, evaluation:eval_gate3_summary_json`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
-- `acceptance`: missing=`3`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`acceptance:gate3_trial_manifest_json, acceptance:gate3_formal_audit_json, acceptance:pulled_back_checkpoint_hash_record`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
-- `formal_acceptance`: missing=`2`, stage=`regenerate_h01_h02_formal_artifacts`, stage_allowed_now=`False`, missing_artifacts=`formal_acceptance:h01_ready_for_formal_run, formal_acceptance:h02_formal_output_acceptance`, blocked_by=`missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
+- `training`: missing=`3`, stage=`gate3_remote_training`, stage_allowed_now=`False`, missing_artifacts=`training:train_final_model_zip, training:train_summary_json, training:train_training_manifest_json`, proof_commands=`train_final_model_zip_exists_nonempty, train_final_model_zip_valid_zip, train_summary_json_exists_nonempty, train_summary_json_formal_warm_start_metadata, train_training_manifest_json_exists_nonempty, train_training_manifest_json_provenance`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
+- `evaluation`: missing=`2`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`evaluation:eval_gate3_eval_episodes_csv, evaluation:eval_gate3_summary_json`, proof_commands=`eval_gate3_eval_episodes_csv_exists_nonempty, eval_gate3_eval_episodes_csv_schema, eval_gate3_summary_json_exists_nonempty, eval_gate3_summary_json_formal_scope`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
+- `acceptance`: missing=`3`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`acceptance:gate3_trial_manifest_json, acceptance:gate3_formal_audit_json, acceptance:pulled_back_checkpoint_hash_record`, proof_commands=`gate3_trial_manifest_json_exists_nonempty, gate3_trial_manifest_json_formal_warm_start_scope, gate3_formal_audit_json_exists_nonempty, gate3_formal_audit_json_accepts_formal_scope, pulled_back_checkpoint_hash_record_exists_nonempty, pulled_back_checkpoint_hash_record_matches_model`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
+- `formal_acceptance`: missing=`2`, stage=`regenerate_h01_h02_formal_artifacts`, stage_allowed_now=`False`, missing_artifacts=`formal_acceptance:h01_ready_for_formal_run, formal_acceptance:h02_formal_output_acceptance`, proof_commands=`h01_ready_for_formal_run_exists_nonempty, h01_ready_for_formal_run_status, h02_formal_output_acceptance_exists_nonempty, h02_formal_output_acceptance_status`, blocked_by=`missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
 
 ## Current Gate Summary
 
@@ -48,34 +49,51 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - responsible_stage_allowed_now: `False`
 - responsible_stage_blocked_by: `f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 - missing_artifacts:
-  - `training:train_final_model_zip`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip`, acceptance_predicate_count=`5`
-  - `training:train_summary_json`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json`, acceptance_predicate_count=`5`
-  - `training:train_training_manifest_json`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json`, acceptance_predicate_count=`5`
+  - `training:train_final_model_zip`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip`, acceptance_predicate_count=`5`, proof_command_count=`2`
+  - `training:train_summary_json`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json`, acceptance_predicate_count=`5`, proof_command_count=`2`
+  - `training:train_training_manifest_json`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json`, acceptance_predicate_count=`5`, proof_command_count=`2`
 ### gap:evaluation
 - missing_count: `2`
 - responsible_stage_id: `gate3_remote_audit_pullback`
 - responsible_stage_allowed_now: `False`
 - responsible_stage_blocked_by: `f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 - missing_artifacts:
-  - `evaluation:eval_gate3_eval_episodes_csv`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv`, acceptance_predicate_count=`5`
-  - `evaluation:eval_gate3_summary_json`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json`, acceptance_predicate_count=`5`
+  - `evaluation:eval_gate3_eval_episodes_csv`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv`, acceptance_predicate_count=`5`, proof_command_count=`2`
+  - `evaluation:eval_gate3_summary_json`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json`, acceptance_predicate_count=`5`, proof_command_count=`2`
 ### gap:acceptance
 - missing_count: `3`
 - responsible_stage_id: `gate3_remote_audit_pullback`
 - responsible_stage_allowed_now: `False`
 - responsible_stage_blocked_by: `f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 - missing_artifacts:
-  - `acceptance:gate3_trial_manifest_json`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json`, acceptance_predicate_count=`5`
-  - `acceptance:gate3_formal_audit_json`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json`, acceptance_predicate_count=`5`
-  - `acceptance:pulled_back_checkpoint_hash_record`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json`, acceptance_predicate_count=`5`
+  - `acceptance:gate3_trial_manifest_json`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json`, acceptance_predicate_count=`5`, proof_command_count=`2`
+  - `acceptance:gate3_formal_audit_json`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json`, acceptance_predicate_count=`5`, proof_command_count=`2`
+  - `acceptance:pulled_back_checkpoint_hash_record`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json`, acceptance_predicate_count=`5`, proof_command_count=`2`
 ### gap:formal_acceptance
 - missing_count: `2`
 - responsible_stage_id: `regenerate_h01_h02_formal_artifacts`
 - responsible_stage_allowed_now: `False`
 - responsible_stage_blocked_by: `missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
 - missing_artifacts:
-  - `formal_acceptance:h01_ready_for_formal_run`: state=`blocked_pending_decisions`, path=`0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`, acceptance_predicate_count=`5`
-  - `formal_acceptance:h02_formal_output_acceptance`: state=`blocked_formal_output_acceptance`, path=`0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`, acceptance_predicate_count=`5`
+  - `formal_acceptance:h01_ready_for_formal_run`: state=`blocked_pending_decisions`, path=`0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`, acceptance_predicate_count=`5`, proof_command_count=`2`
+  - `formal_acceptance:h02_formal_output_acceptance`: state=`blocked_formal_output_acceptance`, path=`0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`, acceptance_predicate_count=`5`, proof_command_count=`2`
+
+## Proof Command Plan
+
+- plan_id: `module2_formal_gate_local_read_only_proof_commands`
+- execution_boundary: `local_read_only_after_formal_remote_pullback`
+- total_matrix_rows: `10`
+- total_proof_command_count: `20`
+- `training:train_final_model_zip`: proof_command_count=`2`, command_ids=`train_final_model_zip_exists_nonempty, train_final_model_zip_valid_zip`
+- `training:train_summary_json`: proof_command_count=`2`, command_ids=`train_summary_json_exists_nonempty, train_summary_json_formal_warm_start_metadata`
+- `training:train_training_manifest_json`: proof_command_count=`2`, command_ids=`train_training_manifest_json_exists_nonempty, train_training_manifest_json_provenance`
+- `evaluation:eval_gate3_eval_episodes_csv`: proof_command_count=`2`, command_ids=`eval_gate3_eval_episodes_csv_exists_nonempty, eval_gate3_eval_episodes_csv_schema`
+- `evaluation:eval_gate3_summary_json`: proof_command_count=`2`, command_ids=`eval_gate3_summary_json_exists_nonempty, eval_gate3_summary_json_formal_scope`
+- `acceptance:gate3_trial_manifest_json`: proof_command_count=`2`, command_ids=`gate3_trial_manifest_json_exists_nonempty, gate3_trial_manifest_json_formal_warm_start_scope`
+- `acceptance:gate3_formal_audit_json`: proof_command_count=`2`, command_ids=`gate3_formal_audit_json_exists_nonempty, gate3_formal_audit_json_accepts_formal_scope`
+- `acceptance:pulled_back_checkpoint_hash_record`: proof_command_count=`2`, command_ids=`pulled_back_checkpoint_hash_record_exists_nonempty, pulled_back_checkpoint_hash_record_matches_model`
+- `formal_acceptance:h01_ready_for_formal_run`: proof_command_count=`2`, command_ids=`h01_ready_for_formal_run_exists_nonempty, h01_ready_for_formal_run_status`
+- `formal_acceptance:h02_formal_output_acceptance`: proof_command_count=`2`, command_ids=`h02_formal_output_acceptance_exists_nonempty, h02_formal_output_acceptance_status`
 
 ## Deliverable Groups
 
@@ -165,6 +183,11 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
   - artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure
   - final_model.zip is non-empty and paired with summary.json plus training_manifest.json from the same run
   - checkpoint is later referenced by the pulled-back SHA-256 record
+- proof_commands:
+  - `train_final_model_zip_exists_nonempty`: python -c "from pathlib import Path; p=Path('0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip'); assert p.is_file() and p.stat().st_size > 0, p"
+    - expected_evidence: `exit_code=0`
+  - `train_final_model_zip_valid_zip`: python -c "from pathlib import Path; import zipfile; p=Path('0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip'); assert p.is_file() and zipfile.is_zipfile(p), p"
+    - expected_evidence: `zipfile.is_zipfile(path) is true`
 - invalid_substitutes:
   - local training output
   - available-subset smoke model
@@ -183,6 +206,11 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
   - artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure
   - summary.json parses as JSON and records formal PPO run metadata plus terminal-RS training signals
   - summary protocol label matches the approved obstacle-summary warm-start formal Gate3 run
+- proof_commands:
+  - `train_summary_json_exists_nonempty`: python -c "from pathlib import Path; p=Path('0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json'); assert p.is_file() and p.stat().st_size > 0, p"
+    - expected_evidence: `exit_code=0`
+  - `train_summary_json_formal_warm_start_metadata`: python -c "import json; from pathlib import Path; p=Path('0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json'); data=json.loads(p.read_text(encoding='utf-8')); assert isinstance(data, dict); assert data.get('status') == 'complete'; assert data.get('warm_start_status') == 'applied_obstacle_summary_bc'; assert data.get('config', {}).get('curriculum_preset') == 'f03'; assert data.get('config', {}).get('smoke') is False"
+    - expected_evidence: `status=complete, warm_start_status=applied_obstacle_summary_bc, curriculum=f03, smoke=false`
 - invalid_substitutes:
   - local training output
   - available-subset smoke model
@@ -201,6 +229,11 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
   - artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure
   - training_manifest.json parses as JSON and records command provenance, source head, seed, and run host
   - training host is gpu3070ti-relay and local_training_allowed remains false
+- proof_commands:
+  - `train_training_manifest_json_exists_nonempty`: python -c "from pathlib import Path; p=Path('0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json'); assert p.is_file() and p.stat().st_size > 0, p"
+    - expected_evidence: `exit_code=0`
+  - `train_training_manifest_json_provenance`: python -c "import json; from pathlib import Path; p=Path('0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json'); data=json.loads(p.read_text(encoding='utf-8')); assert isinstance(data, dict); assert isinstance(data.get('command'), (str, list)); assert data.get('command'); assert isinstance(data.get('source_hashes'), dict) and data['source_hashes']; assert data.get('config', {}).get('curriculum_preset') == 'f03'"
+    - expected_evidence: `command provenance, source_hashes, and f03 curriculum are present`
 - invalid_substitutes:
   - local training output
   - available-subset smoke model
@@ -219,6 +252,11 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
   - artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure
   - gate3_eval_episodes.csv contains formal episode rows for the approved PPO/RL-RS method
   - episode rows satisfy the H01 output schema including success, collision, truncation, and timing fields
+- proof_commands:
+  - `eval_gate3_eval_episodes_csv_exists_nonempty`: python -c "from pathlib import Path; p=Path('0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv'); assert p.is_file() and p.stat().st_size > 0, p"
+    - expected_evidence: `exit_code=0`
+  - `eval_gate3_eval_episodes_csv_schema`: python -c "import csv; from pathlib import Path; p=Path('0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv'); rows=list(csv.DictReader(p.open(newline='', encoding='utf-8'))); required={'terminal_rs_success','collision','truncated','nn_forward_time_s'}; assert len(rows) >= 64; assert required.issubset(rows[0])"
+    - expected_evidence: `rows>=64 and terminal_rs_success/collision/truncated/nn_forward_time_s columns are present`
 - invalid_substitutes:
   - H02 available-subset smoke CSV
   - paper table preview
@@ -236,6 +274,11 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
   - artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure
   - gate3_summary.json parses as JSON and summarizes the pulled-back formal evaluation CSV
   - summary scope and row counts match the H01 formal evaluation manifest
+- proof_commands:
+  - `eval_gate3_summary_json_exists_nonempty`: python -c "from pathlib import Path; p=Path('0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json'); assert p.is_file() and p.stat().st_size > 0, p"
+    - expected_evidence: `exit_code=0`
+  - `eval_gate3_summary_json_formal_scope`: python -c "import json; from pathlib import Path; p=Path('0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json'); data=json.loads(p.read_text(encoding='utf-8')); assert isinstance(data, dict); assert data.get('gate_name') == 'module2_f03_gate3'; assert data.get('contract') == '.pipeline/contracts/module2-ppo-funnel-expansion.md'; assert int(data.get('episodes', 0)) >= int(data.get('min_episodes', 64)) >= 64; assert data.get('config', {}).get('curriculum_preset') == 'f03'"
+    - expected_evidence: `gate_name, contract, f03 curriculum, and >=64 formal episodes are present`
 - invalid_substitutes:
   - H02 available-subset smoke CSV
   - paper table preview
@@ -253,6 +296,11 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
   - artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure
   - gate3_trial_manifest.json records a formal non-smoke, non-preview, non-candidate trial
   - manifest records source head, protocol label, host, seed, command provenance, and pullback paths
+- proof_commands:
+  - `gate3_trial_manifest_json_exists_nonempty`: python -c "from pathlib import Path; p=Path('0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json'); assert p.is_file() and p.stat().st_size > 0, p"
+    - expected_evidence: `exit_code=0`
+  - `gate3_trial_manifest_json_formal_warm_start_scope`: python -c "import json; from pathlib import Path; p=Path('0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json'); data=json.loads(p.read_text(encoding='utf-8')); assert isinstance(data, dict); assert data.get('trial_name') == 'module2_f03_gate3_train_eval'; assert data.get('status') == 'complete'; assert data.get('smoke') is False; assert data.get('formal_gate_claim') is False; assert data.get('warm_start_status') == 'applied_obstacle_summary_bc'"
+    - expected_evidence: `complete non-smoke trial with applied_obstacle_summary_bc warm start`
 - invalid_substitutes:
   - remote command success without local pullback
   - checkpoint file without hash record
@@ -270,6 +318,11 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
   - artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure
   - gate3_formal_audit.json accepts the pulled-back run as formal and scoped to the approved protocol
   - audit is generated after checkpoint, eval CSV, summary, manifest, and hash records are present
+- proof_commands:
+  - `gate3_formal_audit_json_exists_nonempty`: python -c "from pathlib import Path; p=Path('0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json'); assert p.is_file() and p.stat().st_size > 0, p"
+    - expected_evidence: `exit_code=0`
+  - `gate3_formal_audit_json_accepts_formal_scope`: python -c "import json; from pathlib import Path; p=Path('0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json'); data=json.loads(p.read_text(encoding='utf-8')); assert isinstance(data, dict); assert data.get('audit_name') == 'module2_f03_gate3_formal_audit'; assert data.get('formal_decision') in {'pass', 'fail'}; assert data.get('formal_claim_allowed') is True; assert not data.get('formal_blockers')"
+    - expected_evidence: `formal_decision is pass/fail and formal_blockers is empty`
 - invalid_substitutes:
   - remote command success without local pullback
   - checkpoint file without hash record
@@ -287,6 +340,11 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
   - artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure
   - SHA-256 file or JSON exists for train/final_model.zip
   - recorded digest matches the locally pulled-back final_model.zip
+- proof_commands:
+  - `pulled_back_checkpoint_hash_record_exists_nonempty`: python -c "from pathlib import Path; p=Path('0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json'); assert p.is_file() and p.stat().st_size > 0, p"
+    - expected_evidence: `exit_code=0`
+  - `pulled_back_checkpoint_hash_record_matches_model`: python -c "from pathlib import Path; import hashlib; record=Path('0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json'); model=Path('0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip'); digest=hashlib.sha256(model.read_bytes()).hexdigest(); assert digest in record.read_text(encoding='utf-8')"
+    - expected_evidence: `recorded digest contains sha256(train/final_model.zip)`
 - invalid_substitutes:
   - remote command success without local pullback
   - checkpoint file without hash record
@@ -304,6 +362,11 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
   - artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure
   - module2_v1_evaluation_manifest status is ready_for_formal_run or ready_for_formal_evaluation
   - manifest references the audited PPO checkpoint and requires formal PPO result rows
+- proof_commands:
+  - `h01_ready_for_formal_run_exists_nonempty`: python -c "from pathlib import Path; p=Path('0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json'); assert p.is_file() and p.stat().st_size > 0, p"
+    - expected_evidence: `exit_code=0`
+  - `h01_ready_for_formal_run_status`: python -c "import json; from pathlib import Path; p=Path('0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json'); data=json.loads(p.read_text(encoding='utf-8')); assert isinstance(data, dict); assert data.get('status') in {'ready_for_formal_run', 'ready_for_formal_evaluation'}"
+    - expected_evidence: `H01 status is ready_for_formal_run or ready_for_formal_evaluation`
 - invalid_substitutes:
   - blocked H01 manifest
   - blocked H02 acceptance audit
@@ -321,6 +384,11 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
   - artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure
   - h02_formal_acceptance has formal_output_accepted=true and paper_result_input_allowed=true
   - acceptance is regenerated from audited remote artifacts and rejects smoke or preview substitutes
+- proof_commands:
+  - `h02_formal_output_acceptance_exists_nonempty`: python -c "from pathlib import Path; p=Path('0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json'); assert p.is_file() and p.stat().st_size > 0, p"
+    - expected_evidence: `exit_code=0`
+  - `h02_formal_output_acceptance_status`: python -c "import json; from pathlib import Path; p=Path('0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json'); data=json.loads(p.read_text(encoding='utf-8')); assert isinstance(data, dict); assert data.get('status') == 'formal_output_accepted'; assert data.get('formal_output_accepted') is True; assert data.get('paper_result_input_allowed') is True"
+    - expected_evidence: `formal_output_accepted=true and paper_result_input_allowed=true`
 - invalid_substitutes:
   - blocked H01 manifest
   - blocked H02 acceptance audit
