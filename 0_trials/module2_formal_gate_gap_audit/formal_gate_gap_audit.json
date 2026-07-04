@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_gap_audit",
   "status": "blocked_formal_gate_gaps_open",
-  "created_at_utc": "2026-07-04T16:43:01.275758+00:00",
-  "source_head": "59caee5cc01ed95e6e8d5d82384dafdb09292d45+dirty",
+  "created_at_utc": "2026-07-04T21:13:15.402173+00:00",
+  "source_head": "1f5c42868890b101b3e5e7fe4ec26046d3450600+dirty",
   "not_paper_result_material": true,
   "local_training_allowed": false,
   "remote_training_resource": "gpu3070ti-relay",
@@ -36,106 +36,215 @@
     "formal_claim_allowed": false,
     "regeneration_required_before_remote_formal_execution": true,
     "risk_counts": {
-      "historical_dirty": 12,
-      "historical_clean": 3,
-      "current_dirty": 1
+      "historical_dirty": 11,
+      "current_clean": 1,
+      "current_dirty": 4,
+      "historical_clean": 2
     },
-    "ordered_regeneration_target_count": 16,
+    "ordered_regeneration_target_count": 17,
     "ordered_regeneration_targets": [
       {
         "artifact_id": "f02_6_decision_gate_audit",
         "path": "0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json",
         "freshness_state": "historical_dirty",
+        "source_head": "e0e5c100c6a5fe777648a91e2039f1f40ed88262+dirty",
+        "source_commit": "e0e5c100c6a5fe777648a91e2039f1f40ed88262",
+        "source_head_dirty": true,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "4e9a9ae16d2d1a331c332e27940704a8dfa84424",
+        "required_before": "approved_remote_preflight"
+      },
+      {
+        "artifact_id": "f02_6_decision_intake",
+        "path": "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
+        "freshness_state": "historical_dirty",
+        "source_head": "8b76a651a8a34e20390979a8e22a6ce05a3e06fd+dirty",
+        "source_commit": "8b76a651a8a34e20390979a8e22a6ce05a3e06fd",
+        "source_head_dirty": true,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "4e9a9ae16d2d1a331c332e27940704a8dfa84424",
         "required_before": "approved_remote_preflight"
       },
       {
         "artifact_id": "f02_6_decision_record",
         "path": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
         "freshness_state": "historical_dirty",
+        "source_head": "b9c4085a20ce37a5dbcc9dffb0a707403eb8e6fb+dirty",
+        "source_commit": "b9c4085a20ce37a5dbcc9dffb0a707403eb8e6fb",
+        "source_head_dirty": true,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "4e9a9ae16d2d1a331c332e27940704a8dfa84424",
         "required_before": "approved_remote_preflight"
       },
       {
         "artifact_id": "f02_6_transition_gate_audit",
         "path": "0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json",
         "freshness_state": "historical_dirty",
+        "source_head": "4e882c09d8ede868504f3dbf63a31a1125841170+dirty",
+        "source_commit": "4e882c09d8ede868504f3dbf63a31a1125841170",
+        "source_head_dirty": true,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "4e9a9ae16d2d1a331c332e27940704a8dfa84424",
         "required_before": "approved_remote_preflight"
       },
       {
         "artifact_id": "formal_gate_closure_checklist",
         "path": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
         "freshness_state": "historical_dirty",
+        "source_head": "59caee5cc01ed95e6e8d5d82384dafdb09292d45+dirty",
+        "source_commit": "59caee5cc01ed95e6e8d5d82384dafdb09292d45",
+        "source_head_dirty": true,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "4e9a9ae16d2d1a331c332e27940704a8dfa84424",
         "required_before": "approved_remote_preflight"
       },
       {
         "artifact_id": "formal_gate_gap_audit",
         "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
         "freshness_state": "historical_dirty",
+        "source_head": "59caee5cc01ed95e6e8d5d82384dafdb09292d45+dirty",
+        "source_commit": "59caee5cc01ed95e6e8d5d82384dafdb09292d45",
+        "source_head_dirty": true,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "4e9a9ae16d2d1a331c332e27940704a8dfa84424",
         "required_before": "approved_remote_preflight"
       },
       {
         "artifact_id": "formal_gate_handoff_bundle",
         "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
         "freshness_state": "historical_clean",
+        "source_head": "03373965cd5c3696ba1ac0fe12e6e5547b421513",
+        "source_commit": "03373965cd5c3696ba1ac0fe12e6e5547b421513",
+        "source_head_dirty": false,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "4e9a9ae16d2d1a331c332e27940704a8dfa84424",
         "required_before": "approved_remote_preflight"
       },
       {
         "artifact_id": "gpu3070ti_readiness_refresh",
         "path": "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
         "freshness_state": "historical_clean",
+        "source_head": "033356f27e5255c60d64a78753054b86ef2a0428",
+        "source_commit": "033356f27e5255c60d64a78753054b86ef2a0428",
+        "source_head_dirty": false,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "4e9a9ae16d2d1a331c332e27940704a8dfa84424",
         "required_before": "approved_remote_preflight"
       },
       {
         "artifact_id": "post_f02_6_plan_audit",
         "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
-        "freshness_state": "historical_dirty",
+        "freshness_state": "current_dirty",
+        "source_head": "4e9a9ae16d2d1a331c332e27940704a8dfa84424+dirty",
+        "source_commit": "4e9a9ae16d2d1a331c332e27940704a8dfa84424",
+        "source_head_dirty": true,
+        "source_commit_exists": true,
+        "matches_current_head": true,
+        "current_head": "4e9a9ae16d2d1a331c332e27940704a8dfa84424",
         "required_before": "approved_remote_preflight"
       },
       {
         "artifact_id": "remote_formal_execution_packet",
         "path": "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json",
         "freshness_state": "historical_dirty",
+        "source_head": "01c57e4da7473cff42e2aafbd62431772eae0bb6+dirty",
+        "source_commit": "01c57e4da7473cff42e2aafbd62431772eae0bb6",
+        "source_head_dirty": true,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "4e9a9ae16d2d1a331c332e27940704a8dfa84424",
         "required_before": "approved_remote_preflight"
       },
       {
         "artifact_id": "remote_packet_safety_audit",
         "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
-        "freshness_state": "historical_dirty",
+        "freshness_state": "current_dirty",
+        "source_head": "4e9a9ae16d2d1a331c332e27940704a8dfa84424+dirty",
+        "source_commit": "4e9a9ae16d2d1a331c332e27940704a8dfa84424",
+        "source_head_dirty": true,
+        "source_commit_exists": true,
+        "matches_current_head": true,
+        "current_head": "4e9a9ae16d2d1a331c332e27940704a8dfa84424",
         "required_before": "approved_remote_preflight"
       },
       {
         "artifact_id": "h01_evaluation_manifest",
         "path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
         "freshness_state": "historical_dirty",
+        "source_head": "4887f66ce6b4d32ce269d9da7d4a691e0ba5e5f6+dirty",
+        "source_commit": "4887f66ce6b4d32ce269d9da7d4a691e0ba5e5f6",
+        "source_head_dirty": true,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "4e9a9ae16d2d1a331c332e27940704a8dfa84424",
         "required_before": "formal_h01_h02"
       },
       {
         "artifact_id": "h02_formal_acceptance",
         "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
         "freshness_state": "historical_dirty",
+        "source_head": "5c4bf4a43c55f74b14f893e8f64dec84eb9d66ad+dirty",
+        "source_commit": "5c4bf4a43c55f74b14f893e8f64dec84eb9d66ad",
+        "source_head_dirty": true,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "4e9a9ae16d2d1a331c332e27940704a8dfa84424",
         "required_before": "formal_h01_h02"
-      },
-      {
-        "artifact_id": "claim_safety",
-        "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
-        "freshness_state": "historical_clean",
-        "required_before": "formal_claim_gate"
       },
       {
         "artifact_id": "formal_gate_missing_artifacts",
         "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
         "freshness_state": "historical_dirty",
+        "source_head": "03373965cd5c3696ba1ac0fe12e6e5547b421513+dirty",
+        "source_commit": "03373965cd5c3696ba1ac0fe12e6e5547b421513",
+        "source_head_dirty": true,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "4e9a9ae16d2d1a331c332e27940704a8dfa84424",
+        "required_before": "formal_claim_gate"
+      },
+      {
+        "artifact_id": "formal_gate_remaining_deliverables",
+        "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
+        "freshness_state": "historical_dirty",
+        "source_head": "8a9877145f992f38d8721630a9e2f2a9866833aa+dirty",
+        "source_commit": "8a9877145f992f38d8721630a9e2f2a9866833aa",
+        "source_head_dirty": true,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "4e9a9ae16d2d1a331c332e27940704a8dfa84424",
         "required_before": "formal_claim_gate"
       },
       {
         "artifact_id": "formal_gate_status_report",
         "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
-        "freshness_state": "historical_dirty",
+        "freshness_state": "current_dirty",
+        "source_head": "4e9a9ae16d2d1a331c332e27940704a8dfa84424+dirty",
+        "source_commit": "4e9a9ae16d2d1a331c332e27940704a8dfa84424",
+        "source_head_dirty": true,
+        "source_commit_exists": true,
+        "matches_current_head": true,
+        "current_head": "4e9a9ae16d2d1a331c332e27940704a8dfa84424",
         "required_before": "formal_claim_gate"
       },
       {
         "artifact_id": "paper_readiness",
         "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
         "freshness_state": "current_dirty",
+        "source_head": "4e9a9ae16d2d1a331c332e27940704a8dfa84424+dirty",
+        "source_commit": "4e9a9ae16d2d1a331c332e27940704a8dfa84424",
+        "source_head_dirty": true,
+        "source_commit_exists": true,
+        "matches_current_head": true,
+        "current_head": "4e9a9ae16d2d1a331c332e27940704a8dfa84424",
         "required_before": "formal_claim_gate"
       }
     ]
@@ -190,6 +299,182 @@
     "next_blocked_lane_id": "decision",
     "input_safety_issue_count": 0
   },
+  "remaining_deliverables_ledger": {
+    "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
+    "exists": true,
+    "status": "formal_gate_deliverables_blocked",
+    "executes_commands": false,
+    "runs_training": false,
+    "runs_remote_preflight": false,
+    "local_training_allowed": false,
+    "formal_claim_allowed": false,
+    "not_paper_result_material": true,
+    "gap_summary_present": true,
+    "gap_total_missing_deliverables": 10,
+    "gap_open_category_count": 4
+  },
+  "remaining_deliverables_gap_summary": {
+    "present": true,
+    "summary_id": "module2_formal_gate_missing_training_eval_acceptance_summary",
+    "execution_boundary": "read_only_no_execution",
+    "not_paper_result_material": true,
+    "total_missing_deliverables": 10,
+    "open_category_count": 4,
+    "category_order": [
+      "training",
+      "evaluation",
+      "acceptance",
+      "formal_acceptance"
+    ],
+    "categories": {
+      "training": {
+        "missing_count": 3,
+        "responsible_stage_id": "gate3_remote_training",
+        "responsible_stage_allowed_now": false,
+        "missing_artifact_matrix_ids": [
+          "training:train_final_model_zip",
+          "training:train_summary_json",
+          "training:train_training_manifest_json"
+        ]
+      },
+      "evaluation": {
+        "missing_count": 2,
+        "responsible_stage_id": "gate3_remote_audit_pullback",
+        "responsible_stage_allowed_now": false,
+        "missing_artifact_matrix_ids": [
+          "evaluation:eval_gate3_eval_episodes_csv",
+          "evaluation:eval_gate3_summary_json"
+        ]
+      },
+      "acceptance": {
+        "missing_count": 3,
+        "responsible_stage_id": "gate3_remote_audit_pullback",
+        "responsible_stage_allowed_now": false,
+        "missing_artifact_matrix_ids": [
+          "acceptance:gate3_trial_manifest_json",
+          "acceptance:gate3_formal_audit_json",
+          "acceptance:pulled_back_checkpoint_hash_record"
+        ]
+      },
+      "formal_acceptance": {
+        "missing_count": 2,
+        "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
+        "responsible_stage_allowed_now": false,
+        "missing_artifact_matrix_ids": [
+          "formal_acceptance:h01_ready_for_formal_run",
+          "formal_acceptance:h02_formal_output_acceptance"
+        ]
+      }
+    }
+  },
+  "status_report_remaining_deliverables_gap_summary": {
+    "present": true,
+    "summary_id": "module2_formal_gate_missing_training_eval_acceptance_summary",
+    "execution_boundary": "read_only_no_execution",
+    "not_paper_result_material": true,
+    "total_missing_deliverables": 10,
+    "open_category_count": 4,
+    "category_order": [
+      "training",
+      "evaluation",
+      "acceptance",
+      "formal_acceptance"
+    ],
+    "categories": {
+      "training": {
+        "missing_count": 3,
+        "responsible_stage_id": "gate3_remote_training",
+        "responsible_stage_allowed_now": false,
+        "missing_artifact_matrix_ids": [
+          "training:train_final_model_zip",
+          "training:train_summary_json",
+          "training:train_training_manifest_json"
+        ]
+      },
+      "evaluation": {
+        "missing_count": 2,
+        "responsible_stage_id": "gate3_remote_audit_pullback",
+        "responsible_stage_allowed_now": false,
+        "missing_artifact_matrix_ids": [
+          "evaluation:eval_gate3_eval_episodes_csv",
+          "evaluation:eval_gate3_summary_json"
+        ]
+      },
+      "acceptance": {
+        "missing_count": 3,
+        "responsible_stage_id": "gate3_remote_audit_pullback",
+        "responsible_stage_allowed_now": false,
+        "missing_artifact_matrix_ids": [
+          "acceptance:gate3_trial_manifest_json",
+          "acceptance:gate3_formal_audit_json",
+          "acceptance:pulled_back_checkpoint_hash_record"
+        ]
+      },
+      "formal_acceptance": {
+        "missing_count": 2,
+        "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
+        "responsible_stage_allowed_now": false,
+        "missing_artifact_matrix_ids": [
+          "formal_acceptance:h01_ready_for_formal_run",
+          "formal_acceptance:h02_formal_output_acceptance"
+        ]
+      }
+    }
+  },
+  "closure_checklist_remaining_deliverables_gap_summary": {
+    "present": true,
+    "summary_id": "module2_formal_gate_missing_training_eval_acceptance_summary",
+    "execution_boundary": "read_only_no_execution",
+    "not_paper_result_material": true,
+    "total_missing_deliverables": 10,
+    "open_category_count": 4,
+    "category_order": [
+      "training",
+      "evaluation",
+      "acceptance",
+      "formal_acceptance"
+    ],
+    "categories": {
+      "training": {
+        "missing_count": 3,
+        "responsible_stage_id": "gate3_remote_training",
+        "responsible_stage_allowed_now": false,
+        "missing_artifact_matrix_ids": [
+          "training:train_final_model_zip",
+          "training:train_summary_json",
+          "training:train_training_manifest_json"
+        ]
+      },
+      "evaluation": {
+        "missing_count": 2,
+        "responsible_stage_id": "gate3_remote_audit_pullback",
+        "responsible_stage_allowed_now": false,
+        "missing_artifact_matrix_ids": [
+          "evaluation:eval_gate3_eval_episodes_csv",
+          "evaluation:eval_gate3_summary_json"
+        ]
+      },
+      "acceptance": {
+        "missing_count": 3,
+        "responsible_stage_id": "gate3_remote_audit_pullback",
+        "responsible_stage_allowed_now": false,
+        "missing_artifact_matrix_ids": [
+          "acceptance:gate3_trial_manifest_json",
+          "acceptance:gate3_formal_audit_json",
+          "acceptance:pulled_back_checkpoint_hash_record"
+        ]
+      },
+      "formal_acceptance": {
+        "missing_count": 2,
+        "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
+        "responsible_stage_allowed_now": false,
+        "missing_artifact_matrix_ids": [
+          "formal_acceptance:h01_ready_for_formal_run",
+          "formal_acceptance:h02_formal_output_acceptance"
+        ]
+      }
+    }
+  },
   "current_gate_state": {
     "f02_6_decision_status": "pending_human_decision",
     "effective_warm_start_decision": "pending",
@@ -210,6 +495,9 @@
     "formal_gate_closure_checklist_open": true,
     "formal_gate_status_report_status": "formal_gate_status_blocked",
     "formal_gate_status_report_formal_claim_allowed_now": false,
+    "remaining_deliverables_status": "formal_gate_deliverables_blocked",
+    "remaining_deliverables_gap_total_missing": 10,
+    "remaining_deliverables_gap_open_category_count": 4,
     "formal_gate_handoff_status": "blocked_until_f02_6_decision",
     "formal_gate_handoff_safety_issue_count": 0,
     "formal_gate_handoff_remote_training_allowed_now": false,
@@ -404,6 +692,13 @@
       "why_missing": "Status report status is formal_gate_status_blocked; formal_claim_allowed_now=False.",
       "evidence_path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
       "required_next_artifact": "Regenerate the status report only after all formal gate lanes are complete."
+    },
+    {
+      "category": "acceptance",
+      "gap_id": "formal_gate_remaining_deliverables_open",
+      "why_missing": "Remaining-deliverables ledger still reports 10 missing deliverables across 4 open categories.",
+      "evidence_path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
+      "required_next_artifact": "Produce the formal training, evaluation, acceptance, and H01/H02 acceptance artifacts before final claim readiness."
     }
   ],
   "formal_gate_handoff": {
@@ -644,7 +939,8 @@
         "readiness_blocks_formal_results",
         "formal_gate_missing_artifacts_open",
         "formal_gate_closure_checklist_open",
-        "formal_gate_status_report_blocked"
+        "formal_gate_status_report_blocked",
+        "formal_gate_remaining_deliverables_open"
       ],
       "runs_training": false,
       "action": "Regenerate claim safety/readiness; allow formal claims only if all gates pass.",
