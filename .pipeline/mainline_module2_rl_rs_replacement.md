@@ -766,14 +766,16 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 已完成子项: 新增 `build_module2_evaluation_manifest.py`, 生成机器可读 JSON + Markdown manifest。
   - 当前产物: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`, status=`blocked_pending_decisions`; 已传入 BC formal-v2 checkpoint, `bc_analytic_operator=ready`; `ppo_analytic_operator` 已映射到同名 main evaluation method, 但因缺 PPO checkpoint 和 F02.6 pending 仍 blocked。
   - RealMap protocol: 新增 `0_trials/module2_realmap_query_protocol/module2_realmap_query_protocol.json`; status=`frozen`, 两张真实地图各 5 queries, endpoint collision audit 0/0, CSV hash=`36f80e9e69cd41d3658d4d9858b04aee874c93933c85188254c7731565764b59`。
-  - F02.6 packet guard: H01 manifest 现在可读取 `0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json`; 当前 packet status=`pending_human_decision`, effective decision=`pending`, 因此即使 CLI 误传 `approved_obstacle_summary`, manifest 仍保持 blocked。
-  - 当前 blockers: `f02_6_warm_start_decision_pending`, `f02_6_decision_packet_pending`, `missing_module2_rl_rs_checkpoint`。
+  - F02.6 packet/record guard: H01 manifest 现在可读取 `0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json` 和 `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json`; 当前 record status=`pending_human_decision`, effective decision=`pending`, 因此即使 CLI 误传 `approved_obstacle_summary`, manifest 仍保持 blocked。
+  - 当前 global blockers: `f02_6_warm_start_decision_pending`, `missing_module2_rl_rs_checkpoint`。
+  - 当前 method-level blockers: `requires_dr_sun_approval`, `f02_6_decision_record_pending`, `missing_module2_rl_rs_checkpoint`。
   - 边界: H01.1 已有可审计 manifest, BC operator、PPO without-terminal-RS operator method 和 realmap query protocol 已解除工程实现 blocker, 但还不是 formal-ready evaluation protocol, 因此标为 `[>]`。PPO checkpoint 必须在 `gpu3070ti-relay` 等远端 GPU 上训练/导出, 禁止本地训练。
   - 记录: `.pipeline/experiments/20260704_module2_h01_evaluation_manifest.md`。
   - 更新记录: `.pipeline/experiments/20260704_module2_h01_bc_operator_main_eval.md`。
   - 更新记录: `.pipeline/experiments/20260704_module2_h01_realmap_query_protocol.md`。
   - 更新记录: `.pipeline/experiments/20260704_module2_h01_ppo_analytic_operator_manifest.md`。
   - 更新记录: `.pipeline/experiments/20260704_module2_h01_f02_6_decision_packet_guard.md`。
+  - 更新记录: `.pipeline/experiments/20260704_module2_f02_6_decision_record_protocol.md`。
 - [x] H01.2 指标冻结。
   - Contract 主指标: expansions, total wall-clock, timeout failure rate, path quality。
   - 诊断指标: analytic success, terminal RS success, collision checks, fallback count, clearance。
