@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "record_name": "module2_f02_6_decision_record",
+  "status": "pending_human_decision",
+  "created_at_utc": "2026-07-04T07:05:45.747108+00:00",
+  "execution_host": "MacBook-Pro.local",
+  "source_head": "b9c4085a20ce37a5dbcc9dffb0a707403eb8e6fb+dirty",
+  "decision_owner_required": "Dr Sun",
+  "requested_decision": "pending",
+  "decider": null,
+  "decision_note": null,
+  "packet": {
+    "path": "0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json",
+    "exists": true,
+    "status": "pending_human_decision",
+    "recommendation": "approve_obstacle_summary_warm_start",
+    "decision_owner": "Dr Sun",
+    "blockers": [
+      "requires_dr_sun_approval"
+    ],
+    "formal_claim_allowed": false,
+    "source_head": "cb8d2c5bbcfe0a640694e7096665fecc9705edad+dirty"
+  },
+  "decision_mapping": {
+    "approve_obstacle_summary_warm_start": {
+      "h01_manifest_value": "approved_obstacle_summary",
+      "preflight_value": "approved_obstacle_summary",
+      "audit_value": "approved_obstacle_summary"
+    },
+    "reject_obstacle_summary_warm_start": {
+      "h01_manifest_value": "no_warm_only",
+      "preflight_value": "not_used",
+      "audit_value": "not_used"
+    }
+  },
+  "effective_warm_start_decision": "pending",
+  "remote_training_allowed": false,
+  "local_training_allowed": false,
+  "formal_claim_allowed": false,
+  "next_remote_preflight_status": "blocked_until_decision",
+  "blockers": [
+    "requires_dr_sun_approval"
+  ],
+  "remote_preflight_observed": {
+    "path": "0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_pending_remote_v1/gate3_preflight_manifest.json",
+    "exists": true,
+    "preflight_status": "blocked",
+    "formal_trial_ready": false,
+    "warm_start_decision": "pending",
+    "blocker_codes": [
+      "warm_start_decision_pending"
+    ],
+    "runner_command": "python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir 0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_pending_remote_v1 --seed 20260704 --device cuda --train-curriculum-preset f03 --eval-curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260704 --train-total-timesteps 100000 --train-n-envs 1 --train-n-steps 128 --train-batch-size 64 --train-n-epochs 4 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --allow-duplicate-openmp --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt",
+    "audit_command": "python -m forest_n3p.scripts.audit_rl_rs_gate3_trial --trial-dir 0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_pending_remote_v1 --min-formal-episodes 64 --required-success-threshold 0.8 --required-train-curriculum f03 --required-eval-curriculum f03 --warm-start-decision pending"
+  },
+  "conditional_actions": {
+    "if_pending": {
+      "allowed_now": false,
+      "reason": "Dr Sun has not approved or rejected F02.6.",
+      "observed_remote_preflight_status": "blocked"
+    },
+    "if_approved_obstacle_summary": {
+      "host": "gpu3070ti-relay",
+      "preflight_command": "python -m forest_n3p.scripts.preflight_rl_rs_gate3_formal_trial --output-dir 0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1 --manifest-out 0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1/gate3_preflight_manifest.json --warm-start-decision approved_obstacle_summary --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt --device cuda --allow-duplicate-openmp --allow-existing-output-dir",
+      "runner_command_after_ready_preflight": "python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 --seed 20260704 --device cuda --train-curriculum-preset f03 --eval-curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260704 --train-total-timesteps 100000 --train-n-envs 1 --train-n-steps 128 --train-batch-size 64 --train-n-epochs 4 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --allow-duplicate-openmp --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt",
+      "audit_command_after_ready_preflight": "python -m forest_n3p.scripts.audit_rl_rs_gate3_trial --trial-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 --min-formal-episodes 64 --required-success-threshold 0.8 --required-train-curriculum f03 --required-eval-curriculum f03 --warm-start-decision approved_obstacle_summary",
+      "runs_training": false
+    },
+    "if_rejected_obstacle_summary": {
+      "host": "gpu3070ti-relay",
+      "next_protocol": "run a stronger/full patch-CNN warm-start protocol before any warm-start PPO formal trial",
+      "runs_training": false
+    }
+  },
+  "downstream_consumption": {
+    "h01_manifest_decision_value": "pending",
+    "preflight_warm_start_decision_value": "pending",
+    "audit_warm_start_decision_value": "pending",
+    "record_is_sufficient_to_claim_performance": false
+  },
+  "claim_boundaries": [
+    "This record only stores Dr Sun's F02.6 decision state; it is not a training result.",
+    "Approval unlocks remote preflight regeneration but does not allow a paper performance claim.",
+    "Formal PPO warm-start training must run on gpu3070ti-relay, not on the local Mac.",
+    "A rejected obstacle-summary warm-start requires a stronger/full patch-CNN protocol before a warm-start formal run."
+  ]
+}
