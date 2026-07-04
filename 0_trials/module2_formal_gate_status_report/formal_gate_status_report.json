@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-04T14:09:29.422077+00:00",
-  "source_head": "1c4364955a1f03c5120fc05ec1fce353a4b283a8+dirty",
+  "created_at_utc": "2026-07-04T14:14:50.522748+00:00",
+  "source_head": "693a91c977e590c0222efc2806c84d8daab26d0d",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -28,6 +28,9 @@
     "missing_artifacts_status": "formal_gate_missing_artifacts_open",
     "closure_checklist_status": "formal_gate_closure_blocked",
     "closure_open_item_count": 8,
+    "closure_remote_preflight_allowed_now": false,
+    "closure_remote_training_allowed_now": false,
+    "closure_remote_audit_pullback_allowed_now": false,
     "remote_packet_status": "blocked_until_f02_6_decision",
     "ready_to_run_remote_training": false,
     "remote_packet_sync_allowed_now": false,
@@ -184,6 +187,46 @@
       "reason": "claim gate cannot be regenerated from blocked H02 outputs"
     }
   ],
+  "closure_remote_stage_summary": {
+    "approved_remote_preflight": {
+      "present": true,
+      "status": "blocked",
+      "allowed_now": false,
+      "runs_training": false,
+      "runs_remote_preflight": true,
+      "host": "gpu3070ti-relay",
+      "blocked_by": [
+        "f02_6_decision_not_approved",
+        "source_fresh_preflight_targets_open"
+      ]
+    },
+    "gate3_remote_training": {
+      "present": true,
+      "status": "blocked",
+      "allowed_now": false,
+      "runs_training": true,
+      "runs_remote_preflight": false,
+      "host": "gpu3070ti-relay",
+      "blocked_by": [
+        "f02_6_decision_not_approved",
+        "source_fresh_preflight_targets_open",
+        "remote_packet_not_ready"
+      ]
+    },
+    "gate3_remote_audit_pullback": {
+      "present": true,
+      "status": "blocked",
+      "allowed_now": false,
+      "runs_training": false,
+      "runs_remote_preflight": false,
+      "host": "gpu3070ti-relay",
+      "blocked_by": [
+        "f02_6_decision_not_approved",
+        "source_fresh_preflight_targets_open",
+        "remote_packet_not_ready"
+      ]
+    }
+  },
   "remote_execution_step_summary": {
     "sync_to_remote": {
       "present": true,
