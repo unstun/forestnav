@@ -1,8 +1,10 @@
 from dataclasses import dataclass
+import csv
 
 import pytest
 
-from forest_n3p.evaluation import planner_run_from_path_stats, planner_run_from_result
+from forest_n3p.evaluation import evaluate_run, planner_run_from_path_stats, planner_run_from_result, write_evaluation_outputs
+from forest_n3p.third_party.pathplan import GridMap, TwoCircleFootprint
 
 
 @dataclass(frozen=True)
@@ -99,3 +101,66 @@ def test_planner_run_from_path_stats_records_timing_protocol():
     assert protocol["planner_time_s"]["source"] == 'stats["time"]'
     assert protocol["planner_time_s"]["available"] is True
     assert protocol["planner_time_s"]["included_components"] == ["planner.plan reported wall-clock"]
+
+
+def test_evaluation_outputs_expose_rl_rs_analytic_telemetry_columns(tmp_path):
+    run = planner_run_from_path_stats(
+        ((1.0, 1.0, 0.0), (1.3, 1.0, 0.0)),
+        {
+            "time": 0.21,
+            "expansions": 4,
+            "analytic_operator": "rl_rs_funnel_ppo",
+            "analytic_attempts": 2,
+            "analytic_successes": 1,
+            "analytic_failure_count": 1,
+            "analytic_telemetry_records": [
+                {
+                    "analytic_operator": "rl_rs_funnel_ppo",
+                    "rl_rollout_steps": 3,
+                    "rl_rollout_collision_checks": 9,
+                    "rl_rollout_sample_time_s": 0.001,
+                    "rl_rollout_collision_time_s": 0.002,
+                    "terminal_rs_time_s": 0.003,
+                    "terminal_rs_success": True,
+                    "terminal_rs_used": True,
+                    "terminal_rs_action_count": 2,
+                }
+            ],
+        },
+        query_id="q_rl",
+        method="ha_rl_rs_ppo",
+        difficulty_bucket="Complex",
+        distance_bin_key="1:2",
+        metadata={
+            "rl_rs_checkpoint": "models/final_model.zip",
+            "rl_rs_checkpoint_sha256": "abc123",
+        },
+    )
+    record = evaluate_run(
+        run,
+        GridMap(__import__("numpy").zeros((40, 40), dtype=__import__("numpy").uint8), resolution=0.1, origin=(0.0, 0.0)),
+        TwoCircleFootprint.from_box(length=0.4, width=0.2),
+    )
+
+    assert record.analytic_operator == "rl_rs_funnel_ppo"
+    assert record.analytic_attempts == 2
+    assert record.analytic_successes == 1
+    assert record.analytic_failure_count == 1
+    assert record.rl_rollout_steps == 3
+    assert record.terminal_rs_success_count == 1
+    assert record.terminal_rs_used_count == 1
+    assert record.rl_rs_checkpoint == "models/final_model.zip"
+    assert record.rl_rs_checkpoint_sha256 == "abc123"
+
+    paths = write_evaluation_outputs([record], tmp_path)
+    rows = list(csv.DictReader(paths["records_csv"].open(newline="", encoding="utf-8")))
+
+    assert rows[0]["analytic_operator"] == "rl_rs_funnel_ppo"
+    assert rows[0]["analytic_attempts"] == "2"
+    assert rows[0]["analytic_successes"] == "1"
+    assert rows[0]["analytic_failure_count"] == "1"
+    assert rows[0]["rl_rollout_steps"] == "3"
+    assert rows[0]["terminal_rs_success_count"] == "1"
+    assert rows[0]["terminal_rs_used_count"] == "1"
+    assert rows[0]["rl_rs_checkpoint"] == "models/final_model.zip"
+    assert rows[0]["rl_rs_checkpoint_sha256"] == "abc123"
