@@ -471,6 +471,70 @@ def test_formal_gate_gap_audit_does_not_allow_local_training_even_when_remote_is
     assert "No PPO/RL-RS formal training is allowed on the local Mac." in manifest["claim_boundaries"]
 
 
+def test_formal_gate_gap_audit_blocks_remote_execution_when_handoff_disagrees_with_packet(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_gap_audit")
+
+    manifest = builder.build_manifest(
+        builder.FormalGateGapAuditConfig(
+            output_dir=tmp_path,
+            contract_path=_contract(tmp_path),
+            decision_record_path=_decision_record(tmp_path, pending=False),
+            h01_manifest_path=_h01_manifest(tmp_path, ready=True),
+            remote_packet_path=_remote_packet(tmp_path, ready=True, artifacts_present=True),
+            h02_acceptance_path=_h02_acceptance(tmp_path, accepted=True),
+            claim_safety_path=_claim_safety(tmp_path, allowed=True),
+            readiness_path=_readiness(tmp_path, ready=True),
+            remote_readiness_path=_remote_readiness(tmp_path, good=True),
+            source_freshness_path=_source_freshness(tmp_path, clean=True),
+            missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
+            closure_checklist_path=_closure_checklist(tmp_path, complete=True),
+            status_report_path=_status_report(tmp_path, ready=True),
+            handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False, mismatch=True),
+            remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True),
+        )
+    )
+
+    training_gap_ids = {gap["gap_id"] for gap in manifest["missing_training_artifacts"]}
+    assert "handoff_step_allowed_mismatch_run_remote_training" in training_gap_ids
+    assert manifest["status"] == "blocked_formal_gate_gaps_open"
+    assert manifest["execution_veto_matrix"]["all_rows_consistent"] is False
+    steps = {step["step_id"]: step for step in manifest["ordered_next_steps"]}
+    assert steps["remote_preflight"]["status"] == "blocked"
+    assert "handoff_step_allowed_mismatch_run_remote_training" in steps["gate3_remote_training"]["blocked_by"]
+
+
+def test_formal_gate_gap_audit_blocks_remote_execution_when_remote_packet_safety_is_stale(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_gap_audit")
+
+    manifest = builder.build_manifest(
+        builder.FormalGateGapAuditConfig(
+            output_dir=tmp_path,
+            contract_path=_contract(tmp_path),
+            decision_record_path=_decision_record(tmp_path, pending=False),
+            h01_manifest_path=_h01_manifest(tmp_path, ready=True),
+            remote_packet_path=_remote_packet(tmp_path, ready=True, artifacts_present=True),
+            h02_acceptance_path=_h02_acceptance(tmp_path, accepted=True),
+            claim_safety_path=_claim_safety(tmp_path, allowed=True),
+            readiness_path=_readiness(tmp_path, ready=True),
+            remote_readiness_path=_remote_readiness(tmp_path, good=True),
+            source_freshness_path=_source_freshness(tmp_path, clean=True),
+            missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
+            closure_checklist_path=_closure_checklist(tmp_path, complete=True),
+            status_report_path=_status_report(tmp_path, ready=True),
+            handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
+            remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True, stale=True),
+        )
+    )
+
+    training_gap_ids = {gap["gap_id"] for gap in manifest["missing_training_artifacts"]}
+    assert "remote_packet_safety_stale_status" in training_gap_ids
+    assert "remote_packet_safety_allowed_mismatch_run_remote_training" in training_gap_ids
+    assert manifest["remote_packet_safety"]["status"] == "remote_packet_safety_audit_passed"
+    steps = {step["step_id"]: step for step in manifest["ordered_next_steps"]}
+    assert steps["remote_preflight"]["status"] == "blocked"
+    assert "remote_packet_safety_stale_status" in steps["gate3_remote_training"]["blocked_by"]
+
+
 def _contract(tmp_path):
     path = tmp_path / "contract.md"
     path.write_text(
