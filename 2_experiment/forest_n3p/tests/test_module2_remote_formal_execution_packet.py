@@ -41,7 +41,7 @@ def test_remote_formal_execution_packet_blocks_pending_decision_and_freezes_pull
     assert "missing_module2_rl_rs_checkpoint" in packet["blockers"]
     assert packet["execution_environment"]["gpu_alias"] == "gpu3070ti-relay"
     assert packet["execution_environment"]["remote_workdir"] == "~/ForestNav"
-    assert packet["execution_steps"]["sync_to_remote"]["allowed_now"] is True
+    assert packet["execution_steps"]["sync_to_remote"]["allowed_now"] is False
     assert "--delete" not in packet["execution_steps"]["sync_to_remote"]["command"]
     assert packet["execution_steps"]["run_remote_training"]["allowed_now"] is False
     assert "ssh gpu3070ti-relay" in packet["execution_steps"]["run_remote_training"]["command"]
@@ -70,6 +70,7 @@ def test_remote_formal_execution_packet_allows_only_approved_ready_remote_traini
     assert packet["ready_to_run_remote_training"] is True
     assert packet["local_training_allowed"] is False
     assert packet["blockers"] == []
+    assert packet["execution_steps"]["sync_to_remote"]["allowed_now"] is True
     assert packet["execution_steps"]["run_remote_training"]["allowed_now"] is True
     runner_command = packet["execution_steps"]["run_remote_training"]["command"]
     assert runner_command.startswith("ssh gpu3070ti-relay")
