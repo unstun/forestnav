@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_gap_audit",
   "status": "blocked_formal_gate_gaps_open",
-  "created_at_utc": "2026-07-04T10:36:36.457650+00:00",
-  "source_head": "eafcf0a21fc7ced2676adee9319493660f8c711a+dirty",
+  "created_at_utc": "2026-07-04T10:46:48.736570+00:00",
+  "source_head": "75164caedcf1178bc2aaad9ab5edfa11b7cdc5ad+dirty",
   "not_paper_result_material": true,
   "local_training_allowed": false,
   "remote_training_resource": "gpu3070ti-relay",
@@ -13,6 +13,18 @@
     "version": "v1",
     "approved_by": "Dr Sun",
     "approved_date": "2026-07-02"
+  },
+  "remote_readiness": {
+    "path": "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
+    "exists": true,
+    "status": "remote_readiness_refreshed_f02_6_still_blocked",
+    "runs_training": false,
+    "runs_remote_preflight": false,
+    "local_training_allowed": false,
+    "formal_claim_allowed": false,
+    "remote_training_resource": "gpu3070ti-relay",
+    "oracle_connector_results_match": true,
+    "obstacle_summary_bc_checkpoint_match": true
   },
   "current_gate_state": {
     "f02_6_decision_status": "pending_human_decision",

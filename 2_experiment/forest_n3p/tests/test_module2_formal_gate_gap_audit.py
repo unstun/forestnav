@@ -32,6 +32,8 @@ def test_formal_gate_gap_audit_blocks_current_pending_gate_and_lists_missing_art
             str(_claim_safety(tmp_path, allowed=False)),
             "--readiness",
             str(_readiness(tmp_path, ready=False)),
+            "--remote-readiness-refresh",
+            str(_remote_readiness(tmp_path, good=True)),
         ]
     )
 
@@ -46,6 +48,8 @@ def test_formal_gate_gap_audit_blocks_current_pending_gate_and_lists_missing_art
     assert manifest["local_training_allowed"] is False
     assert manifest["remote_training_resource"] == "gpu3070ti-relay"
     assert manifest["current_gate_state"]["formal_performance_claim_allowed"] is False
+    assert manifest["remote_readiness"]["oracle_connector_results_match"] is True
+    assert manifest["remote_readiness"]["obstacle_summary_bc_checkpoint_match"] is True
 
     gap_ids = {
         gap["gap_id"]
@@ -86,6 +90,7 @@ def test_formal_gate_gap_audit_can_be_clean_only_after_remote_artifacts_and_acce
             h02_acceptance_path=_h02_acceptance(tmp_path, accepted=True),
             claim_safety_path=_claim_safety(tmp_path, allowed=True),
             readiness_path=_readiness(tmp_path, ready=True),
+            remote_readiness_path=_remote_readiness(tmp_path, good=True),
         )
     )
 
@@ -111,6 +116,7 @@ def test_formal_gate_gap_audit_does_not_treat_expected_training_outputs_as_train
             h02_acceptance_path=_h02_acceptance(tmp_path, accepted=False),
             claim_safety_path=_claim_safety(tmp_path, allowed=False),
             readiness_path=_readiness(tmp_path, ready=False),
+            remote_readiness_path=_remote_readiness(tmp_path, good=True),
         )
     )
 
@@ -126,6 +132,32 @@ def test_formal_gate_gap_audit_does_not_treat_expected_training_outputs_as_train
     assert steps["claim_safety_final_gate"]["status"] == "blocked"
 
 
+def test_formal_gate_gap_audit_blocks_remote_execution_when_readiness_inputs_do_not_match(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_gap_audit")
+
+    manifest = builder.build_manifest(
+        builder.FormalGateGapAuditConfig(
+            output_dir=tmp_path,
+            contract_path=_contract(tmp_path),
+            decision_record_path=_decision_record(tmp_path, pending=False),
+            h01_manifest_path=_h01_manifest(tmp_path, ready=True),
+            remote_packet_path=_remote_packet(tmp_path, ready=True, artifacts_present=False),
+            h02_acceptance_path=_h02_acceptance(tmp_path, accepted=False),
+            claim_safety_path=_claim_safety(tmp_path, allowed=False),
+            readiness_path=_readiness(tmp_path, ready=False),
+            remote_readiness_path=_remote_readiness(tmp_path, good=False),
+        )
+    )
+
+    training_gap_ids = {gap["gap_id"] for gap in manifest["missing_training_artifacts"]}
+    assert "remote_readiness_oracle_connector_results_mismatch" in training_gap_ids
+    assert "remote_readiness_obstacle_summary_bc_checkpoint_mismatch" in training_gap_ids
+    steps = {step["step_id"]: step for step in manifest["ordered_next_steps"]}
+    assert steps["remote_preflight"]["status"] == "blocked"
+    assert "remote_readiness_oracle_connector_results_mismatch" in steps["remote_preflight"]["blocked_by"]
+    assert steps["gate3_remote_training"]["status"] == "blocked"
+
+
 def test_formal_gate_gap_audit_does_not_allow_local_training_even_when_remote_is_ready(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_gap_audit")
 
@@ -139,6 +171,7 @@ def test_formal_gate_gap_audit_does_not_allow_local_training_even_when_remote_is
             h02_acceptance_path=_h02_acceptance(tmp_path, accepted=True),
             claim_safety_path=_claim_safety(tmp_path, allowed=True),
             readiness_path=_readiness(tmp_path, ready=True),
+            remote_readiness_path=_remote_readiness(tmp_path, good=True),
         )
     )
 
@@ -293,6 +326,29 @@ def _readiness(tmp_path, *, ready):
             {
                 "status": "formal_results_ready" if ready else "partial_methods_ready_results_blocked",
                 "formal_results_ready": ready,
+            }
+        ),
+        encoding="utf-8",
+    )
+    return path
+
+
+def _remote_readiness(tmp_path, *, good):
+    path = tmp_path / f"remote_readiness_{good}.json"
+    match = bool(good)
+    path.write_text(
+        json.dumps(
+            {
+                "status": "remote_readiness_refreshed_f02_6_still_blocked",
+                "runs_training": False,
+                "runs_remote_preflight": False,
+                "local_training_allowed": False,
+                "formal_claim_allowed": False,
+                "remote_training_resource": "gpu3070ti-relay",
+                "critical_inputs": {
+                    "oracle_connector_results": {"local_remote_match": match},
+                    "obstacle_summary_bc_checkpoint": {"local_remote_match": match},
+                },
             }
         ),
         encoding="utf-8",

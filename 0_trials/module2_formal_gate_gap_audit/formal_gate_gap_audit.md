@@ -7,6 +7,15 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - remote_training_resource: `gpu3070ti-relay`
 - formal_performance_claim_allowed: `False`
 
+## Remote Readiness
+
+- path: `0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json`
+- status: `remote_readiness_refreshed_f02_6_still_blocked`
+- runs_training: `False`
+- runs_remote_preflight: `False`
+- oracle_connector_results_match: `True`
+- obstacle_summary_bc_checkpoint_match: `True`
+
 ## Decision Gaps
 
 - `f02_6_warm_start_decision_pending`
