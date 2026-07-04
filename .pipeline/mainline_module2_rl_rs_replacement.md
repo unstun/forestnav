@@ -500,7 +500,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - [x] E03.3 success set 测试。
   - 人工构造无障碍/有障碍 RS 对接样例。
   - 已完成: `test_terminal_rs_success_set_distinguishes_free_and_blocked_connections` 直接调用 `check_terminal_rs_connectable()`, 覆盖空图 success 和障碍阻挡 `terminal_rs_collision`。
-  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `23 passed in 0.50s`。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `23 passed in 0.48s`。
   - 记录: `.pipeline/experiments/20260703_module2_e03_terminal_rs_success_set.md`。
 - [ ] E03.4 no progress/oscillation 测试。
   - 防止 policy 原地左右打舵拿 shaping。
