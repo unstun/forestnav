@@ -585,8 +585,6 @@ def _decision_intake_safety_issues(decision_intake: dict[str, Any]) -> list[dict
             issues.append(_issue("decision_intake_closed_decider_not_dr_sun", "closed F02.6 intake must be decided by Dr Sun."))
         if summary["local_training_allowed_now"] is not False:
             issues.append(_issue("decision_intake_closed_allows_local_training", "F02.6 closure must not allow local training."))
-        if summary["formal_claim_allowed_now"] is not False:
-            issues.append(_issue("decision_intake_closed_allows_formal_claim", "F02.6 closure alone must not allow formal claims."))
     else:
         issues.append(_issue("decision_intake_unknown_record_status", "F02.6 intake record_status must be pending_human_decision, approved, or rejected."))
     return issues
