@@ -2,8 +2,8 @@
   "schema_version": 1,
   "manifest_name": "module2_v1_evaluation",
   "status": "blocked_pending_decisions",
-  "created_at_utc": "2026-07-04T05:00:28.120731+00:00",
-  "source_head": "dc91c070870682f7cec6b3d1e9c3d8d32e23394c+dirty",
+  "created_at_utc": "2026-07-04T05:10:35.244104+00:00",
+  "source_head": "fd331aef0e862a46a11848c73c777efe6dd75ef6+dirty",
   "contract": {
     "path": ".pipeline/contracts/module2-ppo-funnel-expansion.md",
     "exists": true,
@@ -76,13 +76,10 @@
     {
       "method_id": "bc_analytic_operator",
       "label": "BC analytic operator",
-      "main_evaluation_method": null,
-      "status": "blocked",
-      "blockers": [
-        "missing_main_evaluation_method",
-        "bc_operator_loader_not_implemented"
-      ],
-      "checkpoint": null
+      "main_evaluation_method": "bc_analytic_operator",
+      "status": "ready",
+      "blockers": [],
+      "checkpoint": "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt"
     },
     {
       "method_id": "ppo_analytic_operator",

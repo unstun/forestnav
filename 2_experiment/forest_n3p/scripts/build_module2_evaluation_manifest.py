@@ -18,6 +18,7 @@ class Module2EvaluationManifestConfig:
     cutpoint_supplement_path: Path = Path(".pipeline/contracts/v9-forest-n3p-t06-calibration-supplement.md")
     realmap_manifest_path: Path = Path("2_experiment/forest_n3p/assets/realmaps/manifest.json")
     warm_start_decision: str = "pending"
+    bc_checkpoint: Path | None = None
     rl_rs_checkpoint: Path | None = None
     queries_per_bucket: int = 100
     seed_count: int = 5
@@ -37,6 +38,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         cutpoint_supplement_path=args.cutpoint_supplement_path,
         realmap_manifest_path=args.realmap_manifest_path,
         warm_start_decision=str(args.warm_start_decision),
+        bc_checkpoint=args.bc_checkpoint,
         rl_rs_checkpoint=args.rl_rs_checkpoint,
         queries_per_bucket=int(args.queries_per_bucket),
         seed_count=int(args.seed_count),
@@ -105,6 +107,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--cutpoint-supplement-path", type=Path, default=Module2EvaluationManifestConfig.cutpoint_supplement_path)
     parser.add_argument("--realmap-manifest-path", type=Path, default=Module2EvaluationManifestConfig.realmap_manifest_path)
     parser.add_argument("--warm-start-decision", choices=("pending", "approved_obstacle_summary", "no_warm_only"), default="pending")
+    parser.add_argument("--bc-checkpoint", type=Path, default=None)
     parser.add_argument("--rl-rs-checkpoint", type=Path, default=None)
     parser.add_argument("--queries-per-bucket", type=int, default=100)
     parser.add_argument("--seed-count", type=int, default=5)
@@ -116,6 +119,12 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
 
 
 def _method_records(config: Module2EvaluationManifestConfig) -> list[dict[str, Any]]:
+    bc_blockers: list[str] = []
+    if config.bc_checkpoint is None:
+        bc_blockers.append("missing_module2_bc_checkpoint")
+    elif not Path(config.bc_checkpoint).is_file():
+        bc_blockers.append("missing_module2_bc_checkpoint")
+
     records = [
         _method("ha_no_analytic", "HA* no analytic", "ha_no_analytic", "ready"),
         _method("ha_single_rs", "HA* single RS analytic expansion", "ha_single_rs", "ready"),
@@ -125,9 +134,10 @@ def _method_records(config: Module2EvaluationManifestConfig) -> list[dict[str, A
         _method(
             "bc_analytic_operator",
             "BC analytic operator",
-            None,
-            "blocked",
-            blockers=("missing_main_evaluation_method", "bc_operator_loader_not_implemented"),
+            "bc_analytic_operator",
+            "ready" if not bc_blockers else "blocked",
+            blockers=tuple(bc_blockers),
+            checkpoint=None if config.bc_checkpoint is None else str(config.bc_checkpoint),
         ),
         _method(
             "ppo_analytic_operator",
@@ -195,6 +205,8 @@ def _global_blockers(config: Module2EvaluationManifestConfig, methods: Sequence[
     blockers: list[str] = []
     if str(config.warm_start_decision) == "pending":
         blockers.append("f02_6_warm_start_decision_pending")
+    if any("missing_module2_bc_checkpoint" in method.get("blockers", ()) for method in methods):
+        blockers.append("missing_module2_bc_checkpoint")
     if any("missing_main_evaluation_method" in method.get("blockers", ()) for method in methods):
         blockers.append("missing_required_method_implementation")
     if not _realmap_queries_frozen():
@@ -213,14 +225,18 @@ def _manifest_status(config: Module2EvaluationManifestConfig, methods: Sequence[
 
 
 def _run_command(config: Module2EvaluationManifestConfig, methods: Sequence[dict[str, Any]]) -> dict[str, Any]:
+    bc = next(method for method in methods if method["method_id"] == "bc_analytic_operator")
     ppo = next(method for method in methods if method["method_id"] == "ppo_rs_funnel")
+    if bc["status"] != "ready":
+        return {"formal_main_evaluation": None, "blocked_reasons": list(bc["blockers"])}
     if ppo["status"] != "ready":
         return {"formal_main_evaluation": None, "blocked_reasons": list(ppo["blockers"])}
-    method_order = ["ha_no_analytic", "ha_single_rs", "ha_dang_multi_rs", "mlp", "ha_rl_rs_ppo"]
+    method_order = ["ha_no_analytic", "ha_single_rs", "ha_dang_multi_rs", "mlp", "bc_analytic_operator", "ha_rl_rs_ppo"]
     command = (
         "python -m forest_n3p.scripts.run_main_evaluation "
         "--output-dir 0_trials/module2_v1_evaluation/formal_run "
         f"--methods {','.join(method_order)} "
+        f"--module2-bc-checkpoint {config.bc_checkpoint} "
         f"--module2-rl-rs-checkpoint {config.rl_rs_checkpoint} "
         f"--queries-per-bucket {int(config.queries_per_bucket)} "
         f"--seed-count {int(config.seed_count)} "
