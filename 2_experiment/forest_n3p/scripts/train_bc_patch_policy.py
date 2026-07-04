@@ -448,7 +448,7 @@ def _closed_loop_metrics(
                     "collision": False,
                     "truncated": False,
                     "steps": 0,
-                    "failure_reason": f"runtime_error:{type(exc).__name__}",
+                    "failure_reason": _runtime_error_reason(exc),
                 }
             )
     episodes = max(1, int(counts["episodes"]))
@@ -479,6 +479,13 @@ def _observation_config_record(config: ObservationConfig) -> dict[str, Any]:
         "include_edt": bool(config.include_edt),
         "edt_clip_m": float(config.edt_clip_m),
     }
+
+
+def _runtime_error_reason(exc: Exception) -> str:
+    message = str(exc).replace("\n", " ").strip()
+    if len(message) > 200:
+        message = message[:197] + "..."
+    return f"runtime_error:{type(exc).__name__}:{message}" if message else f"runtime_error:{type(exc).__name__}"
 
 
 def _source_head() -> str:
