@@ -246,6 +246,45 @@ def _cross_artifact_issues(*, plan: dict[str, Any], formal_gate: dict[str, Any],
     return issues
 
 
+def _missing_artifacts_issues(
+    *,
+    plan: dict[str, Any],
+    missing_artifacts: dict[str, Any],
+    missing_artifacts_path: Path,
+) -> list[dict[str, Any]]:
+    if not Path(missing_artifacts_path).is_file():
+        return [
+            _issue(
+                "missing_artifacts_inventory_absent",
+                "Post-F02.6 plan audit requires the missing-artifacts inventory for final gate cross-check.",
+                observed=str(missing_artifacts_path),
+            )
+        ]
+    issues: list[dict[str, Any]] = []
+    if missing_artifacts.get("executes_commands") is not False:
+        issues.append(_issue("missing_artifacts_inventory_executes_commands", "Missing-artifacts inventory must be read-only."))
+    if missing_artifacts.get("runs_training") is not False:
+        issues.append(_issue("missing_artifacts_inventory_runs_training", "Missing-artifacts inventory must not run training."))
+    if missing_artifacts.get("runs_remote_preflight") is not False:
+        issues.append(_issue("missing_artifacts_inventory_runs_preflight", "Missing-artifacts inventory must not run remote preflight."))
+    if missing_artifacts.get("local_training_allowed") is not False:
+        issues.append(_issue("missing_artifacts_inventory_allows_local_training", "Missing-artifacts inventory must preserve local-training prohibition."))
+    if missing_artifacts.get("formal_claim_allowed") is not False:
+        issues.append(_issue("missing_artifacts_inventory_allows_claim", "Missing-artifacts inventory must not allow formal claims."))
+    if int(missing_artifacts.get("audit_issue_count") or 0) > 0:
+        issues.append(_issue("missing_artifacts_inventory_has_audit_issues", "Missing-artifacts inventory reports open audit issues."))
+    claim_stage = _stage_by_id(plan, "regenerate_claim_gate_artifacts")
+    if missing_artifacts.get("all_required_evidence_present") is not True and claim_stage.get("allowed_now") is True:
+        issues.append(
+            _issue(
+                "claim_gate_ready_with_missing_artifacts",
+                "Claim gate regeneration must not be ready while the missing-artifacts inventory is open.",
+                observed=missing_artifacts.get("missing_counts_by_category"),
+            )
+        )
+    return issues
+
+
 def _target_counts_by_gate(plan: dict[str, Any]) -> dict[str, int]:
     groups = plan.get("source_regeneration_targets_by_gate") if isinstance(plan.get("source_regeneration_targets_by_gate"), dict) else {}
     return {str(key): len(value) for key, value in sorted(groups.items()) if isinstance(value, list)}
@@ -272,6 +311,23 @@ def _current_blocking_summary(plan: dict[str, Any]) -> dict[str, Any]:
         "remote_preflight_allowed_now": summary.get("remote_preflight_allowed_now"),
         "ready_stage_ids": summary.get("ready_stage_ids", []),
         "blocked_stage_ids": summary.get("blocked_stage_ids", []),
+    }
+
+
+def _missing_artifacts_summary(path: Path, missing_artifacts: dict[str, Any]) -> dict[str, Any]:
+    counts = missing_artifacts.get("missing_counts_by_category")
+    return {
+        "path": str(path),
+        "exists": Path(path).is_file(),
+        "status": missing_artifacts.get("status"),
+        "executes_commands": missing_artifacts.get("executes_commands"),
+        "runs_training": missing_artifacts.get("runs_training"),
+        "runs_remote_preflight": missing_artifacts.get("runs_remote_preflight"),
+        "local_training_allowed": missing_artifacts.get("local_training_allowed"),
+        "formal_claim_allowed": missing_artifacts.get("formal_claim_allowed"),
+        "all_required_evidence_present": missing_artifacts.get("all_required_evidence_present"),
+        "audit_issue_count": missing_artifacts.get("audit_issue_count"),
+        "missing_counts_by_category": counts if isinstance(counts, dict) else {},
     }
 
 
@@ -331,7 +387,23 @@ def _markdown(manifest: dict[str, Any]) -> str:
     ]
     for key, value in manifest["current_blocking_summary"].items():
         lines.append(f"- {key}: `{value}`")
-    lines.extend(["", "## Audit Issues", ""])
+    lines.extend(
+        [
+            "",
+            "## Missing Artifacts Inventory",
+            "",
+            f"- path: `{manifest['missing_artifacts_summary']['path']}`",
+            f"- status: `{manifest['missing_artifacts_summary']['status']}`",
+            f"- runs_training: `{manifest['missing_artifacts_summary']['runs_training']}`",
+            f"- runs_remote_preflight: `{manifest['missing_artifacts_summary']['runs_remote_preflight']}`",
+            f"- all_required_evidence_present: `{manifest['missing_artifacts_summary']['all_required_evidence_present']}`",
+            f"- audit_issue_count: `{manifest['missing_artifacts_summary']['audit_issue_count']}`",
+            f"- missing_counts_by_category: `{manifest['missing_artifacts_summary']['missing_counts_by_category']}`",
+            "",
+            "## Audit Issues",
+            "",
+        ]
+    )
     if manifest["audit_issues"]:
         for issue in manifest["audit_issues"]:
             lines.append(f"- `{issue['issue_id']}`: {issue['message']}")
