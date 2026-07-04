@@ -4,6 +4,7 @@ from typing import Any
 
 import gymnasium as gym
 import torch
+from stable_baselines3.common.policies import MultiInputActorCriticPolicy
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 
 
@@ -16,6 +17,22 @@ class TanhLinearActionHead(torch.nn.Module):
 
     def forward(self, features: torch.Tensor) -> torch.Tensor:
         return torch.tanh(self.linear(features))
+
+
+class RlRsMultiInputPolicy(MultiInputActorCriticPolicy):
+    """SB3 MultiInput policy with an optional serializable tanh action head."""
+
+    def __init__(self, *args: Any, use_tanh_action_head: bool = False, **kwargs: Any) -> None:
+        self.use_tanh_action_head = bool(use_tanh_action_head)
+        super().__init__(*args, **kwargs)
+
+    def _build(self, lr_schedule: Any) -> None:
+        super()._build(lr_schedule)
+        if not bool(self.use_tanh_action_head):
+            return
+        old_action_net = self.action_net
+        self.action_net = TanhLinearActionHead(old_action_net.in_features, old_action_net.out_features).to(old_action_net.weight.device)
+        self.optimizer = self.optimizer_class(self.parameters(), lr=lr_schedule(1), **self.optimizer_kwargs)
 
 
 class RlRsObstacleSummaryExtractor(BaseFeaturesExtractor):
