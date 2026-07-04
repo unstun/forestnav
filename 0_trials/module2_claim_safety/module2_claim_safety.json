@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_claim_safety",
   "status": "blocked_formal_performance_claims",
-  "created_at_utc": "2026-07-04T12:58:53.279496+00:00",
-  "source_head": "adcef774f4f03a30ff53e59154adcedf2e366124",
+  "created_at_utc": "2026-07-04T13:04:46.018364+00:00",
+  "source_head": "b66f09b9bcf1c4a7dfeeedd63f04d023fb134807",
   "formal_performance_claim_allowed": false,
   "formal_performance_blockers": [
     "paper_tables_not_formal",
@@ -20,7 +20,8 @@
     "missing_remote_pullback_artifacts",
     "f02_6_formal_chain_pending",
     "f02_6_pending",
-    "formal_gate_closure_checklist_open"
+    "formal_gate_closure_checklist_open",
+    "formal_gate_status_report_blocked"
   ],
   "inputs": {
     "paper_tables": "0_trials/module2_paper_tables/module2_paper_tables.json",
@@ -31,6 +32,7 @@
     "method_algorithms": "0_trials/module2_method_algorithms/module2_method_algorithms.json",
     "system_diagram": "0_trials/module2_system_diagram/module2_system_diagram.json",
     "formal_gate_closure_checklist": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
+    "formal_gate_status_report": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
     "draft_text": null
   },
   "input_status": {
@@ -47,7 +49,10 @@
     "system_diagram_status": "code_anchored_drawio",
     "closure_checklist_status": "formal_gate_closure_blocked",
     "closure_checklist_open_item_count": 8,
-    "closure_checklist_input_safety_issue_count": 0
+    "closure_checklist_input_safety_issue_count": 0,
+    "status_report_status": "formal_gate_status_blocked",
+    "status_report_formal_claim_allowed_now": false,
+    "status_report_input_safety_issue_count": 0
   },
   "allowed_claims": [
     {
@@ -199,6 +204,7 @@
     "Method claims must say the learned policy is an analytic-expansion operator inside Hybrid A*, not a standalone global planner.",
     "Completeness/global-optimality/generalization claims are prohibited unless a future contract explicitly proves them.",
     "Formal PPO training/checkpoint production must run on gpu3070ti-relay or another explicitly approved remote GPU.",
-    "Formal gate closure checklist must be closed before any formal performance claim is allowed."
+    "Formal gate closure checklist must be closed before any formal performance claim is allowed.",
+    "Formal gate status report must be ready before any formal performance claim is allowed."
   ]
 }

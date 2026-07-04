@@ -20,6 +20,7 @@
 - f02_6_formal_chain_pending
 - f02_6_pending
 - formal_gate_closure_checklist_open
+- formal_gate_status_report_blocked
 
 ## Allowed Claims
 
@@ -53,3 +54,4 @@
 - Completeness/global-optimality/generalization claims are prohibited unless a future contract explicitly proves them.
 - Formal PPO training/checkpoint production must run on gpu3070ti-relay or another explicitly approved remote GPU.
 - Formal gate closure checklist must be closed before any formal performance claim is allowed.
+- Formal gate status report must be ready before any formal performance claim is allowed.
