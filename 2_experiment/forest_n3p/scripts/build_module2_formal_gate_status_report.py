@@ -94,6 +94,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     remote_execution_steps = _remote_execution_step_summary(remote_packet)
     closure_remote_stages = _closure_remote_stage_summary(closure_checklist)
     handoff_summary = _handoff_bundle_summary(handoff_bundle)
+    missing_artifacts_handoff_summary = _missing_artifacts_handoff_index_summary(missing_artifacts)
     formal_gate_execution_veto = _formal_gate_execution_veto_summary(formal_gate)
 
     input_safety_issues = _input_safety_issues(
@@ -169,6 +170,11 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "decision_decider": decision.get("decider"),
             "formal_gate_status": formal_gate.get("status"),
             "missing_artifacts_status": missing_artifacts.get("status"),
+            "missing_artifacts_handoff_index_status": missing_artifacts_handoff_summary["status"],
+            "missing_artifacts_handoff_next_action": missing_artifacts_handoff_summary["next_action_id"],
+            "missing_artifacts_handoff_open_requirement_count": missing_artifacts_handoff_summary["open_requirement_count"],
+            "missing_artifacts_handoff_remote_training_allowed_now": missing_artifacts_handoff_summary["remote_training_allowed_now"],
+            "missing_artifacts_handoff_formal_result_material_allowed_now": missing_artifacts_handoff_summary["formal_result_material_allowed_now"],
             "closure_checklist_status": closure_checklist.get("status"),
             "closure_open_item_count": closure_checklist.get("open_item_count"),
             "closure_remote_preflight_allowed_now": closure_remote_stages["approved_remote_preflight"]["allowed_now"],
@@ -206,6 +212,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "closure_remote_stage_summary": closure_remote_stages,
         "remote_execution_step_summary": remote_execution_steps,
         "formal_gate_handoff_summary": handoff_summary,
+        "missing_artifacts_handoff_index_summary": missing_artifacts_handoff_summary,
         "formal_gate_execution_veto_summary": formal_gate_execution_veto,
         "formal_gate_lanes": lanes,
         "next_blocked_lane": _next_blocked_lane(lanes),
