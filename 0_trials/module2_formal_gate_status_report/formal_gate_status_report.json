@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-04T22:33:32.261107+00:00",
-  "source_head": "41fcd481a3cfdf60ead1e3f5b5ef52d6bc7e2548+dirty",
+  "created_at_utc": "2026-07-04T23:11:20.686013+00:00",
+  "source_head": "348be3bfe6614d9a191faa086b19614b92445600+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -22,7 +22,8 @@
     "claim_safety": "0_trials/module2_claim_safety/module2_claim_safety.json",
     "paper_readiness": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
     "formal_gate_handoff_bundle": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
-    "formal_gate_remaining_deliverables": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json"
+    "formal_gate_remaining_deliverables": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
+    "formal_gate_proof_audit": "0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json"
   },
   "current_state": {
     "decision_status": "pending_human_decision",
@@ -78,6 +79,11 @@
     "remaining_deliverables_proof_plan_present": true,
     "remaining_deliverables_proof_plan_matrix_row_count": 10,
     "remaining_deliverables_proof_plan_command_count": 20,
+    "formal_gate_proof_audit_status": "formal_gate_proof_audit_blocked",
+    "formal_gate_proof_audit_command_count": 20,
+    "formal_gate_proof_audit_passed_count": 2,
+    "formal_gate_proof_audit_failed_count": 2,
+    "formal_gate_proof_audit_blocked_count": 16,
     "handoff_bundle_next_action": "record_f02_6_decision",
     "handoff_bundle_safety_issue_count": 0,
     "handoff_bundle_remote_training_allowed_now": false,
@@ -1493,6 +1499,254 @@
           "h02_formal_output_acceptance_exists_nonempty",
           "h02_formal_output_acceptance_status"
         ]
+      }
+    }
+  },
+  "formal_gate_proof_audit_summary": {
+    "present": true,
+    "status": "formal_gate_proof_audit_blocked",
+    "not_paper_result_material": true,
+    "executes_commands": false,
+    "runs_training": false,
+    "runs_remote_preflight": false,
+    "formal_claim_allowed": false,
+    "proof_command_plan_id": "module2_formal_gate_local_read_only_proof_commands",
+    "execution_boundary": "local_read_only_after_formal_remote_pullback",
+    "total_matrix_rows": 10,
+    "total_proof_command_count": 20,
+    "declared_total_proof_command_count": 20,
+    "passed_proof_command_count": 2,
+    "failed_proof_command_count": 2,
+    "blocked_proof_command_count": 16,
+    "category_status_counts": {
+      "training": {
+        "passed": 0,
+        "failed": 0,
+        "blocked_missing_artifact": 6
+      },
+      "evaluation": {
+        "passed": 0,
+        "failed": 0,
+        "blocked_missing_artifact": 4
+      },
+      "acceptance": {
+        "passed": 0,
+        "failed": 0,
+        "blocked_missing_artifact": 6
+      },
+      "formal_acceptance": {
+        "passed": 2,
+        "failed": 2,
+        "blocked_missing_artifact": 0
+      }
+    },
+    "blockers": [
+      "missing_formal_training_artifacts",
+      "missing_formal_evaluation_artifacts",
+      "missing_formal_acceptance_artifacts",
+      "failed_formal_h01_h02_acceptance_artifacts"
+    ],
+    "input_safety_issue_count": 0,
+    "results_by_id": {
+      "train_final_model_zip_exists_nonempty": {
+        "present": true,
+        "matrix_id": "training:train_final_model_zip",
+        "category": "training",
+        "artifact_id": "train_final_model_zip",
+        "status": "blocked_missing_artifact",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
+        "command_was_executed": false,
+        "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip"
+      },
+      "train_final_model_zip_valid_zip": {
+        "present": true,
+        "matrix_id": "training:train_final_model_zip",
+        "category": "training",
+        "artifact_id": "train_final_model_zip",
+        "status": "blocked_missing_artifact",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
+        "command_was_executed": false,
+        "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip"
+      },
+      "train_summary_json_exists_nonempty": {
+        "present": true,
+        "matrix_id": "training:train_summary_json",
+        "category": "training",
+        "artifact_id": "train_summary_json",
+        "status": "blocked_missing_artifact",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
+        "command_was_executed": false,
+        "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json"
+      },
+      "train_summary_json_formal_warm_start_metadata": {
+        "present": true,
+        "matrix_id": "training:train_summary_json",
+        "category": "training",
+        "artifact_id": "train_summary_json",
+        "status": "blocked_missing_artifact",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
+        "command_was_executed": false,
+        "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json"
+      },
+      "train_training_manifest_json_exists_nonempty": {
+        "present": true,
+        "matrix_id": "training:train_training_manifest_json",
+        "category": "training",
+        "artifact_id": "train_training_manifest_json",
+        "status": "blocked_missing_artifact",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json",
+        "command_was_executed": false,
+        "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json"
+      },
+      "train_training_manifest_json_provenance": {
+        "present": true,
+        "matrix_id": "training:train_training_manifest_json",
+        "category": "training",
+        "artifact_id": "train_training_manifest_json",
+        "status": "blocked_missing_artifact",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json",
+        "command_was_executed": false,
+        "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json"
+      },
+      "eval_gate3_eval_episodes_csv_exists_nonempty": {
+        "present": true,
+        "matrix_id": "evaluation:eval_gate3_eval_episodes_csv",
+        "category": "evaluation",
+        "artifact_id": "eval_gate3_eval_episodes_csv",
+        "status": "blocked_missing_artifact",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv",
+        "command_was_executed": false,
+        "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv"
+      },
+      "eval_gate3_eval_episodes_csv_schema": {
+        "present": true,
+        "matrix_id": "evaluation:eval_gate3_eval_episodes_csv",
+        "category": "evaluation",
+        "artifact_id": "eval_gate3_eval_episodes_csv",
+        "status": "blocked_missing_artifact",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv",
+        "command_was_executed": false,
+        "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv"
+      },
+      "eval_gate3_summary_json_exists_nonempty": {
+        "present": true,
+        "matrix_id": "evaluation:eval_gate3_summary_json",
+        "category": "evaluation",
+        "artifact_id": "eval_gate3_summary_json",
+        "status": "blocked_missing_artifact",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json",
+        "command_was_executed": false,
+        "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json"
+      },
+      "eval_gate3_summary_json_formal_scope": {
+        "present": true,
+        "matrix_id": "evaluation:eval_gate3_summary_json",
+        "category": "evaluation",
+        "artifact_id": "eval_gate3_summary_json",
+        "status": "blocked_missing_artifact",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json",
+        "command_was_executed": false,
+        "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json"
+      },
+      "gate3_trial_manifest_json_exists_nonempty": {
+        "present": true,
+        "matrix_id": "acceptance:gate3_trial_manifest_json",
+        "category": "acceptance",
+        "artifact_id": "gate3_trial_manifest_json",
+        "status": "blocked_missing_artifact",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json",
+        "command_was_executed": false,
+        "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json"
+      },
+      "gate3_trial_manifest_json_formal_warm_start_scope": {
+        "present": true,
+        "matrix_id": "acceptance:gate3_trial_manifest_json",
+        "category": "acceptance",
+        "artifact_id": "gate3_trial_manifest_json",
+        "status": "blocked_missing_artifact",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json",
+        "command_was_executed": false,
+        "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json"
+      },
+      "gate3_formal_audit_json_exists_nonempty": {
+        "present": true,
+        "matrix_id": "acceptance:gate3_formal_audit_json",
+        "category": "acceptance",
+        "artifact_id": "gate3_formal_audit_json",
+        "status": "blocked_missing_artifact",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json",
+        "command_was_executed": false,
+        "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json"
+      },
+      "gate3_formal_audit_json_accepts_formal_scope": {
+        "present": true,
+        "matrix_id": "acceptance:gate3_formal_audit_json",
+        "category": "acceptance",
+        "artifact_id": "gate3_formal_audit_json",
+        "status": "blocked_missing_artifact",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json",
+        "command_was_executed": false,
+        "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json"
+      },
+      "pulled_back_checkpoint_hash_record_exists_nonempty": {
+        "present": true,
+        "matrix_id": "acceptance:pulled_back_checkpoint_hash_record",
+        "category": "acceptance",
+        "artifact_id": "pulled_back_checkpoint_hash_record",
+        "status": "blocked_missing_artifact",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json",
+        "command_was_executed": false,
+        "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json"
+      },
+      "pulled_back_checkpoint_hash_record_matches_model": {
+        "present": true,
+        "matrix_id": "acceptance:pulled_back_checkpoint_hash_record",
+        "category": "acceptance",
+        "artifact_id": "pulled_back_checkpoint_hash_record",
+        "status": "blocked_missing_artifact",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json",
+        "command_was_executed": false,
+        "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json"
+      },
+      "h01_ready_for_formal_run_exists_nonempty": {
+        "present": true,
+        "matrix_id": "formal_acceptance:h01_ready_for_formal_run",
+        "category": "formal_acceptance",
+        "artifact_id": "h01_ready_for_formal_run",
+        "status": "passed",
+        "expected_path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
+        "command_was_executed": false,
+        "diagnostic": "h01_ready_for_formal_run_exists_nonempty passed"
+      },
+      "h01_ready_for_formal_run_status": {
+        "present": true,
+        "matrix_id": "formal_acceptance:h01_ready_for_formal_run",
+        "category": "formal_acceptance",
+        "artifact_id": "h01_ready_for_formal_run",
+        "status": "failed",
+        "expected_path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
+        "command_was_executed": false,
+        "diagnostic": "h01_ready_for_formal_run_status failed: ; expected H01 status is ready_for_formal_run or ready_for_formal_evaluation"
+      },
+      "h02_formal_output_acceptance_exists_nonempty": {
+        "present": true,
+        "matrix_id": "formal_acceptance:h02_formal_output_acceptance",
+        "category": "formal_acceptance",
+        "artifact_id": "h02_formal_output_acceptance",
+        "status": "passed",
+        "expected_path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+        "command_was_executed": false,
+        "diagnostic": "h02_formal_output_acceptance_exists_nonempty passed"
+      },
+      "h02_formal_output_acceptance_status": {
+        "present": true,
+        "matrix_id": "formal_acceptance:h02_formal_output_acceptance",
+        "category": "formal_acceptance",
+        "artifact_id": "h02_formal_output_acceptance",
+        "status": "failed",
+        "expected_path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+        "command_was_executed": false,
+        "diagnostic": "h02_formal_output_acceptance_status failed: ; expected formal_output_accepted=true and paper_result_input_allowed=true"
       }
     }
   },

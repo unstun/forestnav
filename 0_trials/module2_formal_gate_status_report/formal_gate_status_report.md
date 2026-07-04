@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `41fcd481a3cfdf60ead1e3f5b5ef52d6bc7e2548+dirty`
+- source_head: `348be3bfe6614d9a191faa086b19614b92445600+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -65,6 +65,11 @@ This file is a read-only formal-gate status report. It does not execute commands
 - remaining_deliverables_proof_plan_present: `True`
 - remaining_deliverables_proof_plan_matrix_row_count: `10`
 - remaining_deliverables_proof_plan_command_count: `20`
+- formal_gate_proof_audit_status: `formal_gate_proof_audit_blocked`
+- formal_gate_proof_audit_command_count: `20`
+- formal_gate_proof_audit_passed_count: `2`
+- formal_gate_proof_audit_failed_count: `2`
+- formal_gate_proof_audit_blocked_count: `16`
 - handoff_bundle_next_action: `record_f02_6_decision`
 - handoff_bundle_safety_issue_count: `0`
 - handoff_bundle_remote_training_allowed_now: `False`
@@ -225,6 +230,36 @@ This file is a read-only formal-gate status report. It does not execute commands
 - `acceptance:pulled_back_checkpoint_hash_record`: proof_command_count=`2`, command_ids=`pulled_back_checkpoint_hash_record_exists_nonempty, pulled_back_checkpoint_hash_record_matches_model`
 - `formal_acceptance:h01_ready_for_formal_run`: proof_command_count=`2`, command_ids=`h01_ready_for_formal_run_exists_nonempty, h01_ready_for_formal_run_status`
 - `formal_acceptance:h02_formal_output_acceptance`: proof_command_count=`2`, command_ids=`h02_formal_output_acceptance_exists_nonempty, h02_formal_output_acceptance_status`
+
+## Formal Gate Proof Audit
+
+- present: `True`
+- status: `formal_gate_proof_audit_blocked`
+- total_matrix_rows: `10`
+- total_proof_command_count: `20`
+- passed_proof_command_count: `2`
+- failed_proof_command_count: `2`
+- blocked_proof_command_count: `16`
+- `train_final_model_zip_exists_nonempty`: status=`blocked_missing_artifact`, matrix_id=`training:train_final_model_zip`
+- `train_final_model_zip_valid_zip`: status=`blocked_missing_artifact`, matrix_id=`training:train_final_model_zip`
+- `train_summary_json_exists_nonempty`: status=`blocked_missing_artifact`, matrix_id=`training:train_summary_json`
+- `train_summary_json_formal_warm_start_metadata`: status=`blocked_missing_artifact`, matrix_id=`training:train_summary_json`
+- `train_training_manifest_json_exists_nonempty`: status=`blocked_missing_artifact`, matrix_id=`training:train_training_manifest_json`
+- `train_training_manifest_json_provenance`: status=`blocked_missing_artifact`, matrix_id=`training:train_training_manifest_json`
+- `eval_gate3_eval_episodes_csv_exists_nonempty`: status=`blocked_missing_artifact`, matrix_id=`evaluation:eval_gate3_eval_episodes_csv`
+- `eval_gate3_eval_episodes_csv_schema`: status=`blocked_missing_artifact`, matrix_id=`evaluation:eval_gate3_eval_episodes_csv`
+- `eval_gate3_summary_json_exists_nonempty`: status=`blocked_missing_artifact`, matrix_id=`evaluation:eval_gate3_summary_json`
+- `eval_gate3_summary_json_formal_scope`: status=`blocked_missing_artifact`, matrix_id=`evaluation:eval_gate3_summary_json`
+- `gate3_trial_manifest_json_exists_nonempty`: status=`blocked_missing_artifact`, matrix_id=`acceptance:gate3_trial_manifest_json`
+- `gate3_trial_manifest_json_formal_warm_start_scope`: status=`blocked_missing_artifact`, matrix_id=`acceptance:gate3_trial_manifest_json`
+- `gate3_formal_audit_json_exists_nonempty`: status=`blocked_missing_artifact`, matrix_id=`acceptance:gate3_formal_audit_json`
+- `gate3_formal_audit_json_accepts_formal_scope`: status=`blocked_missing_artifact`, matrix_id=`acceptance:gate3_formal_audit_json`
+- `pulled_back_checkpoint_hash_record_exists_nonempty`: status=`blocked_missing_artifact`, matrix_id=`acceptance:pulled_back_checkpoint_hash_record`
+- `pulled_back_checkpoint_hash_record_matches_model`: status=`blocked_missing_artifact`, matrix_id=`acceptance:pulled_back_checkpoint_hash_record`
+- `h01_ready_for_formal_run_exists_nonempty`: status=`passed`, matrix_id=`formal_acceptance:h01_ready_for_formal_run`
+- `h01_ready_for_formal_run_status`: status=`failed`, matrix_id=`formal_acceptance:h01_ready_for_formal_run`
+- `h02_formal_output_acceptance_exists_nonempty`: status=`passed`, matrix_id=`formal_acceptance:h02_formal_output_acceptance`
+- `h02_formal_output_acceptance_status`: status=`failed`, matrix_id=`formal_acceptance:h02_formal_output_acceptance`
 
 ## Formal Gate Gap Audit Remaining Deliverables Gap Summary
 
