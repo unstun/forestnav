@@ -83,6 +83,7 @@ def build_packet(config: RemoteFormalExecutionPacketConfig) -> dict[str, Any]:
     status = _status(decision=decision, blockers=blockers, preflight=preflight)
     ready = status == "ready_for_gpu3070ti_remote_training"
 
+    commands["sync_to_remote"]["allowed_now"] = decision["status"] == "approved"
     commands["run_remote_preflight"]["allowed_now"] = decision["status"] == "approved"
     commands["run_remote_training"]["allowed_now"] = ready
     commands["run_remote_audit"]["allowed_now"] = ready
@@ -227,7 +228,7 @@ def _commands(
     return {
         "trial_dir": str(trial_dir),
         "sync_to_remote": {
-            "allowed_now": True,
+            "allowed_now": False,
             "runs_training": False,
             "command": _sync_to_remote_command(config),
             "note": "No --delete: preserve remote virtualenvs and prior artifacts unless manually reviewed.",
