@@ -343,6 +343,20 @@ def _source_freshness_payload():
     }
 
 
+def _missing_artifacts_payload(*, open_inventory, invalid=False):
+    return {
+        "status": "formal_gate_missing_artifacts_open" if open_inventory else "formal_gate_artifacts_complete",
+        "executes_commands": bool(invalid),
+        "runs_training": bool(invalid),
+        "runs_remote_preflight": bool(invalid),
+        "local_training_allowed": bool(invalid),
+        "formal_claim_allowed": bool(invalid),
+        "all_required_evidence_present": not open_inventory,
+        "audit_issue_count": 1 if invalid else 0,
+        "missing_counts_by_category": {"training": 3, "evaluation": 2, "acceptance": 3} if open_inventory else {},
+    }
+
+
 def _stage(plan, stage_id):
     for stage in plan["ordered_stages"]:
         if stage["stage_id"] == stage_id:

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_plan_audit",
   "status": "post_f02_6_plan_audit_passed",
-  "created_at_utc": "2026-07-04T11:19:32.672597+00:00",
-  "source_head": "a06b1beee50cc30a10de15f3be62a2b37376be25+dirty",
+  "created_at_utc": "2026-07-04T11:55:48.590201+00:00",
+  "source_head": "b12042557f2616b10c28011765876131aa2b3dab+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -13,9 +13,32 @@
   "inputs": {
     "post_f02_6_regeneration_plan": "0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json",
     "formal_gate_gap_audit": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
-    "source_freshness_audit": "0_trials/module2_source_freshness_audit/source_freshness_audit.json"
+    "source_freshness_audit": "0_trials/module2_source_freshness_audit/source_freshness_audit.json",
+    "formal_gate_missing_artifacts_audit": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json"
   },
   "plan_status": "blocked_until_f02_6_decision",
+  "missing_artifacts_summary": {
+    "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
+    "exists": true,
+    "status": "formal_gate_missing_artifacts_open",
+    "executes_commands": false,
+    "runs_training": false,
+    "runs_remote_preflight": false,
+    "local_training_allowed": false,
+    "formal_claim_allowed": false,
+    "all_required_evidence_present": false,
+    "audit_issue_count": 0,
+    "missing_counts_by_category": {
+      "decision": 1,
+      "regeneration": 8,
+      "gate_sequence": 7,
+      "training": 3,
+      "evaluation": 2,
+      "acceptance": 3,
+      "evaluation_acceptance": 2,
+      "claim_gate": 3
+    }
+  },
   "audit_issue_count": 0,
   "audit_issues": [],
   "required_stage_order": [
