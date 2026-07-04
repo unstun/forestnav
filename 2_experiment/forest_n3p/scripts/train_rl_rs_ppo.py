@@ -54,6 +54,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         device=str(args.device),
         verbose=int(args.verbose),
     )
+    warm_start = _apply_obstacle_summary_bc_warm_start(model, args.bc_checkpoint) if args.bc_checkpoint else _no_warm_start_record()
+    config["warm_start"] = warm_start
+    config["warm_start_status"] = warm_start["status"]
     try:
         model.learn(total_timesteps=int(args.total_timesteps), callback=callbacks)
         final_model_path = output_dir / "final_model.zip"
@@ -78,7 +81,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "manifest": str(manifest_path),
         "final_model": "final_model.zip",
         "checkpoint_count": int(len(checkpoints)),
-        "warm_start_status": "not_applied_f02_6_pending",
+        "warm_start_status": warm_start["status"],
         "config": config,
     }
     (output_dir / "summary.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -93,6 +96,7 @@ def _parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser.add_argument("--device", default="auto")
     parser.add_argument("--allow-duplicate-openmp", action="store_true")
     parser.add_argument("--smoke", action="store_true", help="Run a tiny open-connector training smoke.")
+    parser.add_argument("--bc-checkpoint", type=Path, default=None, help="Optional F02 obstacle-summary BC checkpoint for PPO actor initialization.")
     parser.add_argument("--curriculum-preset", choices=("open", "obstacle", "f03"), default="f03")
     parser.add_argument("--oracle-path", type=Path, default=Path("0_trials/module2_oracle_shape/oracle_connector_results.parquet"))
     parser.add_argument("--heldout-seed", type=int, default=20260704)
@@ -186,15 +190,100 @@ def _sampler(args: argparse.Namespace, *, cfg: CurriculumContextConfig):
 
 
 def _policy_kwargs(args: argparse.Namespace) -> dict[str, Any]:
+    import torch
     from forest_n3p.rl_rs.sb3_policy import RlRsObstacleSummaryExtractor
 
     return {
+        "activation_fn": torch.nn.ReLU,
         "features_extractor_class": RlRsObstacleSummaryExtractor,
         "net_arch": {
             "pi": list(_parse_ints(str(args.policy_net_arch))),
             "vf": list(_parse_ints(str(args.value_net_arch))),
         },
     }
+
+
+def _apply_obstacle_summary_bc_warm_start(model: Any, checkpoint_path: Path) -> dict[str, Any]:
+    import torch
+    from forest_n3p.rl_rs.sb3_policy import TanhLinearActionHead
+
+    path = Path(checkpoint_path)
+    checkpoint = torch.load(path, map_location="cpu", weights_only=False)
+    _validate_bc_checkpoint(checkpoint, path)
+    state_dict = checkpoint["state_dict"]
+    hidden_dims = tuple(int(value) for value in checkpoint["hidden_dims"])
+    policy_layers = [module for module in model.policy.mlp_extractor.policy_net if isinstance(module, torch.nn.Linear)]
+    if len(policy_layers) != len(hidden_dims):
+        raise ValueError(f"BC hidden_dims {hidden_dims} do not match PPO policy_net {len(policy_layers)} linear layers")
+    for idx, (layer, expected_out) in enumerate(zip(policy_layers, hidden_dims, strict=True)):
+        key = f"net.{2 * idx}"
+        weight = state_dict[f"{key}.weight"]
+        bias = state_dict[f"{key}.bias"]
+        if tuple(layer.weight.shape) != tuple(weight.shape) or tuple(layer.bias.shape) != tuple(bias.shape):
+            raise ValueError(f"BC layer {key} shape does not match PPO policy layer {idx}")
+        layer.weight.data.copy_(weight.to(device=layer.weight.device, dtype=layer.weight.dtype))
+        layer.bias.data.copy_(bias.to(device=layer.bias.device, dtype=layer.bias.dtype))
+
+    old_action_net = model.policy.action_net
+    action_head = TanhLinearActionHead(old_action_net.in_features, old_action_net.out_features).to(old_action_net.weight.device)
+    final_weight = state_dict["net.6.weight"]
+    final_bias = state_dict["net.6.bias"]
+    if tuple(action_head.linear.weight.shape) != tuple(final_weight.shape) or tuple(action_head.linear.bias.shape) != tuple(final_bias.shape):
+        raise ValueError("BC final action layer shape does not match PPO action head")
+    action_head.linear.weight.data.copy_(final_weight.to(device=action_head.linear.weight.device, dtype=action_head.linear.weight.dtype))
+    action_head.linear.bias.data.copy_(final_bias.to(device=action_head.linear.bias.device, dtype=action_head.linear.bias.dtype))
+    model.policy.action_net = action_head
+    _set_feature_normalization(model.policy, checkpoint["feature_mean"], checkpoint["feature_std"])
+    _rebuild_policy_optimizer(model.policy)
+    return {
+        "status": "applied_obstacle_summary_bc",
+        "checkpoint": str(path),
+        "checkpoint_sha256": file_sha256(path),
+        "feature_mode": str(checkpoint["feature_mode"]),
+        "model_type": str(checkpoint["model_type"]),
+        "hidden_dims": list(hidden_dims),
+        "max_steer": float(checkpoint["max_steer"]),
+        "action_head": "TanhLinearActionHead",
+    }
+
+
+def _validate_bc_checkpoint(checkpoint: dict[str, Any], path: Path) -> None:
+    required = {"model_type", "state_dict", "input_dim", "hidden_dims", "max_steer", "feature_mode", "feature_mean", "feature_std"}
+    missing = sorted(required.difference(checkpoint))
+    if missing:
+        raise ValueError(f"BC checkpoint {path} missing keys: {missing}")
+    if str(checkpoint["feature_mode"]) != "obstacle_summary":
+        raise ValueError("Only obstacle_summary BC checkpoints are supported for PPO warm-start.")
+    if int(checkpoint["input_dim"]) != 29:
+        raise ValueError("Obstacle-summary PPO warm-start requires 29 input features.")
+
+
+def _set_feature_normalization(policy: Any, feature_mean: Sequence[float], feature_std: Sequence[float]) -> None:
+    import torch
+
+    for attr in ("features_extractor", "pi_features_extractor", "vf_features_extractor"):
+        extractor = getattr(policy, attr, None)
+        if extractor is None or not hasattr(extractor, "_feature_mean") or not hasattr(extractor, "_feature_std"):
+            continue
+        mean = torch.as_tensor(feature_mean, dtype=extractor._feature_mean.dtype, device=extractor._feature_mean.device).reshape(-1)
+        std = torch.as_tensor(feature_std, dtype=extractor._feature_std.dtype, device=extractor._feature_std.device).reshape(-1).clamp_min(1e-6)
+        if tuple(mean.shape) != tuple(extractor._feature_mean.shape) or tuple(std.shape) != tuple(extractor._feature_std.shape):
+            raise ValueError("BC feature normalization shape does not match PPO feature extractor")
+        extractor._feature_mean.data.copy_(mean)
+        extractor._feature_std.data.copy_(std)
+        extractor._has_normalization = True
+
+
+def _rebuild_policy_optimizer(policy: Any) -> None:
+    policy.optimizer = policy.optimizer_class(
+        policy.parameters(),
+        lr=policy.lr_schedule(1),
+        **policy.optimizer_kwargs,
+    )
+
+
+def _no_warm_start_record() -> dict[str, Any]:
+    return {"status": "not_applied_f02_6_pending"}
 
 
 def _callbacks(*, args: argparse.Namespace, output_dir: Path, n_envs: int, CallbackList: Any, CheckpointCallback: Any):
@@ -246,6 +335,7 @@ def _config_record(*, args: argparse.Namespace, raw_argv: Sequence[str]) -> dict
         "policy": "MultiInputPolicy",
         "features_extractor": "RlRsObstacleSummaryExtractor",
         "warm_start_status": "not_applied_f02_6_pending",
+        "bc_checkpoint": None if args.bc_checkpoint is None else str(args.bc_checkpoint),
         "curriculum_preset": str(args.curriculum_preset),
         "oracle_path": str(args.oracle_path),
         "heldout_seed": int(args.heldout_seed),
