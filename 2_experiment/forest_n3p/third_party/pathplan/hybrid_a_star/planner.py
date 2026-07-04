@@ -727,8 +727,8 @@ class HybridAStarPlanner:
                     analytic_attempts += 1
                     analytic = self._try_analytic_expansion(current.state, goal)
                     telemetry = getattr(self, "_last_analytic_telemetry", None)
-                    if isinstance(telemetry, AnalyticExpansionTelemetry):
-                        record = telemetry.to_record()
+                    record = self._analytic_telemetry_record(telemetry)
+                    if record is not None:
                         record.update(
                             {
                                 "attempt_index": int(analytic_attempts - 1),
