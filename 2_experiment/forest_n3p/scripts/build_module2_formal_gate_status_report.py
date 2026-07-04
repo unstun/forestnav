@@ -592,6 +592,13 @@ def _decision_record_safety_issues(decision_record: dict[str, Any]) -> list[dict
     issues: list[dict[str, str]] = []
     if decision_record.get("status") not in {"pending_human_decision", "approved", "rejected"}:
         issues.append(_issue("decision_record_unknown_status", "F02.6 decision record status must be pending_human_decision, approved, or rejected."))
+    if decision_record.get("status") == "pending_human_decision" and decision_record.get("decision_note") not in {None, ""}:
+        issues.append(_issue("decision_record_pending_has_decision_note", "Pending F02.6 decision record must not contain a decision note."))
+    if decision_record.get("status") in {"approved", "rejected"}:
+        if decision_record.get("decider") != "Dr Sun":
+            issues.append(_issue("decision_record_closed_decider_not_dr_sun", "Closed F02.6 decision record must name Dr Sun as decider."))
+        if not str(decision_record.get("decision_note") or "").strip():
+            issues.append(_issue("decision_record_closed_missing_decision_note", "Closed F02.6 decision record must include a non-empty decision note."))
     if decision_record.get("remote_preflight_allowed_now") is not False:
         issues.append(_issue("decision_record_allows_remote_preflight_now", "F02.6 decision record alone must not allow remote preflight now."))
     if decision_record.get("remote_training_allowed_now") is not False:
