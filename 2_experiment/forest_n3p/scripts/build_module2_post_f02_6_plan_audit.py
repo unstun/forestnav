@@ -650,6 +650,37 @@ def _status_report_remote_steps(status_report: dict[str, Any]) -> dict[str, dict
     return out
 
 
+def _status_report_execution_veto(status_report: dict[str, Any]) -> dict[str, Any]:
+    raw = status_report.get("formal_gate_execution_veto_summary")
+    veto = raw if isinstance(raw, dict) else {}
+    row_consensus = veto.get("row_consensus") if isinstance(veto.get("row_consensus"), dict) else {}
+    rows = veto.get("rows") if isinstance(veto.get("rows"), dict) else {}
+    normalized_rows: dict[str, dict[str, Any]] = {}
+    for row_id, row in rows.items():
+        if not isinstance(row, dict):
+            continue
+        normalized_rows[str(row_id)] = {
+            "consistent": row.get("consistent") if isinstance(row.get("consistent"), bool) else None,
+            "consensus_allowed_now": row.get("consensus_allowed_now") if isinstance(row.get("consensus_allowed_now"), bool) else None,
+            "allowed_now_by_source": row.get("allowed_now_by_source") if isinstance(row.get("allowed_now_by_source"), dict) else {},
+        }
+    normalized_consensus = {
+        str(row_id): value if isinstance(value, bool) else None
+        for row_id, value in row_consensus.items()
+    }
+    for row_id, row in normalized_rows.items():
+        normalized_consensus.setdefault(row_id, row["consensus_allowed_now"])
+    return {
+        "present": bool(veto) and veto.get("present") is not False,
+        "matrix_version": veto.get("matrix_version"),
+        "all_rows_consistent": veto.get("all_rows_consistent") if isinstance(veto.get("all_rows_consistent"), bool) else None,
+        "mismatch_rows": _strings(veto.get("mismatch_rows")),
+        "row_count": int(veto.get("row_count") or len(normalized_rows)),
+        "row_consensus": normalized_consensus,
+        "rows": normalized_rows,
+    }
+
+
 def _stage_by_id(plan: dict[str, Any], stage_id: str) -> dict[str, Any]:
     for stage in _stages(plan):
         if stage.get("stage_id") == stage_id:
