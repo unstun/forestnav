@@ -22,6 +22,8 @@ def test_missing_artifacts_audit_blocks_pending_formal_chain(tmp_path):
     assert manifest["formal_claim_allowed"] is False
     assert manifest["all_required_evidence_present"] is False
     assert manifest["current_gate_summary"]["f02_6_decision_record_status"] == "pending_human_decision"
+    assert manifest["current_gate_summary"]["f02_6_transition_gate_status"] == "f02_6_transition_gate_audit_passed"
+    assert manifest["current_gate_summary"]["f02_6_transition_gate_audit_issue_count"] == 0
     assert manifest["current_gate_summary"]["ready_to_run_remote_training"] is False
     assert manifest["missing_counts_by_category"]["training"] == 3
     assert manifest["missing_counts_by_category"]["evaluation"] == 2
@@ -53,6 +55,7 @@ def test_missing_artifacts_audit_blocks_pending_formal_chain(tmp_path):
     groups = {group["group_id"]: group for group in manifest["missing_evidence_groups"]}
     assert groups["f02_6_decision_record"]["complete"] is False
     assert "f02_6_decision_not_approved" in groups["f02_6_decision_record"]["blocked_by"]
+    assert groups["f02_6_transition_gate_audit"]["complete"] is True
     assert groups["remote_training_outputs"]["blocked_by"] == [
         "train_final_model_zip",
         "train_summary_json",
@@ -73,6 +76,7 @@ def test_missing_artifacts_audit_accepts_synthetic_complete_formal_chain(tmp_pat
     assert all(count == 0 for count in manifest["missing_counts_by_category"].values())
     assert manifest["formal_gate_requirement_counts"] == {"satisfied": 4}
     assert all(item["status"] == "satisfied" for item in manifest["formal_gate_requirements"])
+    assert manifest["current_gate_summary"]["f02_6_transition_gate_status"] == "f02_6_transition_gate_audit_passed"
     assert manifest["current_gate_summary"]["h01_manifest_status"] == "ready_for_formal_run"
     assert manifest["current_gate_summary"]["h02_acceptance_status"] == "formal_output_accepted"
 
@@ -86,6 +90,9 @@ def test_missing_artifacts_audit_catches_dangerous_gate_drift(tmp_path):
     issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
     assert manifest["status"] == "formal_gate_missing_artifacts_open"
     assert "decision_allows_local_training" in issue_ids
+    assert "transition_gate_runs_training" in issue_ids
+    assert "transition_gate_audit_not_passed" in issue_ids
+    assert "transition_gate_audit_issues_open" in issue_ids
     assert "remote_packet_allows_formal_claim" in issue_ids
     assert "pending_decision_remote_packet_ready" in issue_ids
     assert "h02_accepts_missing_pullback_artifacts" in issue_ids
@@ -109,6 +116,8 @@ def test_missing_artifacts_audit_cli_writes_json_and_markdown(tmp_path):
             str(config.decision_record_path),
             "--decision-gate-audit",
             str(config.decision_gate_audit_path),
+            "--transition-gate-audit",
+            str(config.transition_gate_audit_path),
             "--post-plan",
             str(config.post_plan_path),
             "--source-freshness-audit",
@@ -130,6 +139,7 @@ def test_missing_artifacts_audit_cli_writes_json_and_markdown(tmp_path):
     assert manifest["status"] == "formal_gate_missing_artifacts_open"
     assert "Module2 Formal Gate Missing Artifacts Audit" in markdown
     assert "Formal Gate Requirements" in markdown
+    assert "f02_6_transition_gate_status" in markdown
     assert "training_remote_ppo_checkpoint" in markdown
     assert "invalid_substitutes" in markdown
     assert "remote_training_outputs" in markdown
@@ -150,6 +160,7 @@ def _config(tmp_path, *, complete, drift=False):
         output_dir=tmp_path,
         decision_record_path=_json(tmp_path, "decision_record.json", _decision_record(complete=complete, drift=drift)),
         decision_gate_audit_path=_json(tmp_path, "decision_gate_audit.json", _decision_gate(complete=complete)),
+        transition_gate_audit_path=_json(tmp_path, "transition_gate_audit.json", _transition_gate(drift=drift)),
         post_plan_path=_json(tmp_path, "post_plan.json", _post_plan(complete=complete)),
         source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness(complete=complete)),
         remote_packet_path=_json(tmp_path, "remote_packet.json", _remote_packet(artifacts=artifacts, complete=complete, drift=drift)),
@@ -189,6 +200,23 @@ def _decision_gate(*, complete):
         "local_training_allowed": False,
         "formal_claim_allowed": False,
     }
+
+
+def _transition_gate(*, drift=False):
+    payload = {
+        "status": "f02_6_transition_gate_audit_passed",
+        "audit_issue_count": 0,
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+    }
+    if drift:
+        payload["status"] = "f02_6_transition_gate_audit_failed"
+        payload["audit_issue_count"] = 1
+        payload["runs_training"] = True
+    return payload
 
 
 def _post_plan(*, complete):

@@ -2,18 +2,20 @@
   "schema_version": 1,
   "artifact_name": "module2_source_freshness_audit",
   "status": "source_freshness_risks_recorded_gate_still_blocked",
-  "created_at_utc": "2026-07-04T16:18:05.611292+00:00",
-  "source_head": "4e882c09d8ede868504f3dbf63a31a1125841170+dirty",
+  "created_at_utc": "2026-07-04T16:32:13.351196+00:00",
+  "source_head": "6448a955286c0d56b8d8744c9885fa12f6f71120+dirty",
   "not_paper_result_material": true,
   "runs_training": false,
   "runs_remote_preflight": false,
   "local_training_allowed": false,
   "formal_claim_allowed": false,
-  "current_head": "4e882c09d8ede868504f3dbf63a31a1125841170",
+  "current_head": "6448a955286c0d56b8d8744c9885fa12f6f71120",
   "artifact_count": 16,
   "risk_counts": {
-    "historical_dirty": 10,
-    "historical_clean": 6
+    "historical_dirty": 7,
+    "historical_clean": 2,
+    "current_dirty": 6,
+    "current_clean": 1
   },
   "regeneration_required_before_remote_formal_execution": true,
   "artifact_records": [
@@ -53,8 +55,8 @@
       "path": "0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json",
       "exists": true,
       "status": "f02_6_transition_gate_audit_passed",
-      "source_head": "f20c00489a02112d5f906721428e6b8d163dfb27+dirty",
-      "source_commit": "f20c00489a02112d5f906721428e6b8d163dfb27",
+      "source_head": "4e882c09d8ede868504f3dbf63a31a1125841170+dirty",
+      "source_commit": "4e882c09d8ede868504f3dbf63a31a1125841170",
       "source_head_dirty": true,
       "source_commit_exists": true,
       "matches_current_head": false,
@@ -143,12 +145,12 @@
       "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
       "exists": true,
       "status": "blocked_formal_gate_gaps_open",
-      "source_head": "02e0180d29c0862cd69a90099a804e2d8ac817d8",
-      "source_commit": "02e0180d29c0862cd69a90099a804e2d8ac817d8",
-      "source_head_dirty": false,
+      "source_head": "6448a955286c0d56b8d8744c9885fa12f6f71120+dirty",
+      "source_commit": "6448a955286c0d56b8d8744c9885fa12f6f71120",
+      "source_head_dirty": true,
       "source_commit_exists": true,
-      "matches_current_head": false,
-      "freshness_state": "historical_clean",
+      "matches_current_head": true,
+      "freshness_state": "current_dirty",
       "required_before": "approved_remote_preflight",
       "regenerate_before_formal_execution": true
     },
@@ -158,12 +160,12 @@
       "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
       "exists": true,
       "status": "post_f02_6_plan_audit_passed",
-      "source_head": "4d059189217e2b83dcd16831c9e84d3d029124ed",
-      "source_commit": "4d059189217e2b83dcd16831c9e84d3d029124ed",
-      "source_head_dirty": false,
+      "source_head": "6448a955286c0d56b8d8744c9885fa12f6f71120+dirty",
+      "source_commit": "6448a955286c0d56b8d8744c9885fa12f6f71120",
+      "source_head_dirty": true,
       "source_commit_exists": true,
-      "matches_current_head": false,
-      "freshness_state": "historical_clean",
+      "matches_current_head": true,
+      "freshness_state": "current_dirty",
       "required_before": "approved_remote_preflight",
       "regenerate_before_formal_execution": true
     },
@@ -173,12 +175,12 @@
       "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
       "exists": true,
       "status": "remote_packet_safety_audit_passed",
-      "source_head": "4d059189217e2b83dcd16831c9e84d3d029124ed+dirty",
-      "source_commit": "4d059189217e2b83dcd16831c9e84d3d029124ed",
+      "source_head": "6448a955286c0d56b8d8744c9885fa12f6f71120+dirty",
+      "source_commit": "6448a955286c0d56b8d8744c9885fa12f6f71120",
       "source_head_dirty": true,
       "source_commit_exists": true,
-      "matches_current_head": false,
-      "freshness_state": "historical_dirty",
+      "matches_current_head": true,
+      "freshness_state": "current_dirty",
       "required_before": "approved_remote_preflight",
       "regenerate_before_formal_execution": true
     },
@@ -188,12 +190,12 @@
       "path": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
       "exists": true,
       "status": "formal_gate_closure_blocked",
-      "source_head": "01c57e4da7473cff42e2aafbd62431772eae0bb6+dirty",
-      "source_commit": "01c57e4da7473cff42e2aafbd62431772eae0bb6",
+      "source_head": "6448a955286c0d56b8d8744c9885fa12f6f71120+dirty",
+      "source_commit": "6448a955286c0d56b8d8744c9885fa12f6f71120",
       "source_head_dirty": true,
       "source_commit_exists": true,
-      "matches_current_head": false,
-      "freshness_state": "historical_dirty",
+      "matches_current_head": true,
+      "freshness_state": "current_dirty",
       "required_before": "approved_remote_preflight",
       "regenerate_before_formal_execution": true
     },
@@ -218,12 +220,12 @@
       "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
       "exists": true,
       "status": "formal_gate_missing_artifacts_open",
-      "source_head": "5c4bf4a43c55f74b14f893e8f64dec84eb9d66ad+dirty",
-      "source_commit": "5c4bf4a43c55f74b14f893e8f64dec84eb9d66ad",
+      "source_head": "6448a955286c0d56b8d8744c9885fa12f6f71120+dirty",
+      "source_commit": "6448a955286c0d56b8d8744c9885fa12f6f71120",
       "source_head_dirty": true,
       "source_commit_exists": true,
-      "matches_current_head": false,
-      "freshness_state": "historical_dirty",
+      "matches_current_head": true,
+      "freshness_state": "current_dirty",
       "required_before": "formal_claim_gate",
       "regenerate_before_formal_execution": true
     },
@@ -233,12 +235,12 @@
       "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
       "exists": true,
       "status": "formal_gate_status_blocked",
-      "source_head": "58793d6f6cb5ec699e8102842d9836d121b57a4f",
-      "source_commit": "58793d6f6cb5ec699e8102842d9836d121b57a4f",
-      "source_head_dirty": false,
+      "source_head": "6448a955286c0d56b8d8744c9885fa12f6f71120+dirty",
+      "source_commit": "6448a955286c0d56b8d8744c9885fa12f6f71120",
+      "source_head_dirty": true,
       "source_commit_exists": true,
-      "matches_current_head": false,
-      "freshness_state": "historical_clean",
+      "matches_current_head": true,
+      "freshness_state": "current_dirty",
       "required_before": "formal_claim_gate",
       "regenerate_before_formal_execution": true
     },
@@ -248,14 +250,14 @@
       "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
       "exists": true,
       "status": "blocked_until_f02_6_decision",
-      "source_head": "8ad4e7051d08a57c811288a85742c2aedba04fc8",
-      "source_commit": "8ad4e7051d08a57c811288a85742c2aedba04fc8",
+      "source_head": "6448a955286c0d56b8d8744c9885fa12f6f71120",
+      "source_commit": "6448a955286c0d56b8d8744c9885fa12f6f71120",
       "source_head_dirty": false,
       "source_commit_exists": true,
-      "matches_current_head": false,
-      "freshness_state": "historical_clean",
+      "matches_current_head": true,
+      "freshness_state": "current_clean",
       "required_before": "approved_remote_preflight",
-      "regenerate_before_formal_execution": true
+      "regenerate_before_formal_execution": false
     }
   ],
   "ordered_regeneration_targets": [
@@ -280,19 +282,13 @@
     {
       "artifact_id": "formal_gate_closure_checklist",
       "path": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
-      "freshness_state": "historical_dirty",
+      "freshness_state": "current_dirty",
       "required_before": "approved_remote_preflight"
     },
     {
       "artifact_id": "formal_gate_gap_audit",
       "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
-      "freshness_state": "historical_clean",
-      "required_before": "approved_remote_preflight"
-    },
-    {
-      "artifact_id": "formal_gate_handoff_bundle",
-      "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
-      "freshness_state": "historical_clean",
+      "freshness_state": "current_dirty",
       "required_before": "approved_remote_preflight"
     },
     {
@@ -304,7 +300,7 @@
     {
       "artifact_id": "post_f02_6_plan_audit",
       "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
-      "freshness_state": "historical_clean",
+      "freshness_state": "current_dirty",
       "required_before": "approved_remote_preflight"
     },
     {
@@ -316,7 +312,7 @@
     {
       "artifact_id": "remote_packet_safety_audit",
       "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
-      "freshness_state": "historical_dirty",
+      "freshness_state": "current_dirty",
       "required_before": "approved_remote_preflight"
     },
     {
@@ -340,13 +336,13 @@
     {
       "artifact_id": "formal_gate_missing_artifacts",
       "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
-      "freshness_state": "historical_dirty",
+      "freshness_state": "current_dirty",
       "required_before": "formal_claim_gate"
     },
     {
       "artifact_id": "formal_gate_status_report",
       "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
-      "freshness_state": "historical_clean",
+      "freshness_state": "current_dirty",
       "required_before": "formal_claim_gate"
     },
     {

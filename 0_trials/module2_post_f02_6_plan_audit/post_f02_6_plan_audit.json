@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_plan_audit",
-  "status": "post_f02_6_plan_audit_passed",
-  "created_at_utc": "2026-07-04T16:21:57.246854+00:00",
-  "source_head": "faa1cee89fa1d27f026c21cc506f1e276c2cd0b1+dirty",
+  "status": "post_f02_6_plan_audit_failed",
+  "created_at_utc": "2026-07-04T16:32:43.610588+00:00",
+  "source_head": "6448a955286c0d56b8d8744c9885fa12f6f71120+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -32,7 +32,8 @@
     "audit_issue_count": 0,
     "missing_counts_by_category": {
       "decision": 1,
-      "regeneration": 14,
+      "decision_gate": 0,
+      "regeneration": 15,
       "gate_sequence": 7,
       "training": 3,
       "evaluation": 2,
@@ -224,8 +225,28 @@
       }
     }
   },
-  "audit_issue_count": 0,
-  "audit_issues": [],
+  "audit_issue_count": 2,
+  "audit_issues": [
+    {
+      "issue_id": "handoff_bundle_missing_from_plan_preflight_targets",
+      "message": "Post-F02.6 plan must list formal_gate_handoff_bundle under approved_remote_preflight source-regeneration targets.",
+      "observed": [
+        "f02_6_decision_gate_audit",
+        "f02_6_decision_record",
+        "f02_6_transition_gate_audit",
+        "formal_gate_closure_checklist",
+        "formal_gate_gap_audit",
+        "gpu3070ti_readiness_refresh",
+        "post_f02_6_plan_audit",
+        "remote_formal_execution_packet",
+        "remote_packet_safety_audit"
+      ]
+    },
+    {
+      "issue_id": "handoff_bundle_missing_regeneration_command",
+      "message": "Post-F02.6 regeneration stage must include build_module2_formal_gate_handoff_bundle."
+    }
+  ],
   "required_stage_order": [
     "f02_6_decision_record",
     "regenerate_preflight_gate_artifacts",
