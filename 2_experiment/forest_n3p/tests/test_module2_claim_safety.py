@@ -390,3 +390,24 @@ def _closure_checklist_payload(*, open_checklist, invalid=False):
         "open_item_count": 8 if open_checklist else 0,
         "input_safety_issue_count": 1 if invalid else 0,
     }
+
+
+def _status_report_payload(*, ready, invalid=False):
+    return {
+        "status": "formal_gate_status_ready_for_claim_audit" if ready else "formal_gate_status_blocked",
+        "executes_commands": bool(invalid),
+        "runs_training": bool(invalid),
+        "runs_remote_preflight": bool(invalid),
+        "local_training_allowed": bool(invalid),
+        "formal_claim_allowed": bool(invalid),
+        "input_safety_issue_count": 1 if invalid else 0,
+        "permissions_now": {
+            "local_training_allowed_now": bool(invalid),
+            "remote_preflight_allowed_now": False,
+            "remote_training_allowed_now": False,
+            "formal_h01_evaluation_allowed_now": bool(ready),
+            "formal_h02_acceptance_allowed_now": bool(ready),
+            "formal_claim_allowed_now": bool(ready),
+        },
+        "next_blocked_lane": None if ready else {"lane_id": "decision"},
+    }
