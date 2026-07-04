@@ -211,11 +211,13 @@ def _ordered_stages(
             blocked_by=["missing_remote_audit_pullback"] + (["source_fresh_h01_h02_targets_open"] if h01_h02_targets else []),
             evidence_paths=[str(item.get("path")) for item in h01_h02_targets]
             + ["0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"],
-            command_templates=[
+            command_templates=_unique(
+                [
                 "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_evaluation_manifest --module2-rl-rs-checkpoint <pulled-back-final_model.zip>",
                 "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_h02_formal_acceptance",
-            ]
-            + _regeneration_commands(h01_h02_targets),
+                ]
+                + _regeneration_commands(h01_h02_targets)
+            ),
         ),
         _stage(
             "regenerate_claim_gate_artifacts",
@@ -224,11 +226,13 @@ def _ordered_stages(
             allowed_now=False,
             blocked_by=["h02_formal_acceptance_not_ready"] + (["source_fresh_claim_targets_open"] if claim_targets else []),
             evidence_paths=[str(item.get("path")) for item in claim_targets],
-            command_templates=[
+            command_templates=_unique(
+                [
                 "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety",
                 "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_paper_readiness",
-            ]
-            + _regeneration_commands(claim_targets),
+                ]
+                + _regeneration_commands(claim_targets)
+            ),
         ),
     ]
     formal_blockers = _formal_gate_blockers(formal_gate)
@@ -482,6 +486,13 @@ def _markdown(manifest: dict[str, Any]) -> str:
             lines.append(f"  - blocked_by: `{', '.join(stage['blocked_by'])}`")
         if stage["evidence_paths"]:
             lines.append(f"  - evidence: `{'; '.join(stage['evidence_paths'])}`")
+    lines.extend(["", "## Source Regeneration Command Index", ""])
+    for entry in manifest["source_regeneration_command_index"]:
+        lines.append(
+            f"- `{entry['artifact_id']}` -> `{entry['stage_id']}` "
+            f"kind=`{entry['command_kind']}`, required_before=`{entry['required_before']}`"
+        )
+        lines.append(f"  - command: `{entry['command_template']}`")
     lines.extend(["", "## Claim Boundaries", ""])
     lines.extend(f"- {item}" for item in manifest["claim_boundaries"])
     return "\n".join(lines) + "\n"
