@@ -786,13 +786,18 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - preflight: 新增 `build_module2_h02_smoke_preflight.py`, 产出 `0_trials/module2_h02_local_smoke/h02_local_smoke_preflight.json` 和 `.md`; status=`blocked_full_smoke_missing_required_methods`。
   - full-smoke blockers: `ppo_analytic_operator` 和 `ppo_rs_funnel` 均缺 `missing_module2_rl_rs_checkpoint`, 且 F02.6 decision packet 仍 pending。
   - available subset smoke: 已本地跑 `ha_no_analytic,ha_single_rs,ha_dang_multi_rs,mlp,bc_analytic_operator` x 3 queries, 产出 `0_trials/module2_h02_local_smoke/h02_1_available_subset/`; record_count=15, query_count=3, status=`candidate_or_smoke`, formal_acceptance=false, collision_violation_total=0, method_exception_total=0。
+  - 统计输出更新: available subset summary 现在包含 `bc_analytic_operator` vs `ha_dang_multi_rs` 的 paired time/expansions tests, 以及 success/failure/timeout bootstrap CI slots; 这只是 runner/stat output smoke, 不是性能 claim。
   - 边界: 这不是 all-method H02.1 完成, 不能填补 PPO 缺 checkpoint, 不能作为 formal 结果; full smoke 仍等待 F02.6 决策和远端 PPO checkpoint。
   - 记录: `.pipeline/experiments/20260704_module2_h02_local_smoke_preflight.md`。
 - [ ] H02.2 远端完整运行。
   - 必须同步回本地: stdout/stderr, CSV, manifest, config, checkpoints, source hash。
-- [ ] H02.3 统计检验。
+- [>] H02.3 统计检验。
   - Wilcoxon signed-rank for paired time/expansions。
   - Bootstrap CI for success/failure rate。
+  - 已完成基础设施: `write_evaluation_outputs()` 现在写出 `paired_time_tests`, `paired_expansion_tests`, `success_rate_bootstrap_ci`, `failure_rate_bootstrap_ci`, `timeout_failure_rate_bootstrap_ci`。
+  - module2 pair: `_stat_pairs()` 现在为 `bc_analytic_operator`, `ppo_analytic_operator`, `ha_rl_rs_ppo` 相对 `ha_dang_multi_rs` 生成配对统计项。
+  - 边界: H02.3 formal statistical analysis 仍未完成, 因为 H02.2 远端完整 all-method run 尚未产出正式数据。
+  - 记录: `.pipeline/experiments/20260704_module2_h02_statistical_ci_infra.md`。
 - [ ] H02.4 Contract 判定。
   - 严格按 `.pipeline/contracts/module2-ppo-funnel-expansion.md:19-39`。
   - 不允许事后改成功定义。
@@ -872,6 +877,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 32. [x] H01.1b RealMap query generation protocol 已冻结, 10 queries / 2 maps, endpoint audit pass。
 33. [x] H01.2 指标冻结: metric protocol status=`frozen`, timeout failure rate 已显式输出, expansions/time paired Wilcoxon 统计函数已具备。
 34. [>] H02.1 local targeted smoke: available subset 5 methods x 3 queries 已跑通; full all-method smoke 仍受 F02.6 pending 和缺 PPO checkpoint 阻塞。
+35. [>] H02.3 统计检验基础设施: success/failure/timeout bootstrap CI 和 module2-vs-Dang paired stats 已接入; formal analysis 等 H02.2 数据。
 
 ## 7. 完成记录
 
@@ -919,3 +925,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 完成 H01 manifest 的 F02.6 decision-packet guard。`build_module2_evaluation_manifest.py` 新增 `--warm-start-decision-packet`, 读取 packet 后计算 effective warm-start decision; 当前 pending packet 会把 H01 manifest 维持在 `blocked_pending_decisions`, 并加入 `f02_6_decision_packet_pending` blocker, 防止用 CLI 字符串绕过 Dr Sun 审批门。记录见 `.pipeline/experiments/20260704_module2_h01_f02_6_decision_packet_guard.md`。
 - 2026-07-04: 完成 H01.2 metric protocol。新增 `build_module2_metric_protocol.py`, 冻结 Contract 主指标与诊断指标; `GroupSummary` 新增 `timeout_failure_count/timeout_failure_rate`; `paired_wilcoxon_expansions()` 与现有 `paired_wilcoxon_time()` 分别支撑 expansions/time 的配对检验; H01.2 artifact status=`frozen` 且 blockers=[]。记录见 `.pipeline/experiments/20260704_module2_h01_metric_protocol.md`。
 - 2026-07-04: 推进 H02.1 local targeted smoke。新增 H02.1 preflight artifact, 明确 full all-method smoke 因缺 PPO checkpoint/F02.6 pending 阻塞; 同时实际跑通 available subset 5 methods x 3 queries, `record_count=15`, `collision_violation_total=0`, `method_exception_total=0`, status=`candidate_or_smoke`。记录见 `.pipeline/experiments/20260704_module2_h02_local_smoke_preflight.md`。
+- 2026-07-04: 推进 H02.3 statistical CI infrastructure。新增 failure/timeout paired bootstrap CI, module2 operator vs Dang multi-RS paired stat pairs, 并重跑 H02.1 available subset smoke 以确认 summary.json 输出 paired time/expansions 和 success/failure/timeout CI slots。记录见 `.pipeline/experiments/20260704_module2_h02_statistical_ci_infra.md`。
