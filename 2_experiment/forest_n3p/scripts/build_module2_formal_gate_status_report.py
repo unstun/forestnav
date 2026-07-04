@@ -948,6 +948,20 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- `{step_id}`: present=`{step['present']}`, allowed_now=`{step['allowed_now']}`, "
             f"runs_training=`{step['runs_training']}`, blocked_by=`{blocked_by}`"
         )
+    lines.extend(["", "## Formal Gate Requirement Stage Summary", ""])
+    stage_summary = manifest["formal_gate_requirement_stage_summary"]
+    lines.append(f"- mapped_requirement_count: `{stage_summary['mapped_requirement_count']}`")
+    lines.append(f"- unmapped_requirement_count: `{stage_summary['unmapped_requirement_count']}`")
+    lines.append(f"- mismatched_requirement_count: `{stage_summary['mismatched_requirement_count']}`")
+    for requirement_id, row in stage_summary["requirements"].items():
+        blocked_by = ", ".join(row["responsible_stage_blocked_by"]) if row["responsible_stage_blocked_by"] else "none"
+        lines.append(
+            f"- `{requirement_id}`: expected_stage=`{row['expected_stage_id']}`, "
+            f"responsible_stage=`{row['responsible_stage_id']}`, "
+            f"stage_status=`{row['responsible_stage_status']}`, "
+            f"stage_allowed_now=`{row['responsible_stage_allowed_now']}`, "
+            f"blocked_by=`{blocked_by}`"
+        )
     lines.extend(["", "## Formal Gate Execution Veto Matrix", ""])
     veto = manifest["formal_gate_execution_veto_summary"]
     lines.append(f"- present: `{veto['present']}`")
