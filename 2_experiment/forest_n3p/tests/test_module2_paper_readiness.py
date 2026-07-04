@@ -124,6 +124,15 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
         "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked"
         in manifest["global_blockers"]
     )
+    assert manifest["input_status"]["claim_safety_remaining_deliverables_proof_command_plan_present"] is True
+    assert manifest["input_status"]["claim_safety_remaining_deliverables_proof_command_plan_matrix_row_count"] == 10
+    assert manifest["input_status"]["claim_safety_remaining_deliverables_proof_command_plan_command_count"] == 20
+    assert (
+        manifest["claim_safety_remaining_deliverables_proof_command_plan"]["rows"][
+            "training:train_final_model_zip"
+        ]["proof_command_ids"]
+        == ["train_final_model_zip_exists_nonempty", "train_final_model_zip_valid_zip"]
+    )
     assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_present"] is True
     assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_row_count"] == 18
     assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_source_target_count"] == 18
