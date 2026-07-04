@@ -17,6 +17,7 @@ def test_module2_manifest_freezes_h01_methods_metrics_and_pending_decision_block
             warm_start_decision="pending",
             bc_checkpoint=None,
             rl_rs_checkpoint=None,
+            realmap_query_protocol_path=None,
             queries_per_bucket=100,
             seed_count=5,
         )
@@ -86,6 +87,8 @@ def test_module2_manifest_cli_writes_json_and_markdown_with_checkpoint_unblocked
             str(_frontmatter(tmp_path, "cutpoints.md", reviewed="true")),
             "--warm-start-decision",
             "approved_obstacle_summary",
+            "--realmap-query-protocol-path",
+            str(_realmap_protocol(tmp_path)),
             "--bc-checkpoint",
             str(bc_checkpoint),
             "--rl-rs-checkpoint",
@@ -116,8 +119,58 @@ def test_module2_manifest_cli_writes_json_and_markdown_with_checkpoint_unblocked
     assert "blocked_missing_implementation" in markdown
 
 
+def test_module2_manifest_unblocks_realmap_gap_when_query_protocol_is_frozen(tmp_path):
+    checkpoint = tmp_path / "final_model.zip"
+    checkpoint.write_bytes(b"not a real model; manifest preflight only checks presence")
+    bc_checkpoint = tmp_path / "bc_model.pt"
+    bc_checkpoint.write_bytes(b"not a real model; manifest preflight only checks presence")
+    protocol = _realmap_protocol(tmp_path)
+
+    manifest = build_manifest(
+        Module2EvaluationManifestConfig(
+            output_dir=tmp_path,
+            contract_path=_frontmatter(tmp_path, "contract.md", status="approved"),
+            cutpoint_supplement_path=_frontmatter(tmp_path, "cutpoints.md", reviewed="true"),
+            warm_start_decision="approved_obstacle_summary",
+            realmap_query_protocol_path=protocol,
+            bc_checkpoint=bc_checkpoint,
+            rl_rs_checkpoint=checkpoint,
+            queries_per_bucket=100,
+            seed_count=5,
+        )
+    )
+
+    assert manifest["realmap_query_protocol"]["status"] == "frozen"
+    assert manifest["realmap_query_protocol"]["endpoint_audit_pass"] is True
+    assert "realmap_query_generation_not_frozen" not in manifest["blockers"]
+    assert "missing_module2_bc_checkpoint" not in manifest["blockers"]
+    assert manifest["run_command"]["formal_main_evaluation"] is not None
+
+
 def _frontmatter(tmp_path: Path, name: str, **fields) -> Path:
     path = tmp_path / name
     body = "---\n" + "".join(f"{key}: {value}\n" for key, value in fields.items()) + "---\n"
     path.write_text(body, encoding="utf-8")
+    return path
+
+
+def _realmap_protocol(tmp_path: Path) -> Path:
+    queries = tmp_path / "realmap_queries.csv"
+    queries.write_text("query_id,map_id\nq0,dqn_realmap_a\n", encoding="utf-8")
+    path = tmp_path / "realmap_protocol.json"
+    path.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "protocol_name": "module2_realmap_query_protocol",
+                "status": "frozen",
+                "query_count": 4,
+                "query_count_by_map": {"dqn_realmap_a": 2, "willow_garage_0p10": 2},
+                "queries_csv": str(queries),
+                "queries_csv_sha256": "abc123",
+                "endpoint_audit": {"pass": True, "start_collision_count": 0, "goal_collision_count": 0},
+            }
+        ),
+        encoding="utf-8",
+    )
     return path
