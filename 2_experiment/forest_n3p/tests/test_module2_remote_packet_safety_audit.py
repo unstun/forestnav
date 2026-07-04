@@ -30,6 +30,8 @@ def test_remote_packet_safety_audit_passes_current_blocked_packet(tmp_path):
     assert manifest["packet_summary"]["status"] == "blocked_until_f02_6_decision"
     assert manifest["packet_summary"]["remote_training_allowed_now"] is False
     assert manifest["packet_summary"]["pullback_artifact_count"] == 7
+    assert manifest["cross_gate_summary"]["post_plan_status_report_status"] == "formal_gate_status_blocked"
+    assert manifest["cross_gate_summary"]["post_plan_status_report_next_blocked_lane_id"] == "decision"
 
 
 def test_remote_packet_safety_audit_catches_pending_packet_that_allows_training(tmp_path):
@@ -53,6 +55,56 @@ def test_remote_packet_safety_audit_catches_pending_packet_that_allows_training(
     assert "pending_packet_training_step_allowed" in issue_ids
     assert "decision_gate_blocks_but_packet_allows_training" in issue_ids
     assert "post_plan_blocks_but_packet_allows_training" in issue_ids
+    assert "blocked_status_report_packet_ready" in issue_ids
+    assert "blocked_status_report_allows_remote_training" in issue_ids
+
+
+def test_remote_packet_safety_audit_requires_post_plan_status_report_summary(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
+    plan_audit = _plan_audit_payload()
+    plan_audit["inputs"] = {}
+    plan_audit.pop("status_report_summary")
+
+    manifest = auditor.build_manifest(
+        auditor.RemotePacketSafetyAuditConfig(
+            output_dir=tmp_path,
+            remote_packet_path=_json(tmp_path, "packet.json", _packet_payload()),
+            decision_gate_audit_path=_json(tmp_path, "decision_gate.json", _decision_gate_payload()),
+            post_plan_audit_path=_json(tmp_path, "plan_audit.json", plan_audit),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "remote_packet_safety_audit_failed"
+    assert "post_plan_missing_status_report_input" in issue_ids
+    assert "post_plan_missing_status_report_summary" in issue_ids
+
+
+def test_remote_packet_safety_audit_blocks_remote_actions_when_status_report_blocked(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
+    packet = _packet_payload()
+    packet["status"] = "ready_for_gpu3070ti_remote_training"
+    packet["ready_to_run_remote_training"] = True
+    packet["execution_steps"]["run_remote_preflight"]["allowed_now"] = True
+    packet["execution_steps"]["run_remote_training"]["allowed_now"] = True
+    packet["execution_steps"]["run_remote_audit"]["allowed_now"] = True
+
+    manifest = auditor.build_manifest(
+        auditor.RemotePacketSafetyAuditConfig(
+            output_dir=tmp_path,
+            remote_packet_path=_json(tmp_path, "packet.json", packet),
+            decision_gate_audit_path=_json(tmp_path, "decision_gate.json", _decision_gate_payload()),
+            post_plan_audit_path=_json(tmp_path, "plan_audit.json", _plan_audit_payload()),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "remote_packet_safety_audit_failed"
+    assert "pending_decision_packet_not_blocked" in issue_ids
+    assert "blocked_status_report_packet_ready" in issue_ids
+    assert "blocked_status_report_allows_remote_preflight" in issue_ids
+    assert "blocked_status_report_allows_remote_training" in issue_ids
+    assert "blocked_status_report_allows_remote_audit" in issue_ids
 
 
 def test_remote_packet_safety_audit_catches_host_sync_and_command_drift(tmp_path):
@@ -222,9 +274,18 @@ def _decision_gate_payload():
 def _plan_audit_payload():
     return {
         "status": "post_f02_6_plan_audit_passed",
+        "inputs": {
+            "formal_gate_status_report": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
+        },
         "current_blocking_summary": {
             "training_allowed_now": False,
             "remote_preflight_allowed_now": False,
+        },
+        "status_report_summary": {
+            "status": "formal_gate_status_blocked",
+            "formal_claim_allowed_now": False,
+            "local_training_allowed_now": False,
+            "next_blocked_lane_id": "decision",
         },
     }
 

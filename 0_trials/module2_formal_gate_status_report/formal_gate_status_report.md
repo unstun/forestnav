@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `73997d6461a81a2b69568ef4c181e01345b6a901+dirty`
+- source_head: `dc50d331bab77d20217414f3eb93f27effa3e449+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -62,7 +62,7 @@ This file is a read-only formal-gate status report. It does not execute commands
   - completion_signal: H01 is ready and H02 accepts formal-scale PPO outputs.
   - action_when_blocked: Regenerate H01/H02 only after audited checkpoint pullback is complete.
 - `claim_gate` (claim_gate): status=`blocked`, missing=`4`, runs_training=`False`
-  - blocked_by: `claim_safety, formal_gate_missing_artifacts, formal_gate_status_report, h02_formal_acceptance_before_claim_gate, f02_6_warm_start_decision_pending, requires_dr_sun_approval, source_freshness_regeneration_required, remote_training_packet_not_ready, missing_remote_pullback_artifact, missing_ppo_result_rows, missing_ppo_checkpoint_hash, h01_manifest_not_ready, formal_main_evaluation_command_missing, h02_scale_below_h01_queries_per_bucket, h02_scale_below_h01_seed_count, h02_scale_below_h01_queries_per_map, h02_verdict_not_formal, missing_or_failed_gate3_formal_audit, h02_formal_output_not_accepted, claim_safety_blocks_formal_performance, readiness_blocks_formal_results, formal_gate_missing_artifacts_open, formal_gate_closure_checklist_open, formal_gate_status_report_blocked, h02_formal_acceptance_not_ready, source_fresh_claim_targets_open`
+  - blocked_by: `formal_gate_missing_artifacts, formal_gate_status_report, paper_readiness, h02_formal_acceptance_before_claim_gate, f02_6_warm_start_decision_pending, requires_dr_sun_approval, source_freshness_regeneration_required, remote_training_packet_not_ready, missing_remote_pullback_artifact, missing_ppo_result_rows, missing_ppo_checkpoint_hash, h01_manifest_not_ready, formal_main_evaluation_command_missing, h02_scale_below_h01_queries_per_bucket, h02_scale_below_h01_seed_count, h02_scale_below_h01_queries_per_map, h02_verdict_not_formal, missing_or_failed_gate3_formal_audit, h02_formal_output_not_accepted, claim_safety_blocks_formal_performance, readiness_blocks_formal_results, formal_gate_missing_artifacts_open, formal_gate_closure_checklist_open, formal_gate_status_report_blocked, h02_formal_acceptance_not_ready, source_fresh_claim_targets_open`
   - completion_signal: Claim safety and paper readiness allow formal results after H02 acceptance.
   - action_when_blocked: Regenerate claim gates only after H02 formal acceptance passes.
 
