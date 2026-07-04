@@ -25,11 +25,22 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
     assert manifest["current_state"]["decision_status"] == "pending_human_decision"
     assert manifest["current_state"]["closure_open_item_count"] == 8
+    assert manifest["current_state"]["remote_packet_sync_allowed_now"] is False
+    assert manifest["current_state"]["remote_packet_preflight_allowed_now"] is False
+    assert manifest["current_state"]["remote_packet_training_allowed_now"] is False
+    assert manifest["current_state"]["remote_packet_audit_allowed_now"] is False
     assert manifest["missing_counts_by_category"]["training"] == 3
     assert len(manifest["training_artifacts_required"]) == 3
     assert len(manifest["evaluation_artifacts_required"]) == 2
     assert len(manifest["acceptance_artifacts_required"]) == 3
     assert manifest["next_blocked_lane"]["lane_id"] == "decision"
+    steps = manifest["remote_execution_step_summary"]
+    assert steps["sync_to_remote"]["allowed_now"] is False
+    assert steps["sync_to_remote"]["runs_training"] is False
+    assert steps["sync_to_remote"]["blocked_by"] == ["requires_dr_sun_approval"]
+    assert steps["run_remote_training"]["allowed_now"] is False
+    assert steps["run_remote_training"]["runs_training"] is True
+    assert "remote_packet_not_ready" in steps["run_remote_training"]["blocked_by"]
 
     lanes = {lane["lane_id"]: lane for lane in manifest["formal_gate_lanes"]}
     assert lanes["gate3_remote_training"]["runs_training"] is True
@@ -51,6 +62,8 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     assert manifest["input_safety_issue_count"] == 0
     assert all(lane["status"] == "complete" for lane in manifest["formal_gate_lanes"])
     assert manifest["next_blocked_lane"] is None
+    assert all(step["allowed_now"] is True for step in manifest["remote_execution_step_summary"].values())
+    assert all(step["blocked_by"] == [] for step in manifest["remote_execution_step_summary"].values())
 
 
 def test_formal_gate_status_report_catches_status_input_drift(tmp_path):
@@ -64,6 +77,23 @@ def test_formal_gate_status_report_catches_status_input_drift(tmp_path):
     assert "remote_packet_allows_claim_before_audit" in issue_ids
     assert "claim_safety_allows_formal_claim" in issue_ids
     assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
+
+
+def test_formal_gate_status_report_requires_remote_step_blockers(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    remote_packet = json.loads(config.remote_packet_path.read_text(encoding="utf-8"))
+    remote_packet["execution_steps"]["sync_to_remote"]["blocked_by"] = []
+    remote_packet["execution_steps"]["run_remote_training"]["blocked_by"] = []
+    config.remote_packet_path.write_text(json.dumps(remote_packet), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert manifest["status"] == "formal_gate_status_blocked"
+    assert "remote_packet_sync_to_remote_missing_blocked_by" in issue_ids
+    assert "remote_packet_run_remote_training_missing_blocked_by" in issue_ids
+    assert manifest["permissions_now"]["remote_training_allowed_now"] is False
 
 
 def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
@@ -107,6 +137,7 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
     assert manifest["status"] == "formal_gate_status_blocked"
     assert "Module2 Formal Gate Status Report" in markdown
     assert "gate3_remote_training" in markdown
+    assert "Remote Execution Steps" in markdown
     assert "does not execute commands" in markdown
 
 
@@ -222,12 +253,36 @@ def _decision_record(*, complete):
 
 
 def _remote_packet(*, complete, drift=False):
+    step_blockers = [] if complete else ["requires_dr_sun_approval"]
+    training_blockers = [] if complete else ["requires_dr_sun_approval", "remote_packet_not_ready"]
     payload = {
         "status": "ready_for_remote_training_packet_execution" if complete else "blocked_until_f02_6_decision",
         "ready_to_run_remote_training": complete,
         "local_training_allowed": False,
         "formal_claim_allowed": False,
         "formal_claim_allowed_before_audit": False,
+        "execution_steps": {
+            "sync_to_remote": {
+                "allowed_now": complete,
+                "runs_training": False,
+                "blocked_by": step_blockers,
+            },
+            "run_remote_preflight": {
+                "allowed_now": complete,
+                "runs_training": False,
+                "blocked_by": step_blockers,
+            },
+            "run_remote_training": {
+                "allowed_now": complete,
+                "runs_training": True,
+                "blocked_by": training_blockers,
+            },
+            "run_remote_audit": {
+                "allowed_now": complete,
+                "runs_training": False,
+                "blocked_by": training_blockers,
+            },
+        },
     }
     if drift:
         payload["formal_claim_allowed_before_audit"] = True
