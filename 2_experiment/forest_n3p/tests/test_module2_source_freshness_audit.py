@@ -36,8 +36,16 @@ def test_source_freshness_audit_records_stale_and_dirty_artifacts_as_regeneratio
     assert manifest["risk_counts"]["missing_source_head"] == 1
     targets = {item["artifact_id"]: item for item in manifest["ordered_regeneration_targets"]}
     assert targets["current_dirty"]["required_before"] == "approved_remote_preflight"
+    assert targets["current_dirty"]["source_head"] == f"{current_head}+dirty"
+    assert targets["current_dirty"]["source_commit"] == current_head
+    assert targets["current_dirty"]["source_head_dirty"] is True
+    assert targets["current_dirty"]["source_commit_exists"] is True
+    assert targets["current_dirty"]["matches_current_head"] is True
+    assert targets["current_dirty"]["current_head"] == current_head
     assert targets["missing_commit"]["required_before"] == "formal_h01_h02"
+    assert targets["missing_commit"]["source_commit_exists"] is False
     assert targets["missing_source"]["required_before"] == "formal_claim_gate"
+    assert targets["missing_source"]["source_head"] is None
     assert "not a training run or paper result" in " ".join(manifest["claim_boundaries"])
 
 
@@ -115,6 +123,8 @@ def test_source_freshness_audit_cli_writes_json_and_markdown(tmp_path):
         assert required_before.get("formal_gate_status_report") == "formal_claim_gate"
     assert "Module2 Source Freshness Audit" in markdown
     assert "not a training run" in markdown
+    assert "source_head=" in markdown
+    assert "current_head=" in markdown
 
 
 def _artifact(tmp_path, name, *, status, source_head):
