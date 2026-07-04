@@ -1187,6 +1187,12 @@ def _remaining_deliverables_acceptance_summary(remaining_deliverables: dict[str,
                 else None,
                 "responsible_stage_blocked_by": _strings(raw.get("responsible_stage_blocked_by")),
                 "acceptance_predicate_count": len(_strings(raw.get("acceptance_predicates"))),
+                "proof_command_count": len(_proof_commands(raw.get("proof_commands"))),
+                "proof_command_ids": [
+                    command["command_id"]
+                    for command in _proof_commands(raw.get("proof_commands"))
+                    if command.get("command_id")
+                ],
                 "acceptable_evidence_count": len(_strings(raw.get("acceptable_evidence"))),
                 "invalid_substitute_count": len(_strings(raw.get("invalid_substitutes"))),
                 "execution_boundary": raw.get("execution_boundary"),
@@ -1237,6 +1243,7 @@ def _remaining_deliverables_gap_summary(remaining_deliverables: dict[str, Any]) 
             if not isinstance(item, dict):
                 continue
             invalid_substitutes = item.get("invalid_substitutes")
+            proof_command_ids = _strings(item.get("proof_command_ids"))
             missing_artifacts.append(
                 {
                     "matrix_id": item.get("matrix_id"),
@@ -1245,6 +1252,8 @@ def _remaining_deliverables_gap_summary(remaining_deliverables: dict[str, Any]) 
                     "current_state": item.get("current_state"),
                     "missing_reason": item.get("missing_reason"),
                     "acceptance_predicate_count": int(item.get("acceptance_predicate_count") or 0),
+                    "proof_command_count": int(item.get("proof_command_count") or 0),
+                    "proof_command_ids": proof_command_ids,
                     "invalid_substitute_count": len(invalid_substitutes)
                     if isinstance(invalid_substitutes, list)
                     else 0,
@@ -1265,6 +1274,11 @@ def _remaining_deliverables_gap_summary(remaining_deliverables: dict[str, Any]) 
             "missing_artifact_matrix_ids": [
                 str(item["matrix_id"]) for item in missing_artifacts if item.get("matrix_id")
             ],
+            "proof_command_ids": _unique(
+                command_id
+                for item in missing_artifacts
+                for command_id in item.get("proof_command_ids", [])
+            ),
             "missing_artifacts": missing_artifacts,
         }
     return {
@@ -1276,6 +1290,37 @@ def _remaining_deliverables_gap_summary(remaining_deliverables: dict[str, Any]) 
         "open_category_count": int(raw_summary.get("open_category_count") or 0),
         "category_order": _strings(raw_summary.get("category_order")),
         "categories": categories,
+    }
+
+
+def _remaining_deliverables_proof_command_plan(remaining_deliverables: dict[str, Any]) -> dict[str, Any]:
+    raw_plan = remaining_deliverables.get("proof_command_plan")
+    raw_plan = raw_plan if isinstance(raw_plan, dict) else {}
+    raw_rows = raw_plan.get("rows")
+    raw_rows = raw_rows if isinstance(raw_rows, list) else []
+    rows: dict[str, dict[str, Any]] = {}
+    for raw in raw_rows:
+        if not isinstance(raw, dict) or not raw.get("matrix_id"):
+            continue
+        matrix_id = str(raw["matrix_id"])
+        rows[matrix_id] = {
+            "present": True,
+            "category": raw.get("category"),
+            "artifact_id": raw.get("artifact_id"),
+            "expected_path": raw.get("expected_path"),
+            "proof_command_count": int(raw.get("proof_command_count") or 0),
+            "proof_command_ids": _strings(raw.get("proof_command_ids")),
+        }
+    return {
+        "present": bool(raw_plan),
+        "plan_id": raw_plan.get("plan_id"),
+        "execution_boundary": raw_plan.get("execution_boundary"),
+        "not_paper_result_material": raw_plan.get("not_paper_result_material") is True,
+        "runs_training": raw_plan.get("runs_training") is True,
+        "runs_remote_preflight": raw_plan.get("runs_remote_preflight") is True,
+        "total_matrix_rows": int(raw_plan.get("total_matrix_rows") or 0),
+        "total_proof_command_count": int(raw_plan.get("total_proof_command_count") or 0),
+        "rows": rows,
     }
 
 
