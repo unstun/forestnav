@@ -163,6 +163,7 @@ def _audit_issues(
     issues.extend(_missing_artifacts_issues(plan=plan, missing_artifacts=missing_artifacts, missing_artifacts_path=missing_artifacts_path))
     issues.extend(_closure_checklist_issues(plan=plan, closure_checklist=closure_checklist, closure_checklist_path=closure_checklist_path))
     issues.extend(_status_report_issues(plan=plan, status_report=status_report, status_report_path=status_report_path))
+    issues.extend(_handoff_coverage_issues(plan=plan, source_freshness=source_freshness, status_report=status_report))
     return _unique_issues(issues)
 
 
@@ -420,6 +421,92 @@ def _status_report_issues(
     return issues
 
 
+def _handoff_coverage_issues(
+    *,
+    plan: dict[str, Any],
+    source_freshness: dict[str, Any],
+    status_report: dict[str, Any],
+) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    source_target = _source_freshness_target(source_freshness, "formal_gate_handoff_bundle")
+    if not source_target:
+        issues.append(
+            _issue(
+                "handoff_bundle_missing_from_source_freshness",
+                "formal_gate_handoff_bundle must be tracked by source freshness before approved remote preflight.",
+            )
+        )
+    elif source_target.get("required_before") != "approved_remote_preflight":
+        issues.append(
+            _issue(
+                "handoff_bundle_wrong_source_freshness_gate",
+                "formal_gate_handoff_bundle must be required before approved_remote_preflight.",
+                observed=source_target.get("required_before"),
+            )
+        )
+
+    preflight_targets = _target_ids_for_gate(plan, "approved_remote_preflight")
+    if "formal_gate_handoff_bundle" not in preflight_targets:
+        issues.append(
+            _issue(
+                "handoff_bundle_missing_from_plan_preflight_targets",
+                "Post-F02.6 plan must list formal_gate_handoff_bundle under approved_remote_preflight source-regeneration targets.",
+                observed=sorted(preflight_targets),
+            )
+        )
+    regen_stage = _stage_by_id(plan, "regenerate_preflight_gate_artifacts")
+    regen_commands = "\n".join(_strings(regen_stage.get("command_templates")))
+    if "build_module2_formal_gate_handoff_bundle" not in regen_commands:
+        issues.append(
+            _issue(
+                "handoff_bundle_missing_regeneration_command",
+                "Post-F02.6 regeneration stage must include build_module2_formal_gate_handoff_bundle.",
+            )
+        )
+
+    handoff_summary = status_report.get("formal_gate_handoff_summary")
+    if not isinstance(handoff_summary, dict):
+        issues.append(
+            _issue(
+                "status_report_missing_handoff_summary",
+                "Formal gate status report must expose formal_gate_handoff_summary.",
+            )
+        )
+    else:
+        if int(handoff_summary.get("safety_issue_count") or 0) > 0:
+            issues.append(_issue("status_report_handoff_safety_issues_open", "Status report handoff summary reports open safety issues."))
+        if status_report.get("status") != "formal_gate_status_ready_for_claim_audit" and handoff_summary.get("remote_training_allowed_now") is True:
+            issues.append(
+                _issue(
+                    "status_report_handoff_training_allowed_while_blocked",
+                    "Status report must not show handoff remote training allowed while the formal gate is blocked.",
+                    observed={"status": status_report.get("status"), "remote_training_allowed_now": handoff_summary.get("remote_training_allowed_now")},
+                )
+            )
+    return issues
+
+
+def _source_freshness_target(source_freshness: dict[str, Any], artifact_id: str) -> dict[str, Any]:
+    for key in ("artifact_records", "ordered_regeneration_targets"):
+        items = source_freshness.get(key)
+        if not isinstance(items, list):
+            continue
+        for item in items:
+            if isinstance(item, dict) and item.get("artifact_id") == artifact_id:
+                return item
+    return {}
+
+
+def _target_ids_for_gate(plan: dict[str, Any], gate: str) -> set[str]:
+    groups = plan.get("source_regeneration_targets_by_gate")
+    if not isinstance(groups, dict):
+        return set()
+    items = groups.get(gate)
+    if not isinstance(items, list):
+        return set()
+    return {str(item.get("artifact_id")) for item in items if isinstance(item, dict) and item.get("artifact_id")}
+
+
 def _target_counts_by_gate(plan: dict[str, Any]) -> dict[str, int]:
     groups = plan.get("source_regeneration_targets_by_gate") if isinstance(plan.get("source_regeneration_targets_by_gate"), dict) else {}
     return {str(key): len(value) for key, value in sorted(groups.items()) if isinstance(value, list)}
@@ -500,6 +587,9 @@ def _status_report_summary(path: Path, status_report: dict[str, Any]) -> dict[st
         "input_safety_issue_count": status_report.get("input_safety_issue_count"),
         "next_blocked_lane_id": next_lane.get("lane_id"),
         "remote_execution_step_summary": remote_steps,
+        "formal_gate_handoff_summary": status_report.get("formal_gate_handoff_summary")
+        if isinstance(status_report.get("formal_gate_handoff_summary"), dict)
+        else {},
     }
 
 
