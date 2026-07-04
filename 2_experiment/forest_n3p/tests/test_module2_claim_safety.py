@@ -167,6 +167,9 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert manifest["input_status"]["status_report_remaining_deliverables_acceptance_matrix_row_count"] == 10
     assert manifest["input_status"]["status_report_remaining_deliverables_acceptance_missing_row_count"] == 0
     assert manifest["input_status"]["status_report_remaining_deliverables_acceptance_blocked_category_count"] == 0
+    assert manifest["input_status"]["status_report_remaining_deliverables_gap_present"] is True
+    assert manifest["input_status"]["status_report_remaining_deliverables_gap_total_missing_deliverables"] == 0
+    assert manifest["input_status"]["status_report_remaining_deliverables_gap_open_category_count"] == 0
     assert manifest["status_report_handoff_summary"]["transition_gate_status"] == "f02_6_transition_gate_audit_passed"
     assert manifest["status_report_missing_artifacts_handoff_summary"]["status"] == "formal_gate_evidence_ready_for_h01_h02_claim_gates"
     assert manifest["status_report_requirement_stage_summary"]["mapped_requirement_count"] == 4
@@ -194,6 +197,8 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert manifest["status_report_h02_acceptance_requirement_summary"]["status_counts"] == {"satisfied": 4}
     assert manifest["status_report_remaining_deliverables_acceptance_summary"]["matrix_row_count"] == 10
     assert manifest["status_report_remaining_deliverables_acceptance_summary"]["missing_row_count"] == 0
+    assert manifest["status_report_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 0
+    assert manifest["status_report_remaining_deliverables_gap_summary"]["open_category_count"] == 0
     assert manifest["status_report_decision_intake_summary"]["status"] == "f02_6_decision_intake_closed_clean"
     assert manifest["status_report_decision_intake_summary"]["record_status"] == "approved"
     assert manifest["status_report_decision_intake_summary"]["decision_owner_required"] == "Dr Sun"
@@ -881,6 +886,12 @@ def test_claim_safety_rejects_status_report_remaining_deliverables_acceptance_dr
     summary["rows"]["training:train_summary_json"]["responsible_stage_allowed_now"] = True
     summary["rows"].pop("formal_acceptance:h02_formal_output_acceptance")
     summary["matrix_row_count"] = 9
+    gap_summary = status_payload["remaining_deliverables_gap_summary"]
+    gap_summary["total_missing_deliverables"] = 1
+    gap_summary["open_category_count"] = 1
+    gap_summary["category_order"] = ["training", "evaluation"]
+    gap_summary["categories"]["training"]["missing_count"] = 1
+    gap_summary["categories"]["training"]["missing_artifact_matrix_ids"] = []
     status_report = tmp_path / "status_report.json"
     status_report.write_text(json.dumps(status_payload), encoding="utf-8")
 
@@ -901,7 +912,12 @@ def test_claim_safety_rejects_status_report_remaining_deliverables_acceptance_dr
     assert "status_report_remaining_deliverables_acceptance_matrix_count_mismatch" in blockers
     assert "status_report_remaining_deliverables_acceptance_training_train_final_model_zip_missing_predicates" in blockers
     assert "status_report_remaining_deliverables_acceptance_missing_formal_acceptance_h02_formal_output_acceptance" in blockers
+    assert "status_report_remaining_deliverables_gap_category_order_mismatch" in blockers
+    assert "status_report_remaining_deliverables_gap_rows_missing_while_status_ready" in blockers
+    assert "status_report_remaining_deliverables_gap_categories_blocked_while_status_ready" in blockers
+    assert "status_report_remaining_deliverables_gap_training_missing_artifact_count_mismatch" in blockers
     assert manifest["status_report_remaining_deliverables_acceptance_summary"]["matrix_row_count"] == 9
+    assert manifest["status_report_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 1
 
 
 def test_claim_safety_rejects_status_report_decision_intake_contract_drift(tmp_path):
@@ -1102,6 +1118,7 @@ def _status_report_payload(*, ready, invalid=False):
         "remaining_deliverables_acceptance_summary": _status_report_remaining_deliverables_acceptance_summary_payload(
             ready=ready
         ),
+        "remaining_deliverables_gap_summary": _status_report_remaining_deliverables_gap_summary_payload(ready=ready),
         "closure_remote_stage_summary": {
             "approved_remote_preflight": {
                 "present": True,
