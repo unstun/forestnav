@@ -166,6 +166,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     formal_gate_execution_veto = _formal_gate_execution_veto_summary(formal_gate)
     decision_intake_summary = _decision_intake_summary(decision_intake)
     remaining_deliverables_acceptance_summary = _remaining_deliverables_acceptance_summary(remaining_deliverables)
+    remaining_deliverables_gap_summary = _remaining_deliverables_gap_summary(remaining_deliverables)
 
     input_safety_issues = _input_safety_issues(
         {
@@ -192,6 +193,11 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         + _remaining_deliverables_acceptance_issues(
             remaining_deliverables=remaining_deliverables,
             summary=remaining_deliverables_acceptance_summary,
+        )
+        + _remaining_deliverables_gap_summary_issues(
+            remaining_deliverables=remaining_deliverables,
+            acceptance_summary=remaining_deliverables_acceptance_summary,
+            gap_summary=remaining_deliverables_gap_summary,
         )
     )
     lanes = _lanes(
@@ -304,6 +310,12 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "remaining_deliverables_acceptance_blocked_category_count": remaining_deliverables_acceptance_summary[
                 "blocked_category_count"
             ],
+            "remaining_deliverables_gap_total_missing_deliverable_count": remaining_deliverables_gap_summary[
+                "total_missing_deliverables"
+            ],
+            "remaining_deliverables_gap_open_category_count": remaining_deliverables_gap_summary[
+                "open_category_count"
+            ],
             "handoff_bundle_next_action": handoff_summary["next_handoff_action_id"],
             "handoff_bundle_safety_issue_count": handoff_summary["safety_issue_count"],
             "handoff_bundle_remote_training_allowed_now": handoff_summary["remote_training_allowed_now"],
@@ -332,6 +344,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "missing_artifacts_handoff_index_summary": missing_artifacts_handoff_summary,
         "formal_gate_execution_veto_summary": formal_gate_execution_veto,
         "remaining_deliverables_acceptance_summary": remaining_deliverables_acceptance_summary,
+        "remaining_deliverables_gap_summary": remaining_deliverables_gap_summary,
         "formal_gate_lanes": lanes,
         "next_blocked_lane": _next_blocked_lane(lanes),
         "input_safety_issue_count": len(input_safety_issues),
