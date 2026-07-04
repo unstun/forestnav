@@ -956,6 +956,16 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- audit_issue_count: `{manifest['missing_artifacts_inventory']['audit_issue_count']}`",
             f"- missing_counts_by_category: `{manifest['missing_artifacts_inventory']['missing_counts_by_category']}`",
             "",
+            "## Closure Checklist",
+            "",
+            f"- path: `{manifest['closure_checklist']['path']}`",
+            f"- status: `{manifest['closure_checklist']['status']}`",
+            f"- executes_commands: `{manifest['closure_checklist']['executes_commands']}`",
+            f"- runs_training: `{manifest['closure_checklist']['runs_training']}`",
+            f"- runs_remote_preflight: `{manifest['closure_checklist']['runs_remote_preflight']}`",
+            f"- open_item_count: `{manifest['closure_checklist']['open_item_count']}`",
+            f"- input_safety_issue_count: `{manifest['closure_checklist']['input_safety_issue_count']}`",
+            "",
         ]
     )
     for title, key in [
