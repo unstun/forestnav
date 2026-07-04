@@ -1029,9 +1029,11 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 102. [x] Post-F02.6 source regeneration command index 已完成: `post_f02_6_regeneration_plan` 现在为 source freshness 的 17 个 regeneration target 输出机器可读 `source_regeneration_command_index`, 覆盖 preflight/H01-H02/claim gate 三类 stage, `unknown_manual=0`; 当前 F02.6 仍 pending, remote preflight/training 均 false, 该 index 只描述批准后如何重生成 gate artifacts, 不执行命令。记录见 `.pipeline/experiments/20260704_module2_post_f02_6_regeneration_command_index.md`。
 103. [x] Post-plan audit command-index refresh 已完成: `post_f02_6_plan_audit` 已刷新并直接输出 `source_regeneration_command_index_summary`, 当前 17/17 source target 覆盖、unknown/manual=0、stage mismatch=0、forbidden remote/training command=0、audit issues=0; formal gate 仍 blocked, 不训练、不远端执行、不写结果材料。记录见 `.pipeline/experiments/20260704_module2_post_plan_audit_command_index_refresh.md`。
 104. [x] F02.6 decision-record current-permission guard 已完成: `f02_6_decision_record` 新增并下游审计 `remote_preflight_allowed_now=false` 与 `remote_training_allowed_now=false`, transition/status gate 均验证 decision record 本身不能直接放行远端 preflight/training; 当前 F02.6 仍 pending, formal gate 仍 blocked。记录见 `.pipeline/experiments/20260704_module2_f02_6_decision_record_now_permissions.md`。
+105. [x] Formal gate gap summary 已完成: `formal_gate_remaining_deliverables` 新增 `deliverable_gap_summary`, 将当前 PPO-vs-RS formal gate 缺口直接汇总为 training 3、evaluation 2、acceptance 3、formal_acceptance 2, 并保留 responsible stage、allowed_now、blocked_by 和 exact missing paths; 当前 F02.6 仍 pending, local/remote training、remote preflight 和 formal claim 均 false。记录见 `.pipeline/experiments/20260704_module2_formal_gate_gap_summary.md`。
 
 ## 7. 完成记录
 
+- 2026-07-04: 完成 formal gate gap summary。`formal_gate_remaining_deliverables` 现在输出 `deliverable_gap_summary`, 直接列出 10 个缺失训练/评测/验收/H01-H02 formal acceptance 产物及其负责阶段、blocked_by 和路径; 当前 `formal_gate_deliverables_blocked`, `remote_training_allowed_now=false`, `formal_claim_allowed_now=false`。本轮未训练、未远端执行、未写结果性论文材料。记录见 `.pipeline/experiments/20260704_module2_formal_gate_gap_summary.md`。
 - 2026-07-03: 创建本文件。依据本地 contract、当前 Hybrid A* 代码、F-N3P inference/evaluation/data 代码、Dang 2022、HOPE、Neural A*、PythonRobotics、Karl Kurzer path_planner 建立最大实现任务分解。
 - 2026-07-03: 会话前相关中间态已备份到 commit `640c76bf`。
 - 2026-07-03: 完成 A01.1, 新建 `0_trials/module2_rl_rs_evidence/` 证据目录与四个模板/初始证据文件。
