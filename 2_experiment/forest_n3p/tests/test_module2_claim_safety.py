@@ -979,6 +979,9 @@ def _status_report_payload(*, ready, invalid=False):
         "h02_formal_acceptance_requirement_summary": _status_report_h02_acceptance_requirement_summary_payload(
             ready=ready
         ),
+        "remaining_deliverables_acceptance_summary": _status_report_remaining_deliverables_acceptance_summary_payload(
+            ready=ready
+        ),
         "closure_remote_stage_summary": {
             "approved_remote_preflight": {
                 "present": True,
