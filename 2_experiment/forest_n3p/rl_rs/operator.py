@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any, Optional
@@ -52,6 +53,7 @@ class RlRsFunnelOperator:
     terminal_check_every: int = 1
     no_progress_patience: int = 3
     observation_config: ObservationConfig = ObservationConfig()
+    append_terminal_rs: bool = True
     name: str = "rl_rs_funnel"
     checkpoint_path: str | None = None
     checkpoint_sha256: str | None = None
@@ -78,12 +80,34 @@ class RlRsFunnelOperator:
             observation = step.observation
             if not (step.terminated or step.truncated):
                 continue
+            if not bool(self.append_terminal_rs):
+                telemetry = RlRsFunnelTelemetry(
+                    env.telemetry,
+                    terminal_rs_used=False,
+                    terminal_rs_action_count=0,
+                    operator=self.name,
+                )
+                self.last_telemetry = telemetry
+                if step.terminated and not step.telemetry.collided and step.goal_tolerance_reached:
+                    return AnalyticExpansionResult(
+                        states=rollout_states,
+                        actions=rollout_actions,
+                        telemetry=telemetry,
+                        terminal_rs_used=False,
+                        operator=self.name,
+                    )
+                return None
             terminal_states: list[AckermannState] = []
             terminal_actions: list[MotionPrimitive] = []
             if step.terminal_rs.success:
                 terminal = self._terminal_rs_segments(step.next_state, goal, context)
                 if terminal is None:
-                    telemetry = RlRsFunnelTelemetry(env.telemetry, terminal_rs_used=False, terminal_rs_action_count=0)
+                    telemetry = RlRsFunnelTelemetry(
+                        env.telemetry,
+                        terminal_rs_used=False,
+                        terminal_rs_action_count=0,
+                        operator=self.name,
+                    )
                     self.last_telemetry = telemetry
                     return None
                 terminal_states, terminal_actions = terminal
@@ -93,6 +117,7 @@ class RlRsFunnelOperator:
                 env.telemetry,
                 terminal_rs_used=terminal_used,
                 terminal_rs_action_count=terminal_action_count,
+                operator=self.name,
             )
             self.last_telemetry = telemetry
             if not terminal_used:
@@ -120,6 +145,9 @@ class RlRsFunnelOperator:
             theta_bins=int(context.theta_bins),
             no_progress_patience=int(self.no_progress_patience),
             observation_config=self.observation_config,
+            terminal_success_mode="terminal_rs" if bool(self.append_terminal_rs) else "goal_tolerance",
+            goal_xy_tolerance_m=float(getattr(context, "goal_xy_tol", 0.30)),
+            goal_theta_tolerance_rad=float(getattr(context, "goal_theta_tol", math.radians(15.0))),
         )
 
     def _terminal_rs_segments(
