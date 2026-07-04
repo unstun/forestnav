@@ -32,6 +32,10 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["current_state"]["remote_packet_preflight_allowed_now"] is False
     assert manifest["current_state"]["remote_packet_training_allowed_now"] is False
     assert manifest["current_state"]["remote_packet_audit_allowed_now"] is False
+    assert manifest["current_state"]["handoff_bundle_status"] == "blocked_until_f02_6_decision"
+    assert manifest["current_state"]["handoff_bundle_next_action"] == "record_f02_6_decision"
+    assert manifest["current_state"]["handoff_bundle_safety_issue_count"] == 0
+    assert manifest["current_state"]["handoff_bundle_remote_training_allowed_now"] is False
     assert manifest["missing_counts_by_category"]["training"] == 3
     assert len(manifest["training_artifacts_required"]) == 3
     assert len(manifest["evaluation_artifacts_required"]) == 2
@@ -52,6 +56,12 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert closure_stages["gate3_remote_training"]["allowed_now"] is False
     assert closure_stages["gate3_remote_training"]["runs_training"] is True
     assert "remote_packet_not_ready" in closure_stages["gate3_remote_training"]["blocked_by"]
+    handoff = manifest["formal_gate_handoff_summary"]
+    assert handoff["status"] == "blocked_until_f02_6_decision"
+    assert handoff["next_handoff_action_id"] == "record_f02_6_decision"
+    assert handoff["remote_training_allowed_now"] is False
+    assert handoff["remote_execution_steps"]["run_remote_training"]["allowed_now"] is False
+    assert "remote_packet_not_ready" in handoff["remote_execution_steps"]["run_remote_training"]["blocked_by"]
 
     lanes = {lane["lane_id"]: lane for lane in manifest["formal_gate_lanes"]}
     assert lanes["gate3_remote_training"]["runs_training"] is True
@@ -89,6 +99,7 @@ def test_formal_gate_status_report_catches_status_input_drift(tmp_path):
     assert "closure_checklist_executes_commands" in issue_ids
     assert "remote_packet_allows_claim_before_audit" in issue_ids
     assert "claim_safety_allows_formal_claim" in issue_ids
+    assert "handoff_bundle_safety_issues_open" in issue_ids
     assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
 
 
@@ -106,6 +117,22 @@ def test_formal_gate_status_report_requires_remote_step_blockers(tmp_path):
     assert manifest["status"] == "formal_gate_status_blocked"
     assert "remote_packet_sync_to_remote_missing_blocked_by" in issue_ids
     assert "remote_packet_run_remote_training_missing_blocked_by" in issue_ids
+    assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+
+
+def test_formal_gate_status_report_consumes_handoff_bundle_safety(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    handoff = json.loads(config.handoff_bundle_path.read_text(encoding="utf-8"))
+    handoff["remote_execution_steps"]["run_remote_training"]["allowed_now"] = True
+    handoff["remote_execution_steps"]["run_remote_training"]["blocked_by"] = []
+    config.handoff_bundle_path.write_text(json.dumps(handoff), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert manifest["status"] == "formal_gate_status_blocked"
+    assert "handoff_bundle_pending_allows_run_remote_training" in issue_ids
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
 
 
@@ -171,6 +198,8 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
             str(config.claim_safety_path),
             "--paper-readiness",
             str(config.paper_readiness_path),
+            "--handoff-bundle",
+            str(config.handoff_bundle_path),
         ]
     )
 
@@ -182,6 +211,7 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
     assert "gate3_remote_training" in markdown
     assert "Remote Execution Steps" in markdown
     assert "Closure Remote Stages" in markdown
+    assert "Formal Gate Handoff Bundle" in markdown
     assert "does not execute commands" in markdown
 
 
@@ -198,6 +228,7 @@ def _config(tmp_path, *, complete, drift=False):
         h02_acceptance_path=_json(tmp_path, "h02_acceptance.json", _h02_acceptance(complete=complete)),
         claim_safety_path=_json(tmp_path, "claim_safety.json", _claim_safety(complete=complete, drift=drift)),
         paper_readiness_path=_json(tmp_path, "paper_readiness.json", _paper_readiness(complete=complete)),
+        handoff_bundle_path=_json(tmp_path, "handoff_bundle.json", _handoff_bundle(complete=complete, drift=drift)),
     )
 
 
