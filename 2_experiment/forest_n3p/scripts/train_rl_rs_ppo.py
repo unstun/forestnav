@@ -278,9 +278,10 @@ def _set_feature_normalization(policy: Any, feature_mean: Sequence[float], featu
 
 
 def _rebuild_policy_optimizer(policy: Any) -> None:
+    lr = float(policy.optimizer.param_groups[0]["lr"]) if getattr(policy, "optimizer", None) is not None else 3e-4
     policy.optimizer = policy.optimizer_class(
         policy.parameters(),
-        lr=policy.lr_schedule(1),
+        lr=lr,
         **policy.optimizer_kwargs,
     )
 
