@@ -36,6 +36,8 @@ from forest_n3p.rs_utils import check_reeds_shepp_collision, states_as_tuples
 from forest_n3p.third_party.pathplan import AckermannState, GridMap, TwoCircleFootprint
 from forest_n3p.third_party.pathplan.geometry import GridFootprintChecker
 
+MapCacheKey = tuple[str, int]
+
 
 RESULT_SCHEMA = pa.schema(
     [
@@ -176,16 +178,17 @@ def main(argv: Sequence[str] | None = None) -> int:
         enforce_t14_scale=False,
     )
     footprint = TwoCircleFootprint.from_box(length=0.924, width=0.740)
-    map_cache: dict[int, GridMap] = {}
-    edt_cache: dict[int, np.ndarray] = {}
+    map_cache: dict[MapCacheKey, GridMap] = {}
+    edt_cache: dict[MapCacheKey, np.ndarray] = {}
     result_rows: list[dict[str, Any]] = []
 
     for idx, row in enumerate(rows):
+        map_key = _map_cache_key(row)
         grid_map = _grid_for_row(row, cfg, footprint, map_cache)
-        edt_m = edt_cache.get(int(row["map_seed"]))
+        edt_m = edt_cache.get(map_key)
         if edt_m is None:
             edt_m = _distance_field_m(grid_map)
-            edt_cache[int(row["map_seed"])] = edt_m
+            edt_cache[map_key] = edt_m
 
         state = _pose_from_row(row, "state")
         goal = _pose_from_row(row, "goal")
@@ -716,16 +719,21 @@ def _grid_for_row(
     row: dict[str, Any],
     cfg: MainEvaluationConfig,
     footprint: TwoCircleFootprint,
-    cache: dict[int, GridMap],
+    cache: dict[MapCacheKey, GridMap],
 ) -> GridMap:
+    cache_key = _map_cache_key(row)
     map_seed = int(row["map_seed"])
-    grid_map = cache.get(map_seed)
+    grid_map = cache.get(cache_key)
     if grid_map is not None:
         return grid_map
     profile = _profile_by_name(cfg.profiles, str(row["profile_name"]))
     grid_map = _generate_grid_map(profile, map_seed, cfg, footprint)
-    cache[map_seed] = grid_map
+    cache[cache_key] = grid_map
     return grid_map
+
+
+def _map_cache_key(row: dict[str, Any]) -> MapCacheKey:
+    return (str(row["profile_name"]), int(row["map_seed"]))
 
 
 def _safe_rs_check(
