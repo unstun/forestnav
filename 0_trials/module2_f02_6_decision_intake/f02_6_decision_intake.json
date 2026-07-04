@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "artifact_name": "module2_f02_6_decision_intake",
+  "status": "f02_6_decision_intake_pending_clean",
+  "created_at_utc": "2026-07-04T18:40:18.318152+00:00",
+  "source_head": "8b76a651a8a34e20390979a8e22a6ce05a3e06fd+dirty",
+  "not_paper_result_material": true,
+  "executes_commands": false,
+  "runs_training": false,
+  "runs_remote_preflight": false,
+  "runs_remote_audit": false,
+  "local_training_allowed_now": false,
+  "formal_claim_allowed_now": false,
+  "inputs": {
+    "decision_packet": "0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json",
+    "decision_record": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+    "decision_gate_audit": "0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json",
+    "formal_gate_status_report": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
+    "remaining_deliverables": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json"
+  },
+  "current_state": {
+    "packet_status": "pending_human_decision",
+    "packet_recommendation": "approve_obstacle_summary_warm_start",
+    "packet_decision_owner": "Dr Sun",
+    "packet_formal_claim_allowed": false,
+    "record_status": "pending_human_decision",
+    "record_requested_decision": "pending",
+    "record_decider": null,
+    "effective_warm_start_decision": "pending",
+    "record_remote_training_allowed": false,
+    "record_local_training_allowed": false,
+    "record_formal_claim_allowed": false,
+    "decision_gate_status": "f02_6_decision_gate_pending_clean",
+    "decision_gate_issue_count": 0,
+    "status_report_status": "formal_gate_status_blocked",
+    "next_blocked_lane": "decision",
+    "status_report_local_training_allowed_now": false,
+    "status_report_remote_preflight_allowed_now": false,
+    "status_report_remote_training_allowed_now": false,
+    "status_report_formal_claim_allowed_now": false,
+    "remaining_deliverables_status": "formal_gate_deliverables_blocked",
+    "missing_deliverable_count": 10,
+    "open_category_count": 4,
+    "remaining_local_training_allowed_now": false,
+    "remaining_remote_preflight_allowed_now": false,
+    "remaining_remote_training_allowed_now": false,
+    "remaining_formal_claim_allowed_now": false,
+    "missing_by_category": {
+      "training": 3,
+      "evaluation": 2,
+      "acceptance": 3,
+      "formal_acceptance": 2
+    }
+  },
+  "decision_intake_contract": {
+    "decision_owner_required": "Dr Sun",
+    "valid_decisions": [
+      "approve_obstacle_summary_warm_start",
+      "reject_obstacle_summary_warm_start"
+    ],
+    "required_record_fields_for_non_pending_decision": [
+      "decision",
+      "decider",
+      "decision_note"
+    ],
+    "field_rules": {
+      "decision": "must be one of approve_obstacle_summary_warm_start or reject_obstacle_summary_warm_start",
+      "decider": "must equal Dr Sun",
+      "decision_note": "must be a human-readable Dr Sun note explaining the approval or rejection rationale"
+    },
+    "record_command_templates": [
+      {
+        "decision": "approve_obstacle_summary_warm_start",
+        "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'"
+      },
+      {
+        "decision": "reject_obstacle_summary_warm_start",
+        "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision reject_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun rejection note>'"
+      }
+    ],
+    "allowed_next_human_actions_from_gate_audit": [
+      {
+        "decision": "approve_obstacle_summary_warm_start",
+        "effect": "Allows source-fresh regeneration and approved remote preflight regeneration; does not allow paper claims.",
+        "records_command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'"
+      },
+      {
+        "decision": "reject_obstacle_summary_warm_start",
+        "effect": "Keeps obstacle-summary warm-start formal training blocked and routes to stronger/full patch-CNN protocol.",
+        "records_command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision reject_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun rejection note>'"
+      }
+    ]
+  },
+  "post_decision_non_authorizations": [
+    {
+      "action": "local_training",
+      "allowed_after_decision_record": false,
+      "reason": "Formal PPO training is remote-only on gpu3070ti-relay."
+    },
+    {
+      "action": "paper_formal_result_claim",
+      "allowed_after_decision_record": false,
+      "reason": "A decision record is not a PPO checkpoint, evaluation CSV, H02 acceptance, or paper-result input."
+    },
+    {
+      "action": "skip_source_fresh_regeneration",
+      "allowed_after_decision_record": false,
+      "reason": "The post-F02.6 plan must regenerate gate artifacts before approved remote preflight."
+    },
+    {
+      "action": "treat_smoke_or_no_warm_failure_as_warm_start_result",
+      "allowed_after_decision_record": false,
+      "reason": "Smoke and no-warm failure artifacts are invalid substitutes for the approved warm-start formal run."
+    }
+  ],
+  "invalid_inputs": [
+    {
+      "input": "decider other than Dr Sun",
+      "why_invalid": "Only Dr Sun can close F02.6."
+    },
+    {
+      "input": "approval or rejection without a decision note",
+      "why_invalid": "A formal research decision must preserve rationale for audit and future paper rebuttal."
+    },
+    {
+      "input": "manual permission flips in downstream JSON",
+      "why_invalid": "Downstream permissions must be regenerated from the decision record and gate artifacts."
+    },
+    {
+      "input": "local training output",
+      "why_invalid": "The formal PPO checkpoint must be produced on gpu3070ti-relay after the gate opens."
+    },
+    {
+      "input": "paper result table or claim preview",
+      "why_invalid": "F02.6 intake is not formal evaluation evidence."
+    }
+  ],
+  "audit_issue_count": 0,
+  "audit_issues": [],
+  "claim_boundaries": [
+    "This intake explains how to close F02.6; it does not close F02.6.",
+    "It must not be cited as a PPO performance result or warm-start effect result.",
+    "The only valid decider for a non-pending F02.6 record is Dr Sun.",
+    "Approval records the human decision and leads to source-fresh gate regeneration; it is not a command to train.",
+    "Rejected obstacle-summary warm-start keeps formal warm-start PPO blocked and routes to a stronger/full patch-CNN protocol.",
+    "Local PPO training remains disallowed."
+  ]
+}
