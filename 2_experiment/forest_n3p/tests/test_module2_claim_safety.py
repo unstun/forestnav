@@ -73,6 +73,8 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     system_diagram.write_text(json.dumps({"status": "code_anchored_drawio"}), encoding="utf-8")
     closure_checklist = tmp_path / "closure_checklist.json"
     closure_checklist.write_text(json.dumps(_closure_checklist_payload(open_checklist=True)), encoding="utf-8")
+    status_report = tmp_path / "status_report.json"
+    status_report.write_text(json.dumps(_status_report_payload(ready=True)), encoding="utf-8")
     draft = tmp_path / "draft.md"
     draft.write_text(
         "Our method is globally optimal. RL replaces Hybrid A*. No-warm Gate #3 formal failed.",
@@ -99,6 +101,8 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
             str(system_diagram),
             "--closure-checklist",
             str(closure_checklist),
+            "--status-report",
+            str(status_report),
             "--draft-text",
             str(draft),
             "--output-dir",
@@ -125,6 +129,7 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert "f02_6_pending" in manifest["formal_performance_blockers"]
     assert "formal_gate_closure_checklist_open" in manifest["formal_performance_blockers"]
     assert manifest["input_status"]["closure_checklist_status"] == "formal_gate_closure_blocked"
+    assert manifest["input_status"]["status_report_status"] == "formal_gate_status_ready_for_claim_audit"
 
     allowed_ids = {item["claim_id"] for item in manifest["allowed_claims"]}
     assert "method_is_ha_star_analytic_operator" in allowed_ids
@@ -173,6 +178,8 @@ def test_claim_safety_refuses_formal_claim_when_h02_acceptance_is_blocked_even_i
     system_diagram.write_text(json.dumps({"status": "code_anchored_drawio"}), encoding="utf-8")
     closure_checklist = tmp_path / "closure_checklist.json"
     closure_checklist.write_text(json.dumps(_closure_checklist_payload(open_checklist=False)), encoding="utf-8")
+    status_report = tmp_path / "status_report.json"
+    status_report.write_text(json.dumps(_status_report_payload(ready=True)), encoding="utf-8")
 
     manifest = builder.build_manifest(
         repo_root=builder._repo_root(),
@@ -184,6 +191,7 @@ def test_claim_safety_refuses_formal_claim_when_h02_acceptance_is_blocked_even_i
         method_algorithms_path=method_algorithms,
         system_diagram_path=system_diagram,
         closure_checklist_path=closure_checklist,
+        status_report_path=status_report,
     )
 
     assert manifest["status"] == "blocked_formal_performance_claims"
@@ -222,6 +230,8 @@ def test_claim_safety_blocks_formal_claim_when_closure_checklist_is_open(tmp_pat
     system_diagram.write_text(json.dumps({"status": "code_anchored_drawio"}), encoding="utf-8")
     closure_checklist = tmp_path / "closure_checklist.json"
     closure_checklist.write_text(json.dumps(_closure_checklist_payload(open_checklist=True)), encoding="utf-8")
+    status_report = tmp_path / "status_report.json"
+    status_report.write_text(json.dumps(_status_report_payload(ready=True)), encoding="utf-8")
 
     manifest = builder.build_manifest(
         repo_root=builder._repo_root(),
@@ -233,6 +243,7 @@ def test_claim_safety_blocks_formal_claim_when_closure_checklist_is_open(tmp_pat
         method_algorithms_path=method_algorithms,
         system_diagram_path=system_diagram,
         closure_checklist_path=closure_checklist,
+        status_report_path=status_report,
     )
 
     assert manifest["status"] == "blocked_formal_performance_claims"
@@ -258,6 +269,8 @@ def test_claim_safety_rejects_closure_checklist_that_runs_or_claims(tmp_path):
     system_diagram.write_text(json.dumps({"status": "code_anchored_drawio"}), encoding="utf-8")
     closure_checklist = tmp_path / "closure_checklist.json"
     closure_checklist.write_text(json.dumps(_closure_checklist_payload(open_checklist=False, invalid=True)), encoding="utf-8")
+    status_report = tmp_path / "status_report.json"
+    status_report.write_text(json.dumps(_status_report_payload(ready=True)), encoding="utf-8")
 
     manifest = builder.build_manifest(
         repo_root=builder._repo_root(),
@@ -269,6 +282,7 @@ def test_claim_safety_rejects_closure_checklist_that_runs_or_claims(tmp_path):
         method_algorithms_path=method_algorithms,
         system_diagram_path=system_diagram,
         closure_checklist_path=closure_checklist,
+        status_report_path=status_report,
     )
 
     blockers = set(manifest["formal_performance_blockers"])
@@ -278,6 +292,90 @@ def test_claim_safety_rejects_closure_checklist_that_runs_or_claims(tmp_path):
     assert "closure_checklist_allows_local_training" in blockers
     assert "closure_checklist_allows_formal_claim" in blockers
     assert "closure_checklist_input_safety_issues_open" in blockers
+
+
+def test_claim_safety_blocks_formal_claim_when_status_report_is_blocked(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_claim_safety")
+    paper_tables = tmp_path / "paper_tables.json"
+    paper_tables.write_text(json.dumps({"status": "formal_ready", "formal_claim_allowed": True, "blockers": []}), encoding="utf-8")
+    h02_formal_acceptance = tmp_path / "h02_formal_acceptance.json"
+    h02_formal_acceptance.write_text(json.dumps({"status": "formal_output_accepted", "formal_output_accepted": True, "paper_result_input_allowed": True, "blockers": []}), encoding="utf-8")
+    h01_manifest = tmp_path / "h01.json"
+    h01_manifest.write_text(json.dumps({"status": "ready_for_formal_evaluation", "blockers": []}), encoding="utf-8")
+    f02_6_packet = tmp_path / "f02_6.json"
+    f02_6_packet.write_text(json.dumps({"status": "approved", "blockers": []}), encoding="utf-8")
+    gate3_audit = tmp_path / "gate3_audit.json"
+    gate3_audit.write_text(json.dumps({"formal_decision": "pass", "formal_claim_allowed": True}), encoding="utf-8")
+    method_algorithms = tmp_path / "method_algorithms.json"
+    method_algorithms.write_text(json.dumps({"status": "code_anchored"}), encoding="utf-8")
+    system_diagram = tmp_path / "system_diagram.json"
+    system_diagram.write_text(json.dumps({"status": "code_anchored_drawio"}), encoding="utf-8")
+    closure_checklist = tmp_path / "closure_checklist.json"
+    closure_checklist.write_text(json.dumps(_closure_checklist_payload(open_checklist=False)), encoding="utf-8")
+    status_report = tmp_path / "status_report.json"
+    status_report.write_text(json.dumps(_status_report_payload(ready=False)), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        repo_root=builder._repo_root(),
+        paper_tables_path=paper_tables,
+        h02_formal_acceptance_path=h02_formal_acceptance,
+        h01_manifest_path=h01_manifest,
+        f02_6_packet_path=f02_6_packet,
+        gate3_audit_path=gate3_audit,
+        method_algorithms_path=method_algorithms,
+        system_diagram_path=system_diagram,
+        closure_checklist_path=closure_checklist,
+        status_report_path=status_report,
+    )
+
+    assert manifest["status"] == "blocked_formal_performance_claims"
+    assert manifest["formal_performance_claim_allowed"] is False
+    assert manifest["formal_performance_blockers"] == ["formal_gate_status_report_blocked"]
+    assert manifest["input_status"]["status_report_status"] == "formal_gate_status_blocked"
+
+
+def test_claim_safety_rejects_status_report_that_runs_or_claims(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_claim_safety")
+    paper_tables = tmp_path / "paper_tables.json"
+    paper_tables.write_text(json.dumps({"status": "formal_ready", "formal_claim_allowed": True, "blockers": []}), encoding="utf-8")
+    h02_formal_acceptance = tmp_path / "h02_formal_acceptance.json"
+    h02_formal_acceptance.write_text(json.dumps({"status": "formal_output_accepted", "formal_output_accepted": True, "paper_result_input_allowed": True, "blockers": []}), encoding="utf-8")
+    h01_manifest = tmp_path / "h01.json"
+    h01_manifest.write_text(json.dumps({"status": "ready_for_formal_evaluation", "blockers": []}), encoding="utf-8")
+    f02_6_packet = tmp_path / "f02_6.json"
+    f02_6_packet.write_text(json.dumps({"status": "approved", "blockers": []}), encoding="utf-8")
+    gate3_audit = tmp_path / "gate3_audit.json"
+    gate3_audit.write_text(json.dumps({"formal_decision": "pass", "formal_claim_allowed": True}), encoding="utf-8")
+    method_algorithms = tmp_path / "method_algorithms.json"
+    method_algorithms.write_text(json.dumps({"status": "code_anchored"}), encoding="utf-8")
+    system_diagram = tmp_path / "system_diagram.json"
+    system_diagram.write_text(json.dumps({"status": "code_anchored_drawio"}), encoding="utf-8")
+    closure_checklist = tmp_path / "closure_checklist.json"
+    closure_checklist.write_text(json.dumps(_closure_checklist_payload(open_checklist=False)), encoding="utf-8")
+    status_report = tmp_path / "status_report.json"
+    status_report.write_text(json.dumps(_status_report_payload(ready=True, invalid=True)), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        repo_root=builder._repo_root(),
+        paper_tables_path=paper_tables,
+        h02_formal_acceptance_path=h02_formal_acceptance,
+        h01_manifest_path=h01_manifest,
+        f02_6_packet_path=f02_6_packet,
+        gate3_audit_path=gate3_audit,
+        method_algorithms_path=method_algorithms,
+        system_diagram_path=system_diagram,
+        closure_checklist_path=closure_checklist,
+        status_report_path=status_report,
+    )
+
+    blockers = set(manifest["formal_performance_blockers"])
+    assert "status_report_executes_commands" in blockers
+    assert "status_report_runs_training" in blockers
+    assert "status_report_runs_remote_preflight" in blockers
+    assert "status_report_allows_local_training" in blockers
+    assert "status_report_allows_formal_claim" in blockers
+    assert "status_report_allows_local_training_now" in blockers
+    assert "status_report_input_safety_issues_open" in blockers
 
 
 def _closure_checklist_payload(*, open_checklist, invalid=False):
