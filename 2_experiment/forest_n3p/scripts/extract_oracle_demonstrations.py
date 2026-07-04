@@ -100,6 +100,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--seed", type=int, default=20260620)
     parser.add_argument("--buckets", default="Complex,Extreme")
     parser.add_argument("--oracle-types", choices=("best", "oracle_a", "oracle_b"), default="best")
+    parser.add_argument("--filter-best-oracle", choices=("any", "oracle_a", "oracle_b"), default="any")
+    parser.add_argument("--oracle-b-candidate-sources", default=None)
+    parser.add_argument("--exclude-oracle-b-candidate-sources", default=None)
     parser.add_argument("--max-records", type=int, default=None)
     parser.add_argument("--row-offset", type=int, default=0)
     parser.add_argument("--oracle-a-timeout-s", type=float, default=8.0)
@@ -215,15 +218,53 @@ def _validate_args(args: argparse.Namespace) -> None:
 
 def _selected_rows(args: argparse.Namespace) -> list[tuple[int, dict[str, Any]]]:
     rows = pq.read_table(args.input).to_pylist()
-    buckets = {part.strip() for part in str(args.buckets).split(",") if part.strip()}
+    buckets = _csv_set(str(args.buckets))
+    include_b_sources = _csv_set(args.oracle_b_candidate_sources)
+    exclude_b_sources = _csv_set(args.exclude_oracle_b_candidate_sources)
+    filter_best_oracle = str(args.filter_best_oracle)
     selected = [
         (idx, dict(row))
         for idx, row in enumerate(rows)
-        if (not buckets or str(row["difficulty_bucket"]) in buckets) and bool(row.get("oracle_connectable"))
+        if _row_matches_selection(
+            row,
+            buckets=buckets,
+            filter_best_oracle=filter_best_oracle,
+            include_b_sources=include_b_sources,
+            exclude_b_sources=exclude_b_sources,
+        )
     ]
     start = int(args.row_offset)
     end = None if args.max_records is None else start + int(args.max_records)
     return selected[start:end]
+
+
+def _csv_set(raw: str | None) -> set[str]:
+    if raw is None:
+        return set()
+    return {part.strip() for part in str(raw).split(",") if part.strip()}
+
+
+def _row_matches_selection(
+    row: dict[str, Any],
+    *,
+    buckets: set[str],
+    filter_best_oracle: str,
+    include_b_sources: set[str],
+    exclude_b_sources: set[str],
+) -> bool:
+    if buckets and str(row["difficulty_bucket"]) not in buckets:
+        return False
+    if not bool(row.get("oracle_connectable")):
+        return False
+    best_oracle = str(row.get("best_oracle"))
+    if filter_best_oracle != "any" and best_oracle != filter_best_oracle:
+        return False
+    b_source = str(row.get("oracle_b_selected_candidate_source"))
+    if include_b_sources and b_source not in include_b_sources:
+        return False
+    if exclude_b_sources and b_source in exclude_b_sources:
+        return False
+    return True
 
 
 def _choose_oracle(row: dict[str, Any], mode: str) -> str:
@@ -406,6 +447,9 @@ def _summary_payload(
             "density_profile_buckets": str(args.density_profile_buckets),
             "buckets": str(args.buckets),
             "oracle_types": str(args.oracle_types),
+            "filter_best_oracle": str(args.filter_best_oracle),
+            "oracle_b_candidate_sources": args.oracle_b_candidate_sources,
+            "exclude_oracle_b_candidate_sources": args.exclude_oracle_b_candidate_sources,
             "max_records": args.max_records,
             "row_offset": int(args.row_offset),
             "stop_at_terminal_rs": bool(args.stop_at_terminal_rs),
