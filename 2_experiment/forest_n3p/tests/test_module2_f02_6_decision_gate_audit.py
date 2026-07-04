@@ -139,6 +139,36 @@ def test_f02_6_decision_gate_audit_accepts_approved_record_only_when_decider_is_
     assert "approved_record_decider_not_dr_sun" in issue_ids
 
 
+def test_f02_6_decision_gate_audit_requires_decision_note_after_closure(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_f02_6_decision_gate_audit")
+    approved = _record_payload(status="approved")
+    approved["decision_note"] = ""
+    rejected = _record_payload(status="rejected")
+    rejected.pop("decision_note")
+
+    approved_bad = auditor.build_manifest(
+        auditor.F026DecisionGateAuditConfig(
+            output_dir=tmp_path,
+            packet_path=_json(tmp_path, "packet_approved.json", _packet_payload()),
+            decision_record_path=_json(tmp_path, "record_approved.json", approved),
+            post_plan_path=_json(tmp_path, "plan_approved.json", _plan_payload(status="approved")),
+        )
+    )
+    rejected_bad = auditor.build_manifest(
+        auditor.F026DecisionGateAuditConfig(
+            output_dir=tmp_path,
+            packet_path=_json(tmp_path, "packet_rejected.json", _packet_payload()),
+            decision_record_path=_json(tmp_path, "record_rejected.json", rejected),
+            post_plan_path=_json(tmp_path, "plan_rejected.json", _plan_payload(status="rejected")),
+        )
+    )
+
+    approved_issues = {issue["issue_id"] for issue in approved_bad["audit_issues"]}
+    rejected_issues = {issue["issue_id"] for issue in rejected_bad["audit_issues"]}
+    assert "approved_record_missing_decision_note" in approved_issues
+    assert "rejected_record_missing_decision_note" in rejected_issues
+
+
 def test_f02_6_decision_gate_audit_accepts_rejected_record_only_when_remote_training_stays_blocked(tmp_path):
     auditor = import_module("forest_n3p.scripts.build_module2_f02_6_decision_gate_audit")
     record = _record_payload(status="rejected")
@@ -236,6 +266,7 @@ def _record_payload(*, status):
             "decision_owner_required": "Dr Sun",
             "requested_decision": "pending",
             "decider": None,
+            "decision_note": None,
             "effective_warm_start_decision": "pending",
             "remote_training_allowed": False,
             "remote_preflight_allowed_now": False,
@@ -251,6 +282,7 @@ def _record_payload(*, status):
             "decision_owner_required": "Dr Sun",
             "requested_decision": "approve_obstacle_summary_warm_start",
             "decider": "Dr Sun",
+            "decision_note": "Approve obstacle-summary warm-start for source-fresh regeneration.",
             "effective_warm_start_decision": "approved_obstacle_summary",
             "remote_training_allowed": True,
             "remote_preflight_allowed_now": False,
@@ -272,6 +304,7 @@ def _record_payload(*, status):
             "decision_owner_required": "Dr Sun",
             "requested_decision": "reject_obstacle_summary_warm_start",
             "decider": "Dr Sun",
+            "decision_note": "Reject obstacle-summary warm-start and require stronger/full patch-CNN protocol.",
             "effective_warm_start_decision": "no_warm_only",
             "remote_training_allowed": False,
             "remote_preflight_allowed_now": False,
