@@ -602,9 +602,14 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 排除: CleanRL 只作为 PPO 细节参考, 因其 README 明确不是 modular library / not meant to be imported, 且当前 prerequisite 是 Python `<3.11`; local minimal PPO 继续禁止。
   - 适配边界: 当前 `AnalyticExpansionEnv` 不是 Gymnasium env; F03.2 要写薄 adapter, 不重写环境动力学/碰撞/reward。
   - 记录: `.pipeline/experiments/20260704_module2_f03_rl_library_selection.md`。
-- [ ] F03.2 vectorized env。
+- [x] F03.2 vectorized env。
   - 多 map/query 并行采样。
   - 每个 episode 绑定一个 RS failure node 或 near-goal state。
+  - 已完成: 新增 `GymAnalyticExpansionEnv`, 将 planner-side `AnalyticExpansionEnv` 包装成 Gymnasium env; action space 为 normalized single-steering `Box(-1, 1, shape=(1,))`, observation space 为 `Dict({"scalar": (8,), "patch": (C,H,W)})`。
+  - SB3 兼容性: `stable_baselines3.common.env_checker.check_env()` 通过; 双环境 `DummyVecEnv` reset/step smoke 通过。
+  - 边界: 当前 vector smoke 证明 SB3 向量接口可运行, 但真实多 map/query context sampler 与 curriculum 仍在 F03.3/F03.4。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q` -> `43 passed in 3.75s`。
+  - 记录: `.pipeline/experiments/20260704_module2_f03_gymnasium_adapter.md`。
 - [ ] F03.3 curriculum。
   - stage 1: open/simple connector。
   - stage 2: obstacle near but one clear side。
