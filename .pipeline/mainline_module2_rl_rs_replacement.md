@@ -523,9 +523,13 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 边界: 这是 extraction pipeline + source-bound preview, 不是最终完整 BC corpus; `voronoi_skeleton` B-only rows 仍未纳入 claim。
   - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `24 passed in 0.47s`。
   - 记录: `.pipeline/experiments/20260703_module2_f01_oracle_demonstration_extraction.md`。
-- [ ] F01.2 数据 manifest。
+- [x] F01.2 数据 manifest。
   - 记录 map seed, query id, oracle type, source commit, extraction config。
   - 输出: `2_experiment/forest_n3p/datasets/module2_rl_rs_bc/manifest.json`
+  - 已完成: 写入 `manifest.json` 和 `README.md`; manifest 包含 source input、source extractor、source hash、schema、filters、preview file hash、known boundaries。
+  - 边界: dataset status 为 `preview`, 不是最终完整 BC corpus; BC/PPO training 尚未开始。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `24 passed in 0.47s`。
+  - 记录: `.pipeline/experiments/20260703_module2_f01_dataset_manifest.md`。
 
 #### F02. BC 预热
 
@@ -666,7 +670,8 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 15. [x] E03.3 success set 测试。
 16. [x] E03.4 no progress/oscillation 测试。
 17. [x] F01.1 从 C02 oracle path 提取 state-action demonstrations。
-18. [ ] F01.2 数据 manifest。
+18. [x] F01.2 数据 manifest。
+19. [ ] F02.1 训练 BC policy。
 
 ## 7. 完成记录
 
@@ -695,3 +700,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-03: 完成 E03.3 terminal RS success set test。直接测试 `check_terminal_rs_connectable()` 在空图和障碍阻挡样例中的 success/failure 语义。记录见 `.pipeline/experiments/20260703_module2_e03_terminal_rs_success_set.md`。
 - 2026-07-03: 完成 E03.4 no-progress/oscillation tests。新增 oscillation guard 与 telemetry/reward 连接, 原先未实现的 `oscillation` failure label 已变成可测终止语义。记录见 `.pipeline/experiments/20260703_module2_e03_no_progress_oscillation.md`。
 - 2026-07-03: 完成 F01.1 oracle demonstration extraction pipeline。新增 C02 oracle replay extractor, 已产出 oracle A smoke、B-only smoke 和 20-row preview dataset; 尚未声明完整 BC corpus。记录见 `.pipeline/experiments/20260703_module2_f01_oracle_demonstration_extraction.md`。
+- 2026-07-03: 完成 F01.2 dataset manifest。`module2_rl_rs_bc/manifest.json` 记录 preview dataset 的 source hash、schema、filters、file hash 和边界; 尚未开始 BC/PPO 训练。记录见 `.pipeline/experiments/20260703_module2_f01_dataset_manifest.md`。
