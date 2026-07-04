@@ -487,8 +487,11 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 
 #### E03. 环境测试
 
-- [ ] E03.1 单步运动学测试。
+- [x] E03.1 单步运动学测试。
   - 与 `propagate()` 输出严格一致。
+  - 已完成: `test_rollout_step_matches_planner_propagate_for_curved_action` 使用非零 steering, 逐项比较 `rollout.next_state`、`rollout.samples[-1]` 和 planner-source `propagate()`。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `21 passed in 0.49s`。
+  - 记录: `.pipeline/experiments/20260703_module2_e03_single_step_kinematics.md`。
 - [ ] E03.2 碰撞测试。
   - 同一 pose/path 下 env checker 与 planner checker 一致。
 - [ ] E03.3 success set 测试。
@@ -642,7 +645,8 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 10. [x] E02.1 success reward 与部署使命一致。
 11. [x] E02.2 shaping 分项全部写入 info。
 12. [x] E02.3 reward ablation hooks。
-13. [ ] E03.1 单步运动学测试。
+13. [x] E03.1 单步运动学测试。
+14. [ ] E03.2 碰撞测试。
 
 ## 7. 完成记录
 
@@ -666,3 +670,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-03: 完成 E02.1 terminal-RS success reward。`RewardConfig` 与 `compute_terminal_success_reward` 已接入 env; success reward 只由 terminal RS-connectability 触发, 不使用距离阈值替代。记录见 `.pipeline/experiments/20260703_module2_e02_success_reward.md`。
 - 2026-07-03: 完成 E02.2 reward shaping terms。`RewardBreakdown` 和 `step.info["reward_terms"]` 现在暴露 terminal/collision/progress/RS-progress/clearance/curvature/path-length/step 分项; 权重仍属待校准, E02.3 ablation hooks 未完成。记录见 `.pipeline/experiments/20260703_module2_e02_reward_shaping_terms.md`。
 - 2026-07-03: 完成 E02.3 reward ablation hooks。`RewardTermSwitches` 让每个 reward term 显式可开关, `step.info["reward_ablation"]` 暴露消融状态; 尚未运行 ablation 实验或调权重。记录见 `.pipeline/experiments/20260703_module2_e02_reward_ablation_hooks.md`。
+- 2026-07-03: 完成 E03.1 single-step kinematics test。非零 steering rollout 的 `next_state` 和最后一个 sample 已严格对齐 planner `propagate()`。记录见 `.pipeline/experiments/20260703_module2_e03_single_step_kinematics.md`。
