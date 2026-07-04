@@ -39,6 +39,10 @@ REMOTE_PACKET_SAFETY_STEP_MAP = {
     "run_remote_training": ("remote_training_allowed_now", "remote_training_blocked_by"),
     "run_remote_audit": ("remote_audit_allowed_now", "remote_audit_blocked_by"),
 }
+CLAIM_GATE_REGENERATION_ARTIFACT_IDS = (
+    "claim_safety",
+    "paper_readiness",
+)
 
 
 @dataclass(frozen=True)
@@ -642,6 +646,90 @@ def _remote_packet_safety_gaps(
         )
 
     packet_summary = remote_packet_safety.get("packet_summary") if isinstance(remote_packet_safety.get("packet_summary"), dict) else {}
+    command_index_summary = _remote_packet_safety_claim_gate_command_index_summary(remote_packet_safety)
+    if not command_index_summary["present"]:
+        gaps.append(
+            _gap(
+                "training",
+                "remote_packet_safety_missing_claim_gate_command_index_summary",
+                "Remote packet safety audit does not expose the post-plan source regeneration command index.",
+                str(remote_packet_safety_path),
+                "Regenerate remote packet safety audit from the current post-F02.6 plan audit.",
+            )
+        )
+    if command_index_summary["missing_target_ids"]:
+        gaps.append(
+            _gap(
+                "training",
+                "remote_packet_safety_command_index_missing_targets",
+                "Remote packet safety command index is missing source freshness targets.",
+                str(remote_packet_safety_path),
+                "Regenerate post-F02.6 plan and remote packet safety audit before formal gate use.",
+            )
+        )
+    if command_index_summary["unknown_manual_count"] > 0:
+        gaps.append(
+            _gap(
+                "training",
+                "remote_packet_safety_command_index_unknown_manual_rows",
+                "Remote packet safety command index contains unknown manual rows.",
+                str(remote_packet_safety_path),
+                "Keep claim-gate regeneration commands machine-resolved or explicitly whitelisted.",
+            )
+        )
+    if command_index_summary["forbidden_command_count"] > 0:
+        gaps.append(
+            _gap(
+                "training",
+                "remote_packet_safety_command_index_forbidden_commands",
+                "Remote packet safety command index contains execution/training commands.",
+                str(remote_packet_safety_path),
+                "Source-regeneration command index must remain read-only builder commands.",
+            )
+        )
+    for artifact_id, row in command_index_summary["claim_gate_rows"].items():
+        if not row["present"]:
+            gaps.append(
+                _gap(
+                    "training",
+                    f"remote_packet_safety_command_index_missing_{artifact_id}",
+                    f"Remote packet safety command index does not include {artifact_id}.",
+                    str(remote_packet_safety_path),
+                    "Regenerate post-F02.6 plan and safety audit so claim-gate artifacts stay source-fresh before formal claims.",
+                )
+            )
+            continue
+        if row["stage_id"] != "regenerate_claim_gate_artifacts":
+            gaps.append(
+                _gap(
+                    "training",
+                    f"remote_packet_safety_command_index_{artifact_id}_wrong_stage",
+                    f"{artifact_id} is assigned to {row['stage_id']} instead of regenerate_claim_gate_artifacts.",
+                    str(remote_packet_safety_path),
+                    "Keep claim-safety and paper-readiness regeneration in the claim-gate stage.",
+                )
+            )
+        if row["required_before"] != "formal_claim_gate":
+            gaps.append(
+                _gap(
+                    "training",
+                    f"remote_packet_safety_command_index_{artifact_id}_wrong_required_before",
+                    f"{artifact_id} has required_before={row['required_before']} instead of formal_claim_gate.",
+                    str(remote_packet_safety_path),
+                    "Keep claim-gate artifacts required before the formal claim gate.",
+                )
+            )
+        if row["command_kind"] == "unknown_manual":
+            gaps.append(
+                _gap(
+                    "training",
+                    f"remote_packet_safety_command_index_{artifact_id}_manual_command",
+                    f"{artifact_id} command is unknown/manual in the safety command index.",
+                    str(remote_packet_safety_path),
+                    "Use the known builder command for claim-gate artifact regeneration.",
+                )
+            )
+
     if not packet_summary:
         gaps.append(
             _gap(
@@ -1518,6 +1606,38 @@ def _remote_packet_safety_record(path: Path, remote_packet_safety: dict[str, Any
         "remote_preflight_allowed_now": packet_summary.get("remote_preflight_allowed_now"),
         "remote_training_allowed_now": packet_summary.get("remote_training_allowed_now"),
         "remote_audit_allowed_now": packet_summary.get("remote_audit_allowed_now"),
+        "claim_gate_command_index_summary": _remote_packet_safety_claim_gate_command_index_summary(remote_packet_safety),
+    }
+
+
+def _remote_packet_safety_claim_gate_command_index_summary(remote_packet_safety: dict[str, Any]) -> dict[str, Any]:
+    cross_gate = remote_packet_safety.get("cross_gate_summary") if isinstance(remote_packet_safety.get("cross_gate_summary"), dict) else {}
+    summary = (
+        cross_gate.get("post_plan_source_regeneration_command_index_summary")
+        if isinstance(cross_gate.get("post_plan_source_regeneration_command_index_summary"), dict)
+        else {}
+    )
+    rows = summary.get("rows") if isinstance(summary.get("rows"), dict) else {}
+    claim_gate_rows: dict[str, dict[str, Any]] = {}
+    for artifact_id in CLAIM_GATE_REGENERATION_ARTIFACT_IDS:
+        row = rows.get(artifact_id) if isinstance(rows.get(artifact_id), dict) else {}
+        claim_gate_rows[artifact_id] = {
+            "present": bool(row),
+            "stage_id": row.get("stage_id"),
+            "required_before": row.get("required_before"),
+            "command_kind": row.get("command_kind"),
+            "command_template": row.get("command_template"),
+        }
+    return {
+        "present": bool(summary),
+        "index_row_count": int(summary.get("index_row_count") or 0),
+        "source_target_count": int(summary.get("source_target_count") or 0),
+        "missing_target_ids": _strings(summary.get("missing_target_ids")),
+        "unknown_manual_count": int(summary.get("unknown_manual_count") or 0),
+        "unknown_manual_ids": _strings(summary.get("unknown_manual_ids")),
+        "forbidden_command_count": int(summary.get("forbidden_command_count") or 0),
+        "forbidden_command_ids": _strings(summary.get("forbidden_command_ids")),
+        "claim_gate_rows": claim_gate_rows,
     }
 
 
@@ -1814,6 +1934,9 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- packet_status: `{manifest['remote_packet_safety']['packet_status']}`",
             f"- remote_training_allowed_now: `{manifest['remote_packet_safety']['remote_training_allowed_now']}`",
             f"- audit_issue_count: `{manifest['remote_packet_safety']['audit_issue_count']}`",
+            f"- command_index_present: `{manifest['remote_packet_safety']['claim_gate_command_index_summary']['present']}`",
+            f"- command_index_row_count: `{manifest['remote_packet_safety']['claim_gate_command_index_summary']['index_row_count']}`",
+            f"- command_index_missing_target_ids: `{manifest['remote_packet_safety']['claim_gate_command_index_summary']['missing_target_ids']}`",
             "",
             "## Execution Veto Matrix",
             "",
