@@ -38,6 +38,10 @@
 
 - present=`True`, status=`blocked_until_f02_6_decision`, transition_gate_status=`f02_6_transition_gate_audit_passed`, transition_gate_audit_issue_count=`0`, safety_issue_count=`0`, remote_training_allowed_now=`False`
 
+## Status Report Missing-Artifacts Handoff Index
+
+- present=`True`, status=`blocked_until_f02_6_decision`, next_action=`record_f02_6_decision`, open_requirement_count=`5`, remote_training_allowed_now=`False`, formal_result_material_allowed_now=`False`
+
 ## Status Report Remote Gate Summary
 
 ### closure_remote_stage_summary

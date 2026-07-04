@@ -33,6 +33,14 @@
 - claim_safety_transition_gate_audit_issue_count: `0`
 - claim_safety_handoff_safety_issue_count: `0`
 
+## Claim Safety Missing-Artifacts Handoff Index
+
+- claim_safety_missing_artifacts_handoff_status: `blocked_until_f02_6_decision`
+- claim_safety_missing_artifacts_next_action: `record_f02_6_decision`
+- claim_safety_missing_artifacts_open_requirement_count: `5`
+- claim_safety_missing_artifacts_remote_training_allowed_now: `False`
+- claim_safety_missing_artifacts_formal_result_material_allowed_now: `False`
+
 ## Section Readiness
 
 ### method_algorithm

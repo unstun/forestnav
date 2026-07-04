@@ -59,6 +59,11 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert manifest["input_status"]["claim_safety_transition_gate_status"] == "f02_6_transition_gate_audit_passed"
     assert manifest["input_status"]["claim_safety_transition_gate_audit_issue_count"] == 0
     assert manifest["input_status"]["claim_safety_handoff_safety_issue_count"] == 0
+    assert manifest["input_status"]["claim_safety_missing_artifacts_handoff_status"] == "blocked_until_f02_6_decision"
+    assert manifest["input_status"]["claim_safety_missing_artifacts_next_action"] == "record_f02_6_decision"
+    assert manifest["input_status"]["claim_safety_missing_artifacts_open_requirement_count"] == 5
+    assert manifest["input_status"]["claim_safety_missing_artifacts_remote_training_allowed_now"] is False
+    assert manifest["input_status"]["claim_safety_missing_artifacts_formal_result_material_allowed_now"] is False
 
     sections = {item["section_id"]: item for item in manifest["section_readiness"]}
     assert sections["method_algorithm"]["status"] == "ready_to_write"
@@ -75,6 +80,8 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert "blocked_until_f02_6_decision" in markdown
     assert "claim_safety_transition_gate_status" in markdown
     assert "f02_6_transition_gate_audit_passed" in markdown
+    assert "Claim Safety Missing-Artifacts Handoff Index" in markdown
+    assert "claim_safety_missing_artifacts_handoff_status" in markdown
 
 
 def test_paper_readiness_accepts_synthetic_complete_evidence(tmp_path):
@@ -101,6 +108,8 @@ def test_paper_readiness_accepts_synthetic_complete_evidence(tmp_path):
     assert manifest["global_blockers"] == []
     assert manifest["input_status"]["claim_safety_handoff_status"] == "ready_for_manual_remote_execution_review"
     assert manifest["input_status"]["claim_safety_transition_gate_status"] == "f02_6_transition_gate_audit_passed"
+    assert manifest["input_status"]["claim_safety_missing_artifacts_handoff_status"] == "formal_gate_evidence_ready_for_h01_h02_claim_gates"
+    assert manifest["input_status"]["claim_safety_missing_artifacts_open_requirement_count"] == 0
     assert all(item["status"] != "blocked" for item in manifest["section_readiness"])
     assert "formal_performance_improvement" in manifest["conditional_claim_ids"]
 
@@ -170,6 +179,18 @@ def _write_inputs(tmp_path, *, formal):
                 "remote_training_allowed_now": formal,
                 "remote_preflight_allowed_now": formal,
                 "formal_claim_allowed_now": formal,
+            },
+            "status_report_missing_artifacts_handoff_summary": {
+                "present": True,
+                "status": "formal_gate_evidence_ready_for_h01_h02_claim_gates"
+                if formal
+                else "blocked_until_f02_6_decision",
+                "next_action_id": None if formal else "record_f02_6_decision",
+                "next_action_requires_dr_sun": not formal,
+                "open_requirement_count": 0 if formal else 5,
+                "local_training_allowed_now": False,
+                "remote_training_allowed_now": formal,
+                "formal_result_material_allowed_now": False,
             },
             "allowed_claims": [
                 {"claim_id": "method_is_ha_star_analytic_operator", "scope": "method_structure"},

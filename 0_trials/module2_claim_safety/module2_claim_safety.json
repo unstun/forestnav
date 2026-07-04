@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_claim_safety",
   "status": "blocked_formal_performance_claims",
-  "created_at_utc": "2026-07-04T16:43:23.767324+00:00",
-  "source_head": "59caee5cc01ed95e6e8d5d82384dafdb09292d45",
+  "created_at_utc": "2026-07-04T17:11:41.615977+00:00",
+  "source_head": "27b69774b3467661026bc8b8e5d8fc0230f63831",
   "formal_performance_claim_allowed": false,
   "formal_performance_blockers": [
     "paper_tables_not_formal",
@@ -59,6 +59,11 @@
     "status_report_transition_gate_audit_issue_count": 0,
     "status_report_handoff_safety_issue_count": 0,
     "status_report_handoff_remote_training_allowed_now": false,
+    "status_report_missing_artifacts_handoff_status": "blocked_until_f02_6_decision",
+    "status_report_missing_artifacts_next_action": "record_f02_6_decision",
+    "status_report_missing_artifacts_open_requirement_count": 5,
+    "status_report_missing_artifacts_remote_training_allowed_now": false,
+    "status_report_missing_artifacts_formal_result_material_allowed_now": false,
     "status_report_closure_remote_training_allowed_now": false,
     "status_report_remote_packet_training_allowed_now": false
   },
@@ -71,6 +76,16 @@
     "remote_training_allowed_now": false,
     "remote_preflight_allowed_now": false,
     "formal_claim_allowed_now": false
+  },
+  "status_report_missing_artifacts_handoff_summary": {
+    "present": true,
+    "status": "blocked_until_f02_6_decision",
+    "next_action_id": "record_f02_6_decision",
+    "next_action_requires_dr_sun": true,
+    "open_requirement_count": 5,
+    "local_training_allowed_now": false,
+    "remote_training_allowed_now": false,
+    "formal_result_material_allowed_now": false
   },
   "status_report_remote_gate_summary": {
     "closure_remote_stage_summary": {
