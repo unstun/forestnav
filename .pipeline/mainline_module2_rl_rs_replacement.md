@@ -587,7 +587,9 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - [?] F02.6 PPO warm-start 决策门。
   - 候选: obstacle-summary checkpoint, patch-CNN bounded checkpoint, 或 stronger/full patch-CNN protocol 后再决策。
   - 当前证据: patch-CNN bounded pilot 没有明确超过 obstacle-summary, 且只用 4096/1024 bounded rows; obstacle-summary 是当前 practical candidate, 但也只有 67/258 success。
-  - 需要 Dr Sun 决策: 直接用 obstacle-summary 做 PPO 初始化, 还是先投入 stronger/full patch-CNN。
+  - 2026-07-04 补充同口径评估: 在 patch-CNN 同一组 `max_val_rows=1024` bounded rows / 242 source rows 上, scalar success 65/242, obstacle-summary success 101/242, patch-CNN success 63/242。
+  - 推荐: 若进入 PPO, 使用 obstacle-summary checkpoint 作为 practical warm-start; 不推荐继续用 bounded patch-CNN checkpoint。
+  - 仍需 Dr Sun 决策: 接受 obstacle-summary warm-start 进入 F03, 或明确要求先做 stronger/full patch-CNN protocol。
 
 #### F03. PPO 最大实现
 
@@ -756,4 +758,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-03: 完成 F01.1 oracle demonstration extraction pipeline。新增 C02 oracle replay extractor, 已产出 oracle A smoke、B-only smoke 和 20-row preview dataset; 尚未声明完整 BC corpus。记录见 `.pipeline/experiments/20260703_module2_f01_oracle_demonstration_extraction.md`。
 - 2026-07-03: 完成 F01.2 dataset manifest。`module2_rl_rs_bc/manifest.json` 记录 preview dataset 的 source hash、schema、filters、file hash 和边界; 尚未开始 BC/PPO 训练。记录见 `.pipeline/experiments/20260703_module2_f01_dataset_manifest.md`。
 - 2026-07-04: 完成 F02.4 profile-aware map cache 修复与 formal-v2 corpus 重建。formal-v1 在真实 profile 地图下有 4764 colliding demo rows, 因此 F02.2/F02.3 formal-v1 结果失效; formal-v2 产出 83809 demo rows / 1032 source rows, current/next collision audit 均为 0。记录见 `.pipeline/experiments/20260704_module2_f02_map_cache_formal_v2_rebuild.md`。
-- 2026-07-04: 完成 F02.5 formal-v2 BC baseline rerun。scalar 0.1m success 38/258; obstacle-summary 0.1m success 67/258; patch+scalar CNN bounded success 63/242; patch-CNN 未明确超过 obstacle-summary, 二者均不足以 planner insertion。记录见 `.pipeline/experiments/20260704_module2_f02_formal_v2_mlp_bc_baselines.md`。
+- 2026-07-04: 完成 F02.5 formal-v2 BC baseline rerun。scalar 0.1m success 38/258; obstacle-summary 0.1m success 67/258; patch+scalar CNN bounded success 63/242; 同口径 bounded eval 下 obstacle-summary 101/242 明显强于 patch-CNN 63/242, 推荐 obstacle-summary 作为 PPO practical warm-start。记录见 `.pipeline/experiments/20260704_module2_f02_formal_v2_mlp_bc_baselines.md`。
