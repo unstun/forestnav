@@ -31,6 +31,19 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
     assert manifest["runs_remote_preflight"] is False
     assert manifest["current_blocking_summary"]["training_allowed_now"] is False
     assert manifest["current_blocking_summary"]["remote_preflight_allowed_now"] is False
+    command_index = manifest["source_regeneration_command_index_summary"]
+    assert command_index["present"] is True
+    assert command_index["index_row_count"] == 5
+    assert command_index["source_target_count"] == 5
+    assert command_index["unknown_manual_count"] == 0
+    assert command_index["stage_mismatch_count"] == 0
+    assert command_index["command_not_in_stage_count"] == 0
+    assert command_index["forbidden_command_count"] == 0
+    assert command_index["stage_counts"] == {
+        "regenerate_claim_gate_artifacts": 1,
+        "regenerate_h01_h02_formal_artifacts": 1,
+        "regenerate_preflight_gate_artifacts": 3,
+    }
     assert manifest["inputs"]["formal_gate_status_report"].endswith("status_report.json")
     assert manifest["status_report_summary"]["status"] == "formal_gate_status_blocked"
     assert manifest["status_report_summary"]["formal_claim_allowed_now"] is False
@@ -126,6 +139,42 @@ def test_post_f02_6_plan_audit_catches_stage_order_and_source_target_mismatch(tm
     issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
     assert "missing_stage_approved_remote_preflight" in issue_ids
     assert "plan_source_regeneration_target_counts_mismatch" in issue_ids
+
+
+def test_post_f02_6_plan_audit_requires_complete_source_regeneration_command_index(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
+    plan = _plan_payload()
+    index = plan["source_regeneration_command_index"]
+    index[0]["command_kind"] = "unknown_manual"
+    index[1]["stage_id"] = "regenerate_claim_gate_artifacts"
+    index[2]["command_template"] = "ssh gpu3070ti-relay 'run training'"
+    index[3].pop("command_template")
+    index.pop()
+
+    manifest = auditor.build_manifest(
+        auditor.PostF026PlanAuditConfig(
+            output_dir=tmp_path,
+            plan_path=_json(tmp_path, "plan.json", plan),
+            formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate_payload()),
+            source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
+            missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
+            closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
+            status_report_path=_json(tmp_path, "status_report.json", _status_report_payload(ready=False)),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "source_regeneration_command_index_missing_source_targets" in issue_ids
+    assert "source_regeneration_command_index_unknown_manual_rows" in issue_ids
+    assert "source_regeneration_command_index_stage_mismatch" in issue_ids
+    assert "source_regeneration_command_index_command_missing_from_stage" in issue_ids
+    assert "source_regeneration_command_index_contains_execution_commands" in issue_ids
+    assert "source_regeneration_command_index_rows_missing_required_fields" in issue_ids
+    summary = manifest["source_regeneration_command_index_summary"]
+    assert summary["missing_target_ids"] == ["claim_safety"]
+    assert summary["unknown_manual_count"] == 1
+    assert summary["stage_mismatch_count"] == 1
+    assert summary["forbidden_command_count"] == 1
 
 
 def test_post_f02_6_plan_audit_requires_handoff_source_fresh_coverage(tmp_path):
@@ -480,6 +529,7 @@ def test_post_f02_6_plan_audit_cli_writes_json_and_markdown(tmp_path):
     markdown = markdown_path.read_text(encoding="utf-8")
     assert manifest["status"] == "post_f02_6_plan_audit_passed"
     assert "Module2 Post-F02.6 Plan Audit" in markdown
+    assert "Source Regeneration Command Index" in markdown
     assert "Status Report Remote Execution Steps" in markdown
     assert "Status Report Execution Veto Matrix" in markdown
     assert "does not execute the plan" in markdown
@@ -521,6 +571,43 @@ def _plan_payload():
                 {"artifact_id": "claim_safety", "path": "claim.json", "freshness_state": "historical_clean"}
             ],
         },
+        "source_regeneration_command_index": [
+            _command_index_row(
+                "f02_6_decision_record",
+                "approved_remote_preflight",
+                "a.json",
+                "human_decision_record",
+                "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'",
+            ),
+            _command_index_row(
+                "formal_gate_gap_audit",
+                "approved_remote_preflight",
+                "b.json",
+                "known_builder",
+                "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_gap_audit",
+            ),
+            _command_index_row(
+                "formal_gate_handoff_bundle",
+                "approved_remote_preflight",
+                "handoff.json",
+                "known_builder",
+                "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_handoff_bundle",
+            ),
+            _command_index_row(
+                "h01_evaluation_manifest",
+                "formal_h01_h02",
+                "h01.json",
+                "known_builder",
+                "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_evaluation_manifest --module2-rl-rs-checkpoint <pulled-back-final_model.zip>",
+            ),
+            _command_index_row(
+                "claim_safety",
+                "formal_claim_gate",
+                "claim.json",
+                "known_builder",
+                "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety",
+            ),
+        ],
         "blocking_summary": {
             "blocked_stage_ids": [
                 "regenerate_preflight_gate_artifacts",
@@ -541,7 +628,11 @@ def _plan_payload():
                 "regenerate_preflight_gate_artifacts",
                 "regeneration",
                 blocked_by=["f02_6_decision_not_approved"],
-                command="PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_handoff_bundle",
+                commands=[
+                    "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'",
+                    "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_gap_audit",
+                    "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_handoff_bundle",
+                ],
             ),
             _stage_payload(
                 "approved_remote_preflight",
@@ -568,13 +659,35 @@ def _plan_payload():
                 "regenerate_h01_h02_formal_artifacts",
                 "evaluation",
                 blocked_by=["missing_remote_audit_pullback", "source_fresh_h01_h02_targets_open"],
+                command="PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_evaluation_manifest --module2-rl-rs-checkpoint <pulled-back-final_model.zip>",
             ),
             _stage_payload(
                 "regenerate_claim_gate_artifacts",
                 "claim_gate",
                 blocked_by=["h02_formal_acceptance_not_ready", "source_fresh_claim_targets_open"],
+                command="PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety",
             ),
         ],
+    }
+
+
+def _command_index_row(artifact_id, required_before, path, command_kind, command_template):
+    if required_before == "approved_remote_preflight":
+        stage_id = "regenerate_preflight_gate_artifacts"
+    elif required_before == "formal_h01_h02":
+        stage_id = "regenerate_h01_h02_formal_artifacts"
+    elif required_before == "formal_claim_gate":
+        stage_id = "regenerate_claim_gate_artifacts"
+    else:
+        stage_id = "manual_review"
+    return {
+        "artifact_id": artifact_id,
+        "required_before": required_before,
+        "freshness_state": "historical_dirty",
+        "path": path,
+        "stage_id": stage_id,
+        "command_kind": command_kind,
+        "command_template": command_template,
     }
 
 
@@ -589,6 +702,7 @@ def _stage_payload(
     host=None,
     blocked_by=(),
     command="",
+    commands=(),
 ):
     return {
         "stage_id": stage_id,
@@ -602,7 +716,7 @@ def _stage_payload(
         "requires_human_input": human,
         "action": stage_id,
         "evidence_paths": [],
-        "command_templates": [command] if command else [],
+        "command_templates": list(commands) if commands else ([command] if command else []),
     }
 
 
