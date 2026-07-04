@@ -1,0 +1,446 @@
+{
+  "schema_version": 1,
+  "artifact_name": "module2_system_diagram",
+  "status": "code_anchored_drawio",
+  "created_at_utc": "2026-07-04T06:43:16.745814+00:00",
+  "source_head": "953bdb855e2b41c53820969ba9afb4d2fd243570",
+  "formal_claim_allowed": false,
+  "local_training_allowed": false,
+  "remote_training_resource": "gpu3070ti-relay",
+  "figure_title": "Figure: RL-RS analytic expansion system inside Hybrid A*",
+  "figure_intent": "Show that Module2 is a learned analytic-expansion operator inside Hybrid A*, with terminal RS certification and primitive fallback, not a standalone RL planner.",
+  "nodes": [
+    {
+      "node_id": "hybrid_astar_loop",
+      "title": "Hybrid A* search loop",
+      "subtitle": "Open/closed search; primitive fallback remains authoritative",
+      "drawio": {
+        "x": 60,
+        "y": 140,
+        "width": 190,
+        "height": 70,
+        "fill_color": "#FFFFFF"
+      },
+      "code_anchors": [
+        {
+          "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+          "line": 620,
+          "symbol": "HybridAStarPlanner.plan",
+          "pattern": "def plan("
+        },
+        {
+          "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+          "line": 781,
+          "symbol": "HybridAStarPlanner.plan",
+          "pattern": "for prim in self.primitives:"
+        }
+      ]
+    },
+    {
+      "node_id": "analytic_trigger",
+      "title": "Analytic expansion trigger",
+      "subtitle": "Distance-scaled interval decides when to try a shortcut",
+      "drawio": {
+        "x": 300,
+        "y": 140,
+        "width": 190,
+        "height": 70,
+        "fill_color": "#FFF2CC"
+      },
+      "code_anchors": [
+        {
+          "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+          "line": 287,
+          "symbol": "HybridAStarPlanner._analytic_interval",
+          "pattern": "def _analytic_interval"
+        },
+        {
+          "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+          "line": 726,
+          "symbol": "HybridAStarPlanner.plan",
+          "pattern": "if interval > 0 and expansion_idx % interval == 0"
+        }
+      ]
+    },
+    {
+      "node_id": "custom_operator_dispatch",
+      "title": "Custom analytic operator dispatch",
+      "subtitle": "Call custom operator when provided; otherwise built-in RS",
+      "drawio": {
+        "x": 540,
+        "y": 140,
+        "width": 210,
+        "height": 70,
+        "fill_color": "#DAE8FC"
+      },
+      "code_anchors": [
+        {
+          "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+          "line": 129,
+          "symbol": "HybridAStarPlanner.__init__",
+          "pattern": "analytic_expansion_operator=None"
+        },
+        {
+          "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+          "line": 296,
+          "symbol": "HybridAStarPlanner._try_analytic_expansion",
+          "pattern": "return self._try_custom_analytic_expansion(state, goal)"
+        },
+        {
+          "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+          "line": 301,
+          "symbol": "HybridAStarPlanner._try_custom_analytic_expansion",
+          "pattern": "result = self.analytic_expansion_operator.try_connect"
+        }
+      ]
+    },
+    {
+      "node_id": "rl_rs_funnel_operator",
+      "title": "RL-RS funnel operator",
+      "subtitle": "Checkpoint policy rolls out steering from current HA* node",
+      "drawio": {
+        "x": 810,
+        "y": 140,
+        "width": 210,
+        "height": 70,
+        "fill_color": "#D5E8D4"
+      },
+      "code_anchors": [
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+          "line": 48,
+          "symbol": "RlRsFunnelOperator",
+          "pattern": "class RlRsFunnelOperator"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+          "line": 62,
+          "symbol": "RlRsFunnelOperator.try_connect",
+          "pattern": "def try_connect("
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+          "line": 77,
+          "symbol": "RlRsFunnelOperator.try_connect",
+          "pattern": "step = env.step(self.action_policy(observation))"
+        }
+      ]
+    },
+    {
+      "node_id": "rl_rollout_env",
+      "title": "Planner-side RL rollout env",
+      "subtitle": "Shared Ackermann rollout, collision, no-progress, reward terms",
+      "drawio": {
+        "x": 810,
+        "y": 260,
+        "width": 210,
+        "height": 86,
+        "fill_color": "#E1D5E7"
+      },
+      "code_anchors": [
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/env.py",
+          "line": 135,
+          "symbol": "AnalyticExpansionEnv",
+          "pattern": "class AnalyticExpansionEnv"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/env.py",
+          "line": 156,
+          "symbol": "AnalyticExpansionEnv.reset",
+          "pattern": "def reset("
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/env.py",
+          "line": 179,
+          "symbol": "AnalyticExpansionEnv.step",
+          "pattern": "def step("
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/env.py",
+          "line": 314,
+          "symbol": "AnalyticExpansionEnv.step",
+          "pattern": "reward=compute_decomposed_reward("
+        }
+      ]
+    },
+    {
+      "node_id": "terminal_rs_certificate",
+      "title": "Terminal RS certificate",
+      "subtitle": "Only accept a learned shortcut after RS-connectable check",
+      "drawio": {
+        "x": 540,
+        "y": 260,
+        "width": 210,
+        "height": 86,
+        "fill_color": "#F8CECC"
+      },
+      "code_anchors": [
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/env.py",
+          "line": 211,
+          "symbol": "AnalyticExpansionEnv.step",
+          "pattern": "check_terminal_rs_connectable("
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/terminal.py",
+          "line": 21,
+          "symbol": "check_terminal_rs_connectable",
+          "pattern": "def check_terminal_rs_connectable"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+          "line": 102,
+          "symbol": "RlRsFunnelOperator.try_connect",
+          "pattern": "if step.terminal_rs.success:"
+        }
+      ]
+    },
+    {
+      "node_id": "accept_shortcut",
+      "title": "Accept shortcut",
+      "subtitle": "Return states/actions to HA* trace path when certified",
+      "drawio": {
+        "x": 300,
+        "y": 270,
+        "width": 190,
+        "height": 70,
+        "fill_color": "#D5E8D4"
+      },
+      "code_anchors": [
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+          "line": 92,
+          "symbol": "RlRsFunnelOperator.try_connect",
+          "pattern": "return AnalyticExpansionResult("
+        },
+        {
+          "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+          "line": 306,
+          "symbol": "HybridAStarPlanner._try_custom_analytic_expansion",
+          "pattern": "return result.to_legacy_tuple()"
+        }
+      ]
+    },
+    {
+      "node_id": "fallback_primitives",
+      "title": "Fallback primitive expansion",
+      "subtitle": "None means no certified shortcut; HA* continues primitive search",
+      "drawio": {
+        "x": 60,
+        "y": 270,
+        "width": 190,
+        "height": 70,
+        "fill_color": "#F5F5F5"
+      },
+      "code_anchors": [
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+          "line": 99,
+          "symbol": "RlRsFunnelOperator.try_connect",
+          "pattern": "return None"
+        },
+        {
+          "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+          "line": 302,
+          "symbol": "HybridAStarPlanner._try_custom_analytic_expansion",
+          "pattern": "if result is None:"
+        },
+        {
+          "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+          "line": 781,
+          "symbol": "HybridAStarPlanner.plan",
+          "pattern": "for prim in self.primitives:"
+        }
+      ]
+    },
+    {
+      "node_id": "gym_training_env",
+      "title": "PPO training environment",
+      "subtitle": "Gym adapter: scalar + occupancy/EDT patch, single steering action",
+      "drawio": {
+        "x": 810,
+        "y": 430,
+        "width": 210,
+        "height": 86,
+        "fill_color": "#DAE8FC"
+      },
+      "code_anchors": [
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/gym_env.py",
+          "line": 26,
+          "symbol": "GymAnalyticExpansionEnv",
+          "pattern": "class GymAnalyticExpansionEnv"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/gym_env.py",
+          "line": 40,
+          "symbol": "GymAnalyticExpansionEnv.__init__",
+          "pattern": "self.action_space = spaces.Box"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/obs.py",
+          "line": 100,
+          "symbol": "build_observation",
+          "pattern": "def build_observation"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/reward.py",
+          "line": 129,
+          "symbol": "compute_decomposed_reward",
+          "pattern": "def compute_decomposed_reward"
+        }
+      ]
+    },
+    {
+      "node_id": "checkpointed_policy",
+      "title": "Checkpointed policy variants",
+      "subtitle": "BC ready; PPO checkpoint missing until remote formal training",
+      "drawio": {
+        "x": 540,
+        "y": 430,
+        "width": 210,
+        "height": 86,
+        "fill_color": "#FFE6CC"
+      },
+      "code_anchors": [
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/checkpoint_operator.py",
+          "line": 55,
+          "symbol": "load_rl_rs_funnel_operator_from_checkpoint",
+          "pattern": "def load_rl_rs_funnel_operator_from_checkpoint"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/checkpoint_operator.py",
+          "line": 100,
+          "symbol": "load_bc_funnel_operator_from_checkpoint",
+          "pattern": "def load_bc_funnel_operator_from_checkpoint"
+        },
+        {
+          "path": "2_experiment/forest_n3p/main_evaluation.py",
+          "line": 70,
+          "symbol": "main_evaluation.RL_RS_OPERATOR_METHODS",
+          "pattern": "RL_RS_OPERATOR_METHODS = ("
+        }
+      ]
+    },
+    {
+      "node_id": "formal_evaluation_boundary",
+      "title": "Formal evaluation boundary",
+      "subtitle": "H01/H02 blocked: F02.6 pending + PPO checkpoint missing",
+      "drawio": {
+        "x": 270,
+        "y": 430,
+        "width": 220,
+        "height": 86,
+        "fill_color": "#F8CECC"
+      },
+      "code_anchors": [
+        {
+          "path": "2_experiment/forest_n3p/main_evaluation.py",
+          "line": 772,
+          "symbol": "_run_hybrid_a_operator",
+          "pattern": "elif method == \"ha_rl_rs_ppo\":"
+        },
+        {
+          "path": "2_experiment/forest_n3p/main_evaluation.py",
+          "line": 775,
+          "symbol": "_run_hybrid_a_operator",
+          "pattern": "elif method == \"ppo_analytic_operator\":"
+        },
+        {
+          "path": "2_experiment/forest_n3p/scripts/build_module2_evaluation_manifest.py",
+          "line": 322,
+          "symbol": "build_module2_evaluation_manifest",
+          "pattern": "f02_6_decision_packet_pending"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "hybrid_astar_loop",
+      "target": "analytic_trigger",
+      "semantic": "attempt_schedule",
+      "label": "interval",
+      "dashed": false
+    },
+    {
+      "source": "analytic_trigger",
+      "target": "custom_operator_dispatch",
+      "semantic": "try_analytic_expansion",
+      "label": "try",
+      "dashed": false
+    },
+    {
+      "source": "custom_operator_dispatch",
+      "target": "rl_rs_funnel_operator",
+      "semantic": "custom_operator",
+      "label": "operator",
+      "dashed": false
+    },
+    {
+      "source": "rl_rs_funnel_operator",
+      "target": "rl_rollout_env",
+      "semantic": "rollout_step",
+      "label": "policy step",
+      "dashed": false
+    },
+    {
+      "source": "rl_rollout_env",
+      "target": "terminal_rs_certificate",
+      "semantic": "terminal_check",
+      "label": "RS check",
+      "dashed": false
+    },
+    {
+      "source": "terminal_rs_certificate",
+      "target": "accept_shortcut",
+      "semantic": "certified_success",
+      "label": "success",
+      "dashed": false
+    },
+    {
+      "source": "terminal_rs_certificate",
+      "target": "fallback_primitives",
+      "semantic": "return_none_fallback",
+      "label": "fail / None",
+      "dashed": true
+    },
+    {
+      "source": "fallback_primitives",
+      "target": "hybrid_astar_loop",
+      "semantic": "continue_search",
+      "label": "continue",
+      "dashed": true
+    },
+    {
+      "source": "gym_training_env",
+      "target": "checkpointed_policy",
+      "semantic": "remote_training_export",
+      "label": "gpu3070ti-relay",
+      "dashed": false
+    },
+    {
+      "source": "checkpointed_policy",
+      "target": "rl_rs_funnel_operator",
+      "semantic": "checkpoint_load",
+      "label": "load",
+      "dashed": false
+    },
+    {
+      "source": "checkpointed_policy",
+      "target": "formal_evaluation_boundary",
+      "semantic": "formal_blocker",
+      "label": "PPO checkpoint missing",
+      "dashed": true
+    }
+  ],
+  "claim_boundaries": [
+    "This system diagram is a code-anchored method artifact, not a formal result.",
+    "F02.6 warm-start decision remains pending; obstacle-summary warm-start is not approved until Dr Sun closes that decision.",
+    "The ppo_analytic_operator and ppo_rs_funnel branches still require a real PPO checkpoint before formal H01/H02 evaluation.",
+    "Local PPO training is disallowed; formal training must run on gpu3070ti-relay or another explicitly approved remote GPU.",
+    "Fallback primitive expansion is part of the safety semantics: a custom operator returning None must not be relabeled as planner failure."
+  ]
+}
