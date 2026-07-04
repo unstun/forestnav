@@ -26,6 +26,11 @@
 
 ## Requirement Summary
 
+- remaining deliverables gap: total_missing=`10`, open_categories=`4`
+  - `training`: missing=`3`, responsible_stage=`gate3_remote_training`
+  - `evaluation`: missing=`2`, responsible_stage=`gate3_remote_audit_pullback`
+  - `acceptance`: missing=`3`, responsible_stage=`gate3_remote_audit_pullback`
+  - `formal_acceptance`: missing=`2`, responsible_stage=`regenerate_h01_h02_formal_artifacts`
 - formal gate requirements: `4`
   - `training_remote_ppo_checkpoint`: status=`blocked_missing_outputs`, responsible_stage=`gate3_remote_training`
   - `evaluation_gate3_episode_outputs`: status=`blocked_missing_outputs`, responsible_stage=`gate3_remote_audit_pullback`

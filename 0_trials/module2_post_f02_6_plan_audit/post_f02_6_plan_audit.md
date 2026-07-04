@@ -56,6 +56,15 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - input_safety_issue_count: `0`
 - next_blocked_lane_id: `decision`
 
+### Remaining Deliverables Gap Summary
+
+- ledger_path: `0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json`
+- ledger_exists: `True`
+- ledger_total_missing_deliverables: `10`
+- ledger_open_category_count: `4`
+- status_report_total_missing_deliverables: `10`
+- status_report_open_category_count: `4`
+
 ### Status Report Handoff Summary
 
 - status: `blocked_until_f02_6_decision`

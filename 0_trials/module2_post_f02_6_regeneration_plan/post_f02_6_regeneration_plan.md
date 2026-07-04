@@ -18,6 +18,16 @@ This file is an ordered plan. It does not execute commands, train, preflight, au
 - remote_packet_status: `blocked_until_f02_6_decision`
 - ready_to_run_remote_training: `False`
 
+## Remaining Deliverables Gap Summary
+
+- present: `True`
+- total_missing_deliverables: `10`
+- open_category_count: `4`
+- `training`: missing=`3`, responsible_stage=`gate3_remote_training`, allowed_now=`False`
+- `evaluation`: missing=`2`, responsible_stage=`gate3_remote_audit_pullback`, allowed_now=`False`
+- `acceptance`: missing=`3`, responsible_stage=`gate3_remote_audit_pullback`, allowed_now=`False`
+- `formal_acceptance`: missing=`2`, responsible_stage=`regenerate_h01_h02_formal_artifacts`, allowed_now=`False`
+
 ## Ordered Stages
 
 - `f02_6_decision_record` (decision): status=`ready`, allowed_now=`True`, runs_training=`False`, runs_remote_preflight=`False`

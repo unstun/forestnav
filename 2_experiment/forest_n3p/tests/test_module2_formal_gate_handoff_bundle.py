@@ -26,6 +26,10 @@ def test_formal_gate_handoff_bundle_blocks_pending_decision_without_execution(tm
     assert manifest["current_state"]["transition_gate_status"] == "f02_6_transition_gate_audit_passed"
     assert manifest["current_state"]["next_blocked_lane"] == "decision"
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+    assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
+    assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 4
+    assert manifest["remaining_deliverables_gap_summary"]["categories"]["training"]["missing_count"] == 3
+    assert manifest["post_plan_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
     assert manifest["remote_execution_steps"]["sync_to_remote"]["allowed_now"] is False
     assert manifest["remote_execution_steps"]["run_remote_training"]["allowed_now"] is False
     assert "requires_dr_sun_approval" in manifest["remote_execution_steps"]["run_remote_training"]["blocked_by"]
@@ -109,6 +113,20 @@ def test_formal_gate_handoff_bundle_consumes_transition_gate_audit(tmp_path):
     assert "transition_gate_approved_gate3_remote_training_ready_too_early" in issue_ids
 
 
+def test_formal_gate_handoff_bundle_catches_gap_summary_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_handoff_bundle")
+    config = _config(tmp_path, complete=False)
+    post_plan = json.loads(config.post_plan_path.read_text(encoding="utf-8"))
+    post_plan["remaining_deliverables_gap_summary"]["categories"]["training"]["missing_count"] = 2
+    config.post_plan_path.write_text(json.dumps(post_plan), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    assert manifest["status"] == "blocked_handoff_input_safety_issues"
+    issue_ids = {issue["issue_id"] for issue in manifest["safety_issues"]}
+    assert "remaining_deliverables_gap_summary_mismatch" in issue_ids
+
+
 def test_formal_gate_handoff_bundle_cli_writes_json_and_markdown(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_handoff_bundle")
     config = _config(tmp_path, complete=False)
@@ -147,6 +165,7 @@ def test_formal_gate_handoff_bundle_cli_writes_json_and_markdown(tmp_path):
     assert "Module2 Formal Gate Handoff Bundle" in markdown
     assert "Remote Steps" in markdown
     assert "Handoff Stages" in markdown
+    assert "remaining deliverables gap" in markdown
     assert "responsible_stage=`gate3_remote_training`" in markdown
     assert "does not execute commands" in markdown
 
@@ -237,6 +256,7 @@ def _post_plan(*, complete):
         "runs_remote_preflight": False,
         "local_training_allowed": False,
         "formal_claim_allowed": False,
+        "remaining_deliverables_gap_summary": _gap_summary(open_gaps=not complete),
         "ordered_stages": [
             _stage("f02_6_decision_record", "decision", allowed=not complete, blocked=[] if not complete else ["current_decision_status_approved"]),
             _stage("regenerate_preflight_gate_artifacts", "regeneration", allowed=complete, blocked=[] if complete else ["f02_6_decision_not_approved"]),
@@ -284,6 +304,36 @@ def _status_report(*, complete):
             "local_training_allowed_now": False,
         },
         "next_blocked_lane": None if complete else {"lane_id": "decision"},
+        "remaining_deliverables_gap_summary": _gap_summary(open_gaps=not complete),
+    }
+
+
+def _gap_summary(*, open_gaps):
+    return {
+        "summary_id": "module2_formal_gate_missing_training_eval_acceptance_summary",
+        "total_missing_deliverables": 10 if open_gaps else 0,
+        "open_category_count": 4 if open_gaps else 0,
+        "category_order": ["training", "evaluation", "acceptance", "formal_acceptance"],
+        "categories": {
+            "training": _gap_category("training", 3 if open_gaps else 0, "gate3_remote_training", open_gaps=open_gaps),
+            "evaluation": _gap_category("evaluation", 2 if open_gaps else 0, "gate3_remote_audit_pullback", open_gaps=open_gaps),
+            "acceptance": _gap_category("acceptance", 3 if open_gaps else 0, "gate3_remote_audit_pullback", open_gaps=open_gaps),
+            "formal_acceptance": _gap_category(
+                "formal_acceptance",
+                2 if open_gaps else 0,
+                "regenerate_h01_h02_formal_artifacts",
+                open_gaps=open_gaps,
+            ),
+        },
+    }
+
+
+def _gap_category(category, missing_count, stage_id, *, open_gaps):
+    return {
+        "missing_count": missing_count,
+        "responsible_stage_id": stage_id,
+        "responsible_stage_allowed_now": not open_gaps,
+        "missing_artifact_matrix_ids": [f"{category}:artifact_{index}" for index in range(missing_count)],
     }
 
 
