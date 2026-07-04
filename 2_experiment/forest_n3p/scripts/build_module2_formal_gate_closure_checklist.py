@@ -14,6 +14,9 @@ DEFAULT_MISSING_ARTIFACTS = Path("0_trials/module2_formal_gate_missing_artifacts
 DEFAULT_FORMAL_GATE = Path("0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json")
 DEFAULT_POST_PLAN = Path("0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json")
 DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_freshness_audit.json")
+DEFAULT_REMAINING_DELIVERABLES = Path(
+    "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json"
+)
 REMOTE_POST_PLAN_STAGE_IDS = (
     "approved_remote_preflight",
     "gate3_remote_training",
@@ -30,6 +33,7 @@ class FormalGateClosureChecklistConfig:
     formal_gate_path: Path = DEFAULT_FORMAL_GATE
     post_plan_path: Path = DEFAULT_POST_PLAN
     source_freshness_path: Path = DEFAULT_SOURCE_FRESHNESS
+    remaining_deliverables_path: Path = DEFAULT_REMAINING_DELIVERABLES
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -42,6 +46,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         formal_gate_path=args.formal_gate,
         post_plan_path=args.post_plan,
         source_freshness_path=args.source_freshness_audit,
+        remaining_deliverables_path=args.remaining_deliverables,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -61,15 +66,18 @@ def build_manifest(config: FormalGateClosureChecklistConfig) -> dict[str, Any]:
     formal_gate = _read_json(config.formal_gate_path)
     post_plan = _read_json(config.post_plan_path)
     source_freshness = _read_json(config.source_freshness_path)
+    remaining_deliverables = _read_json(config.remaining_deliverables_path)
     missing_groups = _missing_groups(missing_artifacts)
     checklist = _closure_checklist(missing_groups=missing_groups, formal_gate=formal_gate, post_plan=post_plan)
+    all_items_closed = all(item["complete"] for item in checklist)
     safety_issues = _input_safety_issues(
         missing_artifacts=missing_artifacts,
         formal_gate=formal_gate,
         post_plan=post_plan,
         source_freshness=source_freshness,
+        remaining_deliverables=remaining_deliverables,
+        all_items_closed=all_items_closed,
     )
-    all_items_closed = all(item["complete"] for item in checklist)
     gate_status = str(formal_gate.get("status") or "")
     status = "formal_gate_closure_ready_for_result_audit" if all_items_closed and not safety_issues and gate_status == "formal_gate_ready_for_result_audit" else "formal_gate_closure_blocked"
     return {
@@ -89,6 +97,7 @@ def build_manifest(config: FormalGateClosureChecklistConfig) -> dict[str, Any]:
             "formal_gate_gap_audit": str(config.formal_gate_path),
             "post_f02_6_regeneration_plan": str(config.post_plan_path),
             "source_freshness_audit": str(config.source_freshness_path),
+            "formal_gate_remaining_deliverables": str(config.remaining_deliverables_path),
         },
         "current_gate_summary": {
             "formal_gate_status": formal_gate.get("status"),
@@ -99,6 +108,8 @@ def build_manifest(config: FormalGateClosureChecklistConfig) -> dict[str, Any]:
             "formal_ordered_next_step_count": len(formal_gate.get("ordered_next_steps") if isinstance(formal_gate.get("ordered_next_steps"), list) else []),
             "post_plan_blocked_stage_ids": _post_plan_blocked_stage_ids(post_plan),
             "source_regeneration_target_count": len(source_freshness.get("ordered_regeneration_targets") if isinstance(source_freshness.get("ordered_regeneration_targets"), list) else []),
+            "remaining_deliverables_gap_total_missing": _remaining_deliverables_gap_summary(remaining_deliverables)["total_missing_deliverables"],
+            "remaining_deliverables_gap_open_category_count": _remaining_deliverables_gap_summary(remaining_deliverables)["open_category_count"],
         },
         "closure_item_count": len(checklist),
         "open_item_count": sum(1 for item in checklist if not item["complete"]),
@@ -108,6 +119,10 @@ def build_manifest(config: FormalGateClosureChecklistConfig) -> dict[str, Any]:
         "evaluation_acceptance_required": _artifacts_for_category(missing_groups, "evaluation_acceptance"),
         "claim_gate_artifacts_required": _artifacts_for_category(missing_groups, "claim_gate"),
         "post_plan_remote_stage_summary": _post_plan_remote_stage_summary(post_plan),
+        "remaining_deliverables_gap_summary": _remaining_deliverables_gap_summary(remaining_deliverables),
+        "post_plan_remaining_deliverables_gap_summary": _normalize_gap_summary(
+            post_plan.get("remaining_deliverables_gap_summary")
+        ),
         "closure_checklist": checklist,
         "input_safety_issue_count": len(safety_issues),
         "input_safety_issues": safety_issues,
@@ -129,6 +144,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--formal-gate", type=Path, default=DEFAULT_FORMAL_GATE)
     parser.add_argument("--post-plan", type=Path, default=DEFAULT_POST_PLAN)
     parser.add_argument("--source-freshness-audit", type=Path, default=DEFAULT_SOURCE_FRESHNESS)
+    parser.add_argument("--remaining-deliverables", type=Path, default=DEFAULT_REMAINING_DELIVERABLES)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
@@ -307,6 +323,8 @@ def _input_safety_issues(
     formal_gate: dict[str, Any],
     post_plan: dict[str, Any],
     source_freshness: dict[str, Any],
+    remaining_deliverables: dict[str, Any],
+    all_items_closed: bool,
 ) -> list[dict[str, str]]:
     issues: list[dict[str, str]] = []
     for name, payload in (
@@ -314,6 +332,7 @@ def _input_safety_issues(
         ("formal_gate", formal_gate),
         ("post_plan", post_plan),
         ("source_freshness", source_freshness),
+        ("remaining_deliverables", remaining_deliverables),
     ):
         if payload.get("executes_commands") is True:
             issues.append(_issue(f"{name}_executes_commands", f"{name} must be read-only for closure checklist input."))
@@ -326,7 +345,39 @@ def _input_safety_issues(
         if payload.get("formal_claim_allowed") is True:
             issues.append(_issue(f"{name}_allows_formal_claim", f"{name} must not allow formal claims."))
     issues.extend(_post_plan_remote_stage_safety_issues(post_plan))
+    issues.extend(
+        _remaining_deliverables_gap_issues(
+            remaining_deliverables=remaining_deliverables,
+            post_plan=post_plan,
+            all_items_closed=all_items_closed,
+        )
+    )
     return _unique_issues(issues)
+
+
+def _remaining_deliverables_gap_issues(
+    *,
+    remaining_deliverables: dict[str, Any],
+    post_plan: dict[str, Any],
+    all_items_closed: bool,
+) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    ledger_gap = _remaining_deliverables_gap_summary(remaining_deliverables)
+    post_plan_gap = _normalize_gap_summary(post_plan.get("remaining_deliverables_gap_summary"))
+    if not ledger_gap["present"]:
+        issues.append(_issue("remaining_deliverables_gap_summary_missing", "remaining-deliverables ledger must expose deliverable_gap_summary."))
+    else:
+        if ledger_gap["execution_boundary"] != "read_only_no_execution":
+            issues.append(_issue("remaining_deliverables_gap_summary_execution_boundary_invalid", "remaining-deliverables gap summary must be read-only."))
+        if ledger_gap["not_paper_result_material"] is not True:
+            issues.append(_issue("remaining_deliverables_gap_summary_marked_as_paper_result", "remaining-deliverables gap summary must not be paper result material."))
+    if not post_plan_gap["present"]:
+        issues.append(_issue("post_plan_missing_remaining_deliverables_gap_summary", "post-plan must expose remaining_deliverables_gap_summary."))
+    if ledger_gap["present"] and post_plan_gap["present"] and _gap_signature(ledger_gap) != _gap_signature(post_plan_gap):
+        issues.append(_issue("post_plan_remaining_deliverables_gap_summary_mismatch", "post-plan gap summary must match the remaining-deliverables ledger."))
+    if all_items_closed and _gap_open(ledger_gap):
+        issues.append(_issue("closure_ready_with_remaining_deliverables_gap_open", "closure checklist cannot be ready while remaining-deliverables gaps are open."))
+    return issues
 
 
 def _post_plan_blocked_stage_ids(post_plan: dict[str, Any]) -> list[str]:
@@ -382,6 +433,73 @@ def _post_plan_remote_stage_safety_issues(post_plan: dict[str, Any]) -> list[dic
         if (stage.get("runs_training") is True or stage.get("runs_remote_preflight") is True) and stage.get("host") != "gpu3070ti-relay":
             issues.append(_issue(f"post_plan_{stage_id}_wrong_host", f"{stage_id} must run only on gpu3070ti-relay."))
     return issues
+
+
+def _remaining_deliverables_gap_summary(remaining_deliverables: dict[str, Any]) -> dict[str, Any]:
+    return _normalize_gap_summary(remaining_deliverables.get("deliverable_gap_summary"))
+
+
+def _normalize_gap_summary(raw: Any) -> dict[str, Any]:
+    summary = raw if isinstance(raw, dict) else {}
+    categories = _normalize_gap_categories(summary.get("categories"))
+    return {
+        "present": bool(summary),
+        "summary_id": summary.get("summary_id"),
+        "execution_boundary": summary.get("execution_boundary"),
+        "not_paper_result_material": summary.get("not_paper_result_material"),
+        "total_missing_deliverables": int(summary.get("total_missing_deliverables") or 0),
+        "open_category_count": int(summary.get("open_category_count") or 0),
+        "category_order": [str(item) for item in summary.get("category_order", []) if item]
+        if isinstance(summary.get("category_order"), list)
+        else list(categories),
+        "categories": categories,
+    }
+
+
+def _normalize_gap_categories(raw_categories: Any) -> dict[str, dict[str, Any]]:
+    if isinstance(raw_categories, dict):
+        items = raw_categories.items()
+    elif isinstance(raw_categories, list):
+        items = ((item.get("category"), item) for item in raw_categories if isinstance(item, dict))
+    else:
+        items = ()
+    out: dict[str, dict[str, Any]] = {}
+    for category, raw in items:
+        if not category or not isinstance(raw, dict):
+            continue
+        matrix_ids = raw.get("missing_artifact_matrix_ids")
+        if not isinstance(matrix_ids, list):
+            missing_artifacts = raw.get("missing_artifacts") if isinstance(raw.get("missing_artifacts"), list) else []
+            matrix_ids = [item.get("matrix_id") for item in missing_artifacts if isinstance(item, dict)]
+        out[str(category)] = {
+            "missing_count": int(raw.get("missing_count") or 0),
+            "responsible_stage_id": raw.get("responsible_stage_id"),
+            "responsible_stage_allowed_now": raw.get("responsible_stage_allowed_now"),
+            "missing_artifact_matrix_ids": [str(item) for item in matrix_ids if item],
+        }
+    return out
+
+
+def _gap_signature(summary: dict[str, Any]) -> dict[str, Any]:
+    categories = summary.get("categories") if isinstance(summary.get("categories"), dict) else {}
+    return {
+        "summary_id": summary.get("summary_id"),
+        "total_missing_deliverables": summary.get("total_missing_deliverables"),
+        "open_category_count": summary.get("open_category_count"),
+        "categories": {
+            key: {
+                "missing_count": value.get("missing_count"),
+                "responsible_stage_id": value.get("responsible_stage_id"),
+                "missing_artifact_matrix_ids": value.get("missing_artifact_matrix_ids", []),
+            }
+            for key, value in sorted(categories.items())
+            if isinstance(value, dict)
+        },
+    }
+
+
+def _gap_open(summary: dict[str, Any]) -> bool:
+    return int(summary.get("total_missing_deliverables") or 0) > 0 or int(summary.get("open_category_count") or 0) > 0
 
 
 def _strings(value: Any) -> list[str]:
@@ -451,6 +569,22 @@ def _markdown(manifest: dict[str, Any]) -> str:
     ]
     for key, value in manifest["current_gate_summary"].items():
         lines.append(f"- {key}: `{value}`")
+    gap = manifest["remaining_deliverables_gap_summary"]
+    lines.extend(
+        [
+            "",
+            "## Remaining Deliverables Gap Summary",
+            "",
+            f"- total_missing_deliverables: `{gap['total_missing_deliverables']}`",
+            f"- open_category_count: `{gap['open_category_count']}`",
+        ]
+    )
+    for category in gap["category_order"]:
+        item = gap["categories"].get(category, {})
+        lines.append(
+            f"- `{category}`: missing=`{item.get('missing_count')}`, "
+            f"responsible_stage=`{item.get('responsible_stage_id')}`"
+        )
     lines.extend(["", "## Closure Checklist", ""])
     for item in manifest["closure_checklist"]:
         host = f", host=`{item['host']}`" if item.get("host") else ""
