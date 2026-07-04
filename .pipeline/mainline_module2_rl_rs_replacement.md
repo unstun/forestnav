@@ -127,22 +127,26 @@ Dang et al. 2022 明确把 Hybrid A* 分成 forward search 和 analytic expansio
 
 ### 3.2 HOPE 是强相关竞品, 但不是同一个插槽
 
-HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比较:
+HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比较。A01.2 已深读到论文 method/experiment/ablation/cost 和代码 training/env/action-mask/eval, 固定代码版本 `jiamiya/HOPE@2accab93e8602bd7dac780078a012574cc2cb4d7`:
 
-- arXiv HTML lines 357-360: https://arxiv.org/html/2405.20579v1
-- GitHub README lines 237-238: https://github.com/jiamiya/HOPE
-- 训练入口包括 PPO 和 SAC: `https://github.com/jiamiya/HOPE/blob/main/src/train/train_HOPE_ppo.py#L100-L166`, `https://github.com/jiamiya/HOPE/blob/main/src/train/train_HOPE_sac.py#L100-L166`
-- `ParkingAgent` 在执行 RS 路径时直接由 `RsPlanner` 输出动作, 否则走 RL agent: `https://github.com/jiamiya/HOPE/blob/main/src/model/agent/parking_agent.py#L49-L95`
-- `RsPlanner.set_rs_path()` 把 RS ctypes/lengths 转成动作序列: `https://github.com/jiamiya/HOPE/blob/main/src/model/agent/parking_agent.py#L2-L47`
-- 环境动作是 `[steer, speed]`, kinematic single-track model step 更新状态: `https://github.com/jiamiya/HOPE/blob/main/src/env/vehicle.py#L69-L96`
-- 环境 reward 里包含 RS distance reward: `https://github.com/jiamiya/HOPE/blob/main/src/env/car_parking_base.py#L186-L227`
+- arXiv HTML lines 39-41: 摘要定位为 parking planner, integrates RL agent with Reeds-Shepp curves, 并使用 action mask: https://arxiv.org/html/2405.20579v1
+- arXiv HTML lines 113-172: 方法是 RL policy 与 RS policy 的 hybrid action choice, RS 只在接近目标且存在 collision-free RS curve 时激活。
+- arXiv HTML lines 173-200: action mask 估计给定 steering 下最大 safe step velocity。
+- arXiv HTML lines 247-267, 293-339, 340-353: success table、compute cost、RS/action-mask/curriculum ablation。
+- 训练入口包括 PPO 和 SAC: `https://github.com/jiamiya/HOPE/blob/2accab93e8602bd7dac780078a012574cc2cb4d7/src/train/train_HOPE_ppo.py#L100-L208`, `https://github.com/jiamiya/HOPE/blob/2accab93e8602bd7dac780078a012574cc2cb4d7/src/train/train_HOPE_sac.py#L155-L213`
+- `ParkingAgent` 在执行 RS 路径时直接由 `RsPlanner` 输出动作, 否则走 RL agent: `https://github.com/jiamiya/HOPE/blob/2accab93e8602bd7dac780078a012574cc2cb4d7/src/model/agent/parking_agent.py#L49-L95`
+- `RsPlanner.set_rs_path()` 把 RS ctypes/lengths 转成动作序列: `https://github.com/jiamiya/HOPE/blob/2accab93e8602bd7dac780078a012574cc2cb4d7/src/model/agent/parking_agent.py#L2-L47`
+- 环境动作是 `[steer, speed]`, kinematic single-track model step 更新状态: `https://github.com/jiamiya/HOPE/blob/2accab93e8602bd7dac780078a012574cc2cb4d7/src/env/car_parking_base.py#L84-L87`, `https://github.com/jiamiya/HOPE/blob/2accab93e8602bd7dac780078a012574cc2cb4d7/src/env/vehicle.py#L69-L96`
+- 环境 reward 里包含 RS distance reward, 且 `path_to_dest` 由 env 在 RS 可行时写入: `https://github.com/jiamiya/HOPE/blob/2accab93e8602bd7dac780078a012574cc2cb4d7/src/env/car_parking_base.py#L186-L299`
+- Action mask 预计算 safe step 并影响 action sampling: `https://github.com/jiamiya/HOPE/blob/2accab93e8602bd7dac780078a012574cc2cb4d7/src/model/action_mask.py#L8-L227`
+- Evaluation 是 scenario-level policy rollout, 记录 success/reward/step/path length: `https://github.com/jiamiya/HOPE/blob/2accab93e8602bd7dac780078a012574cc2cb4d7/src/evaluation/eval_mix_scene.py#L82-L115`, `https://github.com/jiamiya/HOPE/blob/2accab93e8602bd7dac780078a012574cc2cb4d7/src/evaluation/eval_utils.py#L31-L84`
 - license: GPL-3.0, 不能直接复制进本项目核心代码, 只能概念借鉴或隔离参考。
 
 可用结论:
 
 - HOPE 支持 "RL+RS 组合比 naive RL 更稳" 这个方向。
 - HOPE 不是替换 Hybrid A* 内部 analytic expansion。它是 parking env 中 RL agent 和 RS planner 的融合执行。
-- 可借鉴: action mask, scene curriculum, RS distance shaping, RS action decomposition。
+- 可借鉴: action mask/safe-action prior, scene curriculum, RS distance shaping, RS action decomposition, RS/action-mask/curriculum ablation, compute accounting。
 - 不可直接复用: GPL 代码、停车场地图/状态定义、端到端 agent 结构。
 
 ### 3.3 Neural A* 是 learned search guidance, 不是 analytic operator replacement
