@@ -701,14 +701,16 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_rl_rs_api.py 2_experiment/forest_n3p/tests/test_rl_rs_gym_env.py 2_experiment/forest_n3p/tests/test_rl_rs_training_logging.py 2_experiment/forest_n3p/tests/test_hybrid_astar_operator_protocol.py 2_experiment/forest_n3p/tests/test_rl_rs_funnel_operator.py -q` -> `32 passed in 0.93s`。
   - 边界: 尚未切换 Hybrid A* 主循环, 尚未加载正式 checkpoint, 不关闭 F02.6 warm-start 决策。
   - 记录: `.pipeline/experiments/20260704_module2_g01_rl_rs_funnel_operator_skeleton.md`。
-- [>] G01.4 CLI/config 选择 operator。
+- [x] G01.4 CLI/config 选择 operator。
   - 默认不变。
   - 实验脚本显式写 operator 名称。
   - 已完成子项: planner constructor-level custom operator dispatch, 参数为 `HybridAStarPlanner(..., analytic_expansion_operator=...)`。
   - 当前实现: 传入 custom operator 时, planner 使用 `operator.name` 作为 `stats["analytic_operator"]`, 并调用 `operator.try_connect(state, goal, planner_context)`。
   - 默认边界: 未传 custom operator 时, 内置 `disabled/single_rs/dang_multi_rs` 路径保持不变。
-  - 未完成边界: CLI/script symbolic operator selection 仍未接线, 因此 G01.4 只标为 `[>]`。
+  - 已完成子项: `main_evaluation` 新增显式方法名 `ha_rl_rs_ppo`; `run_main_evaluation.py` 新增 `--module2-rl-rs-checkpoint` 及 RL-RS observation/env 参数。
+  - preflight: `ha_rl_rs_ppo` 缺 checkpoint 或 checkpoint 路径不存在时阻塞, 不会静默回退 RS。
   - 记录: `.pipeline/experiments/20260704_module2_g01_operator_dispatch_stub_integration.md`。
+  - 记录: `.pipeline/experiments/20260704_module2_g02_checkpoint_operator_cli_telemetry.md`。
 
 #### G02. 集成测试
 
@@ -719,10 +721,18 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_hybrid_astar_operator_protocol.py -q` -> `5 passed in 0.22s`。
   - 回归: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q` -> `70 passed in 9.98s`。
   - 记录: `.pipeline/experiments/20260704_module2_g01_operator_dispatch_stub_integration.md`。
-- [ ] G02.2 加载 checkpoint 测试。
+- [x] G02.2 加载 checkpoint 测试。
   - 缺 checkpoint 必须报错, 不能静默退回 RS 并声称 RL 生效。
-- [ ] G02.3 telemetry 测试。
+  - 已完成: 新增 `load_rl_rs_funnel_operator_from_checkpoint()`, 缺 checkpoint 抛 `FileNotFoundError`, 真实 SB3 smoke checkpoint 可加载并对真实 `RlRsObservation` 产生 finite normalized steering。
+  - 已完成: main evaluation preflight 对 `ha_rl_rs_ppo` 要求 checkpoint; `_run_hybrid_a_operator("ha_rl_rs_ppo", ...)` 会加载 checkpoint-backed operator 并写 checkpoint metadata。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_rl_rs_checkpoint_operator.py 2_experiment/forest_n3p/tests/test_main_evaluation_rl_rs_operator.py -q` -> `6 passed in 1.68s`。
+  - 记录: `.pipeline/experiments/20260704_module2_g02_checkpoint_operator_cli_telemetry.md`。
+- [x] G02.3 telemetry 测试。
   - RL attempts/successes/failures 数字可被 evaluation 读取。
+  - 已完成: `EvaluationRecord` 和 `records.csv` 直接导出 `analytic_operator`, `analytic_attempts`, `analytic_successes`, `analytic_failure_count`, `rl_rollout_steps`, `terminal_rs_success_count`, `terminal_rs_used_count`, `rl_rs_checkpoint`, `rl_rs_checkpoint_sha256` 等 flat columns。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_evaluation_timing_protocol.py -q` -> `3 passed in 0.20s`。
+  - CLI smoke: `0_trials/module2_operator_integration_smoke/g02_checkpoint_operator_smoke/eval/records.csv` 3/3 rows 含 `ha_rl_rs_ppo`, `rl_rs_funnel_ppo`, checkpoint path/hash, analytic attempts/successes/failure count。
+  - 记录: `.pipeline/experiments/20260704_module2_g02_checkpoint_operator_cli_telemetry.md`。
 
 ### Phase H: 主实验
 
@@ -816,8 +826,10 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 23. [x] F02.5 在 formal-v2 上重跑 BC baseline。
 24. [?] F02.6 PPO warm-start 决策门。
 25. [!] F03.5 no-warm formal Gate #3 已失败: `formal_decision=fail`, terminal-RS-success 29/64=0.453125; F02.6 warm-start 决策仍未关闭。
-26. [>] G01.4 constructor-level custom operator dispatch 已完成; CLI/script selection 未完成。
+26. [x] G01.4 constructor-level + CLI/script `ha_rl_rs_ppo` operator selection 已完成。
 27. [x] G02.1 无模型 stub operator planner integration/fallback 测试。
+28. [x] G02.2 checkpoint-backed RL-RS operator loader hard-fail 测试。
+29. [x] G02.3 evaluation flat telemetry export 测试。
 
 ## 7. 完成记录
 
@@ -855,3 +867,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 完成 G01.1/G01.2 analytic expansion operator protocol 和 DangRsOperator adapter。当前 adapter 暴露统一 `AnalyticExpansionResult` contract, 但仍委托 planner-owned `_try_analytic_expansion()` 且未切换 planner 主循环; 这是后续 RL-RS funnel operator 的接口地基, 不是 planner integration 完成。记录见 `.pipeline/experiments/20260704_module2_g01_operator_protocol.md`。
 - 2026-07-04: 完成 G01.3 RL-RS funnel operator skeleton。`RlRsFunnelOperator` 已能用显式 stub policy 执行真实 env rollout, terminal RS success 时追加 planner RS 收尾段, collision/no-progress 时返回 `None` 并保留 telemetry。当前仍未切换 Hybrid A* 主循环、未加载正式 checkpoint、未关闭 F02.6。记录见 `.pipeline/experiments/20260704_module2_g01_rl_rs_funnel_operator_skeleton.md`。
 - 2026-07-04: 完成 G02.1 无模型 stub operator planner integration 测试, 并完成 G01.4 的 constructor-level custom operator dispatch 子项。`HybridAStarPlanner(..., analytic_expansion_operator=...)` 现在可调用 custom operator; success path 写入 `stub_direct` telemetry, failure path 返回 `None` 后继续 primitive fallback 并写入 `stub_failing/stub_failure` failure record。CLI/script symbolic operator selection 仍未完成, F02.6 warm-start 决策仍 pending。记录见 `.pipeline/experiments/20260704_module2_g01_operator_dispatch_stub_integration.md`。
+- 2026-07-04: 完成 G01.4/G02.2/G02.3 checkpoint-backed RL-RS operator CLI 与 telemetry 闭环。`ha_rl_rs_ppo` 已成为 main evaluation 显式方法; `--module2-rl-rs-checkpoint` 缺失/不存在会 hard-fail; checkpoint loader 可加载 SB3 smoke model; `records.csv` 直接导出 analytic/RL-RS telemetry flat columns。Tiny smoke artifact 在 `0_trials/module2_operator_integration_smoke/g02_checkpoint_operator_smoke/`, `record_count=3`, `status=candidate_or_smoke`, `formal_acceptance=false`。F02.6 warm-start 决策仍 pending, 本 smoke 不作性能 claim。记录见 `.pipeline/experiments/20260704_module2_g02_checkpoint_operator_cli_telemetry.md`。

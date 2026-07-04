@@ -1,0 +1,75 @@
+{
+  "checkpoints": [
+    {
+      "path": "final_model.zip",
+      "sha256": "155238075103e10e78d8638246888c1486555b0ac060d1f13c91f2c3d6145012",
+      "size_bytes": 722699
+    }
+  ],
+  "command": "python -m forest_n3p.scripts.train_rl_rs_ppo --allow-duplicate-openmp --smoke --output-dir 0_trials/module2_operator_integration_smoke/g02_checkpoint_operator_smoke/train --seed 20260704",
+  "config": {
+    "allow_duplicate_openmp": true,
+    "batch_size": 8,
+    "bc_checkpoint": null,
+    "checkpoint_freq": 0,
+    "clip_range": 0.2,
+    "command": "python -m forest_n3p.scripts.train_rl_rs_ppo --allow-duplicate-openmp --smoke --output-dir 0_trials/module2_operator_integration_smoke/g02_checkpoint_operator_smoke/train --seed 20260704",
+    "curriculum_preset": "open",
+    "device": "auto",
+    "ent_coef": 0.0,
+    "env_config": {
+      "action_step_m": 0.3,
+      "collision_sample_step_m": 0.1,
+      "max_steps": 4,
+      "terminal_check_every": 1,
+      "theta_bins": 72
+    },
+    "features_extractor": "RlRsObstacleSummaryExtractor",
+    "gae_lambda": 0.95,
+    "gamma": 0.99,
+    "heldout_seed": 20260704,
+    "learning_rate": 0.0003,
+    "max_grad_norm": 0.5,
+    "n_envs": 1,
+    "n_epochs": 1,
+    "n_steps": 8,
+    "observation_config": {
+      "edt_clip_m": 2.0,
+      "include_edt": true,
+      "patch_cells": 5,
+      "patch_size_m": 0.4
+    },
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "policy": "MultiInputPolicy",
+    "policy_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "seed": 20260704,
+    "smoke": true,
+    "tensorboard_log": null,
+    "total_timesteps": 16,
+    "value_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "vf_coef": 0.5,
+    "warm_start": {
+      "status": "not_applied_f02_6_pending"
+    },
+    "warm_start_status": "not_applied_f02_6_pending"
+  },
+  "created_at_utc": "2026-07-04T04:48:47.046556+00:00",
+  "schema_version": 1,
+  "source_hashes": {
+    "2_experiment/forest_n3p/rl_rs/curriculum.py": "6c1a5f5298e1be3e2ab0d146509aa4aaff43f887bffcc210eb2595536035dcf0",
+    "2_experiment/forest_n3p/rl_rs/env.py": "bb9f2e4b3ae0eadb8170a4e98d9ccf6d8bae32d4beaeeb9e385b0e7add6a2cf9",
+    "2_experiment/forest_n3p/rl_rs/gym_env.py": "a1427f246736d14d51106092c6d2bcff7a73d19ebb5d4b63edea13432f6cce15",
+    "2_experiment/forest_n3p/rl_rs/reward.py": "d6a9dffb4271eeeb378faddc48f4b8f1c20290e5fb5a8eaa62352c44df42c052",
+    "2_experiment/forest_n3p/rl_rs/sb3_policy.py": "c48e2484599f40ac11487181e8d46be992f455ea803efcec2b949fe8b1f0d1c3",
+    "2_experiment/forest_n3p/rl_rs/training_logging.py": "140a5d8f527a3a19ebabcd63f1dd008fea708a115709500a6d9ede049dfd59e9",
+    "2_experiment/forest_n3p/scripts/train_rl_rs_ppo.py": "54a7168d9cd392fae7807d3ba61ab211567d3733b11bb6b64b57f222c470a0d2"
+  }
+}

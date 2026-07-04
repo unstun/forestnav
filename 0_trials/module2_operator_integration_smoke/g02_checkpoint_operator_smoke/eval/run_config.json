@@ -1,0 +1,136 @@
+{
+  "created_at_utc": "2026-07-04T04:51:45.886314+00:00",
+  "execution_host": "MacBook-Pro.local",
+  "source_head": "7c2fc16c9dae9a2fa0045257e8e231e28872e1e8+dirty",
+  "command": "python -m forest_n3p.scripts.run_main_evaluation --output-dir 0_trials/module2_operator_integration_smoke/g02_checkpoint_operator_smoke/eval --methods ha_rl_rs_ppo --module2-rl-rs-checkpoint 0_trials/module2_operator_integration_smoke/g02_checkpoint_operator_smoke/train/final_model.zip --module2-rl-rs-device cpu --module2-rl-rs-obs-patch-size-m 0.4 --module2-rl-rs-obs-patch-cells 5 --module2-rl-rs-max-steps 4 --queries-per-bucket 1 --seed-count 1 --queries-per-map 1 --density-profile-buckets validation_t06 --distance-bins 1:2 --contract-path .pipeline/contracts/module2-ppo-funnel-expansion.md --allow-unresolved-human-review --no-enforce-t14-scale --bootstrap-resamples 100",
+  "config": {
+    "seed": 20260620,
+    "queries_per_bucket": 1,
+    "seed_count": 1,
+    "queries_per_map": 1,
+    "width_cells": 300,
+    "height_cells": 300,
+    "resolution_m": 0.1,
+    "max_query_sample_attempts": 800,
+    "methods": [
+      "ha_rl_rs_ppo"
+    ],
+    "profiles": [
+      {
+        "name": "easy_d00",
+        "difficulty_bucket": "Easy",
+        "trunk_count": 40,
+        "trunk_gap_m": 1.35,
+        "trunk_gap_jitter": 0.2,
+        "bush_cluster_count": 0
+      },
+      {
+        "name": "easy_d01",
+        "difficulty_bucket": "Easy",
+        "trunk_count": 55,
+        "trunk_gap_m": 1.25,
+        "trunk_gap_jitter": 0.2,
+        "bush_cluster_count": 0
+      },
+      {
+        "name": "complex_d02",
+        "difficulty_bucket": "Complex",
+        "trunk_count": 70,
+        "trunk_gap_m": 1.15,
+        "trunk_gap_jitter": 0.22,
+        "bush_cluster_count": 0
+      },
+      {
+        "name": "complex_d03",
+        "difficulty_bucket": "Complex",
+        "trunk_count": 85,
+        "trunk_gap_m": 1.05,
+        "trunk_gap_jitter": 0.24,
+        "bush_cluster_count": 0
+      },
+      {
+        "name": "complex_d04",
+        "difficulty_bucket": "Complex",
+        "trunk_count": 100,
+        "trunk_gap_m": 0.95,
+        "trunk_gap_jitter": 0.25,
+        "bush_cluster_count": 0
+      },
+      {
+        "name": "extreme_d05",
+        "difficulty_bucket": "Extreme",
+        "trunk_count": 115,
+        "trunk_gap_m": 0.9,
+        "trunk_gap_jitter": 0.25,
+        "bush_cluster_count": 0
+      },
+      {
+        "name": "extreme_d06",
+        "difficulty_bucket": "Extreme",
+        "trunk_count": 130,
+        "trunk_gap_m": 0.85,
+        "trunk_gap_jitter": 0.25,
+        "bush_cluster_count": 0
+      },
+      {
+        "name": "extreme_d07",
+        "difficulty_bucket": "Extreme",
+        "trunk_count": 145,
+        "trunk_gap_m": 0.8,
+        "trunk_gap_jitter": 0.25,
+        "bush_cluster_count": 0
+      }
+    ],
+    "distance_bins": [
+      {
+        "key": "d01_02",
+        "order": 0,
+        "min_distance_m": 1.0,
+        "max_distance_m": 2.0
+      }
+    ],
+    "knn_library_dir": "2_experiment/forest_n3p/models/t09_knn_library",
+    "knn_dataset_dir": "2_experiment/forest_n3p/datasets/t08_training_dataset",
+    "knn_feature_indices": null,
+    "mlp_model_dir": "2_experiment/forest_n3p/models/t10_mlp_subgoal",
+    "mlp_device": "cpu",
+    "cutpoint_supplement_path": ".pipeline/contracts/v9-forest-n3p-t06-calibration-supplement.md",
+    "t06_validation_summary_path": ".pipeline/experiments/20260621_t06_review_validation_m6q10_d6q16/summary.json",
+    "contract_path": ".pipeline/contracts/module2-ppo-funnel-expansion.md",
+    "human_review_form_path": ".pipeline/experiments/20260621_t14_formal_gate_review_packet/human_review_form.md",
+    "allow_unreviewed_cutpoints": false,
+    "allow_unresolved_human_review": true,
+    "enforce_t14_scale": false,
+    "teacher_timeout_s": 2.5,
+    "teacher_max_nodes": 15000,
+    "segment_timeout_s": 1.0,
+    "segment_max_nodes": 2000,
+    "full_fallback_timeout_s": 2.5,
+    "full_fallback_max_nodes": 15000,
+    "k_neighbors": 5,
+    "commit_verified_rs_segments": false,
+    "max_steps_override": null,
+    "enable_f1": true,
+    "enable_f2": true,
+    "enable_f3": true,
+    "prediction_noise_sigma_m": 0.0,
+    "prediction_noise_seed": 20260620,
+    "idb_rrt_binary_path": null,
+    "idb_rrt_dynoplan_root": null,
+    "idb_rrt_motion_file": null,
+    "idb_rrt_timeout_s": null,
+    "module2_rl_rs_checkpoint": "0_trials/module2_operator_integration_smoke/g02_checkpoint_operator_smoke/train/final_model.zip",
+    "module2_rl_rs_device": "cpu",
+    "module2_rl_rs_obs_patch_size_m": 0.4,
+    "module2_rl_rs_obs_patch_cells": 5,
+    "module2_rl_rs_obs_include_edt": true,
+    "module2_rl_rs_obs_edt_clip_m": 2.0,
+    "module2_rl_rs_max_steps": 4,
+    "module2_rl_rs_action_step_m": 0.3,
+    "module2_rl_rs_collision_sample_step_m": 0.1,
+    "module2_rl_rs_terminal_check_every": 1,
+    "module2_rl_rs_no_progress_patience": 3,
+    "bootstrap_resamples": 100,
+    "bootstrap_seed": 20260620
+  }
+}
