@@ -89,6 +89,13 @@ def build_packet(config: RemoteFormalExecutionPacketConfig) -> dict[str, Any]:
     commands["run_remote_audit"]["allowed_now"] = ready
     _annotate_step_blockers(commands=commands, decision=decision, blockers=blockers, ready=ready)
     preflight_requirements = _remote_preflight_requirements(decision=decision, preflight=preflight, commands=commands)
+    post_run_pullback = _post_run_pullback(config=config, trial_dir=commands["trial_dir"])
+    downstream = _downstream_after_successful_audit(commands["trial_dir"])
+    post_run_requirements = _post_run_acceptance_requirements(
+        pullback=post_run_pullback,
+        downstream=downstream,
+        ready=ready,
+    )
 
     return {
         "schema_version": 1,
@@ -113,8 +120,10 @@ def build_packet(config: RemoteFormalExecutionPacketConfig) -> dict[str, Any]:
         "remote_preflight_requirements": preflight_requirements,
         "remote_preflight_requirement_counts": _requirement_counts(preflight_requirements),
         "execution_steps": commands,
-        "post_run_pullback": _post_run_pullback(config=config, trial_dir=commands["trial_dir"]),
-        "downstream_after_successful_audit": _downstream_after_successful_audit(commands["trial_dir"]),
+        "post_run_pullback": post_run_pullback,
+        "post_run_acceptance_requirements": post_run_requirements,
+        "post_run_acceptance_requirement_counts": _requirement_counts(post_run_requirements),
+        "downstream_after_successful_audit": downstream,
         "claim_boundaries": [
             "This packet is an execution protocol, not a training result.",
             "It must not be used to run PPO on the local Mac.",
