@@ -1546,6 +1546,53 @@ def _remaining_deliverables_gap_summary_issues(
     return issues
 
 
+def _formal_gate_gap_audit_remaining_deliverables_gap_summary_issues(
+    *,
+    formal_gate: dict[str, Any],
+    formal_gate_gap_summary: dict[str, Any],
+    ledger_gap_summary: dict[str, Any],
+) -> list[dict[str, str]]:
+    if not formal_gate:
+        return [_issue("formal_gate_gap_audit_missing", "status report must consume formal gate gap audit.")]
+    if not formal_gate_gap_summary["present"]:
+        return [
+            _issue(
+                "formal_gate_gap_audit_missing_remaining_deliverables_gap_summary",
+                "formal gate gap audit must expose remaining_deliverables_gap_summary.",
+            )
+        ]
+    issues: list[dict[str, str]] = []
+    if formal_gate_gap_summary["execution_boundary"] != "read_only_no_execution":
+        issues.append(
+            _issue(
+                "formal_gate_gap_audit_gap_summary_execution_boundary_invalid",
+                "formal gate gap audit remaining-deliverables gap summary must be read-only.",
+            )
+        )
+    if not formal_gate_gap_summary["not_paper_result_material"]:
+        issues.append(
+            _issue(
+                "formal_gate_gap_audit_gap_summary_marked_as_paper_result",
+                "formal gate gap audit remaining-deliverables gap summary must not be paper result material.",
+            )
+        )
+    if ledger_gap_summary["present"] and _gap_signature(formal_gate_gap_summary) != _gap_signature(ledger_gap_summary):
+        issues.append(
+            _issue(
+                "formal_gate_gap_audit_remaining_deliverables_gap_summary_mismatch",
+                "formal gate gap audit remaining-deliverables gap summary must match the ledger summary.",
+            )
+        )
+    if formal_gate.get("status") != "formal_gate_ready_for_result_audit" and formal_gate_gap_summary["total_missing_deliverables"] == 0:
+        issues.append(
+            _issue(
+                "blocked_formal_gate_gap_audit_claims_no_remaining_deliverables",
+                "blocked formal gate gap audit must not claim zero remaining deliverables.",
+            )
+        )
+    return issues
+
+
 def _requirement_status_counts(rows: dict[str, dict[str, Any]]) -> dict[str, int]:
     counts: dict[str, int] = {}
     for row in rows.values():
