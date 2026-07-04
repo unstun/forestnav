@@ -806,8 +806,13 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 
 #### I01. Method 图和算法伪代码
 
-- [ ] I01.1 画系统图。
+- [x] I01.1 画系统图。
   - 必含: HA* open loop, analytic trigger, RL rollout, terminal RS, fallback primitives。
+  - 已完成: 新增 code-anchored Draw.io 系统图, 覆盖 HA* search loop、analytic trigger、custom operator dispatch、RL-RS funnel operator、planner-side rollout env、terminal RS certificate、accept shortcut、fallback primitives、Gym training env、checkpointed policy variants、formal evaluation boundary。
+  - 产物: `0_trials/module2_system_diagram/module2_system_diagram.drawio`, `0_trials/module2_system_diagram/module2_system_diagram.json`, `0_trials/module2_system_diagram/module2_system_diagram.md`。
+  - 验证: Draw.io XML 可解析; manifest 内每个 node 的 code anchor 均反查源码 line/pattern 成功; I01 系统图 + 方法算法测试 2 passed。
+  - 边界: 这是论文方法图, 不是 formal result; F02.6 pending 和 PPO checkpoint missing 仍在图中显式标注; PPO formal training 只能走 `gpu3070ti-relay`。
+  - 记录: `.pipeline/experiments/20260704_module2_i01_system_diagram.md`。
 - [x] I01.2 写 Algorithm 1: RL-RS Funnel Analytic Expansion。
   - 输入/输出对齐代码 protocol。
   - 每一步引用代码实现文件。
@@ -888,6 +893,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 34. [>] H02.1 local targeted smoke: available subset 5 methods x 3 queries 已跑通; full all-method smoke 仍受 F02.6 pending 和缺 PPO checkpoint 阻塞。
 35. [>] H02.3 统计检验基础设施: success/failure/timeout bootstrap CI 和 module2-vs-Dang paired stats 已接入; formal analysis 等 H02.2 数据。
 36. [x] I01.2/I01.3 code-anchored method algorithms 已生成: Algorithm 1 覆盖 RL-RS funnel analytic expansion, Algorithm 2 覆盖 PPO training environment; 仍不代表 formal result 或可本地训练。
+37. [x] I01.1 code-anchored Draw.io system diagram 已生成: 图中显式覆盖 HA* loop、analytic trigger、RL rollout、terminal RS certificate 和 fallback primitives, 并标注 F02.6 pending / PPO checkpoint missing / gpu3070ti-relay 训练边界。
 
 ## 7. 完成记录
 
@@ -937,3 +943,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 推进 H02.1 local targeted smoke。新增 H02.1 preflight artifact, 明确 full all-method smoke 因缺 PPO checkpoint/F02.6 pending 阻塞; 同时实际跑通 available subset 5 methods x 3 queries, `record_count=15`, `collision_violation_total=0`, `method_exception_total=0`, status=`candidate_or_smoke`。记录见 `.pipeline/experiments/20260704_module2_h02_local_smoke_preflight.md`。
 - 2026-07-04: 推进 H02.3 statistical CI infrastructure。新增 failure/timeout paired bootstrap CI, module2 operator vs Dang multi-RS paired stat pairs, 并重跑 H02.1 available subset smoke 以确认 summary.json 输出 paired time/expansions 和 success/failure/timeout CI slots。记录见 `.pipeline/experiments/20260704_module2_h02_statistical_ci_infra.md`。
 - 2026-07-04: 完成 I01.2/I01.3 code-anchored method algorithms。新增 `build_module2_method_algorithms.py`, 输出 Algorithm 1 RL-RS funnel analytic expansion 和 Algorithm 2 PPO training environment 的 JSON/Markdown, 每个步骤均带本地源码行号锚点; artifact 明确 `local_training_allowed=false`, `remote_training_resource=gpu3070ti-relay`, F02.6 pending 和缺 PPO checkpoint 仍阻塞 formal claim。记录见 `.pipeline/experiments/20260704_module2_i01_method_algorithms.md`。
+- 2026-07-04: 完成 I01.1 code-anchored system diagram。新增 `build_module2_system_diagram.py`, 输出 Draw.io/JSON/Markdown 系统图 artifact, 展示 HA* analytic expansion 槽内的 RL-RS operator、terminal RS certificate 和 primitive fallback; artifact 明确 `local_training_allowed=false`, `remote_training_resource=gpu3070ti-relay`, F02.6 pending 和缺 PPO checkpoint 仍阻塞 formal claim。记录见 `.pipeline/experiments/20260704_module2_i01_system_diagram.md`。
