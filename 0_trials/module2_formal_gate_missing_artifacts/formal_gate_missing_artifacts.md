@@ -27,6 +27,50 @@ This file inventories missing formal-gate evidence. It does not execute commands
 - h02_acceptance_status: `blocked_formal_output_acceptance`
 - h02_blockers: `['h02_verdict_not_formal', 'h01_manifest_not_ready', 'f02_6_warm_start_decision_pending', 'missing_module2_rl_rs_checkpoint', 'remote_execution_packet_not_ready', 'requires_dr_sun_approval', 'missing_gate3_formal_audit', 'h02_scale_below_h01_manifest', 'missing_ppo_result_rows', 'missing_remote_pullback_artifacts', 'f02_6_formal_chain_pending']`
 
+## Formal Gate Handoff Index
+
+- status: `blocked_until_f02_6_decision`
+- open_requirement_count: `5`
+- local_training_allowed_now: `False`
+- remote_training_allowed_now: `False`
+- formal_result_material_allowed_now: `False`
+- next_action: `record_f02_6_decision` (requires_dr_sun=`True`, allowed_for_agent_now=`False`)
+- next_action_description: Dr Sun must approve obstacle-summary warm-start or reject it before remote formal execution can proceed.
+- claim_boundary: This handoff index is a gate-navigation aid; it is not a training command, evaluation command, result table, or paper-result source.
+
+### Authority Artifacts
+
+- decision_record: `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json`
+- transition_gate_audit: `0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json`
+- post_f02_6_regeneration_plan: `0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json`
+- remote_formal_execution_packet: `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json`
+- formal_missing_artifacts_inventory: `0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json`
+- h01_manifest: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`
+- h02_formal_acceptance: `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
+
+### Handoff Requirements
+
+- `f02_6_human_decision` (decision): status=`blocked_missing_decision`, missing_count=`1`, execution_allowed_now=`False`
+  - missing_artifact_ids: `f02_6_decision_record`
+  - source_artifacts: `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json; 0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json`
+  - downstream_consumers: `0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json; 0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json; 0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
+- `training_remote_ppo_checkpoint` (training): status=`blocked_missing_outputs`, missing_count=`3`, execution_allowed_now=`False`
+  - missing_artifact_ids: `train_final_model_zip, train_summary_json, train_training_manifest_json`
+  - source_artifacts: `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json; 0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
+  - downstream_consumers: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
+- `evaluation_gate3_episode_outputs` (evaluation): status=`blocked_missing_outputs`, missing_count=`2`, execution_allowed_now=`False`
+  - missing_artifact_ids: `eval_gate3_eval_episodes_csv, eval_gate3_summary_json`
+  - source_artifacts: `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
+  - downstream_consumers: `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
+- `acceptance_remote_pullback_and_audit` (acceptance): status=`blocked_missing_outputs`, missing_count=`3`, execution_allowed_now=`False`
+  - missing_artifact_ids: `gate3_trial_manifest_json, gate3_formal_audit_json, pulled_back_checkpoint_hash_record`
+  - source_artifacts: `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json; 0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
+  - downstream_consumers: `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
+- `h01_h02_formal_evaluation_acceptance` (evaluation_acceptance): status=`blocked_missing_outputs`, missing_count=`2`, execution_allowed_now=`False`
+  - missing_artifact_ids: `h01_ready_for_formal_run, h02_formal_output_acceptance`
+  - source_artifacts: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
+  - downstream_consumers: `0_trials/module2_claim_safety/module2_claim_safety.json; 0_trials/module2_paper_readiness/module2_paper_readiness.json`
+
 ## Missing Counts
 
 - acceptance: `3`

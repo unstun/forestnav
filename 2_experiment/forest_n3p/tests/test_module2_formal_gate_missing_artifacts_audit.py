@@ -9,7 +9,8 @@ def test_missing_artifacts_audit_blocks_pending_formal_chain(tmp_path):
     except ModuleNotFoundError as exc:
         raise AssertionError(f"missing formal gate missing-artifacts auditor: {exc}") from exc
 
-    manifest = builder.build_manifest(_config(tmp_path, complete=False))
+    config = _config(tmp_path, complete=False)
+    manifest = builder.build_manifest(config)
 
     assert manifest["schema_version"] == 1
     assert manifest["artifact_name"] == "module2_formal_gate_missing_artifacts_audit"
