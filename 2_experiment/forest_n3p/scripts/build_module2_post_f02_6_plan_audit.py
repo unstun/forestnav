@@ -15,6 +15,7 @@ DEFAULT_FORMAL_GATE = Path("0_trials/module2_formal_gate_gap_audit/formal_gate_g
 DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_freshness_audit.json")
 DEFAULT_MISSING_ARTIFACTS = Path("0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json")
 DEFAULT_CLOSURE_CHECKLIST = Path("0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json")
+DEFAULT_STATUS_REPORT = Path("0_trials/module2_formal_gate_status_report/formal_gate_status_report.json")
 REQUIRED_STAGE_ORDER = (
     "f02_6_decision_record",
     "regenerate_preflight_gate_artifacts",
@@ -37,6 +38,7 @@ class PostF026PlanAuditConfig:
     source_freshness_path: Path = DEFAULT_SOURCE_FRESHNESS
     missing_artifacts_path: Path = DEFAULT_MISSING_ARTIFACTS
     closure_checklist_path: Path = DEFAULT_CLOSURE_CHECKLIST
+    status_report_path: Path = DEFAULT_STATUS_REPORT
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -50,6 +52,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         source_freshness_path=args.source_freshness_audit,
         missing_artifacts_path=args.missing_artifacts_audit,
         closure_checklist_path=args.closure_checklist,
+        status_report_path=args.status_report,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -70,6 +73,7 @@ def build_manifest(config: PostF026PlanAuditConfig) -> dict[str, Any]:
     source_freshness = _read_json(config.source_freshness_path)
     missing_artifacts = _read_json(config.missing_artifacts_path)
     closure_checklist = _read_json(config.closure_checklist_path)
+    status_report = _read_json(config.status_report_path)
     issues = _audit_issues(
         plan=plan,
         formal_gate=formal_gate,
@@ -78,6 +82,8 @@ def build_manifest(config: PostF026PlanAuditConfig) -> dict[str, Any]:
         missing_artifacts_path=config.missing_artifacts_path,
         closure_checklist=closure_checklist,
         closure_checklist_path=config.closure_checklist_path,
+        status_report=status_report,
+        status_report_path=config.status_report_path,
     )
     return {
         "schema_version": 1,
@@ -97,10 +103,12 @@ def build_manifest(config: PostF026PlanAuditConfig) -> dict[str, Any]:
             "source_freshness_audit": str(config.source_freshness_path),
             "formal_gate_missing_artifacts_audit": str(config.missing_artifacts_path),
             "formal_gate_closure_checklist": str(config.closure_checklist_path),
+            "formal_gate_status_report": str(config.status_report_path),
         },
         "plan_status": plan.get("status"),
         "missing_artifacts_summary": _missing_artifacts_summary(config.missing_artifacts_path, missing_artifacts),
         "closure_checklist_summary": _closure_checklist_summary(config.closure_checklist_path, closure_checklist),
+        "status_report_summary": _status_report_summary(config.status_report_path, status_report),
         "audit_issue_count": len(issues),
         "audit_issues": issues,
         "required_stage_order": list(REQUIRED_STAGE_ORDER),
@@ -124,6 +132,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--source-freshness-audit", type=Path, default=DEFAULT_SOURCE_FRESHNESS)
     parser.add_argument("--missing-artifacts-audit", type=Path, default=DEFAULT_MISSING_ARTIFACTS)
     parser.add_argument("--closure-checklist", type=Path, default=DEFAULT_CLOSURE_CHECKLIST)
+    parser.add_argument("--status-report", type=Path, default=DEFAULT_STATUS_REPORT)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
@@ -136,6 +145,8 @@ def _audit_issues(
     missing_artifacts_path: Path,
     closure_checklist: dict[str, Any],
     closure_checklist_path: Path,
+    status_report: dict[str, Any],
+    status_report_path: Path,
 ) -> list[dict[str, Any]]:
     issues: list[dict[str, Any]] = []
     issues.extend(_top_level_issues(plan))
@@ -145,6 +156,7 @@ def _audit_issues(
     issues.extend(_cross_artifact_issues(plan=plan, formal_gate=formal_gate, source_freshness=source_freshness))
     issues.extend(_missing_artifacts_issues(plan=plan, missing_artifacts=missing_artifacts, missing_artifacts_path=missing_artifacts_path))
     issues.extend(_closure_checklist_issues(plan=plan, closure_checklist=closure_checklist, closure_checklist_path=closure_checklist_path))
+    issues.extend(_status_report_issues(plan=plan, status_report=status_report, status_report_path=status_report_path))
     return _unique_issues(issues)
 
 
@@ -336,6 +348,60 @@ def _closure_checklist_issues(
     return issues
 
 
+def _status_report_issues(
+    *,
+    plan: dict[str, Any],
+    status_report: dict[str, Any],
+    status_report_path: Path,
+) -> list[dict[str, Any]]:
+    if not Path(status_report_path).is_file():
+        return [
+            _issue(
+                "formal_gate_status_report_absent",
+                "Post-F02.6 plan audit requires the formal gate status report for final gate cross-check.",
+                observed=str(status_report_path),
+            )
+        ]
+    issues: list[dict[str, Any]] = []
+    if status_report.get("executes_commands") is not False:
+        issues.append(_issue("formal_gate_status_report_executes_commands", "Status report must be read-only."))
+    if status_report.get("runs_training") is not False:
+        issues.append(_issue("formal_gate_status_report_runs_training", "Status report must not run training."))
+    if status_report.get("runs_remote_preflight") is not False:
+        issues.append(_issue("formal_gate_status_report_runs_preflight", "Status report must not run remote preflight."))
+    if status_report.get("local_training_allowed") is not False:
+        issues.append(_issue("formal_gate_status_report_allows_local_training", "Status report must preserve local-training prohibition."))
+    if status_report.get("formal_claim_allowed") is not False:
+        issues.append(_issue("formal_gate_status_report_allows_claim", "Status report must not allow formal claims."))
+    permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
+    if permissions.get("local_training_allowed_now") is True:
+        issues.append(_issue("formal_gate_status_report_allows_local_training_now", "Status report must never allow local training now."))
+    if permissions.get("formal_claim_allowed_now") is True and status_report.get("status") != "formal_gate_status_ready_for_claim_audit":
+        issues.append(
+            _issue(
+                "formal_gate_status_report_claim_permission_inconsistent",
+                "Status report may allow formal claims only when it is ready for claim audit.",
+                observed={"status": status_report.get("status"), "formal_claim_allowed_now": permissions.get("formal_claim_allowed_now")},
+            )
+        )
+    if int(status_report.get("input_safety_issue_count") or 0) > 0:
+        issues.append(_issue("formal_gate_status_report_has_input_safety_issues", "Status report reports open input safety issues."))
+    claim_stage = _stage_by_id(plan, "regenerate_claim_gate_artifacts")
+    if status_report.get("status") != "formal_gate_status_ready_for_claim_audit" and claim_stage.get("allowed_now") is True:
+        issues.append(
+            _issue(
+                "claim_gate_ready_with_blocked_status_report",
+                "Claim gate regeneration must not be ready while the formal gate status report is blocked.",
+                observed={
+                    "status": status_report.get("status"),
+                    "formal_claim_allowed_now": permissions.get("formal_claim_allowed_now"),
+                    "next_blocked_lane": status_report.get("next_blocked_lane"),
+                },
+            )
+        )
+    return issues
+
+
 def _target_counts_by_gate(plan: dict[str, Any]) -> dict[str, int]:
     groups = plan.get("source_regeneration_targets_by_gate") if isinstance(plan.get("source_regeneration_targets_by_gate"), dict) else {}
     return {str(key): len(value) for key, value in sorted(groups.items()) if isinstance(value, list)}
@@ -395,6 +461,25 @@ def _closure_checklist_summary(path: Path, closure_checklist: dict[str, Any]) ->
         "closure_item_count": closure_checklist.get("closure_item_count"),
         "open_item_count": closure_checklist.get("open_item_count"),
         "input_safety_issue_count": closure_checklist.get("input_safety_issue_count"),
+    }
+
+
+def _status_report_summary(path: Path, status_report: dict[str, Any]) -> dict[str, Any]:
+    permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
+    next_lane = status_report.get("next_blocked_lane") if isinstance(status_report.get("next_blocked_lane"), dict) else {}
+    return {
+        "path": str(path),
+        "exists": Path(path).is_file(),
+        "status": status_report.get("status"),
+        "executes_commands": status_report.get("executes_commands"),
+        "runs_training": status_report.get("runs_training"),
+        "runs_remote_preflight": status_report.get("runs_remote_preflight"),
+        "local_training_allowed": status_report.get("local_training_allowed"),
+        "formal_claim_allowed": status_report.get("formal_claim_allowed"),
+        "formal_claim_allowed_now": permissions.get("formal_claim_allowed_now"),
+        "local_training_allowed_now": permissions.get("local_training_allowed_now"),
+        "input_safety_issue_count": status_report.get("input_safety_issue_count"),
+        "next_blocked_lane_id": next_lane.get("lane_id"),
     }
 
 
@@ -475,6 +560,17 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- runs_remote_preflight: `{manifest['closure_checklist_summary']['runs_remote_preflight']}`",
             f"- open_item_count: `{manifest['closure_checklist_summary']['open_item_count']}`",
             f"- input_safety_issue_count: `{manifest['closure_checklist_summary']['input_safety_issue_count']}`",
+            "",
+            "## Formal Gate Status Report",
+            "",
+            f"- path: `{manifest['status_report_summary']['path']}`",
+            f"- status: `{manifest['status_report_summary']['status']}`",
+            f"- runs_training: `{manifest['status_report_summary']['runs_training']}`",
+            f"- runs_remote_preflight: `{manifest['status_report_summary']['runs_remote_preflight']}`",
+            f"- formal_claim_allowed_now: `{manifest['status_report_summary']['formal_claim_allowed_now']}`",
+            f"- local_training_allowed_now: `{manifest['status_report_summary']['local_training_allowed_now']}`",
+            f"- input_safety_issue_count: `{manifest['status_report_summary']['input_safety_issue_count']}`",
+            f"- next_blocked_lane_id: `{manifest['status_report_summary']['next_blocked_lane_id']}`",
             "",
             "## Audit Issues",
             "",
