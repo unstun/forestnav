@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_gap_audit",
   "status": "blocked_formal_gate_gaps_open",
-  "created_at_utc": "2026-07-04T12:17:32.550234+00:00",
-  "source_head": "aca747f9eaf05c9ae7a1a34ad6fa6b2d64f9e3bd+dirty",
+  "created_at_utc": "2026-07-04T12:24:15.770377+00:00",
+  "source_head": "196a6dd297d94dd55bd5eeb4b8360558a546bb8e+dirty",
   "not_paper_result_material": true,
   "local_training_allowed": false,
   "remote_training_resource": "gpu3070ti-relay",
@@ -144,6 +144,19 @@
       "claim_gate": 4
     }
   },
+  "closure_checklist": {
+    "path": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
+    "exists": true,
+    "status": "formal_gate_closure_blocked",
+    "executes_commands": false,
+    "runs_training": false,
+    "runs_remote_preflight": false,
+    "local_training_allowed": false,
+    "formal_claim_allowed": false,
+    "closure_item_count": 8,
+    "open_item_count": 8,
+    "input_safety_issue_count": 0
+  },
   "current_gate_state": {
     "f02_6_decision_status": "pending_human_decision",
     "effective_warm_start_decision": "pending",
@@ -159,7 +172,9 @@
     "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
     "source_freshness_regeneration_required": true,
     "formal_gate_missing_artifacts_status": "formal_gate_missing_artifacts_open",
-    "formal_gate_missing_artifacts_open": true
+    "formal_gate_missing_artifacts_open": true,
+    "formal_gate_closure_checklist_status": "formal_gate_closure_blocked",
+    "formal_gate_closure_checklist_open": true
   },
   "missing_decision_items": [
     {
@@ -335,6 +350,13 @@
       "why_missing": "Formal gate inventory still reports missing evidence counts: {'decision': 1, 'regeneration': 13, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 4}.",
       "evidence_path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
       "required_next_artifact": "Close every missing-artifacts group before final H02/claim readiness can pass."
+    },
+    {
+      "category": "acceptance",
+      "gap_id": "formal_gate_closure_checklist_open",
+      "why_missing": "Closure checklist status is formal_gate_closure_blocked; open_item_count=8.",
+      "evidence_path": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
+      "required_next_artifact": "Close every checklist item before final H02/claim readiness can pass."
     }
   ],
   "ordered_next_steps": [
@@ -442,7 +464,8 @@
         "h02_formal_output_not_accepted",
         "claim_safety_blocks_formal_performance",
         "readiness_blocks_formal_results",
-        "formal_gate_missing_artifacts_open"
+        "formal_gate_missing_artifacts_open",
+        "formal_gate_closure_checklist_open"
       ],
       "runs_training": false,
       "action": "Regenerate claim safety/readiness; allow formal claims only if all gates pass.",
@@ -455,6 +478,7 @@
     "No PPO/RL-RS formal training is allowed on the local Mac.",
     "Formal PPO checkpoint production must run on gpu3070ti-relay after F02.6 closes.",
     "Source freshness risks are regeneration blockers, not formal algorithm failures.",
-    "Remote completion is insufficient until audit artifacts, checkpoint hashes, H01/H02 regeneration, and claim safety all pass."
+    "Remote completion is insufficient until audit artifacts, checkpoint hashes, H01/H02 regeneration, and claim safety all pass.",
+    "The closure checklist must be complete before the final claim gate can be treated as ready."
   ]
 }

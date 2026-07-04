@@ -604,3 +604,24 @@ def _missing_artifacts(tmp_path, *, complete, invalid=False):
         encoding="utf-8",
     )
     return path
+
+
+def _closure_checklist(tmp_path, *, complete, invalid=False):
+    path = tmp_path / f"closure_checklist_{complete}_{invalid}.json"
+    path.write_text(
+        json.dumps(
+            {
+                "status": "formal_gate_closure_ready_for_result_audit" if complete else "formal_gate_closure_blocked",
+                "executes_commands": bool(invalid),
+                "runs_training": bool(invalid),
+                "runs_remote_preflight": bool(invalid),
+                "local_training_allowed": bool(invalid),
+                "formal_claim_allowed": bool(invalid),
+                "closure_item_count": 8,
+                "open_item_count": 0 if complete else 8,
+                "input_safety_issue_count": 1 if invalid else 0,
+            }
+        ),
+        encoding="utf-8",
+    )
+    return path

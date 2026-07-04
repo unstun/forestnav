@@ -53,6 +53,16 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - audit_issue_count: `0`
 - missing_counts_by_category: `{'decision': 1, 'regeneration': 13, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 4}`
 
+## Closure Checklist
+
+- path: `0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json`
+- status: `formal_gate_closure_blocked`
+- executes_commands: `False`
+- runs_training: `False`
+- runs_remote_preflight: `False`
+- open_item_count: `8`
+- input_safety_issue_count: `0`
+
 ## Decision Gaps
 
 - `f02_6_warm_start_decision_pending`
@@ -160,6 +170,10 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
   - evidence: `0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json`
   - why: Formal gate inventory still reports missing evidence counts: {'decision': 1, 'regeneration': 13, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 4}.
   - needed: Close every missing-artifacts group before final H02/claim readiness can pass.
+- `formal_gate_closure_checklist_open`
+  - evidence: `0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json`
+  - why: Closure checklist status is formal_gate_closure_blocked; open_item_count=8.
+  - needed: Close every checklist item before final H02/claim readiness can pass.
 
 ## Ordered Next Steps
 
@@ -178,3 +192,4 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - Formal PPO checkpoint production must run on gpu3070ti-relay after F02.6 closes.
 - Source freshness risks are regeneration blockers, not formal algorithm failures.
 - Remote completion is insufficient until audit artifacts, checkpoint hashes, H01/H02 regeneration, and claim safety all pass.
+- The closure checklist must be complete before the final claim gate can be treated as ready.

@@ -3,7 +3,7 @@
 This file records gate artifact source-head freshness. It is not a training run, remote preflight, paper table, or result claim.
 
 - status: `source_freshness_risks_recorded_gate_still_blocked`
-- current_head: `aca747f9eaf05c9ae7a1a34ad6fa6b2d64f9e3bd`
+- current_head: `196a6dd297d94dd55bd5eeb4b8360558a546bb8e`
 - runs_training: `False`
 - runs_remote_preflight: `False`
 - formal_claim_allowed: `False`
@@ -40,12 +40,12 @@ This file records gate artifact source-head freshness. It is not a training run,
 - `h02_formal_acceptance`: status=`blocked_formal_output_acceptance`, freshness=`historical_dirty`, source_head=`09926d3d8e833d6b5b1d52faea5127a7d644d147+dirty`
 - `claim_safety`: status=`blocked_formal_performance_claims`, freshness=`historical_clean`, source_head=`f4459945dbde1ba2ca66c178efcb53db03bd4c6f`
 - `paper_readiness`: status=`partial_methods_ready_results_blocked`, freshness=`historical_dirty`, source_head=`6689b3ab720df72d364492094379eb76a8b09ef2+dirty`
-- `formal_gate_gap_audit`: status=`blocked_formal_gate_gaps_open`, freshness=`current_dirty`, source_head=`aca747f9eaf05c9ae7a1a34ad6fa6b2d64f9e3bd+dirty`
-- `post_f02_6_plan_audit`: status=`post_f02_6_plan_audit_passed`, freshness=`current_dirty`, source_head=`aca747f9eaf05c9ae7a1a34ad6fa6b2d64f9e3bd+dirty`
+- `formal_gate_gap_audit`: status=`blocked_formal_gate_gaps_open`, freshness=`current_dirty`, source_head=`196a6dd297d94dd55bd5eeb4b8360558a546bb8e+dirty`
+- `post_f02_6_plan_audit`: status=`post_f02_6_plan_audit_passed`, freshness=`current_dirty`, source_head=`196a6dd297d94dd55bd5eeb4b8360558a546bb8e+dirty`
 - `remote_packet_safety_audit`: status=`remote_packet_safety_audit_passed`, freshness=`historical_dirty`, source_head=`52a18baf31c14b81fcb309bbc33c149501ea6b65+dirty`
-- `formal_gate_closure_checklist`: status=`formal_gate_closure_blocked`, freshness=`current_dirty`, source_head=`aca747f9eaf05c9ae7a1a34ad6fa6b2d64f9e3bd+dirty`
+- `formal_gate_closure_checklist`: status=`formal_gate_closure_blocked`, freshness=`current_dirty`, source_head=`196a6dd297d94dd55bd5eeb4b8360558a546bb8e+dirty`
 - `gpu3070ti_readiness_refresh`: status=`remote_readiness_refreshed_f02_6_still_blocked`, freshness=`historical_clean`, source_head=`033356f27e5255c60d64a78753054b86ef2a0428`
-- `formal_gate_missing_artifacts`: status=`formal_gate_missing_artifacts_open`, freshness=`current_dirty`, source_head=`aca747f9eaf05c9ae7a1a34ad6fa6b2d64f9e3bd+dirty`
+- `formal_gate_missing_artifacts`: status=`formal_gate_missing_artifacts_open`, freshness=`current_dirty`, source_head=`196a6dd297d94dd55bd5eeb4b8360558a546bb8e+dirty`
 
 ## Claim Boundaries
 
