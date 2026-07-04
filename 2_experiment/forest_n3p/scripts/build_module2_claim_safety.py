@@ -594,6 +594,84 @@ def _status_report_remote_requirement_blockers(status_report: dict[str, Any]) ->
     return blockers
 
 
+def _status_report_h02_acceptance_requirement_summary(status_report: dict[str, Any]) -> dict[str, Any]:
+    summary = status_report.get("h02_formal_acceptance_requirement_summary")
+    summary = summary if isinstance(summary, dict) else {}
+    raw_requirements = summary.get("requirements") if isinstance(summary.get("requirements"), dict) else {}
+    requirements: dict[str, dict[str, Any]] = {}
+    for requirement_id in STATUS_REPORT_H02_FORMAL_ACCEPTANCE_REQUIREMENT_IDS:
+        row = raw_requirements.get(requirement_id) if isinstance(raw_requirements.get(requirement_id), dict) else {}
+        requirements[requirement_id] = {
+            "present": bool(row),
+            "status": row.get("status"),
+            "phase": row.get("phase"),
+            "complete": row.get("complete") if isinstance(row.get("complete"), bool) else None,
+            "paper_result_input_allowed_now": row.get("paper_result_input_allowed_now")
+            if isinstance(row.get("paper_result_input_allowed_now"), bool)
+            else None,
+            "missing_artifact_ids": _strings(row.get("missing_artifact_ids")),
+            "acceptable_evidence_count": int(row.get("acceptable_evidence_count") or 0),
+            "invalid_substitute_count": int(row.get("invalid_substitute_count") or 0),
+        }
+    status_counts = summary.get("status_counts") if isinstance(summary.get("status_counts"), dict) else {}
+    return {
+        "present": bool(summary),
+        "required_requirement_count": int(
+            summary.get("required_requirement_count") or len(STATUS_REPORT_H02_FORMAL_ACCEPTANCE_REQUIREMENT_IDS)
+        ),
+        "present_requirement_count": int(summary.get("present_requirement_count") or 0),
+        "blocked_requirement_count": int(summary.get("blocked_requirement_count") or 0),
+        "status_counts": {str(key): int(value or 0) for key, value in status_counts.items()},
+        "missing_requirement_ids": _strings(summary.get("missing_requirement_ids")),
+        "requirements": requirements,
+    }
+
+
+def _status_report_h02_acceptance_requirement_blockers(status_report: dict[str, Any]) -> list[str]:
+    summary = _status_report_h02_acceptance_requirement_summary(status_report)
+    blockers: list[str] = []
+    if not summary["present"]:
+        blockers.append("status_report_h02_formal_acceptance_requirement_summary_missing")
+        return blockers
+    if int(summary["required_requirement_count"] or 0) != len(STATUS_REPORT_H02_FORMAL_ACCEPTANCE_REQUIREMENT_IDS):
+        blockers.append("status_report_h02_formal_acceptance_requirement_required_count_mismatch")
+    for requirement_id in summary["missing_requirement_ids"]:
+        _append_unique(blockers, f"status_report_h02_formal_acceptance_requirement_missing_{requirement_id}")
+    if status_report.get("status") == "formal_gate_status_ready_for_claim_audit" and int(summary["blocked_requirement_count"] or 0) > 0:
+        blockers.append("status_report_h02_formal_acceptance_requirement_blocked_while_status_ready")
+    blocked_status = status_report.get("status") != "formal_gate_status_ready_for_claim_audit"
+    for requirement_id, row in summary["requirements"].items():
+        if not row["present"]:
+            _append_unique(blockers, f"status_report_h02_formal_acceptance_requirement_missing_{requirement_id}")
+            continue
+        if int(row["acceptable_evidence_count"] or 0) <= 0:
+            _append_unique(
+                blockers,
+                f"status_report_h02_formal_acceptance_requirement_{requirement_id}_missing_acceptable_evidence",
+            )
+        if int(row["invalid_substitute_count"] or 0) <= 0:
+            _append_unique(
+                blockers,
+                f"status_report_h02_formal_acceptance_requirement_{requirement_id}_missing_invalid_substitutes",
+            )
+        if blocked_status and row["paper_result_input_allowed_now"] is True:
+            _append_unique(
+                blockers,
+                f"status_report_h02_formal_acceptance_requirement_{requirement_id}_allows_paper_result_while_status_blocked",
+            )
+        if row["complete"] is True and row["status"] != "satisfied":
+            _append_unique(
+                blockers,
+                f"status_report_h02_formal_acceptance_requirement_{requirement_id}_complete_not_satisfied",
+            )
+        if row["status"] == "satisfied" and row["missing_artifact_ids"]:
+            _append_unique(
+                blockers,
+                f"status_report_h02_formal_acceptance_requirement_{requirement_id}_satisfied_with_missing_artifacts",
+            )
+    return blockers
+
+
 def _remote_requirement_matrix_blockers(
     *,
     status_report: dict[str, Any],
