@@ -193,7 +193,7 @@ def _run_scenario(*, config: F026TransitionGateAuditConfig, scenario_id: str, wo
             remote_warm_preflight_path=config.remote_warm_preflight_path,
             decision=_decision_arg(scenario_id),
             decider=DECISION_OWNER if scenario_id in {"approved", "rejected"} else None,
-            decision_note=f"synthetic {scenario_id} transition audit",
+            decision_note=f"synthetic {scenario_id} transition audit" if scenario_id in {"approved", "rejected"} else None,
         )
     )
     record_path = _write_json(work_root / "f02_6_decision_record.json", record)
