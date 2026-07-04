@@ -165,3 +165,52 @@ def test_evaluation_outputs_expose_rl_rs_analytic_telemetry_columns(tmp_path):
     assert rows[0]["terminal_rs_used_count"] == "1"
     assert rows[0]["rl_rs_checkpoint"] == "models/final_model.zip"
     assert rows[0]["rl_rs_checkpoint_sha256"] == "abc123"
+
+
+def test_evaluation_outputs_expose_bc_operator_checkpoint_columns(tmp_path):
+    run = planner_run_from_path_stats(
+        ((1.0, 1.0, 0.0), (1.3, 1.0, 0.0)),
+        {
+            "time": 0.19,
+            "expansions": 5,
+            "analytic_operator": "rl_rs_funnel_bc",
+            "analytic_attempts": 2,
+            "analytic_successes": 1,
+            "analytic_failure_count": 1,
+            "analytic_telemetry_records": [
+                {
+                    "analytic_operator": "rl_rs_funnel_bc",
+                    "rl_rollout_steps": 4,
+                    "terminal_rs_success": True,
+                    "terminal_rs_used": True,
+                    "terminal_rs_action_count": 2,
+                }
+            ],
+        },
+        query_id="q_bc",
+        method="bc_analytic_operator",
+        difficulty_bucket="Complex",
+        distance_bin_key="1:2",
+        metadata={
+            "bc_checkpoint": "models/bc_checkpoint.pt",
+            "bc_checkpoint_sha256": "bc123",
+        },
+    )
+    record = evaluate_run(
+        run,
+        GridMap(np.zeros((40, 40), dtype=np.uint8), resolution=0.1, origin=(0.0, 0.0)),
+        TwoCircleFootprint.from_box(length=0.4, width=0.2),
+    )
+
+    assert record.analytic_operator == "rl_rs_funnel_bc"
+    assert record.rl_rollout_steps == 4
+    assert record.bc_checkpoint == "models/bc_checkpoint.pt"
+    assert record.bc_checkpoint_sha256 == "bc123"
+
+    paths = write_evaluation_outputs([record], tmp_path)
+    rows = list(csv.DictReader(paths["records_csv"].open(newline="", encoding="utf-8")))
+
+    assert rows[0]["analytic_operator"] == "rl_rs_funnel_bc"
+    assert rows[0]["rl_rollout_steps"] == "4"
+    assert rows[0]["bc_checkpoint"] == "models/bc_checkpoint.pt"
+    assert rows[0]["bc_checkpoint_sha256"] == "bc123"
