@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_remaining_deliverables",
   "status": "formal_gate_deliverables_blocked",
-  "created_at_utc": "2026-07-04T20:21:12.801022+00:00",
-  "source_head": "b04b22573dd0d37aeff35f9e75961418051c6264+dirty",
+  "created_at_utc": "2026-07-04T21:35:00.110923+00:00",
+  "source_head": "a116592f7f8475dd2a0e44bd9f4930561765969f+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -292,6 +292,119 @@
               "formal-looking tables generated from smoke or missing PPO rows"
             ]
           }
+        ]
+      }
+    ]
+  },
+  "plain_formal_gate_closure_checklist": {
+    "purpose": "human_readable_formal_gate_missing_deliverables_only",
+    "not_paper_result_material": true,
+    "execution_boundary": "read_only_no_execution",
+    "next_blocked_lane": "decision",
+    "total_missing_deliverables": 10,
+    "open_category_count": 4,
+    "local_training_allowed_now": false,
+    "remote_training_allowed_now": false,
+    "formal_claim_allowed_now": false,
+    "categories": [
+      {
+        "category": "training",
+        "missing_count": 3,
+        "responsible_stage_id": "gate3_remote_training",
+        "responsible_stage_allowed_now": false,
+        "responsible_stage_blocked_by": [
+          "f02_6_decision_not_approved",
+          "source_fresh_preflight_targets_open",
+          "remote_packet_not_ready"
+        ],
+        "missing_matrix_ids": [
+          "training:train_final_model_zip",
+          "training:train_summary_json",
+          "training:train_training_manifest_json"
+        ],
+        "expected_paths": [
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json"
+        ],
+        "invalid_substitutes": [
+          "local training output",
+          "available-subset smoke model",
+          "no-warm Gate3 failed checkpoint",
+          "stdout without pulled-back checkpoint and manifest"
+        ]
+      },
+      {
+        "category": "evaluation",
+        "missing_count": 2,
+        "responsible_stage_id": "gate3_remote_audit_pullback",
+        "responsible_stage_allowed_now": false,
+        "responsible_stage_blocked_by": [
+          "f02_6_decision_not_approved",
+          "source_fresh_preflight_targets_open",
+          "remote_packet_not_ready"
+        ],
+        "missing_matrix_ids": [
+          "evaluation:eval_gate3_eval_episodes_csv",
+          "evaluation:eval_gate3_summary_json"
+        ],
+        "expected_paths": [
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json"
+        ],
+        "invalid_substitutes": [
+          "H02 available-subset smoke CSV",
+          "paper table preview",
+          "no-warm formal failure eval reused as warm-start evidence"
+        ]
+      },
+      {
+        "category": "acceptance",
+        "missing_count": 3,
+        "responsible_stage_id": "gate3_remote_audit_pullback",
+        "responsible_stage_allowed_now": false,
+        "responsible_stage_blocked_by": [
+          "f02_6_decision_not_approved",
+          "source_fresh_preflight_targets_open",
+          "remote_packet_not_ready"
+        ],
+        "missing_matrix_ids": [
+          "acceptance:gate3_trial_manifest_json",
+          "acceptance:gate3_formal_audit_json",
+          "acceptance:pulled_back_checkpoint_hash_record"
+        ],
+        "expected_paths": [
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json"
+        ],
+        "invalid_substitutes": [
+          "remote command success without local pullback",
+          "checkpoint file without hash record",
+          "audit marked candidate, smoke, preview, or not_formal"
+        ]
+      },
+      {
+        "category": "formal_acceptance",
+        "missing_count": 2,
+        "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
+        "responsible_stage_allowed_now": false,
+        "responsible_stage_blocked_by": [
+          "missing_remote_audit_pullback",
+          "source_fresh_h01_h02_targets_open"
+        ],
+        "missing_matrix_ids": [
+          "formal_acceptance:h01_ready_for_formal_run",
+          "formal_acceptance:h02_formal_output_acceptance"
+        ],
+        "expected_paths": [
+          "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
+          "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
+        ],
+        "invalid_substitutes": [
+          "blocked H01 manifest",
+          "blocked H02 acceptance audit",
+          "formal-looking tables generated from smoke or missing PPO rows"
         ]
       }
     ]

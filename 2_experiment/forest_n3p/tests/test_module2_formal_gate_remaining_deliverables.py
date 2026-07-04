@@ -43,6 +43,35 @@ def test_remaining_deliverables_blocks_pending_formal_gate(tmp_path):
     assert gap_categories["evaluation"]["missing_count"] == 2
     assert gap_categories["acceptance"]["missing_count"] == 3
     assert gap_categories["formal_acceptance"]["missing_count"] == 2
+    plain_checklist = manifest["plain_formal_gate_closure_checklist"]
+    assert plain_checklist["purpose"] == "human_readable_formal_gate_missing_deliverables_only"
+    assert plain_checklist["not_paper_result_material"] is True
+    assert plain_checklist["execution_boundary"] == "read_only_no_execution"
+    assert plain_checklist["next_blocked_lane"] == "decision"
+    assert plain_checklist["total_missing_deliverables"] == 10
+    assert plain_checklist["open_category_count"] == 4
+    assert plain_checklist["local_training_allowed_now"] is False
+    assert plain_checklist["remote_training_allowed_now"] is False
+    assert plain_checklist["formal_claim_allowed_now"] is False
+    plain_categories = {category["category"]: category for category in plain_checklist["categories"]}
+    assert plain_categories["training"]["missing_matrix_ids"] == [
+        "training:train_final_model_zip",
+        "training:train_summary_json",
+        "training:train_training_manifest_json",
+    ]
+    assert plain_categories["evaluation"]["missing_matrix_ids"] == [
+        "evaluation:eval_gate3_eval_episodes_csv",
+        "evaluation:eval_gate3_summary_json",
+    ]
+    assert plain_categories["acceptance"]["missing_matrix_ids"] == [
+        "acceptance:gate3_trial_manifest_json",
+        "acceptance:gate3_formal_audit_json",
+        "acceptance:pulled_back_checkpoint_hash_record",
+    ]
+    assert plain_categories["formal_acceptance"]["missing_matrix_ids"] == [
+        "formal_acceptance:h01_ready_for_formal_run",
+        "formal_acceptance:h02_formal_output_acceptance",
+    ]
 
     groups = {group["category"]: group for group in manifest["deliverable_groups"]}
     assert groups["training"]["responsible_stage_id"] == "gate3_remote_training"
@@ -159,9 +188,11 @@ def test_remaining_deliverables_cli_writes_json_and_markdown(tmp_path):
     assert "gate3_formal_audit_json" in markdown
     assert "h02_formal_output_acceptance" in markdown
     assert "Deliverable Acceptance Matrix" in markdown
+    assert "Human-Readable Gate Closure Checklist" in markdown
     assert "Formal Gate Gap Summary" in markdown
     assert "total_missing_deliverables" in markdown
     assert "gap:training" in markdown
+    assert "missing_artifacts=`training:train_final_model_zip" in markdown
     assert "training:train_final_model_zip" in markdown
     assert "acceptance_predicates" in markdown
     assert "gpu3070ti-relay formal run" in markdown
