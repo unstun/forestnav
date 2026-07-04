@@ -260,6 +260,9 @@ def _permissions(
     decision_closed = decision.get("status") in {"approved", "rejected"} and decision.get("decider") == "Dr Sun"
     approved = decision.get("status") == "approved" and decision.get("decider") == "Dr Sun"
     remote_ready = remote_packet.get("ready_to_run_remote_training") is True
+    remote_steps = _remote_execution_step_summary(remote_packet)
+    remote_preflight_ready = remote_steps["run_remote_preflight"]["allowed_now"] is True
+    remote_training_ready = remote_steps["run_remote_training"]["allowed_now"] is True
     h01_ready = h01.get("status") == "ready_for_formal_run"
     h02_accepted = h02.get("formal_output_accepted") is True and h02.get("paper_result_input_allowed") is True
     claim_ready = claim_safety.get("formal_performance_claim_allowed") is True
@@ -270,8 +273,8 @@ def _permissions(
     return {
         "f02_6_decision_closed": decision_closed,
         "warm_start_formal_chain_approved": approved,
-        "remote_preflight_allowed_now": approved and safe,
-        "remote_training_allowed_now": approved and remote_ready and safe,
+        "remote_preflight_allowed_now": approved and remote_preflight_ready and safe,
+        "remote_training_allowed_now": approved and remote_ready and remote_training_ready and safe,
         "formal_h01_evaluation_allowed_now": h01_ready and remote_ready and safe,
         "formal_h02_acceptance_allowed_now": h01_ready and h02_accepted and safe,
         "formal_claim_allowed_now": formal_gate_ready and closure_ready and h02_accepted and claim_ready and readiness_ready and safe,
