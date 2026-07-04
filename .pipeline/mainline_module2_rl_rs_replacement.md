@@ -808,11 +808,20 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 
 - [ ] I01.1 画系统图。
   - 必含: HA* open loop, analytic trigger, RL rollout, terminal RS, fallback primitives。
-- [ ] I01.2 写 Algorithm 1: RL-RS Funnel Analytic Expansion。
+- [x] I01.2 写 Algorithm 1: RL-RS Funnel Analytic Expansion。
   - 输入/输出对齐代码 protocol。
   - 每一步引用代码实现文件。
-- [ ] I01.3 写 Algorithm 2: Training Environment。
+  - 已完成: 新增 code-anchored method artifact, Algorithm 1 覆盖 custom analytic operator dispatch、checkpoint policy loading、env reset/step、terminal RS certificate、`None` fallback 语义、terminal-RS on/off 两个方法变体。
+  - 产物: `0_trials/module2_method_algorithms/module2_method_algorithms.json`, `0_trials/module2_method_algorithms/module2_method_algorithms.md`。
+  - 验证: artifact 内每个 code anchor 均反查源码行和 pattern 成功; 相关 operator/Gym/main-evaluation 单测 19 passed。
+  - 边界: 这是论文方法材料, 不是 formal result; PPO formal checkpoint 仍缺, 训练必须走 `gpu3070ti-relay`, 禁止本地训练。
+  - 记录: `.pipeline/experiments/20260704_module2_i01_method_algorithms.md`。
+- [x] I01.3 写 Algorithm 2: Training Environment。
   - reset, obs, action, terminal, reward。
+  - 已完成: Algorithm 2 覆盖 `GymAnalyticExpansionEnv.reset/step`, `ObservationConfig`, scalar+occupancy/EDT patch, continuous steering action, no-progress/oscillation truncation, terminal RS reachability, decomposed reward 和 Gymnasium return tuple。
+  - 产物: `0_trials/module2_method_algorithms/module2_method_algorithms.json`, `0_trials/module2_method_algorithms/module2_method_algorithms.md`。
+  - 边界: 本项只冻结训练环境方法描述; 不代表 F02.6 已批准, 不代表 PPO 已完成, 不触发本地训练。
+  - 记录: `.pipeline/experiments/20260704_module2_i01_method_algorithms.md`。
 
 #### I02. 实验表格
 
@@ -878,6 +887,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 33. [x] H01.2 指标冻结: metric protocol status=`frozen`, timeout failure rate 已显式输出, expansions/time paired Wilcoxon 统计函数已具备。
 34. [>] H02.1 local targeted smoke: available subset 5 methods x 3 queries 已跑通; full all-method smoke 仍受 F02.6 pending 和缺 PPO checkpoint 阻塞。
 35. [>] H02.3 统计检验基础设施: success/failure/timeout bootstrap CI 和 module2-vs-Dang paired stats 已接入; formal analysis 等 H02.2 数据。
+36. [x] I01.2/I01.3 code-anchored method algorithms 已生成: Algorithm 1 覆盖 RL-RS funnel analytic expansion, Algorithm 2 覆盖 PPO training environment; 仍不代表 formal result 或可本地训练。
 
 ## 7. 完成记录
 
@@ -926,3 +936,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 完成 H01.2 metric protocol。新增 `build_module2_metric_protocol.py`, 冻结 Contract 主指标与诊断指标; `GroupSummary` 新增 `timeout_failure_count/timeout_failure_rate`; `paired_wilcoxon_expansions()` 与现有 `paired_wilcoxon_time()` 分别支撑 expansions/time 的配对检验; H01.2 artifact status=`frozen` 且 blockers=[]。记录见 `.pipeline/experiments/20260704_module2_h01_metric_protocol.md`。
 - 2026-07-04: 推进 H02.1 local targeted smoke。新增 H02.1 preflight artifact, 明确 full all-method smoke 因缺 PPO checkpoint/F02.6 pending 阻塞; 同时实际跑通 available subset 5 methods x 3 queries, `record_count=15`, `collision_violation_total=0`, `method_exception_total=0`, status=`candidate_or_smoke`。记录见 `.pipeline/experiments/20260704_module2_h02_local_smoke_preflight.md`。
 - 2026-07-04: 推进 H02.3 statistical CI infrastructure。新增 failure/timeout paired bootstrap CI, module2 operator vs Dang multi-RS paired stat pairs, 并重跑 H02.1 available subset smoke 以确认 summary.json 输出 paired time/expansions 和 success/failure/timeout CI slots。记录见 `.pipeline/experiments/20260704_module2_h02_statistical_ci_infra.md`。
+- 2026-07-04: 完成 I01.2/I01.3 code-anchored method algorithms。新增 `build_module2_method_algorithms.py`, 输出 Algorithm 1 RL-RS funnel analytic expansion 和 Algorithm 2 PPO training environment 的 JSON/Markdown, 每个步骤均带本地源码行号锚点; artifact 明确 `local_training_allowed=false`, `remote_training_resource=gpu3070ti-relay`, F02.6 pending 和缺 PPO checkpoint 仍阻塞 formal claim。记录见 `.pipeline/experiments/20260704_module2_i01_method_algorithms.md`。
