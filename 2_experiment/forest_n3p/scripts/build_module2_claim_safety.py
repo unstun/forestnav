@@ -157,7 +157,7 @@ def _formal_performance_blockers(
         _append_unique(blockers, "h02_formal_acceptance_not_accepted")
     for blocker in h02_formal_acceptance.get("blockers") or ():
         _append_unique(blockers, str(blocker))
-    if str(h01_manifest.get("status")) not in {"ready", "formal_ready", "ready_for_formal_evaluation"}:
+    if str(h01_manifest.get("status")) not in {"ready", "formal_ready", "ready_for_formal_run", "ready_for_formal_evaluation"}:
         _append_unique(blockers, "h01_manifest_not_ready")
     for blocker in h01_manifest.get("blockers") or ():
         _append_unique(blockers, str(blocker))
@@ -289,6 +289,7 @@ def _audit_draft(draft_text_path: Path | None, prohibited_claims: Sequence[dict[
 def _code_anchors(repo_root: Path) -> list[dict[str, Any]]:
     return [
         _anchor(repo_root, "2_experiment/forest_n3p/scripts/build_module2_paper_tables.py", "formal_claim_allowed = not blockers", "paper_table_formal_gate"),
+        _anchor(repo_root, "2_experiment/forest_n3p/scripts/build_module2_h02_formal_acceptance.py", '"formal_output_accepted": accepted', "h02_formal_acceptance_gate"),
         _anchor(repo_root, "2_experiment/forest_n3p/scripts/build_module2_evaluation_manifest.py", "f02_6_decision_packet_pending", "h01_f02_6_guard"),
         _anchor(repo_root, "2_experiment/forest_n3p/scripts/audit_rl_rs_gate3_trial.py", '"formal_claim_allowed": formal_decision in {"pass", "fail"}', "gate3_formal_claim_gate"),
         _anchor(repo_root, "2_experiment/forest_n3p/scripts/build_module2_method_algorithms.py", "The learned component is an analytic-expansion operator", "method_claim_boundary"),

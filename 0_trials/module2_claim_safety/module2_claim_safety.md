@@ -9,11 +9,16 @@
 - h02_verdict_not_formal
 - h01_manifest_not_ready
 - f02_6_warm_start_decision_pending
-- f02_6_decision_packet_pending
 - missing_module2_rl_rs_checkpoint
 - missing_ppo_result_rows
-- f02_6_pending
+- h02_formal_acceptance_not_accepted
+- remote_execution_packet_not_ready
 - requires_dr_sun_approval
+- missing_gate3_formal_audit
+- h02_scale_below_h01_manifest
+- missing_remote_pullback_artifacts
+- f02_6_formal_chain_pending
+- f02_6_pending
 
 ## Allowed Claims
 

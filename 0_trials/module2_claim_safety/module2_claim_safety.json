@@ -2,22 +2,28 @@
   "schema_version": 1,
   "artifact_name": "module2_claim_safety",
   "status": "blocked_formal_performance_claims",
-  "created_at_utc": "2026-07-04T06:57:05.483764+00:00",
-  "source_head": "474768b1b15d349674b916076058318678e4e7f3",
+  "created_at_utc": "2026-07-04T09:00:18.870447+00:00",
+  "source_head": "9c9c8a86dcefd1b8d045b5bda45f0114f28083be",
   "formal_performance_claim_allowed": false,
   "formal_performance_blockers": [
     "paper_tables_not_formal",
     "h02_verdict_not_formal",
     "h01_manifest_not_ready",
     "f02_6_warm_start_decision_pending",
-    "f02_6_decision_packet_pending",
     "missing_module2_rl_rs_checkpoint",
     "missing_ppo_result_rows",
-    "f02_6_pending",
-    "requires_dr_sun_approval"
+    "h02_formal_acceptance_not_accepted",
+    "remote_execution_packet_not_ready",
+    "requires_dr_sun_approval",
+    "missing_gate3_formal_audit",
+    "h02_scale_below_h01_manifest",
+    "missing_remote_pullback_artifacts",
+    "f02_6_formal_chain_pending",
+    "f02_6_pending"
   ],
   "inputs": {
     "paper_tables": "0_trials/module2_paper_tables/module2_paper_tables.json",
+    "h02_formal_acceptance": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
     "h01_manifest": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
     "f02_6_packet": "0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json",
     "gate3_audit": "0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/gate3_formal_audit.json",
@@ -28,6 +34,9 @@
   "input_status": {
     "paper_tables_status": "blocked_no_formal_h02_data",
     "paper_tables_formal_claim_allowed": false,
+    "h02_formal_acceptance_status": "blocked_formal_output_acceptance",
+    "h02_formal_output_accepted": false,
+    "h02_paper_result_input_allowed": false,
     "h01_manifest_status": "blocked_pending_decisions",
     "f02_6_status": "pending_human_decision",
     "gate3_formal_decision": "fail",
@@ -63,6 +72,7 @@
       "template": "On the approved procedural and real-map evaluation suite, RL-RS funnel reduces expansions/time/timeout relative to Dang multi-RS.",
       "required_evidence": [
         "H02 formal_acceptance=true",
+        "H02 formal acceptance artifact has formal_output_accepted=true and paper_result_input_allowed=true",
         "H01 manifest ready/formal_ready",
         "real PPO checkpoint rows present",
         "paired Wilcoxon p<0.05 for total_time_s and total_expansions",
@@ -143,13 +153,19 @@
   "code_anchors": [
     {
       "path": "2_experiment/forest_n3p/scripts/build_module2_paper_tables.py",
-      "line": 88,
+      "line": 100,
       "symbol": "paper_table_formal_gate",
       "pattern": "formal_claim_allowed = not blockers"
     },
     {
+      "path": "2_experiment/forest_n3p/scripts/build_module2_h02_formal_acceptance.py",
+      "line": 105,
+      "symbol": "h02_formal_acceptance_gate",
+      "pattern": "\"formal_output_accepted\": accepted"
+    },
+    {
       "path": "2_experiment/forest_n3p/scripts/build_module2_evaluation_manifest.py",
-      "line": 322,
+      "line": 454,
       "symbol": "h01_f02_6_guard",
       "pattern": "f02_6_decision_packet_pending"
     },
