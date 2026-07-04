@@ -112,6 +112,7 @@ def build_manifest(config: PostF026PlanAuditConfig) -> dict[str, Any]:
             "formal_gate_status_report": str(config.status_report_path),
         },
         "plan_status": plan.get("status"),
+        "source_regeneration_command_index_summary": _source_regeneration_command_index_summary(plan, source_freshness),
         "missing_artifacts_summary": _missing_artifacts_summary(config.missing_artifacts_path, missing_artifacts),
         "closure_checklist_summary": _closure_checklist_summary(config.closure_checklist_path, closure_checklist),
         "status_report_summary": _status_report_summary(config.status_report_path, status_report),
@@ -160,6 +161,7 @@ def _audit_issues(
     issues.extend(_stage_safety_issues(plan))
     issues.extend(_pending_gate_issues(plan))
     issues.extend(_cross_artifact_issues(plan=plan, formal_gate=formal_gate, source_freshness=source_freshness))
+    issues.extend(_source_regeneration_command_index_issues(plan=plan, source_freshness=source_freshness))
     issues.extend(_missing_artifacts_issues(plan=plan, missing_artifacts=missing_artifacts, missing_artifacts_path=missing_artifacts_path))
     issues.extend(_closure_checklist_issues(plan=plan, closure_checklist=closure_checklist, closure_checklist_path=closure_checklist_path))
     issues.extend(_status_report_issues(plan=plan, status_report=status_report, status_report_path=status_report_path))
@@ -561,6 +563,171 @@ def _source_target_counts_by_gate(source_freshness: dict[str, Any]) -> dict[str,
     return dict(sorted(counts.items()))
 
 
+def _source_regeneration_command_index_issues(*, plan: dict[str, Any], source_freshness: dict[str, Any]) -> list[dict[str, Any]]:
+    summary = _source_regeneration_command_index_summary(plan, source_freshness)
+    issues: list[dict[str, Any]] = []
+    if not summary["present"]:
+        return [
+            _issue(
+                "source_regeneration_command_index_missing",
+                "Post-F02.6 plan must expose source_regeneration_command_index.",
+            )
+        ]
+    if summary["missing_target_ids"]:
+        issues.append(
+            _issue(
+                "source_regeneration_command_index_missing_source_targets",
+                "Command index must cover every source-freshness regeneration target.",
+                observed=summary["missing_target_ids"],
+            )
+        )
+    if summary["extra_index_ids"]:
+        issues.append(
+            _issue(
+                "source_regeneration_command_index_has_extra_rows",
+                "Command index should not contain rows absent from source freshness targets.",
+                observed=summary["extra_index_ids"],
+            )
+        )
+    if summary["unknown_manual_count"] > 0:
+        issues.append(
+            _issue(
+                "source_regeneration_command_index_unknown_manual_rows",
+                "Known gate artifacts must not fall back to unknown manual regeneration.",
+                observed=summary["unknown_manual_ids"],
+            )
+        )
+    if summary["stage_mismatch_ids"]:
+        issues.append(
+            _issue(
+                "source_regeneration_command_index_stage_mismatch",
+                "Command index stage_id must match each target's required_before gate.",
+                observed=summary["stage_mismatch_ids"],
+            )
+        )
+    if summary["command_not_in_stage_ids"]:
+        issues.append(
+            _issue(
+                "source_regeneration_command_index_command_missing_from_stage",
+                "Each command-index command must be present in its corresponding ordered stage.",
+                observed=summary["command_not_in_stage_ids"],
+            )
+        )
+    if summary["forbidden_command_ids"]:
+        issues.append(
+            _issue(
+                "source_regeneration_command_index_contains_execution_commands",
+                "Source-regeneration command index must not contain remote preflight, training, audit, ssh, or rsync commands.",
+                observed=summary["forbidden_command_ids"],
+            )
+        )
+    if summary["missing_required_field_ids"]:
+        issues.append(
+            _issue(
+                "source_regeneration_command_index_rows_missing_required_fields",
+                "Command-index rows must include artifact_id, required_before, stage_id, command_kind, and command_template.",
+                observed=summary["missing_required_field_ids"],
+            )
+        )
+    return issues
+
+
+def _source_regeneration_command_index_summary(plan: dict[str, Any], source_freshness: dict[str, Any]) -> dict[str, Any]:
+    source_targets = _source_targets(source_freshness)
+    source_ids = {str(item.get("artifact_id")) for item in source_targets if item.get("artifact_id")}
+    index_rows = _source_regeneration_command_index(plan)
+    index_ids = {str(item.get("artifact_id")) for item in index_rows if item.get("artifact_id")}
+    rows_by_id = {str(item.get("artifact_id")): item for item in index_rows if item.get("artifact_id")}
+    stage_commands = _stage_commands_by_id(plan)
+    unknown_manual_ids: list[str] = []
+    stage_mismatch_ids: list[str] = []
+    command_not_in_stage_ids: list[str] = []
+    forbidden_command_ids: list[str] = []
+    missing_required_field_ids: list[str] = []
+    stage_counts: dict[str, int] = {}
+    for row in index_rows:
+        artifact_id = str(row.get("artifact_id") or "")
+        stage_id = str(row.get("stage_id") or "")
+        required_before = str(row.get("required_before") or "")
+        command_kind = str(row.get("command_kind") or "")
+        command_template = str(row.get("command_template") or "")
+        if not all((artifact_id, required_before, stage_id, command_kind, command_template)):
+            missing_required_field_ids.append(artifact_id or "<missing-artifact-id>")
+        if command_kind == "unknown_manual":
+            unknown_manual_ids.append(artifact_id)
+        if stage_id != _expected_stage_for_required_before(required_before):
+            stage_mismatch_ids.append(artifact_id)
+        if command_template and command_template not in stage_commands.get(stage_id, set()):
+            command_not_in_stage_ids.append(artifact_id)
+        if _is_forbidden_regeneration_command(command_template):
+            forbidden_command_ids.append(artifact_id)
+        stage_counts[stage_id] = stage_counts.get(stage_id, 0) + 1
+    return {
+        "present": bool(index_rows),
+        "index_row_count": len(index_rows),
+        "source_target_count": len(source_targets),
+        "missing_target_ids": sorted(source_ids - index_ids),
+        "extra_index_ids": sorted(index_ids - source_ids),
+        "unknown_manual_count": len(unknown_manual_ids),
+        "unknown_manual_ids": sorted(unknown_manual_ids),
+        "stage_mismatch_count": len(stage_mismatch_ids),
+        "stage_mismatch_ids": sorted(stage_mismatch_ids),
+        "command_not_in_stage_count": len(command_not_in_stage_ids),
+        "command_not_in_stage_ids": sorted(command_not_in_stage_ids),
+        "forbidden_command_count": len(forbidden_command_ids),
+        "forbidden_command_ids": sorted(forbidden_command_ids),
+        "missing_required_field_count": len(missing_required_field_ids),
+        "missing_required_field_ids": sorted(missing_required_field_ids),
+        "stage_counts": dict(sorted(stage_counts.items())),
+        "rows": rows_by_id,
+    }
+
+
+def _source_regeneration_command_index(plan: dict[str, Any]) -> list[dict[str, Any]]:
+    rows = plan.get("source_regeneration_command_index")
+    if not isinstance(rows, list):
+        return []
+    return [row for row in rows if isinstance(row, dict)]
+
+
+def _source_targets(source_freshness: dict[str, Any]) -> list[dict[str, Any]]:
+    targets = source_freshness.get("ordered_regeneration_targets")
+    if not isinstance(targets, list):
+        return []
+    return [target for target in targets if isinstance(target, dict)]
+
+
+def _stage_commands_by_id(plan: dict[str, Any]) -> dict[str, set[str]]:
+    out: dict[str, set[str]] = {}
+    for stage in _stages(plan):
+        stage_id = str(stage.get("stage_id") or "")
+        if not stage_id:
+            continue
+        out[stage_id] = set(_strings(stage.get("command_templates")))
+    return out
+
+
+def _expected_stage_for_required_before(required_before: str) -> str:
+    if required_before == "approved_remote_preflight":
+        return "regenerate_preflight_gate_artifacts"
+    if required_before == "formal_h01_h02":
+        return "regenerate_h01_h02_formal_artifacts"
+    if required_before == "formal_claim_gate":
+        return "regenerate_claim_gate_artifacts"
+    return "manual_review"
+
+
+def _is_forbidden_regeneration_command(command: str) -> bool:
+    forbidden_tokens = (
+        "preflight_rl_rs_gate3_formal_trial",
+        "run_rl_rs_gate3_trial",
+        "audit_rl_rs_gate3_trial",
+        "ssh ",
+        "rsync ",
+    )
+    return any(token in command for token in forbidden_tokens)
+
+
 def _current_blocking_summary(plan: dict[str, Any]) -> dict[str, Any]:
     summary = plan.get("blocking_summary") if isinstance(plan.get("blocking_summary"), dict) else {}
     return {
@@ -737,6 +904,21 @@ def _markdown(manifest: dict[str, Any]) -> str:
     ]
     for key, value in manifest["current_blocking_summary"].items():
         lines.append(f"- {key}: `{value}`")
+    command_index = manifest["source_regeneration_command_index_summary"]
+    lines.extend(
+        [
+            "",
+            "## Source Regeneration Command Index",
+            "",
+            f"- present: `{command_index['present']}`",
+            f"- index_row_count: `{command_index['index_row_count']}`",
+            f"- source_target_count: `{command_index['source_target_count']}`",
+            f"- unknown_manual_count: `{command_index['unknown_manual_count']}`",
+            f"- stage_mismatch_count: `{command_index['stage_mismatch_count']}`",
+            f"- command_not_in_stage_count: `{command_index['command_not_in_stage_count']}`",
+            f"- forbidden_command_count: `{command_index['forbidden_command_count']}`",
+        ]
+    )
     lines.extend(
         [
             "",
