@@ -107,6 +107,17 @@
 - missing_row_count=`10`
 - blocked_category_count=`4`
 
+## Status Report Remaining Deliverables Gap Summary
+
+- present=`True`
+- summary_id=`module2_formal_gate_missing_training_eval_acceptance_summary`
+- total_missing_deliverables=`10`
+- open_category_count=`4`
+- `training`: missing_count=`3`, stage=`gate3_remote_training`, stage_allowed_now=`False`, missing_artifacts=`training:train_final_model_zip, training:train_summary_json, training:train_training_manifest_json`
+- `evaluation`: missing_count=`2`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`evaluation:eval_gate3_eval_episodes_csv, evaluation:eval_gate3_summary_json`
+- `acceptance`: missing_count=`3`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`acceptance:gate3_trial_manifest_json, acceptance:gate3_formal_audit_json, acceptance:pulled_back_checkpoint_hash_record`
+- `formal_acceptance`: missing_count=`2`, stage=`regenerate_h01_h02_formal_artifacts`, stage_allowed_now=`False`, missing_artifacts=`formal_acceptance:h01_ready_for_formal_run, formal_acceptance:h02_formal_output_acceptance`
+
 ## Prohibited Claims
 
 - `global_optimality`: not allowed; patterns=全局最优, globally optimal, global optimality
