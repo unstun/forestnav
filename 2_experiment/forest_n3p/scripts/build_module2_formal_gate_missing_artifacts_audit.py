@@ -95,6 +95,20 @@ def build_manifest(config: FormalGateMissingArtifactsAuditConfig) -> dict[str, A
         h01_manifest=h01_manifest,
         h02_acceptance=h02_acceptance,
     )
+    current_gate_summary = _current_gate_summary(
+        decision=decision,
+        decision_gate=decision_gate,
+        post_plan=post_plan,
+        source_freshness=source_freshness,
+        remote_packet=remote_packet,
+        remote_packet_audit=remote_packet_audit,
+        h01_manifest=h01_manifest,
+        h02_acceptance=h02_acceptance,
+    )
+    formal_requirements = _formal_gate_requirements(
+        groups=groups,
+        current_gate_summary=current_gate_summary,
+    )
     audit_issues = _audit_issues(
         decision=decision,
         decision_gate=decision_gate,
@@ -130,19 +144,12 @@ def build_manifest(config: FormalGateMissingArtifactsAuditConfig) -> dict[str, A
             "h01_manifest": str(config.h01_manifest_path),
             "h02_formal_acceptance": str(config.h02_acceptance_path),
         },
-        "current_gate_summary": _current_gate_summary(
-            decision=decision,
-            decision_gate=decision_gate,
-            post_plan=post_plan,
-            source_freshness=source_freshness,
-            remote_packet=remote_packet,
-            remote_packet_audit=remote_packet_audit,
-            h01_manifest=h01_manifest,
-            h02_acceptance=h02_acceptance,
-        ),
+        "current_gate_summary": current_gate_summary,
         "missing_counts_by_category": missing_counts,
         "all_required_evidence_present": all_required_evidence_present,
         "missing_evidence_groups": groups,
+        "formal_gate_requirements": formal_requirements,
+        "formal_gate_requirement_counts": _requirement_counts(formal_requirements),
         "audit_issue_count": len(audit_issues),
         "audit_issues": audit_issues,
         "claim_boundaries": [
