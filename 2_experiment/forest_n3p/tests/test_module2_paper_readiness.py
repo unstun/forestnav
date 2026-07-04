@@ -719,6 +719,7 @@ def _write_inputs(tmp_path, *, formal):
             "status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary": _claim_safety_remaining_deliverables_gap_summary_payload(
                 formal=formal
             ),
+            "status_report_remaining_deliverables_proof_command_plan": _claim_safety_remaining_deliverables_proof_command_plan_payload(),
             "status_report_remote_packet_safety_claim_gate_command_index_summary": _claim_safety_command_index_summary_payload(),
             "allowed_claims": [
                 {"claim_id": "method_is_ha_star_analytic_operator", "scope": "method_structure"},
