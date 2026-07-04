@@ -847,6 +847,13 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- claim_safety_decision_intake_remote_preflight_allowed_now: `{input_status.get('claim_safety_decision_intake_remote_preflight_allowed_now')}`",
             f"- claim_safety_decision_intake_remote_training_allowed_now: `{input_status.get('claim_safety_decision_intake_remote_training_allowed_now')}`",
             f"- claim_safety_decision_intake_formal_claim_allowed_now: `{input_status.get('claim_safety_decision_intake_formal_claim_allowed_now')}`",
+            "",
+            "## Claim Safety Remaining Deliverables Acceptance Matrix",
+            "",
+            f"- claim_safety_remaining_deliverables_acceptance_present: `{input_status.get('claim_safety_remaining_deliverables_acceptance_present')}`",
+            f"- claim_safety_remaining_deliverables_acceptance_matrix_row_count: `{input_status.get('claim_safety_remaining_deliverables_acceptance_matrix_row_count')}`",
+            f"- claim_safety_remaining_deliverables_acceptance_missing_row_count: `{input_status.get('claim_safety_remaining_deliverables_acceptance_missing_row_count')}`",
+            f"- claim_safety_remaining_deliverables_acceptance_blocked_category_count: `{input_status.get('claim_safety_remaining_deliverables_acceptance_blocked_category_count')}`",
         ]
     )
     lines.extend(["", "## Section Readiness", ""])
