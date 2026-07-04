@@ -1,0 +1,155 @@
+% Auto-generated Module2 reviewer evidence appendix.
+% Source manifest: 3_paper/module2_reviewer_evidence_cards/module2_reviewer_evidence_cards.json
+% This appendix is traceability material, not formal performance evidence.
+
+\section{Module2 Reviewer Evidence Cards}
+\label{app:module2_reviewer_evidence_cards}
+
+This appendix records source-level traceability for the Module2 manuscript text. It is generated from the reviewer evidence-card manifest and should be read as a claim-audit aid, not as a formal result.
+
+\begin{itemize}
+\item Status: \texttt{reviewer\_evidence\_cards\_ready}.
+\item Local training allowed: \texttt{False}.
+\item Remote training resource: \texttt{gpu3070ti-relay}.
+\item Formal performance claim allowed: \texttt{False}.
+\end{itemize}
+
+\subsection{method\_is\_ha\_star\_analytic\_operator}
+\begin{itemize}
+\item Reviewer verdict: \texttt{claim\_traceable\_with\_scope\_limit}.
+\item Claim status: \texttt{allowed\_method\_structure}.
+\item Evidence state: \texttt{mapped}.
+\item Writing instruction: Can be used only with the listed scope/qualifier and cited against the primary evidence artifacts.
+\end{itemize}
+\paragraph{Manuscript anchors.}
+\begin{itemize}
+\item \texttt{learned analytic-expansion operator inside} $\rightarrow$ \texttt{3\_paper/module2\_section\_seed/module2\_paper\_section\_seed.tex:8} (raw=\texttt{True}, stripped=\texttt{True}).
+\item \texttt{not a standalone global planner} $\rightarrow$ \texttt{3\_paper/module2\_section\_seed/module2\_paper\_section\_seed.tex:8} (raw=\texttt{True}, stripped=\texttt{True}).
+\item \texttt{terminal RS} $\rightarrow$ \texttt{3\_paper/module2\_section\_seed/module2\_paper\_section\_seed.tex:11} (raw=\texttt{True}, stripped=\texttt{True}).
+\end{itemize}
+\paragraph{Primary evidence.}
+\begin{itemize}
+\item \texttt{0\_trials/module2\_claim\_safety/module2\_claim\_safety.json}, status=\texttt{blocked\_formal\_performance\_claims}.
+\item \texttt{0\_trials/module2\_method\_algorithms/module2\_method\_algorithms.json}, status=\texttt{code\_anchored}.
+\item \texttt{0\_trials/module2\_system\_diagram/module2\_system\_diagram.json}, status=\texttt{code\_anchored\_drawio}.
+\item \texttt{0\_trials/module2\_paper\_readiness/module2\_paper\_readiness.json}, status=\texttt{ready\_to\_write}.
+\item \texttt{3\_paper/module2\_section\_seed/module2\_paper\_section\_seed.json}, status=\texttt{draft\_ready}.
+\end{itemize}
+\paragraph{Code anchors.}
+\begin{itemize}
+\item \texttt{2\_experiment/forest\_n3p/third\_party/pathplan/hybrid\_a\_star/planner.py:129} \texttt{HybridAStarPlanner.\_\_init\_\_}
+\item \texttt{2\_experiment/forest\_n3p/third\_party/pathplan/hybrid\_a\_star/planner.py:175} \texttt{HybridAStarPlanner.\_\_init\_\_}
+\item \texttt{2\_experiment/forest\_n3p/main\_evaluation.py:70} \texttt{main\_evaluation.RL\_RS\_OPERATOR\_METHODS}
+\item \texttt{2\_experiment/forest\_n3p/third\_party/pathplan/hybrid\_a\_star/planner.py:296} \texttt{HybridAStarPlanner.\_try\_analytic\_expansion}
+\item \texttt{2\_experiment/forest\_n3p/third\_party/pathplan/hybrid\_a\_star/planner.py:301} \texttt{HybridAStarPlanner.\_try\_custom\_analytic\_expansion}
+\item \texttt{2\_experiment/forest\_n3p/rl\_rs/checkpoint\_operator.py:55} \texttt{load\_rl\_rs\_funnel\_operator\_from\_checkpoint}
+\item \texttt{2\_experiment/forest\_n3p/rl\_rs/checkpoint\_operator.py:77} \texttt{load\_rl\_rs\_funnel\_operator\_from\_checkpoint}
+\item \texttt{2\_experiment/forest\_n3p/rl\_rs/checkpoint\_operator.py:85} \texttt{load\_rl\_rs\_funnel\_operator\_from\_checkpoint}
+\end{itemize}
+
+\subsection{no\_warm\_gate3\_formal\_failure}
+\begin{itemize}
+\item Reviewer verdict: \texttt{claim\_traceable\_with\_scope\_limit}.
+\item Claim status: \texttt{allowed\_with\_no\_warm\_scope\_limit}.
+\item Evidence state: \texttt{mapped}.
+\item Writing instruction: Can be used only with the listed scope/qualifier and cited against the primary evidence artifacts.
+\end{itemize}
+\paragraph{Manuscript anchors.}
+\begin{itemize}
+\item \texttt{No-warm PPO Gate} $\rightarrow$ \texttt{3\_paper/module2\_section\_seed/module2\_paper\_section\_seed.tex:14} (raw=\texttt{True}, stripped=\texttt{True}).
+\item \texttt{0.453125} $\rightarrow$ \texttt{3\_paper/module2\_section\_seed/module2\_paper\_section\_seed.tex:14} (raw=\texttt{True}, stripped=\texttt{True}).
+\item \texttt{does not evaluate obstacle-summary warm-start} $\rightarrow$ \texttt{3\_paper/module2\_section\_seed/module2\_paper\_section\_seed.tex:14} (raw=\texttt{True}, stripped=\texttt{True}).
+\item \texttt{Formal performance claims remain blocked} $\rightarrow$ \texttt{3\_paper/module2\_section\_seed/module2\_paper\_section\_seed.tex:14} (raw=\texttt{True}, stripped=\texttt{True}).
+\end{itemize}
+\paragraph{Primary evidence.}
+\begin{itemize}
+\item \texttt{0\_trials/module2\_claim\_safety/module2\_claim\_safety.json}, status=\texttt{blocked\_formal\_performance\_claims}.
+\item \texttt{0\_trials/module2\_gate3\_formal/gate3\_no\_warm\_formal\_v1/gate3\_formal\_audit.json}, status=\texttt{fail}.
+\item \texttt{0\_trials/module2\_paper\_readiness/module2\_paper\_readiness.json}, status=\texttt{ready\_with\_scope\_limit}.
+\item \texttt{3\_paper/module2\_section\_seed/module2\_paper\_section\_seed.json}, status=\texttt{draft\_ready\_with\_scope\_limit}.
+\end{itemize}
+\paragraph{Metric values.}
+\texttt{terminal\_rs\_success\_rate=0.453125, episodes=64, success\_threshold=0.8}
+
+
+\subsection{formal\_results\_blocked}
+\begin{itemize}
+\item Reviewer verdict: \texttt{blocked\_placeholder\_traceable}.
+\item Claim status: \texttt{blocked\_placeholder\_not\_a\_result\_claim}.
+\item Evidence state: \texttt{blocked\_as\_expected}.
+\item Writing instruction: Do not write this as a result claim; keep it as a blocked placeholder until the listed blockers close.
+\end{itemize}
+\paragraph{Manuscript anchors.}
+\begin{itemize}
+\item \texttt{Formal performance claims remain blocked} $\rightarrow$ \texttt{3\_paper/module2\_section\_seed/module2\_paper\_section\_seed.tex:14} (raw=\texttt{True}, stripped=\texttt{True}).
+\item \texttt{\% BLOCKED: formal\_results} $\rightarrow$ \texttt{3\_paper/module2\_section\_seed/module2\_paper\_section\_seed.tex:16} (raw=\texttt{True}, stripped=\texttt{False}).
+\end{itemize}
+\paragraph{Primary evidence.}
+\begin{itemize}
+\item \texttt{3\_paper/module2\_claim\_audit/module2\_manuscript\_claim\_audit.json}, status=\texttt{maintex\_module2\_claim\_audit\_passed}.
+\item \texttt{0\_trials/module2\_claim\_safety/module2\_claim\_safety.json}, status=\texttt{blocked\_formal\_performance\_claims}.
+\item \texttt{0\_trials/module2\_paper\_readiness/module2\_paper\_readiness.json}, status=\texttt{blocked}.
+\item \texttt{3\_paper/module2\_section\_seed/module2\_paper\_section\_seed.json}, status=\texttt{blocked}.
+\end{itemize}
+\paragraph{Paper blockers.}
+\begin{itemize}
+\item \texttt{paper\_tables\_not\_formal}
+\item \texttt{h02\_verdict\_not\_formal}
+\item \texttt{h02\_formal\_acceptance\_not\_accepted}
+\item \texttt{h01\_manifest\_not\_ready}
+\item \texttt{f02\_6\_warm\_start\_decision\_pending}
+\item \texttt{missing\_module2\_rl\_rs\_checkpoint}
+\item \texttt{remote\_execution\_packet\_not\_ready}
+\item \texttt{requires\_dr\_sun\_approval}
+\item \texttt{missing\_gate3\_formal\_audit}
+\item \texttt{h02\_scale\_below\_h01\_manifest}
+\item \texttt{missing\_ppo\_result\_rows}
+\item \texttt{missing\_remote\_pullback\_artifacts}
+\item \texttt{f02\_6\_formal\_chain\_pending}
+\item \texttt{claim\_safety\_blocks\_formal\_performance}
+\item \texttt{f02\_6\_pending}
+\end{itemize}
+
+\subsection{warm\_start\_effect\_blocked}
+\begin{itemize}
+\item Reviewer verdict: \texttt{blocked\_placeholder\_traceable}.
+\item Claim status: \texttt{blocked\_placeholder\_pending\_f02\_6}.
+\item Evidence state: \texttt{blocked\_as\_expected}.
+\item Writing instruction: Do not write this as a result claim; keep it as a blocked placeholder until the listed blockers close.
+\end{itemize}
+\paragraph{Manuscript anchors.}
+\begin{itemize}
+\item \texttt{\% BLOCKED: warm\_start\_effect} $\rightarrow$ \texttt{3\_paper/module2\_section\_seed/module2\_paper\_section\_seed.tex:17} (raw=\texttt{True}, stripped=\texttt{False}).
+\item \texttt{does not evaluate obstacle-summary warm-start} $\rightarrow$ \texttt{3\_paper/module2\_section\_seed/module2\_paper\_section\_seed.tex:14} (raw=\texttt{True}, stripped=\texttt{True}).
+\end{itemize}
+\paragraph{Primary evidence.}
+\begin{itemize}
+\item \texttt{0\_trials/module2\_paper\_readiness/module2\_paper\_readiness.json}, status=\texttt{blocked}.
+\item \texttt{3\_paper/module2\_section\_seed/module2\_paper\_section\_seed.json}, status=\texttt{blocked}.
+\item \texttt{0\_trials/module2\_f02\_6\_decision\_record/f02\_6\_decision\_record.json}, status=\texttt{pending\_human\_decision}.
+\item \texttt{0\_trials/module2\_remote\_formal\_execution\_packet/remote\_formal\_execution\_packet.json}, status=\texttt{blocked\_until\_f02\_6\_decision}.
+\end{itemize}
+\paragraph{Paper blockers.}
+\begin{itemize}
+\item \texttt{f02\_6\_not\_approved}
+\item \texttt{requires\_dr\_sun\_approval}
+\item \texttt{f02\_6\_warm\_start\_decision\_pending}
+\item \texttt{missing\_module2\_rl\_rs\_checkpoint}
+\end{itemize}
+
+\subsection{Verification Commands}
+\begin{itemize}
+\item \texttt{PYTHONPATH=2\_experiment python -m forest\_n3p.scripts.build\_module2\_manuscript\_evidence\_map}
+\item \texttt{PYTHONPATH=2\_experiment python -m forest\_n3p.scripts.build\_module2\_reviewer\_evidence\_cards}
+\item \texttt{PYTHONPATH=2\_experiment pytest -q 2\_experiment/forest\_n3p/tests/test\_module2\_manuscript\_evidence\_map.py 2\_experiment/forest\_n3p/tests/test\_module2\_reviewer\_evidence\_cards.py}
+\item \texttt{pdflatex wrapper input for 3\_paper/module2\_reviewer\_evidence\_cards/module2\_reviewer\_evidence\_cards.tex}
+\item \texttt{KMP\_DUPLICATE\_LIB\_OK=TRUE PYTHONPATH=2\_experiment pytest -q 2\_experiment/forest\_n3p/tests}
+\item \texttt{cd 3\_paper \&\& pdflatex -interaction=nonstopmode -halt-on-error -draftmode -output-directory=/tmp/forestnav\_module2\_texcheck main.tex}
+\end{itemize}
+
+\subsection{Review Boundaries}
+\begin{itemize}
+\item These cards are for reviewer-facing traceability, not formal performance evidence.
+\item Cards with claim\_status beginning with blocked\_ are placeholders only and must not be rewritten as result claims.
+\item No local training is allowed; formal PPO checkpoint production remains gated on F02.6 and gpu3070ti-relay.
+\end{itemize}

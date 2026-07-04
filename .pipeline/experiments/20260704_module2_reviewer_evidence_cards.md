@@ -46,10 +46,10 @@ topic: module2_reviewer_evidence_cards
 
 ## 验证
 
-- `PYTHONPATH=2_experiment pytest -q 2_experiment/forest_n3p/tests/test_module2_manuscript_evidence_map.py 2_experiment/forest_n3p/tests/test_module2_reviewer_evidence_cards.py` -> `4 passed in 0.30s`
+- `PYTHONPATH=2_experiment pytest -q 2_experiment/forest_n3p/tests/test_module2_manuscript_evidence_map.py 2_experiment/forest_n3p/tests/test_module2_reviewer_evidence_cards.py` -> `4 passed in 0.25s`
 - `python -m py_compile 2_experiment/forest_n3p/scripts/build_module2_manuscript_evidence_map.py 2_experiment/forest_n3p/scripts/build_module2_reviewer_evidence_cards.py` -> pass
 - `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_manuscript_evidence_map` -> `status=module2_manuscript_evidence_mapped`
 - `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_reviewer_evidence_cards` -> `status=reviewer_evidence_cards_ready`, outputs JSON/Markdown/LaTeX
 - wrapper compile for `3_paper/module2_reviewer_evidence_cards/module2_reviewer_evidence_cards.tex` -> pdflatex draftmode pass; long path overfull warnings remain.
-- `KMP_DUPLICATE_LIB_OK=TRUE PYTHONPATH=2_experiment pytest -q 2_experiment/forest_n3p/tests` -> `130 passed in 14.77s`
+- `KMP_DUPLICATE_LIB_OK=TRUE PYTHONPATH=2_experiment pytest -q 2_experiment/forest_n3p/tests` -> `130 passed in 11.95s`
 - `cd 3_paper && pdflatex -interaction=nonstopmode -halt-on-error -draftmode -output-directory=/tmp/forestnav_module2_texcheck main.tex` -> pass; 仅有既有 undefined citation/reference warnings; temp directory removed.
