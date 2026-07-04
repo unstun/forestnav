@@ -1709,6 +1709,13 @@ def _remaining_deliverables_gap_summary_issues(
                         f"gap summary {matrix_id} must preserve acceptance predicate count.",
                     )
                 )
+            if artifact["proof_command_count"] <= 0:
+                issues.append(
+                    _issue(
+                        f"remaining_deliverables_gap_{safe_matrix_id}_missing_proof_commands",
+                        f"gap summary {matrix_id} must preserve proof command count.",
+                    )
+                )
             if artifact["invalid_substitute_count"] <= 0:
                 issues.append(
                     _issue(
@@ -1724,6 +1731,123 @@ def _remaining_deliverables_gap_summary_issues(
                     f"gap summary {category} missing count exceeds expected artifact count.",
                 )
             )
+    return issues
+
+
+def _remaining_deliverables_proof_command_plan_issues(
+    *,
+    remaining_deliverables: dict[str, Any],
+    acceptance_summary: dict[str, Any],
+    gap_summary: dict[str, Any],
+    proof_plan: dict[str, Any],
+) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    if not remaining_deliverables:
+        return []
+    if not proof_plan["present"]:
+        return [
+            _issue(
+                "remaining_deliverables_proof_command_plan_missing",
+                "remaining-deliverables ledger must expose proof_command_plan.",
+            )
+        ]
+    if proof_plan["plan_id"] != "module2_formal_gate_local_read_only_proof_commands":
+        issues.append(
+            _issue(
+                "remaining_deliverables_proof_command_plan_id_invalid",
+                "proof command plan id must match the formal gate contract.",
+            )
+        )
+    if proof_plan["execution_boundary"] != "local_read_only_after_formal_remote_pullback":
+        issues.append(
+            _issue(
+                "remaining_deliverables_proof_command_plan_boundary_invalid",
+                "proof command plan must be local read-only after formal remote pullback.",
+            )
+        )
+    if not proof_plan["not_paper_result_material"]:
+        issues.append(
+            _issue(
+                "remaining_deliverables_proof_command_plan_marked_as_paper_result",
+                "proof command plan must not be paper result material.",
+            )
+        )
+    if proof_plan["runs_training"]:
+        issues.append(
+            _issue(
+                "remaining_deliverables_proof_command_plan_runs_training",
+                "proof command plan must not run training.",
+            )
+        )
+    if proof_plan["runs_remote_preflight"]:
+        issues.append(
+            _issue(
+                "remaining_deliverables_proof_command_plan_runs_remote_preflight",
+                "proof command plan must not run remote preflight.",
+            )
+        )
+    if proof_plan["total_matrix_rows"] != acceptance_summary["matrix_row_count"]:
+        issues.append(
+            _issue(
+                "remaining_deliverables_proof_command_plan_matrix_count_mismatch",
+                "proof command plan row count must match the acceptance matrix row count.",
+            )
+        )
+    expected_total = sum(row["proof_command_count"] for row in acceptance_summary["rows"].values() if row["present"])
+    if proof_plan["total_proof_command_count"] != expected_total:
+        issues.append(
+            _issue(
+                "remaining_deliverables_proof_command_plan_command_count_mismatch",
+                "proof command plan command count must match acceptance matrix proof commands.",
+            )
+        )
+    for matrix_id, row in acceptance_summary["rows"].items():
+        if not row["present"]:
+            continue
+        safe_matrix_id = matrix_id.replace(":", "_")
+        if row["proof_command_count"] <= 0:
+            issues.append(
+                _issue(
+                    f"remaining_deliverables_{safe_matrix_id}_missing_proof_commands",
+                    f"{matrix_id} must list local read-only proof commands.",
+                )
+            )
+        proof_row = proof_plan["rows"].get(matrix_id)
+        if not proof_row:
+            issues.append(
+                _issue(
+                    f"remaining_deliverables_proof_command_plan_missing_{safe_matrix_id}",
+                    f"proof command plan must include {matrix_id}.",
+                )
+            )
+            continue
+        if proof_row["proof_command_count"] != row["proof_command_count"]:
+            issues.append(
+                _issue(
+                    f"remaining_deliverables_proof_command_plan_{safe_matrix_id}_count_mismatch",
+                    f"proof command plan count for {matrix_id} must match the acceptance matrix.",
+                )
+            )
+        if proof_row["proof_command_ids"] != row["proof_command_ids"]:
+            issues.append(
+                _issue(
+                    f"remaining_deliverables_proof_command_plan_{safe_matrix_id}_ids_mismatch",
+                    f"proof command plan ids for {matrix_id} must match the acceptance matrix.",
+                )
+            )
+    for category, payload in gap_summary["categories"].items():
+        if not payload["present"]:
+            continue
+        for artifact in payload["missing_artifacts"]:
+            matrix_id = str(artifact.get("matrix_id"))
+            if matrix_id and artifact["proof_command_count"] <= 0:
+                safe_matrix_id = matrix_id.replace(":", "_")
+                issues.append(
+                    _issue(
+                        f"remaining_deliverables_proof_command_gap_{safe_matrix_id}_missing_commands",
+                        f"gap summary must preserve proof commands for {matrix_id}.",
+                    )
+                )
     return issues
 
 
