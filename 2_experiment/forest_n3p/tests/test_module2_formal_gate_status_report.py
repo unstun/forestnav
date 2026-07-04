@@ -72,6 +72,21 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert post_run_requirements["status_counts"] == {"blocked_until_remote_audit": 4}
     assert post_run_requirements["blocked_requirement_count"] == 4
     assert post_run_requirements["requirements"]["checkpoint_hash_manifest_recorded"]["status"] == "blocked_until_remote_audit"
+    h02_requirements = manifest["h02_formal_acceptance_requirement_summary"]
+    assert h02_requirements["present"] is True
+    assert h02_requirements["required_requirement_count"] == 4
+    assert h02_requirements["status_counts"] == {"satisfied": 1, "blocked_formal_acceptance": 3}
+    assert h02_requirements["blocked_requirement_count"] == 3
+    assert manifest["current_state"]["h02_formal_acceptance_requirement_satisfied_count"] == 1
+    assert manifest["current_state"]["h02_formal_acceptance_requirement_blocked_count"] == 3
+    assert (
+        h02_requirements["requirements"]["ppo_rows_and_checkpoint_hash_present"]["status"]
+        == "blocked_formal_acceptance"
+    )
+    assert (
+        h02_requirements["requirements"]["ppo_rows_and_checkpoint_hash_present"]["paper_result_input_allowed_now"]
+        is False
+    )
     closure_stages = manifest["closure_remote_stage_summary"]
     assert closure_stages["approved_remote_preflight"]["allowed_now"] is False
     assert closure_stages["approved_remote_preflight"]["runs_remote_preflight"] is True
@@ -145,6 +160,7 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     assert manifest["formal_gate_requirement_stage_summary"]["mapped_requirement_count"] == 4
     assert manifest["remote_preflight_requirement_summary"]["status_counts"] == {"satisfied": 4}
     assert manifest["post_run_acceptance_requirement_summary"]["status_counts"] == {"satisfied": 4}
+    assert manifest["h02_formal_acceptance_requirement_summary"]["status_counts"] == {"satisfied": 4}
 
 
 def test_formal_gate_status_report_catches_status_input_drift(tmp_path):
@@ -212,6 +228,34 @@ def test_formal_gate_status_report_requires_remote_requirement_matrices(tmp_path
     assert "post_run_acceptance_requirement_checkpoint_hash_manifest_recorded_allowed_while_packet_blocked" in issue_ids
     assert manifest["remote_preflight_requirement_summary"]["present"] is False
     assert manifest["post_run_acceptance_requirement_summary"]["blocked_requirement_count"] == 4
+
+
+def test_formal_gate_status_report_requires_h02_acceptance_requirement_matrix(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    h02 = json.loads(config.h02_acceptance_path.read_text(encoding="utf-8"))
+    h02.pop("formal_acceptance_requirement_counts")
+    h02["formal_acceptance_requirements"][0].pop("acceptable_evidence")
+    h02["formal_acceptance_requirements"][1]["paper_result_input_allowed_now"] = True
+    h02["formal_acceptance_requirements"] = h02["formal_acceptance_requirements"][:-1]
+    config.h02_acceptance_path.write_text(json.dumps(h02), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert "h02_formal_acceptance_requirement_counts_missing" in issue_ids
+    assert (
+        "h02_formal_acceptance_requirement_h01_schema_and_h02_output_schema_match_missing_acceptable_evidence"
+        in issue_ids
+    )
+    assert (
+        "h02_formal_acceptance_requirement_h02_formal_scope_and_scale_match_h01_allows_paper_result_while_h02_blocked"
+        in issue_ids
+    )
+    assert "h02_formal_acceptance_requirement_missing_ppo_rows_and_checkpoint_hash_present" in issue_ids
+    assert manifest["h02_formal_acceptance_requirement_summary"]["missing_requirement_ids"] == [
+        "ppo_rows_and_checkpoint_hash_present"
+    ]
 
 
 def test_formal_gate_status_report_consumes_handoff_bundle_safety(tmp_path):
@@ -363,6 +407,8 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
     assert "Closure Remote Stages" in markdown
     assert "Formal Gate Handoff Bundle" in markdown
     assert "Formal Gate Requirement Stage Summary" in markdown
+    assert "H02 Formal Acceptance Requirement Matrix" in markdown
+    assert "ppo_rows_and_checkpoint_hash_present" in markdown
     assert "training_remote_ppo_checkpoint" in markdown
     assert "Missing-Artifacts Handoff Index" in markdown
     assert "record_f02_6_decision" in markdown
