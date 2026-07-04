@@ -773,7 +773,7 @@ def _run_hybrid_a_operator(
             "map_seed": query.map_seed,
             "query_seed": query.query_seed,
             "analytic_operator": analytic_operator,
-            **_rl_rs_operator_metadata(analytic_expansion_operator),
+            **_rl_rs_operator_metadata(analytic_expansion_operator, cfg),
         },
     )
 
@@ -873,11 +873,11 @@ def _module2_rl_rs_observation_config(cfg: MainEvaluationConfig):
     )
 
 
-def _rl_rs_operator_metadata(operator) -> dict[str, Any]:
+def _rl_rs_operator_metadata(operator, cfg: MainEvaluationConfig) -> dict[str, Any]:
     if operator is None:
         return {}
     return {
-        "rl_rs_checkpoint": getattr(operator, "checkpoint_path", None),
+        "rl_rs_checkpoint": None if cfg.module2_rl_rs_checkpoint is None else str(cfg.module2_rl_rs_checkpoint),
         "rl_rs_checkpoint_sha256": getattr(operator, "checkpoint_sha256", None),
     }
 
