@@ -633,6 +633,49 @@ def test_formal_gate_gap_audit_blocks_remote_execution_when_remote_packet_safety
     assert "remote_packet_safety_stale_status" in steps["gate3_remote_training"]["blocked_by"]
 
 
+def test_formal_gate_gap_audit_requires_remote_packet_safety_claim_gate_command_index(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_gap_audit")
+    remote_safety = _remote_packet_safety(tmp_path, ready=True)
+    payload = json.loads(remote_safety.read_text(encoding="utf-8"))
+    summary = payload["cross_gate_summary"]["post_plan_source_regeneration_command_index_summary"]
+    summary["missing_target_ids"] = ["paper_readiness"]
+    summary["unknown_manual_count"] = 1
+    summary["unknown_manual_ids"] = ["claim_safety"]
+    summary["forbidden_command_count"] = 1
+    summary["forbidden_command_ids"] = ["remote_formal_execution_packet"]
+    summary["rows"]["claim_safety"]["stage_id"] = "regenerate_preflight_gate_artifacts"
+    summary["rows"].pop("paper_readiness")
+    remote_safety.write_text(json.dumps(payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        builder.FormalGateGapAuditConfig(
+            output_dir=tmp_path,
+            contract_path=_contract(tmp_path),
+            decision_record_path=_decision_record(tmp_path, pending=False),
+            h01_manifest_path=_h01_manifest(tmp_path, ready=True),
+            remote_packet_path=_remote_packet(tmp_path, ready=True, artifacts_present=True),
+            h02_acceptance_path=_h02_acceptance(tmp_path, accepted=True),
+            claim_safety_path=_claim_safety(tmp_path, allowed=True),
+            readiness_path=_readiness(tmp_path, ready=True),
+            remote_readiness_path=_remote_readiness(tmp_path, good=True),
+            source_freshness_path=_source_freshness(tmp_path, clean=True),
+            missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
+            closure_checklist_path=_closure_checklist(tmp_path, complete=True, deliverables_complete=True),
+            status_report_path=_status_report(tmp_path, ready=True, deliverables_complete=True),
+            remaining_deliverables_path=_remaining_deliverables(tmp_path, complete=True),
+            handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
+            remote_packet_safety_path=remote_safety,
+        )
+    )
+
+    training_gap_ids = {gap["gap_id"] for gap in manifest["missing_training_artifacts"]}
+    assert "remote_packet_safety_command_index_missing_targets" in training_gap_ids
+    assert "remote_packet_safety_command_index_unknown_manual_rows" in training_gap_ids
+    assert "remote_packet_safety_command_index_forbidden_commands" in training_gap_ids
+    assert "remote_packet_safety_command_index_claim_safety_wrong_stage" in training_gap_ids
+    assert "remote_packet_safety_command_index_missing_paper_readiness" in training_gap_ids
+
+
 def _contract(tmp_path):
     path = tmp_path / "contract.md"
     path.write_text(
