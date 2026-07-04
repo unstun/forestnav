@@ -55,6 +55,18 @@ def test_paper_table_builder_blocks_formal_claims_without_formal_h02_data(tmp_pa
         ),
         encoding="utf-8",
     )
+    h02_acceptance_path = tmp_path / "h02_formal_acceptance.json"
+    h02_acceptance_path.write_text(
+        json.dumps(
+            {
+                "status": "blocked_formal_output_acceptance",
+                "formal_output_accepted": False,
+                "paper_result_input_allowed": False,
+                "blockers": ["h02_verdict_not_formal", "missing_ppo_result_rows"],
+            }
+        ),
+        encoding="utf-8",
+    )
     h01_path = tmp_path / "h01.json"
     h01_path.write_text(
         json.dumps(
@@ -93,6 +105,8 @@ def test_paper_table_builder_blocks_formal_claims_without_formal_h02_data(tmp_pa
             str(eval_dir),
             "--verdict",
             str(verdict_path),
+            "--h02-formal-acceptance",
+            str(h02_acceptance_path),
             "--h01-manifest",
             str(h01_path),
             "--metric-protocol",
@@ -116,6 +130,7 @@ def test_paper_table_builder_blocks_formal_claims_without_formal_h02_data(tmp_pa
     assert manifest["formal_claim_allowed"] is False
     assert manifest["local_training_allowed"] is False
     assert "h02_verdict_not_formal" in manifest["blockers"]
+    assert "h02_formal_acceptance_not_accepted" in manifest["blockers"]
     assert "h01_manifest_not_ready" in manifest["blockers"]
     assert "missing_module2_rl_rs_checkpoint" in manifest["blockers"]
 
@@ -157,7 +172,64 @@ def test_paper_table_builder_blocks_formal_claims_without_formal_h02_data(tmp_pa
     assert "missing_module2_rl_rs_checkpoint" in markdown
 
 
-def _write_records(path):
+def test_paper_table_builder_refuses_formal_tables_when_h02_acceptance_is_blocked(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_paper_tables")
+
+    eval_dir = tmp_path / "eval"
+    eval_dir.mkdir()
+    _write_records(eval_dir / "records.csv", include_ppo=True)
+    (eval_dir / "summary.json").write_text(
+        json.dumps(
+            {
+                "record_count": 5,
+                "summary_by_method_bucket": [],
+                "paired_time_tests": [],
+                "paired_expansion_tests": [],
+                "success_rate_bootstrap_ci": [],
+                "failure_rate_bootstrap_ci": [],
+                "timeout_failure_rate_bootstrap_ci": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    verdict_path = tmp_path / "verdict.json"
+    verdict_path.write_text(json.dumps({"status": "formal_accepted", "formal_acceptance": True}), encoding="utf-8")
+    h02_acceptance_path = tmp_path / "h02_formal_acceptance.json"
+    h02_acceptance_path.write_text(
+        json.dumps(
+            {
+                "status": "blocked_formal_output_acceptance",
+                "formal_output_accepted": False,
+                "paper_result_input_allowed": False,
+                "blockers": ["missing_remote_pullback_artifacts"],
+            }
+        ),
+        encoding="utf-8",
+    )
+    h01_path = tmp_path / "h01.json"
+    h01_path.write_text(json.dumps({"status": "ready_for_formal_run", "blockers": []}), encoding="utf-8")
+    metric_protocol_path = tmp_path / "metric_protocol.json"
+    metric_protocol_path.write_text(json.dumps({"status": "frozen"}), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        repo_root=builder._repo_root(),
+        evaluation_dir=eval_dir,
+        verdict_path=verdict_path,
+        h02_formal_acceptance_path=h02_acceptance_path,
+        h01_manifest_path=h01_path,
+        metric_protocol_path=metric_protocol_path,
+    )
+
+    assert manifest["status"] == "blocked_no_formal_h02_data"
+    assert manifest["formal_claim_allowed"] is False
+    assert manifest["input_status"]["h02_formal_acceptance_status"] == "blocked_formal_output_acceptance"
+    assert manifest["blockers"] == [
+        "h02_formal_acceptance_not_accepted",
+        "missing_remote_pullback_artifacts",
+    ]
+
+
+def _write_records(path, *, include_ppo=False):
     rows = [
         {
             "query_id": "q1",
@@ -236,6 +308,28 @@ def _write_records(path):
             "collision_checker": "GridFootprintChecker",
         },
     ]
+    if include_ppo:
+        rows.append(
+            {
+                "query_id": "q1",
+                "method": "ha_rl_rs_ppo",
+                "difficulty_bucket": "Complex",
+                "success": "True",
+                "feasible": "True",
+                "total_time_s": "2.0",
+                "total_expansions": "60",
+                "path_inflation_ratio": "1.03",
+                "min_clearance_m": "0.3",
+                "failure_reason": "",
+                "rl_attempts": "4",
+                "rl_successes": "2",
+                "rs_attempts": "4",
+                "nn_forward_time_s": "0.003",
+                "fallback_to_primitives_count": "2",
+                "rollout_protocol": "ppo_f03",
+                "collision_checker": "GridFootprintChecker",
+            }
+        )
     with path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
         writer.writeheader()
