@@ -16,6 +16,7 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
             plan_path=_json(tmp_path, "plan.json", plan),
             formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate_payload()),
             source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
+            missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
         )
     )
 
@@ -44,6 +45,7 @@ def test_post_f02_6_plan_audit_catches_training_allowed_while_f02_6_pending(tmp_
             plan_path=_json(tmp_path, "plan.json", plan),
             formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate_payload()),
             source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
+            missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
         )
     )
 
@@ -73,6 +75,7 @@ def test_post_f02_6_plan_audit_catches_remote_training_host_and_command_drift(tm
             plan_path=_json(tmp_path, "plan.json", plan),
             formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate_payload(decision_status="approved")),
             source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
+            missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
         )
     )
 
@@ -93,6 +96,7 @@ def test_post_f02_6_plan_audit_catches_stage_order_and_source_target_mismatch(tm
             plan_path=_json(tmp_path, "plan.json", plan),
             formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate_payload()),
             source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
+            missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
         )
     )
 
@@ -120,6 +124,8 @@ def test_post_f02_6_plan_audit_cli_writes_json_and_markdown(tmp_path):
             str(_json(tmp_path, "formal_gate.json", _formal_gate_payload())),
             "--source-freshness-audit",
             str(_json(tmp_path, "source_freshness.json", _source_freshness_payload())),
+            "--missing-artifacts-audit",
+            str(_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True))),
         ]
     )
 
