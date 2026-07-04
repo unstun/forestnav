@@ -137,24 +137,38 @@ class OracleConnectorContextSampler:
         self.eval_config = _evaluation_config()
         self._map_cache: dict[tuple[str, int], GridMap] = {}
         self.last_metadata: CurriculumSampleMetadata | None = None
+        self.skipped_invalid_rows = 0
+        self.last_invalid_metadata: CurriculumSampleMetadata | None = None
 
     def __call__(self, rng: np.random.Generator) -> AnalyticExpansionContext:
-        position = int(rng.integers(0, len(self.rows)))
-        row = self.rows.iloc[position]
-        grid_map = self._grid_for_row(row)
-        start = AckermannState(
-            float(_row_value(row, "state_x", "current_x")),
-            float(_row_value(row, "state_y", "current_y")),
-            float(_row_value(row, "state_theta", "current_theta")),
-        )
-        goal = AckermannState(float(row["goal_x"]), float(row["goal_y"]), float(row["goal_theta"]))
-        self.last_metadata = _metadata_from_row(
-            row,
-            stage=self.stage,
-            source=str(self.path),
-            row_index=int(row.name),
-        )
-        return _build_context(grid_map, start, goal, self.config)
+        max_attempts = max(32, 2 * len(self.rows))
+        for _ in range(max_attempts):
+            position = int(rng.integers(0, len(self.rows)))
+            row = self.rows.iloc[position]
+            grid_map = self._grid_for_row(row)
+            start = AckermannState(
+                float(_row_value(row, "state_x", "current_x")),
+                float(_row_value(row, "state_y", "current_y")),
+                float(_row_value(row, "state_theta", "current_theta")),
+            )
+            goal = AckermannState(float(row["goal_x"]), float(row["goal_y"]), float(row["goal_theta"]))
+            metadata = _metadata_from_row(
+                row,
+                stage=self.stage,
+                source=str(self.path),
+                row_index=int(row.name),
+            )
+            try:
+                context = _build_context(grid_map, start, goal, self.config)
+            except ValueError as exc:
+                if "sampled curriculum" not in str(exc):
+                    raise
+                self.skipped_invalid_rows += 1
+                self.last_invalid_metadata = metadata
+                continue
+            self.last_metadata = metadata
+            return context
+        raise RuntimeError(f"failed to sample valid oracle connector context after {max_attempts} attempts")
 
     def _grid_for_row(self, row: Any) -> GridMap:
         key = (str(row["profile_name"]), int(row["map_seed"]))
