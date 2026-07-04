@@ -689,6 +689,7 @@ def _formal_gate(*, complete):
         "local_training_allowed": False,
         "formal_claim_allowed": False,
         "execution_veto_matrix": _execution_veto_matrix(complete=complete),
+        "remaining_deliverables_gap_summary": _remaining_deliverables(complete=complete)["deliverable_gap_summary"],
         "ordered_next_steps": [
             {"step_id": "F02.6", "status": "complete" if complete else "blocked", "blocked_by": [] if complete else ["f02_6_decision_not_approved"]},
             {"step_id": "remote_preflight", "status": "complete" if complete else "blocked", "blocked_by": [] if complete else ["source_freshness_regeneration_required"]},

@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `085515ee38df09f934b9cccc13ca91ec8b66520d+dirty`
+- source_head: `55b9d6cafb37ec302fc45094411f7b0be53da29e+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -71,6 +71,8 @@ This file is a read-only formal-gate status report. It does not execute commands
 - formal_gate_execution_veto_all_rows_consistent: `True`
 - formal_gate_execution_veto_remote_training_allowed_now: `False`
 - formal_gate_execution_veto_formal_claim_allowed_now: `False`
+- formal_gate_gap_audit_remaining_total_missing_deliverables: `10`
+- formal_gate_gap_audit_remaining_open_category_count: `4`
 
 ## Next Blocked Lane
 
@@ -126,7 +128,7 @@ This file is a read-only formal-gate status report. It does not execute commands
   - completion_signal: H01 is ready and H02 accepts formal-scale PPO outputs.
   - action_when_blocked: Regenerate H01/H02 only after audited checkpoint pullback is complete.
 - `claim_gate` (claim_gate): status=`blocked`, missing=`5`, runs_training=`False`
-  - blocked_by: `claim_safety, formal_gate_missing_artifacts, formal_gate_status_report, paper_readiness, h02_formal_acceptance_before_claim_gate, f02_6_warm_start_decision_pending, requires_dr_sun_approval, source_freshness_regeneration_required, remote_training_packet_not_ready, missing_remote_pullback_artifact, missing_ppo_result_rows, missing_ppo_checkpoint_hash, h01_manifest_not_ready, formal_main_evaluation_command_missing, h02_scale_below_h01_queries_per_bucket, h02_scale_below_h01_seed_count, h02_scale_below_h01_queries_per_map, h02_verdict_not_formal, missing_or_failed_gate3_formal_audit, h02_formal_output_not_accepted, claim_safety_blocks_formal_performance, readiness_blocks_formal_results, formal_gate_missing_artifacts_open, formal_gate_closure_checklist_open, formal_gate_status_report_blocked, h02_formal_acceptance_not_ready, source_fresh_claim_targets_open`
+  - blocked_by: `claim_safety, formal_gate_missing_artifacts, formal_gate_status_report, paper_readiness, h02_formal_acceptance_before_claim_gate, f02_6_warm_start_decision_pending, requires_dr_sun_approval, source_freshness_regeneration_required, remote_training_packet_not_ready, missing_remote_pullback_artifact, missing_ppo_result_rows, missing_ppo_checkpoint_hash, h01_manifest_not_ready, formal_main_evaluation_command_missing, h02_scale_below_h01_queries_per_bucket, h02_scale_below_h01_seed_count, h02_scale_below_h01_queries_per_map, h02_verdict_not_formal, missing_or_failed_gate3_formal_audit, h02_formal_output_not_accepted, claim_safety_blocks_formal_performance, readiness_blocks_formal_results, formal_gate_missing_artifacts_open, formal_gate_closure_checklist_open, formal_gate_status_report_blocked, formal_gate_remaining_deliverables_open, h02_formal_acceptance_not_ready, source_fresh_claim_targets_open`
   - completion_signal: Claim safety and paper readiness allow formal results after H02 acceptance.
   - action_when_blocked: Regenerate claim gates only after H02 formal acceptance passes.
 
@@ -196,6 +198,14 @@ This file is a read-only formal-gate status report. It does not execute commands
 - `evaluation`: missing_count=`2`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`evaluation:eval_gate3_eval_episodes_csv, evaluation:eval_gate3_summary_json`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 - `acceptance`: missing_count=`3`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`acceptance:gate3_trial_manifest_json, acceptance:gate3_formal_audit_json, acceptance:pulled_back_checkpoint_hash_record`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 - `formal_acceptance`: missing_count=`2`, stage=`regenerate_h01_h02_formal_artifacts`, stage_allowed_now=`False`, missing_artifacts=`formal_acceptance:h01_ready_for_formal_run, formal_acceptance:h02_formal_output_acceptance`, blocked_by=`missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
+
+## Formal Gate Gap Audit Remaining Deliverables Gap Summary
+
+- present: `True`
+- summary_id: `module2_formal_gate_missing_training_eval_acceptance_summary`
+- total_missing_deliverables: `10`
+- open_category_count: `4`
+- matches_ledger_signature: `True`
 
 ## Closure Remote Stages
 
