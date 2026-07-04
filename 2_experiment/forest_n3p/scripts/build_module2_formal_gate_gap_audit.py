@@ -672,6 +672,102 @@ def _closure_checklist_gaps(*, closure_checklist: dict[str, Any], closure_checkl
     return _unique_gaps(gaps)
 
 
+def _status_report_gaps(*, status_report: dict[str, Any], status_report_path: Path) -> list[dict[str, Any]]:
+    if not Path(status_report_path).is_file():
+        return [
+            _gap(
+                "acceptance",
+                "formal_gate_status_report_missing",
+                "No formal gate status report is available for the final gate cross-check.",
+                str(status_report_path),
+                "Regenerate the status report before treating the formal gate as complete.",
+            )
+        ]
+    gaps: list[dict[str, Any]] = []
+    if status_report.get("executes_commands") is not False:
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_status_report_executes_commands",
+                "Status report must be read-only and must not execute commands.",
+                str(status_report_path),
+                "Regenerate the status report with executes_commands=false.",
+            )
+        )
+    if status_report.get("runs_training") is not False:
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_status_report_runs_training",
+                "Status report claims it ran training; the report must remain non-executing.",
+                str(status_report_path),
+                "Replace it with a read-only status report before using it as formal gate evidence.",
+            )
+        )
+    if status_report.get("runs_remote_preflight") is not False:
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_status_report_runs_preflight",
+                "Status report claims it ran remote preflight; the report must remain non-executing.",
+                str(status_report_path),
+                "Replace it with a read-only status report before using it as formal gate evidence.",
+            )
+        )
+    if status_report.get("local_training_allowed") is not False:
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_status_report_allows_local_training",
+                "Status report does not preserve the local-training prohibition.",
+                str(status_report_path),
+                "Regenerate the status report with local_training_allowed=false.",
+            )
+        )
+    if status_report.get("formal_claim_allowed") is not False:
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_status_report_allows_claim",
+                "Status report artifact itself must not allow formal claims.",
+                str(status_report_path),
+                "Regenerate the status report as non-result gate evidence.",
+            )
+        )
+    permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
+    if permissions.get("local_training_allowed_now") is True:
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_status_report_allows_local_training_now",
+                "Status report permissions allow local training.",
+                str(status_report_path),
+                "Regenerate status report and keep local_training_allowed_now=false.",
+            )
+        )
+    if int(status_report.get("input_safety_issue_count") or 0) > 0:
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_status_report_safety_issues_open",
+                f"Status report has {status_report.get('input_safety_issue_count')} input safety issues.",
+                str(status_report_path),
+                "Resolve status report input safety issues before treating the formal gate as complete.",
+            )
+        )
+    if status_report.get("status") != "formal_gate_status_ready_for_claim_audit":
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_gate_status_report_blocked",
+                f"Status report status is {status_report.get('status')}; formal_claim_allowed_now={permissions.get('formal_claim_allowed_now')}.",
+                str(status_report_path),
+                "Regenerate the status report only after all formal gate lanes are complete.",
+            )
+        )
+    return _unique_gaps(gaps)
+
+
 def _ordered_next_steps(
     decision_gaps: Sequence[dict[str, Any]],
     training_gaps: Sequence[dict[str, Any]],
