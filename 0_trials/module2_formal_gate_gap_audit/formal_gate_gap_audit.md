@@ -38,7 +38,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - `remote_packet_safety_audit`: `historical_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
 - `h01_evaluation_manifest`: `historical_dirty`, required before `formal_h01_h02`, path `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`
 - `h02_formal_acceptance`: `historical_dirty`, required before `formal_h01_h02`, path `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
-- `formal_gate_missing_artifacts`: `current_dirty`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json`
+- `formal_gate_missing_artifacts`: `historical_dirty`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json`
 - `formal_gate_status_report`: `current_dirty`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`
 - `paper_readiness`: `current_dirty`, required before `formal_claim_gate`, path `0_trials/module2_paper_readiness/module2_paper_readiness.json`
 
@@ -61,6 +61,18 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - runs_training: `False`
 - runs_remote_preflight: `False`
 - open_item_count: `8`
+- input_safety_issue_count: `0`
+
+## Formal Gate Status Report
+
+- path: `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`
+- status: `formal_gate_status_blocked`
+- executes_commands: `False`
+- runs_training: `False`
+- runs_remote_preflight: `False`
+- local_training_allowed_now: `False`
+- formal_claim_allowed_now: `False`
+- next_blocked_lane_id: `decision`
 - input_safety_issue_count: `0`
 
 ## Decision Gaps
@@ -174,6 +186,10 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
   - evidence: `0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json`
   - why: Closure checklist status is formal_gate_closure_blocked; open_item_count=8.
   - needed: Close every checklist item before final H02/claim readiness can pass.
+- `formal_gate_status_report_blocked`
+  - evidence: `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`
+  - why: Status report status is formal_gate_status_blocked; formal_claim_allowed_now=False.
+  - needed: Regenerate the status report only after all formal gate lanes are complete.
 
 ## Ordered Next Steps
 
@@ -193,3 +209,4 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - Source freshness risks are regeneration blockers, not formal algorithm failures.
 - Remote completion is insufficient until audit artifacts, checkpoint hashes, H01/H02 regeneration, and claim safety all pass.
 - The closure checklist must be complete before the final claim gate can be treated as ready.
+- The formal gate status report must be ready before the final claim gate can be treated as ready.

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_gap_audit",
   "status": "blocked_formal_gate_gaps_open",
-  "created_at_utc": "2026-07-04T12:51:07.300646+00:00",
-  "source_head": "3cbf62bc0f572416355c4afdb2a68971dd292ee9+dirty",
+  "created_at_utc": "2026-07-04T12:58:53.153044+00:00",
+  "source_head": "adcef774f4f03a30ff53e59154adcedf2e366124+dirty",
   "not_paper_result_material": true,
   "local_training_allowed": false,
   "remote_training_resource": "gpu3070ti-relay",
@@ -36,9 +36,9 @@
     "formal_claim_allowed": false,
     "regeneration_required_before_remote_formal_execution": true,
     "risk_counts": {
-      "historical_dirty": 6,
+      "historical_dirty": 7,
       "current_clean": 1,
-      "current_dirty": 6,
+      "current_dirty": 5,
       "historical_clean": 1
     },
     "ordered_regeneration_target_count": 13,
@@ -106,7 +106,7 @@
       {
         "artifact_id": "formal_gate_missing_artifacts",
         "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
-        "freshness_state": "current_dirty",
+        "freshness_state": "historical_dirty",
         "required_before": "formal_claim_gate"
       },
       {
@@ -158,6 +158,20 @@
     "open_item_count": 8,
     "input_safety_issue_count": 0
   },
+  "formal_gate_status_report": {
+    "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
+    "exists": true,
+    "status": "formal_gate_status_blocked",
+    "executes_commands": false,
+    "runs_training": false,
+    "runs_remote_preflight": false,
+    "local_training_allowed": false,
+    "formal_claim_allowed": false,
+    "formal_claim_allowed_now": false,
+    "local_training_allowed_now": false,
+    "next_blocked_lane_id": "decision",
+    "input_safety_issue_count": 0
+  },
   "current_gate_state": {
     "f02_6_decision_status": "pending_human_decision",
     "effective_warm_start_decision": "pending",
@@ -175,7 +189,9 @@
     "formal_gate_missing_artifacts_status": "formal_gate_missing_artifacts_open",
     "formal_gate_missing_artifacts_open": true,
     "formal_gate_closure_checklist_status": "formal_gate_closure_blocked",
-    "formal_gate_closure_checklist_open": true
+    "formal_gate_closure_checklist_open": true,
+    "formal_gate_status_report_status": "formal_gate_status_blocked",
+    "formal_gate_status_report_formal_claim_allowed_now": false
   },
   "missing_decision_items": [
     {
@@ -358,6 +374,13 @@
       "why_missing": "Closure checklist status is formal_gate_closure_blocked; open_item_count=8.",
       "evidence_path": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
       "required_next_artifact": "Close every checklist item before final H02/claim readiness can pass."
+    },
+    {
+      "category": "acceptance",
+      "gap_id": "formal_gate_status_report_blocked",
+      "why_missing": "Status report status is formal_gate_status_blocked; formal_claim_allowed_now=False.",
+      "evidence_path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
+      "required_next_artifact": "Regenerate the status report only after all formal gate lanes are complete."
     }
   ],
   "ordered_next_steps": [
@@ -466,7 +489,8 @@
         "claim_safety_blocks_formal_performance",
         "readiness_blocks_formal_results",
         "formal_gate_missing_artifacts_open",
-        "formal_gate_closure_checklist_open"
+        "formal_gate_closure_checklist_open",
+        "formal_gate_status_report_blocked"
       ],
       "runs_training": false,
       "action": "Regenerate claim safety/readiness; allow formal claims only if all gates pass.",
@@ -480,6 +504,7 @@
     "Formal PPO checkpoint production must run on gpu3070ti-relay after F02.6 closes.",
     "Source freshness risks are regeneration blockers, not formal algorithm failures.",
     "Remote completion is insufficient until audit artifacts, checkpoint hashes, H01/H02 regeneration, and claim safety all pass.",
-    "The closure checklist must be complete before the final claim gate can be treated as ready."
+    "The closure checklist must be complete before the final claim gate can be treated as ready.",
+    "The formal gate status report must be ready before the final claim gate can be treated as ready."
   ]
 }
