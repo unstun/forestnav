@@ -422,15 +422,11 @@ def _update_rl_rs_telemetry_summary(metadata: dict[str, Any], records: Sequence[
     clean = [record for record in records if isinstance(record, dict) and _has_rl_rs_telemetry(record)]
     if not clean:
         return
-    for key in (
-        "rl_attempts",
-        "rl_successes",
-        "rs_attempts",
-        "fallback_to_primitives_count",
-        "rl_rollout_steps",
-        "rl_rollout_collision_checks",
-        "terminal_rs_action_count",
-    ):
+    metadata.setdefault("rl_attempts", sum(_record_int_with_default(record, "rl_attempts", 1) for record in clean))
+    metadata.setdefault("rl_successes", sum(_rl_success_count(record) for record in clean))
+    metadata.setdefault("rs_attempts", sum(_rs_attempt_count(record) for record in clean))
+    metadata.setdefault("fallback_to_primitives_count", sum(_fallback_to_primitives_count(record) for record in clean))
+    for key in ("rl_rollout_steps", "rl_rollout_collision_checks", "terminal_rs_action_count"):
         metadata.setdefault(key, sum(int(record.get(key, 0) or 0) for record in clean))
     for key in ("nn_forward_time_s", "rl_rollout_sample_time_s", "rl_rollout_collision_time_s", "terminal_rs_time_s"):
         metadata.setdefault(key, sum(float(record.get(key, 0.0) or 0.0) for record in clean))
@@ -463,6 +459,35 @@ def _single_string_value(records: Sequence[dict[str, Any]], key: str) -> str | N
     if not values:
         return None
     return next(iter(values)) if len(values) == 1 else "mixed"
+
+
+def _record_int_with_default(record: dict[str, Any], key: str, default: int) -> int:
+    value = record.get(key)
+    if value is None:
+        return int(default)
+    return int(value)
+
+
+def _rl_success_count(record: dict[str, Any]) -> int:
+    if record.get("rl_successes") is not None:
+        return int(record["rl_successes"])
+    if record.get("rl_success") is not None:
+        return 1 if bool(record["rl_success"]) else 0
+    return 1 if bool(record.get("terminal_rs_used")) else 0
+
+
+def _rs_attempt_count(record: dict[str, Any]) -> int:
+    if record.get("rs_attempts") is not None:
+        return int(record["rs_attempts"])
+    if record.get("terminal_rs_check_count") is not None:
+        return int(record["terminal_rs_check_count"])
+    return 1 if bool(record.get("terminal_rs_success")) else 0
+
+
+def _fallback_to_primitives_count(record: dict[str, Any]) -> int:
+    if record.get("fallback_to_primitives_count") is not None:
+        return int(record["fallback_to_primitives_count"])
+    return 0 if _rl_success_count(record) > 0 else 1
 
 
 def _has_rl_rs_telemetry(record: dict[str, Any]) -> bool:
