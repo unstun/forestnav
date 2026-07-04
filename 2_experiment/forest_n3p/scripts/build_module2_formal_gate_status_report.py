@@ -171,6 +171,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     decision_intake_summary = _decision_intake_summary(decision_intake)
     remaining_deliverables_acceptance_summary = _remaining_deliverables_acceptance_summary(remaining_deliverables)
     remaining_deliverables_gap_summary = _remaining_deliverables_gap_summary(remaining_deliverables)
+    remaining_deliverables_proof_command_plan = _remaining_deliverables_proof_command_plan(remaining_deliverables)
     formal_gate_gap_audit_remaining_deliverables_gap_summary = (
         _formal_gate_gap_audit_remaining_deliverables_gap_summary(formal_gate)
     )
@@ -208,6 +209,12 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             remaining_deliverables=remaining_deliverables,
             acceptance_summary=remaining_deliverables_acceptance_summary,
             gap_summary=remaining_deliverables_gap_summary,
+        )
+        + _remaining_deliverables_proof_command_plan_issues(
+            remaining_deliverables=remaining_deliverables,
+            acceptance_summary=remaining_deliverables_acceptance_summary,
+            gap_summary=remaining_deliverables_gap_summary,
+            proof_plan=remaining_deliverables_proof_command_plan,
         )
         + _formal_gate_gap_audit_remaining_deliverables_gap_summary_issues(
             formal_gate=formal_gate,
@@ -334,6 +341,13 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "remaining_deliverables_gap_open_category_count": remaining_deliverables_gap_summary[
                 "open_category_count"
             ],
+            "remaining_deliverables_proof_plan_present": remaining_deliverables_proof_command_plan["present"],
+            "remaining_deliverables_proof_plan_matrix_row_count": remaining_deliverables_proof_command_plan[
+                "total_matrix_rows"
+            ],
+            "remaining_deliverables_proof_plan_command_count": remaining_deliverables_proof_command_plan[
+                "total_proof_command_count"
+            ],
             "handoff_bundle_next_action": handoff_summary["next_handoff_action_id"],
             "handoff_bundle_safety_issue_count": handoff_summary["safety_issue_count"],
             "handoff_bundle_remote_training_allowed_now": handoff_summary["remote_training_allowed_now"],
@@ -381,6 +395,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "formal_gate_execution_veto_summary": formal_gate_execution_veto,
         "remaining_deliverables_acceptance_summary": remaining_deliverables_acceptance_summary,
         "remaining_deliverables_gap_summary": remaining_deliverables_gap_summary,
+        "remaining_deliverables_proof_command_plan": remaining_deliverables_proof_command_plan,
         "formal_gate_gap_audit_remaining_deliverables_gap_summary": (
             formal_gate_gap_audit_remaining_deliverables_gap_summary
         ),
