@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_closure_checklist",
   "status": "formal_gate_closure_blocked",
-  "created_at_utc": "2026-07-04T13:44:43.851989+00:00",
-  "source_head": "d85cecce085b77a59b83ea0604feb4bf3fc2939a+dirty",
+  "created_at_utc": "2026-07-04T14:09:05.883978+00:00",
+  "source_head": "1c4364955a1f03c5120fc05ec1fce353a4b283a8",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -41,7 +41,7 @@
       "regenerate_h01_h02_formal_artifacts",
       "regenerate_claim_gate_artifacts"
     ],
-    "source_regeneration_target_count": 13
+    "source_regeneration_target_count": 12
   },
   "closure_item_count": 8,
   "open_item_count": 8,
@@ -167,6 +167,46 @@
       "reason": "claim gate cannot be regenerated from blocked H02 outputs"
     }
   ],
+  "post_plan_remote_stage_summary": {
+    "approved_remote_preflight": {
+      "present": true,
+      "status": "blocked",
+      "allowed_now": false,
+      "runs_training": false,
+      "runs_remote_preflight": true,
+      "host": "gpu3070ti-relay",
+      "blocked_by": [
+        "f02_6_decision_not_approved",
+        "source_fresh_preflight_targets_open"
+      ]
+    },
+    "gate3_remote_training": {
+      "present": true,
+      "status": "blocked",
+      "allowed_now": false,
+      "runs_training": true,
+      "runs_remote_preflight": false,
+      "host": "gpu3070ti-relay",
+      "blocked_by": [
+        "f02_6_decision_not_approved",
+        "source_fresh_preflight_targets_open",
+        "remote_packet_not_ready"
+      ]
+    },
+    "gate3_remote_audit_pullback": {
+      "present": true,
+      "status": "blocked",
+      "allowed_now": false,
+      "runs_training": false,
+      "runs_remote_preflight": false,
+      "host": "gpu3070ti-relay",
+      "blocked_by": [
+        "f02_6_decision_not_approved",
+        "source_fresh_preflight_targets_open",
+        "remote_packet_not_ready"
+      ]
+    }
+  },
   "closure_checklist": [
     {
       "checklist_id": "F02.6_decision",

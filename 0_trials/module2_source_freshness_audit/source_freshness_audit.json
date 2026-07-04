@@ -2,20 +2,19 @@
   "schema_version": 1,
   "artifact_name": "module2_source_freshness_audit",
   "status": "source_freshness_risks_recorded_gate_still_blocked",
-  "created_at_utc": "2026-07-04T13:55:43.114559+00:00",
-  "source_head": "6d37e38edc682bb7a7b924b8cec729e2b4201d93+dirty",
+  "created_at_utc": "2026-07-04T14:09:10.220310+00:00",
+  "source_head": "1c4364955a1f03c5120fc05ec1fce353a4b283a8+dirty",
   "not_paper_result_material": true,
   "runs_training": false,
   "runs_remote_preflight": false,
   "local_training_allowed": false,
   "formal_claim_allowed": false,
-  "current_head": "6d37e38edc682bb7a7b924b8cec729e2b4201d93",
+  "current_head": "1c4364955a1f03c5120fc05ec1fce353a4b283a8",
   "artifact_count": 14,
   "risk_counts": {
-    "historical_dirty": 9,
-    "current_clean": 2,
-    "current_dirty": 2,
-    "historical_clean": 1
+    "historical_dirty": 10,
+    "historical_clean": 3,
+    "current_clean": 1
   },
   "regeneration_required_before_remote_formal_execution": true,
   "artifact_records": [
@@ -104,10 +103,10 @@
       "source_commit": "6d37e38edc682bb7a7b924b8cec729e2b4201d93",
       "source_head_dirty": false,
       "source_commit_exists": true,
-      "matches_current_head": true,
-      "freshness_state": "current_clean",
+      "matches_current_head": false,
+      "freshness_state": "historical_clean",
       "required_before": "formal_claim_gate",
-      "regenerate_before_formal_execution": false
+      "regenerate_before_formal_execution": true
     },
     {
       "artifact_id": "paper_readiness",
@@ -119,8 +118,8 @@
       "source_commit": "6d37e38edc682bb7a7b924b8cec729e2b4201d93",
       "source_head_dirty": true,
       "source_commit_exists": true,
-      "matches_current_head": true,
-      "freshness_state": "current_dirty",
+      "matches_current_head": false,
+      "freshness_state": "historical_dirty",
       "required_before": "formal_claim_gate",
       "regenerate_before_formal_execution": true
     },
@@ -145,12 +144,12 @@
       "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
       "exists": true,
       "status": "post_f02_6_plan_audit_passed",
-      "source_head": "6d37e38edc682bb7a7b924b8cec729e2b4201d93+dirty",
-      "source_commit": "6d37e38edc682bb7a7b924b8cec729e2b4201d93",
+      "source_head": "78c31aff487cc7769d09f400964b17eb7e66c30c+dirty",
+      "source_commit": "78c31aff487cc7769d09f400964b17eb7e66c30c",
       "source_head_dirty": true,
       "source_commit_exists": true,
-      "matches_current_head": true,
-      "freshness_state": "current_dirty",
+      "matches_current_head": false,
+      "freshness_state": "historical_dirty",
       "required_before": "approved_remote_preflight",
       "regenerate_before_formal_execution": true
     },
@@ -160,8 +159,8 @@
       "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
       "exists": true,
       "status": "remote_packet_safety_audit_passed",
-      "source_head": "d85cecce085b77a59b83ea0604feb4bf3fc2939a+dirty",
-      "source_commit": "d85cecce085b77a59b83ea0604feb4bf3fc2939a",
+      "source_head": "78c31aff487cc7769d09f400964b17eb7e66c30c+dirty",
+      "source_commit": "78c31aff487cc7769d09f400964b17eb7e66c30c",
       "source_head_dirty": true,
       "source_commit_exists": true,
       "matches_current_head": false,
@@ -175,14 +174,14 @@
       "path": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
       "exists": true,
       "status": "formal_gate_closure_blocked",
-      "source_head": "d85cecce085b77a59b83ea0604feb4bf3fc2939a+dirty",
-      "source_commit": "d85cecce085b77a59b83ea0604feb4bf3fc2939a",
-      "source_head_dirty": true,
+      "source_head": "1c4364955a1f03c5120fc05ec1fce353a4b283a8",
+      "source_commit": "1c4364955a1f03c5120fc05ec1fce353a4b283a8",
+      "source_head_dirty": false,
       "source_commit_exists": true,
-      "matches_current_head": false,
-      "freshness_state": "historical_dirty",
+      "matches_current_head": true,
+      "freshness_state": "current_clean",
       "required_before": "approved_remote_preflight",
-      "regenerate_before_formal_execution": true
+      "regenerate_before_formal_execution": false
     },
     {
       "artifact_id": "gpu3070ti_readiness_refresh",
@@ -224,10 +223,10 @@
       "source_commit": "6d37e38edc682bb7a7b924b8cec729e2b4201d93",
       "source_head_dirty": false,
       "source_commit_exists": true,
-      "matches_current_head": true,
-      "freshness_state": "current_clean",
+      "matches_current_head": false,
+      "freshness_state": "historical_clean",
       "required_before": "formal_claim_gate",
-      "regenerate_before_formal_execution": false
+      "regenerate_before_formal_execution": true
     }
   ],
   "ordered_regeneration_targets": [
@@ -240,12 +239,6 @@
     {
       "artifact_id": "f02_6_decision_record",
       "path": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
-      "freshness_state": "historical_dirty",
-      "required_before": "approved_remote_preflight"
-    },
-    {
-      "artifact_id": "formal_gate_closure_checklist",
-      "path": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
       "freshness_state": "historical_dirty",
       "required_before": "approved_remote_preflight"
     },
@@ -264,7 +257,7 @@
     {
       "artifact_id": "post_f02_6_plan_audit",
       "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
-      "freshness_state": "current_dirty",
+      "freshness_state": "historical_dirty",
       "required_before": "approved_remote_preflight"
     },
     {
@@ -292,15 +285,27 @@
       "required_before": "formal_h01_h02"
     },
     {
+      "artifact_id": "claim_safety",
+      "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
+      "freshness_state": "historical_clean",
+      "required_before": "formal_claim_gate"
+    },
+    {
       "artifact_id": "formal_gate_missing_artifacts",
       "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
       "freshness_state": "historical_dirty",
       "required_before": "formal_claim_gate"
     },
     {
+      "artifact_id": "formal_gate_status_report",
+      "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
+      "freshness_state": "historical_clean",
+      "required_before": "formal_claim_gate"
+    },
+    {
       "artifact_id": "paper_readiness",
       "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
-      "freshness_state": "current_dirty",
+      "freshness_state": "historical_dirty",
       "required_before": "formal_claim_gate"
     }
   ],

@@ -19,7 +19,7 @@ This file is a formal-gate closure checklist. It does not execute commands, trai
 - missing_counts_by_category: `{'decision': 1, 'regeneration': 13, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 4}`
 - formal_ordered_next_step_count: `6`
 - post_plan_blocked_stage_ids: `['regenerate_preflight_gate_artifacts', 'approved_remote_preflight', 'regenerate_remote_execution_packet', 'gate3_remote_training', 'gate3_remote_audit_pullback', 'regenerate_h01_h02_formal_artifacts', 'regenerate_claim_gate_artifacts']`
-- source_regeneration_target_count: `13`
+- source_regeneration_target_count: `12`
 
 ## Closure Checklist
 
@@ -72,6 +72,12 @@ This file is a formal-gate closure checklist. It does not execute commands, trai
 - `gate3_trial_manifest_json`: missing=`True`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json`
 - `gate3_formal_audit_json`: missing=`True`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json`
 - `pulled_back_checkpoint_hash_record`: missing=`True`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json`
+
+## Post-Plan Remote Stages
+
+- `approved_remote_preflight`: present=`True`, allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`True`, host=`gpu3070ti-relay`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open`
+- `gate3_remote_training`: present=`True`, allowed_now=`False`, runs_training=`True`, runs_remote_preflight=`False`, host=`gpu3070ti-relay`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
+- `gate3_remote_audit_pullback`: present=`True`, allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`False`, host=`gpu3070ti-relay`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 
 ## Input Safety Issues
 
