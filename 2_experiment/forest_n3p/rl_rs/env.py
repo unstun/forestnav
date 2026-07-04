@@ -19,6 +19,7 @@ from forest_n3p.rl_rs.telemetry import RlRsEpisodeTelemetry, RlRsStepTelemetry
 from forest_n3p.rl_rs.terminal import TerminalRsCheckResult, check_terminal_rs_connectable
 from forest_n3p.third_party.pathplan import AckermannParams, AckermannState, GridMap, TwoCircleFootprint
 from forest_n3p.third_party.pathplan.geometry import GridFootprintChecker
+from forest_n3p.third_party.pathplan.primitives import MotionPrimitive
 
 
 @dataclass(frozen=True)
@@ -86,6 +87,8 @@ class AnalyticExpansionStep:
     truncated: bool
     telemetry: RlRsStepTelemetry
     terminal_rs: TerminalRsCheckResult
+    next_state: AckermannState
+    primitive: MotionPrimitive
     rollout_path_length_m: float
     min_clearance_m: float | None
     curvature_delta_abs: float
@@ -109,6 +112,8 @@ class AnalyticExpansionStep:
             "rollout_path_length_m": self.rollout_path_length_m,
             "min_clearance_m": self.min_clearance_m,
             "curvature_delta_abs": self.curvature_delta_abs,
+            "next_state": self.next_state,
+            "primitive": self.primitive,
         }
 
 
@@ -295,6 +300,8 @@ class AnalyticExpansionEnv:
             truncated=truncated,
             telemetry=telemetry,
             terminal_rs=terminal,
+            next_state=rollout.next_state,
+            primitive=rollout.primitive,
             rollout_path_length_m=rollout_path_length_m,
             min_clearance_m=min_clearance_m,
             curvature_delta_abs=curvature_delta_abs,

@@ -27,6 +27,7 @@ from forest_n3p.rl_rs.obs import (
     build_patch_observation,
     build_scalar_observation,
 )
+from forest_n3p.rl_rs.operator import RlRsFunnelOperator, RlRsFunnelTelemetry
 from forest_n3p.rl_rs.policy import SteeringPolicy
 from forest_n3p.rl_rs.reward import (
     RewardBreakdown,
@@ -65,6 +66,8 @@ __all__ = [
     "RewardConfig",
     "RewardTermSwitches",
     "RlRsEpisodeTelemetry",
+    "RlRsFunnelOperator",
+    "RlRsFunnelTelemetry",
     "RlRsEpisodeLoggingWrapper",
     "RlRsObservation",
     "RlRsStepTelemetry",
