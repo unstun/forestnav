@@ -828,7 +828,7 @@ def _missing_artifacts(tmp_path, *, complete, invalid=False):
     return path
 
 
-def _closure_checklist(tmp_path, *, complete, invalid=False):
+def _closure_checklist(tmp_path, *, complete, invalid=False, deliverables_complete=True):
     path = tmp_path / f"closure_checklist_{complete}_{invalid}.json"
     path.write_text(
         json.dumps(
@@ -842,6 +842,7 @@ def _closure_checklist(tmp_path, *, complete, invalid=False):
                 "closure_item_count": 8,
                 "open_item_count": 0 if complete else 8,
                 "input_safety_issue_count": 1 if invalid else 0,
+                "remaining_deliverables_gap_summary": _gap_summary(open_gaps=not deliverables_complete),
             }
         ),
         encoding="utf-8",
@@ -849,7 +850,7 @@ def _closure_checklist(tmp_path, *, complete, invalid=False):
     return path
 
 
-def _status_report(tmp_path, *, ready, invalid=False):
+def _status_report(tmp_path, *, ready, invalid=False, deliverables_complete=True):
     path = tmp_path / f"status_report_{ready}_{invalid}.json"
     path.write_text(
         json.dumps(
@@ -870,6 +871,7 @@ def _status_report(tmp_path, *, ready, invalid=False):
                     "formal_claim_allowed_now": bool(ready),
                 },
                 "next_blocked_lane": None if ready else {"lane_id": "decision"},
+                "remaining_deliverables_gap_summary": _gap_summary(open_gaps=not deliverables_complete),
             }
         ),
         encoding="utf-8",
