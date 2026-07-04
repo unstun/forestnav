@@ -130,6 +130,14 @@ def _method_records(config: Module2EvaluationManifestConfig) -> list[dict[str, A
     elif not Path(config.bc_checkpoint).is_file():
         bc_blockers.append("missing_module2_bc_checkpoint")
 
+    ppo_blockers: list[str] = []
+    if config.rl_rs_checkpoint is None:
+        ppo_blockers.append("missing_module2_rl_rs_checkpoint")
+    elif not Path(config.rl_rs_checkpoint).is_file():
+        ppo_blockers.append("missing_module2_rl_rs_checkpoint")
+    if str(config.warm_start_decision) == "pending":
+        ppo_blockers.append("f02_6_warm_start_decision_pending")
+
     records = [
         _method("ha_no_analytic", "HA* no analytic", "ha_no_analytic", "ready"),
         _method("ha_single_rs", "HA* single RS analytic expansion", "ha_single_rs", "ready"),
@@ -147,18 +155,12 @@ def _method_records(config: Module2EvaluationManifestConfig) -> list[dict[str, A
         _method(
             "ppo_analytic_operator",
             "PPO analytic operator without terminal RS",
-            None,
-            "blocked",
-            blockers=("missing_main_evaluation_method", "outside_current_funnel_contract_until_explicitly_added"),
+            "ppo_analytic_operator",
+            "ready" if not ppo_blockers else "blocked",
+            blockers=tuple(ppo_blockers),
+            checkpoint=None if config.rl_rs_checkpoint is None else str(config.rl_rs_checkpoint),
         ),
     ]
-    ppo_blockers: list[str] = []
-    if config.rl_rs_checkpoint is None:
-        ppo_blockers.append("missing_module2_rl_rs_checkpoint")
-    elif not Path(config.rl_rs_checkpoint).is_file():
-        ppo_blockers.append("missing_module2_rl_rs_checkpoint")
-    if str(config.warm_start_decision) == "pending":
-        ppo_blockers.append("f02_6_warm_start_decision_pending")
     records.append(
         _method(
             "ppo_rs_funnel",
@@ -216,6 +218,8 @@ def _global_blockers(
         blockers.append("f02_6_warm_start_decision_pending")
     if any("missing_module2_bc_checkpoint" in method.get("blockers", ()) for method in methods):
         blockers.append("missing_module2_bc_checkpoint")
+    if any("missing_module2_rl_rs_checkpoint" in method.get("blockers", ()) for method in methods):
+        blockers.append("missing_module2_rl_rs_checkpoint")
     if any("missing_main_evaluation_method" in method.get("blockers", ()) for method in methods):
         blockers.append("missing_required_method_implementation")
     if not bool(realmap_query_protocol.get("frozen")):
@@ -235,12 +239,23 @@ def _manifest_status(config: Module2EvaluationManifestConfig, methods: Sequence[
 
 def _run_command(config: Module2EvaluationManifestConfig, methods: Sequence[dict[str, Any]]) -> dict[str, Any]:
     bc = next(method for method in methods if method["method_id"] == "bc_analytic_operator")
+    ppo_analytic = next(method for method in methods if method["method_id"] == "ppo_analytic_operator")
     ppo = next(method for method in methods if method["method_id"] == "ppo_rs_funnel")
     if bc["status"] != "ready":
         return {"formal_main_evaluation": None, "blocked_reasons": list(bc["blockers"])}
+    if ppo_analytic["status"] != "ready":
+        return {"formal_main_evaluation": None, "blocked_reasons": list(ppo_analytic["blockers"])}
     if ppo["status"] != "ready":
         return {"formal_main_evaluation": None, "blocked_reasons": list(ppo["blockers"])}
-    method_order = ["ha_no_analytic", "ha_single_rs", "ha_dang_multi_rs", "mlp", "bc_analytic_operator", "ha_rl_rs_ppo"]
+    method_order = [
+        "ha_no_analytic",
+        "ha_single_rs",
+        "ha_dang_multi_rs",
+        "mlp",
+        "bc_analytic_operator",
+        "ppo_analytic_operator",
+        "ha_rl_rs_ppo",
+    ]
     command = (
         "python -m forest_n3p.scripts.run_main_evaluation "
         "--output-dir 0_trials/module2_v1_evaluation/formal_run "

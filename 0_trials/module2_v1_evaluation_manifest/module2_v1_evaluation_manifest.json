@@ -2,8 +2,8 @@
   "schema_version": 1,
   "manifest_name": "module2_v1_evaluation",
   "status": "blocked_pending_decisions",
-  "created_at_utc": "2026-07-04T05:22:26.810839+00:00",
-  "source_head": "6c6ebbde09804fffaa6c7e39f9f43a4800d979b8+dirty",
+  "created_at_utc": "2026-07-04T05:34:52.316002+00:00",
+  "source_head": "1e4c528bfeebec0e927d7d496d42de32a014a9c5+dirty",
   "contract": {
     "path": ".pipeline/contracts/module2-ppo-funnel-expansion.md",
     "exists": true,
@@ -84,11 +84,11 @@
     {
       "method_id": "ppo_analytic_operator",
       "label": "PPO analytic operator without terminal RS",
-      "main_evaluation_method": null,
+      "main_evaluation_method": "ppo_analytic_operator",
       "status": "blocked",
       "blockers": [
-        "missing_main_evaluation_method",
-        "outside_current_funnel_contract_until_explicitly_added"
+        "missing_module2_rl_rs_checkpoint",
+        "f02_6_warm_start_decision_pending"
       ],
       "checkpoint": null
     },
@@ -191,7 +191,7 @@
   },
   "blockers": [
     "f02_6_warm_start_decision_pending",
-    "missing_required_method_implementation"
+    "missing_module2_rl_rs_checkpoint"
   ],
   "run_command": {
     "formal_main_evaluation": null,
