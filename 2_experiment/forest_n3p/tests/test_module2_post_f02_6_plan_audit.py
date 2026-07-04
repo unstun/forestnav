@@ -35,6 +35,8 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
     assert manifest["status_report_summary"]["status"] == "formal_gate_status_blocked"
     assert manifest["status_report_summary"]["formal_claim_allowed_now"] is False
     assert manifest["status_report_summary"]["next_blocked_lane_id"] == "decision"
+    assert manifest["status_report_summary"]["formal_gate_handoff_summary"]["status"] == "blocked_until_f02_6_decision"
+    assert manifest["status_report_summary"]["formal_gate_handoff_summary"]["remote_training_allowed_now"] is False
     steps = manifest["status_report_summary"]["remote_execution_step_summary"]
     assert steps["sync_to_remote"]["allowed_now"] is False
     assert steps["sync_to_remote"]["blocked_by"] == ["requires_dr_sun_approval"]
@@ -120,6 +122,47 @@ def test_post_f02_6_plan_audit_catches_stage_order_and_source_target_mismatch(tm
     issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
     assert "missing_stage_approved_remote_preflight" in issue_ids
     assert "plan_source_regeneration_target_counts_mismatch" in issue_ids
+
+
+def test_post_f02_6_plan_audit_requires_handoff_source_fresh_coverage(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
+    plan = _plan_payload()
+    plan["source_regeneration_targets_by_gate"]["approved_remote_preflight"] = [
+        target
+        for target in plan["source_regeneration_targets_by_gate"]["approved_remote_preflight"]
+        if target["artifact_id"] != "formal_gate_handoff_bundle"
+    ]
+    regen = _stage(plan, "regenerate_preflight_gate_artifacts")
+    regen["command_templates"] = [
+        command for command in regen["command_templates"] if "build_module2_formal_gate_handoff_bundle" not in command
+    ]
+    source_freshness = _source_freshness_payload()
+    source_freshness["ordered_regeneration_targets"] = [
+        target
+        for target in source_freshness["ordered_regeneration_targets"]
+        if target["artifact_id"] != "formal_gate_handoff_bundle"
+    ]
+    status_report = _status_report_payload(ready=False)
+    status_report.pop("formal_gate_handoff_summary")
+
+    manifest = auditor.build_manifest(
+        auditor.PostF026PlanAuditConfig(
+            output_dir=tmp_path,
+            plan_path=_json(tmp_path, "plan.json", plan),
+            formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate_payload()),
+            source_freshness_path=_json(tmp_path, "source_freshness.json", source_freshness),
+            missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
+            closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
+            status_report_path=_json(tmp_path, "status_report.json", status_report),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "post_f02_6_plan_audit_failed"
+    assert "handoff_bundle_missing_from_source_freshness" in issue_ids
+    assert "handoff_bundle_missing_from_plan_preflight_targets" in issue_ids
+    assert "handoff_bundle_missing_regeneration_command" in issue_ids
+    assert "status_report_missing_handoff_summary" in issue_ids
 
 
 def test_post_f02_6_plan_audit_consumes_open_missing_artifacts_inventory_without_blocking_training_step(tmp_path):
@@ -408,6 +451,11 @@ def _plan_payload():
             "approved_remote_preflight": [
                 {"artifact_id": "f02_6_decision_record", "path": "a.json", "freshness_state": "historical_dirty"},
                 {"artifact_id": "formal_gate_gap_audit", "path": "b.json", "freshness_state": "historical_dirty"},
+                {
+                    "artifact_id": "formal_gate_handoff_bundle",
+                    "path": "handoff.json",
+                    "freshness_state": "historical_clean",
+                },
             ],
             "formal_h01_h02": [
                 {"artifact_id": "h01_evaluation_manifest", "path": "h01.json", "freshness_state": "historical_dirty"}
@@ -432,7 +480,12 @@ def _plan_payload():
         },
         "ordered_stages": [
             _stage_payload("f02_6_decision_record", "decision", allowed=True, human=True),
-            _stage_payload("regenerate_preflight_gate_artifacts", "regeneration", blocked_by=["f02_6_decision_not_approved"]),
+            _stage_payload(
+                "regenerate_preflight_gate_artifacts",
+                "regeneration",
+                blocked_by=["f02_6_decision_not_approved"],
+                command="PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_handoff_bundle",
+            ),
             _stage_payload(
                 "approved_remote_preflight",
                 "remote_preflight",
@@ -513,6 +566,11 @@ def _source_freshness_payload():
         "ordered_regeneration_targets": [
             {"artifact_id": "f02_6_decision_record", "path": "a.json", "required_before": "approved_remote_preflight"},
             {"artifact_id": "formal_gate_gap_audit", "path": "b.json", "required_before": "approved_remote_preflight"},
+            {
+                "artifact_id": "formal_gate_handoff_bundle",
+                "path": "handoff.json",
+                "required_before": "approved_remote_preflight",
+            },
             {"artifact_id": "h01_evaluation_manifest", "path": "h01.json", "required_before": "formal_h01_h02"},
             {"artifact_id": "claim_safety", "path": "claim.json", "required_before": "formal_claim_gate"},
         ],
@@ -590,6 +648,14 @@ def _status_report_payload(*, ready, invalid=False):
                 "runs_training": False,
                 "blocked_by": training_blockers,
             },
+        },
+        "formal_gate_handoff_summary": {
+            "status": "ready_for_manual_remote_execution_review" if ready else "blocked_until_f02_6_decision",
+            "next_handoff_action_id": "manual_execution_review" if ready else "record_f02_6_decision",
+            "safety_issue_count": 0,
+            "remote_training_allowed_now": ready,
+            "remote_preflight_allowed_now": ready,
+            "formal_claim_allowed_now": ready,
         },
     }
 
