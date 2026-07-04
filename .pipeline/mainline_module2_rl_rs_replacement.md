@@ -521,7 +521,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 已完成: 新增 `extract_oracle_demonstrations.py`, 从 C02 oracle results 重放 oracle A/B path, 提取 scalar obs + expert steering/curvature/direction, 并过滤 collision、reverse、too-short、terminal-RS-ready samples。
   - 产物: `2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_preview20.parquet` 含 1109 条 preview demonstrations; `0_trials/module2_rl_rs_bc_demo_smoke/` 含 oracle A smoke 与 B-only goal-annulus smoke。
   - 边界: 这是 extraction pipeline + source-bound preview, 不是最终完整 BC corpus; `voronoi_skeleton` B-only rows 仍未纳入 claim。
-  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `24 passed in 0.48s`。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `24 passed in 0.47s`。
   - 记录: `.pipeline/experiments/20260703_module2_f01_oracle_demonstration_extraction.md`。
 - [ ] F01.2 数据 manifest。
   - 记录 map seed, query id, oracle type, source commit, extraction config。
