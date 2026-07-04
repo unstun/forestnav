@@ -92,6 +92,17 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert intake["remote_preflight_allowed_now"] is False
     assert intake["remote_training_allowed_now"] is False
     assert intake["formal_claim_allowed_now"] is False
+    assert intake["decision_owner_required"] == "Dr Sun"
+    assert intake["valid_decision_count"] == 2
+    assert set(intake["valid_decisions"]) == {
+        "approve_obstacle_summary_warm_start",
+        "reject_obstacle_summary_warm_start",
+    }
+    assert intake["required_record_field_count"] == 3
+    assert set(intake["required_record_fields"]) == {"decision", "decider", "decision_note"}
+    assert intake["decision_note_required"] is True
+    assert intake["invalid_input_count"] == 2
+    assert intake["post_decision_non_authorization_count"] == 2
     h02_requirements = manifest["h02_formal_acceptance_requirement_summary"]
     assert h02_requirements["present"] is True
     assert h02_requirements["required_requirement_count"] == 4
@@ -189,6 +200,8 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     assert manifest["f02_6_decision_intake_summary"]["status"] == "f02_6_decision_intake_closed_clean"
     assert manifest["f02_6_decision_intake_summary"]["record_status"] == "approved"
     assert manifest["f02_6_decision_intake_summary"]["record_decider"] == "Dr Sun"
+    assert manifest["f02_6_decision_intake_summary"]["decision_owner_required"] == "Dr Sun"
+    assert manifest["f02_6_decision_intake_summary"]["decision_note_required"] is True
     assert manifest["remote_preflight_requirement_summary"]["status_counts"] == {"satisfied": 4}
     assert manifest["post_run_acceptance_requirement_summary"]["status_counts"] == {"satisfied": 4}
     assert manifest["h02_formal_acceptance_requirement_summary"]["status_counts"] == {"satisfied": 4}
@@ -229,6 +242,30 @@ def test_formal_gate_status_report_requires_clean_decision_intake(tmp_path):
     assert "decision_intake_audit_issues_open" in issue_ids
     assert "decision_intake_remote_training_allowed_now_not_false" in issue_ids
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+
+
+def test_formal_gate_status_report_requires_decision_intake_contract(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    intake = json.loads(config.decision_intake_path.read_text(encoding="utf-8"))
+    intake["decision_intake_contract"]["decision_owner_required"] = "Assistant"
+    intake["decision_intake_contract"]["valid_decisions"] = ["approve_obstacle_summary_warm_start"]
+    intake["decision_intake_contract"]["required_record_fields"] = ["decision", "decider"]
+    intake["invalid_inputs"] = []
+    intake["post_decision_non_authorizations"] = []
+    config.decision_intake_path.write_text(json.dumps(intake), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert "decision_intake_contract_decision_owner_not_dr_sun" in issue_ids
+    assert "decision_intake_contract_missing_valid_decisions" in issue_ids
+    assert "decision_intake_contract_missing_required_record_fields" in issue_ids
+    assert "decision_intake_invalid_inputs_missing" in issue_ids
+    assert "decision_intake_post_decision_non_authorizations_missing" in issue_ids
+    summary = manifest["f02_6_decision_intake_summary"]
+    assert summary["decision_owner_required"] == "Assistant"
+    assert summary["decision_note_required"] is False
 
 
 def test_formal_gate_status_report_requires_missing_artifacts_handoff_index(tmp_path):
@@ -747,6 +784,34 @@ def _decision_intake(*, complete):
             "status_report_remote_training_allowed_now": complete,
             "status_report_formal_claim_allowed_now": complete,
         },
+        "decision_intake_contract": {
+            "decision_owner_required": "Dr Sun",
+            "valid_decisions": [
+                "approve_obstacle_summary_warm_start",
+                "reject_obstacle_summary_warm_start",
+            ],
+            "required_record_fields_for_non_pending_decision": [
+                "decision",
+                "decider",
+                "decision_note",
+            ],
+            "record_command_templates": [
+                {"decision": "approve_obstacle_summary_warm_start"},
+                {"decision": "reject_obstacle_summary_warm_start"},
+            ],
+            "allowed_next_human_actions_from_gate_audit": [
+                {"decision": "approve_obstacle_summary_warm_start"},
+                {"decision": "reject_obstacle_summary_warm_start"},
+            ],
+        },
+        "invalid_inputs": [
+            {"input": "decider other than Dr Sun"},
+            {"input": "local training output"},
+        ],
+        "post_decision_non_authorizations": [
+            {"action": "local_training", "allowed_after_decision_record": False},
+            {"action": "paper_formal_result_claim", "allowed_after_decision_record": False},
+        ],
     }
 
 
