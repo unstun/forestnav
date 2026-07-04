@@ -350,7 +350,7 @@ def _config_record(*, args: argparse.Namespace, raw_argv: Sequence[str]) -> dict
         "command": " ".join(["python -m forest_n3p.scripts.train_rl_rs_ppo", *raw_argv]),
         "smoke": bool(args.smoke),
         "seed": int(args.seed),
-        "policy": "MultiInputPolicy",
+        "policy": "MultiInputPolicy" if args.bc_checkpoint is None else "RlRsMultiInputPolicy",
         "features_extractor": "RlRsObstacleSummaryExtractor",
         "warm_start_status": "not_applied_f02_6_pending",
         "bc_checkpoint": None if args.bc_checkpoint is None else str(args.bc_checkpoint),
