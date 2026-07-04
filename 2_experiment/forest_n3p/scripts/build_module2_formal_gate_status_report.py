@@ -246,6 +246,8 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "current_state": {
             "decision_status": decision.get("status"),
             "decision_decider": decision.get("decider"),
+            "decision_remote_preflight_allowed_now": decision.get("remote_preflight_allowed_now"),
+            "decision_remote_training_allowed_now": decision.get("remote_training_allowed_now"),
             "decision_intake_status": decision_intake_summary["status"],
             "decision_intake_record_status": decision_intake_summary["record_status"],
             "decision_intake_next_blocked_lane": decision_intake_summary["next_blocked_lane"],
@@ -570,6 +572,8 @@ def _input_safety_issues(named_payloads: dict[str, dict[str, Any]]) -> list[dict
             issues.extend(_missing_artifacts_handoff_index_issues(payload))
         if name == "decision_intake":
             issues.extend(_decision_intake_safety_issues(payload))
+        if name == "decision_record":
+            issues.extend(_decision_record_safety_issues(payload))
         if name == "closure_checklist":
             issues.extend(_closure_remote_stage_safety_issues(payload))
         if name == "remote_packet":
