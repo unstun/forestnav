@@ -1253,6 +1253,19 @@ def _markdown(manifest: dict[str, Any]) -> str:
         lines.append(f"- action: {lane['action_when_blocked']}")
     else:
         lines.append("- none")
+    lines.extend(["", "## F02.6 Decision Intake", ""])
+    intake = manifest["f02_6_decision_intake_summary"]
+    lines.append(f"- present: `{intake['present']}`")
+    lines.append(f"- status: `{intake['status']}`")
+    lines.append(f"- record_status: `{intake['record_status']}`")
+    lines.append(f"- record_decider: `{intake['record_decider']}`")
+    lines.append(f"- effective_warm_start_decision: `{intake['effective_warm_start_decision']}`")
+    lines.append(f"- next_blocked_lane: `{intake['next_blocked_lane']}`")
+    lines.append(f"- audit_issue_count: `{intake['audit_issue_count']}`")
+    lines.append(f"- missing_deliverable_count: `{intake['missing_deliverable_count']}`")
+    lines.append(f"- remote_preflight_allowed_now: `{intake['remote_preflight_allowed_now']}`")
+    lines.append(f"- remote_training_allowed_now: `{intake['remote_training_allowed_now']}`")
+    lines.append(f"- formal_claim_allowed_now: `{intake['formal_claim_allowed_now']}`")
     lines.extend(["", "## Formal Gate Lanes", ""])
     for lane in manifest["formal_gate_lanes"]:
         host = f", host=`{lane['host']}`" if lane.get("host") else ""
