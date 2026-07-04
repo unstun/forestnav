@@ -691,9 +691,16 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 不变量: `AnalyticExpansionResult` 拒绝 `states/actions` 长度不一致, 防止后续 planner trace path 无法解释。
   - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_hybrid_astar_operator_protocol.py 2_experiment/forest_n3p/tests/test_hybrid_astar_analytic_operator.py -q` -> `7 passed in 0.26s`。
   - 记录: `.pipeline/experiments/20260704_module2_g01_operator_protocol.md`。
-- [ ] G01.3 实现 `RlRsFunnelOperator`。
+- [x] G01.3 实现 `RlRsFunnelOperator`。
   - 流程: RL rollout -> terminal RS check -> return states/actions。
   - 失败: 返回 None, 不抛异常终止 HA*。
+  - 已完成: 新增 `forest_n3p.rl_rs.operator.RlRsFunnelOperator`, action source 为显式 `RlRsObservation -> SteeringAction | float` callable, 用真实 `AnalyticExpansionEnv` rollout, terminal success 后通过 planner `_try_rs_with_radius()` 追加 RS 收尾段。
+  - telemetry: 新增 `RlRsFunnelTelemetry`, 记录 `rl_rollout_steps`, collision/sample/terminal timing, `terminal_rs_success`, `terminal_rs_used`, `terminal_rs_action_count`, `failure_reason`。
+  - env 暴露: `AnalyticExpansionStep` 公开已有内部 `next_state` 和 `primitive`, 用于构造 planner 可解释 `states/actions`。
+  - 失败语义: rollout collision 和 no-progress truncation 均返回 `None`, 不抛异常终止 HA*。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_rl_rs_api.py 2_experiment/forest_n3p/tests/test_rl_rs_gym_env.py 2_experiment/forest_n3p/tests/test_rl_rs_training_logging.py 2_experiment/forest_n3p/tests/test_hybrid_astar_operator_protocol.py 2_experiment/forest_n3p/tests/test_rl_rs_funnel_operator.py -q` -> `32 passed in 0.93s`。
+  - 边界: 尚未切换 Hybrid A* 主循环, 尚未加载正式 checkpoint, 不关闭 F02.6 warm-start 决策。
+  - 记录: `.pipeline/experiments/20260704_module2_g01_rl_rs_funnel_operator_skeleton.md`。
 - [ ] G01.4 CLI/config 选择 operator。
   - 默认不变。
   - 实验脚本显式写 operator 名称。
@@ -834,3 +841,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 完成 F03 no-warm failure analysis。失败主要集中在 hard distribution: `rs_failure_node` 6/24 success、collision 14/24, `heldout_procedural` 2/14 success、truncation 8/14; open_connector 15/15 成功说明基础接线没有整体断裂。训练末 1000 episode 的 `rs_failure_node` success 仍只有 0.365239, 与 formal eval fail 一致。记录见 `.pipeline/experiments/20260704_module2_f03_no_warm_failure_analysis.md`。
 - 2026-07-04: 修复 Gate #3 evaluator neural forward timing telemetry。`eval_rl_rs_gate3.py` 现在记录 `model.predict()` wall-clock; smoke summary 写出 `nn_forward_time_s=0.000748333000956336`。同一 no-warm formal model 的 `eval_timing_v2/` 保持 `29/64=0.453125` fail 不变, 并补出 `nn_forward_time_s=0.050569629958772566`。记录见 `.pipeline/experiments/20260704_module2_f03_eval_timing_telemetry.md`。
 - 2026-07-04: 完成 G01.1/G01.2 analytic expansion operator protocol 和 DangRsOperator adapter。当前 adapter 暴露统一 `AnalyticExpansionResult` contract, 但仍委托 planner-owned `_try_analytic_expansion()` 且未切换 planner 主循环; 这是后续 RL-RS funnel operator 的接口地基, 不是 planner integration 完成。记录见 `.pipeline/experiments/20260704_module2_g01_operator_protocol.md`。
+- 2026-07-04: 完成 G01.3 RL-RS funnel operator skeleton。`RlRsFunnelOperator` 已能用显式 stub policy 执行真实 env rollout, terminal RS success 时追加 planner RS 收尾段, collision/no-progress 时返回 `None` 并保留 telemetry。当前仍未切换 Hybrid A* 主循环、未加载正式 checkpoint、未关闭 F02.6。记录见 `.pipeline/experiments/20260704_module2_g01_rl_rs_funnel_operator_skeleton.md`。
