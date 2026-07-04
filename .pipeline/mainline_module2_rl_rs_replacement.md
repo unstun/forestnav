@@ -681,11 +681,16 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 
 #### G01. Operator 接口
 
-- [ ] G01.1 定义 `AnalyticExpansionOperator` protocol。
+- [x] G01.1 定义 `AnalyticExpansionOperator` protocol。
   - `try_connect(state, goal, context) -> AnalyticExpansionResult | None`
   - result 必含: states, actions, telemetry, terminal_rs_used。
-- [ ] G01.2 实现 `DangRsOperator` 适配当前代码。
+- [x] G01.2 实现 `DangRsOperator` 适配当前代码。
   - 目的: 新旧 operator 共用 telemetry/evaluation。
+  - 已完成: 新增 `hybrid_a_star/operators.py`, 包含 `AnalyticExpansionOperator`, `AnalyticExpansionResult`, `DangRsPlannerContext`, `DangRsOperator`。
+  - DangRsOperator 边界: 当前 adapter 仍委托 planner-owned `_try_analytic_expansion()`, 不改变主循环行为; 成功时输出 `states/actions/telemetry/terminal_rs_used/operator`, 失败时返回 `None` 并保留 planner `_last_analytic_telemetry`。
+  - 不变量: `AnalyticExpansionResult` 拒绝 `states/actions` 长度不一致, 防止后续 planner trace path 无法解释。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_hybrid_astar_operator_protocol.py 2_experiment/forest_n3p/tests/test_hybrid_astar_analytic_operator.py -q` -> `7 passed in 0.26s`。
+  - 记录: `.pipeline/experiments/20260704_module2_g01_operator_protocol.md`。
 - [ ] G01.3 实现 `RlRsFunnelOperator`。
   - 流程: RL rollout -> terminal RS check -> return states/actions。
   - 失败: 返回 None, 不抛异常终止 HA*。
@@ -828,3 +833,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 完成 F03.5 no-warm-start formal Gate #3 trial。attempt 01 因 oracle sampler 抽到 profile-aware 重建后碰撞 row 中断, 已修复为跳过无效 rows; attempt 02 完成 100000 timesteps PPO train 和 64 episode eval。formal audit 输出 `formal_decision=fail`, `formal_claim_allowed=true`, `formal_blockers=[]`; terminal-RS-success 29/64=0.453125, 低于 0.8 阈值。记录见 `.pipeline/experiments/20260704_module2_f03_gate3_no_warm_formal_trial.md`。
 - 2026-07-04: 完成 F03 no-warm failure analysis。失败主要集中在 hard distribution: `rs_failure_node` 6/24 success、collision 14/24, `heldout_procedural` 2/14 success、truncation 8/14; open_connector 15/15 成功说明基础接线没有整体断裂。训练末 1000 episode 的 `rs_failure_node` success 仍只有 0.365239, 与 formal eval fail 一致。记录见 `.pipeline/experiments/20260704_module2_f03_no_warm_failure_analysis.md`。
 - 2026-07-04: 修复 Gate #3 evaluator neural forward timing telemetry。`eval_rl_rs_gate3.py` 现在记录 `model.predict()` wall-clock; smoke summary 写出 `nn_forward_time_s=0.000748333000956336`。同一 no-warm formal model 的 `eval_timing_v2/` 保持 `29/64=0.453125` fail 不变, 并补出 `nn_forward_time_s=0.050569629958772566`。记录见 `.pipeline/experiments/20260704_module2_f03_eval_timing_telemetry.md`。
+- 2026-07-04: 完成 G01.1/G01.2 analytic expansion operator protocol 和 DangRsOperator adapter。当前 adapter 暴露统一 `AnalyticExpansionResult` contract, 但仍委托 planner-owned `_try_analytic_expansion()` 且未切换 planner 主循环; 这是后续 RL-RS funnel operator 的接口地基, 不是 planner integration 完成。记录见 `.pipeline/experiments/20260704_module2_g01_operator_protocol.md`。
