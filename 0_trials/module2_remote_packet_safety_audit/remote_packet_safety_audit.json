@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "artifact_name": "module2_remote_packet_safety_audit",
+  "status": "remote_packet_safety_audit_passed",
+  "created_at_utc": "2026-07-04T11:36:24.428269+00:00",
+  "source_head": "52a18baf31c14b81fcb309bbc33c149501ea6b65+dirty",
+  "not_paper_result_material": true,
+  "executes_commands": false,
+  "runs_training": false,
+  "runs_remote_preflight": false,
+  "local_training_allowed": false,
+  "formal_claim_allowed": false,
+  "inputs": {
+    "remote_formal_execution_packet": "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json",
+    "f02_6_decision_gate_audit": "0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json",
+    "post_f02_6_plan_audit": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json"
+  },
+  "packet_summary": {
+    "status": "blocked_until_f02_6_decision",
+    "ready_to_run_remote_training": false,
+    "gpu_alias": "gpu3070ti-relay",
+    "training_host_required": "gpu3070ti-relay",
+    "sync_allowed_now": true,
+    "remote_preflight_allowed_now": false,
+    "remote_training_allowed_now": false,
+    "remote_audit_allowed_now": false,
+    "pullback_artifact_count": 7,
+    "hash_manifest_required": true
+  },
+  "cross_gate_summary": {
+    "decision_gate_status": "f02_6_decision_gate_pending_clean",
+    "f02_6_record_status": "pending_human_decision",
+    "decision_training_allowed_now": false,
+    "post_plan_audit_status": "post_f02_6_plan_audit_passed",
+    "post_plan_training_allowed_now": false,
+    "post_plan_remote_preflight_allowed_now": false
+  },
+  "audit_issue_count": 0,
+  "audit_issues": [],
+  "expected_pullback_suffixes": [
+    "train/final_model.zip",
+    "train/summary.json",
+    "train/training_manifest.json",
+    "eval/gate3_eval_episodes.csv",
+    "eval/gate3_summary.json",
+    "gate3_trial_manifest.json",
+    "gate3_formal_audit.json"
+  ],
+  "claim_boundaries": [
+    "This audit validates the remote execution packet; it does not execute sync, preflight, training, audit, or pullback commands.",
+    "A passing audit is not permission to train while F02.6 remains pending.",
+    "A passing audit is not a paper result or formal performance claim.",
+    "Remote training must remain gpu3070ti-relay-only and must still be followed by audit, pullback, H01/H02 regeneration, and claim gates."
+  ]
+}
