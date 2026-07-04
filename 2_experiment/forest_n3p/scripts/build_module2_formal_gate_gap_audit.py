@@ -1463,6 +1463,24 @@ def _status_report_record(path: Path, status_report: dict[str, Any]) -> dict[str
     }
 
 
+def _remaining_deliverables_record(path: Path, remaining_deliverables: dict[str, Any]) -> dict[str, Any]:
+    gap = _remaining_deliverables_gap_summary(remaining_deliverables)
+    return {
+        "path": str(path),
+        "exists": Path(path).is_file(),
+        "status": remaining_deliverables.get("status"),
+        "executes_commands": remaining_deliverables.get("executes_commands"),
+        "runs_training": remaining_deliverables.get("runs_training"),
+        "runs_remote_preflight": remaining_deliverables.get("runs_remote_preflight"),
+        "local_training_allowed": remaining_deliverables.get("local_training_allowed"),
+        "formal_claim_allowed": remaining_deliverables.get("formal_claim_allowed"),
+        "not_paper_result_material": remaining_deliverables.get("not_paper_result_material"),
+        "gap_summary_present": gap["present"],
+        "gap_total_missing_deliverables": gap["total_missing_deliverables"],
+        "gap_open_category_count": gap["open_category_count"],
+    }
+
+
 def _handoff_bundle_record(path: Path, handoff_bundle: dict[str, Any]) -> dict[str, Any]:
     permissions = handoff_bundle.get("permissions_now") if isinstance(handoff_bundle.get("permissions_now"), dict) else {}
     next_action = handoff_bundle.get("next_handoff_action") if isinstance(handoff_bundle.get("next_handoff_action"), dict) else {}
