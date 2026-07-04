@@ -204,6 +204,15 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert manifest["status_report_remaining_deliverables_gap_summary"]["open_category_count"] == 0
     assert manifest["status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 0
     assert manifest["status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary"]["open_category_count"] == 0
+    command_index = manifest["status_report_remote_packet_safety_claim_gate_command_index_summary"]
+    assert command_index["present"] is True
+    assert command_index["index_row_count"] == 18
+    assert command_index["source_target_count"] == 18
+    assert command_index["missing_target_ids"] == []
+    assert command_index["claim_gate_rows"]["claim_safety"]["stage_id"] == "regenerate_claim_gate_artifacts"
+    assert command_index["claim_gate_rows"]["paper_readiness"]["required_before"] == "formal_claim_gate"
+    assert manifest["input_status"]["status_report_remote_packet_safety_command_index_present"] is True
+    assert manifest["input_status"]["status_report_remote_packet_safety_command_index_row_count"] == 18
     assert manifest["status_report_decision_intake_summary"]["status"] == "f02_6_decision_intake_closed_clean"
     assert manifest["status_report_decision_intake_summary"]["record_status"] == "approved"
     assert manifest["status_report_decision_intake_summary"]["decision_owner_required"] == "Dr Sun"
@@ -435,6 +444,58 @@ def test_claim_safety_blocks_formal_claim_when_status_report_is_blocked(tmp_path
         "missing_module2_rl_rs_checkpoint",
         "remote_packet_not_ready",
     ]
+
+
+def test_claim_safety_rejects_status_report_remote_safety_command_index_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_claim_safety")
+    paper_tables = tmp_path / "paper_tables.json"
+    paper_tables.write_text(json.dumps({"status": "formal_ready", "formal_claim_allowed": True, "blockers": []}), encoding="utf-8")
+    h02_formal_acceptance = tmp_path / "h02_formal_acceptance.json"
+    h02_formal_acceptance.write_text(json.dumps({"status": "formal_output_accepted", "formal_output_accepted": True, "paper_result_input_allowed": True, "blockers": []}), encoding="utf-8")
+    h01_manifest = tmp_path / "h01.json"
+    h01_manifest.write_text(json.dumps({"status": "ready_for_formal_evaluation", "blockers": []}), encoding="utf-8")
+    f02_6_packet = tmp_path / "f02_6.json"
+    f02_6_packet.write_text(json.dumps({"status": "approved", "blockers": []}), encoding="utf-8")
+    gate3_audit = tmp_path / "gate3_audit.json"
+    gate3_audit.write_text(json.dumps({"formal_decision": "pass", "formal_claim_allowed": True}), encoding="utf-8")
+    method_algorithms = tmp_path / "method_algorithms.json"
+    method_algorithms.write_text(json.dumps({"status": "code_anchored"}), encoding="utf-8")
+    system_diagram = tmp_path / "system_diagram.json"
+    system_diagram.write_text(json.dumps({"status": "code_anchored_drawio"}), encoding="utf-8")
+    closure_checklist = tmp_path / "closure_checklist.json"
+    closure_checklist.write_text(json.dumps(_closure_checklist_payload(open_checklist=False)), encoding="utf-8")
+    status_payload = _status_report_payload(ready=True)
+    summary = status_payload["remote_packet_safety_claim_gate_command_index_summary"]
+    summary["missing_target_ids"] = ["paper_readiness"]
+    summary["unknown_manual_count"] = 1
+    summary["forbidden_command_count"] = 1
+    summary["claim_gate_rows"]["claim_safety"]["stage_id"] = "regenerate_preflight_gate_artifacts"
+    summary["claim_gate_rows"]["claim_safety"]["command_kind"] = "unknown_manual"
+    summary["claim_gate_rows"].pop("paper_readiness")
+    status_report = tmp_path / "status_report.json"
+    status_report.write_text(json.dumps(status_payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        repo_root=builder._repo_root(),
+        paper_tables_path=paper_tables,
+        h02_formal_acceptance_path=h02_formal_acceptance,
+        h01_manifest_path=h01_manifest,
+        f02_6_packet_path=f02_6_packet,
+        gate3_audit_path=gate3_audit,
+        method_algorithms_path=method_algorithms,
+        system_diagram_path=system_diagram,
+        closure_checklist_path=closure_checklist,
+        status_report_path=status_report,
+    )
+
+    blockers = set(manifest["formal_performance_blockers"])
+    assert manifest["status"] == "blocked_formal_performance_claims"
+    assert "status_report_remote_packet_safety_command_index_missing_targets" in blockers
+    assert "status_report_remote_packet_safety_command_index_unknown_manual_rows" in blockers
+    assert "status_report_remote_packet_safety_command_index_forbidden_commands" in blockers
+    assert "status_report_remote_packet_safety_command_index_claim_safety_wrong_stage" in blockers
+    assert "status_report_remote_packet_safety_command_index_claim_safety_manual_command" in blockers
+    assert "status_report_remote_packet_safety_command_index_missing_paper_readiness" in blockers
 
 
 def test_claim_safety_rejects_status_report_without_remote_gate_summaries(tmp_path):
