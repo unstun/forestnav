@@ -751,6 +751,15 @@ def _markdown(packet: dict[str, Any]) -> str:
         if requirement["blocked_by"]:
             lines.append(f"  - blocked_by: `{', '.join(requirement['blocked_by'])}`")
         lines.append(f"  - invalid_substitutes: `{'; '.join(requirement['invalid_substitutes'])}`")
+    lines.extend(["", "## Post-Run Acceptance Requirements", ""])
+    for requirement in packet["post_run_acceptance_requirements"]:
+        lines.append(
+            f"- `{requirement['requirement_id']}` ({requirement['phase']}): "
+            f"status=`{requirement['status']}`, remote_training_ready_now=`{requirement['remote_training_ready_now']}`"
+        )
+        if requirement["missing_artifact_ids"]:
+            lines.append(f"  - missing_artifact_ids: `{', '.join(requirement['missing_artifact_ids'])}`")
+        lines.append(f"  - invalid_substitutes: `{'; '.join(requirement['invalid_substitutes'])}`")
     lines.extend(
         [
             "",
