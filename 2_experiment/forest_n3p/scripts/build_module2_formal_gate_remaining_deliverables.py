@@ -84,6 +84,10 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
         missing_artifacts=missing_artifacts,
     )
     deliverable_acceptance_matrix = _deliverable_acceptance_matrix(deliverable_groups)
+    deliverable_gap_summary = _deliverable_gap_summary(
+        deliverable_groups=deliverable_groups,
+        deliverable_acceptance_matrix=deliverable_acceptance_matrix,
+    )
     category_counts = _category_counts(deliverable_groups)
     audit_issues = _audit_issues(
         status_report=status_report,
@@ -131,6 +135,7 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
         },
         "permissions_now": _permissions(status_report=status_report, remote_packet=remote_packet),
         "category_counts": category_counts,
+        "deliverable_gap_summary": deliverable_gap_summary,
         "deliverable_groups": deliverable_groups,
         "deliverable_acceptance_matrix": deliverable_acceptance_matrix,
         "missing_deliverable_count": missing_count,
