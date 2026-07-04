@@ -115,6 +115,22 @@ def build_manifest(config: FormalGateMissingArtifactsAuditConfig) -> dict[str, A
         groups=groups,
         current_gate_summary=current_gate_summary,
     )
+    inputs = {
+        "decision_record": str(config.decision_record_path),
+        "f02_6_decision_gate_audit": str(config.decision_gate_audit_path),
+        "f02_6_transition_gate_audit": str(config.transition_gate_audit_path),
+        "post_f02_6_regeneration_plan": str(config.post_plan_path),
+        "source_freshness_audit": str(config.source_freshness_path),
+        "remote_formal_execution_packet": str(config.remote_packet_path),
+        "remote_packet_safety_audit": str(config.remote_packet_audit_path),
+        "h01_manifest": str(config.h01_manifest_path),
+        "h02_formal_acceptance": str(config.h02_acceptance_path),
+    }
+    handoff_index = _formal_gate_handoff_index(
+        current_gate_summary=current_gate_summary,
+        formal_requirements=formal_requirements,
+        inputs=inputs,
+    )
     audit_issues = _audit_issues(
         decision=decision,
         decision_gate=decision_gate,
@@ -141,18 +157,9 @@ def build_manifest(config: FormalGateMissingArtifactsAuditConfig) -> dict[str, A
         "runs_remote_preflight": False,
         "local_training_allowed": False,
         "formal_claim_allowed": False,
-        "inputs": {
-            "decision_record": str(config.decision_record_path),
-            "f02_6_decision_gate_audit": str(config.decision_gate_audit_path),
-            "f02_6_transition_gate_audit": str(config.transition_gate_audit_path),
-            "post_f02_6_regeneration_plan": str(config.post_plan_path),
-            "source_freshness_audit": str(config.source_freshness_path),
-            "remote_formal_execution_packet": str(config.remote_packet_path),
-            "remote_packet_safety_audit": str(config.remote_packet_audit_path),
-            "h01_manifest": str(config.h01_manifest_path),
-            "h02_formal_acceptance": str(config.h02_acceptance_path),
-        },
+        "inputs": inputs,
         "current_gate_summary": current_gate_summary,
+        "formal_gate_handoff_index": handoff_index,
         "missing_counts_by_category": missing_counts,
         "all_required_evidence_present": all_required_evidence_present,
         "missing_evidence_groups": groups,
@@ -528,6 +535,157 @@ def _formal_gate_requirements(
             ],
         ),
     ]
+
+
+def _formal_gate_handoff_index(
+    *,
+    current_gate_summary: dict[str, Any],
+    formal_requirements: Sequence[dict[str, Any]],
+    inputs: dict[str, str],
+) -> dict[str, Any]:
+    decision_status = str(current_gate_summary.get("f02_6_decision_record_status") or "missing")
+    decision_closed = decision_status == "approved"
+    remote_training_allowed_now = current_gate_summary.get("ready_to_run_remote_training") is True
+    requirements = [_decision_handoff_requirement(decision_status=decision_status, inputs=inputs)]
+    for requirement in formal_requirements:
+        requirements.append(_formal_requirement_handoff_row(requirement=requirement, inputs=inputs))
+    unresolved = [item for item in requirements if item["status"] != "satisfied"]
+    if unresolved and not decision_closed:
+        status = "blocked_until_f02_6_decision"
+    elif unresolved:
+        status = "formal_gate_requirements_open"
+    else:
+        status = "formal_gate_evidence_ready_for_h01_h02_claim_gates"
+    next_item = unresolved[0] if unresolved else None
+    return {
+        "status": status,
+        "next_action": _next_handoff_action(next_item),
+        "local_training_allowed_now": False,
+        "remote_training_allowed_now": remote_training_allowed_now,
+        "formal_result_material_allowed_now": False,
+        "requirement_count": len(requirements),
+        "open_requirement_count": len(unresolved),
+        "requirements": requirements,
+        "authority_artifacts": {
+            "decision_record": inputs["decision_record"],
+            "transition_gate_audit": inputs["f02_6_transition_gate_audit"],
+            "post_f02_6_regeneration_plan": inputs["post_f02_6_regeneration_plan"],
+            "remote_formal_execution_packet": inputs["remote_formal_execution_packet"],
+            "formal_missing_artifacts_inventory": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
+            "h01_manifest": inputs["h01_manifest"],
+            "h02_formal_acceptance": inputs["h02_formal_acceptance"],
+        },
+        "claim_boundary": "This handoff index is a gate-navigation aid; it is not a training command, evaluation command, result table, or paper-result source.",
+    }
+
+
+def _decision_handoff_requirement(*, decision_status: str, inputs: dict[str, str]) -> dict[str, Any]:
+    complete = decision_status == "approved"
+    return {
+        "order": 1,
+        "requirement_id": "f02_6_human_decision",
+        "phase": "decision",
+        "status": "satisfied" if complete else "blocked_missing_decision",
+        "execution_allowed_now": False,
+        "missing_artifact_ids": [] if complete else ["f02_6_decision_record"],
+        "missing_artifact_count": 0 if complete else 1,
+        "source_artifacts": [inputs["decision_record"], inputs["f02_6_transition_gate_audit"]],
+        "downstream_consumers": [
+            inputs["post_f02_6_regeneration_plan"],
+            inputs["remote_formal_execution_packet"],
+            inputs["h01_manifest"],
+            inputs["h02_formal_acceptance"],
+        ],
+        "acceptable_evidence": [
+            "Dr Sun approval or rejection recorded in f02_6_decision_record.json",
+            "transition gate audit remains passed with zero open issues",
+        ],
+        "invalid_substitutes": [
+            "assistant inference from prior chat",
+            "remote readiness smoke",
+            "no-warm formal failure result",
+        ],
+    }
+
+
+def _formal_requirement_handoff_row(*, requirement: dict[str, Any], inputs: dict[str, str]) -> dict[str, Any]:
+    source_artifacts = {
+        "training_remote_ppo_checkpoint": [
+            inputs["remote_formal_execution_packet"],
+            inputs["remote_packet_safety_audit"],
+        ],
+        "evaluation_gate3_episode_outputs": [
+            inputs["remote_formal_execution_packet"],
+            inputs["h02_formal_acceptance"],
+        ],
+        "acceptance_remote_pullback_and_audit": [
+            inputs["remote_formal_execution_packet"],
+            inputs["remote_packet_safety_audit"],
+            inputs["h02_formal_acceptance"],
+        ],
+        "h01_h02_formal_evaluation_acceptance": [
+            inputs["h01_manifest"],
+            inputs["h02_formal_acceptance"],
+        ],
+    }
+    downstream_consumers = {
+        "training_remote_ppo_checkpoint": [inputs["h01_manifest"], inputs["h02_formal_acceptance"]],
+        "evaluation_gate3_episode_outputs": [inputs["h02_formal_acceptance"]],
+        "acceptance_remote_pullback_and_audit": [inputs["h02_formal_acceptance"]],
+        "h01_h02_formal_evaluation_acceptance": [
+            "0_trials/module2_claim_safety/module2_claim_safety.json",
+            "0_trials/module2_paper_readiness/module2_paper_readiness.json",
+        ],
+    }
+    requirement_id = str(requirement.get("requirement_id") or "unknown_requirement")
+    missing_ids = _strings(requirement.get("missing_artifact_ids"))
+    return {
+        "order": _handoff_order(requirement_id),
+        "requirement_id": requirement_id,
+        "phase": str(requirement.get("phase") or "unknown"),
+        "status": str(requirement.get("status") or "unknown"),
+        "execution_allowed_now": bool(requirement.get("execution_allowed_now")),
+        "missing_artifact_ids": missing_ids,
+        "missing_artifact_count": len(missing_ids),
+        "missing_paths": _strings(requirement.get("missing_paths")),
+        "source_artifacts": source_artifacts.get(requirement_id, []),
+        "downstream_consumers": downstream_consumers.get(requirement_id, []),
+        "acceptable_evidence": _strings(requirement.get("acceptable_evidence")),
+        "invalid_substitutes": _strings(requirement.get("invalid_substitutes")),
+    }
+
+
+def _handoff_order(requirement_id: str) -> int:
+    order = {
+        "training_remote_ppo_checkpoint": 2,
+        "evaluation_gate3_episode_outputs": 3,
+        "acceptance_remote_pullback_and_audit": 4,
+        "h01_h02_formal_evaluation_acceptance": 5,
+    }
+    return order.get(requirement_id, 99)
+
+
+def _next_handoff_action(next_item: dict[str, Any] | None) -> dict[str, Any]:
+    if next_item is None:
+        return {
+            "action_id": "no_open_formal_gate_handoff_requirements",
+            "allowed_for_agent_now": False,
+            "requires_dr_sun": False,
+            "description": "All indexed formal gate evidence rows are satisfied; claim gates must still be regenerated and audited separately.",
+        }
+    if next_item["requirement_id"] == "f02_6_human_decision":
+        return {
+            "action_id": "record_f02_6_decision",
+            "allowed_for_agent_now": False,
+            "requires_dr_sun": True,
+            "description": "Dr Sun must approve obstacle-summary warm-start or reject it before remote formal execution can proceed.",
+        }
+    return {
+        "action_id": f"resolve_{next_item['requirement_id']}",
+        "allowed_for_agent_now": bool(next_item.get("execution_allowed_now")),
+        "requires_dr_sun": False,
+        "description": f"Resolve {next_item['requirement_id']} with acceptable evidence; invalid substitutes remain disallowed.",
+    }
 
 
 def _requirement(
