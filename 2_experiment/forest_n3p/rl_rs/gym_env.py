@@ -71,7 +71,11 @@ class GymAnalyticExpansionEnv(gym.Env):
         context = replace(context, observation_config=self.observation_config)
         self._context = context
         observation = self._planner_env.reset(context)
-        return _observation_to_dict(observation), {"context": context}
+        info: dict[str, Any] = {"context": context}
+        curriculum = _sampler_curriculum_record(self.context_sampler)
+        if curriculum is not None:
+            info["curriculum"] = curriculum
+        return _observation_to_dict(observation), info
 
     def step(self, action: np.ndarray | list[float] | tuple[float, ...] | float):
         normalized_steering = _single_action_value(action)
@@ -93,6 +97,16 @@ def _context_from_options(options: dict[str, Any] | None) -> AnalyticExpansionCo
     if not isinstance(context, AnalyticExpansionContext):
         raise TypeError("reset options['context'] must be an AnalyticExpansionContext")
     return context
+
+
+def _sampler_curriculum_record(context_sampler: Any) -> dict[str, Any] | None:
+    metadata = getattr(context_sampler, "last_metadata", None)
+    if metadata is None:
+        return None
+    to_record = getattr(metadata, "to_record", None)
+    if callable(to_record):
+        return dict(to_record())
+    return None
 
 
 def _single_action_value(action: np.ndarray | list[float] | tuple[float, ...] | float) -> float:
