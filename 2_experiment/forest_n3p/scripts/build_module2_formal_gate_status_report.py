@@ -1447,11 +1447,11 @@ def _formal_gate_proof_audit_gap_summary(summary: dict[str, Any]) -> dict[str, A
             if expected_path:
                 payload["expected_paths"].append(expected_path)
     for payload in categories.values():
-        payload["missing_artifact_ids"] = _ordered_unique(payload["missing_artifact_ids"])
-        payload["failed_artifact_ids"] = _ordered_unique(payload["failed_artifact_ids"])
-        payload["blocked_proof_command_ids"] = _ordered_unique(payload["blocked_proof_command_ids"])
-        payload["failed_proof_command_ids"] = _ordered_unique(payload["failed_proof_command_ids"])
-        payload["expected_paths"] = _ordered_unique(payload["expected_paths"])
+        payload["missing_artifact_ids"] = _unique(payload["missing_artifact_ids"])
+        payload["failed_artifact_ids"] = _unique(payload["failed_artifact_ids"])
+        payload["blocked_proof_command_ids"] = _unique(payload["blocked_proof_command_ids"])
+        payload["failed_proof_command_ids"] = _unique(payload["failed_proof_command_ids"])
+        payload["expected_paths"] = _unique(payload["expected_paths"])
         payload["missing_artifact_count"] = len(payload["missing_artifact_ids"])
         payload["failed_acceptance_artifact_count"] = len(payload["failed_artifact_ids"])
         payload["blocked_proof_command_count"] = len(payload["blocked_proof_command_ids"])
