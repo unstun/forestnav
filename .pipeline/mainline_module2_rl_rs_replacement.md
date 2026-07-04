@@ -589,6 +589,8 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 当前证据: patch-CNN bounded pilot 没有明确超过 obstacle-summary, 且只用 4096/1024 bounded rows; obstacle-summary 是当前 practical candidate, 但也只有 67/258 success。
   - 2026-07-04 补充同口径评估: 在 patch-CNN 同一组 `max_val_rows=1024` bounded rows / 242 source rows 上, scalar success 65/242, obstacle-summary success 101/242, patch-CNN success 63/242。
   - 推荐: 若进入 PPO, 使用 obstacle-summary checkpoint 作为 practical warm-start; 不推荐继续用 bounded patch-CNN checkpoint。
+  - 工程状态: obstacle-summary checkpoint 已可通过 `train_rl_rs_ppo.py --bc-checkpoint` 注入 PPO actor, 且 deterministic action 与原 BC normalized steering 一致。
+  - 记录: `.pipeline/experiments/20260704_module2_f03_obstacle_summary_warm_start.md`。
   - 仍需 Dr Sun 决策: 接受 obstacle-summary warm-start 进入 F03, 或明确要求先做 stronger/full patch-CNN protocol。
 
 #### F03. PPO 最大实现
@@ -636,8 +638,11 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 入口基础设施已完成: 新增 `RlRsObstacleSummaryExtractor` 与 `train_rl_rs_ppo.py`, 使用 SB3 `MultiInputPolicy`, F03 curriculum, episode CSV, SB3 model zip, training manifest。
   - smoke 产物: `0_trials/module2_ppo_smoke/f03_train_entry_smoke/`。
   - 验证: `KMP_DUPLICATE_LIB_OK=TRUE PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q` -> `54 passed in 7.17s`; `train_rl_rs_ppo --smoke` 通过。
+  - warm-start 接线: `--bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt` smoke 通过, 产物在 `0_trials/module2_ppo_smoke/f03_warm_start_entry_smoke/`, manifest 记录 `warm_start_status=applied_obstacle_summary_bc`。
+  - warm-start 验证: PPO deterministic action 与 F02 obstacle-summary BC normalized action 一致; `KMP_DUPLICATE_LIB_OK=TRUE PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q` -> `55 passed in 6.97s`。
   - 边界: smoke 是 open-connector 极小训练, manifest 写明 `warm_start_status=not_applied_f02_6_pending`; F03.5 Gate 结果仍未判定。
   - 记录: `.pipeline/experiments/20260704_module2_f03_ppo_training_entry.md`。
+  - warm-start 记录: `.pipeline/experiments/20260704_module2_f03_obstacle_summary_warm_start.md`。
 
 ### Phase G: Planner 集成
 
