@@ -406,7 +406,15 @@ def _gaps_with_ids(gaps: Sequence[dict[str, Any]], ids: set[str]) -> list[dict[s
 
 
 def _gap_ids(gaps: Sequence[dict[str, Any]]) -> list[str]:
-    return [str(gap.get("gap_id")) for gap in gaps if gap.get("gap_id")]
+    seen: set[str] = set()
+    ids: list[str] = []
+    for gap in gaps:
+        gap_id = str(gap.get("gap_id")) if gap.get("gap_id") else ""
+        if not gap_id or gap_id in seen:
+            continue
+        seen.add(gap_id)
+        ids.append(gap_id)
+    return ids
 
 
 def _current_gate_state(
