@@ -901,6 +901,8 @@ def _status_report_remaining_deliverables_acceptance_summary(status_report: dict
             if isinstance(row.get("responsible_stage_allowed_now"), bool)
             else None,
             "acceptance_predicate_count": int(row.get("acceptance_predicate_count") or 0),
+            "proof_command_count": int(row.get("proof_command_count") or 0),
+            "proof_command_ids": _strings(row.get("proof_command_ids")),
             "invalid_substitute_count": int(row.get("invalid_substitute_count") or 0),
         }
     return {
@@ -971,6 +973,7 @@ def _status_report_gap_summary(raw_summary: Any) -> dict[str, Any]:
             if isinstance(raw.get("responsible_stage_allowed_now"), bool)
             else None,
             "missing_artifact_matrix_ids": _strings(raw.get("missing_artifact_matrix_ids")),
+            "proof_command_ids": _strings(raw.get("proof_command_ids")),
         }
     return {
         "present": bool(summary),
@@ -979,6 +982,31 @@ def _status_report_gap_summary(raw_summary: Any) -> dict[str, Any]:
         "open_category_count": int(summary.get("open_category_count") or 0),
         "category_order": _strings(summary.get("category_order")),
         "categories": categories,
+    }
+
+
+def _status_report_remaining_deliverables_proof_command_plan(status_report: dict[str, Any]) -> dict[str, Any]:
+    plan = status_report.get("remaining_deliverables_proof_command_plan")
+    plan = plan if isinstance(plan, dict) else {}
+    raw_rows = plan.get("rows") if isinstance(plan.get("rows"), dict) else {}
+    rows: dict[str, dict[str, Any]] = {}
+    for matrix_id in STATUS_REPORT_REMAINING_DELIVERABLE_MATRIX_IDS:
+        row = raw_rows.get(matrix_id) if isinstance(raw_rows.get(matrix_id), dict) else {}
+        rows[matrix_id] = {
+            "present": bool(row),
+            "proof_command_count": int(row.get("proof_command_count") or 0),
+            "proof_command_ids": _strings(row.get("proof_command_ids")),
+        }
+    return {
+        "present": bool(plan),
+        "plan_id": plan.get("plan_id"),
+        "execution_boundary": plan.get("execution_boundary"),
+        "not_paper_result_material": plan.get("not_paper_result_material") is True,
+        "runs_training": plan.get("runs_training") is True,
+        "runs_remote_preflight": plan.get("runs_remote_preflight") is True,
+        "total_matrix_rows": int(plan.get("total_matrix_rows") or 0),
+        "total_proof_command_count": int(plan.get("total_proof_command_count") or 0),
+        "rows": rows,
     }
 
 
@@ -1029,6 +1057,51 @@ def _status_report_remaining_deliverables_gap_blockers(status_report: dict[str, 
                 _append_unique(blockers, f"status_report_remaining_deliverables_gap_{category}_stage_allowed_while_blocked")
         if payload["missing_count"] != len(payload["missing_artifact_matrix_ids"]):
             _append_unique(blockers, f"status_report_remaining_deliverables_gap_{category}_missing_artifact_count_mismatch")
+    return blockers
+
+
+def _status_report_remaining_deliverables_proof_command_plan_blockers(status_report: dict[str, Any]) -> list[str]:
+    acceptance = _status_report_remaining_deliverables_acceptance_summary(status_report)
+    gap = _status_report_remaining_deliverables_gap_summary(status_report)
+    plan = _status_report_remaining_deliverables_proof_command_plan(status_report)
+    blockers: list[str] = []
+    if not plan["present"]:
+        blockers.append("status_report_missing_remaining_deliverables_proof_command_plan")
+        return blockers
+    if plan["plan_id"] != "module2_formal_gate_local_read_only_proof_commands":
+        blockers.append("status_report_remaining_deliverables_proof_command_plan_id_invalid")
+    if plan["execution_boundary"] != "local_read_only_after_formal_remote_pullback":
+        blockers.append("status_report_remaining_deliverables_proof_command_plan_boundary_invalid")
+    if not plan["not_paper_result_material"]:
+        blockers.append("status_report_remaining_deliverables_proof_command_plan_marked_as_paper_result")
+    if plan["runs_training"]:
+        blockers.append("status_report_remaining_deliverables_proof_command_plan_runs_training")
+    if plan["runs_remote_preflight"]:
+        blockers.append("status_report_remaining_deliverables_proof_command_plan_runs_remote_preflight")
+    if plan["total_matrix_rows"] != acceptance["matrix_row_count"]:
+        blockers.append("status_report_remaining_deliverables_proof_command_plan_matrix_count_mismatch")
+    expected_total = sum(row["proof_command_count"] for row in acceptance["rows"].values() if row["present"])
+    if plan["total_proof_command_count"] != expected_total:
+        blockers.append("status_report_remaining_deliverables_proof_command_plan_command_count_mismatch")
+    for matrix_id, row in acceptance["rows"].items():
+        if not row["present"]:
+            continue
+        safe_matrix_id = matrix_id.replace(":", "_")
+        if row["proof_command_count"] <= 0:
+            _append_unique(blockers, f"status_report_remaining_deliverables_acceptance_{safe_matrix_id}_missing_proof_commands")
+        plan_row = plan["rows"].get(matrix_id)
+        if not plan_row or not plan_row["present"]:
+            _append_unique(blockers, f"status_report_remaining_deliverables_proof_command_plan_missing_{safe_matrix_id}")
+            continue
+        if plan_row["proof_command_count"] != row["proof_command_count"]:
+            _append_unique(blockers, f"status_report_remaining_deliverables_proof_command_plan_{safe_matrix_id}_count_mismatch")
+        if plan_row["proof_command_ids"] != row["proof_command_ids"]:
+            _append_unique(blockers, f"status_report_remaining_deliverables_proof_command_plan_{safe_matrix_id}_ids_mismatch")
+    for category, payload in gap["categories"].items():
+        if not payload["present"] or payload["missing_count"] <= 0:
+            continue
+        if not payload["proof_command_ids"]:
+            _append_unique(blockers, f"status_report_remaining_deliverables_gap_{category}_missing_proof_commands")
     return blockers
 
 
