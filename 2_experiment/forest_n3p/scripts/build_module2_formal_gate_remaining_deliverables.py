@@ -803,6 +803,7 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- source_head: `{manifest['source_head']}`",
         f"- missing_deliverable_count: `{manifest['missing_deliverable_count']}`",
         f"- open_category_count: `{manifest['open_category_count']}`",
+        f"- proof_command_count: `{manifest['proof_command_plan']['total_proof_command_count']}`",
         f"- audit_issue_count: `{manifest['audit_issue_count']}`",
         f"- local_training_allowed_now: `{manifest['permissions_now']['local_training_allowed_now']}`",
         f"- remote_training_allowed_now: `{manifest['permissions_now']['remote_training_allowed_now']}`",
@@ -821,10 +822,11 @@ def _markdown(manifest: dict[str, Any]) -> str:
     for category in checklist["categories"]:
         blocked_by = ", ".join(category["responsible_stage_blocked_by"]) if category["responsible_stage_blocked_by"] else "none"
         missing_ids = ", ".join(category["missing_matrix_ids"]) if category["missing_matrix_ids"] else "none"
+        proof_ids = ", ".join(category["proof_command_ids"]) if category["proof_command_ids"] else "none"
         lines.append(
             f"- `{category['category']}`: missing=`{category['missing_count']}`, "
             f"stage=`{category['responsible_stage_id']}`, stage_allowed_now=`{category['responsible_stage_allowed_now']}`, "
-            f"missing_artifacts=`{missing_ids}`, blocked_by=`{blocked_by}`"
+            f"missing_artifacts=`{missing_ids}`, proof_commands=`{proof_ids}`, blocked_by=`{blocked_by}`"
         )
     lines.extend(
         [
@@ -853,10 +855,20 @@ def _markdown(manifest: dict[str, Any]) -> str:
             for item in category["missing_artifacts"]:
                 lines.append(
                     f"  - `{item['matrix_id']}`: state=`{item['current_state']}`, "
-                    f"path=`{item['expected_path']}`, acceptance_predicate_count=`{item['acceptance_predicate_count']}`"
+                    f"path=`{item['expected_path']}`, acceptance_predicate_count=`{item['acceptance_predicate_count']}`, "
+                    f"proof_command_count=`{item['proof_command_count']}`"
                 )
         else:
             lines.append("  - none")
+    proof_plan = manifest["proof_command_plan"]
+    lines.extend(["", "## Proof Command Plan", ""])
+    lines.append(f"- plan_id: `{proof_plan['plan_id']}`")
+    lines.append(f"- execution_boundary: `{proof_plan['execution_boundary']}`")
+    lines.append(f"- total_matrix_rows: `{proof_plan['total_matrix_rows']}`")
+    lines.append(f"- total_proof_command_count: `{proof_plan['total_proof_command_count']}`")
+    for row in proof_plan["rows"]:
+        command_ids = ", ".join(row["proof_command_ids"]) if row["proof_command_ids"] else "none"
+        lines.append(f"- `{row['matrix_id']}`: proof_command_count=`{row['proof_command_count']}`, command_ids=`{command_ids}`")
     lines.extend(["", "## Deliverable Groups", ""])
     for group in manifest["deliverable_groups"]:
         lines.append(f"### {group['category']}")
@@ -890,6 +902,10 @@ def _markdown(manifest: dict[str, Any]) -> str:
         lines.append(f"- responsible_stage_blocked_by: `{blocked_by}`")
         lines.append("- acceptance_predicates:")
         lines.extend(f"  - {item}" for item in row["acceptance_predicates"])
+        lines.append("- proof_commands:")
+        for command in row["proof_commands"]:
+            lines.append(f"  - `{command['command_id']}`: {command['command']}")
+            lines.append(f"    - expected_evidence: `{command['expected_evidence']}`")
         lines.append("- invalid_substitutes:")
         lines.extend(f"  - {item}" for item in row["invalid_substitutes"])
     lines.extend(["", "## Audit Issues", ""])
