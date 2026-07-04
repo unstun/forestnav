@@ -93,6 +93,7 @@ def build_manifest(
         status_report=status_report,
     )
     status_report_remote_gate_summary = _status_report_remote_gate_summary(status_report)
+    status_report_handoff_summary = _status_report_handoff_summary(status_report)
     formal_allowed = not formal_blockers
     prohibited = _prohibited_claims()
     allowed = _allowed_claims(
@@ -144,6 +145,15 @@ def build_manifest(
             ),
             "status_report_input_safety_issue_count": status_report.get("input_safety_issue_count"),
             "status_report_next_blocked_lane_id": _next_blocked_lane_id(status_report),
+            "status_report_handoff_status": status_report_handoff_summary["status"],
+            "status_report_transition_gate_status": status_report_handoff_summary["transition_gate_status"],
+            "status_report_transition_gate_audit_issue_count": status_report_handoff_summary[
+                "transition_gate_audit_issue_count"
+            ],
+            "status_report_handoff_safety_issue_count": status_report_handoff_summary["safety_issue_count"],
+            "status_report_handoff_remote_training_allowed_now": status_report_handoff_summary[
+                "remote_training_allowed_now"
+            ],
             "status_report_closure_remote_training_allowed_now": status_report_remote_gate_summary[
                 "closure_remote_stage_summary"
             ]["gate3_remote_training"]["allowed_now"],
@@ -151,6 +161,7 @@ def build_manifest(
                 "remote_execution_step_summary"
             ]["run_remote_training"]["allowed_now"],
         },
+        "status_report_handoff_summary": status_report_handoff_summary,
         "status_report_remote_gate_summary": status_report_remote_gate_summary,
         "allowed_claims": allowed,
         "conditional_claims": _conditional_claims(),
@@ -244,7 +255,52 @@ def _formal_performance_blockers(
         _append_unique(blockers, "status_report_allows_local_training_now")
     if int(status_report.get("input_safety_issue_count") or 0) > 0:
         _append_unique(blockers, "status_report_input_safety_issues_open")
+    blockers.extend(_status_report_handoff_blockers(status_report))
     blockers.extend(_status_report_remote_summary_blockers(status_report))
+    return blockers
+
+
+def _status_report_handoff_summary(status_report: dict[str, Any]) -> dict[str, Any]:
+    summary = status_report.get("formal_gate_handoff_summary")
+    if not isinstance(summary, dict):
+        summary = {}
+    return {
+        "present": bool(summary),
+        "status": summary.get("status"),
+        "transition_gate_status": summary.get("transition_gate_status"),
+        "transition_gate_audit_issue_count": summary.get("transition_gate_audit_issue_count"),
+        "safety_issue_count": int(summary.get("safety_issue_count") or 0),
+        "remote_training_allowed_now": summary.get("remote_training_allowed_now")
+        if isinstance(summary.get("remote_training_allowed_now"), bool)
+        else None,
+        "remote_preflight_allowed_now": summary.get("remote_preflight_allowed_now")
+        if isinstance(summary.get("remote_preflight_allowed_now"), bool)
+        else None,
+        "formal_claim_allowed_now": summary.get("formal_claim_allowed_now")
+        if isinstance(summary.get("formal_claim_allowed_now"), bool)
+        else None,
+    }
+
+
+def _status_report_handoff_blockers(status_report: dict[str, Any]) -> list[str]:
+    summary = _status_report_handoff_summary(status_report)
+    blockers: list[str] = []
+    if not summary["present"]:
+        blockers.append("status_report_missing_formal_gate_handoff_summary")
+        return blockers
+    if summary["transition_gate_status"] != "f02_6_transition_gate_audit_passed":
+        blockers.append("status_report_transition_gate_not_passed")
+    if int(summary["transition_gate_audit_issue_count"] or 0) > 0:
+        blockers.append("status_report_transition_gate_issues_open")
+    if int(summary["safety_issue_count"] or 0) > 0:
+        blockers.append("status_report_handoff_safety_issues_open")
+    if status_report.get("status") != "formal_gate_status_ready_for_claim_audit":
+        if summary["remote_preflight_allowed_now"] is True:
+            blockers.append("status_report_blocked_but_handoff_remote_preflight_allowed")
+        if summary["remote_training_allowed_now"] is True:
+            blockers.append("status_report_blocked_but_handoff_remote_training_allowed")
+        if summary["formal_claim_allowed_now"] is True:
+            blockers.append("status_report_blocked_but_handoff_formal_claim_allowed")
     return blockers
 
 
@@ -498,6 +554,15 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.extend(["", "## Conditional Claims", ""])
     for claim in manifest["conditional_claims"]:
         lines.append(f"- `{claim['claim_id']}`: {claim['status']}")
+    lines.extend(["", "## Status Report Handoff Summary", ""])
+    handoff = manifest["status_report_handoff_summary"]
+    lines.append(
+        f"- present=`{handoff['present']}`, status=`{handoff['status']}`, "
+        f"transition_gate_status=`{handoff['transition_gate_status']}`, "
+        f"transition_gate_audit_issue_count=`{handoff['transition_gate_audit_issue_count']}`, "
+        f"safety_issue_count=`{handoff['safety_issue_count']}`, "
+        f"remote_training_allowed_now=`{handoff['remote_training_allowed_now']}`"
+    )
     lines.extend(["", "## Status Report Remote Gate Summary", ""])
     for group_id, group in manifest["status_report_remote_gate_summary"].items():
         lines.append(f"### {group_id}")
