@@ -89,6 +89,20 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
         deliverable_acceptance_matrix=deliverable_acceptance_matrix,
     )
     category_counts = _category_counts(deliverable_groups)
+    permissions_now = _permissions(status_report=status_report, remote_packet=remote_packet)
+    current_gate_summary = {
+        "status_report_status": status_report.get("status"),
+        "next_blocked_lane": _next_blocked_lane_id(status_report),
+        "missing_counts_by_category": status_report.get("missing_counts_by_category")
+        if isinstance(status_report.get("missing_counts_by_category"), dict)
+        else {},
+        "remote_packet_status": remote_packet.get("status"),
+        "ready_to_run_remote_training": remote_packet.get("ready_to_run_remote_training"),
+        "h01_status": h01_manifest.get("status"),
+        "h02_status": h02_acceptance.get("status"),
+        "h02_formal_output_accepted": h02_acceptance.get("formal_output_accepted"),
+        "h02_paper_result_input_allowed": h02_acceptance.get("paper_result_input_allowed"),
+    }
     audit_issues = _audit_issues(
         status_report=status_report,
         missing_artifacts=missing_artifacts,
@@ -120,22 +134,15 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
             "h01_manifest": str(config.h01_manifest_path),
             "h02_formal_acceptance": str(config.h02_acceptance_path),
         },
-        "current_gate_summary": {
-            "status_report_status": status_report.get("status"),
-            "next_blocked_lane": _next_blocked_lane_id(status_report),
-            "missing_counts_by_category": status_report.get("missing_counts_by_category")
-            if isinstance(status_report.get("missing_counts_by_category"), dict)
-            else {},
-            "remote_packet_status": remote_packet.get("status"),
-            "ready_to_run_remote_training": remote_packet.get("ready_to_run_remote_training"),
-            "h01_status": h01_manifest.get("status"),
-            "h02_status": h02_acceptance.get("status"),
-            "h02_formal_output_accepted": h02_acceptance.get("formal_output_accepted"),
-            "h02_paper_result_input_allowed": h02_acceptance.get("paper_result_input_allowed"),
-        },
-        "permissions_now": _permissions(status_report=status_report, remote_packet=remote_packet),
+        "current_gate_summary": current_gate_summary,
+        "permissions_now": permissions_now,
         "category_counts": category_counts,
         "deliverable_gap_summary": deliverable_gap_summary,
+        "plain_formal_gate_closure_checklist": _plain_formal_gate_closure_checklist(
+            current_gate_summary=current_gate_summary,
+            permissions_now=permissions_now,
+            deliverable_gap_summary=deliverable_gap_summary,
+        ),
         "deliverable_groups": deliverable_groups,
         "deliverable_acceptance_matrix": deliverable_acceptance_matrix,
         "missing_deliverable_count": missing_count,
@@ -371,6 +378,54 @@ def _deliverable_gap_summary(
     }
 
 
+def _plain_formal_gate_closure_checklist(
+    *,
+    current_gate_summary: dict[str, Any],
+    permissions_now: dict[str, Any],
+    deliverable_gap_summary: dict[str, Any],
+) -> dict[str, Any]:
+    categories: list[dict[str, Any]] = []
+    raw_categories = deliverable_gap_summary.get("categories")
+    for category in raw_categories if isinstance(raw_categories, list) else []:
+        if not isinstance(category, dict):
+            continue
+        missing_artifacts = category.get("missing_artifacts")
+        missing_artifacts = missing_artifacts if isinstance(missing_artifacts, list) else []
+        categories.append(
+            {
+                "category": category.get("category"),
+                "missing_count": category.get("missing_count"),
+                "responsible_stage_id": category.get("responsible_stage_id"),
+                "responsible_stage_allowed_now": category.get("responsible_stage_allowed_now"),
+                "responsible_stage_blocked_by": list(category.get("responsible_stage_blocked_by", [])),
+                "missing_matrix_ids": [
+                    str(item.get("matrix_id")) for item in missing_artifacts if isinstance(item, dict) and item.get("matrix_id")
+                ],
+                "expected_paths": [
+                    str(item.get("expected_path")) for item in missing_artifacts if isinstance(item, dict) and item.get("expected_path")
+                ],
+                "invalid_substitutes": _unique_strings(
+                    substitute
+                    for item in missing_artifacts
+                    if isinstance(item, dict)
+                    for substitute in item.get("invalid_substitutes", [])
+                ),
+            }
+        )
+    return {
+        "purpose": "human_readable_formal_gate_missing_deliverables_only",
+        "not_paper_result_material": True,
+        "execution_boundary": deliverable_gap_summary.get("execution_boundary"),
+        "next_blocked_lane": current_gate_summary.get("next_blocked_lane"),
+        "total_missing_deliverables": deliverable_gap_summary.get("total_missing_deliverables"),
+        "open_category_count": deliverable_gap_summary.get("open_category_count"),
+        "local_training_allowed_now": permissions_now.get("local_training_allowed_now"),
+        "remote_training_allowed_now": permissions_now.get("remote_training_allowed_now"),
+        "formal_claim_allowed_now": permissions_now.get("formal_claim_allowed_now"),
+        "categories": categories,
+    }
+
+
 def _permissions(*, status_report: dict[str, Any], remote_packet: dict[str, Any]) -> dict[str, Any]:
     permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
     return {
@@ -454,6 +509,18 @@ def _strings(value: Any) -> list[str]:
     return [str(item) for item in value if item]
 
 
+def _unique_strings(values: Any) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
+    for value in values:
+        text = str(value)
+        if not text or text in seen:
+            continue
+        seen.add(text)
+        out.append(text)
+    return out
+
+
 def _issue(issue_id: str, message: str) -> dict[str, str]:
     return {"issue_id": issue_id, "message": message}
 
@@ -500,9 +567,31 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- remote_training_allowed_now: `{manifest['permissions_now']['remote_training_allowed_now']}`",
         f"- formal_claim_allowed_now: `{manifest['permissions_now']['formal_claim_allowed_now']}`",
         "",
-        "## Current Gate Summary",
+        "## Human-Readable Gate Closure Checklist",
         "",
     ]
+    checklist = manifest["plain_formal_gate_closure_checklist"]
+    lines.append(f"- next_blocked_lane: `{checklist['next_blocked_lane']}`")
+    lines.append(f"- total_missing_deliverables: `{checklist['total_missing_deliverables']}`")
+    lines.append(f"- open_category_count: `{checklist['open_category_count']}`")
+    lines.append(f"- local_training_allowed_now: `{checklist['local_training_allowed_now']}`")
+    lines.append(f"- remote_training_allowed_now: `{checklist['remote_training_allowed_now']}`")
+    lines.append(f"- formal_claim_allowed_now: `{checklist['formal_claim_allowed_now']}`")
+    for category in checklist["categories"]:
+        blocked_by = ", ".join(category["responsible_stage_blocked_by"]) if category["responsible_stage_blocked_by"] else "none"
+        missing_ids = ", ".join(category["missing_matrix_ids"]) if category["missing_matrix_ids"] else "none"
+        lines.append(
+            f"- `{category['category']}`: missing=`{category['missing_count']}`, "
+            f"stage=`{category['responsible_stage_id']}`, stage_allowed_now=`{category['responsible_stage_allowed_now']}`, "
+            f"missing_artifacts=`{missing_ids}`, blocked_by=`{blocked_by}`"
+        )
+    lines.extend(
+        [
+            "",
+        "## Current Gate Summary",
+        "",
+        ]
+    )
     for key, value in manifest["current_gate_summary"].items():
         lines.append(f"- {key}: `{value}`")
     gap_summary = manifest["deliverable_gap_summary"]
