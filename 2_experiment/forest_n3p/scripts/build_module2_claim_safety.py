@@ -1179,6 +1179,13 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- `{requirement_id}`: status=`{row['status']}`, complete=`{row['complete']}`, "
             f"paper_result_input_allowed_now=`{row['paper_result_input_allowed_now']}`"
         )
+    lines.extend(["", "## Status Report Remaining Deliverables Acceptance Matrix", ""])
+    remaining = manifest["status_report_remaining_deliverables_acceptance_summary"]
+    lines.append(f"- present=`{remaining['present']}`")
+    lines.append(f"- status=`{remaining['status']}`")
+    lines.append(f"- matrix_row_count=`{remaining['matrix_row_count']}`")
+    lines.append(f"- missing_row_count=`{remaining['missing_row_count']}`")
+    lines.append(f"- blocked_category_count=`{remaining['blocked_category_count']}`")
     lines.extend(["", "## Prohibited Claims", ""])
     for claim in manifest["prohibited_claims"]:
         lines.append(f"- `{claim['claim_id']}`: not allowed; patterns={', '.join(claim['patterns'])}")
