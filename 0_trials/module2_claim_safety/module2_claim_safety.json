@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_claim_safety",
   "status": "blocked_formal_performance_claims",
-  "created_at_utc": "2026-07-04T17:59:59.003198+00:00",
-  "source_head": "a79e686496ad84c85dafbf3421ba4b2a46b4998f",
+  "created_at_utc": "2026-07-04T18:13:30.233603+00:00",
+  "source_head": "cc62641f843986bd4f33904a9c6d6fea8b5b5ebd",
   "formal_performance_claim_allowed": false,
   "formal_performance_blockers": [
     "paper_tables_not_formal",
@@ -75,7 +75,10 @@
     "status_report_remote_preflight_requirement_blocked_count": 2,
     "status_report_post_run_acceptance_requirement_present": true,
     "status_report_post_run_acceptance_requirement_satisfied_count": 0,
-    "status_report_post_run_acceptance_requirement_blocked_count": 4
+    "status_report_post_run_acceptance_requirement_blocked_count": 4,
+    "status_report_h02_formal_acceptance_requirement_present": true,
+    "status_report_h02_formal_acceptance_requirement_satisfied_count": 1,
+    "status_report_h02_formal_acceptance_requirement_blocked_count": 3
   },
   "status_report_handoff_summary": {
     "present": true,
@@ -299,6 +302,81 @@
           "acceptable_evidence_count": 3,
           "invalid_substitute_count": 3
         }
+      }
+    }
+  },
+  "status_report_h02_acceptance_requirement_summary": {
+    "present": true,
+    "required_requirement_count": 4,
+    "present_requirement_count": 4,
+    "blocked_requirement_count": 3,
+    "status_counts": {
+      "satisfied": 1,
+      "blocked_formal_acceptance": 3
+    },
+    "missing_requirement_ids": [],
+    "requirements": {
+      "h01_schema_and_h02_output_schema_match": {
+        "present": true,
+        "status": "satisfied",
+        "phase": "schema_acceptance",
+        "complete": true,
+        "paper_result_input_allowed_now": false,
+        "missing_artifact_ids": [],
+        "acceptable_evidence_count": 3,
+        "invalid_substitute_count": 3
+      },
+      "h02_formal_scope_and_scale_match_h01": {
+        "present": true,
+        "status": "blocked_formal_acceptance",
+        "phase": "formal_scope",
+        "complete": false,
+        "paper_result_input_allowed_now": false,
+        "missing_artifact_ids": [
+          "h02_verdict_formal_acceptance_true",
+          "h01_manifest_ready",
+          "h01_blocker_f02_6_warm_start_decision_pending",
+          "h01_blocker_missing_module2_rl_rs_checkpoint",
+          "remote_execution_packet_ready",
+          "remote_packet_blocker_requires_dr_sun_approval",
+          "remote_packet_blocker_f02_6_warm_start_decision_pending",
+          "remote_packet_blocker_missing_module2_rl_rs_checkpoint",
+          "h02_scale_satisfies_h01"
+        ],
+        "acceptable_evidence_count": 3,
+        "invalid_substitute_count": 3
+      },
+      "gate3_audit_and_pullback_acceptance": {
+        "present": true,
+        "status": "blocked_formal_acceptance",
+        "phase": "remote_acceptance",
+        "complete": false,
+        "paper_result_input_allowed_now": false,
+        "missing_artifact_ids": [
+          "gate3_formal_audit_json",
+          "remote_pullback_artifacts",
+          "pullback_missing_1",
+          "pullback_missing_2",
+          "pullback_missing_3",
+          "pullback_missing_4",
+          "pullback_missing_5",
+          "pullback_missing_6",
+          "pullback_missing_7"
+        ],
+        "acceptable_evidence_count": 3,
+        "invalid_substitute_count": 3
+      },
+      "ppo_rows_and_checkpoint_hash_present": {
+        "present": true,
+        "status": "blocked_formal_acceptance",
+        "phase": "result_rows",
+        "complete": false,
+        "paper_result_input_allowed_now": false,
+        "missing_artifact_ids": [
+          "ppo_result_rows"
+        ],
+        "acceptable_evidence_count": 3,
+        "invalid_substitute_count": 3
       }
     }
   },

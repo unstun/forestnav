@@ -85,6 +85,16 @@
 - `gate3_formal_audit_accepts_remote_run`: status=`blocked_until_remote_audit`, complete=`False`, execution_allowed_now=`False`, remote_training_ready_now=`False`
 - `h01_h02_regenerated_from_audited_checkpoint`: status=`blocked_until_remote_audit`, complete=`False`, execution_allowed_now=`False`, remote_training_ready_now=`False`
 
+## Status Report H02 Acceptance Requirement Matrix
+
+- present=`True`
+- status_counts=`{'satisfied': 1, 'blocked_formal_acceptance': 3}`
+- blocked_requirement_count=`3`
+- `h01_schema_and_h02_output_schema_match`: status=`satisfied`, complete=`True`, paper_result_input_allowed_now=`False`
+- `h02_formal_scope_and_scale_match_h01`: status=`blocked_formal_acceptance`, complete=`False`, paper_result_input_allowed_now=`False`
+- `gate3_audit_and_pullback_acceptance`: status=`blocked_formal_acceptance`, complete=`False`, paper_result_input_allowed_now=`False`
+- `ppo_rows_and_checkpoint_hash_present`: status=`blocked_formal_acceptance`, complete=`False`, paper_result_input_allowed_now=`False`
+
 ## Prohibited Claims
 
 - `global_optimality`: not allowed; patterns=全局最优, globally optimal, global optimality

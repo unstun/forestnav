@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `4368599f29da0e63bc272d3ef2facfcc942c5d47+dirty`
+- source_head: `cc62641f843986bd4f33904a9c6d6fea8b5b5ebd+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -39,6 +39,8 @@ This file is a read-only formal-gate status report. It does not execute commands
 - h01_status: `blocked_pending_decisions`
 - h02_status: `blocked_formal_output_acceptance`
 - h02_formal_output_accepted: `False`
+- h02_formal_acceptance_requirement_satisfied_count: `1`
+- h02_formal_acceptance_requirement_blocked_count: `3`
 - claim_safety_status: `blocked_formal_performance_claims`
 - claim_safety_formal_performance_claim_allowed: `False`
 - paper_readiness_status: `partial_methods_ready_results_blocked`
@@ -118,6 +120,16 @@ This file is a read-only formal-gate status report. It does not execute commands
 - `checkpoint_hash_manifest_recorded`: status=`blocked_until_remote_audit`, complete=`False`, remote_training_ready_now=`False`
 - `gate3_formal_audit_accepts_remote_run`: status=`blocked_until_remote_audit`, complete=`False`, remote_training_ready_now=`False`
 - `h01_h02_regenerated_from_audited_checkpoint`: status=`blocked_until_remote_audit`, complete=`False`, remote_training_ready_now=`False`
+
+## H02 Formal Acceptance Requirement Matrix
+
+- present: `True`
+- status_counts: `{'satisfied': 1, 'blocked_formal_acceptance': 3}`
+- blocked_requirement_count: `3`
+- `h01_schema_and_h02_output_schema_match`: status=`satisfied`, complete=`True`, paper_result_input_allowed_now=`False`
+- `h02_formal_scope_and_scale_match_h01`: status=`blocked_formal_acceptance`, complete=`False`, paper_result_input_allowed_now=`False`
+- `gate3_audit_and_pullback_acceptance`: status=`blocked_formal_acceptance`, complete=`False`, paper_result_input_allowed_now=`False`
+- `ppo_rows_and_checkpoint_hash_present`: status=`blocked_formal_acceptance`, complete=`False`, paper_result_input_allowed_now=`False`
 
 ## Closure Remote Stages
 

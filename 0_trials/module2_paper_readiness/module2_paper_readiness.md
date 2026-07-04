@@ -58,6 +58,12 @@
 - claim_safety_post_run_acceptance_requirement_satisfied_count: `0`
 - claim_safety_post_run_acceptance_requirement_blocked_count: `4`
 
+## Claim Safety H02 Acceptance Requirement Matrix
+
+- claim_safety_h02_formal_acceptance_requirement_present: `True`
+- claim_safety_h02_formal_acceptance_requirement_satisfied_count: `1`
+- claim_safety_h02_formal_acceptance_requirement_blocked_count: `3`
+
 ## Section Readiness
 
 ### method_algorithm
