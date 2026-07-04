@@ -1063,6 +1063,69 @@ def _claim_safety_remaining_deliverables_gap_summary_payload(*, formal):
     }
 
 
+def _claim_safety_remaining_deliverables_proof_command_plan_payload():
+    rows = {
+        "training:train_final_model_zip": [
+            "train_final_model_zip_exists_nonempty",
+            "train_final_model_zip_valid_zip",
+        ],
+        "training:train_summary_json": [
+            "train_summary_json_exists_nonempty",
+            "train_summary_json_formal_warm_start_metadata",
+        ],
+        "training:train_training_manifest_json": [
+            "train_training_manifest_json_exists_nonempty",
+            "train_training_manifest_json_provenance",
+        ],
+        "evaluation:eval_gate3_eval_episodes_csv": [
+            "eval_gate3_eval_episodes_csv_exists_nonempty",
+            "eval_gate3_eval_episodes_csv_schema",
+        ],
+        "evaluation:eval_gate3_summary_json": [
+            "eval_gate3_summary_json_exists_nonempty",
+            "eval_gate3_summary_json_formal_scope",
+        ],
+        "acceptance:gate3_trial_manifest_json": [
+            "gate3_trial_manifest_json_exists_nonempty",
+            "gate3_trial_manifest_json_formal_warm_start_scope",
+        ],
+        "acceptance:gate3_formal_audit_json": [
+            "gate3_formal_audit_json_exists_nonempty",
+            "gate3_formal_audit_json_accepts_formal_scope",
+        ],
+        "acceptance:pulled_back_checkpoint_hash_record": [
+            "pulled_back_checkpoint_hash_record_exists_nonempty",
+            "pulled_back_checkpoint_hash_record_matches_model",
+        ],
+        "formal_acceptance:h01_ready_for_formal_run": [
+            "h01_ready_for_formal_run_exists_nonempty",
+            "h01_ready_for_formal_run_status",
+        ],
+        "formal_acceptance:h02_formal_output_acceptance": [
+            "h02_formal_output_acceptance_exists_nonempty",
+            "h02_formal_output_acceptance_status",
+        ],
+    }
+    return {
+        "present": True,
+        "plan_id": "module2_formal_gate_local_read_only_proof_commands",
+        "execution_boundary": "local_read_only_after_formal_remote_pullback",
+        "not_paper_result_material": True,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "total_matrix_rows": len(rows),
+        "total_proof_command_count": sum(len(command_ids) for command_ids in rows.values()),
+        "rows": {
+            matrix_id: {
+                "present": True,
+                "proof_command_count": len(command_ids),
+                "proof_command_ids": command_ids,
+            }
+            for matrix_id, command_ids in rows.items()
+        },
+    }
+
+
 def _claim_safety_command_index_summary_payload():
     rows = {
         f"source_target_{index}": {
