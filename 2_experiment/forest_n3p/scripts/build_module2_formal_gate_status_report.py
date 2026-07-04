@@ -79,6 +79,10 @@ REMAINING_DELIVERABLE_ACCEPTANCE_MATRIX_IDS = {
         "h02_formal_output_acceptance",
     ),
 }
+CLAIM_GATE_REGENERATION_ARTIFACT_IDS = (
+    "claim_safety",
+    "paper_readiness",
+)
 
 
 @dataclass(frozen=True)
@@ -170,6 +174,9 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     formal_gate_gap_audit_remaining_deliverables_gap_summary = (
         _formal_gate_gap_audit_remaining_deliverables_gap_summary(formal_gate)
     )
+    remote_packet_safety_claim_gate_command_index_summary = (
+        _formal_gate_remote_packet_safety_claim_gate_command_index_summary(formal_gate)
+    )
 
     input_safety_issues = _input_safety_issues(
         {
@@ -206,6 +213,9 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             formal_gate=formal_gate,
             formal_gate_gap_summary=formal_gate_gap_audit_remaining_deliverables_gap_summary,
             ledger_gap_summary=remaining_deliverables_gap_summary,
+        )
+        + _formal_gate_remote_packet_safety_claim_gate_command_index_issues(
+            remote_packet_safety_claim_gate_command_index_summary
         )
     )
     lanes = _lanes(
@@ -339,6 +349,18 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "formal_gate_gap_audit_remaining_open_category_count": formal_gate_gap_audit_remaining_deliverables_gap_summary[
                 "open_category_count"
             ],
+            "remote_packet_safety_command_index_present": remote_packet_safety_claim_gate_command_index_summary[
+                "present"
+            ],
+            "remote_packet_safety_command_index_row_count": remote_packet_safety_claim_gate_command_index_summary[
+                "index_row_count"
+            ],
+            "remote_packet_safety_command_index_source_target_count": remote_packet_safety_claim_gate_command_index_summary[
+                "source_target_count"
+            ],
+            "remote_packet_safety_command_index_missing_target_count": len(
+                remote_packet_safety_claim_gate_command_index_summary["missing_target_ids"]
+            ),
         },
         "permissions_now": permissions,
         "missing_counts_by_category": missing_artifacts.get("missing_counts_by_category") if isinstance(missing_artifacts.get("missing_counts_by_category"), dict) else {},
@@ -361,6 +383,9 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "remaining_deliverables_gap_summary": remaining_deliverables_gap_summary,
         "formal_gate_gap_audit_remaining_deliverables_gap_summary": (
             formal_gate_gap_audit_remaining_deliverables_gap_summary
+        ),
+        "remote_packet_safety_claim_gate_command_index_summary": (
+            remote_packet_safety_claim_gate_command_index_summary
         ),
         "formal_gate_lanes": lanes,
         "next_blocked_lane": _next_blocked_lane(lanes),
@@ -1323,6 +1348,102 @@ def _gap_signature(summary: dict[str, Any]) -> dict[str, Any]:
             if isinstance(value, dict)
         },
     }
+
+
+def _formal_gate_remote_packet_safety_claim_gate_command_index_summary(formal_gate: dict[str, Any]) -> dict[str, Any]:
+    remote_safety = formal_gate.get("remote_packet_safety") if isinstance(formal_gate.get("remote_packet_safety"), dict) else {}
+    summary = (
+        remote_safety.get("claim_gate_command_index_summary")
+        if isinstance(remote_safety.get("claim_gate_command_index_summary"), dict)
+        else {}
+    )
+    rows = summary.get("claim_gate_rows") if isinstance(summary.get("claim_gate_rows"), dict) else {}
+    claim_gate_rows: dict[str, dict[str, Any]] = {}
+    for artifact_id in CLAIM_GATE_REGENERATION_ARTIFACT_IDS:
+        row = rows.get(artifact_id) if isinstance(rows.get(artifact_id), dict) else {}
+        claim_gate_rows[artifact_id] = {
+            "present": bool(row.get("present")),
+            "stage_id": row.get("stage_id"),
+            "required_before": row.get("required_before"),
+            "command_kind": row.get("command_kind"),
+            "command_template": row.get("command_template"),
+        }
+    return {
+        "present": bool(summary.get("present")),
+        "index_row_count": int(summary.get("index_row_count") or 0),
+        "source_target_count": int(summary.get("source_target_count") or 0),
+        "missing_target_ids": _strings(summary.get("missing_target_ids")),
+        "unknown_manual_count": int(summary.get("unknown_manual_count") or 0),
+        "unknown_manual_ids": _strings(summary.get("unknown_manual_ids")),
+        "forbidden_command_count": int(summary.get("forbidden_command_count") or 0),
+        "forbidden_command_ids": _strings(summary.get("forbidden_command_ids")),
+        "claim_gate_rows": claim_gate_rows,
+    }
+
+
+def _formal_gate_remote_packet_safety_claim_gate_command_index_issues(
+    summary: dict[str, Any],
+) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    if not summary["present"]:
+        return [
+            _issue(
+                "formal_gate_missing_remote_packet_safety_command_index_summary",
+                "formal gate must forward remote packet safety claim-gate command index summary.",
+            )
+        ]
+    if summary["missing_target_ids"]:
+        issues.append(
+            _issue(
+                "formal_gate_remote_packet_safety_command_index_missing_targets",
+                "remote packet safety command index reports missing source targets.",
+            )
+        )
+    if summary["unknown_manual_count"] > 0:
+        issues.append(
+            _issue(
+                "formal_gate_remote_packet_safety_command_index_unknown_manual_rows",
+                "remote packet safety command index reports unknown manual rows.",
+            )
+        )
+    if summary["forbidden_command_count"] > 0:
+        issues.append(
+            _issue(
+                "formal_gate_remote_packet_safety_command_index_forbidden_commands",
+                "remote packet safety command index contains forbidden execution commands.",
+            )
+        )
+    for artifact_id, row in summary["claim_gate_rows"].items():
+        if not row["present"]:
+            issues.append(
+                _issue(
+                    f"formal_gate_remote_packet_safety_command_index_missing_{artifact_id}",
+                    f"remote packet safety command index must include {artifact_id}.",
+                )
+            )
+            continue
+        if row["stage_id"] != "regenerate_claim_gate_artifacts":
+            issues.append(
+                _issue(
+                    f"formal_gate_remote_packet_safety_command_index_{artifact_id}_wrong_stage",
+                    f"{artifact_id} must regenerate in regenerate_claim_gate_artifacts.",
+                )
+            )
+        if row["required_before"] != "formal_claim_gate":
+            issues.append(
+                _issue(
+                    f"formal_gate_remote_packet_safety_command_index_{artifact_id}_wrong_required_before",
+                    f"{artifact_id} must be required before formal_claim_gate.",
+                )
+            )
+        if row["command_kind"] == "unknown_manual":
+            issues.append(
+                _issue(
+                    f"formal_gate_remote_packet_safety_command_index_{artifact_id}_manual_command",
+                    f"{artifact_id} must use a known builder command in the safety command index.",
+                )
+            )
+    return issues
 
 
 def _remaining_deliverables_acceptance_issues(
