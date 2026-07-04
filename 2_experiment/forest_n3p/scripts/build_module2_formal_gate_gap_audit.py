@@ -691,7 +691,27 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- oracle_connector_results_match: `{manifest['remote_readiness']['oracle_connector_results_match']}`",
         f"- obstacle_summary_bc_checkpoint_match: `{manifest['remote_readiness']['obstacle_summary_bc_checkpoint_match']}`",
         "",
+        "## Source Freshness",
+        "",
+        f"- path: `{manifest['source_freshness']['path']}`",
+        f"- status: `{manifest['source_freshness']['status']}`",
+        f"- runs_training: `{manifest['source_freshness']['runs_training']}`",
+        f"- runs_remote_preflight: `{manifest['source_freshness']['runs_remote_preflight']}`",
+        f"- formal_claim_allowed: `{manifest['source_freshness']['formal_claim_allowed']}`",
+        f"- regeneration_required_before_remote_formal_execution: `{manifest['source_freshness']['regeneration_required_before_remote_formal_execution']}`",
+        f"- ordered_regeneration_target_count: `{manifest['source_freshness']['ordered_regeneration_target_count']}`",
+        "",
     ]
+    if manifest["source_freshness"]["ordered_regeneration_targets"]:
+        lines.extend(["### Source Freshness Regeneration Targets", ""])
+        for target in manifest["source_freshness"]["ordered_regeneration_targets"]:
+            if not isinstance(target, dict):
+                continue
+            lines.append(
+                f"- `{target.get('artifact_id')}`: `{target.get('freshness_state')}`, "
+                f"required before `{target.get('required_before')}`, path `{target.get('path')}`"
+            )
+        lines.append("")
     for title, key in [
         ("Decision Gaps", "missing_decision_items"),
         ("Training Artifact Gaps", "missing_training_artifacts"),
