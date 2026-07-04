@@ -1,0 +1,472 @@
+{
+  "schema_version": 1,
+  "artifact_name": "module2_reviewer_evidence_cards",
+  "status": "reviewer_evidence_cards_ready",
+  "created_at_utc": "2026-07-04T09:55:31.481262+00:00",
+  "source_head": "2af75aca871a342b8748b9656855a2b5f018390e+dirty",
+  "local_training_allowed": false,
+  "remote_training_resource": "gpu3070ti-relay",
+  "inputs": {
+    "evidence_map": "3_paper/module2_evidence_map/module2_manuscript_evidence_map.json"
+  },
+  "upstream_status": {
+    "evidence_map_status": "module2_manuscript_evidence_mapped",
+    "formal_performance_claim_allowed": false,
+    "f02_6_decision_status": "pending_human_decision",
+    "remote_execution_ready": false
+  },
+  "cards": [
+    {
+      "card_id": "method_is_ha_star_analytic_operator",
+      "paper_scope": "methods",
+      "claim_status": "allowed_method_structure",
+      "evidence_state": "mapped",
+      "reviewer_verdict": "claim_traceable_with_scope_limit",
+      "manuscript_anchors": [
+        {
+          "cue": "learned analytic-expansion operator inside",
+          "path": "3_paper/module2_section_seed/module2_paper_section_seed.tex",
+          "line": 8,
+          "cue_in_raw_line": true,
+          "cue_in_comment_stripped_line": true,
+          "excerpt": "Module2 is implemented as a learned analytic-expansion operator inside the existing Hybrid A* search loop. The operator is invoked only at the planner's analytic-expansion hook; it rolls out steering actions from the current search node, th"
+        },
+        {
+          "cue": "not a standalone global planner",
+          "path": "3_paper/module2_section_seed/module2_paper_section_seed.tex",
+          "line": 8,
+          "cue_in_raw_line": true,
+          "cue_in_comment_stripped_line": true,
+          "excerpt": "Module2 is implemented as a learned analytic-expansion operator inside the existing Hybrid A* search loop. The operator is invoked only at the planner's analytic-expansion hook; it rolls out steering actions from the current search node, th"
+        },
+        {
+          "cue": "terminal RS",
+          "path": "3_paper/module2_section_seed/module2_paper_section_seed.tex",
+          "line": 11,
+          "cue_in_raw_line": true,
+          "cue_in_comment_stripped_line": true,
+          "excerpt": "Figure caption seed: RL-RS analytic expansion is placed inside the Hybrid A* loop. The figure should show the analytic trigger, custom operator dispatch, checkpoint-policy rollout, terminal RS certificate, accepted shortcut path, and fallba"
+        }
+      ],
+      "primary_evidence": [
+        {
+          "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
+          "artifact_name": "module2_claim_safety",
+          "status": "blocked_formal_performance_claims",
+          "allowed_claim_present": true
+        },
+        {
+          "path": "0_trials/module2_method_algorithms/module2_method_algorithms.json",
+          "artifact_name": "module2_method_algorithms",
+          "status": "code_anchored",
+          "status_required": "code_anchored"
+        },
+        {
+          "path": "0_trials/module2_system_diagram/module2_system_diagram.json",
+          "artifact_name": "module2_system_diagram",
+          "status": "code_anchored_drawio",
+          "status_required": "code_anchored_drawio"
+        },
+        {
+          "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
+          "artifact_name": null,
+          "status": "ready_to_write",
+          "section_id": "method_algorithm",
+          "blockers": []
+        },
+        {
+          "path": "3_paper/module2_section_seed/module2_paper_section_seed.json",
+          "artifact_name": null,
+          "status": "draft_ready",
+          "section_id": "methods_rl_rs_operator",
+          "blockers": []
+        }
+      ],
+      "code_anchors": [
+        {
+          "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+          "line": 129,
+          "symbol": "HybridAStarPlanner.__init__",
+          "pattern": "analytic_expansion_operator=None",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+          "line": 175,
+          "symbol": "HybridAStarPlanner.__init__",
+          "pattern": "self.analytic_expansion_operator = analytic_expansion_operator",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/main_evaluation.py",
+          "line": 70,
+          "symbol": "main_evaluation.RL_RS_OPERATOR_METHODS",
+          "pattern": "RL_RS_OPERATOR_METHODS = (",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+          "line": 296,
+          "symbol": "HybridAStarPlanner._try_analytic_expansion",
+          "pattern": "return self._try_custom_analytic_expansion(state, goal)",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+          "line": 301,
+          "symbol": "HybridAStarPlanner._try_custom_analytic_expansion",
+          "pattern": "result = self.analytic_expansion_operator.try_connect",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/checkpoint_operator.py",
+          "line": 55,
+          "symbol": "load_rl_rs_funnel_operator_from_checkpoint",
+          "pattern": "def load_rl_rs_funnel_operator_from_checkpoint",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/checkpoint_operator.py",
+          "line": 77,
+          "symbol": "load_rl_rs_funnel_operator_from_checkpoint",
+          "pattern": "sha256 = file_sha256(path)",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/checkpoint_operator.py",
+          "line": 85,
+          "symbol": "load_rl_rs_funnel_operator_from_checkpoint",
+          "pattern": "return RlRsFunnelOperator(",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+          "line": 81,
+          "symbol": "RlRsFunnelOperator.try_connect",
+          "pattern": "def try_connect(",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+          "line": 87,
+          "symbol": "RlRsFunnelOperator.try_connect",
+          "pattern": "env_context = self._env_context",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+          "line": 89,
+          "symbol": "RlRsFunnelOperator.try_connect",
+          "pattern": "observation = env.reset(env_context)",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/env.py",
+          "line": 156,
+          "symbol": "AnalyticExpansionEnv.reset",
+          "pattern": "def reset(",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+          "line": 97,
+          "symbol": "RlRsFunnelOperator.try_connect",
+          "pattern": "action = self.action_policy(observation)",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+          "line": 99,
+          "symbol": "RlRsFunnelOperator.try_connect",
+          "pattern": "step = env.step(action, nn_forward_time_s=policy_elapsed)",
+          "source_artifact": "module2_method_algorithms"
+        }
+      ],
+      "metric_values": {},
+      "paper_blockers": [],
+      "mapping_blockers": [],
+      "writing_instruction": "Can be used only with the listed scope/qualifier and cited against the primary evidence artifacts."
+    },
+    {
+      "card_id": "no_warm_gate3_formal_failure",
+      "paper_scope": "scoped_negative_training_dynamics_note",
+      "claim_status": "allowed_with_no_warm_scope_limit",
+      "evidence_state": "mapped",
+      "reviewer_verdict": "claim_traceable_with_scope_limit",
+      "manuscript_anchors": [
+        {
+          "cue": "No-warm PPO Gate",
+          "path": "3_paper/module2_section_seed/module2_paper_section_seed.tex",
+          "line": 14,
+          "cue_in_raw_line": true,
+          "cue_in_comment_stripped_line": true,
+          "excerpt": "No-warm PPO Gate \\#3 formal trial failed: terminal-RS success rate was 0.453125 over 64 episodes, below threshold 0.8. This does not evaluate obstacle-summary warm-start PPO and does not reject the whole RL-RS direction. This scoped result "
+        },
+        {
+          "cue": "0.453125",
+          "path": "3_paper/module2_section_seed/module2_paper_section_seed.tex",
+          "line": 14,
+          "cue_in_raw_line": true,
+          "cue_in_comment_stripped_line": true,
+          "excerpt": "No-warm PPO Gate \\#3 formal trial failed: terminal-RS success rate was 0.453125 over 64 episodes, below threshold 0.8. This does not evaluate obstacle-summary warm-start PPO and does not reject the whole RL-RS direction. This scoped result "
+        },
+        {
+          "cue": "does not evaluate obstacle-summary warm-start",
+          "path": "3_paper/module2_section_seed/module2_paper_section_seed.tex",
+          "line": 14,
+          "cue_in_raw_line": true,
+          "cue_in_comment_stripped_line": true,
+          "excerpt": "No-warm PPO Gate \\#3 formal trial failed: terminal-RS success rate was 0.453125 over 64 episodes, below threshold 0.8. This does not evaluate obstacle-summary warm-start PPO and does not reject the whole RL-RS direction. This scoped result "
+        },
+        {
+          "cue": "Formal performance claims remain blocked",
+          "path": "3_paper/module2_section_seed/module2_paper_section_seed.tex",
+          "line": 14,
+          "cue_in_raw_line": true,
+          "cue_in_comment_stripped_line": true,
+          "excerpt": "No-warm PPO Gate \\#3 formal trial failed: terminal-RS success rate was 0.453125 over 64 episodes, below threshold 0.8. This does not evaluate obstacle-summary warm-start PPO and does not reject the whole RL-RS direction. This scoped result "
+        }
+      ],
+      "primary_evidence": [
+        {
+          "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
+          "artifact_name": "module2_claim_safety",
+          "status": "blocked_formal_performance_claims",
+          "allowed_claim_present": true
+        },
+        {
+          "path": "0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/gate3_formal_audit.json",
+          "artifact_name": null,
+          "status": "fail",
+          "formal_decision": "fail",
+          "terminal_rs_success_rate": 0.453125,
+          "episodes": 64,
+          "success_threshold": 0.8
+        },
+        {
+          "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
+          "artifact_name": null,
+          "status": "ready_with_scope_limit",
+          "section_id": "no_warm_failure_claim",
+          "blockers": []
+        },
+        {
+          "path": "3_paper/module2_section_seed/module2_paper_section_seed.json",
+          "artifact_name": null,
+          "status": "draft_ready_with_scope_limit",
+          "section_id": "no_warm_gate3_failure_note",
+          "blockers": []
+        }
+      ],
+      "code_anchors": [],
+      "metric_values": {
+        "terminal_rs_success_rate": 0.453125,
+        "episodes": 64,
+        "success_threshold": 0.8
+      },
+      "paper_blockers": [],
+      "mapping_blockers": [],
+      "writing_instruction": "Can be used only with the listed scope/qualifier and cited against the primary evidence artifacts."
+    },
+    {
+      "card_id": "formal_results_blocked",
+      "paper_scope": "results_placeholder",
+      "claim_status": "blocked_placeholder_not_a_result_claim",
+      "evidence_state": "blocked_as_expected",
+      "reviewer_verdict": "blocked_placeholder_traceable",
+      "manuscript_anchors": [
+        {
+          "cue": "Formal performance claims remain blocked",
+          "path": "3_paper/module2_section_seed/module2_paper_section_seed.tex",
+          "line": 14,
+          "cue_in_raw_line": true,
+          "cue_in_comment_stripped_line": true,
+          "excerpt": "No-warm PPO Gate \\#3 formal trial failed: terminal-RS success rate was 0.453125 over 64 episodes, below threshold 0.8. This does not evaluate obstacle-summary warm-start PPO and does not reject the whole RL-RS direction. This scoped result "
+        },
+        {
+          "cue": "% BLOCKED: formal_results",
+          "path": "3_paper/module2_section_seed/module2_paper_section_seed.tex",
+          "line": 16,
+          "cue_in_raw_line": true,
+          "cue_in_comment_stripped_line": false,
+          "excerpt": "% BLOCKED: formal_results :: paper_tables_not_formal, h02_verdict_not_formal, h02_formal_acceptance_not_accepted, h01_manifest_not_ready, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_execution_packet_not_ready"
+        }
+      ],
+      "primary_evidence": [
+        {
+          "path": "3_paper/module2_claim_audit/module2_manuscript_claim_audit.json",
+          "artifact_name": "module2_manuscript_claim_audit",
+          "status": "maintex_module2_claim_audit_passed",
+          "required_status": "maintex_module2_claim_audit_passed"
+        },
+        {
+          "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
+          "artifact_name": "module2_claim_safety",
+          "status": "blocked_formal_performance_claims",
+          "formal_performance_claim_allowed": false
+        },
+        {
+          "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
+          "artifact_name": null,
+          "status": "blocked",
+          "section_id": "formal_results",
+          "blockers": [
+            "paper_tables_not_formal",
+            "h02_verdict_not_formal",
+            "h02_formal_acceptance_not_accepted",
+            "h01_manifest_not_ready",
+            "f02_6_warm_start_decision_pending",
+            "missing_module2_rl_rs_checkpoint",
+            "remote_execution_packet_not_ready",
+            "requires_dr_sun_approval",
+            "missing_gate3_formal_audit",
+            "h02_scale_below_h01_manifest",
+            "missing_ppo_result_rows",
+            "missing_remote_pullback_artifacts",
+            "f02_6_formal_chain_pending",
+            "claim_safety_blocks_formal_performance",
+            "f02_6_pending"
+          ]
+        },
+        {
+          "path": "3_paper/module2_section_seed/module2_paper_section_seed.json",
+          "artifact_name": null,
+          "status": "blocked",
+          "section_id": "formal_results",
+          "blockers": [
+            "paper_tables_not_formal",
+            "h02_verdict_not_formal",
+            "h02_formal_acceptance_not_accepted",
+            "h01_manifest_not_ready",
+            "f02_6_warm_start_decision_pending",
+            "missing_module2_rl_rs_checkpoint",
+            "remote_execution_packet_not_ready",
+            "requires_dr_sun_approval",
+            "missing_gate3_formal_audit",
+            "h02_scale_below_h01_manifest",
+            "missing_ppo_result_rows",
+            "missing_remote_pullback_artifacts",
+            "f02_6_formal_chain_pending",
+            "claim_safety_blocks_formal_performance",
+            "f02_6_pending"
+          ]
+        }
+      ],
+      "code_anchors": [],
+      "metric_values": {},
+      "paper_blockers": [
+        "paper_tables_not_formal",
+        "h02_verdict_not_formal",
+        "h02_formal_acceptance_not_accepted",
+        "h01_manifest_not_ready",
+        "f02_6_warm_start_decision_pending",
+        "missing_module2_rl_rs_checkpoint",
+        "remote_execution_packet_not_ready",
+        "requires_dr_sun_approval",
+        "missing_gate3_formal_audit",
+        "h02_scale_below_h01_manifest",
+        "missing_ppo_result_rows",
+        "missing_remote_pullback_artifacts",
+        "f02_6_formal_chain_pending",
+        "claim_safety_blocks_formal_performance",
+        "f02_6_pending"
+      ],
+      "mapping_blockers": [],
+      "writing_instruction": "Do not write this as a result claim; keep it as a blocked placeholder until the listed blockers close."
+    },
+    {
+      "card_id": "warm_start_effect_blocked",
+      "paper_scope": "warm_start_placeholder",
+      "claim_status": "blocked_placeholder_pending_f02_6",
+      "evidence_state": "blocked_as_expected",
+      "reviewer_verdict": "blocked_placeholder_traceable",
+      "manuscript_anchors": [
+        {
+          "cue": "% BLOCKED: warm_start_effect",
+          "path": "3_paper/module2_section_seed/module2_paper_section_seed.tex",
+          "line": 17,
+          "cue_in_raw_line": true,
+          "cue_in_comment_stripped_line": false,
+          "excerpt": "% BLOCKED: warm_start_effect :: f02_6_not_approved, requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint"
+        },
+        {
+          "cue": "does not evaluate obstacle-summary warm-start",
+          "path": "3_paper/module2_section_seed/module2_paper_section_seed.tex",
+          "line": 14,
+          "cue_in_raw_line": true,
+          "cue_in_comment_stripped_line": true,
+          "excerpt": "No-warm PPO Gate \\#3 formal trial failed: terminal-RS success rate was 0.453125 over 64 episodes, below threshold 0.8. This does not evaluate obstacle-summary warm-start PPO and does not reject the whole RL-RS direction. This scoped result "
+        }
+      ],
+      "primary_evidence": [
+        {
+          "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
+          "artifact_name": null,
+          "status": "blocked",
+          "section_id": "warm_start_effect",
+          "blockers": [
+            "f02_6_not_approved",
+            "requires_dr_sun_approval",
+            "f02_6_warm_start_decision_pending",
+            "missing_module2_rl_rs_checkpoint"
+          ]
+        },
+        {
+          "path": "3_paper/module2_section_seed/module2_paper_section_seed.json",
+          "artifact_name": null,
+          "status": "blocked",
+          "section_id": "warm_start_effect",
+          "blockers": [
+            "f02_6_not_approved",
+            "requires_dr_sun_approval",
+            "f02_6_warm_start_decision_pending",
+            "missing_module2_rl_rs_checkpoint"
+          ]
+        },
+        {
+          "path": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+          "artifact_name": "module2_f02_6_decision_record",
+          "status": "pending_human_decision",
+          "required_status": "pending_human_decision",
+          "blockers": [
+            "requires_dr_sun_approval"
+          ]
+        },
+        {
+          "path": "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json",
+          "artifact_name": "module2_remote_formal_execution_packet",
+          "status": "blocked_until_f02_6_decision",
+          "ready_to_run_remote_training": false,
+          "blockers": [
+            "requires_dr_sun_approval",
+            "f02_6_warm_start_decision_pending",
+            "missing_module2_rl_rs_checkpoint"
+          ]
+        }
+      ],
+      "code_anchors": [],
+      "metric_values": {},
+      "paper_blockers": [
+        "f02_6_not_approved",
+        "requires_dr_sun_approval",
+        "f02_6_warm_start_decision_pending",
+        "missing_module2_rl_rs_checkpoint"
+      ],
+      "mapping_blockers": [],
+      "writing_instruction": "Do not write this as a result claim; keep it as a blocked placeholder until the listed blockers close."
+    }
+  ],
+  "blocking_reasons": [],
+  "verification_commands": [
+    "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_manuscript_evidence_map",
+    "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_reviewer_evidence_cards",
+    "PYTHONPATH=2_experiment pytest -q 2_experiment/forest_n3p/tests/test_module2_manuscript_evidence_map.py 2_experiment/forest_n3p/tests/test_module2_reviewer_evidence_cards.py",
+    "KMP_DUPLICATE_LIB_OK=TRUE PYTHONPATH=2_experiment pytest -q 2_experiment/forest_n3p/tests",
+    "cd 3_paper && pdflatex -interaction=nonstopmode -halt-on-error -draftmode -output-directory=/tmp/forestnav_module2_texcheck main.tex"
+  ],
+  "review_boundaries": [
+    "These cards are for reviewer-facing traceability, not formal performance evidence.",
+    "Cards with claim_status beginning with blocked_ are placeholders only and must not be rewritten as result claims.",
+    "No local training is allowed; formal PPO checkpoint production remains gated on F02.6 and gpu3070ti-relay."
+  ]
+}
