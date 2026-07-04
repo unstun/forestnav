@@ -47,6 +47,12 @@ STATUS_REPORT_POST_RUN_ACCEPTANCE_REQUIREMENT_IDS = (
     "gate3_formal_audit_accepts_remote_run",
     "h01_h02_regenerated_from_audited_checkpoint",
 )
+STATUS_REPORT_H02_FORMAL_ACCEPTANCE_REQUIREMENT_IDS = (
+    "h01_schema_and_h02_output_schema_match",
+    "h02_formal_scope_and_scale_match_h01",
+    "gate3_audit_and_pullback_acceptance",
+    "ppo_rows_and_checkpoint_hash_present",
+)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -115,6 +121,7 @@ def build_manifest(
     status_report_missing_artifacts_handoff_summary = _status_report_missing_artifacts_handoff_summary(status_report)
     status_report_requirement_stage_summary = _status_report_requirement_stage_summary(status_report)
     status_report_remote_requirement_summary = _status_report_remote_requirement_summary(status_report)
+    status_report_h02_acceptance_requirement_summary = _status_report_h02_acceptance_requirement_summary(status_report)
     formal_allowed = not formal_blockers
     prohibited = _prohibited_claims()
     allowed = _allowed_claims(
@@ -224,11 +231,21 @@ def build_manifest(
             "status_report_post_run_acceptance_requirement_blocked_count": status_report_remote_requirement_summary[
                 "post_run_acceptance_requirement_summary"
             ]["blocked_requirement_count"],
+            "status_report_h02_formal_acceptance_requirement_present": status_report_h02_acceptance_requirement_summary[
+                "present"
+            ],
+            "status_report_h02_formal_acceptance_requirement_satisfied_count": status_report_h02_acceptance_requirement_summary[
+                "status_counts"
+            ].get("satisfied", 0),
+            "status_report_h02_formal_acceptance_requirement_blocked_count": status_report_h02_acceptance_requirement_summary[
+                "blocked_requirement_count"
+            ],
         },
         "status_report_handoff_summary": status_report_handoff_summary,
         "status_report_missing_artifacts_handoff_summary": status_report_missing_artifacts_handoff_summary,
         "status_report_requirement_stage_summary": status_report_requirement_stage_summary,
         "status_report_remote_requirement_summary": status_report_remote_requirement_summary,
+        "status_report_h02_acceptance_requirement_summary": status_report_h02_acceptance_requirement_summary,
         "status_report_remote_gate_summary": status_report_remote_gate_summary,
         "allowed_claims": allowed,
         "conditional_claims": _conditional_claims(),
@@ -326,6 +343,7 @@ def _formal_performance_blockers(
     blockers.extend(_status_report_missing_artifacts_handoff_blockers(status_report))
     blockers.extend(_status_report_requirement_stage_blockers(status_report))
     blockers.extend(_status_report_remote_requirement_blockers(status_report))
+    blockers.extend(_status_report_h02_acceptance_requirement_blockers(status_report))
     blockers.extend(_status_report_remote_summary_blockers(status_report))
     return blockers
 
