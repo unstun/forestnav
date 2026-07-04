@@ -1514,8 +1514,42 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- next_blocked_lane_id: `{manifest['formal_gate_status_report']['next_blocked_lane_id']}`",
             f"- input_safety_issue_count: `{manifest['formal_gate_status_report']['input_safety_issue_count']}`",
             "",
+            "## Formal Gate Handoff",
+            "",
+            f"- path: `{manifest['formal_gate_handoff']['path']}`",
+            f"- status: `{manifest['formal_gate_handoff']['status']}`",
+            f"- executes_commands: `{manifest['formal_gate_handoff']['executes_commands']}`",
+            f"- runs_training: `{manifest['formal_gate_handoff']['runs_training']}`",
+            f"- runs_remote_preflight: `{manifest['formal_gate_handoff']['runs_remote_preflight']}`",
+            f"- remote_training_allowed_now: `{manifest['formal_gate_handoff']['remote_training_allowed_now']}`",
+            f"- formal_claim_allowed_now: `{manifest['formal_gate_handoff']['formal_claim_allowed_now']}`",
+            f"- safety_issue_count: `{manifest['formal_gate_handoff']['safety_issue_count']}`",
+            f"- next_handoff_action_id: `{manifest['formal_gate_handoff']['next_handoff_action_id']}`",
+            "",
+            "## Remote Packet Safety",
+            "",
+            f"- path: `{manifest['remote_packet_safety']['path']}`",
+            f"- status: `{manifest['remote_packet_safety']['status']}`",
+            f"- executes_commands: `{manifest['remote_packet_safety']['executes_commands']}`",
+            f"- runs_training: `{manifest['remote_packet_safety']['runs_training']}`",
+            f"- runs_remote_preflight: `{manifest['remote_packet_safety']['runs_remote_preflight']}`",
+            f"- packet_status: `{manifest['remote_packet_safety']['packet_status']}`",
+            f"- remote_training_allowed_now: `{manifest['remote_packet_safety']['remote_training_allowed_now']}`",
+            f"- audit_issue_count: `{manifest['remote_packet_safety']['audit_issue_count']}`",
+            "",
+            "## Execution Veto Matrix",
+            "",
+            f"- all_rows_consistent: `{manifest['execution_veto_matrix']['all_rows_consistent']}`",
+            f"- mismatch_rows: `{manifest['execution_veto_matrix']['mismatch_rows']}`",
+            "",
         ]
     )
+    for row in manifest["execution_veto_matrix"]["rows"]:
+        lines.append(
+            f"- `{row['row_id']}`: consistent=`{row['consistent']}`, "
+            f"consensus_allowed_now=`{row['consensus_allowed_now']}`, sources=`{row['allowed_now_by_source']}`"
+        )
+    lines.append("")
     for title, key in [
         ("Decision Gaps", "missing_decision_items"),
         ("Training Artifact Gaps", "missing_training_artifacts"),

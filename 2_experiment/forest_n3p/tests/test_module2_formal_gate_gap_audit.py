@@ -105,6 +105,8 @@ def test_formal_gate_gap_audit_can_be_clean_only_after_remote_artifacts_and_acce
             missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
             closure_checklist_path=_closure_checklist(tmp_path, complete=True),
             status_report_path=_status_report(tmp_path, ready=True),
+            handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
+            remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True),
         )
     )
 
@@ -135,6 +137,8 @@ def test_formal_gate_gap_audit_does_not_treat_expected_training_outputs_as_train
             missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
             closure_checklist_path=_closure_checklist(tmp_path, complete=True),
             status_report_path=_status_report(tmp_path, ready=True),
+            handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
+            remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True),
         )
     )
 
@@ -168,6 +172,8 @@ def test_formal_gate_gap_audit_blocks_remote_execution_when_readiness_inputs_do_
             missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
             closure_checklist_path=_closure_checklist(tmp_path, complete=True),
             status_report_path=_status_report(tmp_path, ready=True),
+            handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
+            remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True),
         )
     )
 
@@ -198,6 +204,8 @@ def test_formal_gate_gap_audit_blocks_remote_execution_when_source_freshness_req
             missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
             closure_checklist_path=_closure_checklist(tmp_path, complete=True),
             status_report_path=_status_report(tmp_path, ready=True),
+            handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
+            remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True),
         )
     )
 
@@ -229,6 +237,8 @@ def test_formal_gate_gap_audit_rejects_source_freshness_audit_that_runs_or_claim
             missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
             closure_checklist_path=_closure_checklist(tmp_path, complete=True),
             status_report_path=_status_report(tmp_path, ready=True),
+            handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
+            remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True),
         )
     )
 
@@ -257,6 +267,8 @@ def test_formal_gate_gap_audit_consumes_missing_artifacts_inventory(tmp_path):
             missing_artifacts_path=_missing_artifacts(tmp_path, complete=False),
             closure_checklist_path=_closure_checklist(tmp_path, complete=True),
             status_report_path=_status_report(tmp_path, ready=True),
+            handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
+            remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True),
         )
     )
 
@@ -288,6 +300,8 @@ def test_formal_gate_gap_audit_rejects_missing_artifacts_inventory_that_runs_or_
             missing_artifacts_path=_missing_artifacts(tmp_path, complete=True, invalid=True),
             closure_checklist_path=_closure_checklist(tmp_path, complete=True),
             status_report_path=_status_report(tmp_path, ready=True),
+            handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
+            remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True),
         )
     )
 
@@ -317,6 +331,8 @@ def test_formal_gate_gap_audit_consumes_closure_checklist(tmp_path):
             missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
             closure_checklist_path=_closure_checklist(tmp_path, complete=False),
             status_report_path=_status_report(tmp_path, ready=True),
+            handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
+            remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True),
         )
     )
 
@@ -348,6 +364,8 @@ def test_formal_gate_gap_audit_rejects_closure_checklist_that_runs_or_claims(tmp
             missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
             closure_checklist_path=_closure_checklist(tmp_path, complete=True, invalid=True),
             status_report_path=_status_report(tmp_path, ready=True),
+            handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
+            remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True),
         )
     )
 
@@ -378,6 +396,8 @@ def test_formal_gate_gap_audit_consumes_status_report(tmp_path):
             missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
             closure_checklist_path=_closure_checklist(tmp_path, complete=True),
             status_report_path=_status_report(tmp_path, ready=False),
+            handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
+            remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True),
         )
     )
 
@@ -409,6 +429,8 @@ def test_formal_gate_gap_audit_rejects_status_report_that_runs_or_claims(tmp_pat
             missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
             closure_checklist_path=_closure_checklist(tmp_path, complete=True),
             status_report_path=_status_report(tmp_path, ready=True, invalid=True),
+            handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
+            remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True),
         )
     )
 
@@ -440,6 +462,8 @@ def test_formal_gate_gap_audit_does_not_allow_local_training_even_when_remote_is
             missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
             closure_checklist_path=_closure_checklist(tmp_path, complete=True),
             status_report_path=_status_report(tmp_path, ready=True),
+            handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
+            remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True),
         )
     )
 
