@@ -4,7 +4,14 @@ import csv
 import numpy as np
 import pytest
 
-from forest_n3p.evaluation import evaluate_run, planner_run_from_path_stats, planner_run_from_result, write_evaluation_outputs
+from forest_n3p.evaluation import (
+    EvaluationRecord,
+    evaluate_run,
+    planner_run_from_path_stats,
+    planner_run_from_result,
+    summarize_by_method_bucket,
+    write_evaluation_outputs,
+)
 from forest_n3p.third_party.pathplan import GridMap, TwoCircleFootprint
 
 
@@ -214,3 +221,67 @@ def test_evaluation_outputs_expose_bc_operator_checkpoint_columns(tmp_path):
     assert rows[0]["rl_rollout_steps"] == "4"
     assert rows[0]["bc_checkpoint"] == "models/bc_checkpoint.pt"
     assert rows[0]["bc_checkpoint_sha256"] == "bc123"
+
+
+def test_summary_exposes_timeout_failure_rate_for_contract_metric():
+    rows = [
+        _record("q0", method="ha_dang_multi_rs", success=True, feasible=True, failure_reason=None),
+        _record("q1", method="ha_dang_multi_rs", success=False, feasible=False, failure_reason="timeout"),
+        _record("q2", method="ha_dang_multi_rs", success=False, feasible=False, failure_reason="collision"),
+    ]
+
+    summary = summarize_by_method_bucket(rows)[0]
+
+    assert summary.timeout_failure_count == 1
+    assert summary.timeout_failure_rate == pytest.approx(1.0 / 3.0)
+
+
+def _record(
+    query_id: str,
+    *,
+    method: str,
+    success: bool,
+    feasible: bool,
+    failure_reason: str | None,
+) -> EvaluationRecord:
+    return EvaluationRecord(
+        query_id=query_id,
+        method=method,
+        difficulty_bucket="Complex",
+        distance_bin_key="8:12",
+        success=success,
+        feasible=feasible,
+        total_time_s=1.0,
+        total_expansions=10,
+        path_length_m=None,
+        reference_path_length_m=None,
+        path_inflation_ratio=None,
+        direction_switches=0,
+        mean_abs_curvature=None,
+        min_clearance_m=None,
+        collision_violation_count=0,
+        fallback_f1_count=0,
+        fallback_f2_count=0,
+        fallback_f3_count=0,
+        fallback_triggered=False,
+        subgoal_reachable_count=None,
+        subgoal_attempt_count=None,
+        subgoal_reachability_rate=None,
+        analytic_operator=None,
+        analytic_attempts=None,
+        analytic_successes=None,
+        analytic_failure_count=None,
+        rl_rollout_steps=None,
+        rl_rollout_collision_checks=None,
+        rl_rollout_sample_time_s=None,
+        rl_rollout_collision_time_s=None,
+        terminal_rs_time_s=None,
+        terminal_rs_success_count=None,
+        terminal_rs_used_count=None,
+        terminal_rs_action_count=None,
+        bc_checkpoint=None,
+        bc_checkpoint_sha256=None,
+        rl_rs_checkpoint=None,
+        rl_rs_checkpoint_sha256=None,
+        failure_reason=failure_reason,
+    )
