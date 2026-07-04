@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_missing_artifacts_audit",
   "status": "formal_gate_missing_artifacts_open",
-  "created_at_utc": "2026-07-04T14:53:47.778377+00:00",
-  "source_head": "f2791f889d15b436d2615d8b55b7dc83b67216fd+dirty",
+  "created_at_utc": "2026-07-04T14:59:41.494096+00:00",
+  "source_head": "5c4bf4a43c55f74b14f893e8f64dec84eb9d66ad+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -149,7 +149,7 @@
           "artifact_id": "remote_formal_execution_packet",
           "path": "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json",
           "exists": true,
-          "state": "current_dirty",
+          "state": "historical_dirty",
           "missing": true,
           "required_before": "approved_remote_preflight",
           "reason": "source freshness audit requires regeneration before the corresponding formal gate"
@@ -158,7 +158,7 @@
           "artifact_id": "remote_packet_safety_audit",
           "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
           "exists": true,
-          "state": "current_dirty",
+          "state": "historical_dirty",
           "missing": true,
           "required_before": "approved_remote_preflight",
           "reason": "source freshness audit requires regeneration before the corresponding formal gate"
@@ -176,7 +176,7 @@
           "artifact_id": "h02_formal_acceptance",
           "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
           "exists": true,
-          "state": "historical_dirty",
+          "state": "current_dirty",
           "missing": true,
           "required_before": "formal_h01_h02",
           "reason": "source freshness audit requires regeneration before the corresponding formal gate"
@@ -194,7 +194,7 @@
           "artifact_id": "formal_gate_missing_artifacts",
           "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
           "exists": true,
-          "state": "historical_dirty",
+          "state": "current_dirty",
           "missing": true,
           "required_before": "formal_claim_gate",
           "reason": "source freshness audit requires regeneration before the corresponding formal gate"
@@ -455,7 +455,7 @@
           "artifact_id": "formal_gate_missing_artifacts",
           "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
           "exists": true,
-          "state": "historical_dirty",
+          "state": "current_dirty",
           "missing": true,
           "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
         },
