@@ -28,6 +28,12 @@ DEFAULT_ARTIFACTS = (
         "approved_remote_preflight",
     ),
     ArtifactTarget(
+        "f02_6_decision_gate_audit",
+        "decision",
+        Path("0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json"),
+        "approved_remote_preflight",
+    ),
+    ArtifactTarget(
         "remote_formal_execution_packet",
         "remote_execution",
         Path("0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json"),
@@ -67,6 +73,12 @@ DEFAULT_ARTIFACTS = (
         "post_f02_6_plan_audit",
         "formal_gate",
         Path("0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json"),
+        "approved_remote_preflight",
+    ),
+    ArtifactTarget(
+        "remote_packet_safety_audit",
+        "formal_gate",
+        Path("0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json"),
         "approved_remote_preflight",
     ),
     ArtifactTarget(
