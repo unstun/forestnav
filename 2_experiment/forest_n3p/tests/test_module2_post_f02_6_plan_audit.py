@@ -246,6 +246,59 @@ def test_post_f02_6_plan_audit_rejects_closure_checklist_that_runs_or_claims(tmp
     assert "closure_checklist_has_input_safety_issues" in issue_ids
 
 
+def test_post_f02_6_plan_audit_rejects_status_report_that_runs_or_claims(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
+
+    manifest = auditor.build_manifest(
+        auditor.PostF026PlanAuditConfig(
+            output_dir=tmp_path,
+            plan_path=_json(tmp_path, "plan.json", _plan_payload()),
+            formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate_payload()),
+            source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
+            missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
+            closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
+            status_report_path=_json(tmp_path, "status_report.json", _status_report_payload(ready=False, invalid=True)),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "formal_gate_status_report_executes_commands" in issue_ids
+    assert "formal_gate_status_report_runs_training" in issue_ids
+    assert "formal_gate_status_report_runs_preflight" in issue_ids
+    assert "formal_gate_status_report_allows_local_training" in issue_ids
+    assert "formal_gate_status_report_allows_claim" in issue_ids
+    assert "formal_gate_status_report_allows_local_training_now" in issue_ids
+    assert "formal_gate_status_report_claim_permission_inconsistent" in issue_ids
+    assert "formal_gate_status_report_has_input_safety_issues" in issue_ids
+
+
+def test_post_f02_6_plan_audit_catches_claim_gate_ready_with_blocked_status_report(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
+    plan = _plan_payload()
+    plan["current_gate_summary"]["f02_6_decision_status"] = "approved"
+    plan["status"] = "ready_for_claim_gate"
+    claim_stage = _stage(plan, "regenerate_claim_gate_artifacts")
+    claim_stage["allowed_now"] = True
+    claim_stage["status"] = "ready"
+    claim_stage["blocked_by"] = []
+
+    manifest = auditor.build_manifest(
+        auditor.PostF026PlanAuditConfig(
+            output_dir=tmp_path,
+            plan_path=_json(tmp_path, "plan.json", plan),
+            formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate_payload(decision_status="approved")),
+            source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
+            missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=False)),
+            closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=False)),
+            status_report_path=_json(tmp_path, "status_report.json", _status_report_payload(ready=False)),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "post_f02_6_plan_audit_failed"
+    assert "claim_gate_ready_with_blocked_status_report" in issue_ids
+
+
 def test_post_f02_6_plan_audit_cli_writes_json_and_markdown(tmp_path):
     auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
     manifest_path = tmp_path / "audit.json"
@@ -269,6 +322,8 @@ def test_post_f02_6_plan_audit_cli_writes_json_and_markdown(tmp_path):
             str(_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True))),
             "--closure-checklist",
             str(_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True))),
+            "--status-report",
+            str(_json(tmp_path, "status_report.json", _status_report_payload(ready=False))),
         ]
     )
 
