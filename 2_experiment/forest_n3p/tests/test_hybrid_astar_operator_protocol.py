@@ -11,13 +11,14 @@ from forest_n3p.third_party.pathplan.hybrid_a_star.operators import (
 
 
 class StubTelemetry:
-    def __init__(self, *, success=True, failure_reason=None):
+    def __init__(self, *, operator, success=True, failure_reason=None):
+        self.operator = str(operator)
         self.success = bool(success)
         self.failure_reason = failure_reason
 
     def to_record(self):
         return {
-            "analytic_operator": "stub_direct",
+            "analytic_operator": self.operator,
             "stub_success": self.success,
             "failure_reason": self.failure_reason,
         }
@@ -32,7 +33,7 @@ class DirectStubOperator:
 
     def try_connect(self, state, goal, context):
         self.calls.append((state, goal, context))
-        self.last_telemetry = StubTelemetry(success=True)
+        self.last_telemetry = StubTelemetry(operator=self.name, success=True)
         return AnalyticExpansionResult(
             states=[goal],
             actions=[MotionPrimitive(steering=0.0, direction=1, step=abs(goal.x - state.x))],
@@ -51,7 +52,7 @@ class FailingStubOperator:
 
     def try_connect(self, state, goal, context):
         self.calls.append((state, goal, context))
-        self.last_telemetry = StubTelemetry(success=False, failure_reason="stub_failure")
+        self.last_telemetry = StubTelemetry(operator=self.name, success=False, failure_reason="stub_failure")
         return None
 
 
