@@ -514,10 +514,15 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 
 #### F01. Oracle 数据生成
 
-- [ ] F01.1 从 C02 oracle path 提取 state-action demonstrations。
+- [x] F01.1 从 C02 oracle path 提取 state-action demonstrations。
   - 状态: 每个 rollout step 的 env obs。
   - 动作: oracle path 下一段曲率/steer。
   - 过滤: 碰撞、过短、terminal RS 已可达样本。
+  - 已完成: 新增 `extract_oracle_demonstrations.py`, 从 C02 oracle results 重放 oracle A/B path, 提取 scalar obs + expert steering/curvature/direction, 并过滤 collision、reverse、too-short、terminal-RS-ready samples。
+  - 产物: `2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_preview20.parquet` 含 1109 条 preview demonstrations; `0_trials/module2_rl_rs_bc_demo_smoke/` 含 oracle A smoke 与 B-only goal-annulus smoke。
+  - 边界: 这是 extraction pipeline + source-bound preview, 不是最终完整 BC corpus; `voronoi_skeleton` B-only rows 仍未纳入 claim。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `24 passed in 0.48s`。
+  - 记录: `.pipeline/experiments/20260703_module2_f01_oracle_demonstration_extraction.md`。
 - [ ] F01.2 数据 manifest。
   - 记录 map seed, query id, oracle type, source commit, extraction config。
   - 输出: `2_experiment/forest_n3p/datasets/module2_rl_rs_bc/manifest.json`
@@ -660,7 +665,8 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 14. [x] E03.2 碰撞测试。
 15. [x] E03.3 success set 测试。
 16. [x] E03.4 no progress/oscillation 测试。
-17. [ ] F01.1 从 C02 oracle path 提取 state-action demonstrations。
+17. [x] F01.1 从 C02 oracle path 提取 state-action demonstrations。
+18. [ ] F01.2 数据 manifest。
 
 ## 7. 完成记录
 
@@ -688,3 +694,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-03: 完成 E03.2 collision consistency test。free/blocked rollout path 的 collision flag 已与 shared `GridFootprintChecker.collides_path(samples)` 对齐。记录见 `.pipeline/experiments/20260703_module2_e03_collision_consistency.md`。
 - 2026-07-03: 完成 E03.3 terminal RS success set test。直接测试 `check_terminal_rs_connectable()` 在空图和障碍阻挡样例中的 success/failure 语义。记录见 `.pipeline/experiments/20260703_module2_e03_terminal_rs_success_set.md`。
 - 2026-07-03: 完成 E03.4 no-progress/oscillation tests。新增 oscillation guard 与 telemetry/reward 连接, 原先未实现的 `oscillation` failure label 已变成可测终止语义。记录见 `.pipeline/experiments/20260703_module2_e03_no_progress_oscillation.md`。
+- 2026-07-03: 完成 F01.1 oracle demonstration extraction pipeline。新增 C02 oracle replay extractor, 已产出 oracle A smoke、B-only smoke 和 20-row preview dataset; 尚未声明完整 BC corpus。记录见 `.pipeline/experiments/20260703_module2_f01_oracle_demonstration_extraction.md`。
