@@ -497,8 +497,11 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 已完成: `test_rollout_collision_matches_planner_checker_for_free_and_blocked_paths` 覆盖 free path 与 blocked path, 逐项比较 `RolloutStepResult.collided` 和 `GridFootprintChecker.collides_path(samples)`。
   - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `22 passed in 0.47s`。
   - 记录: `.pipeline/experiments/20260703_module2_e03_collision_consistency.md`。
-- [ ] E03.3 success set 测试。
+- [x] E03.3 success set 测试。
   - 人工构造无障碍/有障碍 RS 对接样例。
+  - 已完成: `test_terminal_rs_success_set_distinguishes_free_and_blocked_connections` 直接调用 `check_terminal_rs_connectable()`, 覆盖空图 success 和障碍阻挡 `terminal_rs_collision`。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `23 passed in 0.50s`。
+  - 记录: `.pipeline/experiments/20260703_module2_e03_terminal_rs_success_set.md`。
 - [ ] E03.4 no progress/oscillation 测试。
   - 防止 policy 原地左右打舵拿 shaping。
 
@@ -650,7 +653,8 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 12. [x] E02.3 reward ablation hooks。
 13. [x] E03.1 单步运动学测试。
 14. [x] E03.2 碰撞测试。
-15. [ ] E03.3 success set 测试。
+15. [x] E03.3 success set 测试。
+16. [ ] E03.4 no progress/oscillation 测试。
 
 ## 7. 完成记录
 
@@ -676,3 +680,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-03: 完成 E02.3 reward ablation hooks。`RewardTermSwitches` 让每个 reward term 显式可开关, `step.info["reward_ablation"]` 暴露消融状态; 尚未运行 ablation 实验或调权重。记录见 `.pipeline/experiments/20260703_module2_e02_reward_ablation_hooks.md`。
 - 2026-07-03: 完成 E03.1 single-step kinematics test。非零 steering rollout 的 `next_state` 和最后一个 sample 已严格对齐 planner `propagate()`。记录见 `.pipeline/experiments/20260703_module2_e03_single_step_kinematics.md`。
 - 2026-07-03: 完成 E03.2 collision consistency test。free/blocked rollout path 的 collision flag 已与 shared `GridFootprintChecker.collides_path(samples)` 对齐。记录见 `.pipeline/experiments/20260703_module2_e03_collision_consistency.md`。
+- 2026-07-03: 完成 E03.3 terminal RS success set test。直接测试 `check_terminal_rs_connectable()` 在空图和障碍阻挡样例中的 success/failure 语义。记录见 `.pipeline/experiments/20260703_module2_e03_terminal_rs_success_set.md`。
