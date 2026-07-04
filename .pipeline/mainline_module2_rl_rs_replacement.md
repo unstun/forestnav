@@ -610,11 +610,17 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 边界: 当前 vector smoke 证明 SB3 向量接口可运行, 但真实多 map/query context sampler 与 curriculum 仍在 F03.3/F03.4。
   - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q` -> `43 passed in 3.75s`。
   - 记录: `.pipeline/experiments/20260704_module2_f03_gymnasium_adapter.md`。
-- [ ] F03.3 curriculum。
+- [x] F03.3 curriculum。
   - stage 1: open/simple connector。
   - stage 2: obstacle near but one clear side。
   - stage 3: Complex/Extreme RS failure nodes。
   - stage 4: held-out procedural maps。
+  - 已完成: 新增 `CurriculumContextConfig`, `CurriculumSampleMetadata`, `OpenConnectorContextSampler`, `ObstacleBypassContextSampler`, `OracleConnectorContextSampler`, `HeldoutQueryContextSampler`, `WeightedCurriculumContextSampler`。
+  - 真实来源: stage 3 默认读取 `0_trials/module2_oracle_shape/oracle_connector_results.parquet` 并筛 `oracle_connectable=True`; stage 4 用 held-out seed 重新走 `build_query_set()`。
+  - Gym 接入: `GymAnalyticExpansionEnv.reset()` now exposes `info["curriculum"]`, 为 F03.4 logging 提供 stage/source/query metadata。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q` -> `48 passed in 6.59s`; 真实四 stage Gym reset/step smoke 通过。
+  - 边界: F03.3 不选择 warm-start checkpoint, 不开始 PPO 训练, 不 claim Gate #3。
+  - 记录: `.pipeline/experiments/20260704_module2_f03_curriculum_sampler.md`。
 - [ ] F03.4 logging。
   - TensorBoard/CSV: reward terms, success, terminal RS success, collision, truncation, rollout length, clearance, curvature rate。
   - 每个 checkpoint 存 config + source hash。
