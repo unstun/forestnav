@@ -976,6 +976,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 49. [x] Manuscript claim audit 已完成: 展开 `3_paper/main.tex` 后执行 Module2 prohibited-claim scan, 当前 clean; formal results/warm-start effect 仍由 readiness 和 section seed 双重证明 blocked。
 50. [x] Manuscript evidence map 已完成: 展开 `3_paper/main.tex` 后将 method/no-warm/formal-blocked/warm-start-blocked 四类 Module2 claim unit 映射到 I01/I03/readiness/Gate3/F02.6/remote packet 证据; formal results 与 warm-start effect 仍是 blocked placeholders, 不作为论文结果 claim。
 51. [x] Reviewer evidence cards 已完成: 从 manuscript evidence map 生成审稿人可复查 claim cards, 每张卡包含正文 `.tex` 行号、primary evidence、code anchors/metric/blockers、写作指令和验证命令; formal results 与 warm-start cards 仍显式标为 blocked placeholders。
+52. [x] Supplement LaTeX evidence appendix 已完成: reviewer evidence cards 现在生成可 input 的 `module2_reviewer_evidence_cards.tex`, 并带 supplement static audit; wrapper pdflatex draftmode 通过, 但长路径存在 overfull warning, 不影响硬编译。
 
 ## 7. 完成记录
 
@@ -1042,3 +1043,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 完成 manuscript claim audit。新增 `build_module2_manuscript_claim_audit.py`, 展开 `3_paper/main.tex` 的 LaTeX input 后扫描 I03 prohibited claims, 并交叉检查 paper readiness 与 section seed 中 formal results / warm-start effect 均为 blocked；当前 `maintex_module2_claim_audit_passed`。记录见 `.pipeline/experiments/20260704_module2_manuscript_claim_audit.md`。
 - 2026-07-04: 完成 manuscript evidence map。新增 `build_module2_manuscript_evidence_map.py`, 生成 `3_paper/module2_evidence_map/module2_manuscript_evidence_map.json` 和 `.md`; 当前 `module2_manuscript_evidence_mapped`, method/no-warm scoped units 均 mapped, formal results 与 warm-start effect 均 `blocked_as_expected`。记录见 `.pipeline/experiments/20260704_module2_manuscript_evidence_map.md`。
 - 2026-07-04: 完成 reviewer evidence cards。新增 `build_module2_reviewer_evidence_cards.py`, 生成 `3_paper/module2_reviewer_evidence_cards/module2_reviewer_evidence_cards.json` 和 `.md`; 当前 `reviewer_evidence_cards_ready`, method/no-warm cards 为 `claim_traceable_with_scope_limit`, formal/warm-start cards 为 `blocked_placeholder_traceable`。记录见 `.pipeline/experiments/20260704_module2_reviewer_evidence_cards.md`。
+- 2026-07-04: 完成 supplement LaTeX evidence appendix。`build_module2_reviewer_evidence_cards.py` 生成 `3_paper/module2_reviewer_evidence_cards/module2_reviewer_evidence_cards.tex`; supplement audit 为 `clean`, wrapper pdflatex draftmode pass。记录见 `.pipeline/experiments/20260704_module2_reviewer_evidence_cards.md`。
