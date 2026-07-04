@@ -38,14 +38,14 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
     assert manifest["current_blocking_summary"]["remote_preflight_allowed_now"] is False
     command_index = manifest["source_regeneration_command_index_summary"]
     assert command_index["present"] is True
-    assert command_index["index_row_count"] == 5
-    assert command_index["source_target_count"] == 5
+    assert command_index["index_row_count"] == 6
+    assert command_index["source_target_count"] == 6
     assert command_index["unknown_manual_count"] == 0
     assert command_index["stage_mismatch_count"] == 0
     assert command_index["command_not_in_stage_count"] == 0
     assert command_index["forbidden_command_count"] == 0
     assert command_index["stage_counts"] == {
-        "regenerate_claim_gate_artifacts": 1,
+        "regenerate_claim_gate_artifacts": 2,
         "regenerate_h01_h02_formal_artifacts": 1,
         "regenerate_preflight_gate_artifacts": 3,
     }
@@ -179,7 +179,7 @@ def test_post_f02_6_plan_audit_requires_complete_source_regeneration_command_ind
     assert "source_regeneration_command_index_contains_execution_commands" in issue_ids
     assert "source_regeneration_command_index_rows_missing_required_fields" in issue_ids
     summary = manifest["source_regeneration_command_index_summary"]
-    assert summary["missing_target_ids"] == ["claim_safety"]
+    assert summary["missing_target_ids"] == ["paper_readiness"]
     assert summary["unknown_manual_count"] == 1
     assert summary["stage_mismatch_count"] == 1
     assert summary["forbidden_command_count"] == 1
@@ -610,7 +610,12 @@ def _plan_payload():
                 {"artifact_id": "h01_evaluation_manifest", "path": "h01.json", "freshness_state": "historical_dirty"}
             ],
             "formal_claim_gate": [
-                {"artifact_id": "claim_safety", "path": "claim.json", "freshness_state": "historical_clean"}
+                {"artifact_id": "claim_safety", "path": "claim.json", "freshness_state": "historical_clean"},
+                {
+                    "artifact_id": "paper_readiness",
+                    "path": "paper_readiness.json",
+                    "freshness_state": "historical_dirty",
+                },
             ],
         },
         "source_regeneration_command_index": [
@@ -648,6 +653,13 @@ def _plan_payload():
                 "claim.json",
                 "known_builder",
                 "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety",
+            ),
+            _command_index_row(
+                "paper_readiness",
+                "formal_claim_gate",
+                "paper_readiness.json",
+                "known_builder",
+                "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_paper_readiness",
             ),
         ],
         "blocking_summary": {
@@ -707,7 +719,10 @@ def _plan_payload():
                 "regenerate_claim_gate_artifacts",
                 "claim_gate",
                 blocked_by=["h02_formal_acceptance_not_ready", "source_fresh_claim_targets_open"],
-                command="PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety",
+                commands=[
+                    "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety",
+                    "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_paper_readiness",
+                ],
             ),
         ],
     }
@@ -786,6 +801,11 @@ def _source_freshness_payload():
             },
             {"artifact_id": "h01_evaluation_manifest", "path": "h01.json", "required_before": "formal_h01_h02"},
             {"artifact_id": "claim_safety", "path": "claim.json", "required_before": "formal_claim_gate"},
+            {
+                "artifact_id": "paper_readiness",
+                "path": "paper_readiness.json",
+                "required_before": "formal_claim_gate",
+            },
         ],
     }
 
