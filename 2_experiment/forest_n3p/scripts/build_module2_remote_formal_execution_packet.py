@@ -567,6 +567,12 @@ def _unique(items: Sequence[str]) -> list[str]:
     return out
 
 
+def _strings(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [str(item) for item in value if item]
+
+
 def _markdown(packet: dict[str, Any]) -> str:
     lines = [
         "# Module2 Remote Formal Execution Packet",
@@ -582,6 +588,17 @@ def _markdown(packet: dict[str, Any]) -> str:
         lines.extend(f"- `{item}`" for item in packet["blockers"])
     else:
         lines.append("- none")
+    lines.extend(["", "## Remote Preflight Requirements", ""])
+    for requirement in packet["remote_preflight_requirements"]:
+        lines.append(
+            f"- `{requirement['requirement_id']}` ({requirement['phase']}): "
+            f"status=`{requirement['status']}`, execution_allowed_now=`{requirement['execution_allowed_now']}`"
+        )
+        if requirement["missing_artifact_ids"]:
+            lines.append(f"  - missing_artifact_ids: `{', '.join(requirement['missing_artifact_ids'])}`")
+        if requirement["blocked_by"]:
+            lines.append(f"  - blocked_by: `{', '.join(requirement['blocked_by'])}`")
+        lines.append(f"  - invalid_substitutes: `{'; '.join(requirement['invalid_substitutes'])}`")
     lines.extend(
         [
             "",
