@@ -116,3 +116,44 @@ topic: module2 RL-RS paper claim audit
   - 支持本项目保持 fallback 语义: RL operator 失败必须返回 None。
 - 不能外推:
   - 它不包含 RL。
+
+## C005: Learned local connectors exist in SBP/RRT literature, but not as HA* analytic shot replacement
+
+- 来源:
+  - S3F, Atreya & Biswas 2022。
+  - RL-RRT, Chiang et al. 2019。
+  - Learned Goal-Reaching Controllers, Sivaramakrishnan et al. 2021。
+  - DiTree, Hassidof et al. 2025。
+- 锚点:
+  - S3F local PDF lines 81-100: steering function `S(xa, xb)` connects sampled states; exact steering often requires expensive NLP, S3F learns this function。
+  - S3F lines 233-272: S3F-RRT* uses learned steering function, then obstacle-free validation。
+  - RL-RRT lines 99-120: trains obstacle-avoiding P2P RL policy and reachability estimator, then uses the policy as local planner in RRT。
+  - Learned Goal-Reaching Controllers lines 66-91, 119-146: node expansion generates local goal, learned controller outputs control, planner propagates and validates。
+  - DiTree lines 196-275: diffusion policy samples action sequence inside sampling-based tree search and accepts branches after collision checking。
+- 对本项目的作用:
+  - 不能说 "learned local connector 没有人做过"。
+  - 可以说 "learned local connector exists for SBP/RRT-style kinodynamic planning, but public evidence does not show this exact HA* analytic-expansion / terminal-RS-certified slot."。
+  - ForestNav 的 novelty 应收窄到 Hybrid A* analytic expansion slot、terminal RS certificate、failure fallback 和 full telemetry/cost accounting。
+- 不能外推:
+  - 这些论文不是 ForestNav 森林地图结果。
+  - 它们不是直接替换 `HybridAStarPlanner._try_analytic_expansion()` 的实现。
+  - DiTree 等无明确 GitHub license 的代码不能复制。
+
+## C006: MPNet-family and MPT are related, but mainly whole-planner or search-guidance methods
+
+- 来源:
+  - MPNet, Qureshi et al. 2019。
+  - Dynamic MPNet, Johnson et al. 2020。
+  - MPC-MPNet, Li et al. 2021。
+  - Motion Planning Transformers, Johnson et al. 2022。
+- 锚点:
+  - MPNet local PDF lines 136-173, 195-226: neural bidirectional path generation and neural/hybrid replanning。
+  - Dynamic MPNet lines 87-105: local neural planner in hierarchical navigation; lines 193-211: Dubins model/curves used for steering。
+  - MPC-MPNet lines 128-180, 241-281: neural generator proposes waypoints, MPC performs local steering and tree/path expansion。
+  - MPT lines 123-133, 195-214: transformer predicts path-relevant patches/search mask; classical planners search the mask。
+- 对本项目的作用:
+  - Related work 可放在 "learning-guided planning / neural local planning"。
+  - Dynamic MPNet/MPC-MPNet 可给 non-holonomic learned planning 背景。
+- 不能外推:
+  - MPNet-family/MPT 不能被写成 HA* analytic connector replacement。
+  - Dynamic MPNet 的 ROS local planner不是本项目的 planner-internal analytic slot。

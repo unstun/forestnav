@@ -103,3 +103,104 @@ topic: module2 RL-RS GitHub evidence
 - 不相容点:
   - 差速/ROS/Gazebo navigation。
   - 不含 Ackermann、Reeds-Shepp、HA* analytic expansion。
+
+## sldai/crl_kino
+
+- URL: https://github.com/sldai/crl_kino
+- Pinned HEAD: `bb27caae17b6c52b26400bb7697e0d6f07191c34` (`master`)
+- License: MIT, `LICENSE:1-21`
+- 当前判断: 近正例代码; 可读可借鉴, 但 dynamics/planner slot 不同。
+- 关键代码:
+  - `crl_kino/planner/rrt_rl.py#L14-L63`: `RRT_RL.steer()` 用 RL policy 从 `from_node` roll out 到 `to_node`, 每步 `env.step(action)`, collision/reach 后停止并加入 tree node。
+  - `crl_kino/planner/rrt_rl_estimator.py#L16-L79`: estimator/classifier 影响 parent selection。
+  - `crl_kino/planner/rrt_rl_estimator.py#L81-L122`: estimator variant 也用 RL policy 执行 steering rollout。
+  - `crl_kino/policy/rl_policy.py#L18-L39`: 加载 DDPG policy。
+  - `crl_kino/policy/rl_policy.py#L83-L109`: observation -> action inference。
+- 与 ForestNav 相容点:
+  - 直接证明 "RL policy as local planner inside RRT tree expansion" 可编码实现。
+  - estimator/classifier 思路可映射为未来 terminal-RS-connectable likelihood。
+- 不相容点:
+  - differential-drive RRT, 不是 Ackermann Hybrid A* analytic expansion。
+  - target 是 sampled node, 不是 final goal/terminal RS certificate。
+
+## MRSTechnion/DiTree
+
+- URL: https://github.com/MRSTechnion/DiTree
+- Pinned HEAD: `150d0932c13e3edc4fe9144fb822486894418838` (`main`)
+- License: GitHub API 未发现 license, 暂不可复制。
+- 当前判断: 技术上强相关, 许可证阻塞。
+- 关键代码:
+  - `planners/RRT.py#L42-L122`: RRT loop 选 node、构造 local map、调用 diffusion sampler、propagate action sequence, collision 后丢弃, success 后返回 path/actions。
+  - `policies/fm_policy.py#L53-L212`: sampler 条件化 state/action history、relative goal、local map, 执行 diffusion/flow-matching 迭代, 输出 action sequence。
+- 与 ForestNav 相容点:
+  - "learned action sampler + classical tree/collision verification" 是强相关设计线索。
+- 不相容点:
+  - RRT-style planner, 不是 HA* analytic expansion。
+  - 无明确 license, 不能复制代码。
+
+## ahq1993/MPNet
+
+- URL: https://github.com/ahq1993/MPNet
+- License: MIT, `LICENSE:1-21`
+- 当前判断: foundational neural planner, 但不是模块2同槽代码。
+- 关键代码:
+  - `MPNet/neuralplanner.py#L40-L86`: straight-line discretized `steerTo` / feasibility check。
+  - `MPNet/neuralplanner.py#L147-L235`: MLP bidirectional replanning between non-connectable path states。
+  - `MPNet/neuralplanner.py#L283-L338`: main loop alternates MLP expansion from start/goal and repairs infeasible path。
+- 与 ForestNav 相容点:
+  - learned waypoint/path generation 和 hybrid neural/classical repair。
+- 不相容点:
+  - geometric path planner, not Ackermann/RS/HA* analytic operator。
+
+## ucsdarclab/mpnet_local_planner
+
+- URL: https://github.com/ucsdarclab/mpnet_local_planner
+- Pinned branch: `suppl`-related Dynamic MPNet code; repo default `master`
+- License: GitHub API 未发现 license。
+- 当前判断: non-holonomic neural local planner 代码, license blocked。
+- 关键代码:
+  - `src/mpnet_plan.cpp#L244-L264`: TorchScript model predicts target point from start/goal/costmap。
+  - `src/mpnet_plan.cpp#L286-L383`: iterative path generation checks OMPL path from current to predicted target, appends valid targets, simplifies final path。
+  - `src/mpnet_plan.cpp#L385-L424`: RRT* fallback path generation。
+- 不相容点:
+  - ROS local planner, not ForestNav HA* analytic expansion。
+  - license missing。
+
+## ucsdarclab/motion_planning_transformer
+
+- URL: https://github.com/ucsdarclab/motion_planning_transformer
+- Pinned HEAD: `70d8973c15f3bfd3bec26aab0b591c7e298d755f` (`suppl`)
+- License: GitHub API 未发现 license。
+- 当前判断: search-space guidance code, not connector。
+- 关键代码:
+  - `eval_model_car.py#L128-L208`: OMPL SST setup for car model。
+  - `eval_model_car.py#L220-L343`: transformer predicts anchor patches/mask; SST plans with mask。
+  - `transformer/Models.py#L89-L164`: map encoder creates patch embeddings。
+- 不相容点:
+  - outputs search mask, not local trajectory edge。
+
+## tedhuang96/nirrt_star
+
+- URL: https://github.com/tedhuang96/nirrt_star
+- Pinned HEAD: `285dd248b7e9c0c23e4b6362fcd6bdc8166457e7` (`main`)
+- License: MIT, `LICENSE:1-21`
+- 当前判断: learned sampling guidance, not connector。
+- 关键代码:
+  - `path_planning_classes/nirrt_star_png_2d.py#L56-L130`: RRT* loop samples from learned point cloud with probability `pc_sample_rate`。
+  - `path_planning_classes/nirrt_star_png_2d.py#L132-L175`: point cloud classified as path/non-path to bias sampling。
+  - `train_pointnet_pointnet2.py#L15-L18`, `#L82-L108`, `#L153-L190`: supervised segmentation classes are optimal path points vs other free points。
+- 不相容点:
+  - guides sample distribution, does not generate Ackermann/RS connector。
+
+## mihdalal/neuralmotionplanner
+
+- URL: https://github.com/mihdalal/neuralmotionplanner
+- Pinned HEAD: `5b1e7095c8031b4f011806ac2a58bbe80a2292e6` (`main`)
+- License: GitHub API 未发现 license。
+- 当前判断: learned reactive motion planner for Franka; related but not module2 code。
+- 关键代码:
+  - `neural_mp/real_utils/neural_motion_planner.py#L20-L68`: initializes NeuralMP policy/env。
+  - `neural_mp/real_utils/neural_motion_planner.py#L209-L324`: rollout policy accumulates joint trajectory and checks goal pose。
+  - `neural_mp/real_utils/neural_motion_planner.py#L326-L420`: batched rollout with test-time optimization and collision count selection。
+- 不相容点:
+  - manipulator planner, not vehicle Hybrid A* analytic expansion。

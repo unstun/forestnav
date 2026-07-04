@@ -233,10 +233,14 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 已完成: 新增 `0_trials/module2_rl_rs_evidence/dang2022_deep_read.md`, 核验 MDPI HTML 与 ResearchGate full-text 中 Section 2.1、Section 3、Eq.2-4、Table 1/2、Conclusion。
   - 判定: Dang 是 correct-slot classical baseline, 不是 RL; 本地 `dang_multi_rs` 匹配 analytic slot、multi-radius RS、collision filter、cost selection、failure fallback, 但 Eq.2 用 mean EDT clearance inverse 近似, 缺 generalized Voronoi edge distance `dv`。
   - 记录: `.pipeline/experiments/20260704_module2_a01_3_dang2022_deep_read.md`。
-- [ ] A01.4 查 "learned connector / learned goal shot / neural steering function"。
+- [x] A01.4 查 "learned connector / learned goal shot / neural steering function"。
   - 查询词: `learned steering function motion planning`, `goal connect neural motion planner`, `RL local connector Hybrid A*`, `Reeds-Shepp neural planner`
   - 输出: 正例、负例、未知项。
   - 判据: 至少 10 个来源, 其中论文 >=5, 代码仓库 >=3。
+  - 已完成: 新增 `0_trials/module2_rl_rs_evidence/learned_connector_survey.md`, 核验 15 个来源, 其中论文 8 个、代码仓库 7 个。
+  - 近正例: S3F、RL-RRT/`crl_kino`、Learned Goal-Reaching Controllers、DiTree 均证明 learned steering/local connector/action sampler 可以嵌入 SBP/RRT-style planner。
+  - 负面边界: 未发现公开来源直接替换 Hybrid A* analytic expansion / RS shot 并保留 ForestNav fallback + terminal RS certificate 语义。
+  - 记录: `.pipeline/experiments/20260704_module2_a01_4_learned_connector_survey.md`。
 - [ ] A01.5 许可证审计。
   - 输出: 可复制代码、只能读思想、不可用 三档。
   - 必查: HOPE GPL-3.0, Karl Kurzer BSD-3-Clause, PythonRobotics license, Neural A* license。

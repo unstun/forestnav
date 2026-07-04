@@ -61,3 +61,25 @@ topic: module2 RL-RS negative results
   - ForestNav `dang_multi_rs` 只调用 `reeds_shepp_shortest_path()`、采样、碰撞检查和 `_dang2022_cost()`。
   - 本地 risk cost 还是 Eq.2 的 EDT 近似, 不是 learned obstacle-aware policy。
 - 结论: Dang 是强 classical baseline 和问题动机, 不能作为 "已有学习式 RS 替换" 的证据。
+
+## N007: A01.4 未找到 exact public HA* analytic-shot learned replacement
+
+- 已核验的近正例:
+  - S3F 学 RRT* steering function。
+  - RL-RRT / `crl_kino` 用 RL policy 作为 RRT local planner。
+  - Learned Goal-Reaching Controllers 用 RL/SAC controller 做 sampling-based planner node expansion。
+  - DiTree 用 diffusion action sampler 生成 RRT branch, 再碰撞验证。
+- 为什么仍不是本任务同槽:
+  - planner backbone 是 RRT/SST/SBP, 不是 Hybrid A* open-list analytic expansion trigger。
+  - target 通常是 sampled node / local goal / full goal, 不是 ForestNav 的 terminal-RS-connectable set。
+  - 没有保留 ForestNav 需要的 "operator returns analytic edge or None, then HA* primitive expansion fallback" API 语义。
+  - 多数没有 Reeds-Shepp terminal certificate 和 ForestNav EDT/Grid footprint checker。
+- 结论: A01.4 支持方向可行, 但不能把外部工作写成 "本项目同槽实现已存在"。
+
+## N008: Learned search guidance is not a learned connector
+
+- 外部依据:
+  - MPT 预测 path-relevant patches/search mask, 再让 classical planner 搜索 mask。
+  - NIRRT* 预测 optimal-path point cloud, 影响 RRT* sampling。
+  - Neural A* 学 cost/search guidance。
+- 结论: 这类工作属于 learned heuristic / sampling / search-space restriction, 不是从当前 HA* node 生成连续 local edge 的 analytic operator。
