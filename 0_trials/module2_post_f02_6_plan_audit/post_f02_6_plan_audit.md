@@ -46,6 +46,13 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - input_safety_issue_count: `0`
 - next_blocked_lane_id: `decision`
 
+### Status Report Remote Execution Steps
+
+- `sync_to_remote`: allowed_now=`False`, runs_training=`False`, blocked_by=`requires_dr_sun_approval`
+- `run_remote_preflight`: allowed_now=`False`, runs_training=`False`, blocked_by=`requires_dr_sun_approval`
+- `run_remote_training`: allowed_now=`False`, runs_training=`True`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_packet_not_ready`
+- `run_remote_audit`: allowed_now=`False`, runs_training=`False`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_packet_not_ready`
+
 ## Audit Issues
 
 - none
