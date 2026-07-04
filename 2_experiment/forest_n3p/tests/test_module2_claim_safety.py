@@ -387,6 +387,11 @@ def test_claim_safety_blocks_formal_claim_when_status_report_is_blocked(tmp_path
     assert manifest["formal_performance_blockers"] == ["formal_gate_status_report_blocked"]
     assert manifest["input_status"]["status_report_status"] == "formal_gate_status_blocked"
     assert manifest["input_status"]["status_report_next_blocked_lane_id"] == "decision"
+    assert manifest["input_status"]["status_report_decision_intake_status"] == "f02_6_decision_intake_pending_clean"
+    assert manifest["input_status"]["status_report_decision_intake_record_status"] == "pending_human_decision"
+    assert manifest["input_status"]["status_report_decision_intake_audit_issue_count"] == 0
+    assert manifest["input_status"]["status_report_decision_intake_remote_training_allowed_now"] is False
+    assert manifest["input_status"]["status_report_decision_intake_formal_claim_allowed_now"] is False
     assert manifest["input_status"]["status_report_closure_remote_training_allowed_now"] is False
     assert manifest["input_status"]["status_report_remote_packet_training_allowed_now"] is False
     assert manifest["status_report_remote_gate_summary"]["closure_remote_stage_summary"]["gate3_remote_training"][
