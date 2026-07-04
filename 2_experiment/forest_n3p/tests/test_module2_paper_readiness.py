@@ -98,8 +98,13 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert manifest["input_status"]["claim_safety_remaining_deliverables_acceptance_matrix_row_count"] == 10
     assert manifest["input_status"]["claim_safety_remaining_deliverables_acceptance_missing_row_count"] == 10
     assert manifest["input_status"]["claim_safety_remaining_deliverables_acceptance_blocked_category_count"] == 4
+    assert manifest["input_status"]["claim_safety_remaining_deliverables_gap_present"] is True
+    assert manifest["input_status"]["claim_safety_remaining_deliverables_gap_total_missing_deliverables"] == 10
+    assert manifest["input_status"]["claim_safety_remaining_deliverables_gap_open_category_count"] == 4
     assert "claim_safety_remaining_deliverables_acceptance_rows_missing" in manifest["global_blockers"]
     assert "claim_safety_remaining_deliverables_acceptance_categories_blocked" in manifest["global_blockers"]
+    assert "claim_safety_remaining_deliverables_gap_rows_missing" in manifest["global_blockers"]
+    assert "claim_safety_remaining_deliverables_gap_categories_blocked" in manifest["global_blockers"]
     assert manifest["claim_safety_requirement_stage_summary"]["requirements"]["training_remote_ppo_checkpoint"][
         "responsible_stage_id"
     ] == "gate3_remote_training"
@@ -459,6 +464,9 @@ def _write_inputs(tmp_path, *, formal):
                 "formal_claim_allowed_now": formal,
             },
             "status_report_remaining_deliverables_acceptance_summary": _claim_safety_remaining_deliverables_acceptance_summary_payload(
+                formal=formal
+            ),
+            "status_report_remaining_deliverables_gap_summary": _claim_safety_remaining_deliverables_gap_summary_payload(
                 formal=formal
             ),
             "allowed_claims": [
