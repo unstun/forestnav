@@ -93,6 +93,7 @@ def build_manifest(config: PostF026RegenerationPlanConfig) -> dict[str, Any]:
             "ready_to_run_remote_training": bool(remote_packet.get("ready_to_run_remote_training")),
         },
         "source_regeneration_targets_by_gate": _targets_by_gate(source_targets),
+        "source_regeneration_command_index": _source_regeneration_command_index(source_targets),
         "ordered_stages": stages,
         "blocking_summary": _blocking_summary(stages),
         "claim_boundaries": [
@@ -213,7 +214,8 @@ def _ordered_stages(
             command_templates=[
                 "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_evaluation_manifest --module2-rl-rs-checkpoint <pulled-back-final_model.zip>",
                 "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_h02_formal_acceptance",
-            ],
+            ]
+            + _regeneration_commands(h01_h02_targets),
         ),
         _stage(
             "regenerate_claim_gate_artifacts",
@@ -225,7 +227,8 @@ def _ordered_stages(
             command_templates=[
                 "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety",
                 "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_paper_readiness",
-            ],
+            ]
+            + _regeneration_commands(claim_targets),
         ),
     ]
     formal_blockers = _formal_gate_blockers(formal_gate)
@@ -303,36 +306,87 @@ def _targets_by_gate(targets: Sequence[dict[str, Any]]) -> dict[str, list[dict[s
 
 
 def _regeneration_commands(targets: Sequence[dict[str, Any]]) -> list[str]:
-    commands: list[str] = []
+    return _unique([entry["command_template"] for entry in _source_regeneration_command_index(targets)])
+
+
+def _source_regeneration_command_index(targets: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+    entries: list[dict[str, Any]] = []
     for target in targets:
-        artifact_id = str(target.get("artifact_id"))
-        if artifact_id == "f02_6_decision_record":
-            commands.append(
-                "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'"
-            )
-        elif artifact_id == "f02_6_decision_gate_audit":
-            commands.append("PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_gate_audit")
-        elif artifact_id == "f02_6_transition_gate_audit":
-            commands.append("PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_transition_gate_audit")
-        elif artifact_id == "formal_gate_gap_audit":
-            commands.append("PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_gap_audit")
-        elif artifact_id == "remote_formal_execution_packet":
-            commands.append("PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_formal_execution_packet")
-        elif artifact_id == "remote_packet_safety_audit":
-            commands.append("PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_packet_safety_audit")
-        elif artifact_id == "formal_gate_closure_checklist":
-            commands.append("PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_closure_checklist")
-        elif artifact_id == "post_f02_6_plan_audit":
-            commands.append("PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
-        elif artifact_id == "formal_gate_missing_artifacts":
-            commands.append("PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_missing_artifacts_audit")
-        elif artifact_id == "formal_gate_handoff_bundle":
-            commands.append("PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_handoff_bundle")
-        elif artifact_id == "gpu3070ti_readiness_refresh":
-            commands.append("manual read-only gpu3070ti readiness refresh; no local training, no approved preflight")
-        else:
-            commands.append(f"manual regeneration required for {artifact_id}: {target.get('path')}")
-    return commands
+        entries.append(_regeneration_command_entry(target))
+    return entries
+
+
+def _regeneration_command_entry(target: dict[str, Any]) -> dict[str, Any]:
+    artifact_id = str(target.get("artifact_id"))
+    command_template: str
+    command_kind = "known_builder"
+    if artifact_id == "f02_6_decision_record":
+        command_kind = "human_decision_record"
+        command_template = (
+            "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record "
+            "--decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'"
+        )
+    elif artifact_id == "f02_6_decision_intake":
+        command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_intake"
+    elif artifact_id == "f02_6_decision_gate_audit":
+        command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_gate_audit"
+    elif artifact_id == "f02_6_transition_gate_audit":
+        command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_transition_gate_audit"
+    elif artifact_id == "formal_gate_gap_audit":
+        command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_gap_audit"
+    elif artifact_id == "remote_formal_execution_packet":
+        command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_formal_execution_packet"
+    elif artifact_id == "remote_packet_safety_audit":
+        command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_packet_safety_audit"
+    elif artifact_id == "formal_gate_closure_checklist":
+        command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_closure_checklist"
+    elif artifact_id == "post_f02_6_plan_audit":
+        command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_plan_audit"
+    elif artifact_id == "formal_gate_missing_artifacts":
+        command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_missing_artifacts_audit"
+    elif artifact_id == "formal_gate_handoff_bundle":
+        command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_handoff_bundle"
+    elif artifact_id == "formal_gate_status_report":
+        command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_status_report"
+    elif artifact_id == "formal_gate_remaining_deliverables":
+        command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_remaining_deliverables"
+    elif artifact_id == "h01_evaluation_manifest":
+        command_template = (
+            "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_evaluation_manifest "
+            "--module2-rl-rs-checkpoint <pulled-back-final_model.zip>"
+        )
+    elif artifact_id == "h02_formal_acceptance":
+        command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_h02_formal_acceptance"
+    elif artifact_id == "claim_safety":
+        command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety"
+    elif artifact_id == "paper_readiness":
+        command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_paper_readiness"
+    elif artifact_id == "gpu3070ti_readiness_refresh":
+        command_kind = "manual_read_only"
+        command_template = "manual read-only gpu3070ti readiness refresh; no local training, no approved preflight"
+    else:
+        command_kind = "unknown_manual"
+        command_template = f"manual regeneration required for {artifact_id}: {target.get('path')}"
+    return {
+        "artifact_id": artifact_id,
+        "required_before": target.get("required_before"),
+        "freshness_state": target.get("freshness_state"),
+        "path": target.get("path"),
+        "stage_id": _regeneration_stage_for_target(target),
+        "command_kind": command_kind,
+        "command_template": command_template,
+    }
+
+
+def _regeneration_stage_for_target(target: dict[str, Any]) -> str:
+    required_before = str(target.get("required_before") or "")
+    if required_before == "approved_remote_preflight":
+        return "regenerate_preflight_gate_artifacts"
+    if required_before == "formal_h01_h02":
+        return "regenerate_h01_h02_formal_artifacts"
+    if required_before == "formal_claim_gate":
+        return "regenerate_claim_gate_artifacts"
+    return "manual_review"
 
 
 def _preflight_blockers(*, approved: bool, preflight_targets: Sequence[dict[str, Any]]) -> list[str]:
