@@ -1169,6 +1169,12 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"record_status=`{intake['record_status']}`, record_decider=`{intake['record_decider']}`, "
         f"next_blocked_lane=`{intake['next_blocked_lane']}`, "
         f"audit_issue_count=`{intake['audit_issue_count']}`, "
+        f"decision_owner_required=`{intake['decision_owner_required']}`, "
+        f"valid_decision_count=`{intake['valid_decision_count']}`, "
+        f"required_record_field_count=`{intake['required_record_field_count']}`, "
+        f"decision_note_required=`{intake['decision_note_required']}`, "
+        f"invalid_input_count=`{intake['invalid_input_count']}`, "
+        f"post_decision_non_authorization_count=`{intake['post_decision_non_authorization_count']}`, "
         f"remote_training_allowed_now=`{intake['remote_training_allowed_now']}`, "
         f"formal_claim_allowed_now=`{intake['formal_claim_allowed_now']}`"
     )
