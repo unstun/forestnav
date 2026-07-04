@@ -89,6 +89,9 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "formal_gate_status_report": str(config.status_report_path),
     }
     status_permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
+    claim_handoff = claim_safety.get("status_report_handoff_summary")
+    if not isinstance(claim_handoff, dict):
+        claim_handoff = {}
     input_status = {
         "method_algorithms_status": method_algorithms.get("status"),
         "system_diagram_status": system_diagram.get("status"),
@@ -96,6 +99,10 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "paper_tables_formal_claim_allowed": paper_tables.get("formal_claim_allowed"),
         "claim_safety_status": claim_safety.get("status"),
         "claim_safety_formal_performance_claim_allowed": claim_safety.get("formal_performance_claim_allowed"),
+        "claim_safety_handoff_status": claim_handoff.get("status"),
+        "claim_safety_transition_gate_status": claim_handoff.get("transition_gate_status"),
+        "claim_safety_transition_gate_audit_issue_count": claim_handoff.get("transition_gate_audit_issue_count"),
+        "claim_safety_handoff_safety_issue_count": claim_handoff.get("safety_issue_count"),
         "h02_formal_acceptance_status": h02_acceptance.get("status"),
         "h02_formal_output_accepted": h02_acceptance.get("formal_output_accepted"),
         "h02_paper_result_input_allowed": h02_acceptance.get("paper_result_input_allowed"),
