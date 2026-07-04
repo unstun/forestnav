@@ -63,3 +63,10 @@ def test_row_selection_filters_oracle_b_candidate_source():
         include_b_sources=set(),
         exclude_b_sources={"voronoi_skeleton"},
     )
+    assert _row_matches_selection(
+        _row(best_oracle="oracle_a", oracle_b_selected_candidate_source="voronoi_skeleton"),
+        buckets={"Extreme"},
+        filter_best_oracle="any",
+        include_b_sources=set(),
+        exclude_b_sources={"voronoi_skeleton"},
+    )
