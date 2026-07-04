@@ -590,7 +590,11 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 2026-07-04 补充同口径评估: 在 patch-CNN 同一组 `max_val_rows=1024` bounded rows / 242 source rows 上, scalar success 65/242, obstacle-summary success 101/242, patch-CNN success 63/242。
   - 推荐: 若进入 PPO, 使用 obstacle-summary checkpoint 作为 practical warm-start; 不推荐继续用 bounded patch-CNN checkpoint。
   - 工程状态: obstacle-summary checkpoint 已可通过 `train_rl_rs_ppo.py --bc-checkpoint` 注入 PPO actor, 且 deterministic action 与原 BC normalized steering 一致。
+  - 2026-07-04 决策包: 新增 `0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json` 和 `.md`, status=`pending_human_decision`, recommendation=`approve_obstacle_summary_warm_start`, blocker=`requires_dr_sun_approval`。
+  - 决策包依据: no-warm formal Gate #3 已可审计失败 29/64=0.453125; obstacle-summary formal-v2 为 67/258, 同 bounded rows 为 101/242; patch+scalar CNN bounded 为 63/242; `gpu3070ti-relay` no-warm preflight ready, obstacle-summary warm-start preflight 仍被 `warm_start_decision_pending` 阻塞。
+  - 决策包边界: 这是 evidence-bound recommendation, 不关闭 F02.6, 不开始正式 warm-start 训练, 不把远端 CUDA smoke 当 Gate #3 证据。
   - 记录: `.pipeline/experiments/20260704_module2_f03_obstacle_summary_warm_start.md`。
+  - 决策包记录: `.pipeline/experiments/20260704_module2_f02_6_warm_start_decision_packet.md`。
   - 仍需 Dr Sun 决策: 接受 obstacle-summary warm-start 进入 F03, 或明确要求先做 stronger/full patch-CNN protocol。
 
 #### F03. PPO 最大实现
@@ -845,7 +849,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 21. [!] F02.3 formal-v1 patch-CNN pilot 已被 map-cache audit 失效。
 22. [x] F02.4 修复 profile-aware map cache 并重建 formal-v2 corpus。
 23. [x] F02.5 在 formal-v2 上重跑 BC baseline。
-24. [?] F02.6 PPO warm-start 决策门。
+24. [?] F02.6 PPO warm-start 决策门: evidence-bound decision packet 已生成, 仍需 Dr Sun 批准或驳回。
 25. [!] F03.5 no-warm formal Gate #3 已失败: `formal_decision=fail`, terminal-RS-success 29/64=0.453125; F02.6 warm-start 决策仍未关闭。
 26. [x] G01.4 constructor-level + CLI/script `ha_rl_rs_ppo` operator selection 已完成。
 27. [x] G02.1 无模型 stub operator planner integration/fallback 测试。
@@ -897,3 +901,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 完成 RealMap query generation protocol 冻结。新增 `build_module2_realmap_query_protocol.py`, 产出 `0_trials/module2_realmap_query_protocol/module2_realmap_query_protocol.json`、`module2_realmap_queries.csv` 和 `.md`; 两张真实地图各 5 queries, 每图第 0 个为 manifest canonical start/goal, endpoint collision audit 0/0, CSV SHA-256 为 `36f80e9e69cd41d3658d4d9858b04aee874c93933c85188254c7731565764b59`。H01 manifest 已引用该 frozen protocol, `realmap_query_generation_not_frozen` blocker 已移除; formal-ready 仍受 F02.6 和 pure PPO analytic operator 阻塞。记录见 `.pipeline/experiments/20260704_module2_h01_realmap_query_protocol.md`。
 - 2026-07-04: 完成 `ppo_analytic_operator` without terminal RS 的 main evaluation 接入和 H01 manifest 状态刷新。实现边界是 PPO rollout 不追加 terminal RS, 只有进入 planner `goal_xy_tol/goal_theta_tol` 才返回 `AnalyticExpansionResult`; 若只是 terminal-RS-connectable 但未到 goal tolerance, 返回 `None`, 防止假成功路径。H01 manifest 已重新生成: `ppo_analytic_operator.main_evaluation_method=ppo_analytic_operator`, global blockers 从 `missing_required_method_implementation` 改为 `missing_module2_rl_rs_checkpoint`; formal-ready 仍受 F02.6 和缺 PPO checkpoint 阻塞。测试: targeted 19 passed, 相邻 operator/env/timing 35 passed。记录见 `.pipeline/experiments/20260704_module2_h01_ppo_analytic_operator_manifest.md`。
 - 2026-07-04: 完成 `gpu3070ti-relay` 远端 PPO 执行链路预检。远端 GPU/CUDA/SB3/pyarrow 可用; no-warm formal preflight ready; obstacle-summary warm-start formal preflight 仍按 F02.6 pending 阻塞; 远端 warm-start CUDA smoke 产物已同步回本地并被 audit 判为 `not_formal`。记录见 `.pipeline/experiments/20260704_module2_f03_gpu3070ti_remote_readiness.md`。
+- 2026-07-04: 完成 F02.6 warm-start 决策包生成器与证据包。新增 `build_module2_f02_6_warm_start_decision_packet.py`, 输出 JSON/Markdown 决策包, 推荐 obstacle-summary warm-start 但状态保持 `pending_human_decision`; 下一步若 Dr Sun 批准, 正式训练必须走 `gpu3070ti-relay`, 不在本地训练。记录见 `.pipeline/experiments/20260704_module2_f02_6_warm_start_decision_packet.md`。

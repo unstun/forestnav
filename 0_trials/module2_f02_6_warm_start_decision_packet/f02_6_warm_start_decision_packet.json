@@ -1,0 +1,250 @@
+{
+  "schema_version": 1,
+  "packet_name": "module2_f02_6_warm_start_decision_packet",
+  "status": "pending_human_decision",
+  "created_at_utc": "2026-07-04T05:54:04.098108+00:00",
+  "execution_host": "MacBook-Pro.local",
+  "source_head": "cb8d2c5bbcfe0a640694e7096665fecc9705edad+dirty",
+  "blockers": [
+    "requires_dr_sun_approval"
+  ],
+  "recommendation": {
+    "decision": "approve_obstacle_summary_warm_start",
+    "formal_claim_allowed": false,
+    "why": [
+      "no-warm formal Gate #3 already failed under the audited 64-episode protocol",
+      "obstacle-summary BC is the strongest current practical warm-start candidate on formal-v2 evidence",
+      "patch+scalar CNN bounded pilot did not beat obstacle-summary on the same bounded validation rows",
+      "remote gpu3070ti-relay is ready for formal warm-start execution after F02.6 approval"
+    ],
+    "decision_owner": "Dr Sun"
+  },
+  "candidates": [
+    {
+      "candidate_id": "no_warm_start",
+      "label": "No warm-start PPO",
+      "verdict": "formal_gate3_failed",
+      "formal_gate3": {
+        "artifact": "0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/gate3_formal_audit.json",
+        "formal_decision": "fail",
+        "formal_claim_allowed": true,
+        "terminal_rs_success": 29,
+        "episodes": 64,
+        "terminal_rs_success_rate": 0.453125,
+        "collision_rate": 0.359375,
+        "truncation_rate": 0.1875,
+        "success_threshold": 0.8
+      }
+    },
+    {
+      "candidate_id": "obstacle_summary_bc",
+      "label": "Obstacle-summary BC warm-start",
+      "verdict": "recommended_practical_warm_start",
+      "checkpoint": "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt",
+      "summary": "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/summary.json",
+      "checkpoint_sha256": "3156df44ca7f26da7f2e635707554bb1cd486164638b3a2d11075c3787670683",
+      "formal_v2_closed_loop": {
+        "episodes": 258,
+        "terminal_rs_success": 67,
+        "collision": 178,
+        "truncated": 13,
+        "runtime_error": 0,
+        "terminal_rs_success_rate": 0.2596899224806202,
+        "collision_rate": 0.689922480620155,
+        "truncation_rate": 0.050387596899224806
+      },
+      "patch_bounded_closed_loop": {
+        "episodes": 242,
+        "terminal_rs_success": 101,
+        "collision": 131,
+        "truncated": 10,
+        "runtime_error": 0,
+        "terminal_rs_success_rate": 0.41735537190082644,
+        "collision_rate": 0.5413223140495868,
+        "truncation_rate": 0.04132231404958678
+      },
+      "action_metrics": {
+        "val_mse": 0.02636151947081089,
+        "val_mae_rad": 0.0966578796505928,
+        "val_max_abs_error_rad": 1.080629825592041,
+        "prediction_mean_rad": -0.00680719455704093,
+        "target_mean_rad": -0.012205992825329304
+      },
+      "bounded_eval_artifact": "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/eval_patch_bounded_rows.json"
+    },
+    {
+      "candidate_id": "patch_scalar_cnn_bounded",
+      "label": "Patch+scalar CNN bounded pilot",
+      "verdict": "not_recommended_currently",
+      "checkpoint": "2_experiment/forest_n3p/models/module2_rl_rs_bc_patch_formal_v2_pilot/checkpoint.pt",
+      "summary": "2_experiment/forest_n3p/models/module2_rl_rs_bc_patch_formal_v2_pilot/summary.json",
+      "checkpoint_sha256": "2e1d069178e5b76ac2ac78a94cff690edac702749ddf7e7ed8bfe04f00daf0ed",
+      "formal_v2_closed_loop": {
+        "episodes": 242,
+        "terminal_rs_success": 63,
+        "collision": 171,
+        "truncated": 8,
+        "runtime_error": 0,
+        "terminal_rs_success_rate": 0.2603305785123967,
+        "collision_rate": 0.7066115702479339,
+        "truncation_rate": 0.03305785123966942
+      },
+      "patch_bounded_closed_loop": {
+        "episodes": 242,
+        "terminal_rs_success": 63,
+        "collision": 171,
+        "truncated": 8,
+        "runtime_error": 0,
+        "terminal_rs_success_rate": 0.2603305785123967,
+        "collision_rate": 0.7066115702479339,
+        "truncation_rate": 0.03305785123966942
+      },
+      "action_metrics": {
+        "val_mse": 0.04598045349121094,
+        "val_mae_rad": 0.14376741647720337,
+        "val_max_abs_error_rad": 0.8950930833816528,
+        "prediction_mean_rad": 0.024502988904714584,
+        "target_mean_rad": -0.0018472480587661266
+      },
+      "bounded_eval_artifact": "2_experiment/forest_n3p/models/module2_rl_rs_bc_patch_formal_v2_pilot/summary.json"
+    }
+  ],
+  "baseline_scalar_reference": {
+    "candidate_id": "scalar_bc_reference",
+    "label": "Scalar BC reference",
+    "verdict": "reference_only",
+    "checkpoint": "2_experiment/forest_n3p/models/module2_rl_rs_bc_formal_v2_scalar/checkpoint.pt",
+    "summary": "2_experiment/forest_n3p/models/module2_rl_rs_bc_formal_v2_scalar/summary.json",
+    "checkpoint_sha256": "84223cf1f7978d9646068d54507a3220da91dfc58ba7fb26e77f479d83e5e33f",
+    "formal_v2_closed_loop": {
+      "episodes": 258,
+      "terminal_rs_success": 6,
+      "collision": 252,
+      "truncated": 0,
+      "runtime_error": 0,
+      "terminal_rs_success_rate": 0.023255813953488372,
+      "collision_rate": 0.9767441860465116,
+      "truncation_rate": 0.0
+    },
+    "patch_bounded_closed_loop": {
+      "episodes": 242,
+      "terminal_rs_success": 65,
+      "collision": 162,
+      "truncated": 15,
+      "runtime_error": 0,
+      "terminal_rs_success_rate": 0.26859504132231404,
+      "collision_rate": 0.6694214876033058,
+      "truncation_rate": 0.06198347107438017
+    },
+    "action_metrics": {
+      "val_mse": 0.02672533318400383,
+      "val_mae_rad": 0.10266680270433426,
+      "val_max_abs_error_rad": 1.073395848274231,
+      "prediction_mean_rad": -0.014641913585364819,
+      "target_mean_rad": -0.012205992825329304
+    },
+    "bounded_eval_artifact": "2_experiment/forest_n3p/models/module2_rl_rs_bc_formal_v2_scalar/eval_patch_bounded_rows.json"
+  },
+  "remote_readiness": {
+    "gpu_alias": "gpu3070ti-relay",
+    "no_warm_formal_preflight": {
+      "artifact": "0_trials/module2_remote_preflight/gate3_no_warm_remote_v1/gate3_preflight_manifest.json",
+      "preflight_status": "ready",
+      "formal_trial_ready": true,
+      "blocker_codes": [],
+      "runner_command": "python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir 0_trials/module2_remote_preflight/gate3_no_warm_remote_v1 --seed 20260704 --device cuda --train-curriculum-preset f03 --eval-curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260704 --train-total-timesteps 100000 --train-n-envs 1 --train-n-steps 128 --train-batch-size 64 --train-n-epochs 4 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --allow-duplicate-openmp"
+    },
+    "warm_start_formal_preflight": {
+      "artifact": "0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_pending_remote_v1/gate3_preflight_manifest.json",
+      "preflight_status": "blocked",
+      "formal_trial_ready": false,
+      "blocker_codes": [
+        "warm_start_decision_pending"
+      ],
+      "runner_command": "python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir 0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_pending_remote_v1 --seed 20260704 --device cuda --train-curriculum-preset f03 --eval-curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260704 --train-total-timesteps 100000 --train-n-envs 1 --train-n-steps 128 --train-batch-size 64 --train-n-epochs 4 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --allow-duplicate-openmp --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt"
+    },
+    "warm_start_cuda_smoke": {
+      "artifact": "0_trials/module2_remote_smoke/gate3_warm_start_cuda_smoke/gate3_formal_audit.json",
+      "formal_decision": "not_formal",
+      "formal_claim_allowed": false,
+      "terminal_rs_success_rate": 1.0,
+      "episodes": 4,
+      "blocker_codes": [
+        "smoke_trial",
+        "train_curriculum_not_f03",
+        "eval_curriculum_not_f03",
+        "insufficient_eval_episodes",
+        "warm_start_decision_pending"
+      ]
+    }
+  },
+  "next_actions": {
+    "if_approved_obstacle_summary": {
+      "runner_command": "python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 --seed 20260704 --device cuda --train-curriculum-preset f03 --eval-curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260704 --train-total-timesteps 100000 --train-n-envs 1 --train-n-steps 128 --train-batch-size 64 --train-n-epochs 4 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --allow-duplicate-openmp --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt",
+      "audit_command": "python -m forest_n3p.scripts.audit_rl_rs_gate3_trial --trial-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 --min-formal-episodes 64 --required-success-threshold 0.8 --required-train-curriculum f03 --required-eval-curriculum f03 --warm-start-decision approved_obstacle_summary",
+      "host": "gpu3070ti-relay"
+    },
+    "if_rejected_obstacle_summary": {
+      "next_protocol": "run a stronger/full patch-CNN warm-start protocol before any warm-start PPO formal trial"
+    }
+  },
+  "sources": [
+    {
+      "path": "2_experiment/forest_n3p/models/module2_rl_rs_bc_formal_v2_scalar/summary.json",
+      "exists": true,
+      "sha256": "cc8e7fd50180d437d62e2b5e4d4db745e038f34c53bb406fe41b12dd61e52a5f"
+    },
+    {
+      "path": "2_experiment/forest_n3p/models/module2_rl_rs_bc_formal_v2_scalar/eval_patch_bounded_rows.json",
+      "exists": true,
+      "sha256": "06f784583cdf119ea1c337ae824c690c504451b9cbca09f17bf155c33282e9d8"
+    },
+    {
+      "path": "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/summary.json",
+      "exists": true,
+      "sha256": "73baacd42654fa63b94b2323d5612098e55a870a0e81064d53880f80d342a2d7"
+    },
+    {
+      "path": "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/eval_patch_bounded_rows.json",
+      "exists": true,
+      "sha256": "391ee3c26d8b578b24a463df4ff55583f1ebbc59acaec23ec8f74b30a56d3a3b"
+    },
+    {
+      "path": "2_experiment/forest_n3p/models/module2_rl_rs_bc_patch_formal_v2_pilot/summary.json",
+      "exists": true,
+      "sha256": "0454193ac49c55194cca168d196c1a7ea82f27d14c9cc989f215cc82e704d669"
+    },
+    {
+      "path": "0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/gate3_formal_audit.json",
+      "exists": true,
+      "sha256": "69263ba7446614f3b4b21df38d0e95f504d60db08e6b38eb5271477ae4663840"
+    },
+    {
+      "path": "0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/eval/gate3_summary.json",
+      "exists": true,
+      "sha256": "36f49d5279873807029a98e5cc4adf1f4650df5f3adc24bbde81b832925f0d1d"
+    },
+    {
+      "path": "0_trials/module2_remote_preflight/gate3_no_warm_remote_v1/gate3_preflight_manifest.json",
+      "exists": true,
+      "sha256": "95c90066f7113e09ffae6dce642ae104dd87002eccc29117326b6a14453b2e9b"
+    },
+    {
+      "path": "0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_pending_remote_v1/gate3_preflight_manifest.json",
+      "exists": true,
+      "sha256": "2156bc20455665b4f49ccaa84381761d8ce492a9383d53c4007ed19452d5d19e"
+    },
+    {
+      "path": "0_trials/module2_remote_smoke/gate3_warm_start_cuda_smoke/gate3_formal_audit.json",
+      "exists": true,
+      "sha256": "c82045777749167764b8de8414d471fd7cbdeada0837ad252ce27d67d58ed15e"
+    }
+  ],
+  "claim_boundaries": [
+    "This packet is decision support, not a formal experiment result.",
+    "It does not close F02.6; Dr Sun must explicitly approve or reject the recommendation.",
+    "Remote smoke artifacts prove executable CUDA plumbing only; they are not Gate #3 evidence.",
+    "No-warm formal failure cannot be relabeled as obstacle-summary warm-start failure.",
+    "The obstacle-summary checkpoint is a warm-start initializer candidate, not a finished planner checkpoint."
+  ]
+}
