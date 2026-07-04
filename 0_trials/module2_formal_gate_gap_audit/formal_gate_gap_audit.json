@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_gap_audit",
   "status": "blocked_formal_gate_gaps_open",
-  "created_at_utc": "2026-07-04T10:48:16.081552+00:00",
-  "source_head": "be670b451f57f661180f7a5e82de3be19965bb35+dirty",
+  "created_at_utc": "2026-07-04T11:04:41.382321+00:00",
+  "source_head": "4bad78ad46bb03619304155a05d1a14afbe1044b+dirty",
   "not_paper_result_material": true,
   "local_training_allowed": false,
   "remote_training_resource": "gpu3070ti-relay",
@@ -26,6 +26,71 @@
     "oracle_connector_results_match": true,
     "obstacle_summary_bc_checkpoint_match": true
   },
+  "source_freshness": {
+    "path": "0_trials/module2_source_freshness_audit/source_freshness_audit.json",
+    "exists": true,
+    "status": "source_freshness_risks_recorded_gate_still_blocked",
+    "runs_training": false,
+    "runs_remote_preflight": false,
+    "local_training_allowed": false,
+    "formal_claim_allowed": false,
+    "regeneration_required_before_remote_formal_execution": true,
+    "risk_counts": {
+      "historical_dirty": 6,
+      "historical_clean": 2
+    },
+    "ordered_regeneration_target_count": 8,
+    "ordered_regeneration_targets": [
+      {
+        "artifact_id": "f02_6_decision_record",
+        "path": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+        "freshness_state": "historical_dirty",
+        "required_before": "approved_remote_preflight"
+      },
+      {
+        "artifact_id": "formal_gate_gap_audit",
+        "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
+        "freshness_state": "historical_dirty",
+        "required_before": "approved_remote_preflight"
+      },
+      {
+        "artifact_id": "gpu3070ti_readiness_refresh",
+        "path": "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
+        "freshness_state": "historical_clean",
+        "required_before": "approved_remote_preflight"
+      },
+      {
+        "artifact_id": "remote_formal_execution_packet",
+        "path": "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json",
+        "freshness_state": "historical_dirty",
+        "required_before": "approved_remote_preflight"
+      },
+      {
+        "artifact_id": "h01_evaluation_manifest",
+        "path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
+        "freshness_state": "historical_dirty",
+        "required_before": "formal_h01_h02"
+      },
+      {
+        "artifact_id": "h02_formal_acceptance",
+        "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+        "freshness_state": "historical_dirty",
+        "required_before": "formal_h01_h02"
+      },
+      {
+        "artifact_id": "claim_safety",
+        "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
+        "freshness_state": "historical_clean",
+        "required_before": "formal_claim_gate"
+      },
+      {
+        "artifact_id": "paper_readiness",
+        "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
+        "freshness_state": "historical_dirty",
+        "required_before": "formal_claim_gate"
+      }
+    ]
+  },
   "current_gate_state": {
     "f02_6_decision_status": "pending_human_decision",
     "effective_warm_start_decision": "pending",
@@ -37,7 +102,9 @@
     "h02_formal_output_accepted": false,
     "ppo_row_count": 0,
     "ppo_checkpoint_hashes": [],
-    "formal_performance_claim_allowed": false
+    "formal_performance_claim_allowed": false,
+    "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
+    "source_freshness_regeneration_required": true
   },
   "missing_decision_items": [
     {
@@ -125,6 +192,13 @@
       "why_missing": "PPO rows do not contain a non-empty rl_rs_checkpoint_sha256.",
       "evidence_path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
       "required_next_artifact": "Record checkpoint path and SHA-256 in every PPO/RL-RS result row."
+    },
+    {
+      "category": "training",
+      "gap_id": "source_freshness_regeneration_required",
+      "why_missing": "Source freshness audit reports stale or dirty gate artifacts that must be regenerated before formal execution.",
+      "evidence_path": "0_trials/module2_source_freshness_audit/source_freshness_audit.json",
+      "required_next_artifact": "After F02.6 closes, regenerate the listed targets before approved remote preflight, H01/H02, and formal claim gates."
     }
   ],
   "missing_evaluation_artifacts": [
@@ -220,11 +294,12 @@
       "status": "blocked",
       "blocked_by": [
         "f02_6_warm_start_decision_pending",
-        "requires_dr_sun_approval"
+        "requires_dr_sun_approval",
+        "source_freshness_regeneration_required"
       ],
       "runs_training": false,
       "host": "gpu3070ti-relay",
-      "action": "Regenerate approved gpu3070ti preflight and require formal_trial_ready=true.",
+      "action": "Regenerate source-fresh gate artifacts, then approved gpu3070ti preflight and require formal_trial_ready=true.",
       "evidence_to_update": "0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1/gate3_preflight_manifest.json"
     },
     {
@@ -234,6 +309,7 @@
       "blocked_by": [
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
+        "source_freshness_regeneration_required",
         "remote_training_packet_not_ready"
       ],
       "runs_training": true,
@@ -248,6 +324,7 @@
       "blocked_by": [
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
+        "source_freshness_regeneration_required",
         "remote_training_packet_not_ready",
         "missing_remote_pullback_artifact",
         "missing_ppo_result_rows",
@@ -265,6 +342,7 @@
       "blocked_by": [
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
+        "source_freshness_regeneration_required",
         "remote_training_packet_not_ready",
         "missing_remote_pullback_artifact",
         "missing_ppo_result_rows",
@@ -287,6 +365,7 @@
       "blocked_by": [
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
+        "source_freshness_regeneration_required",
         "remote_training_packet_not_ready",
         "missing_remote_pullback_artifact",
         "missing_ppo_result_rows",
@@ -312,6 +391,7 @@
     "Do not write performance-improvement or warm-start-effect claims from this artifact.",
     "No PPO/RL-RS formal training is allowed on the local Mac.",
     "Formal PPO checkpoint production must run on gpu3070ti-relay after F02.6 closes.",
+    "Source freshness risks are regeneration blockers, not formal algorithm failures.",
     "Remote completion is insufficient until audit artifacts, checkpoint hashes, H01/H02 regeneration, and claim safety all pass."
   ]
 }

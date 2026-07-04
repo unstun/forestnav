@@ -34,6 +34,8 @@ def test_formal_gate_gap_audit_blocks_current_pending_gate_and_lists_missing_art
             str(_readiness(tmp_path, ready=False)),
             "--remote-readiness-refresh",
             str(_remote_readiness(tmp_path, good=True)),
+            "--source-freshness-audit",
+            str(_source_freshness(tmp_path, clean=True)),
         ]
     )
 
@@ -50,6 +52,7 @@ def test_formal_gate_gap_audit_blocks_current_pending_gate_and_lists_missing_art
     assert manifest["current_gate_state"]["formal_performance_claim_allowed"] is False
     assert manifest["remote_readiness"]["oracle_connector_results_match"] is True
     assert manifest["remote_readiness"]["obstacle_summary_bc_checkpoint_match"] is True
+    assert manifest["source_freshness"]["regeneration_required_before_remote_formal_execution"] is False
 
     gap_ids = {
         gap["gap_id"]
@@ -73,6 +76,7 @@ def test_formal_gate_gap_audit_blocks_current_pending_gate_and_lists_missing_art
     assert "readiness_blocks_formal_results" in gap_ids
     assert "Formal Gate Gap Audit" in markdown
     assert "not a paper result" in markdown
+    assert "Source Freshness" in markdown
     assert "runs_training=`True`, host=`gpu3070ti-relay`" in markdown
 
 
@@ -91,6 +95,7 @@ def test_formal_gate_gap_audit_can_be_clean_only_after_remote_artifacts_and_acce
             claim_safety_path=_claim_safety(tmp_path, allowed=True),
             readiness_path=_readiness(tmp_path, ready=True),
             remote_readiness_path=_remote_readiness(tmp_path, good=True),
+            source_freshness_path=_source_freshness(tmp_path, clean=True),
         )
     )
 
@@ -117,6 +122,7 @@ def test_formal_gate_gap_audit_does_not_treat_expected_training_outputs_as_train
             claim_safety_path=_claim_safety(tmp_path, allowed=False),
             readiness_path=_readiness(tmp_path, ready=False),
             remote_readiness_path=_remote_readiness(tmp_path, good=True),
+            source_freshness_path=_source_freshness(tmp_path, clean=True),
         )
     )
 
@@ -146,6 +152,7 @@ def test_formal_gate_gap_audit_blocks_remote_execution_when_readiness_inputs_do_
             claim_safety_path=_claim_safety(tmp_path, allowed=False),
             readiness_path=_readiness(tmp_path, ready=False),
             remote_readiness_path=_remote_readiness(tmp_path, good=False),
+            source_freshness_path=_source_freshness(tmp_path, clean=True),
         )
     )
 
@@ -156,6 +163,59 @@ def test_formal_gate_gap_audit_blocks_remote_execution_when_readiness_inputs_do_
     assert steps["remote_preflight"]["status"] == "blocked"
     assert "remote_readiness_oracle_connector_results_mismatch" in steps["remote_preflight"]["blocked_by"]
     assert steps["gate3_remote_training"]["status"] == "blocked"
+
+
+def test_formal_gate_gap_audit_blocks_remote_execution_when_source_freshness_requires_regeneration(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_gap_audit")
+
+    manifest = builder.build_manifest(
+        builder.FormalGateGapAuditConfig(
+            output_dir=tmp_path,
+            contract_path=_contract(tmp_path),
+            decision_record_path=_decision_record(tmp_path, pending=False),
+            h01_manifest_path=_h01_manifest(tmp_path, ready=True),
+            remote_packet_path=_remote_packet(tmp_path, ready=True, artifacts_present=False),
+            h02_acceptance_path=_h02_acceptance(tmp_path, accepted=False),
+            claim_safety_path=_claim_safety(tmp_path, allowed=False),
+            readiness_path=_readiness(tmp_path, ready=False),
+            remote_readiness_path=_remote_readiness(tmp_path, good=True),
+            source_freshness_path=_source_freshness(tmp_path, clean=False),
+        )
+    )
+
+    training_gap_ids = {gap["gap_id"] for gap in manifest["missing_training_artifacts"]}
+    assert "source_freshness_regeneration_required" in training_gap_ids
+    assert manifest["source_freshness"]["ordered_regeneration_target_count"] == 2
+    steps = {step["step_id"]: step for step in manifest["ordered_next_steps"]}
+    assert steps["remote_preflight"]["status"] == "blocked"
+    assert "source_freshness_regeneration_required" in steps["remote_preflight"]["blocked_by"]
+    assert steps["gate3_remote_training"]["status"] == "blocked"
+    assert "source_freshness_regeneration_required" in steps["gate3_remote_training"]["blocked_by"]
+
+
+def test_formal_gate_gap_audit_rejects_source_freshness_audit_that_runs_or_claims_results(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_gap_audit")
+
+    manifest = builder.build_manifest(
+        builder.FormalGateGapAuditConfig(
+            output_dir=tmp_path,
+            contract_path=_contract(tmp_path),
+            decision_record_path=_decision_record(tmp_path, pending=False),
+            h01_manifest_path=_h01_manifest(tmp_path, ready=True),
+            remote_packet_path=_remote_packet(tmp_path, ready=True, artifacts_present=False),
+            h02_acceptance_path=_h02_acceptance(tmp_path, accepted=False),
+            claim_safety_path=_claim_safety(tmp_path, allowed=False),
+            readiness_path=_readiness(tmp_path, ready=False),
+            remote_readiness_path=_remote_readiness(tmp_path, good=True),
+            source_freshness_path=_source_freshness(tmp_path, clean=True, invalid=True),
+        )
+    )
+
+    training_gap_ids = {gap["gap_id"] for gap in manifest["missing_training_artifacts"]}
+    assert "source_freshness_audit_ran_training" in training_gap_ids
+    assert "source_freshness_audit_ran_preflight" in training_gap_ids
+    assert "source_freshness_allows_local_training" in training_gap_ids
+    assert "source_freshness_allows_formal_claim" in training_gap_ids
 
 
 def test_formal_gate_gap_audit_does_not_allow_local_training_even_when_remote_is_ready(tmp_path):
@@ -172,6 +232,7 @@ def test_formal_gate_gap_audit_does_not_allow_local_training_even_when_remote_is
             claim_safety_path=_claim_safety(tmp_path, allowed=True),
             readiness_path=_readiness(tmp_path, ready=True),
             remote_readiness_path=_remote_readiness(tmp_path, good=True),
+            source_freshness_path=_source_freshness(tmp_path, clean=True),
         )
     )
 
@@ -349,6 +410,40 @@ def _remote_readiness(tmp_path, *, good):
                     "oracle_connector_results": {"local_remote_match": match},
                     "obstacle_summary_bc_checkpoint": {"local_remote_match": match},
                 },
+            }
+        ),
+        encoding="utf-8",
+    )
+    return path
+
+
+def _source_freshness(tmp_path, *, clean, invalid=False):
+    path = tmp_path / f"source_freshness_{clean}_{invalid}.json"
+    targets = [] if clean else [
+        {
+            "artifact_id": "f02_6_decision_record",
+            "path": str(tmp_path / "f02_6_decision_record.json"),
+            "freshness_state": "historical_dirty",
+            "required_before": "approved_remote_preflight",
+        },
+        {
+            "artifact_id": "h02_formal_acceptance",
+            "path": str(tmp_path / "h02_formal_acceptance.json"),
+            "freshness_state": "historical_dirty",
+            "required_before": "formal_h01_h02",
+        },
+    ]
+    path.write_text(
+        json.dumps(
+            {
+                "status": "source_freshness_clean_current" if clean else "source_freshness_risks_recorded_gate_still_blocked",
+                "runs_training": bool(invalid),
+                "runs_remote_preflight": bool(invalid),
+                "local_training_allowed": bool(invalid),
+                "formal_claim_allowed": bool(invalid),
+                "regeneration_required_before_remote_formal_execution": not clean,
+                "risk_counts": {"current_clean": 8} if clean else {"historical_dirty": 2},
+                "ordered_regeneration_targets": targets,
             }
         ),
         encoding="utf-8",

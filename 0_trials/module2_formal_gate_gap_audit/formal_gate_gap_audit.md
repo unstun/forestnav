@@ -16,6 +16,27 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - oracle_connector_results_match: `True`
 - obstacle_summary_bc_checkpoint_match: `True`
 
+## Source Freshness
+
+- path: `0_trials/module2_source_freshness_audit/source_freshness_audit.json`
+- status: `source_freshness_risks_recorded_gate_still_blocked`
+- runs_training: `False`
+- runs_remote_preflight: `False`
+- formal_claim_allowed: `False`
+- regeneration_required_before_remote_formal_execution: `True`
+- ordered_regeneration_target_count: `8`
+
+### Source Freshness Regeneration Targets
+
+- `f02_6_decision_record`: `historical_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json`
+- `formal_gate_gap_audit`: `historical_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json`
+- `gpu3070ti_readiness_refresh`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json`
+- `remote_formal_execution_packet`: `historical_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json`
+- `h01_evaluation_manifest`: `historical_dirty`, required before `formal_h01_h02`, path `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`
+- `h02_formal_acceptance`: `historical_dirty`, required before `formal_h01_h02`, path `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
+- `claim_safety`: `historical_clean`, required before `formal_claim_gate`, path `0_trials/module2_claim_safety/module2_claim_safety.json`
+- `paper_readiness`: `historical_dirty`, required before `formal_claim_gate`, path `0_trials/module2_paper_readiness/module2_paper_readiness.json`
+
 ## Decision Gaps
 
 - `f02_6_warm_start_decision_pending`
@@ -69,6 +90,10 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
   - evidence: `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
   - why: PPO rows do not contain a non-empty rl_rs_checkpoint_sha256.
   - needed: Record checkpoint path and SHA-256 in every PPO/RL-RS result row.
+- `source_freshness_regeneration_required`
+  - evidence: `0_trials/module2_source_freshness_audit/source_freshness_audit.json`
+  - why: Source freshness audit reports stale or dirty gate artifacts that must be regenerated before formal execution.
+  - needed: After F02.6 closes, regenerate the listed targets before approved remote preflight, H01/H02, and formal claim gates.
 
 ## Evaluation Artifact Gaps
 
@@ -119,7 +144,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 ## Ordered Next Steps
 
 - `F02.6` (decision): status=`blocked`, runs_training=`False`. Close Dr Sun's obstacle-summary warm-start decision record.
-- `remote_preflight` (training): status=`blocked`, runs_training=`False`, host=`gpu3070ti-relay`. Regenerate approved gpu3070ti preflight and require formal_trial_ready=true.
+- `remote_preflight` (training): status=`blocked`, runs_training=`False`, host=`gpu3070ti-relay`. Regenerate source-fresh gate artifacts, then approved gpu3070ti preflight and require formal_trial_ready=true.
 - `gate3_remote_training` (training): status=`blocked`, runs_training=`True`, host=`gpu3070ti-relay`. Run formal PPO Gate3 trial remotely; never on local Mac.
 - `gate3_remote_audit_pullback` (acceptance): status=`blocked`, runs_training=`False`, host=`gpu3070ti-relay`. Audit remote trial, pull back checkpoint/eval/audit artifacts, and record hashes.
 - `h01_h02_regeneration` (evaluation): status=`blocked`, runs_training=`False`. Regenerate H01 with checkpoint and run H02 formal evaluation at H01 scale.
@@ -131,4 +156,5 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - Do not write performance-improvement or warm-start-effect claims from this artifact.
 - No PPO/RL-RS formal training is allowed on the local Mac.
 - Formal PPO checkpoint production must run on gpu3070ti-relay after F02.6 closes.
+- Source freshness risks are regeneration blockers, not formal algorithm failures.
 - Remote completion is insufficient until audit artifacts, checkpoint hashes, H01/H02 regeneration, and claim safety all pass.
