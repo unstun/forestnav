@@ -287,6 +287,7 @@ def _formal_gate(*, complete):
         "status": "formal_gate_ready_for_result_audit" if complete else "blocked_formal_gate_gaps_open",
         "local_training_allowed": False,
         "formal_claim_allowed": False,
+        "execution_veto_matrix": _execution_veto_matrix(complete=complete),
         "ordered_next_steps": [
             {"step_id": "F02.6", "status": "complete" if complete else "blocked", "blocked_by": [] if complete else ["f02_6_decision_not_approved"]},
             {"step_id": "remote_preflight", "status": "complete" if complete else "blocked", "blocked_by": [] if complete else ["source_freshness_regeneration_required"]},
@@ -295,6 +296,71 @@ def _formal_gate(*, complete):
             {"step_id": "h01_h02_regeneration", "status": "complete" if complete else "blocked", "blocked_by": [] if complete else ["h01_manifest_not_ready"]},
             {"step_id": "claim_safety_final_gate", "status": "complete" if complete else "blocked", "blocked_by": [] if complete else ["h02_formal_acceptance_not_ready"]},
         ],
+    }
+
+
+def _execution_veto_matrix(*, complete):
+    rows = [
+        _veto_row(
+            "local_training",
+            {
+                "formal_gate_gap_audit": False,
+                "status_report": False,
+                "handoff_bundle": False,
+                "remote_packet": False,
+            },
+        ),
+        _veto_row(
+            "remote_preflight",
+            {
+                "status_report": complete,
+                "handoff_bundle": complete,
+                "remote_packet": complete,
+                "remote_packet_safety": complete,
+            },
+        ),
+        _veto_row(
+            "remote_training",
+            {
+                "decision_record": complete,
+                "status_report": complete,
+                "handoff_bundle": complete,
+                "remote_packet": complete,
+                "remote_packet_safety": complete,
+            },
+        ),
+        _veto_row(
+            "remote_audit",
+            {
+                "handoff_bundle": complete,
+                "remote_packet": complete,
+                "remote_packet_safety": complete,
+            },
+        ),
+        _veto_row(
+            "formal_claim",
+            {
+                "status_report": complete,
+                "handoff_bundle": complete,
+            },
+        ),
+    ]
+    return {
+        "matrix_version": 1,
+        "f02_6_decision_status": "approved" if complete else "pending_human_decision",
+        "all_rows_consistent": True,
+        "mismatch_rows": [],
+        "rows": rows,
+    }
+
+
+def _veto_row(row_id, sources):
+    observed = list(sources.values())
+    return {
+        "row_id": row_id,
+        "allowed_now_by_source": sources,
+        "consistent": len(set(observed)) <= 1,
+        "consensus_allowed_now": bool(observed) and set(observed) == {True},
     }
 
 

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-04T15:19:57.373856+00:00",
-  "source_head": "073c271fb77714de6c498cd5114704d239faf8f8+dirty",
+  "created_at_utc": "2026-07-04T15:41:22.023284+00:00",
+  "source_head": "e052663be69ee0c9f89072b3d7e28c6b1910a2a7+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -48,7 +48,11 @@
     "handoff_bundle_status": "blocked_until_f02_6_decision",
     "handoff_bundle_next_action": "record_f02_6_decision",
     "handoff_bundle_safety_issue_count": 0,
-    "handoff_bundle_remote_training_allowed_now": false
+    "handoff_bundle_remote_training_allowed_now": false,
+    "formal_gate_execution_veto_present": true,
+    "formal_gate_execution_veto_all_rows_consistent": true,
+    "formal_gate_execution_veto_remote_training_allowed_now": false,
+    "formal_gate_execution_veto_formal_claim_allowed_now": false
   },
   "permissions_now": {
     "f02_6_decision_closed": false,
@@ -327,6 +331,71 @@
           "missing_module2_rl_rs_checkpoint",
           "remote_packet_not_ready"
         ]
+      }
+    }
+  },
+  "formal_gate_execution_veto_summary": {
+    "present": true,
+    "matrix_version": 1,
+    "f02_6_decision_status": "pending_human_decision",
+    "all_rows_consistent": true,
+    "mismatch_rows": [],
+    "row_count": 5,
+    "row_consensus": {
+      "local_training": false,
+      "remote_preflight": false,
+      "remote_training": false,
+      "remote_audit": false,
+      "formal_claim": false
+    },
+    "rows": {
+      "local_training": {
+        "consistent": true,
+        "consensus_allowed_now": false,
+        "allowed_now_by_source": {
+          "formal_gate_gap_audit": false,
+          "status_report": false,
+          "handoff_bundle": false,
+          "remote_packet": false
+        }
+      },
+      "remote_preflight": {
+        "consistent": true,
+        "consensus_allowed_now": false,
+        "allowed_now_by_source": {
+          "status_report": false,
+          "handoff_bundle": false,
+          "remote_packet": false,
+          "remote_packet_safety": false
+        }
+      },
+      "remote_training": {
+        "consistent": true,
+        "consensus_allowed_now": false,
+        "allowed_now_by_source": {
+          "decision_record": false,
+          "status_report": false,
+          "handoff_bundle": false,
+          "remote_packet": false,
+          "remote_packet_safety": false
+        }
+      },
+      "remote_audit": {
+        "consistent": true,
+        "consensus_allowed_now": false,
+        "allowed_now_by_source": {
+          "handoff_bundle": false,
+          "remote_packet": false,
+          "remote_packet_safety": false
+        }
+      },
+      "formal_claim": {
+        "consistent": true,
+        "consensus_allowed_now": false,
+        "allowed_now_by_source": {
+          "status_report": false,
+          "handoff_bundle": false
+        }
       }
     }
   },
@@ -769,6 +838,7 @@
     "It does not execute commands, remote preflight, training, evaluation, sync, audit, or pullback.",
     "It must not be used to approve F02.6; only Dr Sun's decision record can do that.",
     "Formal PPO training remains gpu3070ti-relay-only and blocked until F02.6, source freshness, and remote packet gates close.",
-    "Formal result writing remains blocked until H02 acceptance, claim safety, paper readiness, and the closure checklist all pass after audited pullback hashes."
+    "Formal result writing remains blocked until H02 acceptance, claim safety, paper readiness, and the closure checklist all pass after audited pullback hashes.",
+    "The formal gate execution veto matrix must agree across status, handoff, remote packet, and remote packet safety before this report can become claim-ready."
   ]
 }

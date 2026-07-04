@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `073c271fb77714de6c498cd5114704d239faf8f8+dirty`
+- source_head: `e052663be69ee0c9f89072b3d7e28c6b1910a2a7+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -38,6 +38,10 @@ This file is a read-only formal-gate status report. It does not execute commands
 - handoff_bundle_next_action: `record_f02_6_decision`
 - handoff_bundle_safety_issue_count: `0`
 - handoff_bundle_remote_training_allowed_now: `False`
+- formal_gate_execution_veto_present: `True`
+- formal_gate_execution_veto_all_rows_consistent: `True`
+- formal_gate_execution_veto_remote_training_allowed_now: `False`
+- formal_gate_execution_veto_formal_claim_allowed_now: `False`
 
 ## Next Blocked Lane
 
@@ -102,6 +106,17 @@ This file is a read-only formal-gate status report. It does not execute commands
 - `run_remote_training`: present=`True`, allowed_now=`False`, runs_training=`True`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_packet_not_ready`
 - `run_remote_audit`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_packet_not_ready`
 
+## Formal Gate Execution Veto Matrix
+
+- present: `True`
+- all_rows_consistent: `True`
+- mismatch_rows: `[]`
+- `local_training`: consistent=`True`, consensus_allowed_now=`False`, sources=`{'formal_gate_gap_audit': False, 'status_report': False, 'handoff_bundle': False, 'remote_packet': False}`
+- `remote_preflight`: consistent=`True`, consensus_allowed_now=`False`, sources=`{'status_report': False, 'handoff_bundle': False, 'remote_packet': False, 'remote_packet_safety': False}`
+- `remote_training`: consistent=`True`, consensus_allowed_now=`False`, sources=`{'decision_record': False, 'status_report': False, 'handoff_bundle': False, 'remote_packet': False, 'remote_packet_safety': False}`
+- `remote_audit`: consistent=`True`, consensus_allowed_now=`False`, sources=`{'handoff_bundle': False, 'remote_packet': False, 'remote_packet_safety': False}`
+- `formal_claim`: consistent=`True`, consensus_allowed_now=`False`, sources=`{'status_report': False, 'handoff_bundle': False}`
+
 ## Required Training Artifacts
 
 - `train_final_model_zip`: missing=`True`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip`
@@ -136,3 +151,4 @@ This file is a read-only formal-gate status report. It does not execute commands
 - It must not be used to approve F02.6; only Dr Sun's decision record can do that.
 - Formal PPO training remains gpu3070ti-relay-only and blocked until F02.6, source freshness, and remote packet gates close.
 - Formal result writing remains blocked until H02 acceptance, claim safety, paper readiness, and the closure checklist all pass after audited pullback hashes.
+- The formal gate execution veto matrix must agree across status, handoff, remote packet, and remote packet safety before this report can become claim-ready.
