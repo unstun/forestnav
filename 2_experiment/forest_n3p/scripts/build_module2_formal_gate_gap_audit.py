@@ -578,6 +578,91 @@ def _missing_artifacts_gaps(*, missing_artifacts: dict[str, Any], missing_artifa
     return _unique_gaps(gaps)
 
 
+def _closure_checklist_gaps(*, closure_checklist: dict[str, Any], closure_checklist_path: Path) -> list[dict[str, Any]]:
+    if not Path(closure_checklist_path).is_file():
+        return [
+            _gap(
+                "acceptance",
+                "formal_gate_closure_checklist_missing",
+                "No formal gate closure checklist is available for the final gate cross-check.",
+                str(closure_checklist_path),
+                "Regenerate the closure checklist before treating the formal gate as complete.",
+            )
+        ]
+    gaps: list[dict[str, Any]] = []
+    if closure_checklist.get("executes_commands") is not False:
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_closure_checklist_executes_commands",
+                "Closure checklist must be read-only and must not execute commands.",
+                str(closure_checklist_path),
+                "Regenerate the checklist with executes_commands=false.",
+            )
+        )
+    if closure_checklist.get("runs_training") is not False:
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_closure_checklist_runs_training",
+                "Closure checklist claims it ran training; the checklist must remain non-executing.",
+                str(closure_checklist_path),
+                "Replace it with a read-only checklist before using it as formal gate evidence.",
+            )
+        )
+    if closure_checklist.get("runs_remote_preflight") is not False:
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_closure_checklist_runs_preflight",
+                "Closure checklist claims it ran remote preflight; the checklist must remain non-executing.",
+                str(closure_checklist_path),
+                "Replace it with a read-only checklist before using it as formal gate evidence.",
+            )
+        )
+    if closure_checklist.get("local_training_allowed") is not False:
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_closure_checklist_allows_local_training",
+                "Closure checklist does not preserve the local-training prohibition.",
+                str(closure_checklist_path),
+                "Regenerate the checklist with local_training_allowed=false.",
+            )
+        )
+    if closure_checklist.get("formal_claim_allowed") is not False:
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_closure_checklist_allows_claim",
+                "Closure checklist incorrectly allows formal claims.",
+                str(closure_checklist_path),
+                "Regenerate the checklist as non-result gate evidence.",
+            )
+        )
+    if int(closure_checklist.get("input_safety_issue_count") or 0) > 0:
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_closure_checklist_safety_issues_open",
+                f"Closure checklist reports {closure_checklist.get('input_safety_issue_count')} input safety issues.",
+                str(closure_checklist_path),
+                "Resolve checklist input safety issues before treating the formal gate as complete.",
+            )
+        )
+    if closure_checklist.get("status") != "formal_gate_closure_ready_for_result_audit":
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_gate_closure_checklist_open",
+                f"Closure checklist status is {closure_checklist.get('status')}; open_item_count={closure_checklist.get('open_item_count')}.",
+                str(closure_checklist_path),
+                "Close every checklist item before final H02/claim readiness can pass.",
+            )
+        )
+    return _unique_gaps(gaps)
+
+
 def _ordered_next_steps(
     decision_gaps: Sequence[dict[str, Any]],
     training_gaps: Sequence[dict[str, Any]],
