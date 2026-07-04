@@ -19,6 +19,11 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
             missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
             closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
             status_report_path=_json(tmp_path, "status_report.json", _status_report_payload(ready=False)),
+            remaining_deliverables_path=_json(
+                tmp_path,
+                "remaining_deliverables.json",
+                _remaining_deliverables_payload(open_gaps=True),
+            ),
         )
     )
 
@@ -54,6 +59,9 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
     assert manifest["status_report_summary"]["formal_gate_execution_veto_summary"]["all_rows_consistent"] is True
     assert manifest["status_report_summary"]["formal_gate_execution_veto_summary"]["row_consensus"]["remote_training"] is False
     assert manifest["status_report_summary"]["formal_gate_execution_veto_summary"]["row_consensus"]["formal_claim"] is False
+    assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
+    assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 4
+    assert manifest["status_report_summary"]["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
     steps = manifest["status_report_summary"]["remote_execution_step_summary"]
     assert steps["sync_to_remote"]["allowed_now"] is False
     assert steps["sync_to_remote"]["blocked_by"] == ["requires_dr_sun_approval"]
@@ -496,6 +504,36 @@ def test_post_f02_6_plan_audit_catches_claim_gate_ready_with_blocked_status_repo
     assert "claim_gate_ready_with_blocked_status_report" in issue_ids
 
 
+def test_post_f02_6_plan_audit_rejects_remaining_deliverables_gap_summary_drift(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
+    plan = _plan_payload()
+    plan["remaining_deliverables_gap_summary"]["categories"]["training"]["missing_count"] = 2
+    status_report = _status_report_payload(ready=False)
+    status_report["remaining_deliverables_gap_summary"]["total_missing_deliverables"] = 9
+
+    manifest = auditor.build_manifest(
+        auditor.PostF026PlanAuditConfig(
+            output_dir=tmp_path,
+            plan_path=_json(tmp_path, "plan.json", plan),
+            formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate_payload()),
+            source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
+            missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
+            closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
+            status_report_path=_json(tmp_path, "status_report.json", status_report),
+            remaining_deliverables_path=_json(
+                tmp_path,
+                "remaining_deliverables.json",
+                _remaining_deliverables_payload(open_gaps=True),
+            ),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "post_f02_6_plan_audit_failed"
+    assert "plan_remaining_deliverables_gap_summary_mismatch" in issue_ids
+    assert "status_report_remaining_deliverables_gap_summary_mismatch" in issue_ids
+
+
 def test_post_f02_6_plan_audit_cli_writes_json_and_markdown(tmp_path):
     auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
     manifest_path = tmp_path / "audit.json"
@@ -521,6 +559,8 @@ def test_post_f02_6_plan_audit_cli_writes_json_and_markdown(tmp_path):
             str(_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True))),
             "--status-report",
             str(_json(tmp_path, "status_report.json", _status_report_payload(ready=False))),
+            "--remaining-deliverables",
+            str(_json(tmp_path, "remaining_deliverables.json", _remaining_deliverables_payload(open_gaps=True))),
         ]
     )
 
@@ -530,6 +570,7 @@ def test_post_f02_6_plan_audit_cli_writes_json_and_markdown(tmp_path):
     assert manifest["status"] == "post_f02_6_plan_audit_passed"
     assert "Module2 Post-F02.6 Plan Audit" in markdown
     assert "Source Regeneration Command Index" in markdown
+    assert "Remaining Deliverables Gap Summary" in markdown
     assert "Status Report Remote Execution Steps" in markdown
     assert "Status Report Execution Veto Matrix" in markdown
     assert "does not execute the plan" in markdown
