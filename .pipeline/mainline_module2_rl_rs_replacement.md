@@ -593,10 +593,15 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 
 #### F03. PPO 最大实现
 
-- [ ] F03.1 选择 RL 库。
+- [x] F03.1 选择 RL 库。
   - 候选: stable-baselines3, cleanrl, local minimal PPO。
   - 决策依据: continuous action, vector env, logging, checkpoint, license, reproducibility。
   - 不允许: 手写不可审计的临时 PPO。
+  - 决策: 选择 Stable-Baselines3 2.9.0 + Gymnasium wrapper 作为 F03 PPO 主线。
+  - 依据: SB3 支持 custom env/policy、Dict observation、TensorBoard、callback、Box continuous action 和 VecEnv; 本机 `python -m pip install stable-baselines3` 后 import smoke 通过。
+  - 排除: CleanRL 只作为 PPO 细节参考, 因其 README 明确不是 modular library / not meant to be imported, 且当前 prerequisite 是 Python `<3.11`; local minimal PPO 继续禁止。
+  - 适配边界: 当前 `AnalyticExpansionEnv` 不是 Gymnasium env; F03.2 要写薄 adapter, 不重写环境动力学/碰撞/reward。
+  - 记录: `.pipeline/experiments/20260704_module2_f03_rl_library_selection.md`。
 - [ ] F03.2 vectorized env。
   - 多 map/query 并行采样。
   - 每个 episode 绑定一个 RS failure node 或 near-goal state。
