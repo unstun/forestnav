@@ -10,6 +10,7 @@ from typing import Any, Sequence
 
 DEFAULT_OUTPUT_DIR = Path("0_trials/module2_claim_safety")
 DEFAULT_PAPER_TABLES = Path("0_trials/module2_paper_tables/module2_paper_tables.json")
+DEFAULT_H02_FORMAL_ACCEPTANCE = Path("0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json")
 DEFAULT_H01_MANIFEST = Path("0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json")
 DEFAULT_F02_6_PACKET = Path("0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json")
 DEFAULT_GATE3_AUDIT = Path("0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/gate3_formal_audit.json")
@@ -23,6 +24,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     manifest = build_manifest(
         repo_root=repo_root,
         paper_tables_path=args.paper_tables,
+        h02_formal_acceptance_path=args.h02_formal_acceptance,
         h01_manifest_path=args.h01_manifest,
         f02_6_packet_path=args.f02_6_packet,
         gate3_audit_path=args.gate3_audit,
@@ -47,6 +49,7 @@ def build_manifest(
     *,
     repo_root: Path,
     paper_tables_path: Path,
+    h02_formal_acceptance_path: Path,
     h01_manifest_path: Path,
     f02_6_packet_path: Path,
     gate3_audit_path: Path,
@@ -55,6 +58,7 @@ def build_manifest(
     draft_text_path: Path | None = None,
 ) -> dict[str, Any]:
     paper_tables = _read_json(paper_tables_path)
+    h02_formal_acceptance = _read_json(h02_formal_acceptance_path)
     h01_manifest = _read_json(h01_manifest_path)
     f02_6_packet = _read_json(f02_6_packet_path)
     gate3_audit = _read_json(gate3_audit_path)
@@ -63,6 +67,7 @@ def build_manifest(
 
     formal_blockers = _formal_performance_blockers(
         paper_tables=paper_tables,
+        h02_formal_acceptance=h02_formal_acceptance,
         h01_manifest=h01_manifest,
         f02_6_packet=f02_6_packet,
     )
@@ -84,6 +89,7 @@ def build_manifest(
         "formal_performance_blockers": formal_blockers,
         "inputs": {
             "paper_tables": str(paper_tables_path),
+            "h02_formal_acceptance": str(h02_formal_acceptance_path),
             "h01_manifest": str(h01_manifest_path),
             "f02_6_packet": str(f02_6_packet_path),
             "gate3_audit": str(gate3_audit_path),
@@ -94,6 +100,9 @@ def build_manifest(
         "input_status": {
             "paper_tables_status": paper_tables.get("status"),
             "paper_tables_formal_claim_allowed": paper_tables.get("formal_claim_allowed"),
+            "h02_formal_acceptance_status": h02_formal_acceptance.get("status"),
+            "h02_formal_output_accepted": h02_formal_acceptance.get("formal_output_accepted"),
+            "h02_paper_result_input_allowed": h02_formal_acceptance.get("paper_result_input_allowed"),
             "h01_manifest_status": h01_manifest.get("status"),
             "f02_6_status": f02_6_packet.get("status"),
             "gate3_formal_decision": gate3_audit.get("formal_decision"),
@@ -119,6 +128,7 @@ def build_manifest(
 def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build Module2 paper claim safety guard.")
     parser.add_argument("--paper-tables", type=Path, default=DEFAULT_PAPER_TABLES)
+    parser.add_argument("--h02-formal-acceptance", type=Path, default=DEFAULT_H02_FORMAL_ACCEPTANCE)
     parser.add_argument("--h01-manifest", type=Path, default=DEFAULT_H01_MANIFEST)
     parser.add_argument("--f02-6-packet", type=Path, default=DEFAULT_F02_6_PACKET)
     parser.add_argument("--gate3-audit", type=Path, default=DEFAULT_GATE3_AUDIT)
@@ -131,11 +141,21 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
-def _formal_performance_blockers(*, paper_tables: dict[str, Any], h01_manifest: dict[str, Any], f02_6_packet: dict[str, Any]) -> list[str]:
+def _formal_performance_blockers(
+    *,
+    paper_tables: dict[str, Any],
+    h02_formal_acceptance: dict[str, Any],
+    h01_manifest: dict[str, Any],
+    f02_6_packet: dict[str, Any],
+) -> list[str]:
     blockers: list[str] = []
     if paper_tables.get("formal_claim_allowed") is not True:
         blockers.append("paper_tables_not_formal")
     for blocker in paper_tables.get("blockers") or ():
+        _append_unique(blockers, str(blocker))
+    if h02_formal_acceptance.get("formal_output_accepted") is not True or h02_formal_acceptance.get("paper_result_input_allowed") is not True:
+        _append_unique(blockers, "h02_formal_acceptance_not_accepted")
+    for blocker in h02_formal_acceptance.get("blockers") or ():
         _append_unique(blockers, str(blocker))
     if str(h01_manifest.get("status")) not in {"ready", "formal_ready", "ready_for_formal_evaluation"}:
         _append_unique(blockers, "h01_manifest_not_ready")
@@ -187,6 +207,7 @@ def _conditional_claims() -> list[dict[str, Any]]:
             "template": "On the approved procedural and real-map evaluation suite, RL-RS funnel reduces expansions/time/timeout relative to Dang multi-RS.",
             "required_evidence": [
                 "H02 formal_acceptance=true",
+                "H02 formal acceptance artifact has formal_output_accepted=true and paper_result_input_allowed=true",
                 "H01 manifest ready/formal_ready",
                 "real PPO checkpoint rows present",
                 "paired Wilcoxon p<0.05 for total_time_s and total_expansions",
