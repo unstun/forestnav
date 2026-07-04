@@ -39,9 +39,11 @@ def test_formal_gate_gap_audit_blocks_current_pending_gate_and_lists_missing_art
             "--missing-artifacts-audit",
             str(_missing_artifacts(tmp_path, complete=True)),
             "--closure-checklist",
-            str(_closure_checklist(tmp_path, complete=True)),
+            str(_closure_checklist(tmp_path, complete=True, deliverables_complete=False)),
             "--status-report",
-            str(_status_report(tmp_path, ready=False)),
+            str(_status_report(tmp_path, ready=False, deliverables_complete=False)),
+            "--remaining-deliverables",
+            str(_remaining_deliverables(tmp_path, complete=False)),
             "--handoff-bundle",
             str(_handoff_bundle(tmp_path, ready=False, pending=True)),
             "--remote-packet-safety-audit",
@@ -66,6 +68,8 @@ def test_formal_gate_gap_audit_blocks_current_pending_gate_and_lists_missing_art
     assert manifest["formal_gate_handoff"]["status"] == "blocked_until_f02_6_decision"
     assert manifest["remote_packet_safety"]["status"] == "remote_packet_safety_audit_passed"
     assert manifest["execution_veto_matrix"]["all_rows_consistent"] is True
+    assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
+    assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 4
 
     gap_ids = {
         gap["gap_id"]
@@ -87,8 +91,10 @@ def test_formal_gate_gap_audit_blocks_current_pending_gate_and_lists_missing_art
     assert "h02_formal_output_not_accepted" in gap_ids
     assert "claim_safety_blocks_formal_performance" in gap_ids
     assert "readiness_blocks_formal_results" in gap_ids
+    assert "formal_gate_remaining_deliverables_open" in gap_ids
     assert "Formal Gate Gap Audit" in markdown
     assert "not a paper result" in markdown
+    assert "Remaining Deliverables Gap Summary" in markdown
     assert "Source Freshness" in markdown
     assert "runs_training=`True`, host=`gpu3070ti-relay`" in markdown
 
