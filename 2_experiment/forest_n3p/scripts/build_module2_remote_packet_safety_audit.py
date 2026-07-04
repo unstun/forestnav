@@ -23,6 +23,12 @@ EXPECTED_PULLBACK_SUFFIXES = (
     "gate3_trial_manifest.json",
     "gate3_formal_audit.json",
 )
+REMOTE_STATUS_STEP_MAP = {
+    "sync_to_remote": ("sync_allowed_now", "sync_blocked_by"),
+    "run_remote_preflight": ("remote_preflight_allowed_now", "remote_preflight_blocked_by"),
+    "run_remote_training": ("remote_training_allowed_now", "remote_training_blocked_by"),
+    "run_remote_audit": ("remote_audit_allowed_now", "remote_audit_blocked_by"),
+}
 
 
 @dataclass(frozen=True)
@@ -303,6 +309,32 @@ def _cross_gate_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any],
         issues.append(_issue("post_plan_missing_status_report_input", "Post-F02.6 plan audit must consume the formal gate status report before remote packet safety can pass."))
     if plan_audit and not status_summary:
         issues.append(_issue("post_plan_missing_status_report_summary", "Post-F02.6 plan audit must expose status_report_summary before remote packet safety can pass."))
+    status_step_summary = status_summary.get("remote_execution_step_summary") if isinstance(status_summary.get("remote_execution_step_summary"), dict) else {}
+    if plan_audit and status_summary and not status_step_summary:
+        issues.append(_issue("post_plan_missing_status_report_remote_step_summary", "Post-F02.6 plan audit must forward status report remote execution step summary."))
+    if status_step_summary:
+        packet_summary = _packet_summary(packet)
+        for step_id, (allowed_key, blocked_key) in REMOTE_STATUS_STEP_MAP.items():
+            status_step = status_step_summary.get(step_id)
+            if not isinstance(status_step, dict):
+                issues.append(_issue(f"post_plan_status_report_missing_{step_id}", f"Status report summary missing {step_id}."))
+                continue
+            if status_step.get("allowed_now") != packet_summary.get(allowed_key):
+                issues.append(
+                    _issue(
+                        f"post_plan_status_report_{step_id}_allowed_mismatch",
+                        "Status report remote step allowed_now must match the remote packet.",
+                        observed={"status_report": status_step.get("allowed_now"), "packet": packet_summary.get(allowed_key)},
+                    )
+                )
+            if _strings(status_step.get("blocked_by")) != packet_summary.get(blocked_key):
+                issues.append(
+                    _issue(
+                        f"post_plan_status_report_{step_id}_blockers_mismatch",
+                        "Status report remote step blocked_by must match the remote packet.",
+                        observed={"status_report": _strings(status_step.get("blocked_by")), "packet": packet_summary.get(blocked_key)},
+                    )
+                )
     if status_summary.get("local_training_allowed_now") is not False:
         issues.append(_issue("status_report_allows_local_training_now", "Remote packet safety requires status report to preserve local-training prohibition."))
     if status_summary.get("status") != "formal_gate_status_ready_for_claim_audit":
@@ -350,6 +382,7 @@ def _cross_gate_summary(*, decision_gate: dict[str, Any], plan_audit: dict[str, 
     decision = decision_gate.get("decision_state") if isinstance(decision_gate.get("decision_state"), dict) else {}
     blocking = plan_audit.get("current_blocking_summary") if isinstance(plan_audit.get("current_blocking_summary"), dict) else {}
     status_summary = plan_audit.get("status_report_summary") if isinstance(plan_audit.get("status_report_summary"), dict) else {}
+    remote_steps = status_summary.get("remote_execution_step_summary") if isinstance(status_summary.get("remote_execution_step_summary"), dict) else {}
     return {
         "decision_gate_status": decision_gate.get("status"),
         "f02_6_record_status": decision.get("record_status"),
@@ -361,6 +394,7 @@ def _cross_gate_summary(*, decision_gate: dict[str, Any], plan_audit: dict[str, 
         "post_plan_status_report_formal_claim_allowed_now": status_summary.get("formal_claim_allowed_now"),
         "post_plan_status_report_local_training_allowed_now": status_summary.get("local_training_allowed_now"),
         "post_plan_status_report_next_blocked_lane_id": status_summary.get("next_blocked_lane_id"),
+        "post_plan_status_report_remote_execution_step_summary": remote_steps,
     }
 
 
