@@ -54,6 +54,60 @@ def test_rl_rs_funnel_operator_rolls_out_then_appends_terminal_rs_success():
     assert record["terminal_rs_used"] is True
 
 
+def test_rl_rs_operator_without_terminal_rs_requires_goal_tolerance_success():
+    operator = RlRsFunnelOperator(
+        action_policy=lambda _obs: SteeringAction(0.0),
+        max_steps=4,
+        action_step_m=0.3,
+        terminal_check_every=1,
+        append_terminal_rs=False,
+        name="rl_rs_ppo_no_terminal_rs",
+    )
+    planner = _planner()
+    start = AckermannState(1.0, 1.0, 0.0)
+    goal = AckermannState(1.8, 1.0, 0.0)
+
+    result = operator.try_connect(start, goal, planner)
+
+    assert isinstance(result, AnalyticExpansionResult)
+    assert result.operator == "rl_rs_ppo_no_terminal_rs"
+    assert result.terminal_rs_used is False
+    assert result.states[-1] != goal
+    assert abs(result.states[-1].x - goal.x) <= planner.goal_xy_tol
+    assert len(result.states) == 2
+    assert len(result.actions) == 2
+
+    record = result.telemetry.to_record()
+    assert record["analytic_operator"] == "rl_rs_ppo_no_terminal_rs"
+    assert record["rl_rollout_steps"] == 2
+    assert record["terminal_rs_success"] is True
+    assert record["terminal_rs_used"] is False
+    assert record["terminal_rs_action_count"] == 0
+    assert record["failure_reason"] is None
+
+
+def test_rl_rs_operator_without_terminal_rs_rejects_rs_connectable_non_goal_rollout():
+    operator = RlRsFunnelOperator(
+        action_policy=lambda _obs: SteeringAction(0.0),
+        max_steps=1,
+        action_step_m=0.3,
+        terminal_check_every=1,
+        append_terminal_rs=False,
+        name="rl_rs_ppo_no_terminal_rs",
+    )
+
+    result = operator.try_connect(AckermannState(1.0, 1.0, 0.0), AckermannState(1.8, 1.0, 0.0), _planner())
+
+    assert result is None
+    assert operator.last_telemetry is not None
+    record = operator.last_telemetry.to_record()
+    assert record["analytic_operator"] == "rl_rs_ppo_no_terminal_rs"
+    assert record["rl_rollout_steps"] == 1
+    assert record["terminal_rs_success"] is True
+    assert record["terminal_rs_used"] is False
+    assert record["failure_reason"] == "goal_tolerance_not_reached"
+
+
 def test_rl_rs_funnel_operator_returns_none_on_rollout_collision_with_telemetry():
     operator = RlRsFunnelOperator(
         action_policy=lambda _obs: SteeringAction(0.0),
