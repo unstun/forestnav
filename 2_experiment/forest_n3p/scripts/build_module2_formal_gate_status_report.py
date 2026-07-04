@@ -31,6 +31,12 @@ CLOSURE_REMOTE_STAGE_IDS = (
     "gate3_remote_training",
     "gate3_remote_audit_pullback",
 )
+FORMAL_REQUIREMENT_RESPONSIBLE_STAGES = {
+    "training_remote_ppo_checkpoint": "gate3_remote_training",
+    "evaluation_gate3_episode_outputs": "gate3_remote_audit_pullback",
+    "acceptance_remote_pullback_and_audit": "gate3_remote_audit_pullback",
+    "h01_h02_formal_evaluation_acceptance": "regenerate_h01_h02_formal_artifacts",
+}
 
 
 @dataclass(frozen=True)
@@ -94,6 +100,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     remote_execution_steps = _remote_execution_step_summary(remote_packet)
     closure_remote_stages = _closure_remote_stage_summary(closure_checklist)
     handoff_summary = _handoff_bundle_summary(handoff_bundle)
+    requirement_stage_summary = _formal_gate_requirement_stage_summary(handoff_bundle)
     missing_artifacts_handoff_summary = _missing_artifacts_handoff_index_summary(missing_artifacts)
     formal_gate_execution_veto = _formal_gate_execution_veto_summary(formal_gate)
 
@@ -197,6 +204,8 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "handoff_bundle_next_action": handoff_summary["next_handoff_action_id"],
             "handoff_bundle_safety_issue_count": handoff_summary["safety_issue_count"],
             "handoff_bundle_remote_training_allowed_now": handoff_summary["remote_training_allowed_now"],
+            "handoff_requirement_stage_mapped_count": requirement_stage_summary["mapped_requirement_count"],
+            "handoff_requirement_stage_unmapped_count": requirement_stage_summary["unmapped_requirement_count"],
             "formal_gate_execution_veto_present": formal_gate_execution_veto["present"],
             "formal_gate_execution_veto_all_rows_consistent": formal_gate_execution_veto["all_rows_consistent"],
             "formal_gate_execution_veto_remote_training_allowed_now": formal_gate_execution_veto["row_consensus"].get("remote_training"),
@@ -212,6 +221,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "closure_remote_stage_summary": closure_remote_stages,
         "remote_execution_step_summary": remote_execution_steps,
         "formal_gate_handoff_summary": handoff_summary,
+        "formal_gate_requirement_stage_summary": requirement_stage_summary,
         "missing_artifacts_handoff_index_summary": missing_artifacts_handoff_summary,
         "formal_gate_execution_veto_summary": formal_gate_execution_veto,
         "formal_gate_lanes": lanes,
