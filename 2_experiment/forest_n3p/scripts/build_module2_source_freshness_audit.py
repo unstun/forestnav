@@ -28,6 +28,12 @@ DEFAULT_ARTIFACTS = (
         "approved_remote_preflight",
     ),
     ArtifactTarget(
+        "f02_6_decision_intake",
+        "decision",
+        Path("0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json"),
+        "approved_remote_preflight",
+    ),
+    ArtifactTarget(
         "f02_6_decision_gate_audit",
         "decision",
         Path("0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json"),
