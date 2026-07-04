@@ -508,6 +508,149 @@ def _downstream_after_successful_audit(trial_dir: str) -> dict[str, Any]:
     }
 
 
+def _post_run_acceptance_requirements(
+    *,
+    pullback: dict[str, Any],
+    downstream: dict[str, Any],
+    ready: bool,
+) -> list[dict[str, Any]]:
+    artifacts = _strings(pullback.get("expected_artifacts"))
+    artifact_missing = _missing_pullback_suffixes(artifacts)
+    hash_required = pullback.get("hash_manifest_required") is True
+    downstream_missing = _missing_downstream_requirements(downstream)
+    return [
+        _post_run_requirement(
+            requirement_id="pullback_expected_artifacts_complete",
+            phase="pullback",
+            complete=False,
+            remote_training_ready_now=ready,
+            required_before="local_gate3_formal_audit_review",
+            missing_artifact_ids=artifact_missing,
+            acceptable_evidence=[
+                "all seven expected Gate3 train/eval/audit artifacts pulled back under the local formal trial directory",
+                "pullback command copies from gpu3070ti-relay:~/ForestNav without --delete",
+                "pulled-back files are inspected locally before H01/H02 regeneration",
+            ],
+            invalid_substitutes=[
+                "remote stdout saying files exist",
+                "partial pullback with only checkpoint or summary",
+                "local files copied from a non-gpu3070ti host",
+            ],
+        ),
+        _post_run_requirement(
+            requirement_id="checkpoint_hash_manifest_recorded",
+            phase="pullback",
+            complete=False,
+            remote_training_ready_now=ready,
+            required_before="h01_h02_regeneration",
+            missing_artifact_ids=[] if hash_required else ["checkpoint_hash_manifest_required"],
+            acceptable_evidence=[
+                "SHA-256 record for train/final_model.zip next to the pulled-back checkpoint",
+                "hash record is generated after remote pullback and names the exact checkpoint used by H01/H02",
+            ],
+            invalid_substitutes=[
+                "checkpoint file without hash",
+                "hash written before remote pullback",
+                "hash of a smoke or no-warm checkpoint",
+            ],
+        ),
+        _post_run_requirement(
+            requirement_id="gate3_formal_audit_accepts_remote_run",
+            phase="acceptance",
+            complete=False,
+            remote_training_ready_now=ready,
+            required_before="formal_claim_gate",
+            missing_artifact_ids=["gate3_formal_audit_formal_decision_pass"],
+            acceptable_evidence=[
+                "gate3_formal_audit.json pulled back locally",
+                "audit records warm_start_decision=approved_obstacle_summary",
+                "audit records formal_decision=pass before any improvement claim",
+            ],
+            invalid_substitutes=[
+                "audit marked not_formal, candidate, smoke, or preview",
+                "no-warm Gate3 audit reused as warm-start audit",
+                "training completion without audit",
+            ],
+        ),
+        _post_run_requirement(
+            requirement_id="h01_h02_regenerated_from_audited_checkpoint",
+            phase="evaluation_acceptance",
+            complete=False,
+            remote_training_ready_now=ready,
+            required_before="paper_result_gate",
+            missing_artifact_ids=downstream_missing,
+            acceptable_evidence=[
+                "H01 manifest regenerated with the audited checkpoint",
+                "H02 full all-method evaluation regenerated with required output schema",
+                "paper tables regenerated only from H02 formal accepted outputs",
+            ],
+            invalid_substitutes=[
+                "paper table preview generated before H02 acceptance",
+                "H01/H02 generated from a smoke checkpoint",
+                "claim safety run without regenerated formal evaluation rows",
+            ],
+        ),
+    ]
+
+
+def _post_run_requirement(
+    *,
+    requirement_id: str,
+    phase: str,
+    complete: bool,
+    remote_training_ready_now: bool,
+    required_before: str,
+    missing_artifact_ids: Sequence[str],
+    acceptable_evidence: Sequence[str],
+    invalid_substitutes: Sequence[str],
+) -> dict[str, Any]:
+    return {
+        "requirement_id": requirement_id,
+        "phase": phase,
+        "status": "satisfied" if complete else "blocked_until_remote_audit",
+        "complete": complete,
+        "remote_training_ready_now": remote_training_ready_now,
+        "execution_allowed_now": False,
+        "required_before": required_before,
+        "missing_artifact_ids": list(missing_artifact_ids),
+        "acceptable_evidence": list(acceptable_evidence),
+        "invalid_substitutes": list(invalid_substitutes),
+    }
+
+
+def _missing_pullback_suffixes(artifacts: Sequence[str]) -> list[str]:
+    expected = (
+        "train/final_model.zip",
+        "train/summary.json",
+        "train/training_manifest.json",
+        "eval/gate3_eval_episodes.csv",
+        "eval/gate3_summary.json",
+        "gate3_trial_manifest.json",
+        "gate3_formal_audit.json",
+    )
+    joined = "\n".join(artifacts)
+    return [suffix.replace("/", "_").replace(".", "_") for suffix in expected if suffix not in joined]
+
+
+def _missing_downstream_requirements(downstream: dict[str, Any]) -> list[str]:
+    required_flags = (
+        "h01_manifest_must_be_regenerated",
+        "h02_full_smoke_must_be_regenerated",
+        "paper_tables_must_be_regenerated_from_h02_formal_outputs",
+    )
+    missing = [flag for flag in required_flags if downstream.get(flag) is not True]
+    claim_requirements = "\n".join(_strings(downstream.get("formal_claim_requires")))
+    for needle, artifact_id in (
+        ("gate3_formal_audit.formal_decision is pass", "claim_requires_gate3_formal_audit_pass"),
+        ("pulled-back checkpoint hash is recorded", "claim_requires_checkpoint_hash"),
+        ("H01 manifest status becomes ready_for_formal_run", "claim_requires_h01_ready"),
+        ("H02 full all-method smoke", "claim_requires_h02_formal_outputs"),
+    ):
+        if needle not in claim_requirements:
+            missing.append(artifact_id)
+    return missing
+
+
 def _sync_to_remote_command(config: RemoteFormalExecutionPacketConfig) -> str:
     local_root = str(Path(config.local_root)) + "/"
     remote_root = f"{config.gpu_alias}:{config.remote_workdir.rstrip('/')}/"
