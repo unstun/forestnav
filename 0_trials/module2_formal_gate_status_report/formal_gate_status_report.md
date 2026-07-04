@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `d85cecce085b77a59b83ea0604feb4bf3fc2939a+dirty`
+- source_head: `6d37e38edc682bb7a7b924b8cec729e2b4201d93`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -20,6 +20,10 @@ This file is a read-only formal-gate status report. It does not execute commands
 - closure_open_item_count: `8`
 - remote_packet_status: `blocked_until_f02_6_decision`
 - ready_to_run_remote_training: `False`
+- remote_packet_sync_allowed_now: `False`
+- remote_packet_preflight_allowed_now: `False`
+- remote_packet_training_allowed_now: `False`
+- remote_packet_audit_allowed_now: `False`
 - h01_status: `blocked_pending_decisions`
 - h02_status: `blocked_formal_output_acceptance`
 - h02_formal_output_accepted: `False`
@@ -65,6 +69,13 @@ This file is a read-only formal-gate status report. It does not execute commands
   - blocked_by: `formal_gate_missing_artifacts, formal_gate_status_report, paper_readiness, h02_formal_acceptance_before_claim_gate, f02_6_warm_start_decision_pending, requires_dr_sun_approval, source_freshness_regeneration_required, remote_training_packet_not_ready, missing_remote_pullback_artifact, missing_ppo_result_rows, missing_ppo_checkpoint_hash, h01_manifest_not_ready, formal_main_evaluation_command_missing, h02_scale_below_h01_queries_per_bucket, h02_scale_below_h01_seed_count, h02_scale_below_h01_queries_per_map, h02_verdict_not_formal, missing_or_failed_gate3_formal_audit, h02_formal_output_not_accepted, claim_safety_blocks_formal_performance, readiness_blocks_formal_results, formal_gate_missing_artifacts_open, formal_gate_closure_checklist_open, formal_gate_status_report_blocked, h02_formal_acceptance_not_ready, source_fresh_claim_targets_open`
   - completion_signal: Claim safety and paper readiness allow formal results after H02 acceptance.
   - action_when_blocked: Regenerate claim gates only after H02 formal acceptance passes.
+
+## Remote Execution Steps
+
+- `sync_to_remote`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`requires_dr_sun_approval`
+- `run_remote_preflight`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`requires_dr_sun_approval`
+- `run_remote_training`: present=`True`, allowed_now=`False`, runs_training=`True`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_packet_not_ready`
+- `run_remote_audit`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_packet_not_ready`
 
 ## Required Training Artifacts
 
