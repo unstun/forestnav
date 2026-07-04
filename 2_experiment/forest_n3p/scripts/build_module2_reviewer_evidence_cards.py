@@ -62,10 +62,10 @@ def build_manifest(config: ReviewerEvidenceCardsConfig) -> dict[str, Any]:
     evidence_map = _read_json(config.evidence_map_path)
     cards = [_claim_card(unit) for unit in evidence_map.get("claim_units", []) if isinstance(unit, dict)]
     blocking_reasons = _blocking_reasons(evidence_map=evidence_map, cards=cards)
-    return {
+    manifest = {
         "schema_version": 1,
         "artifact_name": "module2_reviewer_evidence_cards",
-        "status": "reviewer_evidence_cards_ready" if not blocking_reasons else "blocked_by_incomplete_reviewer_cards",
+        "status": "pending_supplement_audit",
         "created_at_utc": datetime.now(UTC).isoformat(),
         "source_head": _source_head(),
         "local_training_allowed": False,
@@ -97,6 +97,13 @@ def build_manifest(config: ReviewerEvidenceCardsConfig) -> dict[str, Any]:
             "No local training is allowed; formal PPO checkpoint production remains gated on F02.6 and gpu3070ti-relay.",
         ],
     }
+    supplement_audit = _supplement_latex_audit(_latex(manifest))
+    manifest["supplement_latex_audit"] = supplement_audit
+    if supplement_audit["status"] != "clean":
+        blocking_reasons.append("supplement_latex_audit_not_clean")
+    manifest["blocking_reasons"] = _unique(blocking_reasons)
+    manifest["status"] = "reviewer_evidence_cards_ready" if not manifest["blocking_reasons"] else "blocked_by_incomplete_reviewer_cards"
+    return manifest
 
 
 def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
@@ -183,6 +190,28 @@ def _blocking_reasons(*, evidence_map: dict[str, Any], cards: Sequence[dict[str,
         if card.get("mapping_blockers"):
             blockers.append(f"{card.get('card_id')}:mapping_blockers_present")
     return _unique(blockers)
+
+
+def _supplement_latex_audit(latex_text: str) -> dict[str, Any]:
+    required_fragments = [
+        "not formal performance evidence",
+        r"Formal performance claim allowed: \texttt{False}",
+        "Do not write this as a result claim",
+        r"blocked\_placeholder\_traceable",
+    ]
+    prohibited_fragments = [
+        "warm-start approved",
+        "formal performance improvement",
+        "RL replaces Hybrid A*",
+    ]
+    missing = [fragment for fragment in required_fragments if fragment not in latex_text]
+    matched_prohibited = [fragment for fragment in prohibited_fragments if fragment in latex_text]
+    return {
+        "status": "clean" if not missing and not matched_prohibited else "violations_found",
+        "required_fragments_present": [fragment for fragment in required_fragments if fragment in latex_text],
+        "missing_required_fragments": missing,
+        "matched_prohibited_fragments": matched_prohibited,
+    }
 
 
 def _read_json(path: Path) -> dict[str, Any]:
