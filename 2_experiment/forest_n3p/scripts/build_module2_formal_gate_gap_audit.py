@@ -1051,6 +1051,143 @@ def _status_report_gaps(*, status_report: dict[str, Any], status_report_path: Pa
     return _unique_gaps(gaps)
 
 
+def _remaining_deliverables_gaps(
+    *,
+    remaining_deliverables: dict[str, Any],
+    remaining_deliverables_path: Path,
+    closure_checklist: dict[str, Any],
+    status_report: dict[str, Any],
+) -> list[dict[str, Any]]:
+    if not Path(remaining_deliverables_path).is_file():
+        return [
+            _gap(
+                "acceptance",
+                "formal_gate_remaining_deliverables_missing",
+                "No formal gate remaining-deliverables ledger is available for the final gate cross-check.",
+                str(remaining_deliverables_path),
+                "Regenerate the remaining-deliverables ledger before treating the formal gate as complete.",
+            )
+        ]
+    gaps: list[dict[str, Any]] = []
+    for key, gap_id, why in (
+        ("executes_commands", "formal_remaining_deliverables_executes_commands", "Remaining-deliverables ledger must be read-only and must not execute commands."),
+        ("runs_training", "formal_remaining_deliverables_runs_training", "Remaining-deliverables ledger claims it ran training; the ledger must remain non-executing."),
+        ("runs_remote_preflight", "formal_remaining_deliverables_runs_preflight", "Remaining-deliverables ledger claims it ran remote preflight; the ledger must remain non-executing."),
+        ("local_training_allowed", "formal_remaining_deliverables_allows_local_training", "Remaining-deliverables ledger does not preserve the local-training prohibition."),
+        ("formal_claim_allowed", "formal_remaining_deliverables_allows_claim", "Remaining-deliverables ledger incorrectly allows formal claims."),
+    ):
+        if remaining_deliverables.get(key) is not False:
+            gaps.append(
+                _gap(
+                    "acceptance",
+                    gap_id,
+                    why,
+                    str(remaining_deliverables_path),
+                    "Regenerate the ledger as a read-only non-result gate artifact.",
+                )
+            )
+    if remaining_deliverables.get("not_paper_result_material") is not True:
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_remaining_deliverables_marked_as_paper_result",
+                "Remaining-deliverables ledger must be explicitly marked as non-paper-result material.",
+                str(remaining_deliverables_path),
+                "Regenerate the ledger with not_paper_result_material=true.",
+            )
+        )
+
+    ledger_gap = _remaining_deliverables_gap_summary(remaining_deliverables)
+    status_gap = _normalize_gap_summary(status_report.get("remaining_deliverables_gap_summary"))
+    closure_gap = _normalize_gap_summary(closure_checklist.get("remaining_deliverables_gap_summary"))
+    if not ledger_gap["present"]:
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_remaining_deliverables_gap_summary_missing",
+                "Remaining-deliverables ledger does not expose deliverable_gap_summary.",
+                str(remaining_deliverables_path),
+                "Regenerate the ledger with a normalized deliverable_gap_summary.",
+            )
+        )
+    else:
+        if ledger_gap.get("execution_boundary") != "read_only_no_execution":
+            gaps.append(
+                _gap(
+                    "acceptance",
+                    "formal_remaining_deliverables_gap_summary_execution_boundary_invalid",
+                    "Remaining-deliverables gap summary must be read-only.",
+                    str(remaining_deliverables_path),
+                    "Regenerate the gap summary with execution_boundary=read_only_no_execution.",
+                )
+            )
+        if ledger_gap.get("not_paper_result_material") is not True:
+            gaps.append(
+                _gap(
+                    "acceptance",
+                    "formal_remaining_deliverables_gap_summary_marked_as_paper_result",
+                    "Remaining-deliverables gap summary must not be paper result material.",
+                    str(remaining_deliverables_path),
+                    "Regenerate the gap summary with not_paper_result_material=true.",
+                )
+            )
+        if _gap_open(ledger_gap):
+            gaps.append(
+                _gap(
+                    "acceptance",
+                    "formal_gate_remaining_deliverables_open",
+                    (
+                        "Remaining-deliverables ledger still reports "
+                        f"{ledger_gap['total_missing_deliverables']} missing deliverables across "
+                        f"{ledger_gap['open_category_count']} open categories."
+                    ),
+                    str(remaining_deliverables_path),
+                    "Produce the formal training, evaluation, acceptance, and H01/H02 acceptance artifacts before final claim readiness.",
+                )
+            )
+    if not status_gap["present"]:
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_status_report_missing_remaining_deliverables_gap_summary",
+                "Status report does not expose remaining_deliverables_gap_summary for final gate cross-checking.",
+                "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
+                "Regenerate the status report after the remaining-deliverables ledger.",
+            )
+        )
+    elif ledger_gap["present"] and _gap_signature(status_gap) != _gap_signature(ledger_gap):
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_status_report_remaining_deliverables_gap_summary_mismatch",
+                "Status report remaining-deliverables gap summary disagrees with the ledger.",
+                "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
+                "Regenerate the status report from the current remaining-deliverables ledger.",
+            )
+        )
+    if not closure_gap["present"]:
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_closure_checklist_missing_remaining_deliverables_gap_summary",
+                "Closure checklist does not expose remaining_deliverables_gap_summary for final gate cross-checking.",
+                "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
+                "Regenerate the closure checklist after the remaining-deliverables ledger.",
+            )
+        )
+    elif ledger_gap["present"] and _gap_signature(closure_gap) != _gap_signature(ledger_gap):
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_closure_checklist_remaining_deliverables_gap_summary_mismatch",
+                "Closure checklist remaining-deliverables gap summary disagrees with the ledger.",
+                "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
+                "Regenerate the closure checklist from the current remaining-deliverables ledger.",
+            )
+        )
+    return _unique_gaps(gaps)
+
+
 def _ordered_next_steps(
     decision_gaps: Sequence[dict[str, Any]],
     training_gaps: Sequence[dict[str, Any]],
