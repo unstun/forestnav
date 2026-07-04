@@ -28,6 +28,7 @@ class Module2EvaluationManifestConfig:
     density_profile_buckets: str = "validation_t06"
     distance_bins: str = "8:12,12:16,16:20,20:"
     bootstrap_resamples: int = 10_000
+    warm_start_decision_record_path: Path | None = None
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -42,6 +43,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         realmap_query_protocol_path=args.realmap_query_protocol_path,
         warm_start_decision=str(args.warm_start_decision),
         warm_start_decision_packet_path=args.warm_start_decision_packet,
+        warm_start_decision_record_path=args.warm_start_decision_record,
         bc_checkpoint=args.bc_checkpoint,
         rl_rs_checkpoint=args.rl_rs_checkpoint,
         queries_per_bucket=int(args.queries_per_bucket),
@@ -126,6 +128,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--realmap-query-protocol-path", type=Path, default=None)
     parser.add_argument("--warm-start-decision", choices=("pending", "approved_obstacle_summary", "no_warm_only"), default="pending")
     parser.add_argument("--warm-start-decision-packet", type=Path, default=None)
+    parser.add_argument("--warm-start-decision-record", type=Path, default=None)
     parser.add_argument("--bc-checkpoint", type=Path, default=None)
     parser.add_argument("--rl-rs-checkpoint", type=Path, default=None)
     parser.add_argument("--queries-per-bucket", type=int, default=100)
@@ -308,6 +311,52 @@ def _f02_6_decision_packet_record(config: Module2EvaluationManifestConfig) -> di
     recommendation = payload.get("recommendation") if isinstance(payload.get("recommendation"), dict) else {}
     recommended_decision = recommendation.get("decision")
     packet_blockers = [str(item) for item in payload.get("blockers", ()) if item]
+    decision_record = _f02_6_decision_record(config.warm_start_decision_record_path)
+    if decision_record["path"] is not None:
+        record_status = str(decision_record["status"])
+        record_effective = str(decision_record["effective_warm_start_decision"])
+        record_blockers = [str(item) for item in decision_record.get("blockers", ())]
+        if record_status == "approved" and record_effective == "approved_obstacle_summary":
+            return {
+                "path": str(packet_path),
+                "exists": True,
+                "status": status,
+                "requested_warm_start_decision": requested,
+                "effective_warm_start_decision": "approved_obstacle_summary",
+                "recommendation": recommended_decision,
+                "packet_blockers": packet_blockers,
+                "decision_record": decision_record,
+                "blockers": [],
+            }
+        if record_status == "rejected" and record_effective == "no_warm_only":
+            return {
+                "path": str(packet_path),
+                "exists": True,
+                "status": status,
+                "requested_warm_start_decision": requested,
+                "effective_warm_start_decision": "no_warm_only",
+                "recommendation": recommended_decision,
+                "packet_blockers": packet_blockers,
+                "decision_record": decision_record,
+                "blockers": list(record_blockers),
+            }
+        blockers = list(record_blockers)
+        if record_status == "pending_human_decision" and "f02_6_decision_record_pending" not in blockers:
+            blockers.append("f02_6_decision_record_pending")
+        elif record_status not in {"pending_human_decision", "approved", "rejected"}:
+            blockers.append("f02_6_decision_record_not_approved")
+        return {
+            "path": str(packet_path),
+            "exists": True,
+            "status": status,
+            "requested_warm_start_decision": requested,
+            "effective_warm_start_decision": "pending",
+            "recommendation": recommended_decision,
+            "packet_blockers": packet_blockers,
+            "decision_record": decision_record,
+            "blockers": blockers,
+        }
+
     approved = (
         status in {"approved", "approved_obstacle_summary"}
         and recommended_decision == "approve_obstacle_summary_warm_start"
@@ -332,6 +381,73 @@ def _f02_6_decision_packet_record(config: Module2EvaluationManifestConfig) -> di
         "effective_warm_start_decision": effective,
         "recommendation": recommended_decision,
         "packet_blockers": packet_blockers,
+        "decision_record": decision_record,
+        "blockers": blockers,
+    }
+
+
+def _f02_6_decision_record(path: Path | None) -> dict[str, Any]:
+    if path is None:
+        return {
+            "path": None,
+            "exists": False,
+            "status": "not_provided",
+            "effective_warm_start_decision": "not_provided",
+            "decider": None,
+            "blockers": [],
+        }
+    record_path = Path(path)
+    if not record_path.is_file():
+        return {
+            "path": str(record_path),
+            "exists": False,
+            "status": "missing",
+            "effective_warm_start_decision": "pending",
+            "decider": None,
+            "blockers": ["f02_6_decision_record_missing"],
+        }
+    try:
+        payload = json.loads(record_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {
+            "path": str(record_path),
+            "exists": True,
+            "status": "unreadable",
+            "effective_warm_start_decision": "pending",
+            "decider": None,
+            "blockers": ["f02_6_decision_record_unreadable"],
+        }
+    status = str(payload.get("status"))
+    effective = str(payload.get("effective_warm_start_decision"))
+    decider = payload.get("decider")
+    blockers = [str(item) for item in payload.get("blockers", ()) if item]
+    trusted_approval = (
+        status == "approved"
+        and effective == "approved_obstacle_summary"
+        and decider == "Dr Sun"
+        and payload.get("remote_training_allowed") is True
+        and payload.get("local_training_allowed") is False
+        and payload.get("formal_claim_allowed") is False
+    )
+    trusted_rejection = (
+        status == "rejected"
+        and effective == "no_warm_only"
+        and decider == "Dr Sun"
+        and payload.get("remote_training_allowed") is False
+        and payload.get("formal_claim_allowed") is False
+    )
+    if status == "approved" and not trusted_approval:
+        blockers.append("f02_6_decision_record_untrusted_approval")
+        effective = "pending"
+    if status == "rejected" and not trusted_rejection:
+        blockers.append("f02_6_decision_record_untrusted_rejection")
+        effective = "pending"
+    return {
+        "path": str(record_path),
+        "exists": True,
+        "status": status,
+        "effective_warm_start_decision": effective,
+        "decider": decider,
         "blockers": blockers,
     }
 
