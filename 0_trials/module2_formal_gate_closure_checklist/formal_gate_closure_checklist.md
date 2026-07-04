@@ -16,7 +16,7 @@ This file is a formal-gate closure checklist. It does not execute commands, trai
 - missing_artifacts_status: `formal_gate_missing_artifacts_open`
 - post_plan_status: `blocked_until_f02_6_decision`
 - source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
-- missing_counts_by_category: `{'decision': 1, 'regeneration': 13, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 4}`
+- missing_counts_by_category: `{'decision': 1, 'regeneration': 14, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 5}`
 - formal_ordered_next_step_count: `6`
 - post_plan_blocked_stage_ids: `['regenerate_preflight_gate_artifacts', 'approved_remote_preflight', 'regenerate_remote_execution_packet', 'gate3_remote_training', 'gate3_remote_audit_pullback', 'regenerate_h01_h02_formal_artifacts', 'regenerate_claim_gate_artifacts']`
 - source_regeneration_target_count: `14`
@@ -27,7 +27,7 @@ This file is a formal-gate closure checklist. It does not execute commands, trai
   - blocked_by: `f02_6_decision_not_approved, f02_6_warm_start_decision_pending, requires_dr_sun_approval`
   - completion_signal: Dr Sun approved/rejected decision record is present and source-fresh.
   - next_action: Close the F02.6 warm-start decision record before any approved preflight.
-- `preflight_source_fresh_regeneration` (regeneration): status=`blocked`, missing=`13`, runs_training=`False`
+- `preflight_source_fresh_regeneration` (regeneration): status=`blocked`, missing=`14`, runs_training=`False`
   - blocked_by: `source_freshness_regeneration_required, f02_6_warm_start_decision_pending, requires_dr_sun_approval, f02_6_decision_not_approved`
   - completion_signal: All approved_remote_preflight source-fresh targets are regenerated from the current head.
   - next_action: Regenerate source freshness targets only after F02.6 is closed.
@@ -51,8 +51,8 @@ This file is a formal-gate closure checklist. It does not execute commands, trai
   - blocked_by: `h01_ready_for_formal_run, h02_formal_output_acceptance, f02_6_warm_start_decision_pending, requires_dr_sun_approval, source_freshness_regeneration_required, remote_training_packet_not_ready, missing_remote_pullback_artifact, missing_ppo_result_rows, missing_ppo_checkpoint_hash, h01_manifest_not_ready, formal_main_evaluation_command_missing, h02_scale_below_h01_queries_per_bucket, h02_scale_below_h01_seed_count, h02_scale_below_h01_queries_per_map, h02_verdict_not_formal, missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
   - completion_signal: H01 exposes the formal run command and H02 accepts formal-scale PPO outputs.
   - next_action: Regenerate H01/H02 after audited checkpoint pullback, not before.
-- `claim_gate_regeneration` (claim_gate): status=`blocked`, missing=`4`, runs_training=`False`
-  - blocked_by: `formal_gate_missing_artifacts, formal_gate_status_report, paper_readiness, h02_formal_acceptance_before_claim_gate, f02_6_warm_start_decision_pending, requires_dr_sun_approval, source_freshness_regeneration_required, remote_training_packet_not_ready, missing_remote_pullback_artifact, missing_ppo_result_rows, missing_ppo_checkpoint_hash, h01_manifest_not_ready, formal_main_evaluation_command_missing, h02_scale_below_h01_queries_per_bucket, h02_scale_below_h01_seed_count, h02_scale_below_h01_queries_per_map, h02_verdict_not_formal, missing_or_failed_gate3_formal_audit, h02_formal_output_not_accepted, claim_safety_blocks_formal_performance, readiness_blocks_formal_results, formal_gate_missing_artifacts_open, formal_gate_closure_checklist_open, formal_gate_status_report_blocked, h02_formal_acceptance_not_ready, source_fresh_claim_targets_open`
+- `claim_gate_regeneration` (claim_gate): status=`blocked`, missing=`5`, runs_training=`False`
+  - blocked_by: `claim_safety, formal_gate_missing_artifacts, formal_gate_status_report, paper_readiness, h02_formal_acceptance_before_claim_gate, f02_6_warm_start_decision_pending, requires_dr_sun_approval, source_freshness_regeneration_required, remote_training_packet_not_ready, missing_remote_pullback_artifact, missing_ppo_result_rows, missing_ppo_checkpoint_hash, h01_manifest_not_ready, formal_main_evaluation_command_missing, h02_scale_below_h01_queries_per_bucket, h02_scale_below_h01_seed_count, h02_scale_below_h01_queries_per_map, h02_verdict_not_formal, missing_or_failed_gate3_formal_audit, h02_formal_output_not_accepted, claim_safety_blocks_formal_performance, readiness_blocks_formal_results, formal_gate_missing_artifacts_open, formal_gate_closure_checklist_open, formal_gate_status_report_blocked, h02_formal_acceptance_not_ready, source_fresh_claim_targets_open`
   - completion_signal: Claim safety, missing-artifacts inventory, and paper readiness are regenerated after H02 acceptance.
   - next_action: Only then can formal result writing be considered; this checklist itself does not allow claims.
 

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "packet_name": "module2_remote_formal_execution_packet",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-04T13:44:43.611925+00:00",
-  "source_head": "d85cecce085b77a59b83ea0604feb4bf3fc2939a+dirty",
+  "created_at_utc": "2026-07-04T14:39:59.020980+00:00",
+  "source_head": "46781e5ef22f7d400f17440daa5199bb09d54ceb+dirty",
   "ready_to_run_remote_training": false,
   "local_training_allowed": false,
   "formal_claim_allowed_before_audit": false,
@@ -55,7 +55,113 @@
     "warm_start_decision": "pending",
     "blocker_codes": [
       "warm_start_decision_pending"
-    ]
+    ],
+    "protocol_present": true,
+    "protocol_device": "cuda",
+    "protocol_smoke": false,
+    "protocol_formal_audit_required": true,
+    "protocol_train_total_timesteps": 100000,
+    "protocol_eval_min_episodes": 64,
+    "protocol_eval_success_threshold": 0.8,
+    "runner_command_present": true,
+    "audit_command_present": true,
+    "expected_artifact_count": 7
+  },
+  "remote_preflight_requirements": [
+    {
+      "requirement_id": "f02_6_decision_closed_for_preflight",
+      "phase": "decision",
+      "status": "blocked_missing_preflight",
+      "complete": false,
+      "execution_allowed_now": false,
+      "required_before": "run_remote_preflight",
+      "missing_artifact_ids": [
+        "f02_6_decision_record_approved_by_dr_sun"
+      ],
+      "blocked_by": [
+        "requires_dr_sun_approval"
+      ],
+      "acceptable_evidence": [
+        "f02_6_decision_record.json with status=approved",
+        "decider=Dr Sun and effective_warm_start_decision=approved_obstacle_summary",
+        "remote_training_allowed=true and local_training_allowed=false"
+      ],
+      "invalid_substitutes": [
+        "decision packet recommendation without Dr Sun decision record",
+        "remote smoke output",
+        "manual command execution without approved record"
+      ]
+    },
+    {
+      "requirement_id": "approved_remote_preflight_manifest",
+      "phase": "remote_preflight",
+      "status": "blocked_missing_preflight",
+      "complete": false,
+      "execution_allowed_now": false,
+      "required_before": "run_remote_training",
+      "missing_artifact_ids": [
+        "approved_remote_preflight_manifest_ready"
+      ],
+      "blocked_by": [
+        "warm_start_decision_pending"
+      ],
+      "acceptable_evidence": [
+        "gate3_preflight_manifest.json with preflight_status=ready",
+        "formal_trial_ready=true",
+        "warm_start_decision=approved_obstacle_summary"
+      ],
+      "invalid_substitutes": [
+        "pending remote preflight manifest",
+        "CUDA import smoke not tied to the approved Gate3 command",
+        "local preflight output"
+      ]
+    },
+    {
+      "requirement_id": "remote_preflight_protocol_contract",
+      "phase": "remote_preflight",
+      "status": "satisfied",
+      "complete": true,
+      "execution_allowed_now": false,
+      "required_before": "run_remote_training",
+      "missing_artifact_ids": [],
+      "blocked_by": [],
+      "acceptable_evidence": [
+        "preflight protocol has device=cuda",
+        "preflight protocol has smoke=false and formal_audit_required=true",
+        "runner/audit commands are present and expected formal artifacts are enumerated"
+      ],
+      "invalid_substitutes": [
+        "protocol missing eval_min_episodes or success threshold",
+        "CPU protocol",
+        "smoke protocol"
+      ]
+    },
+    {
+      "requirement_id": "remote_preflight_command_packetized",
+      "phase": "remote_preflight",
+      "status": "satisfied",
+      "complete": true,
+      "execution_allowed_now": false,
+      "required_before": "run_remote_preflight",
+      "missing_artifact_ids": [],
+      "blocked_by": [
+        "requires_dr_sun_approval"
+      ],
+      "acceptable_evidence": [
+        "run_remote_preflight command is an ssh gpu3070ti-relay command",
+        "command runs forest_n3p.scripts.preflight_rl_rs_gate3_formal_trial",
+        "command uses --device cuda and --warm-start-decision approved_obstacle_summary"
+      ],
+      "invalid_substitutes": [
+        "bare local python preflight command",
+        "ssh command targeting another host",
+        "preflight command without approved warm-start decision"
+      ]
+    }
+  ],
+  "remote_preflight_requirement_counts": {
+    "blocked_missing_preflight": 2,
+    "satisfied": 2
   },
   "execution_steps": {
     "trial_dir": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1",

@@ -10,6 +10,22 @@
 - `f02_6_warm_start_decision_pending`
 - `missing_module2_rl_rs_checkpoint`
 
+## Remote Preflight Requirements
+
+- `f02_6_decision_closed_for_preflight` (decision): status=`blocked_missing_preflight`, execution_allowed_now=`False`
+  - missing_artifact_ids: `f02_6_decision_record_approved_by_dr_sun`
+  - blocked_by: `requires_dr_sun_approval`
+  - invalid_substitutes: `decision packet recommendation without Dr Sun decision record; remote smoke output; manual command execution without approved record`
+- `approved_remote_preflight_manifest` (remote_preflight): status=`blocked_missing_preflight`, execution_allowed_now=`False`
+  - missing_artifact_ids: `approved_remote_preflight_manifest_ready`
+  - blocked_by: `warm_start_decision_pending`
+  - invalid_substitutes: `pending remote preflight manifest; CUDA import smoke not tied to the approved Gate3 command; local preflight output`
+- `remote_preflight_protocol_contract` (remote_preflight): status=`satisfied`, execution_allowed_now=`False`
+  - invalid_substitutes: `protocol missing eval_min_episodes or success threshold; CPU protocol; smoke protocol`
+- `remote_preflight_command_packetized` (remote_preflight): status=`satisfied`, execution_allowed_now=`False`
+  - blocked_by: `requires_dr_sun_approval`
+  - invalid_substitutes: `bare local python preflight command; ssh command targeting another host; preflight command without approved warm-start decision`
+
 ## Commands
 
 ### Sync To Remote

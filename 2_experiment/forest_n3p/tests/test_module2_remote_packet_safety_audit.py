@@ -32,6 +32,7 @@ def test_remote_packet_safety_audit_passes_current_blocked_packet(tmp_path):
     assert manifest["packet_summary"]["embedded_preflight_ready"] is False
     assert manifest["packet_summary"]["embedded_preflight_warm_start_decision"] == "pending"
     assert manifest["packet_summary"]["remote_training_allowed_now"] is False
+    assert manifest["packet_summary"]["remote_preflight_requirement_counts"] == {"blocked_missing_preflight": 2, "satisfied": 2}
     assert "requires_dr_sun_approval" in manifest["packet_summary"]["sync_blocked_by"]
     assert "remote_packet_not_ready" in manifest["packet_summary"]["remote_training_blocked_by"]
     assert manifest["packet_summary"]["pullback_artifact_count"] == 7
@@ -116,6 +117,50 @@ def test_remote_packet_safety_audit_catches_pending_embedded_preflight_ready(tmp
     assert "pending_decision_preflight_status_ready" in issue_ids
     assert "pending_decision_preflight_warm_start_not_pending" in issue_ids
     assert "pending_decision_preflight_missing_pending_blocker" in issue_ids
+
+
+def test_remote_packet_safety_audit_requires_remote_preflight_requirement_matrix(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
+    packet = _packet_payload()
+    packet.pop("remote_preflight_requirements")
+    packet.pop("remote_preflight_requirement_counts")
+
+    manifest = auditor.build_manifest(
+        auditor.RemotePacketSafetyAuditConfig(
+            output_dir=tmp_path,
+            remote_packet_path=_json(tmp_path, "packet.json", packet),
+            decision_gate_audit_path=_json(tmp_path, "decision_gate.json", _decision_gate_payload()),
+            post_plan_audit_path=_json(tmp_path, "plan_audit.json", _plan_audit_payload()),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "remote_packet_safety_audit_failed"
+    assert "packet_missing_remote_preflight_requirements" in issue_ids
+
+
+def test_remote_packet_safety_audit_catches_pending_preflight_requirement_drift(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
+    packet = _packet_payload()
+    requirements = {item["requirement_id"]: item for item in packet["remote_preflight_requirements"]}
+    requirements["f02_6_decision_closed_for_preflight"]["status"] = "satisfied"
+    requirements["f02_6_decision_closed_for_preflight"]["complete"] = True
+    requirements["f02_6_decision_closed_for_preflight"]["missing_artifact_ids"] = []
+    requirements["approved_remote_preflight_manifest"]["execution_allowed_now"] = True
+
+    manifest = auditor.build_manifest(
+        auditor.RemotePacketSafetyAuditConfig(
+            output_dir=tmp_path,
+            remote_packet_path=_json(tmp_path, "packet.json", packet),
+            decision_gate_audit_path=_json(tmp_path, "decision_gate.json", _decision_gate_payload()),
+            post_plan_audit_path=_json(tmp_path, "plan_audit.json", _plan_audit_payload()),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "remote_packet_safety_audit_failed"
+    assert "pending_decision_requirement_satisfied" in issue_ids
+    assert "approved_remote_preflight_manifest_allowed_while_packet_blocked" in issue_ids
 
 
 def test_remote_packet_safety_audit_catches_ready_packet_with_unready_embedded_preflight(tmp_path):
@@ -339,6 +384,8 @@ def _packet_payload():
             "warm_start_decision": "pending",
             "blocker_codes": ["warm_start_decision_pending"],
         },
+        "remote_preflight_requirements": _remote_preflight_requirements_payload(),
+        "remote_preflight_requirement_counts": {"blocked_missing_preflight": 2, "satisfied": 2},
         "execution_steps": {
             "sync_to_remote": {
                 "allowed_now": False,
@@ -395,6 +442,59 @@ def _packet_payload():
             ],
         },
     }
+
+
+def _remote_preflight_requirements_payload():
+    return [
+        {
+            "requirement_id": "f02_6_decision_closed_for_preflight",
+            "phase": "decision",
+            "status": "blocked_missing_preflight",
+            "complete": False,
+            "execution_allowed_now": False,
+            "required_before": "run_remote_preflight",
+            "missing_artifact_ids": ["f02_6_decision_record_approved_by_dr_sun"],
+            "blocked_by": ["requires_dr_sun_approval"],
+            "acceptable_evidence": ["f02_6_decision_record.json with status=approved"],
+            "invalid_substitutes": ["decision packet recommendation without Dr Sun decision record"],
+        },
+        {
+            "requirement_id": "approved_remote_preflight_manifest",
+            "phase": "remote_preflight",
+            "status": "blocked_missing_preflight",
+            "complete": False,
+            "execution_allowed_now": False,
+            "required_before": "run_remote_training",
+            "missing_artifact_ids": ["approved_remote_preflight_manifest_ready"],
+            "blocked_by": ["warm_start_decision_pending"],
+            "acceptable_evidence": ["gate3_preflight_manifest.json with preflight_status=ready"],
+            "invalid_substitutes": ["pending remote preflight manifest"],
+        },
+        {
+            "requirement_id": "remote_preflight_protocol_contract",
+            "phase": "remote_preflight",
+            "status": "satisfied",
+            "complete": True,
+            "execution_allowed_now": False,
+            "required_before": "run_remote_training",
+            "missing_artifact_ids": [],
+            "blocked_by": [],
+            "acceptable_evidence": ["preflight protocol has device=cuda"],
+            "invalid_substitutes": ["smoke protocol"],
+        },
+        {
+            "requirement_id": "remote_preflight_command_packetized",
+            "phase": "remote_preflight",
+            "status": "satisfied",
+            "complete": True,
+            "execution_allowed_now": False,
+            "required_before": "run_remote_preflight",
+            "missing_artifact_ids": [],
+            "blocked_by": ["requires_dr_sun_approval"],
+            "acceptable_evidence": ["run_remote_preflight command is an ssh gpu3070ti-relay command"],
+            "invalid_substitutes": ["bare local python preflight command"],
+        },
+    ]
 
 
 def _decision_gate_payload(*, record_status="pending_human_decision", training_allowed=False):
