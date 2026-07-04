@@ -88,6 +88,7 @@ def build_packet(config: RemoteFormalExecutionPacketConfig) -> dict[str, Any]:
     commands["run_remote_training"]["allowed_now"] = ready
     commands["run_remote_audit"]["allowed_now"] = ready
     _annotate_step_blockers(commands=commands, decision=decision, blockers=blockers, ready=ready)
+    preflight_requirements = _remote_preflight_requirements(decision=decision, preflight=preflight, commands=commands)
 
     return {
         "schema_version": 1,
@@ -109,6 +110,8 @@ def build_packet(config: RemoteFormalExecutionPacketConfig) -> dict[str, Any]:
         "decision_record": decision,
         "h01_manifest": h01,
         "remote_preflight": preflight,
+        "remote_preflight_requirements": preflight_requirements,
+        "remote_preflight_requirement_counts": _requirement_counts(preflight_requirements),
         "execution_steps": commands,
         "post_run_pullback": _post_run_pullback(config=config, trial_dir=commands["trial_dir"]),
         "downstream_after_successful_audit": _downstream_after_successful_audit(commands["trial_dir"]),
@@ -172,6 +175,8 @@ def _h01_record(path: Path, manifest: dict[str, Any]) -> dict[str, Any]:
 
 def _preflight_record(path: Path, preflight: dict[str, Any]) -> dict[str, Any]:
     formal_blockers = preflight.get("formal_blockers") if isinstance(preflight.get("formal_blockers"), list) else []
+    protocol = preflight.get("protocol") if isinstance(preflight.get("protocol"), dict) else {}
+    expected_artifacts = preflight.get("expected_artifacts") if isinstance(preflight.get("expected_artifacts"), list) else []
     return {
         "path": str(path),
         "exists": Path(path).is_file(),
@@ -179,6 +184,16 @@ def _preflight_record(path: Path, preflight: dict[str, Any]) -> dict[str, Any]:
         "formal_trial_ready": bool(preflight.get("formal_trial_ready")),
         "warm_start_decision": str(preflight.get("warm_start_decision")),
         "blocker_codes": [str(item.get("code")) for item in formal_blockers if isinstance(item, dict) and item.get("code")],
+        "protocol_present": bool(protocol),
+        "protocol_device": protocol.get("device"),
+        "protocol_smoke": protocol.get("smoke"),
+        "protocol_formal_audit_required": protocol.get("formal_audit_required"),
+        "protocol_train_total_timesteps": protocol.get("train_total_timesteps"),
+        "protocol_eval_min_episodes": protocol.get("eval_min_episodes"),
+        "protocol_eval_success_threshold": protocol.get("eval_success_threshold"),
+        "runner_command_present": bool(preflight.get("runner_command")),
+        "audit_command_present": bool(preflight.get("audit_command")),
+        "expected_artifact_count": len(expected_artifacts),
     }
 
 
@@ -273,6 +288,172 @@ def _decision_step_blockers(decision: dict[str, Any]) -> list[str]:
     if decision["blockers"]:
         return list(decision["blockers"])
     return [f"f02_6_decision_status_{decision['status']}"]
+
+
+def _remote_preflight_requirements(
+    *,
+    decision: dict[str, Any],
+    preflight: dict[str, Any],
+    commands: dict[str, Any],
+) -> list[dict[str, Any]]:
+    run_preflight = commands.get("run_remote_preflight") if isinstance(commands.get("run_remote_preflight"), dict) else {}
+    command = str(run_preflight.get("command") or "")
+    execution_allowed = run_preflight.get("allowed_now") is True
+    protocol_missing = _preflight_protocol_missing(preflight)
+    command_missing = _preflight_command_missing(command)
+    return [
+        _preflight_requirement(
+            requirement_id="f02_6_decision_closed_for_preflight",
+            phase="decision",
+            complete=decision["status"] == "approved",
+            execution_allowed_now=execution_allowed,
+            required_before="run_remote_preflight",
+            missing_artifact_ids=[] if decision["status"] == "approved" else ["f02_6_decision_record_approved_by_dr_sun"],
+            blocked_by=[] if decision["status"] == "approved" else _decision_step_blockers(decision),
+            acceptable_evidence=[
+                "f02_6_decision_record.json with status=approved",
+                "decider=Dr Sun and effective_warm_start_decision=approved_obstacle_summary",
+                "remote_training_allowed=true and local_training_allowed=false",
+            ],
+            invalid_substitutes=[
+                "decision packet recommendation without Dr Sun decision record",
+                "remote smoke output",
+                "manual command execution without approved record",
+            ],
+        ),
+        _preflight_requirement(
+            requirement_id="approved_remote_preflight_manifest",
+            phase="remote_preflight",
+            complete=preflight.get("formal_trial_ready") is True and preflight.get("preflight_status") == "ready",
+            execution_allowed_now=execution_allowed,
+            required_before="run_remote_training",
+            missing_artifact_ids=[]
+            if preflight.get("formal_trial_ready") is True and preflight.get("preflight_status") == "ready"
+            else ["approved_remote_preflight_manifest_ready"],
+            blocked_by=_strings(preflight.get("blocker_codes")),
+            acceptable_evidence=[
+                "gate3_preflight_manifest.json with preflight_status=ready",
+                "formal_trial_ready=true",
+                "warm_start_decision=approved_obstacle_summary",
+            ],
+            invalid_substitutes=[
+                "pending remote preflight manifest",
+                "CUDA import smoke not tied to the approved Gate3 command",
+                "local preflight output",
+            ],
+        ),
+        _preflight_requirement(
+            requirement_id="remote_preflight_protocol_contract",
+            phase="remote_preflight",
+            complete=not protocol_missing,
+            execution_allowed_now=execution_allowed,
+            required_before="run_remote_training",
+            missing_artifact_ids=protocol_missing,
+            blocked_by=[],
+            acceptable_evidence=[
+                "preflight protocol has device=cuda",
+                "preflight protocol has smoke=false and formal_audit_required=true",
+                "runner/audit commands are present and expected formal artifacts are enumerated",
+            ],
+            invalid_substitutes=[
+                "protocol missing eval_min_episodes or success threshold",
+                "CPU protocol",
+                "smoke protocol",
+            ],
+        ),
+        _preflight_requirement(
+            requirement_id="remote_preflight_command_packetized",
+            phase="remote_preflight",
+            complete=not command_missing,
+            execution_allowed_now=execution_allowed,
+            required_before="run_remote_preflight",
+            missing_artifact_ids=command_missing,
+            blocked_by=_strings(run_preflight.get("blocked_by")),
+            acceptable_evidence=[
+                "run_remote_preflight command is an ssh gpu3070ti-relay command",
+                "command runs forest_n3p.scripts.preflight_rl_rs_gate3_formal_trial",
+                "command uses --device cuda and --warm-start-decision approved_obstacle_summary",
+            ],
+            invalid_substitutes=[
+                "bare local python preflight command",
+                "ssh command targeting another host",
+                "preflight command without approved warm-start decision",
+            ],
+        ),
+    ]
+
+
+def _preflight_requirement(
+    *,
+    requirement_id: str,
+    phase: str,
+    complete: bool,
+    execution_allowed_now: bool,
+    required_before: str,
+    missing_artifact_ids: Sequence[str],
+    blocked_by: Sequence[str],
+    acceptable_evidence: Sequence[str],
+    invalid_substitutes: Sequence[str],
+) -> dict[str, Any]:
+    if complete:
+        status = "satisfied"
+    elif execution_allowed_now:
+        status = "ready_to_execute_missing_preflight"
+    else:
+        status = "blocked_missing_preflight"
+    return {
+        "requirement_id": requirement_id,
+        "phase": phase,
+        "status": status,
+        "complete": complete,
+        "execution_allowed_now": execution_allowed_now,
+        "required_before": required_before,
+        "missing_artifact_ids": list(missing_artifact_ids),
+        "blocked_by": _unique(blocked_by),
+        "acceptable_evidence": list(acceptable_evidence),
+        "invalid_substitutes": list(invalid_substitutes),
+    }
+
+
+def _preflight_protocol_missing(preflight: dict[str, Any]) -> list[str]:
+    missing: list[str] = []
+    if preflight.get("protocol_present") is not True:
+        missing.append("preflight_protocol")
+    if preflight.get("protocol_device") != "cuda":
+        missing.append("protocol_device_cuda")
+    if preflight.get("protocol_smoke") is not False:
+        missing.append("protocol_smoke_false")
+    if preflight.get("protocol_formal_audit_required") is not True:
+        missing.append("protocol_formal_audit_required")
+    if preflight.get("protocol_eval_min_episodes") != 64:
+        missing.append("protocol_eval_min_episodes_64")
+    if float(preflight.get("protocol_eval_success_threshold") or 0.0) != 0.8:
+        missing.append("protocol_eval_success_threshold_0_8")
+    if preflight.get("runner_command_present") is not True:
+        missing.append("preflight_runner_command")
+    if preflight.get("audit_command_present") is not True:
+        missing.append("preflight_audit_command")
+    if int(preflight.get("expected_artifact_count") or 0) < 7:
+        missing.append("preflight_expected_artifacts")
+    return missing
+
+
+def _preflight_command_missing(command: str) -> list[str]:
+    checks = {
+        "ssh_gpu3070ti_relay": "ssh gpu3070ti-relay",
+        "preflight_module": "preflight_rl_rs_gate3_formal_trial",
+        "device_cuda": "--device cuda",
+        "approved_warm_start_decision": "--warm-start-decision approved_obstacle_summary",
+    }
+    return [artifact_id for artifact_id, needle in checks.items() if needle not in command]
+
+
+def _requirement_counts(requirements: Sequence[dict[str, Any]]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for requirement in requirements:
+        status = str(requirement.get("status") or "unknown")
+        counts[status] = counts.get(status, 0) + 1
+    return counts
 
 
 def _approved_actions(decision_record: dict[str, Any]) -> dict[str, Any]:
