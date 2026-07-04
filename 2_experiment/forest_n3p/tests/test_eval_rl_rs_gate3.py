@@ -57,6 +57,8 @@ def test_eval_rl_rs_gate3_smoke_loads_model_runs_deterministic_episodes_and_writ
     assert summary["episodes"] == 4
     assert summary["terminal_rs_success_rate"] >= 0.8
     assert summary["model"] == str(train_dir / "final_model.zip")
+    assert summary["nn_forward_time_s"] > 0.0
+    assert summary["mean_nn_forward_time_s"] > 0.0
 
     rows = list(csv.DictReader((eval_dir / "gate3_eval_episodes.csv").open(newline="", encoding="utf-8")))
     assert len(rows) == 4
