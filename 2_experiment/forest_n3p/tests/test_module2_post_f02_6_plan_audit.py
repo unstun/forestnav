@@ -254,6 +254,8 @@ def test_post_f02_6_plan_audit_cli_writes_json_and_markdown(tmp_path):
             str(_json(tmp_path, "source_freshness.json", _source_freshness_payload())),
             "--missing-artifacts-audit",
             str(_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True))),
+            "--closure-checklist",
+            str(_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True))),
         ]
     )
 
@@ -410,6 +412,20 @@ def _missing_artifacts_payload(*, open_inventory, invalid=False):
         "all_required_evidence_present": not open_inventory,
         "audit_issue_count": 1 if invalid else 0,
         "missing_counts_by_category": {"training": 3, "evaluation": 2, "acceptance": 3} if open_inventory else {},
+    }
+
+
+def _closure_checklist_payload(*, open_checklist, invalid=False):
+    return {
+        "status": "formal_gate_closure_blocked" if open_checklist else "formal_gate_closure_ready_for_result_audit",
+        "executes_commands": bool(invalid),
+        "runs_training": bool(invalid),
+        "runs_remote_preflight": bool(invalid),
+        "local_training_allowed": bool(invalid),
+        "formal_claim_allowed": bool(invalid),
+        "closure_item_count": 8,
+        "open_item_count": 8 if open_checklist else 0,
+        "input_safety_issue_count": 1 if invalid else 0,
     }
 
 

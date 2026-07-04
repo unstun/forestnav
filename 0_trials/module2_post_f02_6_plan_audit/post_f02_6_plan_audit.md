@@ -26,6 +26,15 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - audit_issue_count: `0`
 - missing_counts_by_category: `{'decision': 1, 'regeneration': 13, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 4}`
 
+## Closure Checklist
+
+- path: `0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json`
+- status: `formal_gate_closure_blocked`
+- runs_training: `False`
+- runs_remote_preflight: `False`
+- open_item_count: `8`
+- input_safety_issue_count: `0`
+
 ## Audit Issues
 
 - none
