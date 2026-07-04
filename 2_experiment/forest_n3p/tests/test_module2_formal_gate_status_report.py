@@ -423,6 +423,36 @@ def test_formal_gate_status_report_requires_remaining_deliverables_acceptance_ma
     assert manifest["remaining_deliverables_acceptance_summary"]["matrix_row_count"] == 9
 
 
+def test_formal_gate_status_report_requires_remaining_deliverables_gap_summary(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    remaining = json.loads(config.remaining_deliverables_path.read_text(encoding="utf-8"))
+    remaining["deliverable_gap_summary"]["total_missing_deliverables"] = 9
+    remaining["deliverable_gap_summary"]["open_category_count"] = 3
+    remaining["deliverable_gap_summary"]["category_order"] = ["training", "evaluation"]
+    remaining["deliverable_gap_summary"]["categories"][0]["responsible_stage_allowed_now"] = True
+    remaining["deliverable_gap_summary"]["categories"][0]["missing_artifacts"] = remaining["deliverable_gap_summary"][
+        "categories"
+    ][0]["missing_artifacts"][:-1]
+    remaining["deliverable_gap_summary"]["categories"][1]["missing_count"] = 1
+    remaining["deliverable_gap_summary"]["categories"][2]["responsible_stage_id"] = "wrong_stage"
+    remaining["deliverable_gap_summary"]["categories"][3]["missing_artifacts"][0]["acceptance_predicate_count"] = 0
+    config.remaining_deliverables_path.write_text(json.dumps(remaining), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert "remaining_deliverables_gap_total_missing_mismatch" in issue_ids
+    assert "remaining_deliverables_gap_open_category_mismatch" in issue_ids
+    assert "remaining_deliverables_gap_category_order_mismatch" in issue_ids
+    assert "remaining_deliverables_gap_training_stage_allowed_while_blocked" in issue_ids
+    assert "remaining_deliverables_gap_training_missing_artifact_ids_mismatch" in issue_ids
+    assert "remaining_deliverables_gap_evaluation_missing_count_mismatch" in issue_ids
+    assert "remaining_deliverables_gap_acceptance_wrong_responsible_stage" in issue_ids
+    assert "remaining_deliverables_gap_formal_acceptance_h01_ready_for_formal_run_missing_predicates" in issue_ids
+    assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 9
+
+
 def test_formal_gate_status_report_consumes_handoff_bundle_safety(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
     config = _config(tmp_path, complete=False)
