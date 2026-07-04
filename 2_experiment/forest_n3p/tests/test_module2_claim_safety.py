@@ -131,6 +131,9 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert manifest["input_status"]["closure_checklist_status"] == "formal_gate_closure_blocked"
     assert manifest["input_status"]["status_report_status"] == "formal_gate_status_ready_for_claim_audit"
     assert manifest["input_status"]["status_report_next_blocked_lane_id"] is None
+    assert manifest["input_status"]["status_report_decision_intake_status"] == "f02_6_decision_intake_closed_clean"
+    assert manifest["input_status"]["status_report_decision_intake_record_status"] == "approved"
+    assert manifest["input_status"]["status_report_decision_intake_audit_issue_count"] == 0
     assert manifest["input_status"]["status_report_handoff_status"] == "ready_for_manual_remote_execution_review"
     assert manifest["input_status"]["status_report_transition_gate_status"] == "f02_6_transition_gate_audit_passed"
     assert manifest["input_status"]["status_report_transition_gate_audit_issue_count"] == 0
@@ -179,6 +182,8 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
         "blocked_by": [],
     }
     assert manifest["status_report_h02_acceptance_requirement_summary"]["status_counts"] == {"satisfied": 4}
+    assert manifest["status_report_decision_intake_summary"]["status"] == "f02_6_decision_intake_closed_clean"
+    assert manifest["status_report_decision_intake_summary"]["record_status"] == "approved"
 
     allowed_ids = {item["claim_id"] for item in manifest["allowed_claims"]}
     assert "method_is_ha_star_analytic_operator" in allowed_ids
