@@ -1501,6 +1501,19 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.append(f"- total_missing_deliverables=`{formal_gate_gap['total_missing_deliverables']}`")
     lines.append(f"- open_category_count=`{formal_gate_gap['open_category_count']}`")
     lines.append(f"- matches_status_report_remaining_gap=`{_gap_signature(formal_gate_gap) == _gap_signature(gap)}`")
+    command_index = manifest["status_report_remote_packet_safety_claim_gate_command_index_summary"]
+    lines.extend(["", "## Status Report Remote-Safety Claim-Gate Command Index", ""])
+    lines.append(f"- present=`{command_index['present']}`")
+    lines.append(f"- index_row_count=`{command_index['index_row_count']}`")
+    lines.append(f"- source_target_count=`{command_index['source_target_count']}`")
+    lines.append(f"- missing_target_ids=`{command_index['missing_target_ids']}`")
+    lines.append(f"- unknown_manual_count=`{command_index['unknown_manual_count']}`")
+    lines.append(f"- forbidden_command_count=`{command_index['forbidden_command_count']}`")
+    for artifact_id, row in command_index["claim_gate_rows"].items():
+        lines.append(
+            f"- `{artifact_id}`: present=`{row['present']}`, stage=`{row['stage_id']}`, "
+            f"required_before=`{row['required_before']}`, command_kind=`{row['command_kind']}`"
+        )
     lines.extend(["", "## Prohibited Claims", ""])
     for claim in manifest["prohibited_claims"]:
         lines.append(f"- `{claim['claim_id']}`: not allowed; patterns={', '.join(claim['patterns'])}")
