@@ -11,6 +11,7 @@ def test_paper_section_seed_writes_allowed_sections_and_blocks_results(tmp_path)
     paths = _write_inputs(tmp_path, methods_ready=True)
     manifest_path = tmp_path / "section_seed.json"
     markdown_path = tmp_path / "section_seed.md"
+    latex_path = tmp_path / "section_seed.tex"
 
     rc = builder.main(
         [
@@ -28,17 +29,21 @@ def test_paper_section_seed_writes_allowed_sections_and_blocks_results(tmp_path)
             str(manifest_path),
             "--markdown-out",
             str(markdown_path),
+            "--latex-out",
+            str(latex_path),
         ]
     )
 
     assert rc == 0
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     markdown = markdown_path.read_text(encoding="utf-8")
+    latex = latex_path.read_text(encoding="utf-8")
 
     assert manifest["artifact_name"] == "module2_paper_section_seed"
     assert manifest["status"] == "method_sections_ready_results_blocked"
     assert manifest["local_training_allowed"] is False
     assert manifest["remote_training_resource"] == "gpu3070ti-relay"
+    assert manifest["generated_outputs"]["latex"] == str(latex_path)
     assert manifest["draft_audit"]["status"] == "clean"
 
     sections = {item["section_id"]: item for item in manifest["sections"]}
@@ -50,6 +55,11 @@ def test_paper_section_seed_writes_allowed_sections_and_blocks_results(tmp_path)
     assert "0.453125" in sections["no_warm_gate3_failure_note"]["draft_text"]
     assert "does not evaluate obstacle-summary warm-start" in sections["no_warm_gate3_failure_note"]["draft_text"]
     assert "Formal performance claims remain blocked" in markdown
+    assert "\\subsection{RL-RS Analytic Expansion Operator}" in latex
+    assert "Formal performance claims remain blocked" in latex
+    assert "% BLOCKED: formal_results" in latex
+    assert "% BLOCKED: warm_start_effect" in latex
+    assert "replace Hybrid A*" not in latex
 
 
 def test_paper_section_seed_blocks_when_readiness_does_not_allow_methods(tmp_path):

@@ -21,6 +21,7 @@ class PaperSectionSeedConfig:
     output_dir: Path
     manifest_out: Path | None = None
     markdown_out: Path | None = None
+    latex_out: Path | None = None
     paper_readiness_path: Path = DEFAULT_PAPER_READINESS
     method_algorithms_path: Path = DEFAULT_METHOD_ALGORITHMS
     system_diagram_path: Path = DEFAULT_SYSTEM_DIAGRAM
@@ -33,6 +34,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         output_dir=args.output_dir,
         manifest_out=args.manifest_out,
         markdown_out=args.markdown_out,
+        latex_out=args.latex_out,
         paper_readiness_path=args.paper_readiness,
         method_algorithms_path=args.method_algorithms,
         system_diagram_path=args.system_diagram,
@@ -43,11 +45,25 @@ def main(argv: Sequence[str] | None = None) -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
     manifest_out = config.manifest_out or output_dir / "module2_paper_section_seed.json"
     markdown_out = config.markdown_out or output_dir / "module2_paper_section_seed.md"
+    latex_out = config.latex_out or output_dir / "module2_paper_section_seed.tex"
     manifest_out.parent.mkdir(parents=True, exist_ok=True)
     markdown_out.parent.mkdir(parents=True, exist_ok=True)
+    latex_out.parent.mkdir(parents=True, exist_ok=True)
     manifest_out.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     markdown_out.write_text(_markdown(manifest), encoding="utf-8")
-    print(json.dumps({"manifest": str(manifest_out), "markdown": str(markdown_out), "status": manifest["status"]}, indent=2, ensure_ascii=False))
+    latex_out.write_text(_latex(manifest), encoding="utf-8")
+    print(
+        json.dumps(
+            {
+                "manifest": str(manifest_out),
+                "markdown": str(markdown_out),
+                "latex": str(latex_out),
+                "status": manifest["status"],
+            },
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
     return 0
 
 
@@ -85,11 +101,18 @@ def build_manifest(config: PaperSectionSeedConfig) -> dict[str, Any]:
         readiness=readiness_by_id.get("warm_start_effect", {}),
     )
     sections = [method_section, figure_section, no_warm_section, formal_section, warm_section]
-    draft_audit = _audit_generated_sections(sections, claim_safety.get("prohibited_claims", []))
+    latex_seed_text = _latex_seed_text(sections)
+    draft_audit = _audit_generated_text(
+        "\n".join(str(item.get("draft_text", "")) for item in sections) + "\n" + latex_seed_text,
+        claim_safety.get("prohibited_claims", []),
+    )
     blocked = [item for item in sections if item["status"] == "blocked" and item["section_id"] in {"methods_rl_rs_operator", "system_figure_caption", "no_warm_gate3_failure_note"}]
     status = "method_sections_ready_results_blocked"
     if blocked or draft_audit["status"] != "clean":
         status = "blocked_by_readiness_or_claim_audit"
+    manifest_out = config.manifest_out or config.output_dir / "module2_paper_section_seed.json"
+    markdown_out = config.markdown_out or config.output_dir / "module2_paper_section_seed.md"
+    latex_out = config.latex_out or config.output_dir / "module2_paper_section_seed.tex"
     return {
         "schema_version": 1,
         "artifact_name": "module2_paper_section_seed",
@@ -103,6 +126,11 @@ def build_manifest(config: PaperSectionSeedConfig) -> dict[str, Any]:
             "method_algorithms": str(config.method_algorithms_path),
             "system_diagram": str(config.system_diagram_path),
             "claim_safety": str(config.claim_safety_path),
+        },
+        "generated_outputs": {
+            "manifest": str(manifest_out),
+            "markdown": str(markdown_out),
+            "latex": str(latex_out),
         },
         "input_status": {
             "paper_readiness_status": readiness.get("status"),
@@ -127,6 +155,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--manifest-out", type=Path, default=None)
     parser.add_argument("--markdown-out", type=Path, default=None)
+    parser.add_argument("--latex-out", type=Path, default=None)
     parser.add_argument("--paper-readiness", type=Path, default=DEFAULT_PAPER_READINESS)
     parser.add_argument("--method-algorithms", type=Path, default=DEFAULT_METHOD_ALGORITHMS)
     parser.add_argument("--system-diagram", type=Path, default=DEFAULT_SYSTEM_DIAGRAM)
@@ -249,9 +278,8 @@ def _first_anchors(algorithm: dict[str, Any], *, limit: int) -> list[dict[str, A
     return anchors
 
 
-def _audit_generated_sections(sections: Sequence[dict[str, Any]], prohibited_claims: Sequence[Any]) -> dict[str, Any]:
-    draft_text = "\n".join(str(item.get("draft_text", "")) for item in sections)
-    lower = draft_text.lower()
+def _audit_generated_text(text: str, prohibited_claims: Sequence[Any]) -> dict[str, Any]:
+    lower = text.lower()
     violations: list[dict[str, Any]] = []
     for claim in prohibited_claims:
         if not isinstance(claim, dict):
@@ -313,6 +341,66 @@ def _markdown(manifest: dict[str, Any]) -> str:
         lines.append(f"- {item}")
     lines.append("")
     return "\n".join(lines)
+
+
+def _latex(manifest: dict[str, Any]) -> str:
+    lines = [
+        "% Auto-generated Module2 section seed.",
+        f"% Source manifest: {manifest['generated_outputs']['manifest']}",
+        "% This file is a draft seed only; formal result text is intentionally blocked.",
+        "% Include manually only after human review.",
+        "",
+        _latex_seed_text(manifest["sections"]),
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def _latex_seed_text(sections: Sequence[dict[str, Any]]) -> str:
+    by_id = {str(item.get("section_id")): item for item in sections if isinstance(item, dict)}
+    method = by_id.get("methods_rl_rs_operator", {})
+    figure = by_id.get("system_figure_caption", {})
+    no_warm = by_id.get("no_warm_gate3_failure_note", {})
+    formal = by_id.get("formal_results", {})
+    warm = by_id.get("warm_start_effect", {})
+    return "\n".join(
+        [
+            "\\subsection{RL-RS Analytic Expansion Operator}",
+            "\\label{sec:module2_rl_rs_operator}",
+            _latex_paragraph(method),
+            "",
+            "\\paragraph{System boundary.}",
+            _latex_paragraph(figure),
+            "",
+            "\\paragraph{No-warm Gate \\#3 boundary.}",
+            _latex_paragraph(no_warm),
+            "",
+            f"% BLOCKED: formal_results :: {', '.join(formal.get('blockers', [])) or 'readiness_not_formal'}",
+            f"% BLOCKED: warm_start_effect :: {', '.join(warm.get('blockers', [])) or 'readiness_not_formal'}",
+        ]
+    )
+
+
+def _latex_paragraph(section: dict[str, Any]) -> str:
+    if section.get("status") == "blocked":
+        return f"% BLOCKED: {section.get('section_id')} :: {', '.join(section.get('blockers', [])) or 'readiness_not_formal'}"
+    return _latex_escape(str(section.get("draft_text", "")))
+
+
+def _latex_escape(text: str) -> str:
+    replacements = {
+        "\\": r"\textbackslash{}",
+        "&": r"\&",
+        "%": r"\%",
+        "$": r"\$",
+        "#": r"\#",
+        "_": r"\_",
+        "{": r"\{",
+        "}": r"\}",
+        "~": r"\textasciitilde{}",
+        "^": r"\textasciicircum{}",
+    }
+    return "".join(replacements.get(char, char) for char in text)
 
 
 if __name__ == "__main__":

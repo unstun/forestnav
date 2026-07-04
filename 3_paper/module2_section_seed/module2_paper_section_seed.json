@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_paper_section_seed",
   "status": "method_sections_ready_results_blocked",
-  "created_at_utc": "2026-07-04T09:20:10.565893+00:00",
-  "source_head": "72c93f7ada76f19d8d69dc93413f7271513426e4+dirty",
+  "created_at_utc": "2026-07-04T09:25:57.664047+00:00",
+  "source_head": "114fabcfb29b405be2e97a122445c0ae01c68a54+dirty",
   "local_training_allowed": false,
   "remote_training_resource": "gpu3070ti-relay",
   "inputs": {
@@ -11,6 +11,11 @@
     "method_algorithms": "0_trials/module2_method_algorithms/module2_method_algorithms.json",
     "system_diagram": "0_trials/module2_system_diagram/module2_system_diagram.json",
     "claim_safety": "0_trials/module2_claim_safety/module2_claim_safety.json"
+  },
+  "generated_outputs": {
+    "manifest": "3_paper/module2_section_seed/module2_paper_section_seed.json",
+    "markdown": "3_paper/module2_section_seed/module2_paper_section_seed.md",
+    "latex": "3_paper/module2_section_seed/module2_paper_section_seed.tex"
   },
   "input_status": {
     "paper_readiness_status": "partial_methods_ready_results_blocked",
