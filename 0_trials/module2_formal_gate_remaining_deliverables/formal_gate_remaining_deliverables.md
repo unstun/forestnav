@@ -3,7 +3,7 @@
 This ledger is read-only. It lists remaining formal training, evaluation, and acceptance deliverables; it does not execute commands or write paper results.
 
 - status: `formal_gate_deliverables_blocked`
-- source_head: `8a9877145f992f38d8721630a9e2f2a9866833aa+dirty`
+- source_head: `b04b22573dd0d37aeff35f9e75961418051c6264+dirty`
 - missing_deliverable_count: `10`
 - open_category_count: `4`
 - audit_issue_count: `0`
@@ -22,6 +22,47 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - h02_status: `blocked_formal_output_acceptance`
 - h02_formal_output_accepted: `False`
 - h02_paper_result_input_allowed: `False`
+
+## Formal Gate Gap Summary
+
+- summary_id: `module2_formal_gate_missing_training_eval_acceptance_summary`
+- total_missing_deliverables: `10`
+- open_category_count: `4`
+- execution_boundary: `read_only_no_execution`
+### gap:training
+- missing_count: `3`
+- responsible_stage_id: `gate3_remote_training`
+- responsible_stage_allowed_now: `False`
+- responsible_stage_blocked_by: `f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
+- missing_artifacts:
+  - `training:train_final_model_zip`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip`, acceptance_predicate_count=`5`
+  - `training:train_summary_json`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json`, acceptance_predicate_count=`5`
+  - `training:train_training_manifest_json`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json`, acceptance_predicate_count=`5`
+### gap:evaluation
+- missing_count: `2`
+- responsible_stage_id: `gate3_remote_audit_pullback`
+- responsible_stage_allowed_now: `False`
+- responsible_stage_blocked_by: `f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
+- missing_artifacts:
+  - `evaluation:eval_gate3_eval_episodes_csv`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv`, acceptance_predicate_count=`5`
+  - `evaluation:eval_gate3_summary_json`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json`, acceptance_predicate_count=`5`
+### gap:acceptance
+- missing_count: `3`
+- responsible_stage_id: `gate3_remote_audit_pullback`
+- responsible_stage_allowed_now: `False`
+- responsible_stage_blocked_by: `f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
+- missing_artifacts:
+  - `acceptance:gate3_trial_manifest_json`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json`, acceptance_predicate_count=`5`
+  - `acceptance:gate3_formal_audit_json`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json`, acceptance_predicate_count=`5`
+  - `acceptance:pulled_back_checkpoint_hash_record`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json`, acceptance_predicate_count=`5`
+### gap:formal_acceptance
+- missing_count: `2`
+- responsible_stage_id: `regenerate_h01_h02_formal_artifacts`
+- responsible_stage_allowed_now: `False`
+- responsible_stage_blocked_by: `missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
+- missing_artifacts:
+  - `formal_acceptance:h01_ready_for_formal_run`: state=`blocked_pending_decisions`, path=`0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`, acceptance_predicate_count=`5`
+  - `formal_acceptance:h02_formal_output_acceptance`: state=`blocked_formal_output_acceptance`, path=`0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`, acceptance_predicate_count=`5`
 
 ## Deliverable Groups
 

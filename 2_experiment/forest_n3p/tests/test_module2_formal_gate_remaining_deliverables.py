@@ -26,6 +26,23 @@ def test_remaining_deliverables_blocks_pending_formal_gate(tmp_path):
     assert manifest["category_counts"]["evaluation"] == {"item_count": 2, "missing_count": 2, "present_count": 0}
     assert manifest["category_counts"]["acceptance"] == {"item_count": 3, "missing_count": 3, "present_count": 0}
     assert manifest["category_counts"]["formal_acceptance"] == {"item_count": 2, "missing_count": 2, "present_count": 0}
+    gap_summary = manifest["deliverable_gap_summary"]
+    assert gap_summary["summary_id"] == "module2_formal_gate_missing_training_eval_acceptance_summary"
+    assert gap_summary["execution_boundary"] == "read_only_no_execution"
+    assert gap_summary["not_paper_result_material"] is True
+    assert gap_summary["total_missing_deliverables"] == 10
+    assert gap_summary["open_category_count"] == 4
+    assert gap_summary["category_order"] == ["training", "evaluation", "acceptance", "formal_acceptance"]
+    gap_categories = {category["category"]: category for category in gap_summary["categories"]}
+    assert gap_categories["training"]["missing_count"] == 3
+    assert gap_categories["training"]["responsible_stage_id"] == "gate3_remote_training"
+    assert gap_categories["training"]["responsible_stage_allowed_now"] is False
+    assert gap_categories["training"]["missing_artifacts"][0]["matrix_id"] == "training:train_final_model_zip"
+    assert gap_categories["training"]["missing_artifacts"][0]["current_state"] == "missing"
+    assert "local training output" in gap_categories["training"]["missing_artifacts"][0]["invalid_substitutes"]
+    assert gap_categories["evaluation"]["missing_count"] == 2
+    assert gap_categories["acceptance"]["missing_count"] == 3
+    assert gap_categories["formal_acceptance"]["missing_count"] == 2
 
     groups = {group["category"]: group for group in manifest["deliverable_groups"]}
     assert groups["training"]["responsible_stage_id"] == "gate3_remote_training"
@@ -65,6 +82,9 @@ def test_remaining_deliverables_accepts_synthetic_complete_gate(tmp_path):
     assert manifest["status"] == "formal_gate_deliverables_ready_for_claim_audit"
     assert manifest["missing_deliverable_count"] == 0
     assert manifest["open_category_count"] == 0
+    assert manifest["deliverable_gap_summary"]["total_missing_deliverables"] == 0
+    assert manifest["deliverable_gap_summary"]["open_category_count"] == 0
+    assert all(not category["missing_artifacts"] for category in manifest["deliverable_gap_summary"]["categories"])
     assert manifest["audit_issue_count"] == 0
     assert all(group["status"] == "complete" for group in manifest["deliverable_groups"])
     assert all(row["missing"] is False for row in manifest["deliverable_acceptance_matrix"])
@@ -139,6 +159,9 @@ def test_remaining_deliverables_cli_writes_json_and_markdown(tmp_path):
     assert "gate3_formal_audit_json" in markdown
     assert "h02_formal_output_acceptance" in markdown
     assert "Deliverable Acceptance Matrix" in markdown
+    assert "Formal Gate Gap Summary" in markdown
+    assert "total_missing_deliverables" in markdown
+    assert "gap:training" in markdown
     assert "training:train_final_model_zip" in markdown
     assert "acceptance_predicates" in markdown
     assert "gpu3070ti-relay formal run" in markdown
