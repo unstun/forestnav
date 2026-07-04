@@ -985,6 +985,89 @@ def _paper_readiness(*, complete):
     }
 
 
+def _remaining_deliverables(*, complete):
+    category_artifacts = {
+        "training": [
+            "train_final_model_zip",
+            "train_summary_json",
+            "train_training_manifest_json",
+        ],
+        "evaluation": [
+            "eval_gate3_eval_episodes_csv",
+            "eval_gate3_summary_json",
+        ],
+        "acceptance": [
+            "gate3_trial_manifest_json",
+            "gate3_formal_audit_json",
+            "pulled_back_checkpoint_hash_record",
+        ],
+        "formal_acceptance": [
+            "h01_ready_for_formal_run",
+            "h02_formal_output_acceptance",
+        ],
+    }
+    matrix = [
+        _remaining_deliverable_row(category, artifact_id, complete=complete)
+        for category, artifact_ids in category_artifacts.items()
+        for artifact_id in artifact_ids
+    ]
+    category_counts = {
+        category: {
+            "item_count": len(artifact_ids),
+            "missing_count": 0 if complete else len(artifact_ids),
+            "present_count": len(artifact_ids) if complete else 0,
+        }
+        for category, artifact_ids in category_artifacts.items()
+    }
+    return {
+        "status": "formal_gate_deliverables_ready_for_claim_audit" if complete else "formal_gate_deliverables_blocked",
+        "not_paper_result_material": True,
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+        "missing_deliverable_count": 0 if complete else len(matrix),
+        "category_counts": category_counts,
+        "permissions_now": {
+            "local_training_allowed_now": False,
+            "remote_preflight_allowed_now": complete,
+            "remote_training_allowed_now": complete,
+            "formal_h01_evaluation_allowed_now": complete,
+            "formal_h02_acceptance_allowed_now": complete,
+            "formal_claim_allowed_now": complete,
+        },
+        "deliverable_acceptance_matrix": matrix,
+    }
+
+
+def _remaining_deliverable_row(category, artifact_id, *, complete):
+    stage_by_category = {
+        "training": "gate3_remote_training",
+        "evaluation": "gate3_remote_audit_pullback",
+        "acceptance": "gate3_remote_audit_pullback",
+        "formal_acceptance": "regenerate_h01_h02_formal_artifacts",
+    }
+    return {
+        "matrix_id": f"{category}:{artifact_id}",
+        "category": category,
+        "artifact_id": artifact_id,
+        "expected_path": f"0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/{artifact_id}",
+        "current_exists": complete,
+        "current_state": "present" if complete else "missing",
+        "missing": not complete,
+        "missing_reason": "" if complete else "required formal-gate deliverable",
+        "responsible_stage_id": stage_by_category[category],
+        "responsible_stage_status": "ready" if complete else "blocked",
+        "responsible_stage_allowed_now": complete,
+        "responsible_stage_blocked_by": [] if complete else ["remote_packet_not_ready"],
+        "acceptance_predicates": [f"{artifact_id}_acceptance_predicate"],
+        "acceptable_evidence": [f"{artifact_id}_acceptable_evidence"],
+        "invalid_substitutes": [f"{artifact_id}_invalid_substitute"],
+        "execution_boundary": "read_only_no_execution",
+    }
+
+
 def _handoff_bundle(*, complete, drift=False):
     step_blockers = [] if complete else ["requires_dr_sun_approval"]
     training_blockers = [] if complete else ["requires_dr_sun_approval", "remote_packet_not_ready"]
