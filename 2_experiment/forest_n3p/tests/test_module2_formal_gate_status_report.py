@@ -24,6 +24,11 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
     assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
     assert manifest["current_state"]["decision_status"] == "pending_human_decision"
+    assert manifest["current_state"]["missing_artifacts_handoff_index_status"] == "blocked_until_f02_6_decision"
+    assert manifest["current_state"]["missing_artifacts_handoff_next_action"] == "record_f02_6_decision"
+    assert manifest["current_state"]["missing_artifacts_handoff_open_requirement_count"] == 5
+    assert manifest["current_state"]["missing_artifacts_handoff_remote_training_allowed_now"] is False
+    assert manifest["current_state"]["missing_artifacts_handoff_formal_result_material_allowed_now"] is False
     assert manifest["current_state"]["closure_open_item_count"] == 8
     assert manifest["current_state"]["closure_remote_preflight_allowed_now"] is False
     assert manifest["current_state"]["closure_remote_training_allowed_now"] is False
@@ -68,6 +73,15 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert handoff["remote_training_allowed_now"] is False
     assert handoff["remote_execution_steps"]["run_remote_training"]["allowed_now"] is False
     assert "remote_packet_not_ready" in handoff["remote_execution_steps"]["run_remote_training"]["blocked_by"]
+    missing_handoff = manifest["missing_artifacts_handoff_index_summary"]
+    assert missing_handoff["present"] is True
+    assert missing_handoff["status"] == "blocked_until_f02_6_decision"
+    assert missing_handoff["next_action_id"] == "record_f02_6_decision"
+    assert missing_handoff["next_action_requires_dr_sun"] is True
+    assert missing_handoff["open_requirement_count"] == 5
+    assert missing_handoff["local_training_allowed_now"] is False
+    assert missing_handoff["remote_training_allowed_now"] is False
+    assert missing_handoff["formal_result_material_allowed_now"] is False
     veto = manifest["formal_gate_execution_veto_summary"]
     assert veto["present"] is True
     assert veto["all_rows_consistent"] is True
@@ -100,6 +114,8 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     assert all(stage["blocked_by"] == [] for stage in manifest["closure_remote_stage_summary"].values())
     assert manifest["formal_gate_execution_veto_summary"]["all_rows_consistent"] is True
     assert manifest["formal_gate_execution_veto_summary"]["row_consensus"]["remote_training"] is True
+    assert manifest["missing_artifacts_handoff_index_summary"]["status"] == "formal_gate_evidence_ready_for_h01_h02_claim_gates"
+    assert manifest["missing_artifacts_handoff_index_summary"]["open_requirement_count"] == 0
 
 
 def test_formal_gate_status_report_catches_status_input_drift(tmp_path):
@@ -112,8 +128,24 @@ def test_formal_gate_status_report_catches_status_input_drift(tmp_path):
     assert "closure_checklist_executes_commands" in issue_ids
     assert "remote_packet_allows_claim_before_audit" in issue_ids
     assert "claim_safety_allows_formal_claim" in issue_ids
+    assert "missing_artifacts_handoff_allows_remote_training_while_open" in issue_ids
+    assert "missing_artifacts_handoff_allows_result_material" in issue_ids
     assert "handoff_bundle_safety_issues_open" in issue_ids
     assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
+
+
+def test_formal_gate_status_report_requires_missing_artifacts_handoff_index(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    missing_artifacts = json.loads(config.missing_artifacts_path.read_text(encoding="utf-8"))
+    missing_artifacts.pop("formal_gate_handoff_index")
+    config.missing_artifacts_path.write_text(json.dumps(missing_artifacts), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert "missing_artifacts_handoff_index_missing" in issue_ids
+    assert manifest["missing_artifacts_handoff_index_summary"]["present"] is False
 
 
 def test_formal_gate_status_report_requires_remote_step_blockers(tmp_path):
@@ -263,6 +295,8 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
     assert "Remote Execution Steps" in markdown
     assert "Closure Remote Stages" in markdown
     assert "Formal Gate Handoff Bundle" in markdown
+    assert "Missing-Artifacts Handoff Index" in markdown
+    assert "record_f02_6_decision" in markdown
     assert "Formal Gate Execution Veto Matrix" in markdown
     assert "does not execute commands" in markdown
 
@@ -391,8 +425,27 @@ def _missing_artifacts(*, complete):
         "current_gate_summary": {
             "source_freshness_status": "source_freshness_clean" if complete else "source_freshness_risks_recorded_gate_still_blocked",
         },
+        "formal_gate_handoff_index": _missing_artifacts_handoff_index(complete=complete),
         "missing_counts_by_category": counts,
         "missing_evidence_groups": groups,
+    }
+
+
+def _missing_artifacts_handoff_index(*, complete):
+    status = "formal_gate_evidence_ready_for_h01_h02_claim_gates" if complete else "blocked_until_f02_6_decision"
+    next_action_id = "no_open_formal_gate_handoff_requirements" if complete else "record_f02_6_decision"
+    return {
+        "status": status,
+        "next_action": {
+            "action_id": next_action_id,
+            "requires_dr_sun": not complete,
+            "allowed_for_agent_now": False,
+        },
+        "local_training_allowed_now": False,
+        "remote_training_allowed_now": complete,
+        "formal_result_material_allowed_now": False,
+        "requirement_count": 5,
+        "open_requirement_count": 0 if complete else 5,
     }
 
 
