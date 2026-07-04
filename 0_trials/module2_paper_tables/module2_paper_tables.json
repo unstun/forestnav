@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_paper_tables",
   "status": "blocked_no_formal_h02_data",
-  "created_at_utc": "2026-07-04T09:01:52.347932+00:00",
-  "source_head": "5efd2487d2ea2cbb28afdb5fbf4f8dfa36b9a457",
+  "created_at_utc": "2026-07-04T09:02:21.743303+00:00",
+  "source_head": "f4459945dbde1ba2ca66c178efcb53db03bd4c6f",
   "formal_claim_allowed": false,
   "local_training_allowed": false,
   "remote_training_resource": "gpu3070ti-relay",
@@ -39,9 +39,7 @@
     "h02_scale_below_h01_manifest",
     "missing_ppo_result_rows",
     "missing_remote_pullback_artifacts",
-    "f02_6_formal_chain_pending",
-    "h01_manifest_not_ready",
-    "missing_ppo_result_rows"
+    "f02_6_formal_chain_pending"
   ],
   "tables": {
     "main_table": {

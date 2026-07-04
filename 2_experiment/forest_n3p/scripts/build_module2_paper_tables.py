@@ -223,7 +223,7 @@ def _blockers(
         blocker_text = str(blocker)
         if blocker_text not in blockers:
             blockers.append(blocker_text)
-    if str(h01_manifest.get("status")) not in READY_H01_STATUSES:
+    if str(h01_manifest.get("status")) not in READY_H01_STATUSES and "h01_manifest_not_ready" not in blockers:
         blockers.append("h01_manifest_not_ready")
     for blocker in h01_manifest.get("blockers") or ():
         blocker_text = str(blocker)
@@ -232,7 +232,7 @@ def _blockers(
     if str(metric_protocol.get("status")) != "frozen":
         blockers.append("metric_protocol_not_frozen")
     methods = {str(row.get("method", "")) for row in records}
-    if not any(method in methods for method in ("ha_rl_rs_ppo", "ppo_analytic_operator")):
+    if not any(method in methods for method in ("ha_rl_rs_ppo", "ppo_analytic_operator")) and "missing_ppo_result_rows" not in blockers:
         blockers.append("missing_ppo_result_rows")
     return blockers
 

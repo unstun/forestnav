@@ -21,8 +21,6 @@ This artifact is not formal unless `formal_claim_allowed=true`.
 - missing_ppo_result_rows
 - missing_remote_pullback_artifacts
 - f02_6_formal_chain_pending
-- h01_manifest_not_ready
-- missing_ppo_result_rows
 
 ## I02.1 Main Table Preview
 
