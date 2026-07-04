@@ -29,6 +29,12 @@ REMOTE_STATUS_STEP_MAP = {
     "run_remote_training": ("remote_training_allowed_now", "remote_training_blocked_by"),
     "run_remote_audit": ("remote_audit_allowed_now", "remote_audit_blocked_by"),
 }
+REMOTE_PREFLIGHT_REQUIREMENT_IDS = (
+    "f02_6_decision_closed_for_preflight",
+    "approved_remote_preflight_manifest",
+    "remote_preflight_protocol_contract",
+    "remote_preflight_command_packetized",
+)
 
 
 @dataclass(frozen=True)
@@ -116,6 +122,7 @@ def _audit_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any], plan
     issues.extend(_packet_top_level_issues(packet))
     issues.extend(_environment_issues(packet))
     issues.extend(_embedded_preflight_issues(packet=packet, decision_gate=decision_gate))
+    issues.extend(_preflight_requirement_issues(packet=packet, decision_gate=decision_gate))
     issues.extend(_execution_step_issues(packet))
     issues.extend(_execution_step_blocker_issues(packet=packet, decision_gate=decision_gate))
     issues.extend(_pullback_issues(packet))
@@ -187,6 +194,44 @@ def _embedded_preflight_issues(*, packet: dict[str, Any], decision_gate: dict[st
                     observed=preflight.get("warm_start_decision"),
                 )
             )
+    return issues
+
+
+def _preflight_requirement_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any]) -> list[dict[str, Any]]:
+    requirements = packet.get("remote_preflight_requirements")
+    decision = decision_gate.get("decision_state") if isinstance(decision_gate.get("decision_state"), dict) else {}
+    issues: list[dict[str, Any]] = []
+    if not isinstance(requirements, list):
+        return [_issue("packet_missing_remote_preflight_requirements", "Remote packet must expose remote_preflight_requirements.")]
+    by_id = {str(item.get("requirement_id")): item for item in requirements if isinstance(item, dict)}
+    for requirement_id in REMOTE_PREFLIGHT_REQUIREMENT_IDS:
+        if requirement_id not in by_id:
+            issues.append(_issue(f"preflight_requirement_missing_{requirement_id}", "Remote preflight requirement is missing."))
+    for requirement_id, requirement in by_id.items():
+        if requirement.get("requirement_id") not in REMOTE_PREFLIGHT_REQUIREMENT_IDS:
+            continue
+        if not _strings(requirement.get("acceptable_evidence")):
+            issues.append(_issue(f"{requirement_id}_missing_acceptable_evidence", "Remote preflight requirement must list acceptable evidence."))
+        if not _strings(requirement.get("invalid_substitutes")):
+            issues.append(_issue(f"{requirement_id}_missing_invalid_substitutes", "Remote preflight requirement must list invalid substitutes."))
+        if requirement.get("complete") is True and requirement.get("status") != "satisfied":
+            issues.append(_issue(f"{requirement_id}_complete_not_satisfied", "Complete remote preflight requirement must have status=satisfied."))
+        if requirement.get("status") == "satisfied" and requirement.get("missing_artifact_ids"):
+            issues.append(_issue(f"{requirement_id}_satisfied_with_missing_artifacts", "Satisfied remote preflight requirement must not list missing artifacts."))
+        if packet.get("status") == "blocked_until_f02_6_decision" and requirement.get("execution_allowed_now") is True:
+            issues.append(_issue(f"{requirement_id}_allowed_while_packet_blocked", "Preflight requirement must not be executable while packet is blocked."))
+    if decision.get("record_status") == "pending_human_decision":
+        decision_req = by_id.get("f02_6_decision_closed_for_preflight", {})
+        manifest_req = by_id.get("approved_remote_preflight_manifest", {})
+        if decision_req.get("status") == "satisfied":
+            issues.append(_issue("pending_decision_requirement_satisfied", "F02.6 decision requirement must remain blocked while decision is pending."))
+        if manifest_req.get("status") == "satisfied":
+            issues.append(_issue("pending_preflight_manifest_requirement_satisfied", "Approved remote preflight manifest requirement must remain blocked while F02.6 is pending."))
+    if packet.get("status") == "ready_for_gpu3070ti_remote_training":
+        for requirement_id in REMOTE_PREFLIGHT_REQUIREMENT_IDS:
+            requirement = by_id.get(requirement_id, {})
+            if requirement.get("status") != "satisfied" or requirement.get("complete") is not True:
+                issues.append(_issue(f"ready_packet_unsatisfied_{requirement_id}", "Ready packet requires all remote preflight requirements to be satisfied."))
     return issues
 
 
@@ -357,6 +402,7 @@ def _packet_summary(packet: dict[str, Any]) -> dict[str, Any]:
     pullback = packet.get("post_run_pullback") if isinstance(packet.get("post_run_pullback"), dict) else {}
     env = packet.get("execution_environment") if isinstance(packet.get("execution_environment"), dict) else {}
     preflight = packet.get("remote_preflight") if isinstance(packet.get("remote_preflight"), dict) else {}
+    requirement_counts = packet.get("remote_preflight_requirement_counts") if isinstance(packet.get("remote_preflight_requirement_counts"), dict) else {}
     return {
         "status": packet.get("status"),
         "ready_to_run_remote_training": packet.get("ready_to_run_remote_training"),
@@ -375,6 +421,7 @@ def _packet_summary(packet: dict[str, Any]) -> dict[str, Any]:
         "remote_audit_blocked_by": _strings(_step(steps, "run_remote_audit").get("blocked_by")),
         "pullback_artifact_count": len(_strings(pullback.get("expected_artifacts"))),
         "hash_manifest_required": pullback.get("hash_manifest_required"),
+        "remote_preflight_requirement_counts": requirement_counts,
     }
 
 
