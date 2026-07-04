@@ -1239,6 +1239,92 @@ def _remaining_deliverables_gap_summary(remaining_deliverables: dict[str, Any]) 
     }
 
 
+def _formal_gate_gap_audit_remaining_deliverables_gap_summary(formal_gate: dict[str, Any]) -> dict[str, Any]:
+    return _normalize_gap_summary(formal_gate.get("remaining_deliverables_gap_summary"))
+
+
+def _normalize_gap_summary(raw: Any) -> dict[str, Any]:
+    raw_summary = raw if isinstance(raw, dict) else {}
+    raw_categories = raw_summary.get("categories")
+    if isinstance(raw_categories, dict):
+        raw_items = raw_categories.items()
+    elif isinstance(raw_categories, list):
+        raw_items = ((item.get("category"), item) for item in raw_categories if isinstance(item, dict))
+    else:
+        raw_items = ()
+    categories: dict[str, dict[str, Any]] = {
+        category: {
+            "present": False,
+            "status": None,
+            "missing_count": 0,
+            "present_count": 0,
+            "responsible_stage_id": None,
+            "responsible_stage_allowed_now": None,
+            "responsible_stage_blocked_by": [],
+            "next_required_evidence_count": 0,
+            "missing_artifact_count": 0,
+            "missing_artifact_matrix_ids": [],
+            "missing_artifacts": [],
+        }
+        for category in REMAINING_DELIVERABLE_ACCEPTANCE_MATRIX_IDS
+    }
+    for category_key, raw_category in raw_items:
+        category = str(category_key) if category_key else ""
+        if category not in categories or not isinstance(raw_category, dict):
+            continue
+        missing_artifacts_raw = raw_category.get("missing_artifacts")
+        missing_artifacts_raw = missing_artifacts_raw if isinstance(missing_artifacts_raw, list) else []
+        matrix_ids = raw_category.get("missing_artifact_matrix_ids")
+        if not isinstance(matrix_ids, list):
+            matrix_ids = [item.get("matrix_id") for item in missing_artifacts_raw if isinstance(item, dict)]
+        categories[category] = {
+            "present": True,
+            "status": raw_category.get("status"),
+            "missing_count": int(raw_category.get("missing_count") or 0),
+            "present_count": int(raw_category.get("present_count") or 0),
+            "responsible_stage_id": raw_category.get("responsible_stage_id"),
+            "responsible_stage_allowed_now": raw_category.get("responsible_stage_allowed_now")
+            if isinstance(raw_category.get("responsible_stage_allowed_now"), bool)
+            else None,
+            "responsible_stage_blocked_by": _strings(raw_category.get("responsible_stage_blocked_by")),
+            "next_required_evidence_count": len(_strings(raw_category.get("next_required_evidence"))),
+            "missing_artifact_count": len([item for item in missing_artifacts_raw if isinstance(item, dict)])
+            if missing_artifacts_raw
+            else len([item for item in matrix_ids if item]),
+            "missing_artifact_matrix_ids": [str(item) for item in matrix_ids if item],
+            "missing_artifacts": [],
+        }
+    return {
+        "present": bool(raw_summary),
+        "summary_id": raw_summary.get("summary_id"),
+        "execution_boundary": raw_summary.get("execution_boundary"),
+        "not_paper_result_material": raw_summary.get("not_paper_result_material") is True,
+        "total_missing_deliverables": int(raw_summary.get("total_missing_deliverables") or 0),
+        "open_category_count": int(raw_summary.get("open_category_count") or 0),
+        "category_order": _strings(raw_summary.get("category_order")),
+        "categories": categories,
+    }
+
+
+def _gap_signature(summary: dict[str, Any]) -> dict[str, Any]:
+    categories = summary.get("categories") if isinstance(summary.get("categories"), dict) else {}
+    return {
+        "summary_id": summary.get("summary_id"),
+        "total_missing_deliverables": summary.get("total_missing_deliverables"),
+        "open_category_count": summary.get("open_category_count"),
+        "category_order": summary.get("category_order"),
+        "categories": {
+            key: {
+                "missing_count": value.get("missing_count"),
+                "responsible_stage_id": value.get("responsible_stage_id"),
+                "missing_artifact_matrix_ids": value.get("missing_artifact_matrix_ids", []),
+            }
+            for key, value in sorted(categories.items())
+            if isinstance(value, dict)
+        },
+    }
+
+
 def _remaining_deliverables_acceptance_issues(
     *,
     remaining_deliverables: dict[str, Any],
