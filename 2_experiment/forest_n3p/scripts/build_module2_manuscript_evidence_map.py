@@ -433,6 +433,14 @@ def _source_anchors_for_cue(cue: str, source_files: Sequence[str]) -> list[dict[
     return anchors
 
 
+def _display_path(path: Path) -> str:
+    resolved = path.resolve()
+    try:
+        return str(resolved.relative_to(Path.cwd().resolve()))
+    except ValueError:
+        return str(resolved)
+
+
 def _cue_blockers(text: str, cues: Sequence[str], *, unit_id: str) -> list[str]:
     return [f"{unit_id}:missing_manuscript_cue:{cue}" for cue in cues if cue not in text]
 
