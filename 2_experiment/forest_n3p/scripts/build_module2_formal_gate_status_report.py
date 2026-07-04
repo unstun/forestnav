@@ -1002,6 +1002,142 @@ def _remote_requirement_matrix_summary(
     }
 
 
+def _remaining_deliverables_acceptance_summary(remaining_deliverables: dict[str, Any]) -> dict[str, Any]:
+    raw_rows = remaining_deliverables.get("deliverable_acceptance_matrix")
+    rows_list = raw_rows if isinstance(raw_rows, list) else []
+    expected_by_category = REMAINING_DELIVERABLE_ACCEPTANCE_MATRIX_IDS
+    row_by_matrix_id = {
+        str(row.get("matrix_id")): row
+        for row in rows_list
+        if isinstance(row, dict) and row.get("matrix_id")
+    }
+    rows: dict[str, dict[str, Any]] = {}
+    missing_expected_ids: list[str] = []
+    for category, artifact_ids in expected_by_category.items():
+        for artifact_id in artifact_ids:
+            matrix_id = f"{category}:{artifact_id}"
+            raw = row_by_matrix_id.get(matrix_id, {})
+            if not raw:
+                missing_expected_ids.append(matrix_id)
+            rows[matrix_id] = {
+                "present": bool(raw),
+                "category": category,
+                "artifact_id": artifact_id,
+                "expected_path": raw.get("expected_path"),
+                "current_exists": raw.get("current_exists") if isinstance(raw.get("current_exists"), bool) else None,
+                "current_state": raw.get("current_state"),
+                "missing": raw.get("missing") if isinstance(raw.get("missing"), bool) else None,
+                "responsible_stage_id": raw.get("responsible_stage_id"),
+                "responsible_stage_status": raw.get("responsible_stage_status"),
+                "responsible_stage_allowed_now": raw.get("responsible_stage_allowed_now")
+                if isinstance(raw.get("responsible_stage_allowed_now"), bool)
+                else None,
+                "responsible_stage_blocked_by": _strings(raw.get("responsible_stage_blocked_by")),
+                "acceptance_predicate_count": len(_strings(raw.get("acceptance_predicates"))),
+                "acceptable_evidence_count": len(_strings(raw.get("acceptable_evidence"))),
+                "invalid_substitute_count": len(_strings(raw.get("invalid_substitutes"))),
+                "execution_boundary": raw.get("execution_boundary"),
+            }
+    category_counts = remaining_deliverables.get("category_counts")
+    category_counts = category_counts if isinstance(category_counts, dict) else {}
+    blocked_categories = [
+        str(category)
+        for category, payload in category_counts.items()
+        if isinstance(payload, dict) and int(payload.get("missing_count") or 0) > 0
+    ]
+    return {
+        "present": bool(rows_list),
+        "status": remaining_deliverables.get("status"),
+        "missing_deliverable_count": int(remaining_deliverables.get("missing_deliverable_count") or 0),
+        "matrix_row_count": len(rows_list),
+        "expected_matrix_row_count": sum(len(ids) for ids in expected_by_category.values()),
+        "missing_row_count": sum(1 for row in rows.values() if row["missing"] is True),
+        "blocked_category_count": len(blocked_categories),
+        "blocked_categories": blocked_categories,
+        "missing_expected_matrix_ids": missing_expected_ids,
+        "permissions_now": remaining_deliverables.get("permissions_now")
+        if isinstance(remaining_deliverables.get("permissions_now"), dict)
+        else {},
+        "rows": rows,
+    }
+
+
+def _remaining_deliverables_acceptance_issues(
+    *,
+    remaining_deliverables: dict[str, Any],
+    summary: dict[str, Any],
+) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    if not remaining_deliverables:
+        return [_issue("remaining_deliverables_missing", "status report must consume remaining-deliverables ledger.")]
+    if not summary["present"]:
+        return [
+            _issue(
+                "remaining_deliverables_acceptance_matrix_missing",
+                "remaining-deliverables ledger must expose deliverable_acceptance_matrix.",
+            )
+        ]
+    if summary["matrix_row_count"] != summary["expected_matrix_row_count"]:
+        issues.append(
+            _issue(
+                "remaining_deliverables_acceptance_matrix_count_mismatch",
+                "remaining-deliverables acceptance matrix must cover all expected formal-gate deliverables.",
+            )
+        )
+    for matrix_id in summary["missing_expected_matrix_ids"]:
+        issues.append(_issue(f"remaining_deliverables_acceptance_missing_{matrix_id}", f"missing matrix row {matrix_id}."))
+    permissions = summary["permissions_now"]
+    if permissions.get("local_training_allowed_now") is True:
+        issues.append(_issue("remaining_deliverables_allows_local_training", "remaining-deliverables must not allow local training."))
+    if permissions.get("remote_training_allowed_now") is True and summary["status"] != "formal_gate_deliverables_ready_for_claim_audit":
+        issues.append(
+            _issue(
+                "remaining_deliverables_allows_remote_training_while_blocked",
+                "remaining-deliverables must not allow remote training while deliverables are blocked.",
+            )
+        )
+    if permissions.get("formal_claim_allowed_now") is True and summary["status"] != "formal_gate_deliverables_ready_for_claim_audit":
+        issues.append(
+            _issue(
+                "remaining_deliverables_allows_formal_claim_while_blocked",
+                "remaining-deliverables must not allow formal claims while deliverables are blocked.",
+            )
+        )
+    blocked_status = summary["status"] != "formal_gate_deliverables_ready_for_claim_audit"
+    for matrix_id, row in summary["rows"].items():
+        if not row["present"]:
+            continue
+        if row["execution_boundary"] != "read_only_no_execution":
+            issues.append(
+                _issue(
+                    f"remaining_deliverables_{matrix_id}_execution_boundary_invalid",
+                    f"{matrix_id} must be read-only.",
+                )
+            )
+        if row["acceptance_predicate_count"] <= 0:
+            issues.append(
+                _issue(
+                    f"remaining_deliverables_{matrix_id}_missing_acceptance_predicates",
+                    f"{matrix_id} must list acceptance predicates.",
+                )
+            )
+        if row["invalid_substitute_count"] <= 0:
+            issues.append(
+                _issue(
+                    f"remaining_deliverables_{matrix_id}_missing_invalid_substitutes",
+                    f"{matrix_id} must list invalid substitutes.",
+                )
+            )
+        if blocked_status and row["responsible_stage_allowed_now"] is True:
+            issues.append(
+                _issue(
+                    f"remaining_deliverables_{matrix_id}_stage_allowed_while_blocked",
+                    f"{matrix_id} responsible stage cannot be allowed while remaining deliverables are blocked.",
+                )
+            )
+    return issues
+
+
 def _requirement_status_counts(rows: dict[str, dict[str, Any]]) -> dict[str, int]:
     counts: dict[str, int] = {}
     for row in rows.values():
