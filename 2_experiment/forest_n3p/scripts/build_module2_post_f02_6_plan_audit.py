@@ -16,6 +16,9 @@ DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_
 DEFAULT_MISSING_ARTIFACTS = Path("0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json")
 DEFAULT_CLOSURE_CHECKLIST = Path("0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json")
 DEFAULT_STATUS_REPORT = Path("0_trials/module2_formal_gate_status_report/formal_gate_status_report.json")
+DEFAULT_REMAINING_DELIVERABLES = Path(
+    "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json"
+)
 REMOTE_EXECUTION_STEP_IDS = (
     "sync_to_remote",
     "run_remote_preflight",
@@ -45,6 +48,7 @@ class PostF026PlanAuditConfig:
     missing_artifacts_path: Path = DEFAULT_MISSING_ARTIFACTS
     closure_checklist_path: Path = DEFAULT_CLOSURE_CHECKLIST
     status_report_path: Path = DEFAULT_STATUS_REPORT
+    remaining_deliverables_path: Path = DEFAULT_REMAINING_DELIVERABLES
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -59,6 +63,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         missing_artifacts_path=args.missing_artifacts_audit,
         closure_checklist_path=args.closure_checklist,
         status_report_path=args.status_report,
+        remaining_deliverables_path=args.remaining_deliverables,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -80,6 +85,7 @@ def build_manifest(config: PostF026PlanAuditConfig) -> dict[str, Any]:
     missing_artifacts = _read_json(config.missing_artifacts_path)
     closure_checklist = _read_json(config.closure_checklist_path)
     status_report = _read_json(config.status_report_path)
+    remaining_deliverables = _read_json(config.remaining_deliverables_path)
     issues = _audit_issues(
         plan=plan,
         formal_gate=formal_gate,
@@ -90,6 +96,8 @@ def build_manifest(config: PostF026PlanAuditConfig) -> dict[str, Any]:
         closure_checklist_path=config.closure_checklist_path,
         status_report=status_report,
         status_report_path=config.status_report_path,
+        remaining_deliverables=remaining_deliverables,
+        remaining_deliverables_path=config.remaining_deliverables_path,
     )
     return {
         "schema_version": 1,
@@ -110,12 +118,14 @@ def build_manifest(config: PostF026PlanAuditConfig) -> dict[str, Any]:
             "formal_gate_missing_artifacts_audit": str(config.missing_artifacts_path),
             "formal_gate_closure_checklist": str(config.closure_checklist_path),
             "formal_gate_status_report": str(config.status_report_path),
+            "formal_gate_remaining_deliverables": str(config.remaining_deliverables_path),
         },
         "plan_status": plan.get("status"),
         "source_regeneration_command_index_summary": _source_regeneration_command_index_summary(plan, source_freshness),
         "missing_artifacts_summary": _missing_artifacts_summary(config.missing_artifacts_path, missing_artifacts),
         "closure_checklist_summary": _closure_checklist_summary(config.closure_checklist_path, closure_checklist),
         "status_report_summary": _status_report_summary(config.status_report_path, status_report),
+        "remaining_deliverables_gap_summary": _remaining_deliverables_gap_summary(config.remaining_deliverables_path, remaining_deliverables),
         "audit_issue_count": len(issues),
         "audit_issues": issues,
         "required_stage_order": list(REQUIRED_STAGE_ORDER),
@@ -140,6 +150,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--missing-artifacts-audit", type=Path, default=DEFAULT_MISSING_ARTIFACTS)
     parser.add_argument("--closure-checklist", type=Path, default=DEFAULT_CLOSURE_CHECKLIST)
     parser.add_argument("--status-report", type=Path, default=DEFAULT_STATUS_REPORT)
+    parser.add_argument("--remaining-deliverables", type=Path, default=DEFAULT_REMAINING_DELIVERABLES)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
@@ -154,6 +165,8 @@ def _audit_issues(
     closure_checklist_path: Path,
     status_report: dict[str, Any],
     status_report_path: Path,
+    remaining_deliverables: dict[str, Any],
+    remaining_deliverables_path: Path,
 ) -> list[dict[str, Any]]:
     issues: list[dict[str, Any]] = []
     issues.extend(_top_level_issues(plan))
@@ -165,6 +178,14 @@ def _audit_issues(
     issues.extend(_missing_artifacts_issues(plan=plan, missing_artifacts=missing_artifacts, missing_artifacts_path=missing_artifacts_path))
     issues.extend(_closure_checklist_issues(plan=plan, closure_checklist=closure_checklist, closure_checklist_path=closure_checklist_path))
     issues.extend(_status_report_issues(plan=plan, status_report=status_report, status_report_path=status_report_path))
+    issues.extend(
+        _remaining_deliverables_gap_issues(
+            plan=plan,
+            status_report=status_report,
+            remaining_deliverables=remaining_deliverables,
+            remaining_deliverables_path=remaining_deliverables_path,
+        )
+    )
     issues.extend(_handoff_coverage_issues(plan=plan, source_freshness=source_freshness, status_report=status_report))
     return _unique_issues(issues)
 
