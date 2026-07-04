@@ -1299,6 +1299,139 @@ def _status_report_record(path: Path, status_report: dict[str, Any]) -> dict[str
     }
 
 
+def _handoff_bundle_record(path: Path, handoff_bundle: dict[str, Any]) -> dict[str, Any]:
+    permissions = handoff_bundle.get("permissions_now") if isinstance(handoff_bundle.get("permissions_now"), dict) else {}
+    next_action = handoff_bundle.get("next_handoff_action") if isinstance(handoff_bundle.get("next_handoff_action"), dict) else {}
+    return {
+        "path": str(path),
+        "exists": Path(path).is_file(),
+        "status": handoff_bundle.get("status"),
+        "executes_commands": handoff_bundle.get("executes_commands"),
+        "runs_training": handoff_bundle.get("runs_training"),
+        "runs_remote_preflight": handoff_bundle.get("runs_remote_preflight"),
+        "local_training_allowed": handoff_bundle.get("local_training_allowed"),
+        "formal_claim_allowed": handoff_bundle.get("formal_claim_allowed"),
+        "safety_issue_count": handoff_bundle.get("safety_issue_count"),
+        "next_handoff_action_id": next_action.get("action_id"),
+        "remote_preflight_allowed_now": permissions.get("remote_preflight_allowed_now"),
+        "remote_training_allowed_now": permissions.get("remote_training_allowed_now"),
+        "formal_claim_allowed_now": permissions.get("formal_claim_allowed_now"),
+        "remote_execution_steps": _remote_steps_record(handoff_bundle.get("remote_execution_steps")),
+    }
+
+
+def _remote_packet_safety_record(path: Path, remote_packet_safety: dict[str, Any]) -> dict[str, Any]:
+    packet_summary = remote_packet_safety.get("packet_summary") if isinstance(remote_packet_safety.get("packet_summary"), dict) else {}
+    return {
+        "path": str(path),
+        "exists": Path(path).is_file(),
+        "status": remote_packet_safety.get("status"),
+        "executes_commands": remote_packet_safety.get("executes_commands"),
+        "runs_training": remote_packet_safety.get("runs_training"),
+        "runs_remote_preflight": remote_packet_safety.get("runs_remote_preflight"),
+        "local_training_allowed": remote_packet_safety.get("local_training_allowed"),
+        "formal_claim_allowed": remote_packet_safety.get("formal_claim_allowed"),
+        "audit_issue_count": remote_packet_safety.get("audit_issue_count"),
+        "packet_status": packet_summary.get("status"),
+        "remote_preflight_allowed_now": packet_summary.get("remote_preflight_allowed_now"),
+        "remote_training_allowed_now": packet_summary.get("remote_training_allowed_now"),
+        "remote_audit_allowed_now": packet_summary.get("remote_audit_allowed_now"),
+    }
+
+
+def _execution_veto_matrix(
+    *,
+    decision: dict[str, Any],
+    remote: dict[str, Any],
+    status_report: dict[str, Any],
+    handoff_bundle: dict[str, Any],
+    remote_packet_safety: dict[str, Any],
+) -> dict[str, Any]:
+    status_permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
+    handoff_permissions = handoff_bundle.get("permissions_now") if isinstance(handoff_bundle.get("permissions_now"), dict) else {}
+    safety_summary = remote_packet_safety.get("packet_summary") if isinstance(remote_packet_safety.get("packet_summary"), dict) else {}
+    rows = [
+        _veto_row(
+            "local_training",
+            {
+                "formal_gate_gap_audit": False,
+                "status_report": status_permissions.get("local_training_allowed_now"),
+                "handoff_bundle": handoff_permissions.get("local_training_allowed_now"),
+                "remote_packet": remote.get("local_training_allowed"),
+            },
+        ),
+        _veto_row(
+            "remote_preflight",
+            {
+                "status_report": status_permissions.get("remote_preflight_allowed_now"),
+                "handoff_bundle": handoff_permissions.get("remote_preflight_allowed_now"),
+                "remote_packet": _remote_packet_step(remote, "run_remote_preflight").get("allowed_now"),
+                "remote_packet_safety": safety_summary.get("remote_preflight_allowed_now"),
+            },
+        ),
+        _veto_row(
+            "remote_training",
+            {
+                "decision_record": decision.get("remote_training_allowed"),
+                "status_report": status_permissions.get("remote_training_allowed_now"),
+                "handoff_bundle": handoff_permissions.get("remote_training_allowed_now"),
+                "remote_packet": _remote_packet_step(remote, "run_remote_training").get("allowed_now"),
+                "remote_packet_safety": safety_summary.get("remote_training_allowed_now"),
+            },
+        ),
+        _veto_row(
+            "remote_audit",
+            {
+                "handoff_bundle": _step(handoff_bundle.get("remote_execution_steps"), "run_remote_audit").get("allowed_now"),
+                "remote_packet": _remote_packet_step(remote, "run_remote_audit").get("allowed_now"),
+                "remote_packet_safety": safety_summary.get("remote_audit_allowed_now"),
+            },
+        ),
+        _veto_row(
+            "formal_claim",
+            {
+                "status_report": status_permissions.get("formal_claim_allowed_now"),
+                "handoff_bundle": handoff_permissions.get("formal_claim_allowed_now"),
+            },
+        ),
+    ]
+    mismatches = [row["row_id"] for row in rows if not row["consistent"]]
+    return {
+        "matrix_version": 1,
+        "f02_6_decision_status": decision.get("status"),
+        "all_rows_consistent": not mismatches,
+        "mismatch_rows": mismatches,
+        "rows": rows,
+    }
+
+
+def _veto_row(row_id: str, sources: dict[str, Any]) -> dict[str, Any]:
+    normalized = {
+        key: value if isinstance(value, bool) else None
+        for key, value in sources.items()
+    }
+    observed = [value for value in normalized.values() if value is not None]
+    distinct = set(observed)
+    return {
+        "row_id": row_id,
+        "allowed_now_by_source": normalized,
+        "consistent": len(distinct) <= 1,
+        "consensus_allowed_now": bool(observed) and distinct == {True},
+    }
+
+
+def _remote_steps_record(steps: Any) -> dict[str, dict[str, Any]]:
+    return {
+        step_id: {
+            "present": bool(_step(steps, step_id)),
+            "allowed_now": _step(steps, step_id).get("allowed_now"),
+            "runs_training": _step(steps, step_id).get("runs_training"),
+            "blocked_by": _strings(_step(steps, step_id).get("blocked_by")),
+        }
+        for step_id in REMOTE_EXECUTION_STEP_IDS
+    }
+
+
 def _critical_input_matches(readiness: dict[str, Any], input_id: str) -> bool:
     critical_inputs = readiness.get("critical_inputs") if isinstance(readiness.get("critical_inputs"), dict) else {}
     item = critical_inputs.get(input_id) if isinstance(critical_inputs.get(input_id), dict) else {}
