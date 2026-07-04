@@ -855,14 +855,22 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 
 #### I03. 论文 claim 安全线
 
-- [ ] I03.1 可 claim。
+- [>] I03.1 可 claim。
   - "在本项目森林程序化地图和指定真实地图上, RL-RS funnel operator 相对 RS analytic expansion 降低..."
   - 必须附对应统计检验。
-- [ ] I03.2 不可 claim。
+  - 已完成子项: 新增 `build_module2_claim_safety.py`, 生成 allowed/conditional/prohibited claim guard。
+  - 当前允许 claim: Module2 是 HA* 内部 learned analytic-expansion operator, 不是 standalone RL planner; no-warm Gate #3 formal branch 失败, terminal-RS success 29/64=0.453125, 低于 0.8。
+  - 当前阻塞: formal performance claim 仍为 `blocked_formal_performance_claims`, blockers 包含 H02 非 formal、H01 未 ready、F02.6 pending、缺 PPO checkpoint/rows。
+  - 产物: `0_trials/module2_claim_safety/module2_claim_safety.json`, `0_trials/module2_claim_safety/module2_claim_safety.md`。
+  - 记录: `.pipeline/experiments/20260704_module2_i03_claim_safety.md`。
+- [x] I03.2 不可 claim。
   - "全局最优"。
   - "完备性增强"。
   - "RL 替代 Hybrid A*"。
   - "泛化到所有森林环境"。
+  - 已完成: claim safety artifact 将 `global_optimality`, `completeness_enhancement`, `rl_replaces_hybrid_astar`, `universal_generalization`, `warm_start_approved` 标为 hard-block/prohibited, 并支持 draft-text audit。
+  - 边界: 除非后续新 Contract 和 formal evidence 明确证明, 这些 claim 不得进入论文。
+  - 记录: `.pipeline/experiments/20260704_module2_i03_claim_safety.md`。
 
 ## 6. 当前第一批执行队列
 
@@ -906,6 +914,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 36. [x] I01.2/I01.3 code-anchored method algorithms 已生成: Algorithm 1 覆盖 RL-RS funnel analytic expansion, Algorithm 2 覆盖 PPO training environment; 仍不代表 formal result 或可本地训练。
 37. [x] I01.1 code-anchored Draw.io system diagram 已生成: 图中显式覆盖 HA* loop、analytic trigger、RL rollout、terminal RS certificate 和 fallback primitives, 并标注 F02.6 pending / PPO checkpoint missing / gpu3070ti-relay 训练边界。
 38. [>] I02 paper table protocol/preview 已生成: 可从 H02 evaluation outputs 生成主表、消融计划和失败分析 preview; 当前因 H02 非 formal、H01 blocked 和缺 PPO checkpoint 正确阻塞 formal claim。
+39. [>] I03 claim safety guard 已生成: 允许方法结构 claim 和 no-warm Gate #3 formal failure claim; formal performance improvement 继续 blocked; 全局最优/完备性增强/RL替代HA*/泛化所有森林等 claim 已 hard-block。
 
 ## 7. 完成记录
 
@@ -957,3 +966,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 完成 I01.2/I01.3 code-anchored method algorithms。新增 `build_module2_method_algorithms.py`, 输出 Algorithm 1 RL-RS funnel analytic expansion 和 Algorithm 2 PPO training environment 的 JSON/Markdown, 每个步骤均带本地源码行号锚点; artifact 明确 `local_training_allowed=false`, `remote_training_resource=gpu3070ti-relay`, F02.6 pending 和缺 PPO checkpoint 仍阻塞 formal claim。记录见 `.pipeline/experiments/20260704_module2_i01_method_algorithms.md`。
 - 2026-07-04: 完成 I01.1 code-anchored system diagram。新增 `build_module2_system_diagram.py`, 输出 Draw.io/JSON/Markdown 系统图 artifact, 展示 HA* analytic expansion 槽内的 RL-RS operator、terminal RS certificate 和 primitive fallback; artifact 明确 `local_training_allowed=false`, `remote_training_resource=gpu3070ti-relay`, F02.6 pending 和缺 PPO checkpoint 仍阻塞 formal claim。记录见 `.pipeline/experiments/20260704_module2_i01_system_diagram.md`。
 - 2026-07-04: 推进 I02 paper table protocol/preview。新增 `build_module2_paper_tables.py`, 从 H02 evaluation outputs 生成 I02.1 主表 preview、I02.2 消融计划和 I02.3 failure-analysis preview; 当前 artifact status=`blocked_no_formal_h02_data`, 明确阻塞项为 H02 非 formal、H01 未 ready、F02.6 pending、缺 PPO checkpoint/rows, 因此不能作为论文结果表。记录见 `.pipeline/experiments/20260704_module2_i02_paper_table_protocol.md`。
+- 2026-07-04: 推进 I03 claim safety。新增 `build_module2_claim_safety.py`, 汇总 I01/I02/H01/F02.6/Gate3 audit 生成 allowed/conditional/prohibited claim guard; 当前 formal performance claim blocked, no-warm Gate #3 failure claim allowed only in no-warm scope, 全局最优/完备性增强/RL替代HA*/泛化所有森林/warm-start approved 均 hard-block。记录见 `.pipeline/experiments/20260704_module2_i03_claim_safety.md`。
