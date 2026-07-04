@@ -25,6 +25,18 @@ CLAIM_SAFETY_REQUIREMENT_IDS = (
     "acceptance_remote_pullback_and_audit",
     "h01_h02_formal_evaluation_acceptance",
 )
+CLAIM_SAFETY_REMOTE_PREFLIGHT_REQUIREMENT_IDS = (
+    "f02_6_decision_closed_for_preflight",
+    "approved_remote_preflight_manifest",
+    "remote_preflight_protocol_contract",
+    "remote_preflight_command_packetized",
+)
+CLAIM_SAFETY_POST_RUN_ACCEPTANCE_REQUIREMENT_IDS = (
+    "pullback_expected_artifacts_complete",
+    "checkpoint_hash_manifest_recorded",
+    "gate3_formal_audit_accepts_remote_run",
+    "h01_h02_regenerated_from_audited_checkpoint",
+)
 
 
 @dataclass(frozen=True)
@@ -102,6 +114,7 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
     if not isinstance(claim_missing_handoff, dict):
         claim_missing_handoff = {}
     claim_requirement_stage_summary = _claim_safety_requirement_stage_summary(claim_safety)
+    claim_remote_requirement_summary = _claim_safety_remote_requirement_summary(claim_safety)
     input_status = {
         "method_algorithms_status": method_algorithms.get("status"),
         "system_diagram_status": system_diagram.get("status"),
@@ -129,6 +142,24 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
             "mismatched_requirement_count"
         ],
         "claim_safety_requirement_stage_blocked_stage_count": claim_requirement_stage_summary["blocked_stage_count"],
+        "claim_safety_remote_preflight_requirement_present": claim_remote_requirement_summary[
+            "remote_preflight_requirement_summary"
+        ]["present"],
+        "claim_safety_remote_preflight_requirement_satisfied_count": claim_remote_requirement_summary[
+            "remote_preflight_requirement_summary"
+        ]["status_counts"].get("satisfied", 0),
+        "claim_safety_remote_preflight_requirement_blocked_count": claim_remote_requirement_summary[
+            "remote_preflight_requirement_summary"
+        ]["blocked_requirement_count"],
+        "claim_safety_post_run_acceptance_requirement_present": claim_remote_requirement_summary[
+            "post_run_acceptance_requirement_summary"
+        ]["present"],
+        "claim_safety_post_run_acceptance_requirement_satisfied_count": claim_remote_requirement_summary[
+            "post_run_acceptance_requirement_summary"
+        ]["status_counts"].get("satisfied", 0),
+        "claim_safety_post_run_acceptance_requirement_blocked_count": claim_remote_requirement_summary[
+            "post_run_acceptance_requirement_summary"
+        ]["blocked_requirement_count"],
         "h02_formal_acceptance_status": h02_acceptance.get("status"),
         "h02_formal_output_accepted": h02_acceptance.get("formal_output_accepted"),
         "h02_paper_result_input_allowed": h02_acceptance.get("paper_result_input_allowed"),
@@ -178,6 +209,7 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "inputs": inputs,
         "input_status": input_status,
         "claim_safety_requirement_stage_summary": claim_requirement_stage_summary,
+        "claim_safety_remote_requirement_summary": claim_remote_requirement_summary,
         "global_blockers": global_blockers,
         "allowed_claim_ids": allowed_claim_ids,
         "conditional_claim_ids": conditional_claim_ids,
@@ -231,6 +263,7 @@ def _global_blockers(
         _append_unique(blockers, "claim_safety_blocks_formal_performance")
     _extend_unique(blockers, claim_safety.get("formal_performance_blockers", []))
     _extend_unique(blockers, _claim_safety_requirement_stage_blockers(claim_safety))
+    _extend_unique(blockers, _claim_safety_remote_requirement_blockers(claim_safety))
     _extend_unique(blockers, h01_manifest.get("blockers", []))
     if str(decision_record.get("status")) == "pending_human_decision":
         _append_unique(blockers, "f02_6_pending")
@@ -390,6 +423,100 @@ def _claim_safety_requirement_stage_blockers(claim_safety: dict[str, Any]) -> li
     return blockers
 
 
+def _claim_safety_remote_requirement_summary(claim_safety: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    summary = claim_safety.get("status_report_remote_requirement_summary")
+    summary = summary if isinstance(summary, dict) else {}
+    return {
+        "remote_preflight_requirement_summary": _claim_safety_remote_requirement_matrix_summary(
+            summary=summary,
+            group_id="remote_preflight_requirement_summary",
+            required_ids=CLAIM_SAFETY_REMOTE_PREFLIGHT_REQUIREMENT_IDS,
+        ),
+        "post_run_acceptance_requirement_summary": _claim_safety_remote_requirement_matrix_summary(
+            summary=summary,
+            group_id="post_run_acceptance_requirement_summary",
+            required_ids=CLAIM_SAFETY_POST_RUN_ACCEPTANCE_REQUIREMENT_IDS,
+        ),
+    }
+
+
+def _claim_safety_remote_requirement_matrix_summary(
+    *,
+    summary: dict[str, Any],
+    group_id: str,
+    required_ids: Sequence[str],
+) -> dict[str, Any]:
+    group = summary.get(group_id)
+    group = group if isinstance(group, dict) else {}
+    raw_requirements = group.get("requirements") if isinstance(group.get("requirements"), dict) else {}
+    requirements: dict[str, dict[str, Any]] = {}
+    for requirement_id in required_ids:
+        row = raw_requirements.get(requirement_id) if isinstance(raw_requirements.get(requirement_id), dict) else {}
+        requirements[requirement_id] = {
+            "present": bool(row),
+            "status": row.get("status"),
+            "complete": row.get("complete") if isinstance(row.get("complete"), bool) else None,
+            "execution_allowed_now": row.get("execution_allowed_now")
+            if isinstance(row.get("execution_allowed_now"), bool)
+            else None,
+            "remote_training_ready_now": row.get("remote_training_ready_now")
+            if isinstance(row.get("remote_training_ready_now"), bool)
+            else None,
+        }
+    status_counts = group.get("status_counts") if isinstance(group.get("status_counts"), dict) else {}
+    return {
+        "present": bool(group),
+        "required_requirement_count": int(group.get("required_requirement_count") or len(required_ids)),
+        "present_requirement_count": int(group.get("present_requirement_count") or 0),
+        "blocked_requirement_count": int(group.get("blocked_requirement_count") or 0),
+        "status_counts": {str(key): int(value or 0) for key, value in status_counts.items()},
+        "missing_requirement_ids": [str(value) for value in group.get("missing_requirement_ids", []) if value]
+        if isinstance(group.get("missing_requirement_ids"), list)
+        else [],
+        "requirements": requirements,
+    }
+
+
+def _claim_safety_remote_requirement_blockers(claim_safety: dict[str, Any]) -> list[str]:
+    summary = _claim_safety_remote_requirement_summary(claim_safety)
+    blockers: list[str] = []
+    blockers.extend(
+        _claim_safety_remote_requirement_group_blockers(
+            summary=summary["remote_preflight_requirement_summary"],
+            prefix="claim_safety_remote_preflight_requirement",
+            required_ids=CLAIM_SAFETY_REMOTE_PREFLIGHT_REQUIREMENT_IDS,
+        )
+    )
+    blockers.extend(
+        _claim_safety_remote_requirement_group_blockers(
+            summary=summary["post_run_acceptance_requirement_summary"],
+            prefix="claim_safety_post_run_acceptance_requirement",
+            required_ids=CLAIM_SAFETY_POST_RUN_ACCEPTANCE_REQUIREMENT_IDS,
+        )
+    )
+    return blockers
+
+
+def _claim_safety_remote_requirement_group_blockers(
+    *,
+    summary: dict[str, Any],
+    prefix: str,
+    required_ids: Sequence[str],
+) -> list[str]:
+    blockers: list[str] = []
+    if not summary["present"]:
+        blockers.append(f"{prefix}_summary_missing")
+        return blockers
+    if int(summary["required_requirement_count"] or 0) != len(required_ids):
+        blockers.append(f"{prefix}_required_count_mismatch")
+    for requirement_id in summary["missing_requirement_ids"]:
+        _append_unique(blockers, f"{prefix}_missing_{requirement_id}")
+    for requirement_id, row in summary["requirements"].items():
+        if not row["present"]:
+            _append_unique(blockers, f"{prefix}_missing_{requirement_id}")
+    return blockers
+
+
 def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
@@ -463,6 +590,15 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- claim_safety_requirement_stage_unmapped_count: `{input_status.get('claim_safety_requirement_stage_unmapped_count')}`",
             f"- claim_safety_requirement_stage_mismatched_count: `{input_status.get('claim_safety_requirement_stage_mismatched_count')}`",
             f"- claim_safety_requirement_stage_blocked_stage_count: `{input_status.get('claim_safety_requirement_stage_blocked_stage_count')}`",
+            "",
+            "## Claim Safety Remote Requirement Matrices",
+            "",
+            f"- claim_safety_remote_preflight_requirement_present: `{input_status.get('claim_safety_remote_preflight_requirement_present')}`",
+            f"- claim_safety_remote_preflight_requirement_satisfied_count: `{input_status.get('claim_safety_remote_preflight_requirement_satisfied_count')}`",
+            f"- claim_safety_remote_preflight_requirement_blocked_count: `{input_status.get('claim_safety_remote_preflight_requirement_blocked_count')}`",
+            f"- claim_safety_post_run_acceptance_requirement_present: `{input_status.get('claim_safety_post_run_acceptance_requirement_present')}`",
+            f"- claim_safety_post_run_acceptance_requirement_satisfied_count: `{input_status.get('claim_safety_post_run_acceptance_requirement_satisfied_count')}`",
+            f"- claim_safety_post_run_acceptance_requirement_blocked_count: `{input_status.get('claim_safety_post_run_acceptance_requirement_blocked_count')}`",
         ]
     )
     lines.extend(["", "## Section Readiness", ""])
