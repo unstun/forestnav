@@ -1451,6 +1451,74 @@ def _remaining_deliverable_proof_command_plan(matrix):
     }
 
 
+def _formal_gate_proof_audit(*, complete):
+    matrix = _remaining_deliverables(complete=complete)["deliverable_acceptance_matrix"]
+    results = []
+    for row in matrix:
+        for command in row["proof_commands"]:
+            if complete:
+                status = "passed"
+            elif row["category"] == "formal_acceptance" and command["command_id"].endswith("_exists_nonempty"):
+                status = "passed"
+            elif row["category"] == "formal_acceptance":
+                status = "failed"
+            else:
+                status = "blocked_missing_artifact"
+            results.append(
+                {
+                    "matrix_id": row["matrix_id"],
+                    "category": row["category"],
+                    "artifact_id": row["artifact_id"],
+                    "command_id": command["command_id"],
+                    "status": status,
+                    "expected_path": row["expected_path"],
+                    "expected_evidence": command["expected_evidence"],
+                    "command_was_executed": False,
+                    "diagnostic": f"{command['command_id']} {status}",
+                }
+            )
+    category_status_counts = {}
+    for result in results:
+        counts = category_status_counts.setdefault(
+            result["category"],
+            {"passed": 0, "failed": 0, "blocked_missing_artifact": 0},
+        )
+        counts[result["status"]] += 1
+    return {
+        "artifact_name": "module2_formal_gate_proof_audit",
+        "status": "formal_gate_proof_audit_passed" if complete else "formal_gate_proof_audit_blocked",
+        "not_paper_result_material": True,
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+        "proof_command_plan_id": "module2_formal_gate_local_read_only_proof_commands",
+        "execution_boundary": "local_read_only_after_formal_remote_pullback",
+        "total_matrix_rows": len(matrix),
+        "total_proof_command_count": len(results),
+        "declared_total_proof_command_count": len(results),
+        "passed_proof_command_count": sum(1 for result in results if result["status"] == "passed"),
+        "failed_proof_command_count": sum(1 for result in results if result["status"] == "failed"),
+        "blocked_proof_command_count": sum(
+            1 for result in results if result["status"] == "blocked_missing_artifact"
+        ),
+        "category_status_counts": category_status_counts,
+        "blockers": []
+        if complete
+        else [
+            "missing_formal_training_artifacts",
+            "missing_formal_evaluation_artifacts",
+            "missing_formal_acceptance_artifacts",
+            "failed_formal_h01_h02_acceptance_artifacts",
+        ],
+        "input_safety_issue_count": 0,
+        "input_safety_issues": [],
+        "proof_command_results": results,
+        "proof_command_results_by_id": {result["command_id"]: result for result in results},
+    }
+
+
 def _remaining_deliverable_gap_summary(*, category_artifacts, matrix, complete):
     stage_by_category = {
         "training": "gate3_remote_training",
