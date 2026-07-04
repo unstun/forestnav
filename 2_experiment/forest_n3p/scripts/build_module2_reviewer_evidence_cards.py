@@ -18,6 +18,7 @@ class ReviewerEvidenceCardsConfig:
     output_dir: Path
     manifest_out: Path | None = None
     markdown_out: Path | None = None
+    latex_out: Path | None = None
     evidence_map_path: Path = DEFAULT_EVIDENCE_MAP
 
 
@@ -27,6 +28,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         output_dir=args.output_dir,
         manifest_out=args.manifest_out,
         markdown_out=args.markdown_out,
+        latex_out=args.latex_out,
         evidence_map_path=args.evidence_map,
     )
     manifest = build_manifest(config)
@@ -34,11 +36,25 @@ def main(argv: Sequence[str] | None = None) -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
     manifest_out = config.manifest_out or output_dir / "module2_reviewer_evidence_cards.json"
     markdown_out = config.markdown_out or output_dir / "module2_reviewer_evidence_cards.md"
+    latex_out = config.latex_out or output_dir / "module2_reviewer_evidence_cards.tex"
     manifest_out.parent.mkdir(parents=True, exist_ok=True)
     markdown_out.parent.mkdir(parents=True, exist_ok=True)
+    latex_out.parent.mkdir(parents=True, exist_ok=True)
     manifest_out.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     markdown_out.write_text(_markdown(manifest), encoding="utf-8")
-    print(json.dumps({"manifest": str(manifest_out), "markdown": str(markdown_out), "status": manifest["status"]}, indent=2, ensure_ascii=False))
+    latex_out.write_text(_latex(manifest), encoding="utf-8")
+    print(
+        json.dumps(
+            {
+                "manifest": str(manifest_out),
+                "markdown": str(markdown_out),
+                "latex": str(latex_out),
+                "status": manifest["status"],
+            },
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
     return 0
 
 
@@ -55,6 +71,11 @@ def build_manifest(config: ReviewerEvidenceCardsConfig) -> dict[str, Any]:
         "local_training_allowed": False,
         "remote_training_resource": evidence_map.get("remote_training_resource", "gpu3070ti-relay"),
         "inputs": {"evidence_map": str(config.evidence_map_path)},
+        "generated_outputs": {
+            "manifest": str(config.manifest_out or config.output_dir / "module2_reviewer_evidence_cards.json"),
+            "markdown": str(config.markdown_out or config.output_dir / "module2_reviewer_evidence_cards.md"),
+            "latex": str(config.latex_out or config.output_dir / "module2_reviewer_evidence_cards.tex"),
+        },
         "upstream_status": {
             "evidence_map_status": evidence_map.get("status"),
             "formal_performance_claim_allowed": evidence_map.get("upstream_status", {}).get("formal_performance_claim_allowed"),
@@ -83,6 +104,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--manifest-out", type=Path, default=None)
     parser.add_argument("--markdown-out", type=Path, default=None)
+    parser.add_argument("--latex-out", type=Path, default=None)
     parser.add_argument("--evidence-map", type=Path, default=DEFAULT_EVIDENCE_MAP)
     return parser.parse_args(list(argv) if argv is not None else None)
 
