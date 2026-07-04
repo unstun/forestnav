@@ -16,6 +16,16 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - ready_stage_ids: `['f02_6_decision_record']`
 - blocked_stage_ids: `['regenerate_preflight_gate_artifacts', 'approved_remote_preflight', 'regenerate_remote_execution_packet', 'gate3_remote_training', 'gate3_remote_audit_pullback', 'regenerate_h01_h02_formal_artifacts', 'regenerate_claim_gate_artifacts']`
 
+## Source Regeneration Command Index
+
+- present: `True`
+- index_row_count: `17`
+- source_target_count: `17`
+- unknown_manual_count: `0`
+- stage_mismatch_count: `0`
+- command_not_in_stage_count: `0`
+- forbidden_command_count: `0`
+
 ## Missing Artifacts Inventory
 
 - path: `0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json`
