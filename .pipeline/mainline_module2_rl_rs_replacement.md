@@ -1005,6 +1005,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 78. [x] Remote packet safety audits embedded preflight 已完成: `remote_packet_safety_audit` 现在检查 packet 内嵌 remote preflight record; F02.6 pending 时 preflight 必须保持 blocked、`formal_trial_ready=false`、`warm_start_decision=pending` 且含 `warm_start_decision_pending` blocker; packet ready 时 preflight 必须 ready。
 79. [x] Remote execution step blocker reasons 已完成: `remote_formal_execution_packet.execution_steps.*` 现在为每个 `allowed_now=false` 的远端动作写出 `blocked_by`; `remote_packet_safety_audit` 会拒绝缺少 blocker 的 disabled step 或携带 blocker 的 enabled step。
 80. [x] F02.6 transition gate audit 已完成: 新增 synthetic pending/approved/rejected transition audit, 证明 pending 全部 veto; approved 只推进到 source-fresh preflight regeneration, 不放行 remote preflight/training/claim; rejected 阻断 obstacle-summary warm-start formal path。当前产物 `0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json`, status=`f02_6_transition_gate_audit_passed`, audit issues=0。记录见 `.pipeline/experiments/20260704_module2_f02_6_transition_gate_audit.md`。
+81. [x] F02.6 transition audit consumed by formal gate 已完成: transition audit 现已纳入 source freshness、post-F02.6 regeneration commands、handoff safety、status report handoff summary 和 remote packet safety 继承链; 当前 source freshness `artifact_count=16`, handoff safety=0, post-plan audit/remote packet safety 均 passed, 仍不放行 preflight/training/claim。记录见 `.pipeline/experiments/20260704_module2_transition_gate_consumed_by_formal_gate.md`。
 
 ## 7. 完成记录
 
