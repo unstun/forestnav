@@ -83,6 +83,7 @@ def build_manifest(config: ManuscriptEvidenceMapConfig) -> dict[str, Any]:
     remote_packet = _read_json(config.remote_execution_packet_path)
     expanded = _expand_latex(config.main_tex_path)
     stripped_text = _strip_latex_comments(expanded["text"])
+    source_files = [str(item) for item in expanded["input_files"]]
 
     inputs = {
         "main_tex": str(config.main_tex_path),
@@ -110,6 +111,7 @@ def build_manifest(config: ManuscriptEvidenceMapConfig) -> dict[str, Any]:
             readiness=section_by_id.get("method_algorithm", {}),
             seed_section=seed_section_by_id.get("methods_rl_rs_operator", {}),
             inputs=inputs,
+            source_files=source_files,
         ),
         _no_warm_claim_unit(
             text=stripped_text,
@@ -119,6 +121,7 @@ def build_manifest(config: ManuscriptEvidenceMapConfig) -> dict[str, Any]:
             readiness=section_by_id.get("no_warm_failure_claim", {}),
             seed_section=seed_section_by_id.get("no_warm_gate3_failure_note", {}),
             inputs=inputs,
+            source_files=source_files,
         ),
         _formal_results_blocked_unit(
             text=stripped_text,
@@ -128,6 +131,7 @@ def build_manifest(config: ManuscriptEvidenceMapConfig) -> dict[str, Any]:
             readiness=section_by_id.get("formal_results", {}),
             seed_section=seed_section_by_id.get("formal_results", {}),
             inputs=inputs,
+            source_files=source_files,
         ),
         _warm_start_blocked_unit(
             text=stripped_text,
@@ -137,6 +141,7 @@ def build_manifest(config: ManuscriptEvidenceMapConfig) -> dict[str, Any]:
             decision_record=decision_record,
             remote_packet=remote_packet,
             inputs=inputs,
+            source_files=source_files,
         ),
     ]
     blocking_reasons = _blocking_reasons(claim_audit=claim_audit, claim_units=claim_units)
@@ -214,6 +219,7 @@ def _method_claim_unit(
     readiness: dict[str, Any],
     seed_section: dict[str, Any],
     inputs: dict[str, str],
+    source_files: Sequence[str],
 ) -> dict[str, Any]:
     cues = [
         "learned analytic-expansion operator inside",
@@ -236,7 +242,7 @@ def _method_claim_unit(
         "unit_id": "method_is_ha_star_analytic_operator",
         "paper_scope": "methods",
         "claim_status": "allowed_method_structure",
-        "manuscript_cues": _cue_results(raw_text=raw_text, text=text, cues=cues),
+        "manuscript_cues": _cue_results(raw_text=raw_text, text=text, cues=cues, source_files=source_files),
         "evidence_state": "mapped" if not mapping_blockers else "missing_mapping_evidence",
         "claim_text": None if claim is None else claim.get("claim_text"),
         "required_qualifier": None if claim is None else claim.get("required_qualifier"),
@@ -261,6 +267,7 @@ def _no_warm_claim_unit(
     readiness: dict[str, Any],
     seed_section: dict[str, Any],
     inputs: dict[str, str],
+    source_files: Sequence[str],
 ) -> dict[str, Any]:
     cues = [
         "No-warm PPO Gate",
@@ -282,7 +289,7 @@ def _no_warm_claim_unit(
         "unit_id": "no_warm_gate3_formal_failure",
         "paper_scope": "scoped_negative_training_dynamics_note",
         "claim_status": "allowed_with_no_warm_scope_limit",
-        "manuscript_cues": _cue_results(raw_text=raw_text, text=text, cues=cues),
+        "manuscript_cues": _cue_results(raw_text=raw_text, text=text, cues=cues, source_files=source_files),
         "evidence_state": "mapped" if not mapping_blockers else "missing_mapping_evidence",
         "claim_text": None if claim is None else claim.get("claim_text"),
         "required_qualifier": None if claim is None else claim.get("required_qualifier"),
@@ -319,6 +326,7 @@ def _formal_results_blocked_unit(
     readiness: dict[str, Any],
     seed_section: dict[str, Any],
     inputs: dict[str, str],
+    source_files: Sequence[str],
 ) -> dict[str, Any]:
     cues = ["Formal performance claims remain blocked", "% BLOCKED: formal_results"]
     mapping_blockers = _cue_blockers(raw_text, cues, unit_id="formal_results_blocked")
@@ -336,7 +344,7 @@ def _formal_results_blocked_unit(
         "unit_id": "formal_results_blocked",
         "paper_scope": "results_placeholder",
         "claim_status": "blocked_placeholder_not_a_result_claim",
-        "manuscript_cues": _cue_results(raw_text=raw_text, text=text, cues=cues),
+        "manuscript_cues": _cue_results(raw_text=raw_text, text=text, cues=cues, source_files=source_files),
         "evidence_state": "blocked_as_expected" if not mapping_blockers else "missing_mapping_evidence",
         "evidence": [
             _evidence(inputs["claim_audit"], claim_audit, {"required_status": "maintex_module2_claim_audit_passed"}),
@@ -358,6 +366,7 @@ def _warm_start_blocked_unit(
     decision_record: dict[str, Any],
     remote_packet: dict[str, Any],
     inputs: dict[str, str],
+    source_files: Sequence[str],
 ) -> dict[str, Any]:
     cues = ["% BLOCKED: warm_start_effect", "does not evaluate obstacle-summary warm-start"]
     mapping_blockers = _cue_blockers(raw_text, cues, unit_id="warm_start_effect_blocked")
@@ -375,7 +384,7 @@ def _warm_start_blocked_unit(
         "unit_id": "warm_start_effect_blocked",
         "paper_scope": "warm_start_placeholder",
         "claim_status": "blocked_placeholder_pending_f02_6",
-        "manuscript_cues": _cue_results(raw_text=raw_text, text=text, cues=cues),
+        "manuscript_cues": _cue_results(raw_text=raw_text, text=text, cues=cues, source_files=source_files),
         "evidence_state": "blocked_as_expected" if not mapping_blockers else "missing_mapping_evidence",
         "evidence": [
             _evidence(inputs["paper_readiness"], readiness, {"section_id": "warm_start_effect"}),
@@ -388,15 +397,40 @@ def _warm_start_blocked_unit(
     }
 
 
-def _cue_results(*, raw_text: str, text: str, cues: Sequence[str]) -> list[dict[str, Any]]:
+def _cue_results(*, raw_text: str, text: str, cues: Sequence[str], source_files: Sequence[str]) -> list[dict[str, Any]]:
     return [
         {
             "cue": cue,
             "present_in_comment_stripped_text": cue in text,
             "present_in_expanded_text": cue in raw_text,
+            "source_anchors": _source_anchors_for_cue(cue, source_files),
         }
         for cue in cues
     ]
+
+
+def _source_anchors_for_cue(cue: str, source_files: Sequence[str]) -> list[dict[str, Any]]:
+    anchors: list[dict[str, Any]] = []
+    for source_file in source_files:
+        path = Path(source_file)
+        if not path.is_file():
+            continue
+        for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+            stripped_line = _strip_latex_comments(line)
+            cue_in_raw_line = cue in line
+            cue_in_comment_stripped_line = cue in stripped_line
+            if not cue_in_raw_line and not cue_in_comment_stripped_line:
+                continue
+            anchors.append(
+                {
+                    "path": _display_path(path),
+                    "line": line_number,
+                    "cue_in_raw_line": cue_in_raw_line,
+                    "cue_in_comment_stripped_line": cue_in_comment_stripped_line,
+                    "excerpt": line.strip()[:240],
+                }
+            )
+    return anchors
 
 
 def _cue_blockers(text: str, cues: Sequence[str], *, unit_id: str) -> list[str]:
