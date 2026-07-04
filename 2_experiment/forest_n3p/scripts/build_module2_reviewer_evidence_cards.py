@@ -88,6 +88,7 @@ def build_manifest(config: ReviewerEvidenceCardsConfig) -> dict[str, Any]:
             "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_manuscript_evidence_map",
             "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_reviewer_evidence_cards",
             "PYTHONPATH=2_experiment pytest -q 2_experiment/forest_n3p/tests/test_module2_manuscript_evidence_map.py 2_experiment/forest_n3p/tests/test_module2_reviewer_evidence_cards.py",
+            "pdflatex wrapper input for 3_paper/module2_reviewer_evidence_cards/module2_reviewer_evidence_cards.tex",
             "KMP_DUPLICATE_LIB_OK=TRUE PYTHONPATH=2_experiment pytest -q 2_experiment/forest_n3p/tests",
             "cd 3_paper && pdflatex -interaction=nonstopmode -halt-on-error -draftmode -output-directory=/tmp/forestnav_module2_texcheck main.tex",
         ],

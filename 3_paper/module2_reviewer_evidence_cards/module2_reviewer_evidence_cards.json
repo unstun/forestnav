@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_reviewer_evidence_cards",
   "status": "reviewer_evidence_cards_ready",
-  "created_at_utc": "2026-07-04T10:04:00.116922+00:00",
-  "source_head": "3dda48b4bda3fb0821f9b0bd877eed53bf1954eb+dirty",
+  "created_at_utc": "2026-07-04T10:08:52.655250+00:00",
+  "source_head": "214551ad7637400c231eda29ec16cfd0691490b5+dirty",
   "local_training_allowed": false,
   "remote_training_resource": "gpu3070ti-relay",
   "inputs": {
@@ -466,6 +466,7 @@
     "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_manuscript_evidence_map",
     "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_reviewer_evidence_cards",
     "PYTHONPATH=2_experiment pytest -q 2_experiment/forest_n3p/tests/test_module2_manuscript_evidence_map.py 2_experiment/forest_n3p/tests/test_module2_reviewer_evidence_cards.py",
+    "pdflatex wrapper input for 3_paper/module2_reviewer_evidence_cards/module2_reviewer_evidence_cards.tex",
     "KMP_DUPLICATE_LIB_OK=TRUE PYTHONPATH=2_experiment pytest -q 2_experiment/forest_n3p/tests",
     "cd 3_paper && pdflatex -interaction=nonstopmode -halt-on-error -draftmode -output-directory=/tmp/forestnav_module2_texcheck main.tex"
   ],
