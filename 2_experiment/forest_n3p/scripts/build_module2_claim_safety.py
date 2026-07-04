@@ -65,6 +65,12 @@ STATUS_REPORT_REMAINING_DELIVERABLE_MATRIX_IDS = (
     "formal_acceptance:h01_ready_for_formal_run",
     "formal_acceptance:h02_formal_output_acceptance",
 )
+STATUS_REPORT_REMAINING_DELIVERABLE_CATEGORY_IDS = (
+    "training",
+    "evaluation",
+    "acceptance",
+    "formal_acceptance",
+)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -137,6 +143,7 @@ def build_manifest(
     status_report_remaining_deliverables_acceptance_summary = _status_report_remaining_deliverables_acceptance_summary(
         status_report
     )
+    status_report_remaining_deliverables_gap_summary = _status_report_remaining_deliverables_gap_summary(status_report)
     status_report_decision_intake_summary = _status_report_decision_intake_summary(status_report)
     formal_allowed = not formal_blockers
     prohibited = _prohibited_claims()
@@ -297,6 +304,15 @@ def build_manifest(
             "status_report_remaining_deliverables_acceptance_blocked_category_count": status_report_remaining_deliverables_acceptance_summary[
                 "blocked_category_count"
             ],
+            "status_report_remaining_deliverables_gap_present": status_report_remaining_deliverables_gap_summary[
+                "present"
+            ],
+            "status_report_remaining_deliverables_gap_total_missing_deliverables": status_report_remaining_deliverables_gap_summary[
+                "total_missing_deliverables"
+            ],
+            "status_report_remaining_deliverables_gap_open_category_count": status_report_remaining_deliverables_gap_summary[
+                "open_category_count"
+            ],
         },
         "status_report_handoff_summary": status_report_handoff_summary,
         "status_report_missing_artifacts_handoff_summary": status_report_missing_artifacts_handoff_summary,
@@ -304,6 +320,7 @@ def build_manifest(
         "status_report_remote_requirement_summary": status_report_remote_requirement_summary,
         "status_report_h02_acceptance_requirement_summary": status_report_h02_acceptance_requirement_summary,
         "status_report_remaining_deliverables_acceptance_summary": status_report_remaining_deliverables_acceptance_summary,
+        "status_report_remaining_deliverables_gap_summary": status_report_remaining_deliverables_gap_summary,
         "status_report_decision_intake_summary": status_report_decision_intake_summary,
         "status_report_remote_gate_summary": status_report_remote_gate_summary,
         "allowed_claims": allowed,
