@@ -70,6 +70,11 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert "missing_remote_pullback_artifacts" in sections["main_results_table"]["blockers"]
     assert manifest["allowed_claim_ids"] == ["method_is_ha_star_analytic_operator", "no_warm_gate3_formal_failure"]
     assert "partial_methods_ready_results_blocked" in markdown
+    assert "Claim Safety Handoff Summary" in markdown
+    assert "claim_safety_handoff_status" in markdown
+    assert "blocked_until_f02_6_decision" in markdown
+    assert "claim_safety_transition_gate_status" in markdown
+    assert "f02_6_transition_gate_audit_passed" in markdown
 
 
 def test_paper_readiness_accepts_synthetic_complete_evidence(tmp_path):

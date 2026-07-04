@@ -26,6 +26,13 @@
 - `formal_gate_closure_checklist_open`
 - `formal_gate_status_report_blocked`
 
+## Claim Safety Handoff Summary
+
+- claim_safety_handoff_status: `blocked_until_f02_6_decision`
+- claim_safety_transition_gate_status: `f02_6_transition_gate_audit_passed`
+- claim_safety_transition_gate_audit_issue_count: `0`
+- claim_safety_handoff_safety_issue_count: `0`
+
 ## Section Readiness
 
 ### method_algorithm
