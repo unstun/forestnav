@@ -205,11 +205,12 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - [x] A00.1 备份本会话前相关 dirty diff。
   - 产出: commit `640c76bf 备份：模块2解析扩展分析与计时口径中间态`
   - 包含: `2_experiment/forest_n3p/inference.py`, `0_trials/hybrid_astar_code_analysis.md`, `0_trials/hybrid_astar_code_analysis.html`
-- [?] A00.2 刷新热区, 关闭 "Contract 未起草" 旧状态。
+- [x] A00.2 刷新热区, 关闭 "Contract 未起草" 旧状态。
   - 输入: memory-retriever 结果显示热区过期。
   - 验证: `bigmemory/热区/状态简报.md` 不再声称 module2 contract 未起草。
-  - 注意: 需要走项目 archive/sync 规则, 不在本文件中手改热区。
-  - 当前状态: `source-command-sync` skill 要求中途 AskUserQuestion 确认遗漏进展。为避免本 goal 停住, 暂挂到本轮归档/同步阶段处理。
+  - 已完成: 全量重写 `bigmemory/热区/状态简报.md`, `bigmemory/热区/未关闭决策.md`, `bigmemory/热区/近期改动.md`, 并追加 2026-07-04 冷区改动/踩坑/心路/里程碑记录。
+  - 当前热区状态: Contract 已 approved; no-warm Gate #3 formal fail; F02.6 warm-start 决策 pending; H01/H02 formal blocked by F02.6 + missing PPO checkpoint; PPO formal training 只能走 `gpu3070ti-relay`, 禁止本地训练。
+  - 记录: `bigmemory/冷区/改动记录/2026-07-04.md`, `bigmemory/冷区/里程碑/2026-07-04.md`。
 
 #### A01. 外部证据审计
 
@@ -911,7 +912,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 
 优先级从上到下。每次只拿第一项 `[ ]`。
 
-1. [?] A00.2 刷新项目状态记忆, 关闭旧热区状态。
+1. [x] A00.2 刷新项目状态记忆, 关闭旧热区状态。
 2. [x] D02.1 基于 C02 patch/connector 需求做神经 policy 前向预算。
 3. [x] D02.2 加入干净 CPU/GPU forward 对比与 rollout collision 成本账。
 4. [x] D02.3 Gate #1 成本账判定。
@@ -1003,3 +1004,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 完成 I01.1 code-anchored system diagram。新增 `build_module2_system_diagram.py`, 输出 Draw.io/JSON/Markdown 系统图 artifact, 展示 HA* analytic expansion 槽内的 RL-RS operator、terminal RS certificate 和 primitive fallback; artifact 明确 `local_training_allowed=false`, `remote_training_resource=gpu3070ti-relay`, F02.6 pending 和缺 PPO checkpoint 仍阻塞 formal claim。记录见 `.pipeline/experiments/20260704_module2_i01_system_diagram.md`。
 - 2026-07-04: 推进 I02 paper table protocol/preview。新增 `build_module2_paper_tables.py`, 从 H02 evaluation outputs 生成 I02.1 主表 preview、I02.2 消融计划和 I02.3 failure-analysis preview; 当前 artifact status=`blocked_no_formal_h02_data`, 明确阻塞项为 H02 非 formal、H01 未 ready、F02.6 pending、缺 PPO checkpoint/rows, 因此不能作为论文结果表。记录见 `.pipeline/experiments/20260704_module2_i02_paper_table_protocol.md`。
 - 2026-07-04: 推进 I03 claim safety。新增 `build_module2_claim_safety.py`, 汇总 I01/I02/H01/F02.6/Gate3 audit 生成 allowed/conditional/prohibited claim guard; 当前 formal performance claim blocked, no-warm Gate #3 failure claim allowed only in no-warm scope, 全局最优/完备性增强/RL替代HA*/泛化所有森林/warm-start approved 均 hard-block。记录见 `.pipeline/experiments/20260704_module2_i03_claim_safety.md`。
+- 2026-07-04: 完成 A00.2 项目状态记忆刷新。bigmemory 热区已从 2026-07-02 的 “Contract 未起草/未写实验代码” 旧状态更新为当前真实边界: Contract approved, no-warm Gate #3 formal fail, F02.6 pending, 缺 PPO checkpoint, H01/H02 formal blocked, PPO formal training 只能走 `gpu3070ti-relay` 且禁止本地训练。记录见 `bigmemory/冷区/改动记录/2026-07-04.md`。
