@@ -480,6 +480,80 @@ def _status_report_issues(
     return issues
 
 
+def _remaining_deliverables_gap_issues(
+    *,
+    plan: dict[str, Any],
+    status_report: dict[str, Any],
+    remaining_deliverables: dict[str, Any],
+    remaining_deliverables_path: Path,
+) -> list[dict[str, Any]]:
+    if not Path(remaining_deliverables_path).is_file():
+        return [
+            _issue(
+                "remaining_deliverables_absent",
+                "Post-F02.6 plan audit requires the remaining-deliverables ledger for gap-summary cross-check.",
+                observed=str(remaining_deliverables_path),
+            )
+        ]
+    issues: list[dict[str, Any]] = []
+    remaining_gap = _normalize_gap_summary(remaining_deliverables.get("deliverable_gap_summary"))
+    plan_gap = _normalize_gap_summary(plan.get("remaining_deliverables_gap_summary"))
+    status_gap = _normalize_gap_summary(status_report.get("remaining_deliverables_gap_summary"))
+
+    if not remaining_gap["present"]:
+        issues.append(_issue("remaining_deliverables_gap_summary_missing", "Remaining-deliverables ledger must expose deliverable_gap_summary."))
+    else:
+        if remaining_gap["execution_boundary"] != "read_only_no_execution":
+            issues.append(_issue("remaining_deliverables_gap_summary_execution_boundary_invalid", "Gap summary must be read-only."))
+        if remaining_gap["not_paper_result_material"] is not True:
+            issues.append(_issue("remaining_deliverables_gap_summary_marked_as_paper_result", "Gap summary must not be paper result material."))
+
+    if not plan_gap["present"]:
+        issues.append(_issue("plan_missing_remaining_deliverables_gap_summary", "Post-F02.6 plan must carry remaining_deliverables_gap_summary."))
+    if not status_gap["present"]:
+        issues.append(_issue("status_report_missing_remaining_deliverables_gap_summary", "Status report must carry remaining_deliverables_gap_summary."))
+
+    remaining_signature = _gap_signature(remaining_gap)
+    plan_signature = _gap_signature(plan_gap)
+    status_signature = _gap_signature(status_gap)
+    if remaining_gap["present"] and plan_gap["present"] and plan_signature != remaining_signature:
+        issues.append(
+            _issue(
+                "plan_remaining_deliverables_gap_summary_mismatch",
+                "Plan gap summary must match the remaining-deliverables ledger.",
+                observed={"plan": plan_signature, "remaining_deliverables": remaining_signature},
+            )
+        )
+    if remaining_gap["present"] and status_gap["present"] and status_signature != remaining_signature:
+        issues.append(
+            _issue(
+                "status_report_remaining_deliverables_gap_summary_mismatch",
+                "Status-report gap summary must match the remaining-deliverables ledger.",
+                observed={"status_report": status_signature, "remaining_deliverables": remaining_signature},
+            )
+        )
+
+    gap_open = remaining_gap["total_missing_deliverables"] > 0 or remaining_gap["open_category_count"] > 0
+    claim_stage = _stage_by_id(plan, "regenerate_claim_gate_artifacts")
+    if gap_open and claim_stage.get("allowed_now") is True:
+        issues.append(
+            _issue(
+                "claim_gate_ready_with_remaining_deliverables_gap_open",
+                "Claim gate regeneration must not be ready while formal deliverable gaps remain open.",
+                observed=remaining_signature,
+            )
+        )
+    if gap_open and status_report.get("status") == "formal_gate_status_ready_for_claim_audit":
+        issues.append(
+            _issue(
+                "status_report_ready_with_remaining_deliverables_gap_open",
+                "Status report must not be ready for claim audit while formal deliverable gaps remain open.",
+                observed=remaining_signature,
+            )
+        )
+    return issues
+
+
 def _handoff_coverage_issues(
     *,
     plan: dict[str, Any],
@@ -815,7 +889,75 @@ def _status_report_summary(path: Path, status_report: dict[str, Any]) -> dict[st
         "formal_gate_handoff_summary": status_report.get("formal_gate_handoff_summary")
         if isinstance(status_report.get("formal_gate_handoff_summary"), dict)
         else {},
+        "remaining_deliverables_gap_summary": _normalize_gap_summary(status_report.get("remaining_deliverables_gap_summary")),
         "formal_gate_execution_veto_summary": execution_veto,
+    }
+
+
+def _remaining_deliverables_gap_summary(path: Path, remaining_deliverables: dict[str, Any]) -> dict[str, Any]:
+    summary = _normalize_gap_summary(remaining_deliverables.get("deliverable_gap_summary"))
+    summary["path"] = str(path)
+    summary["exists"] = Path(path).is_file()
+    return summary
+
+
+def _normalize_gap_summary(raw: Any) -> dict[str, Any]:
+    summary = raw if isinstance(raw, dict) else {}
+    categories = _normalize_gap_categories(summary.get("categories"))
+    return {
+        "present": bool(summary),
+        "summary_id": summary.get("summary_id"),
+        "execution_boundary": summary.get("execution_boundary"),
+        "not_paper_result_material": summary.get("not_paper_result_material"),
+        "total_missing_deliverables": int(summary.get("total_missing_deliverables") or 0),
+        "open_category_count": int(summary.get("open_category_count") or 0),
+        "category_order": [str(item) for item in summary.get("category_order", []) if item]
+        if isinstance(summary.get("category_order"), list)
+        else list(categories),
+        "categories": categories,
+    }
+
+
+def _normalize_gap_categories(raw_categories: Any) -> dict[str, dict[str, Any]]:
+    if isinstance(raw_categories, dict):
+        items = raw_categories.items()
+    elif isinstance(raw_categories, list):
+        items = ((item.get("category"), item) for item in raw_categories if isinstance(item, dict))
+    else:
+        items = ()
+    out: dict[str, dict[str, Any]] = {}
+    for category, raw in items:
+        if not category or not isinstance(raw, dict):
+            continue
+        matrix_ids = raw.get("missing_artifact_matrix_ids")
+        if not isinstance(matrix_ids, list):
+            missing_artifacts = raw.get("missing_artifacts") if isinstance(raw.get("missing_artifacts"), list) else []
+            matrix_ids = [item.get("matrix_id") for item in missing_artifacts if isinstance(item, dict)]
+        out[str(category)] = {
+            "present": True,
+            "missing_count": int(raw.get("missing_count") or 0),
+            "responsible_stage_id": raw.get("responsible_stage_id"),
+            "responsible_stage_allowed_now": raw.get("responsible_stage_allowed_now"),
+            "missing_artifact_matrix_ids": [str(item) for item in matrix_ids if item],
+        }
+    return out
+
+
+def _gap_signature(summary: dict[str, Any]) -> dict[str, Any]:
+    categories = summary.get("categories") if isinstance(summary.get("categories"), dict) else {}
+    return {
+        "summary_id": summary.get("summary_id"),
+        "total_missing_deliverables": summary.get("total_missing_deliverables"),
+        "open_category_count": summary.get("open_category_count"),
+        "categories": {
+            key: {
+                "missing_count": value.get("missing_count"),
+                "responsible_stage_id": value.get("responsible_stage_id"),
+                "missing_artifact_matrix_ids": value.get("missing_artifact_matrix_ids", []),
+            }
+            for key, value in sorted(categories.items())
+            if isinstance(value, dict)
+        },
     }
 
 
