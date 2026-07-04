@@ -520,6 +520,8 @@ def _input_safety_issues(named_payloads: dict[str, dict[str, Any]]) -> list[dict
             issues.append(_issue("remote_packet_allows_claim_before_audit", "remote packet must not allow claims before audit."))
         if name == "missing_artifacts":
             issues.extend(_missing_artifacts_handoff_index_issues(payload))
+        if name == "decision_intake":
+            issues.extend(_decision_intake_safety_issues(payload))
         if name == "closure_checklist":
             issues.extend(_closure_remote_stage_safety_issues(payload))
         if name == "remote_packet":
@@ -530,6 +532,64 @@ def _input_safety_issues(named_payloads: dict[str, dict[str, Any]]) -> list[dict
         if name == "handoff_bundle":
             issues.extend(_handoff_bundle_safety_issues(payload))
     return _unique_issues(issues)
+
+
+def _decision_intake_summary(decision_intake: dict[str, Any]) -> dict[str, Any]:
+    current_state = (
+        decision_intake.get("current_state")
+        if isinstance(decision_intake.get("current_state"), dict)
+        else {}
+    )
+    return {
+        "present": bool(decision_intake),
+        "status": decision_intake.get("status"),
+        "audit_issue_count": int(decision_intake.get("audit_issue_count") or 0),
+        "record_status": current_state.get("record_status"),
+        "record_decider": current_state.get("record_decider"),
+        "effective_warm_start_decision": current_state.get("effective_warm_start_decision"),
+        "next_blocked_lane": current_state.get("next_blocked_lane"),
+        "missing_deliverable_count": current_state.get("missing_deliverable_count"),
+        "remote_preflight_allowed_now": current_state.get("status_report_remote_preflight_allowed_now")
+        if isinstance(current_state.get("status_report_remote_preflight_allowed_now"), bool)
+        else None,
+        "remote_training_allowed_now": current_state.get("status_report_remote_training_allowed_now")
+        if isinstance(current_state.get("status_report_remote_training_allowed_now"), bool)
+        else None,
+        "formal_claim_allowed_now": current_state.get("status_report_formal_claim_allowed_now")
+        if isinstance(current_state.get("status_report_formal_claim_allowed_now"), bool)
+        else None,
+        "local_training_allowed_now": current_state.get("status_report_local_training_allowed_now")
+        if isinstance(current_state.get("status_report_local_training_allowed_now"), bool)
+        else None,
+    }
+
+
+def _decision_intake_safety_issues(decision_intake: dict[str, Any]) -> list[dict[str, str]]:
+    summary = _decision_intake_summary(decision_intake)
+    if not summary["present"]:
+        return [_issue("decision_intake_missing", "status report must consume the F02.6 decision intake.")]
+    issues: list[dict[str, str]] = []
+    if summary["status"] not in {"f02_6_decision_intake_pending_clean", "f02_6_decision_intake_closed_clean"}:
+        issues.append(_issue("decision_intake_not_clean", "F02.6 decision intake must be clean before status reporting."))
+    if summary["audit_issue_count"] > 0:
+        issues.append(_issue("decision_intake_audit_issues_open", "F02.6 decision intake reports open audit issues."))
+    record_status = summary["record_status"]
+    if record_status == "pending_human_decision":
+        if summary["next_blocked_lane"] != "decision":
+            issues.append(_issue("decision_intake_pending_next_lane_not_decision", "pending F02.6 intake must keep the next blocked lane at decision."))
+        for field in ("local_training_allowed_now", "remote_preflight_allowed_now", "remote_training_allowed_now", "formal_claim_allowed_now"):
+            if summary[field] is not False:
+                issues.append(_issue(f"decision_intake_{field}_not_false", "pending F02.6 intake must not allow execution or claim permissions."))
+    elif record_status in {"approved", "rejected"}:
+        if summary["record_decider"] != "Dr Sun":
+            issues.append(_issue("decision_intake_closed_decider_not_dr_sun", "closed F02.6 intake must be decided by Dr Sun."))
+        if summary["local_training_allowed_now"] is not False:
+            issues.append(_issue("decision_intake_closed_allows_local_training", "F02.6 closure must not allow local training."))
+        if summary["formal_claim_allowed_now"] is not False:
+            issues.append(_issue("decision_intake_closed_allows_formal_claim", "F02.6 closure alone must not allow formal claims."))
+    else:
+        issues.append(_issue("decision_intake_unknown_record_status", "F02.6 intake record_status must be pending_human_decision, approved, or rejected."))
+    return issues
 
 
 def _missing_artifacts_handoff_index_summary(missing_artifacts: dict[str, Any]) -> dict[str, Any]:
