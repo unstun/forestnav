@@ -92,6 +92,9 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
     claim_handoff = claim_safety.get("status_report_handoff_summary")
     if not isinstance(claim_handoff, dict):
         claim_handoff = {}
+    claim_missing_handoff = claim_safety.get("status_report_missing_artifacts_handoff_summary")
+    if not isinstance(claim_missing_handoff, dict):
+        claim_missing_handoff = {}
     input_status = {
         "method_algorithms_status": method_algorithms.get("status"),
         "system_diagram_status": system_diagram.get("status"),
@@ -103,6 +106,15 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_transition_gate_status": claim_handoff.get("transition_gate_status"),
         "claim_safety_transition_gate_audit_issue_count": claim_handoff.get("transition_gate_audit_issue_count"),
         "claim_safety_handoff_safety_issue_count": claim_handoff.get("safety_issue_count"),
+        "claim_safety_missing_artifacts_handoff_status": claim_missing_handoff.get("status"),
+        "claim_safety_missing_artifacts_next_action": claim_missing_handoff.get("next_action_id"),
+        "claim_safety_missing_artifacts_open_requirement_count": claim_missing_handoff.get("open_requirement_count"),
+        "claim_safety_missing_artifacts_remote_training_allowed_now": claim_missing_handoff.get(
+            "remote_training_allowed_now"
+        ),
+        "claim_safety_missing_artifacts_formal_result_material_allowed_now": claim_missing_handoff.get(
+            "formal_result_material_allowed_now"
+        ),
         "h02_formal_acceptance_status": h02_acceptance.get("status"),
         "h02_formal_output_accepted": h02_acceptance.get("formal_output_accepted"),
         "h02_paper_result_input_allowed": h02_acceptance.get("paper_result_input_allowed"),
@@ -368,6 +380,14 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- claim_safety_transition_gate_status: `{input_status.get('claim_safety_transition_gate_status')}`",
             f"- claim_safety_transition_gate_audit_issue_count: `{input_status.get('claim_safety_transition_gate_audit_issue_count')}`",
             f"- claim_safety_handoff_safety_issue_count: `{input_status.get('claim_safety_handoff_safety_issue_count')}`",
+            "",
+            "## Claim Safety Missing-Artifacts Handoff Index",
+            "",
+            f"- claim_safety_missing_artifacts_handoff_status: `{input_status.get('claim_safety_missing_artifacts_handoff_status')}`",
+            f"- claim_safety_missing_artifacts_next_action: `{input_status.get('claim_safety_missing_artifacts_next_action')}`",
+            f"- claim_safety_missing_artifacts_open_requirement_count: `{input_status.get('claim_safety_missing_artifacts_open_requirement_count')}`",
+            f"- claim_safety_missing_artifacts_remote_training_allowed_now: `{input_status.get('claim_safety_missing_artifacts_remote_training_allowed_now')}`",
+            f"- claim_safety_missing_artifacts_formal_result_material_allowed_now: `{input_status.get('claim_safety_missing_artifacts_formal_result_material_allowed_now')}`",
         ]
     )
     lines.extend(["", "## Section Readiness", ""])
