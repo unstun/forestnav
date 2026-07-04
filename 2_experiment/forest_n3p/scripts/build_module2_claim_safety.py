@@ -1004,6 +1004,16 @@ def _markdown(manifest: dict[str, Any]) -> str:
                 f"execution_allowed_now=`{row['execution_allowed_now']}`, "
                 f"remote_training_ready_now=`{row['remote_training_ready_now']}`"
             )
+    lines.extend(["", "## Status Report H02 Acceptance Requirement Matrix", ""])
+    h02_requirements = manifest["status_report_h02_acceptance_requirement_summary"]
+    lines.append(f"- present=`{h02_requirements['present']}`")
+    lines.append(f"- status_counts=`{h02_requirements['status_counts']}`")
+    lines.append(f"- blocked_requirement_count=`{h02_requirements['blocked_requirement_count']}`")
+    for requirement_id, row in h02_requirements["requirements"].items():
+        lines.append(
+            f"- `{requirement_id}`: status=`{row['status']}`, complete=`{row['complete']}`, "
+            f"paper_result_input_allowed_now=`{row['paper_result_input_allowed_now']}`"
+        )
     lines.extend(["", "## Prohibited Claims", ""])
     for claim in manifest["prohibited_claims"]:
         lines.append(f"- `{claim['claim_id']}`: not allowed; patterns={', '.join(claim['patterns'])}")
