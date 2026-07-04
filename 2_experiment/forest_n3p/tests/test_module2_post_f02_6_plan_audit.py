@@ -497,6 +497,25 @@ def _closure_checklist_payload(*, open_checklist, invalid=False):
     }
 
 
+def _status_report_payload(*, ready, invalid=False):
+    return {
+        "status": "formal_gate_status_ready_for_claim_audit" if ready else "formal_gate_status_blocked",
+        "executes_commands": bool(invalid),
+        "runs_training": bool(invalid),
+        "runs_remote_preflight": bool(invalid),
+        "local_training_allowed": bool(invalid),
+        "formal_claim_allowed": bool(invalid),
+        "permissions_now": {
+            "formal_claim_allowed_now": ready or bool(invalid),
+            "local_training_allowed_now": bool(invalid),
+            "remote_preflight_allowed_now": ready,
+            "remote_training_allowed_now": ready,
+        },
+        "input_safety_issue_count": 1 if invalid else 0,
+        "next_blocked_lane": {} if ready else {"lane_id": "decision", "blocked_by": ["f02_6_decision_not_approved"]},
+    }
+
+
 def _stage(plan, stage_id):
     for stage in plan["ordered_stages"]:
         if stage["stage_id"] == stage_id:

@@ -35,6 +35,17 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - open_item_count: `8`
 - input_safety_issue_count: `0`
 
+## Formal Gate Status Report
+
+- path: `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`
+- status: `formal_gate_status_blocked`
+- runs_training: `False`
+- runs_remote_preflight: `False`
+- formal_claim_allowed_now: `False`
+- local_training_allowed_now: `False`
+- input_safety_issue_count: `0`
+- next_blocked_lane_id: `decision`
+
 ## Audit Issues
 
 - none

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_plan_audit",
   "status": "post_f02_6_plan_audit_passed",
-  "created_at_utc": "2026-07-04T13:09:51.021063+00:00",
-  "source_head": "09c1a5aca8740caca5539f5a2ad98076c6dbc895+dirty",
+  "created_at_utc": "2026-07-04T13:21:31.540434+00:00",
+  "source_head": "73997d6461a81a2b69568ef4c181e01345b6a901+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -15,7 +15,8 @@
     "formal_gate_gap_audit": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
     "source_freshness_audit": "0_trials/module2_source_freshness_audit/source_freshness_audit.json",
     "formal_gate_missing_artifacts_audit": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
-    "formal_gate_closure_checklist": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json"
+    "formal_gate_closure_checklist": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
+    "formal_gate_status_report": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json"
   },
   "plan_status": "blocked_until_f02_6_decision",
   "missing_artifacts_summary": {
@@ -52,6 +53,20 @@
     "closure_item_count": 8,
     "open_item_count": 8,
     "input_safety_issue_count": 0
+  },
+  "status_report_summary": {
+    "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
+    "exists": true,
+    "status": "formal_gate_status_blocked",
+    "executes_commands": false,
+    "runs_training": false,
+    "runs_remote_preflight": false,
+    "local_training_allowed": false,
+    "formal_claim_allowed": false,
+    "formal_claim_allowed_now": false,
+    "local_training_allowed_now": false,
+    "input_safety_issue_count": 0,
+    "next_blocked_lane_id": "decision"
   },
   "audit_issue_count": 0,
   "audit_issues": [],
