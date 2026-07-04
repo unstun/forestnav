@@ -298,6 +298,8 @@ def _scenario_summary(
         "record_status": record.get("status"),
         "effective_warm_start_decision": record.get("effective_warm_start_decision"),
         "record_remote_training_allowed": record.get("remote_training_allowed"),
+        "record_remote_preflight_allowed_now": record.get("remote_preflight_allowed_now"),
+        "record_remote_training_allowed_now": record.get("remote_training_allowed_now"),
         "record_local_training_allowed": record.get("local_training_allowed"),
         "record_formal_claim_allowed": record.get("formal_claim_allowed"),
         "decision_gate_status": decision_gate.get("status"),
@@ -351,6 +353,10 @@ def _common_scenario_issues(summary: dict[str, Any]) -> list[dict[str, Any]]:
         issues.append(_issue(scenario_id, "record_allows_local_training", "Synthetic decision record must never allow local training."))
     if summary.get("record_formal_claim_allowed") is not False:
         issues.append(_issue(scenario_id, "record_allows_formal_claim", "Synthetic decision record must never allow formal claims."))
+    if summary.get("record_remote_preflight_allowed_now") is not False:
+        issues.append(_issue(scenario_id, "record_allows_remote_preflight_now", "Synthetic decision record alone must never allow remote preflight now."))
+    if summary.get("record_remote_training_allowed_now") is not False:
+        issues.append(_issue(scenario_id, "record_allows_remote_training_now", "Synthetic decision record alone must never allow remote training now."))
     if permissions.get("local_training_allowed_now") is not False:
         issues.append(_issue(scenario_id, "status_report_allows_local_training", "Status report must keep local training blocked."))
     if permissions.get("remote_training_allowed_now") is not False:
