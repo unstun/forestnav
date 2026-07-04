@@ -1,0 +1,187 @@
+{
+  "dataset_id": "module2_rl_rs_bc_formal_v2",
+  "dataset_status": "formal_v2_trainable_not_paper_final",
+  "created_at_utc": "2026-07-04T02:06:26.976268+00:00",
+  "execution_host": "MacBook-Pro.local",
+  "source_contract": ".pipeline/contracts/module2-ppo-funnel-expansion.md",
+  "source_input": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+  "source_input_head": "1f4f96f82bca68f06cc6e9a08adb9ea9aaf993a5",
+  "extractor_source_head": "9220bd363d46769edba41a6c086ad70cdb1c3801",
+  "merge_source_head": "9220bd363d46769edba41a6c086ad70cdb1c3801",
+  "source_extractor": "2_experiment/forest_n3p/scripts/extract_oracle_demonstrations.py",
+  "source_merger": "2_experiment/forest_n3p/scripts/merge_demonstration_shards.py",
+  "root_cause_fixed": {
+    "summary": "formal_v1 map reconstruction cached GridMap by map_seed only; validation_t06 reuses map_seed across different profile_name values, so later profiles could use the first profile map.",
+    "fixed_cache_key": [
+      "profile_name",
+      "map_seed"
+    ],
+    "fix_commits": [
+      "f0a9fe67 run_oracle_connector_analysis map/EDT cache key",
+      "d6f2e1dc run_rollout_collision_budget map/checker cache key",
+      "1079d0d5 extract_oracle_demonstrations cache type",
+      "5e21d568 train_bc_policy cache type",
+      "89e3309c train_bc_patch_policy cache type",
+      "aa6da209 render_oracle_connector_cases cache type",
+      "9220bd36 regression test for profile-aware map cache"
+    ]
+  },
+  "invalidated_previous_dataset": {
+    "dataset": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v1.parquet",
+    "reason": "Generated before profile-aware map cache fix; full audit under true profile maps found colliding demo poses.",
+    "audit": {
+      "rows": 85514,
+      "any_collision_rows": 4764,
+      "current_collision_rows": 4468,
+      "next_collision_rows": 4466,
+      "source_rows_with_any_collision": 236,
+      "profiles_with_collisions": {
+        "complex_d04": 2241,
+        "extreme_d06": 21,
+        "extreme_d07": 2502
+      },
+      "patch_cnn_re_eval_after_fix": {
+        "episodes": 241,
+        "terminal_rs_success": 49,
+        "collision": 175,
+        "truncated": 4,
+        "runtime_error": 13,
+        "runtime_error_reason": "AnalyticExpansionContext start state is in collision."
+      }
+    }
+  },
+  "selection_policy": {
+    "oracle_a": {
+      "complex_source_rows": 512,
+      "extreme_source_rows": 512,
+      "filter_best_oracle": "oracle_a"
+    },
+    "oracle_b": {
+      "candidate_source": "goal_annulus",
+      "selected_source_rows": 58,
+      "replay_success_source_rows": 8,
+      "replay_failed_source_rows": 50,
+      "filter_best_oracle": "oracle_b"
+    },
+    "excluded_b_only": "voronoi_skeleton rows are excluded until audited"
+  },
+  "merged_dataset": {
+    "path": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v2.parquet",
+    "sha256": "2ae60a1f7f16b6028c1b1b491f6ab053b09241c4edc85a2b8d9d5e9eefab128d",
+    "summary_path": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v2_summary.json",
+    "summary_sha256": "f653ef967f6d1c05608eb43849bbc3ead737f835547d9cdfe432d669bc31cd26",
+    "row_count": 83809,
+    "source_row_count": 1032,
+    "oracle_type_counts": {
+      "oracle_a": 83047,
+      "oracle_b": 762
+    },
+    "difficulty_bucket_counts": {
+      "Complex": 40755,
+      "Extreme": 43054
+    },
+    "source_row_counts_by_oracle": {
+      "oracle_a": 1024,
+      "oracle_b": 8
+    }
+  },
+  "shards": [
+    {
+      "name": "complex_a512",
+      "path": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v2_complex_a512.parquet",
+      "sha256": "bc045d5728bea13d8325f14c636c52aeb79817c5e256b0cf9d855fe7da9da7ff",
+      "summary_path": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v2_complex_a512_summary.json",
+      "summary_sha256": "83f627e8a27445eba70e26454f531cba8262a5b9c725acfe39c7fd27f139eb9d",
+      "selected_rows": 512,
+      "replay_success_rows": 512,
+      "demo_rows": 40619,
+      "log_path": "2_experiment/forest_n3p/logs/module2_f02_formal_v2/complex_a512.log",
+      "log_sha256": "5346aab4c252db97d3a23846217df5b69ad5c377b40f741806e11136cf216880"
+    },
+    {
+      "name": "extreme_a512",
+      "path": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v2_extreme_a512.parquet",
+      "sha256": "3ea8d5b6d9ac186f12482557c40d927350e49a4e9dbc9872156ddbfcbf48a6df",
+      "summary_path": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v2_extreme_a512_summary.json",
+      "summary_sha256": "f2c250b3a2e71bd074afe690119f3fa0afe49b3c0f2d2897039b65ae950c9249",
+      "selected_rows": 512,
+      "replay_success_rows": 512,
+      "demo_rows": 42428,
+      "log_path": "2_experiment/forest_n3p/logs/module2_f02_formal_v2/extreme_a512.log",
+      "log_sha256": "75792ccad08f008181d40bcbfbeea5a86e95228247b3ebc27b17e2f1361b8b4f"
+    },
+    {
+      "name": "b_goal_annulus",
+      "path": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v2_b_goal_annulus.parquet",
+      "sha256": "a3d021aa90ab25aece5617f4302127fe744477d3268d3af3de1d68238723c42b",
+      "summary_path": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v2_b_goal_annulus_summary.json",
+      "summary_sha256": "7afbec992fd2ec1569e63e13a1499b6ad34e3df89a0cfde8e15a67ac515d696b",
+      "selected_rows": 58,
+      "replay_success_rows": 8,
+      "demo_rows": 762,
+      "skipped_oracle_replay_failed": 50,
+      "log_path": "2_experiment/forest_n3p/logs/module2_f02_formal_v2/b_goal_annulus.log",
+      "log_sha256": "ac0a09e1fa26c9be09d2c26f639c1ba252ad3154697997182e61326ea400e310"
+    }
+  ],
+  "validation_audits": {
+    "formal_v2_collision_audit": {
+      "rows": 83809,
+      "current_collision_rows": 0,
+      "next_collision_rows": 0,
+      "any_collision_rows": 0,
+      "source_rows_with_any_collision": 0,
+      "map_cache_keys_seen": [
+        [
+          "complex_d02",
+          20360620
+        ],
+        [
+          "complex_d03",
+          20360620
+        ],
+        [
+          "complex_d04",
+          20360620
+        ],
+        [
+          "extreme_d05",
+          20460620
+        ],
+        [
+          "extreme_d06",
+          20460620
+        ],
+        [
+          "extreme_d07",
+          20460620
+        ]
+      ]
+    }
+  },
+  "allowed_conclusions": [
+    "formal_v2 is trainable and source-bound under profile-aware map reconstruction",
+    "formal_v2 balances Complex and Extreme oracle-A shards at 512 source rows each",
+    "formal_v2 includes only 8 currently replayable goal_annulus oracle-B rows",
+    "formal_v1 BC and patch-CNN formal results are stale and must not be used as current training conclusions"
+  ],
+  "disallowed_conclusions": [
+    "do not use formal_v1 as clean training evidence after the map-cache audit",
+    "do not claim scalar/obstacle-summary/patch-CNN formal_v1 results still rank BC methods under fixed map reconstruction",
+    "do not claim all 58 historical goal_annulus B-only rows are currently reproducible",
+    "do not claim this is a paper-final full corpus",
+    "do not claim PPO training or planner integration exists"
+  ],
+  "validation_audit_artifacts": [
+    {
+      "name": "formal_v1_collision_audit",
+      "path": "2_experiment/forest_n3p/logs/module2_f02_formal_v2/formal_v1_collision_audit.json",
+      "sha256": "1046d7379ac55ff82265814105a47865d91749b73a7213df42f91c5e33c31ff5"
+    },
+    {
+      "name": "formal_v2_collision_audit",
+      "path": "2_experiment/forest_n3p/logs/module2_f02_formal_v2/formal_v2_collision_audit.json",
+      "sha256": "49a546b09995cde46365c08bc15a54c3c47f44c2f84547b1a6bd7aacd23639a7"
+    }
+  ]
+}

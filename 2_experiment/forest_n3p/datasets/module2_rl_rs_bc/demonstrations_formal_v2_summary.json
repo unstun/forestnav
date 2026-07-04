@@ -1,0 +1,41 @@
+{
+  "status": "complete",
+  "created_at_utc": "2026-07-04T02:04:23.020562+00:00",
+  "execution_host": "MacBook-Pro.local",
+  "source_head": "9220bd363d46769edba41a6c086ad70cdb1c3801",
+  "command": "python -m forest_n3p.scripts.merge_demonstration_shards --source-head 9220bd363d46769edba41a6c086ad70cdb1c3801 --output 2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v2.parquet --inputs 2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v2_complex_a512.parquet 2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v2_extreme_a512.parquet 2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v2_b_goal_annulus.parquet",
+  "inputs": [
+    {
+      "path": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v2_complex_a512.parquet",
+      "sha256": "bc045d5728bea13d8325f14c636c52aeb79817c5e256b0cf9d855fe7da9da7ff",
+      "rows": 40619
+    },
+    {
+      "path": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v2_extreme_a512.parquet",
+      "sha256": "3ea8d5b6d9ac186f12482557c40d927350e49a4e9dbc9872156ddbfcbf48a6df",
+      "rows": 42428
+    },
+    {
+      "path": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v2_b_goal_annulus.parquet",
+      "sha256": "a3d021aa90ab25aece5617f4302127fe744477d3268d3af3de1d68238723c42b",
+      "rows": 762
+    }
+  ],
+  "output": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v2.parquet",
+  "output_sha256": "2ae60a1f7f16b6028c1b1b491f6ab053b09241c4edc85a2b8d9d5e9eefab128d",
+  "rows": 83809,
+  "source_row_count": 1032,
+  "oracle_type_counts": {
+    "oracle_a": 83047,
+    "oracle_b": 762
+  },
+  "difficulty_bucket_counts": {
+    "Complex": 40755,
+    "Extreme": 43054
+  },
+  "source_row_counts_by_oracle": {
+    "oracle_a": 1024,
+    "oracle_b": 8
+  },
+  "sample_id_policy": "rewritten_contiguous_after_merge"
+}
