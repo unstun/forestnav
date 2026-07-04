@@ -6,6 +6,16 @@ from forest_n3p.rl_rs.actions import (
     decode_steering_action,
     steering_action_to_primitive,
 )
+from forest_n3p.rl_rs.curriculum import (
+    CurriculumContextConfig,
+    CurriculumSampleMetadata,
+    HeldoutQueryContextSampler,
+    ObstacleBypassContextSampler,
+    OpenConnectorContextSampler,
+    OracleConnectorContextSampler,
+    WeightedCurriculumContextSampler,
+    make_f03_curriculum_sampler,
+)
 from forest_n3p.rl_rs.env import AnalyticExpansionContext, AnalyticExpansionEnv, AnalyticExpansionStep
 from forest_n3p.rl_rs.gym_env import GymAnalyticExpansionEnv, StaticContextSampler
 from forest_n3p.rl_rs.obs import (
@@ -37,8 +47,14 @@ __all__ = [
     "AnalyticExpansionStep",
     "ActionConfig",
     "ClippedSteeringAction",
+    "CurriculumContextConfig",
+    "CurriculumSampleMetadata",
     "GymAnalyticExpansionEnv",
+    "HeldoutQueryContextSampler",
+    "ObstacleBypassContextSampler",
     "ObservationConfig",
+    "OpenConnectorContextSampler",
+    "OracleConnectorContextSampler",
     "RewardBreakdown",
     "RewardConfig",
     "RewardTermSwitches",
@@ -50,6 +66,7 @@ __all__ = [
     "SteeringPolicy",
     "StaticContextSampler",
     "TerminalRsCheckResult",
+    "WeightedCurriculumContextSampler",
     "build_egocentric_edt_patch",
     "build_egocentric_occupancy_patch",
     "build_clearance_distance_field",
@@ -61,6 +78,7 @@ __all__ = [
     "compute_decomposed_reward",
     "compute_terminal_success_reward",
     "decode_steering_action",
+    "make_f03_curriculum_sampler",
     "min_rollout_clearance_m",
     "rollout_constant_steer_step",
     "steering_action_to_primitive",
