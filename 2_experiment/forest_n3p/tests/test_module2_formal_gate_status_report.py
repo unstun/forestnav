@@ -36,6 +36,10 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["current_state"]["handoff_bundle_next_action"] == "record_f02_6_decision"
     assert manifest["current_state"]["handoff_bundle_safety_issue_count"] == 0
     assert manifest["current_state"]["handoff_bundle_remote_training_allowed_now"] is False
+    assert manifest["current_state"]["formal_gate_execution_veto_present"] is True
+    assert manifest["current_state"]["formal_gate_execution_veto_all_rows_consistent"] is True
+    assert manifest["current_state"]["formal_gate_execution_veto_remote_training_allowed_now"] is False
+    assert manifest["current_state"]["formal_gate_execution_veto_formal_claim_allowed_now"] is False
     assert manifest["missing_counts_by_category"]["training"] == 3
     assert len(manifest["training_artifacts_required"]) == 3
     assert len(manifest["evaluation_artifacts_required"]) == 2
@@ -62,6 +66,11 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert handoff["remote_training_allowed_now"] is False
     assert handoff["remote_execution_steps"]["run_remote_training"]["allowed_now"] is False
     assert "remote_packet_not_ready" in handoff["remote_execution_steps"]["run_remote_training"]["blocked_by"]
+    veto = manifest["formal_gate_execution_veto_summary"]
+    assert veto["present"] is True
+    assert veto["all_rows_consistent"] is True
+    assert veto["row_consensus"]["remote_training"] is False
+    assert veto["row_consensus"]["formal_claim"] is False
 
     lanes = {lane["lane_id"]: lane for lane in manifest["formal_gate_lanes"]}
     assert lanes["gate3_remote_training"]["runs_training"] is True
@@ -87,6 +96,8 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     assert all(step["blocked_by"] == [] for step in manifest["remote_execution_step_summary"].values())
     assert all(stage["allowed_now"] is True for stage in manifest["closure_remote_stage_summary"].values())
     assert all(stage["blocked_by"] == [] for stage in manifest["closure_remote_stage_summary"].values())
+    assert manifest["formal_gate_execution_veto_summary"]["all_rows_consistent"] is True
+    assert manifest["formal_gate_execution_veto_summary"]["row_consensus"]["remote_training"] is True
 
 
 def test_formal_gate_status_report_catches_status_input_drift(tmp_path):
@@ -134,6 +145,44 @@ def test_formal_gate_status_report_consumes_handoff_bundle_safety(tmp_path):
     assert manifest["status"] == "formal_gate_status_blocked"
     assert "handoff_bundle_pending_allows_run_remote_training" in issue_ids
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+
+
+def test_formal_gate_status_report_consumes_execution_veto_matrix(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    formal_gate = json.loads(config.formal_gate_path.read_text(encoding="utf-8"))
+    formal_gate["execution_veto_matrix"]["all_rows_consistent"] = False
+    formal_gate["execution_veto_matrix"]["mismatch_rows"] = ["remote_training"]
+    for row in formal_gate["execution_veto_matrix"]["rows"]:
+        if row["row_id"] == "remote_training":
+            row["consistent"] = False
+            row["consensus_allowed_now"] = True
+            row["allowed_now_by_source"]["remote_packet"] = True
+    config.formal_gate_path.write_text(json.dumps(formal_gate), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert manifest["status"] == "formal_gate_status_blocked"
+    assert "formal_gate_execution_veto_rows_inconsistent" in issue_ids
+    assert "formal_gate_execution_veto_mismatch_rows_open" in issue_ids
+    assert "blocked_formal_gate_execution_veto_allows_remote_training" in issue_ids
+    assert manifest["formal_gate_execution_veto_summary"]["all_rows_consistent"] is False
+    assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+
+
+def test_formal_gate_status_report_requires_execution_veto_matrix(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    formal_gate = json.loads(config.formal_gate_path.read_text(encoding="utf-8"))
+    formal_gate.pop("execution_veto_matrix")
+    config.formal_gate_path.write_text(json.dumps(formal_gate), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert "formal_gate_missing_execution_veto_matrix" in issue_ids
+    assert manifest["formal_gate_execution_veto_summary"]["present"] is False
 
 
 def test_formal_gate_status_report_requires_closure_remote_stage_summary(tmp_path):
@@ -212,6 +261,7 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
     assert "Remote Execution Steps" in markdown
     assert "Closure Remote Stages" in markdown
     assert "Formal Gate Handoff Bundle" in markdown
+    assert "Formal Gate Execution Veto Matrix" in markdown
     assert "does not execute commands" in markdown
 
 
