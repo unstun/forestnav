@@ -14,6 +14,7 @@ DEFAULT_FORMAL_GATE = Path("0_trials/module2_formal_gate_gap_audit/formal_gate_g
 DEFAULT_MISSING_ARTIFACTS = Path("0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json")
 DEFAULT_CLOSURE_CHECKLIST = Path("0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json")
 DEFAULT_DECISION_RECORD = Path("0_trials/module2_f02_6_decision_record/f02_6_decision_record.json")
+DEFAULT_DECISION_INTAKE = Path("0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json")
 DEFAULT_REMOTE_PACKET = Path("0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json")
 DEFAULT_H01_MANIFEST = Path("0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json")
 DEFAULT_H02_ACCEPTANCE = Path("0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json")
@@ -66,6 +67,7 @@ class FormalGateStatusReportConfig:
     missing_artifacts_path: Path = DEFAULT_MISSING_ARTIFACTS
     closure_checklist_path: Path = DEFAULT_CLOSURE_CHECKLIST
     decision_record_path: Path = DEFAULT_DECISION_RECORD
+    decision_intake_path: Path = DEFAULT_DECISION_INTAKE
     remote_packet_path: Path = DEFAULT_REMOTE_PACKET
     h01_manifest_path: Path = DEFAULT_H01_MANIFEST
     h02_acceptance_path: Path = DEFAULT_H02_ACCEPTANCE
@@ -84,6 +86,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         missing_artifacts_path=args.missing_artifacts,
         closure_checklist_path=args.closure_checklist,
         decision_record_path=args.decision_record,
+        decision_intake_path=args.decision_intake,
         remote_packet_path=args.remote_packet,
         h01_manifest_path=args.h01_manifest,
         h02_acceptance_path=args.h02_acceptance,
@@ -109,6 +112,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     missing_artifacts = _read_json(config.missing_artifacts_path)
     closure_checklist = _read_json(config.closure_checklist_path)
     decision = _read_json(config.decision_record_path)
+    decision_intake = _read_json(config.decision_intake_path)
     remote_packet = _read_json(config.remote_packet_path)
     h01 = _read_json(config.h01_manifest_path)
     h02 = _read_json(config.h02_acceptance_path)
@@ -134,6 +138,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     requirement_stage_summary = _formal_gate_requirement_stage_summary(handoff_bundle)
     missing_artifacts_handoff_summary = _missing_artifacts_handoff_index_summary(missing_artifacts)
     formal_gate_execution_veto = _formal_gate_execution_veto_summary(formal_gate)
+    decision_intake_summary = _decision_intake_summary(decision_intake)
 
     input_safety_issues = _input_safety_issues(
         {
@@ -141,6 +146,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "missing_artifacts": missing_artifacts,
             "closure_checklist": closure_checklist,
             "decision_record": decision,
+            "decision_intake": decision_intake,
             "remote_packet": remote_packet,
             "h01_manifest": h01,
             "h02_acceptance": h02,
@@ -196,6 +202,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "formal_gate_missing_artifacts": str(config.missing_artifacts_path),
             "formal_gate_closure_checklist": str(config.closure_checklist_path),
             "f02_6_decision_record": str(config.decision_record_path),
+            "f02_6_decision_intake": str(config.decision_intake_path),
             "remote_formal_execution_packet": str(config.remote_packet_path),
             "h01_manifest": str(config.h01_manifest_path),
             "h02_formal_acceptance": str(config.h02_acceptance_path),
@@ -206,6 +213,13 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "current_state": {
             "decision_status": decision.get("status"),
             "decision_decider": decision.get("decider"),
+            "decision_intake_status": decision_intake_summary["status"],
+            "decision_intake_record_status": decision_intake_summary["record_status"],
+            "decision_intake_next_blocked_lane": decision_intake_summary["next_blocked_lane"],
+            "decision_intake_audit_issue_count": decision_intake_summary["audit_issue_count"],
+            "decision_intake_remote_preflight_allowed_now": decision_intake_summary["remote_preflight_allowed_now"],
+            "decision_intake_remote_training_allowed_now": decision_intake_summary["remote_training_allowed_now"],
+            "decision_intake_formal_claim_allowed_now": decision_intake_summary["formal_claim_allowed_now"],
             "formal_gate_status": formal_gate.get("status"),
             "missing_artifacts_status": missing_artifacts.get("status"),
             "missing_artifacts_handoff_index_status": missing_artifacts_handoff_summary["status"],
@@ -264,6 +278,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "remote_preflight_requirement_summary": remote_preflight_requirements,
         "post_run_acceptance_requirement_summary": post_run_acceptance_requirements,
         "h02_formal_acceptance_requirement_summary": h02_acceptance_requirements,
+        "f02_6_decision_intake_summary": decision_intake_summary,
         "formal_gate_handoff_summary": handoff_summary,
         "formal_gate_requirement_stage_summary": requirement_stage_summary,
         "missing_artifacts_handoff_index_summary": missing_artifacts_handoff_summary,
@@ -297,6 +312,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--missing-artifacts", type=Path, default=DEFAULT_MISSING_ARTIFACTS)
     parser.add_argument("--closure-checklist", type=Path, default=DEFAULT_CLOSURE_CHECKLIST)
     parser.add_argument("--decision-record", type=Path, default=DEFAULT_DECISION_RECORD)
+    parser.add_argument("--decision-intake", type=Path, default=DEFAULT_DECISION_INTAKE)
     parser.add_argument("--remote-packet", type=Path, default=DEFAULT_REMOTE_PACKET)
     parser.add_argument("--h01-manifest", type=Path, default=DEFAULT_H01_MANIFEST)
     parser.add_argument("--h02-acceptance", type=Path, default=DEFAULT_H02_ACCEPTANCE)
