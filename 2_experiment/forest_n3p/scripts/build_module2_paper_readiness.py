@@ -70,6 +70,10 @@ CLAIM_SAFETY_DECISION_INTAKE_RECORD_STATUSES = (
     "approved",
     "rejected",
 )
+CLAIM_SAFETY_CLAIM_GATE_REGENERATION_ARTIFACT_IDS = (
+    "claim_safety",
+    "paper_readiness",
+)
 
 
 @dataclass(frozen=True)
@@ -156,6 +160,9 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
     claim_remaining_deliverables_gap_summary = _claim_safety_remaining_deliverables_gap_summary(claim_safety)
     claim_formal_gate_gap_audit_remaining_deliverables_gap_summary = (
         _claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_summary(claim_safety)
+    )
+    claim_remote_packet_safety_claim_gate_command_index_summary = (
+        _claim_safety_remote_packet_safety_claim_gate_command_index_summary(claim_safety)
     )
     input_status = {
         "method_algorithms_status": method_algorithms.get("status"),
@@ -271,6 +278,18 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_open_category_count": claim_formal_gate_gap_audit_remaining_deliverables_gap_summary[
             "open_category_count"
         ],
+        "claim_safety_remote_packet_safety_command_index_present": claim_remote_packet_safety_claim_gate_command_index_summary[
+            "present"
+        ],
+        "claim_safety_remote_packet_safety_command_index_row_count": claim_remote_packet_safety_claim_gate_command_index_summary[
+            "index_row_count"
+        ],
+        "claim_safety_remote_packet_safety_command_index_source_target_count": claim_remote_packet_safety_claim_gate_command_index_summary[
+            "source_target_count"
+        ],
+        "claim_safety_remote_packet_safety_command_index_missing_target_count": len(
+            claim_remote_packet_safety_claim_gate_command_index_summary["missing_target_ids"]
+        ),
         "h02_formal_acceptance_status": h02_acceptance.get("status"),
         "h02_formal_output_accepted": h02_acceptance.get("formal_output_accepted"),
         "h02_paper_result_input_allowed": h02_acceptance.get("paper_result_input_allowed"),
@@ -326,6 +345,9 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_remaining_deliverables_acceptance_summary": claim_remaining_deliverables_acceptance_summary,
         "claim_safety_remaining_deliverables_gap_summary": claim_remaining_deliverables_gap_summary,
         "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_summary": claim_formal_gate_gap_audit_remaining_deliverables_gap_summary,
+        "claim_safety_remote_packet_safety_claim_gate_command_index_summary": (
+            claim_remote_packet_safety_claim_gate_command_index_summary
+        ),
         "global_blockers": global_blockers,
         "allowed_claim_ids": allowed_claim_ids,
         "conditional_claim_ids": conditional_claim_ids,
@@ -385,6 +407,7 @@ def _global_blockers(
     _extend_unique(blockers, _claim_safety_remaining_deliverables_acceptance_blockers(claim_safety))
     _extend_unique(blockers, _claim_safety_remaining_deliverables_gap_blockers(claim_safety))
     _extend_unique(blockers, _claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_blockers(claim_safety))
+    _extend_unique(blockers, _claim_safety_remote_packet_safety_claim_gate_command_index_blockers(claim_safety))
     _extend_unique(blockers, h01_manifest.get("blockers", []))
     if str(decision_record.get("status")) == "pending_human_decision":
         _append_unique(blockers, "f02_6_pending")
