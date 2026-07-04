@@ -30,6 +30,18 @@ MAIN_TABLE_COLUMNS = (
     "path_inflation_p50",
     "clearance_p50_m",
 )
+TELEMETRY_TABLE_COLUMNS = (
+    "method",
+    "record_count",
+    "rl_attempts_total",
+    "rl_successes_total",
+    "rs_attempts_total",
+    "nn_forward_time_mean_s",
+    "nn_forward_time_p95_s",
+    "fallback_to_primitives_total",
+    "rollout_protocol",
+    "collision_checker",
+)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -141,6 +153,13 @@ def build_manifest(
                 "rows": _failure_rows(records),
                 "source": "records.csv failure_reason aggregation",
             },
+            "telemetry_diagnostic_table": {
+                "i02_item": "I02.diagnostic",
+                "status": table_status,
+                "columns": list(TELEMETRY_TABLE_COLUMNS),
+                "rows": _telemetry_diagnostic_rows(records),
+                "source": "records.csv A02.3 runtime/evaluation telemetry columns",
+            },
         },
         "statistics": {
             "paired_time_tests": summary.get("paired_time_tests", []),
@@ -250,6 +269,28 @@ def _failure_rows(records: Sequence[dict[str, str]]) -> list[dict[str, Any]]:
     return rows
 
 
+def _telemetry_diagnostic_rows(records: Sequence[dict[str, str]]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for method in sorted({str(row.get("method", "")) for row in records if row.get("method")}):
+        group = [row for row in records if str(row.get("method")) == method]
+        forward_values = [_parse_float(row.get("nn_forward_time_s")) for row in group]
+        rows.append(
+            {
+                "method": method,
+                "record_count": len(group),
+                "rl_attempts_total": _sum_int(row.get("rl_attempts") for row in group),
+                "rl_successes_total": _sum_int(row.get("rl_successes") for row in group),
+                "rs_attempts_total": _sum_int(row.get("rs_attempts") for row in group),
+                "nn_forward_time_mean_s": _mean(forward_values),
+                "nn_forward_time_p95_s": _percentile(forward_values, 95),
+                "fallback_to_primitives_total": _sum_int(row.get("fallback_to_primitives_count") for row in group),
+                "rollout_protocol": _single_nonempty(row.get("rollout_protocol") for row in group),
+                "collision_checker": _single_nonempty(row.get("collision_checker") for row in group),
+            }
+        )
+    return rows
+
+
 def _ablation_preview_rows(records: Sequence[dict[str, str]]) -> list[dict[str, Any]]:
     family_counts: dict[str, int] = defaultdict(int)
     for row in records:
@@ -337,6 +378,29 @@ def _percentile(values: Sequence[float | None], percentile: float) -> float | No
     return float(clean[lower] * (1.0 - alpha) + clean[upper] * alpha)
 
 
+def _mean(values: Sequence[float | None]) -> float | None:
+    clean = [float(value) for value in values if value is not None and math.isfinite(float(value))]
+    if not clean:
+        return None
+    return float(sum(clean) / len(clean))
+
+
+def _sum_int(values: Sequence[Any]) -> int:
+    total = 0
+    for value in values:
+        if value is None or str(value).strip() == "":
+            continue
+        total += int(float(value))
+    return int(total)
+
+
+def _single_nonempty(values: Sequence[Any]) -> str | None:
+    clean = {str(value) for value in values if value is not None and str(value).strip()}
+    if not clean:
+        return None
+    return next(iter(clean)) if len(clean) == 1 else "mixed"
+
+
 def _code_anchors(repo_root: Path) -> list[dict[str, Any]]:
     return [
         _anchor(repo_root, "2_experiment/forest_n3p/evaluation.py", "class EvaluationRecord", "EvaluationRecord"),
@@ -345,6 +409,7 @@ def _code_anchors(repo_root: Path) -> list[dict[str, Any]]:
         _anchor(repo_root, "2_experiment/forest_n3p/evaluation.py", "def paired_wilcoxon_expansions", "paired_wilcoxon_expansions"),
         _anchor(repo_root, "2_experiment/forest_n3p/evaluation.py", "def bootstrap_timeout_failure_rate_difference", "bootstrap_timeout_failure_rate_difference"),
         _anchor(repo_root, "2_experiment/forest_n3p/evaluation.py", "def write_evaluation_outputs", "write_evaluation_outputs"),
+        _anchor(repo_root, "2_experiment/forest_n3p/evaluation.py", "nn_forward_time_s: float | None", "EvaluationRecord.nn_forward_time_s"),
         _anchor(repo_root, "2_experiment/forest_n3p/scripts/build_module2_metric_protocol.py", '"metric_id": "total_expansions"', "module2_metric_protocol.total_expansions"),
         _anchor(repo_root, "2_experiment/forest_n3p/scripts/build_module2_evaluation_manifest.py", "f02_6_decision_packet_pending", "module2_evaluation_manifest.F02.6_guard"),
     ]
@@ -439,6 +504,33 @@ def _markdown(manifest: dict[str, Any]) -> str:
     for row in manifest["tables"]["failure_analysis_table"]["rows"]:
         lines.append(
             f"| {row['method']} | {row['failure_count']} | {row['timeout']} | {row['collision']} | {row['terminal_rs_fail']} | {row['oscillation']} | {row['oracle_no_solution']} | {row['other']} |"
+        )
+
+    telemetry_table = manifest["tables"]["telemetry_diagnostic_table"]
+    lines.extend(
+        [
+            "",
+            "## I02 Diagnostic Telemetry Preview",
+            "",
+            f"- status: `{telemetry_table['status']}`",
+            "",
+            "| method | RL attempts | RL successes | RS attempts | NN forward mean/p95 | primitive fallback | protocol | checker |",
+            "| --- | ---: | ---: | ---: | ---: | ---: | --- | --- |",
+        ]
+    )
+    for row in telemetry_table["rows"]:
+        lines.append(
+            "| {method} | {rl_attempts} | {rl_successes} | {rs_attempts} | {nn_mean}/{nn_p95} | {fallback} | {protocol} | {checker} |".format(
+                method=row["method"],
+                rl_attempts=row["rl_attempts_total"],
+                rl_successes=row["rl_successes_total"],
+                rs_attempts=row["rs_attempts_total"],
+                nn_mean=_fmt(row["nn_forward_time_mean_s"]),
+                nn_p95=_fmt(row["nn_forward_time_p95_s"]),
+                fallback=row["fallback_to_primitives_total"],
+                protocol=row["rollout_protocol"] or "NA",
+                checker=row["collision_checker"] or "NA",
+            )
         )
 
     lines.extend(["", "## Claim Boundaries", ""])

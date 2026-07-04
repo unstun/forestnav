@@ -12,7 +12,6 @@ This artifact is not formal unless `formal_claim_allowed=true`.
 - h02_verdict_not_formal
 - h01_manifest_not_ready
 - f02_6_warm_start_decision_pending
-- f02_6_decision_packet_pending
 - missing_module2_rl_rs_checkpoint
 - missing_ppo_result_rows
 
@@ -22,11 +21,11 @@ This artifact is not formal unless `formal_claim_allowed=true`.
 
 | method | success | timeout | time p50/p95 | expansions p50/p95 | path inflation p50 | clearance p50 |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| bc_analytic_operator | 1 | 0 | 0.18/1.905 | 13/571.9 | NA | 0.1909 |
-| ha_dang_multi_rs | 1 | 0 | 0.1678/0.5217 | 31/659.2 | NA | 0.1909 |
-| ha_no_analytic | 1 | 0 | 0.4084/0.5821 | 658/1065 | NA | 0.07062 |
-| ha_single_rs | 1 | 0 | 0.1715/0.5745 | 61/662.2 | NA | 0.1736 |
-| mlp | 1 | 0 | 0.2034/0.5233 | 31/659.2 | NA | 0.1909 |
+| bc_analytic_operator | 1 | 0 | 0.1695/1.813 | 13/571.9 | NA | 0.1909 |
+| ha_dang_multi_rs | 1 | 0 | 0.1595/0.4668 | 31/659.2 | NA | 0.1909 |
+| ha_no_analytic | 1 | 0 | 0.3857/0.5 | 658/1065 | NA | 0.07062 |
+| ha_single_rs | 1 | 0 | 0.1729/0.4058 | 61/662.2 | NA | 0.1736 |
+| mlp | 1 | 0 | 0.1608/0.4781 | 31/659.2 | NA | 0.1909 |
 
 ## I02.2 Ablation Table
 
@@ -48,6 +47,18 @@ This artifact is not formal unless `formal_claim_allowed=true`.
 | ha_no_analytic | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 | ha_single_rs | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 | mlp | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+
+## I02 Diagnostic Telemetry Preview
+
+- status: `preview_not_formal`
+
+| method | RL attempts | RL successes | RS attempts | NN forward mean/p95 | primitive fallback | protocol | checker |
+| --- | ---: | ---: | ---: | ---: | ---: | --- | --- |
+| bc_analytic_operator | 126 | 3 | 527 | 0.03872/0.1024 | 123 | constant_steer_grid_footprint_terminal_rs | GridFootprintChecker |
+| ha_dang_multi_rs | 0 | 0 | 1650 | NA/NA | 147 | NA | NA |
+| ha_no_analytic | 0 | 0 | 0 | NA/NA | 0 | NA | NA |
+| ha_single_rs | 0 | 0 | 156 | NA/NA | 153 | NA | NA |
+| mlp | 0 | 0 | 0 | NA/NA | 0 | NA | NA |
 
 ## Claim Boundaries
 

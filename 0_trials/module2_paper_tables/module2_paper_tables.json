@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_paper_tables",
   "status": "blocked_no_formal_h02_data",
-  "created_at_utc": "2026-07-04T06:50:47.775724+00:00",
-  "source_head": "2db279a41e9c7fa8bc88dfac156c0b88d80996b8",
+  "created_at_utc": "2026-07-04T08:29:42.372034+00:00",
+  "source_head": "e664daf244144881c28ddef7a5af8333ef630c32",
   "formal_claim_allowed": false,
   "local_training_allowed": false,
   "remote_training_resource": "gpu3070ti-relay",
@@ -27,7 +27,6 @@
     "h02_verdict_not_formal",
     "h01_manifest_not_ready",
     "f02_6_warm_start_decision_pending",
-    "f02_6_decision_packet_pending",
     "missing_module2_rl_rs_checkpoint",
     "missing_ppo_result_rows"
   ],
@@ -53,8 +52,8 @@
           "record_count": 3,
           "success_rate": 1.0,
           "timeout_failure_rate": 0.0,
-          "time_p50_s": 0.1799938678741455,
-          "time_p95_s": 1.9054020643234253,
+          "time_p50_s": 0.16950511932373047,
+          "time_p95_s": 1.812633442878723,
           "expansions_p50": 13.0,
           "expansions_p95": 571.8999999999999,
           "path_inflation_p50": null,
@@ -65,8 +64,8 @@
           "record_count": 3,
           "success_rate": 1.0,
           "timeout_failure_rate": 0.0,
-          "time_p50_s": 0.1677548885345459,
-          "time_p95_s": 0.521745753288269,
+          "time_p50_s": 0.1595139503479004,
+          "time_p95_s": 0.4668309450149536,
           "expansions_p50": 31.0,
           "expansions_p95": 659.1999999999999,
           "path_inflation_p50": null,
@@ -77,8 +76,8 @@
           "record_count": 3,
           "success_rate": 1.0,
           "timeout_failure_rate": 0.0,
-          "time_p50_s": 0.4083709716796875,
-          "time_p95_s": 0.5820566654205322,
+          "time_p50_s": 0.38567686080932617,
+          "time_p95_s": 0.5000355243682861,
           "expansions_p50": 658.0,
           "expansions_p95": 1064.8,
           "path_inflation_p50": null,
@@ -89,8 +88,8 @@
           "record_count": 3,
           "success_rate": 1.0,
           "timeout_failure_rate": 0.0,
-          "time_p50_s": 0.17154407501220703,
-          "time_p95_s": 0.5745326757431031,
+          "time_p50_s": 0.17289090156555176,
+          "time_p95_s": 0.40584526062011717,
           "expansions_p50": 61.0,
           "expansions_p95": 662.1999999999999,
           "path_inflation_p50": null,
@@ -101,8 +100,8 @@
           "record_count": 3,
           "success_rate": 1.0,
           "timeout_failure_rate": 0.0,
-          "time_p50_s": 0.20343945900094695,
-          "time_p95_s": 0.52325232059884,
+          "time_p50_s": 0.16079891700064763,
+          "time_p95_s": 0.4781014922991744,
           "expansions_p50": 31.0,
           "expansions_p95": 659.1999999999999,
           "path_inflation_p50": null,
@@ -229,6 +228,85 @@
         }
       ],
       "source": "records.csv failure_reason aggregation"
+    },
+    "telemetry_diagnostic_table": {
+      "i02_item": "I02.diagnostic",
+      "status": "preview_not_formal",
+      "columns": [
+        "method",
+        "record_count",
+        "rl_attempts_total",
+        "rl_successes_total",
+        "rs_attempts_total",
+        "nn_forward_time_mean_s",
+        "nn_forward_time_p95_s",
+        "fallback_to_primitives_total",
+        "rollout_protocol",
+        "collision_checker"
+      ],
+      "rows": [
+        {
+          "method": "bc_analytic_operator",
+          "record_count": 3,
+          "rl_attempts_total": 126,
+          "rl_successes_total": 3,
+          "rs_attempts_total": 527,
+          "nn_forward_time_mean_s": 0.038724983314750716,
+          "nn_forward_time_p95_s": 0.10237857825704849,
+          "fallback_to_primitives_total": 123,
+          "rollout_protocol": "constant_steer_grid_footprint_terminal_rs",
+          "collision_checker": "GridFootprintChecker"
+        },
+        {
+          "method": "ha_dang_multi_rs",
+          "record_count": 3,
+          "rl_attempts_total": 0,
+          "rl_successes_total": 0,
+          "rs_attempts_total": 1650,
+          "nn_forward_time_mean_s": null,
+          "nn_forward_time_p95_s": null,
+          "fallback_to_primitives_total": 147,
+          "rollout_protocol": null,
+          "collision_checker": null
+        },
+        {
+          "method": "ha_no_analytic",
+          "record_count": 3,
+          "rl_attempts_total": 0,
+          "rl_successes_total": 0,
+          "rs_attempts_total": 0,
+          "nn_forward_time_mean_s": null,
+          "nn_forward_time_p95_s": null,
+          "fallback_to_primitives_total": 0,
+          "rollout_protocol": null,
+          "collision_checker": null
+        },
+        {
+          "method": "ha_single_rs",
+          "record_count": 3,
+          "rl_attempts_total": 0,
+          "rl_successes_total": 0,
+          "rs_attempts_total": 156,
+          "nn_forward_time_mean_s": null,
+          "nn_forward_time_p95_s": null,
+          "fallback_to_primitives_total": 153,
+          "rollout_protocol": null,
+          "collision_checker": null
+        },
+        {
+          "method": "mlp",
+          "record_count": 3,
+          "rl_attempts_total": 0,
+          "rl_successes_total": 0,
+          "rs_attempts_total": 0,
+          "nn_forward_time_mean_s": null,
+          "nn_forward_time_p95_s": null,
+          "fallback_to_primitives_total": 0,
+          "rollout_protocol": null,
+          "collision_checker": null
+        }
+      ],
+      "source": "records.csv A02.3 runtime/evaluation telemetry columns"
     }
   },
   "statistics": {
@@ -239,7 +317,7 @@
         "paired_query_count": 3,
         "statistic": 0.0,
         "p_value": 0.25,
-        "median_delta_a_minus_b_s": 0.02505183219909668
+        "median_delta_a_minus_b_s": 0.024128198623657227
       }
     ],
     "paired_expansion_tests": [
@@ -300,33 +378,39 @@
     },
     {
       "path": "2_experiment/forest_n3p/evaluation.py",
-      "line": 107,
+      "line": 114,
       "symbol": "GroupSummary",
       "pattern": "class GroupSummary"
     },
     {
       "path": "2_experiment/forest_n3p/evaluation.py",
-      "line": 480,
+      "line": 567,
       "symbol": "paired_wilcoxon_time",
       "pattern": "def paired_wilcoxon_time"
     },
     {
       "path": "2_experiment/forest_n3p/evaluation.py",
-      "line": 515,
+      "line": 602,
       "symbol": "paired_wilcoxon_expansions",
       "pattern": "def paired_wilcoxon_expansions"
     },
     {
       "path": "2_experiment/forest_n3p/evaluation.py",
-      "line": 616,
+      "line": 703,
       "symbol": "bootstrap_timeout_failure_rate_difference",
       "pattern": "def bootstrap_timeout_failure_rate_difference"
     },
     {
       "path": "2_experiment/forest_n3p/evaluation.py",
-      "line": 687,
+      "line": 774,
       "symbol": "write_evaluation_outputs",
       "pattern": "def write_evaluation_outputs"
+    },
+    {
+      "path": "2_experiment/forest_n3p/evaluation.py",
+      "line": 93,
+      "symbol": "EvaluationRecord.nn_forward_time_s",
+      "pattern": "nn_forward_time_s: float | None"
     },
     {
       "path": "2_experiment/forest_n3p/scripts/build_module2_metric_protocol.py",
@@ -336,7 +420,7 @@
     },
     {
       "path": "2_experiment/forest_n3p/scripts/build_module2_evaluation_manifest.py",
-      "line": 322,
+      "line": 371,
       "symbol": "module2_evaluation_manifest.F02.6_guard",
       "pattern": "f02_6_decision_packet_pending"
     }
