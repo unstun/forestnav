@@ -173,6 +173,9 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert manifest["input_status"]["status_report_formal_gate_gap_audit_remaining_deliverables_gap_present"] is True
     assert manifest["input_status"]["status_report_formal_gate_gap_audit_remaining_deliverables_gap_total_missing_deliverables"] == 0
     assert manifest["input_status"]["status_report_formal_gate_gap_audit_remaining_deliverables_gap_open_category_count"] == 0
+    assert manifest["input_status"]["status_report_remaining_deliverables_proof_plan_present"] is True
+    assert manifest["input_status"]["status_report_remaining_deliverables_proof_plan_matrix_row_count"] == 10
+    assert manifest["input_status"]["status_report_remaining_deliverables_proof_plan_command_count"] == 20
     assert manifest["status_report_handoff_summary"]["transition_gate_status"] == "f02_6_transition_gate_audit_passed"
     assert manifest["status_report_missing_artifacts_handoff_summary"]["status"] == "formal_gate_evidence_ready_for_h01_h02_claim_gates"
     assert manifest["status_report_requirement_stage_summary"]["mapped_requirement_count"] == 4
@@ -204,6 +207,16 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert manifest["status_report_remaining_deliverables_gap_summary"]["open_category_count"] == 0
     assert manifest["status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 0
     assert manifest["status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary"]["open_category_count"] == 0
+    proof_plan = manifest["status_report_remaining_deliverables_proof_command_plan"]
+    assert proof_plan["present"] is True
+    assert proof_plan["plan_id"] == "module2_formal_gate_local_read_only_proof_commands"
+    assert proof_plan["execution_boundary"] == "local_read_only_after_formal_remote_pullback"
+    assert proof_plan["total_matrix_rows"] == 10
+    assert proof_plan["total_proof_command_count"] == 20
+    assert proof_plan["rows"]["training:train_final_model_zip"]["proof_command_ids"] == [
+        "train_final_model_zip_exists",
+        "train_final_model_zip_schema",
+    ]
     command_index = manifest["status_report_remote_packet_safety_claim_gate_command_index_summary"]
     assert command_index["present"] is True
     assert command_index["index_row_count"] == 18
@@ -953,15 +966,23 @@ def test_claim_safety_rejects_status_report_remaining_deliverables_acceptance_dr
     status_payload = _status_report_payload(ready=True)
     summary = status_payload["remaining_deliverables_acceptance_summary"]
     summary["rows"]["training:train_final_model_zip"]["acceptance_predicate_count"] = 0
+    summary["rows"]["training:train_final_model_zip"]["proof_command_count"] = 0
+    summary["rows"]["training:train_final_model_zip"]["proof_command_ids"] = []
     summary["rows"]["training:train_summary_json"]["responsible_stage_allowed_now"] = True
     summary["rows"].pop("formal_acceptance:h02_formal_output_acceptance")
     summary["matrix_row_count"] = 9
+    proof_plan = status_payload["remaining_deliverables_proof_command_plan"]
+    proof_plan["total_matrix_rows"] = 9
+    proof_plan["total_proof_command_count"] = 17
+    proof_plan["rows"].pop("formal_acceptance:h02_formal_output_acceptance")
+    proof_plan["runs_training"] = True
     gap_summary = status_payload["remaining_deliverables_gap_summary"]
     gap_summary["total_missing_deliverables"] = 1
     gap_summary["open_category_count"] = 1
     gap_summary["category_order"] = ["training", "evaluation"]
     gap_summary["categories"]["training"]["missing_count"] = 1
     gap_summary["categories"]["training"]["missing_artifact_matrix_ids"] = []
+    gap_summary["categories"]["training"]["proof_command_ids"] = []
     formal_gate_gap_summary = status_payload["formal_gate_gap_audit_remaining_deliverables_gap_summary"]
     formal_gate_gap_summary["total_missing_deliverables"] = 2
     formal_gate_gap_summary["open_category_count"] = 1
@@ -985,7 +1006,12 @@ def test_claim_safety_rejects_status_report_remaining_deliverables_acceptance_dr
     blockers = set(manifest["formal_performance_blockers"])
     assert "status_report_remaining_deliverables_acceptance_matrix_count_mismatch" in blockers
     assert "status_report_remaining_deliverables_acceptance_training_train_final_model_zip_missing_predicates" in blockers
+    assert "status_report_remaining_deliverables_acceptance_training_train_final_model_zip_missing_proof_commands" in blockers
     assert "status_report_remaining_deliverables_acceptance_missing_formal_acceptance_h02_formal_output_acceptance" in blockers
+    assert "status_report_remaining_deliverables_proof_command_plan_runs_training" in blockers
+    assert "status_report_remaining_deliverables_proof_command_plan_matrix_count_mismatch" in blockers
+    assert "status_report_remaining_deliverables_proof_command_plan_command_count_mismatch" in blockers
+    assert "status_report_remaining_deliverables_proof_command_plan_missing_formal_acceptance_h02_formal_output_acceptance" in blockers
     assert "status_report_remaining_deliverables_gap_category_order_mismatch" in blockers
     assert "status_report_remaining_deliverables_gap_rows_missing_while_status_ready" in blockers
     assert "status_report_remaining_deliverables_gap_categories_blocked_while_status_ready" in blockers
@@ -996,6 +1022,7 @@ def test_claim_safety_rejects_status_report_remaining_deliverables_acceptance_dr
     assert manifest["status_report_remaining_deliverables_acceptance_summary"]["matrix_row_count"] == 9
     assert manifest["status_report_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 1
     assert manifest["status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 2
+    assert manifest["status_report_remaining_deliverables_proof_command_plan"]["total_matrix_rows"] == 9
 
 
 def test_claim_safety_rejects_status_report_decision_intake_contract_drift(tmp_path):
