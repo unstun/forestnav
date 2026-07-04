@@ -18,8 +18,12 @@ from forest_n3p.rl_rs.rollout import rollout_constant_steer_step
 from forest_n3p.rl_rs.telemetry import RlRsEpisodeTelemetry, RlRsStepTelemetry
 from forest_n3p.rl_rs.terminal import TerminalRsCheckResult, check_terminal_rs_connectable
 from forest_n3p.third_party.pathplan import AckermannParams, AckermannState, GridMap, TwoCircleFootprint
+from forest_n3p.third_party.pathplan.common import heading_diff
 from forest_n3p.third_party.pathplan.geometry import GridFootprintChecker
 from forest_n3p.third_party.pathplan.primitives import MotionPrimitive
+
+
+TERMINAL_SUCCESS_MODES = frozenset(("terminal_rs", "goal_tolerance"))
 
 
 @dataclass(frozen=True)
@@ -45,6 +49,9 @@ class AnalyticExpansionContext:
     oscillation_min_sign_flips: int = 3
     oscillation_progress_tolerance_m: float = 0.05
     oscillation_steering_eps: float = 1e-6
+    terminal_success_mode: str = "terminal_rs"
+    goal_xy_tolerance_m: float = 0.30
+    goal_theta_tolerance_rad: float = math.radians(15.0)
 
     def __post_init__(self) -> None:
         _validate_state("start", self.start)
@@ -69,6 +76,12 @@ class AnalyticExpansionContext:
             raise ValueError("oscillation_progress_tolerance_m must be non-negative")
         if float(self.oscillation_steering_eps) < 0.0:
             raise ValueError("oscillation_steering_eps must be non-negative")
+        if str(self.terminal_success_mode) not in TERMINAL_SUCCESS_MODES:
+            raise ValueError(f"terminal_success_mode must be one of {sorted(TERMINAL_SUCCESS_MODES)}")
+        for name in ("goal_xy_tolerance_m", "goal_theta_tolerance_rad"):
+            value = float(getattr(self, name))
+            if not (math.isfinite(value) and value >= 0.0):
+                raise ValueError(f"{name} must be finite and non-negative")
 
     def collision_checker(self):
         return self.checker or GridFootprintChecker(
@@ -92,6 +105,7 @@ class AnalyticExpansionStep:
     rollout_path_length_m: float
     min_clearance_m: float | None
     curvature_delta_abs: float
+    goal_tolerance_reached: bool
 
     @property
     def info(self) -> dict[str, object]:
@@ -112,6 +126,7 @@ class AnalyticExpansionStep:
             "rollout_path_length_m": self.rollout_path_length_m,
             "min_clearance_m": self.min_clearance_m,
             "curvature_delta_abs": self.curvature_delta_abs,
+            "goal_tolerance_reached": bool(self.goal_tolerance_reached),
             "next_state": self.next_state,
             "primitive": self.primitive,
         }
@@ -208,13 +223,22 @@ class AnalyticExpansionEnv:
             if should_check_terminal and not rollout.collided
             else TerminalRsCheckResult(False, 0.0, None, 0, None)
         )
+        goal_tolerance_reached = _goal_tolerance_reached(
+            rollout.next_state,
+            context.goal,
+            xy_tolerance_m=float(context.goal_xy_tolerance_m),
+            theta_tolerance_rad=float(context.goal_theta_tolerance_rad),
+        )
         current_rs_path_length_m = terminal.path_length_m
         rs_distance_progress_m = (
             float(self._last_terminal_rs_path_length_m) - float(current_rs_path_length_m)
             if self._last_terminal_rs_path_length_m is not None and current_rs_path_length_m is not None
             else None
         )
-        terminated = bool(rollout.collided or terminal.success)
+        if str(context.terminal_success_mode) == "goal_tolerance":
+            terminated = bool(rollout.collided or goal_tolerance_reached)
+        else:
+            terminated = bool(rollout.collided or terminal.success)
         no_progress = (
             int(context.no_progress_patience) > 0
             and self._no_progress_count >= int(context.no_progress_patience)
@@ -239,6 +263,8 @@ class AnalyticExpansionEnv:
             failure_reason = "no_progress"
         elif oscillation and truncated:
             failure_reason = "oscillation"
+        elif str(context.terminal_success_mode) == "goal_tolerance" and truncated and not goal_tolerance_reached:
+            failure_reason = "goal_tolerance_not_reached"
         elif truncated:
             detail = terminal.failure_reason or "terminal_rs_not_checked"
             failure_reason = f"no_rs_terminal:{detail}"
@@ -305,6 +331,7 @@ class AnalyticExpansionEnv:
             rollout_path_length_m=rollout_path_length_m,
             min_clearance_m=min_clearance_m,
             curvature_delta_abs=curvature_delta_abs,
+            goal_tolerance_reached=goal_tolerance_reached,
         )
 
 
@@ -322,6 +349,18 @@ def _collides_pose(checker, state: AckermannState) -> bool:
 
 def _distance_to_goal(state: AckermannState, goal: AckermannState) -> float:
     return float(math.hypot(float(goal.x) - float(state.x), float(goal.y) - float(state.y)))
+
+
+def _goal_tolerance_reached(
+    state: AckermannState,
+    goal: AckermannState,
+    *,
+    xy_tolerance_m: float,
+    theta_tolerance_rad: float,
+) -> bool:
+    distance = _distance_to_goal(state, goal)
+    dtheta = abs(heading_diff(float(goal.theta), float(state.theta)))
+    return bool(distance <= float(xy_tolerance_m) and dtheta <= float(theta_tolerance_rad))
 
 
 def _estimate_rs_path_length(state: AckermannState, goal: AckermannState, params: AckermannParams) -> float | None:
