@@ -1462,7 +1462,7 @@ def _formal_gate_proof_audit(*, complete):
         for command in row["proof_commands"]:
             if complete:
                 status = "passed"
-            elif row["category"] == "formal_acceptance" and command["command_id"].endswith("_exists_nonempty"):
+        elif row["category"] == "formal_acceptance" and command["command_id"].endswith("_exists"):
                 status = "passed"
             elif row["category"] == "formal_acceptance":
                 status = "failed"
