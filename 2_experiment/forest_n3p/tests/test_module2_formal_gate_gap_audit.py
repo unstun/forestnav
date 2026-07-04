@@ -1142,8 +1142,46 @@ def _remote_packet_safety(tmp_path, *, ready, stale=False):
                     "remote_training_blocked_by": steps["run_remote_training"]["blocked_by"],
                     "remote_audit_blocked_by": steps["run_remote_audit"]["blocked_by"],
                 },
+                "cross_gate_summary": {
+                    "post_plan_source_regeneration_command_index_summary": _command_index_summary(),
+                },
             }
         ),
         encoding="utf-8",
     )
     return path
+
+
+def _command_index_summary():
+    rows = {
+        f"source_target_{index}": {
+            "stage_id": "regenerate_preflight_gate_artifacts",
+            "required_before": "approved_remote_preflight",
+            "command_kind": "known_builder",
+            "command_template": f"PYTHONPATH=2_experiment python -m builder_{index}",
+        }
+        for index in range(16)
+    }
+    rows["claim_safety"] = {
+        "stage_id": "regenerate_claim_gate_artifacts",
+        "required_before": "formal_claim_gate",
+        "command_kind": "known_builder",
+        "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety",
+    }
+    rows["paper_readiness"] = {
+        "stage_id": "regenerate_claim_gate_artifacts",
+        "required_before": "formal_claim_gate",
+        "command_kind": "known_builder",
+        "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_paper_readiness",
+    }
+    return {
+        "present": True,
+        "index_row_count": 18,
+        "source_target_count": 18,
+        "missing_target_ids": [],
+        "unknown_manual_count": 0,
+        "unknown_manual_ids": [],
+        "forbidden_command_count": 0,
+        "forbidden_command_ids": [],
+        "rows": rows,
+    }
