@@ -21,6 +21,9 @@ DEFAULT_H02_ACCEPTANCE = Path("0_trials/module2_h02_formal_acceptance/h02_formal
 DEFAULT_CLAIM_SAFETY = Path("0_trials/module2_claim_safety/module2_claim_safety.json")
 DEFAULT_PAPER_READINESS = Path("0_trials/module2_paper_readiness/module2_paper_readiness.json")
 DEFAULT_HANDOFF_BUNDLE = Path("0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json")
+DEFAULT_REMAINING_DELIVERABLES = Path(
+    "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json"
+)
 REMOTE_EXECUTION_STEP_IDS = (
     "sync_to_remote",
     "run_remote_preflight",
@@ -56,6 +59,26 @@ FORMAL_REQUIREMENT_RESPONSIBLE_STAGES = {
     "acceptance_remote_pullback_and_audit": "gate3_remote_audit_pullback",
     "h01_h02_formal_evaluation_acceptance": "regenerate_h01_h02_formal_artifacts",
 }
+REMAINING_DELIVERABLE_ACCEPTANCE_MATRIX_IDS = {
+    "training": (
+        "train_final_model_zip",
+        "train_summary_json",
+        "train_training_manifest_json",
+    ),
+    "evaluation": (
+        "eval_gate3_eval_episodes_csv",
+        "eval_gate3_summary_json",
+    ),
+    "acceptance": (
+        "gate3_trial_manifest_json",
+        "gate3_formal_audit_json",
+        "pulled_back_checkpoint_hash_record",
+    ),
+    "formal_acceptance": (
+        "h01_ready_for_formal_run",
+        "h02_formal_output_acceptance",
+    ),
+}
 
 
 @dataclass(frozen=True)
@@ -74,6 +97,7 @@ class FormalGateStatusReportConfig:
     claim_safety_path: Path = DEFAULT_CLAIM_SAFETY
     paper_readiness_path: Path = DEFAULT_PAPER_READINESS
     handoff_bundle_path: Path = DEFAULT_HANDOFF_BUNDLE
+    remaining_deliverables_path: Path = DEFAULT_REMAINING_DELIVERABLES
 
 
 def main(argv: Sequence[str] | None = None) -> int:
