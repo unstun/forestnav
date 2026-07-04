@@ -1004,6 +1004,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 77. [x] Remote packet pending sync lock 已完成: `remote_formal_execution_packet` 在 F02.6 pending 时不再标记 `sync_to_remote.allowed_now=true`; `remote_packet_safety_audit` 同时在 decision/status blocked 但 packet 放行 sync 时失败。当前 sync/preflight/training/audit 全部 `allowed_now=false`。
 78. [x] Remote packet safety audits embedded preflight 已完成: `remote_packet_safety_audit` 现在检查 packet 内嵌 remote preflight record; F02.6 pending 时 preflight 必须保持 blocked、`formal_trial_ready=false`、`warm_start_decision=pending` 且含 `warm_start_decision_pending` blocker; packet ready 时 preflight 必须 ready。
 79. [x] Remote execution step blocker reasons 已完成: `remote_formal_execution_packet.execution_steps.*` 现在为每个 `allowed_now=false` 的远端动作写出 `blocked_by`; `remote_packet_safety_audit` 会拒绝缺少 blocker 的 disabled step 或携带 blocker 的 enabled step。
+80. [x] F02.6 transition gate audit 已完成: 新增 synthetic pending/approved/rejected transition audit, 证明 pending 全部 veto; approved 只推进到 source-fresh preflight regeneration, 不放行 remote preflight/training/claim; rejected 阻断 obstacle-summary warm-start formal path。当前产物 `0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json`, status=`f02_6_transition_gate_audit_passed`, audit issues=0。记录见 `.pipeline/experiments/20260704_module2_f02_6_transition_gate_audit.md`。
 
 ## 7. 完成记录
 
