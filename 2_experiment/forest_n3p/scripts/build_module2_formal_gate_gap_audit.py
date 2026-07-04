@@ -1620,6 +1620,73 @@ def _critical_input_matches(readiness: dict[str, Any], input_id: str) -> bool:
     return item.get("local_remote_match") is True
 
 
+def _remaining_deliverables_gap_summary(remaining_deliverables: dict[str, Any]) -> dict[str, Any]:
+    return _normalize_gap_summary(remaining_deliverables.get("deliverable_gap_summary"))
+
+
+def _normalize_gap_summary(raw: Any) -> dict[str, Any]:
+    summary = raw if isinstance(raw, dict) else {}
+    categories = _normalize_gap_categories(summary.get("categories"))
+    return {
+        "present": bool(summary),
+        "summary_id": summary.get("summary_id"),
+        "execution_boundary": summary.get("execution_boundary"),
+        "not_paper_result_material": summary.get("not_paper_result_material"),
+        "total_missing_deliverables": int(summary.get("total_missing_deliverables") or 0),
+        "open_category_count": int(summary.get("open_category_count") or 0),
+        "category_order": [str(item) for item in summary.get("category_order", []) if item]
+        if isinstance(summary.get("category_order"), list)
+        else list(categories),
+        "categories": categories,
+    }
+
+
+def _normalize_gap_categories(raw_categories: Any) -> dict[str, dict[str, Any]]:
+    if isinstance(raw_categories, dict):
+        items = raw_categories.items()
+    elif isinstance(raw_categories, list):
+        items = ((item.get("category"), item) for item in raw_categories if isinstance(item, dict))
+    else:
+        items = ()
+    out: dict[str, dict[str, Any]] = {}
+    for category, raw in items:
+        if not category or not isinstance(raw, dict):
+            continue
+        matrix_ids = raw.get("missing_artifact_matrix_ids")
+        if not isinstance(matrix_ids, list):
+            missing_artifacts = raw.get("missing_artifacts") if isinstance(raw.get("missing_artifacts"), list) else []
+            matrix_ids = [item.get("matrix_id") for item in missing_artifacts if isinstance(item, dict)]
+        out[str(category)] = {
+            "missing_count": int(raw.get("missing_count") or 0),
+            "responsible_stage_id": raw.get("responsible_stage_id"),
+            "responsible_stage_allowed_now": raw.get("responsible_stage_allowed_now"),
+            "missing_artifact_matrix_ids": [str(item) for item in matrix_ids if item],
+        }
+    return out
+
+
+def _gap_signature(summary: dict[str, Any]) -> dict[str, Any]:
+    categories = summary.get("categories") if isinstance(summary.get("categories"), dict) else {}
+    return {
+        "summary_id": summary.get("summary_id"),
+        "total_missing_deliverables": summary.get("total_missing_deliverables"),
+        "open_category_count": summary.get("open_category_count"),
+        "categories": {
+            key: {
+                "missing_count": value.get("missing_count"),
+                "responsible_stage_id": value.get("responsible_stage_id"),
+                "missing_artifact_matrix_ids": value.get("missing_artifact_matrix_ids", []),
+            }
+            for key, value in sorted(categories.items())
+            if isinstance(value, dict)
+        },
+    }
+
+
+def _gap_open(summary: dict[str, Any]) -> bool:
+    return int(summary.get("total_missing_deliverables") or 0) > 0 or int(summary.get("open_category_count") or 0) > 0
+
+
 def _markdown(manifest: dict[str, Any]) -> str:
     lines = [
         "# Module2 PPO-RS Formal Gate Gap Audit",
