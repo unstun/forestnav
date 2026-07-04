@@ -776,10 +776,19 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- remote_training_allowed_now: `{manifest['status_report_summary']['formal_gate_handoff_summary'].get('remote_training_allowed_now')}`",
             f"- safety_issue_count: `{manifest['status_report_summary']['formal_gate_handoff_summary'].get('safety_issue_count')}`",
             "",
+            "### Status Report Execution Veto Matrix",
+            "",
+            f"- present: `{manifest['status_report_summary']['formal_gate_execution_veto_summary'].get('present')}`",
+            f"- all_rows_consistent: `{manifest['status_report_summary']['formal_gate_execution_veto_summary'].get('all_rows_consistent')}`",
+            f"- mismatch_rows: `{manifest['status_report_summary']['formal_gate_execution_veto_summary'].get('mismatch_rows')}`",
+            "",
             "### Status Report Remote Execution Steps",
             "",
         ]
     )
+    for row_id, allowed_now in manifest["status_report_summary"]["formal_gate_execution_veto_summary"].get("row_consensus", {}).items():
+        lines.append(f"- `{row_id}`: consensus_allowed_now=`{allowed_now}`")
+    lines.append("")
     for step_id, step in manifest["status_report_summary"]["remote_execution_step_summary"].items():
         blocked_by = ", ".join(step["blocked_by"]) if step["blocked_by"] else "none"
         lines.append(
