@@ -789,6 +789,16 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- `{step_id}`: present=`{step['present']}`, allowed_now=`{step['allowed_now']}`, "
             f"runs_training=`{step['runs_training']}`, blocked_by=`{blocked_by}`"
         )
+    lines.extend(["", "## Formal Gate Execution Veto Matrix", ""])
+    veto = manifest["formal_gate_execution_veto_summary"]
+    lines.append(f"- present: `{veto['present']}`")
+    lines.append(f"- all_rows_consistent: `{veto['all_rows_consistent']}`")
+    lines.append(f"- mismatch_rows: `{veto['mismatch_rows']}`")
+    for row_id, row in veto["rows"].items():
+        lines.append(
+            f"- `{row_id}`: consistent=`{row['consistent']}`, "
+            f"consensus_allowed_now=`{row['consensus_allowed_now']}`, sources=`{row['allowed_now_by_source']}`"
+        )
     lines.extend(["", "## Required Training Artifacts", ""])
     _append_artifacts(lines, manifest["training_artifacts_required"])
     lines.extend(["", "## Required Evaluation Artifacts", ""])
