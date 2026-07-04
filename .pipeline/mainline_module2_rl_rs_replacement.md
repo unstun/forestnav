@@ -637,7 +637,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q` -> `52 passed in 6.71s`; `KMP_DUPLICATE_LIB_OK=TRUE` TensorBoard writer smoke 通过。
   - 边界: F03.4 不开始 PPO 训练, 不关闭 F02.6 warm-start 决策, 不 claim Gate #3。
   - 记录: `.pipeline/experiments/20260704_module2_f03_training_logging.md`。
-- [ ] F03.5 Gate #3 判定。
+- [>] F03.5 Gate #3 判定。
   - 通过: 小规模单一密度地图中 RS-connectable terminal success > 80%。
   - 失败: 按 Contract 记录 PPO 不收敛, 不改任务定义。
   - 入口基础设施已完成: 新增 `RlRsObstacleSummaryExtractor` 与 `train_rl_rs_ppo.py`, 使用 SB3 `MultiInputPolicy`, F03 curriculum, episode CSV, SB3 model zip, training manifest。
@@ -665,6 +665,11 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - trial runner 记录: `.pipeline/experiments/20260704_module2_f03_gate3_trial_runner.md`。
   - formal audit 记录: `.pipeline/experiments/20260704_module2_f03_gate3_formal_audit.md`。
   - formal preflight 记录: `.pipeline/experiments/20260704_module2_f03_gate3_formal_preflight.md`。
+  - no-warm formal trial: attempt 01 暴露 oracle sampler collision row 后已按 F03.3 修复; attempt 02 完成 100000 timesteps PPO train + 64 episode deterministic eval。
+  - no-warm formal 结果: `formal_decision=fail`, `formal_claim_allowed=true`, `formal_blockers=[]`; eval `terminal_rs_success=29/64`, `terminal_rs_success_rate=0.453125`, `collision_rate=0.359375`, `truncation_rate=0.1875`, 阈值 `0.8`。
+  - no-warm 解释: 这是可审计的 no-warm-start Gate #3 失败, 不是 smoke, 不是运行崩溃; 但 F02.6 obstacle-summary warm-start 决策仍 pending, 不能把 no-warm 失败偷换成 warm-start 失败。
+  - no-warm formal 产物: `0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/`。
+  - no-warm formal 记录: `.pipeline/experiments/20260704_module2_f03_gate3_no_warm_formal_trial.md`。
 
 ### Phase G: Planner 集成
 
@@ -782,6 +787,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 22. [x] F02.4 修复 profile-aware map cache 并重建 formal-v2 corpus。
 23. [x] F02.5 在 formal-v2 上重跑 BC baseline。
 24. [?] F02.6 PPO warm-start 决策门。
+25. [!] F03.5 no-warm formal Gate #3 已失败: `formal_decision=fail`, terminal-RS-success 29/64=0.453125; F02.6 warm-start 决策仍未关闭。
 
 ## 7. 完成记录
 
@@ -813,3 +819,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-03: 完成 F01.2 dataset manifest。`module2_rl_rs_bc/manifest.json` 记录 preview dataset 的 source hash、schema、filters、file hash 和边界; 尚未开始 BC/PPO 训练。记录见 `.pipeline/experiments/20260703_module2_f01_dataset_manifest.md`。
 - 2026-07-04: 完成 F02.4 profile-aware map cache 修复与 formal-v2 corpus 重建。formal-v1 在真实 profile 地图下有 4764 colliding demo rows, 因此 F02.2/F02.3 formal-v1 结果失效; formal-v2 产出 83809 demo rows / 1032 source rows, current/next collision audit 均为 0。记录见 `.pipeline/experiments/20260704_module2_f02_map_cache_formal_v2_rebuild.md`。
 - 2026-07-04: 完成 F02.5 formal-v2 BC baseline rerun。scalar 0.1m success 38/258; obstacle-summary 0.1m success 67/258; patch+scalar CNN bounded success 63/242; 同口径 bounded eval 下 obstacle-summary 101/242 明显强于 patch-CNN 63/242, 推荐 obstacle-summary 作为 PPO practical warm-start。记录见 `.pipeline/experiments/20260704_module2_f02_formal_v2_mlp_bc_baselines.md`。
+- 2026-07-04: 完成 F03.5 no-warm-start formal Gate #3 trial。attempt 01 因 oracle sampler 抽到 profile-aware 重建后碰撞 row 中断, 已修复为跳过无效 rows; attempt 02 完成 100000 timesteps PPO train 和 64 episode eval。formal audit 输出 `formal_decision=fail`, `formal_claim_allowed=true`, `formal_blockers=[]`; terminal-RS-success 29/64=0.453125, 低于 0.8 阈值。记录见 `.pipeline/experiments/20260704_module2_f03_gate3_no_warm_formal_trial.md`。

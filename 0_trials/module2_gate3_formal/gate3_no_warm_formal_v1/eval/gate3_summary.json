@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "gate_name": "module2_f03_gate3",
+  "contract": ".pipeline/contracts/module2-ppo-funnel-expansion.md",
+  "decision": "fail",
+  "decision_rule": "pass iff episodes >= min_episodes and terminal_rs_success_rate >= success_threshold",
+  "success_threshold": 0.8,
+  "min_episodes": 64,
+  "episodes": 64,
+  "terminal_rs_success": 29,
+  "terminal_rs_success_rate": 0.453125,
+  "collision": 23,
+  "collision_rate": 0.359375,
+  "truncated": 12,
+  "truncation_rate": 0.1875,
+  "model": "0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/train/final_model.zip",
+  "model_sha256": "3b34c57b41ad304bfecf31c6eaf1a327432aee79f409a3a669d9f27607acbd82",
+  "episodes_csv": "0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/eval/gate3_eval_episodes.csv",
+  "created_at_utc": "2026-07-04T04:06:54.892038+00:00",
+  "execution_host": "MacBook-Pro.local",
+  "source_head": "216c2f0442c13e68003fccda3f3421c265138e27+dirty",
+  "config": {
+    "command": "python -m forest_n3p.scripts.eval_rl_rs_gate3 --model 0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/train/final_model.zip --output-dir 0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/eval --seed 20260704 --device auto --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260704 --episodes 64 --min-episodes 64 --success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --obs-edt-clip-m 2.0 --max-steps 32 --action-step-m 0.3 --collision-sample-step-m 0.1 --terminal-check-every 1 --theta-bins 72 --allow-duplicate-openmp",
+    "seed": 20260704,
+    "device": "auto",
+    "curriculum_preset": "f03",
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "heldout_seed": 20260704,
+    "episodes": 64,
+    "observation_config": {
+      "patch_size_m": 6.4,
+      "patch_cells": 64,
+      "include_edt": true,
+      "edt_clip_m": 2.0
+    },
+    "env_config": {
+      "max_steps": 32,
+      "action_step_m": 0.3,
+      "collision_sample_step_m": 0.1,
+      "terminal_check_every": 1,
+      "theta_bins": 72
+    }
+  }
+}

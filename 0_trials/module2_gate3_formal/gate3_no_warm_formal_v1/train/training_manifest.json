@@ -1,0 +1,125 @@
+{
+  "checkpoints": [
+    {
+      "path": "final_model.zip",
+      "sha256": "3b34c57b41ad304bfecf31c6eaf1a327432aee79f409a3a669d9f27607acbd82",
+      "size_bytes": 874789
+    },
+    {
+      "path": "rl_rs_ppo_100000_steps.zip",
+      "sha256": "7e727de0fd3d36983885b2bd233d59d0433e7aa0759aef204c2b3f6836d00267",
+      "size_bytes": 875422
+    },
+    {
+      "path": "rl_rs_ppo_10000_steps.zip",
+      "sha256": "681e662e1f8dde7e6dd26c93aefd2b97f1e4a15af0fe928619ff37818efae3b1",
+      "size_bytes": 875413
+    },
+    {
+      "path": "rl_rs_ppo_20000_steps.zip",
+      "sha256": "5e9ed182ecdede33141169bcb202680432f1655d3cbffbad1bdcba2e53ceef0d",
+      "size_bytes": 875417
+    },
+    {
+      "path": "rl_rs_ppo_30000_steps.zip",
+      "sha256": "c220f5af89ed021a655488b67d4c6d2e84944eaf21820dd5f16f2e3f40a67f04",
+      "size_bytes": 875424
+    },
+    {
+      "path": "rl_rs_ppo_40000_steps.zip",
+      "sha256": "3e0dc3463c5ca93c5e89b4c049d606a3c8c93b190af80a885e406ef6f77305b8",
+      "size_bytes": 874843
+    },
+    {
+      "path": "rl_rs_ppo_50000_steps.zip",
+      "sha256": "8c6a469cff5a4faf1729cad750f412b41c739489d1cea69f12c8ec5d804678b3",
+      "size_bytes": 875376
+    },
+    {
+      "path": "rl_rs_ppo_60000_steps.zip",
+      "sha256": "542065cc029f9603c40857ad7731919ebd3c3b0d1d5c67ff87a5b18bae7d1049",
+      "size_bytes": 875419
+    },
+    {
+      "path": "rl_rs_ppo_70000_steps.zip",
+      "sha256": "7e09af985a0dbeca669aaeae40cea3b2580ad174fea80fdff3c2d06cfa0af503",
+      "size_bytes": 875400
+    },
+    {
+      "path": "rl_rs_ppo_80000_steps.zip",
+      "sha256": "356af5b83ac2b9ab7def437c58686e54c14cae3d4cb6cdc52fd8716776c3fd68",
+      "size_bytes": 875384
+    },
+    {
+      "path": "rl_rs_ppo_90000_steps.zip",
+      "sha256": "7066dc03292093ae6d35d0c74dd4aab932ce5d2de2b551640624867aadc017c6",
+      "size_bytes": 875409
+    }
+  ],
+  "command": "python -m forest_n3p.scripts.train_rl_rs_ppo --output-dir 0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/train --seed 20260704 --device auto --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260704 --n-envs 1 --total-timesteps 100000 --n-steps 128 --batch-size 64 --n-epochs 4 --learning-rate 0.0003 --gamma 0.99 --gae-lambda 0.95 --clip-range 0.2 --ent-coef 0.0 --vf-coef 0.5 --max-grad-norm 0.5 --policy-net-arch 128,128,64 --value-net-arch 128,128,64 --checkpoint-freq 10000 --verbose 0 --obs-patch-size-m 6.4 --obs-patch-cells 64 --obs-edt-clip-m 2.0 --max-steps 32 --action-step-m 0.3 --collision-sample-step-m 0.1 --terminal-check-every 1 --theta-bins 72 --allow-duplicate-openmp",
+  "config": {
+    "allow_duplicate_openmp": true,
+    "batch_size": 64,
+    "bc_checkpoint": null,
+    "checkpoint_freq": 10000,
+    "clip_range": 0.2,
+    "command": "python -m forest_n3p.scripts.train_rl_rs_ppo --output-dir 0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/train --seed 20260704 --device auto --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260704 --n-envs 1 --total-timesteps 100000 --n-steps 128 --batch-size 64 --n-epochs 4 --learning-rate 0.0003 --gamma 0.99 --gae-lambda 0.95 --clip-range 0.2 --ent-coef 0.0 --vf-coef 0.5 --max-grad-norm 0.5 --policy-net-arch 128,128,64 --value-net-arch 128,128,64 --checkpoint-freq 10000 --verbose 0 --obs-patch-size-m 6.4 --obs-patch-cells 64 --obs-edt-clip-m 2.0 --max-steps 32 --action-step-m 0.3 --collision-sample-step-m 0.1 --terminal-check-every 1 --theta-bins 72 --allow-duplicate-openmp",
+    "curriculum_preset": "f03",
+    "device": "auto",
+    "ent_coef": 0.0,
+    "env_config": {
+      "action_step_m": 0.3,
+      "collision_sample_step_m": 0.1,
+      "max_steps": 32,
+      "terminal_check_every": 1,
+      "theta_bins": 72
+    },
+    "features_extractor": "RlRsObstacleSummaryExtractor",
+    "gae_lambda": 0.95,
+    "gamma": 0.99,
+    "heldout_seed": 20260704,
+    "learning_rate": 0.0003,
+    "max_grad_norm": 0.5,
+    "n_envs": 1,
+    "n_epochs": 4,
+    "n_steps": 128,
+    "observation_config": {
+      "edt_clip_m": 2.0,
+      "include_edt": true,
+      "patch_cells": 64,
+      "patch_size_m": 6.4
+    },
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "policy": "MultiInputPolicy",
+    "policy_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "seed": 20260704,
+    "smoke": false,
+    "tensorboard_log": null,
+    "total_timesteps": 100000,
+    "value_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "vf_coef": 0.5,
+    "warm_start": {
+      "status": "not_applied_f02_6_pending"
+    },
+    "warm_start_status": "not_applied_f02_6_pending"
+  },
+  "created_at_utc": "2026-07-04T04:06:34.378415+00:00",
+  "schema_version": 1,
+  "source_hashes": {
+    "2_experiment/forest_n3p/rl_rs/curriculum.py": "6c1a5f5298e1be3e2ab0d146509aa4aaff43f887bffcc210eb2595536035dcf0",
+    "2_experiment/forest_n3p/rl_rs/env.py": "3e5e9a8b027f6d1bab6687506a580f036fa364f15d4a66ccad60cf6fd70b877d",
+    "2_experiment/forest_n3p/rl_rs/gym_env.py": "a1427f246736d14d51106092c6d2bcff7a73d19ebb5d4b63edea13432f6cce15",
+    "2_experiment/forest_n3p/rl_rs/reward.py": "d6a9dffb4271eeeb378faddc48f4b8f1c20290e5fb5a8eaa62352c44df42c052",
+    "2_experiment/forest_n3p/rl_rs/sb3_policy.py": "c48e2484599f40ac11487181e8d46be992f455ea803efcec2b949fe8b1f0d1c3",
+    "2_experiment/forest_n3p/rl_rs/training_logging.py": "cd33630e8846db6af31506e8e20005648dfa071ae9b431c009c9e64809815339",
+    "2_experiment/forest_n3p/scripts/train_rl_rs_ppo.py": "54a7168d9cd392fae7807d3ba61ab211567d3733b11bb6b64b57f222c470a0d2"
+  }
+}
