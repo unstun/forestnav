@@ -332,6 +332,18 @@ def build_manifest(
             "status_report_formal_gate_gap_audit_remaining_deliverables_gap_open_category_count": status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary[
                 "open_category_count"
             ],
+            "status_report_remote_packet_safety_command_index_present": status_report_remote_packet_safety_claim_gate_command_index_summary[
+                "present"
+            ],
+            "status_report_remote_packet_safety_command_index_row_count": status_report_remote_packet_safety_claim_gate_command_index_summary[
+                "index_row_count"
+            ],
+            "status_report_remote_packet_safety_command_index_source_target_count": status_report_remote_packet_safety_claim_gate_command_index_summary[
+                "source_target_count"
+            ],
+            "status_report_remote_packet_safety_command_index_missing_target_count": len(
+                status_report_remote_packet_safety_claim_gate_command_index_summary["missing_target_ids"]
+            ),
         },
         "status_report_handoff_summary": status_report_handoff_summary,
         "status_report_missing_artifacts_handoff_summary": status_report_missing_artifacts_handoff_summary,
@@ -342,6 +354,9 @@ def build_manifest(
         "status_report_remaining_deliverables_gap_summary": status_report_remaining_deliverables_gap_summary,
         "status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary": (
             status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary
+        ),
+        "status_report_remote_packet_safety_claim_gate_command_index_summary": (
+            status_report_remote_packet_safety_claim_gate_command_index_summary
         ),
         "status_report_decision_intake_summary": status_report_decision_intake_summary,
         "status_report_remote_gate_summary": status_report_remote_gate_summary,
