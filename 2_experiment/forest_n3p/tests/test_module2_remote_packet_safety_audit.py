@@ -28,6 +28,9 @@ def test_remote_packet_safety_audit_passes_current_blocked_packet(tmp_path):
     assert manifest["local_training_allowed"] is False
     assert manifest["formal_claim_allowed"] is False
     assert manifest["packet_summary"]["status"] == "blocked_until_f02_6_decision"
+    assert manifest["packet_summary"]["embedded_preflight_status"] == "blocked"
+    assert manifest["packet_summary"]["embedded_preflight_ready"] is False
+    assert manifest["packet_summary"]["embedded_preflight_warm_start_decision"] == "pending"
     assert manifest["packet_summary"]["remote_training_allowed_now"] is False
     assert manifest["packet_summary"]["pullback_artifact_count"] == 7
     assert manifest["cross_gate_summary"]["post_plan_status_report_status"] == "formal_gate_status_blocked"
@@ -60,6 +63,53 @@ def test_remote_packet_safety_audit_catches_pending_packet_that_allows_training(
     assert "blocked_status_report_packet_ready" in issue_ids
     assert "blocked_status_report_allows_remote_sync" in issue_ids
     assert "blocked_status_report_allows_remote_training" in issue_ids
+
+
+def test_remote_packet_safety_audit_catches_pending_embedded_preflight_ready(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
+    packet = _packet_payload()
+    packet["remote_preflight"]["preflight_status"] = "ready"
+    packet["remote_preflight"]["formal_trial_ready"] = True
+    packet["remote_preflight"]["warm_start_decision"] = "approved_obstacle_summary"
+    packet["remote_preflight"]["blocker_codes"] = []
+
+    manifest = auditor.build_manifest(
+        auditor.RemotePacketSafetyAuditConfig(
+            output_dir=tmp_path,
+            remote_packet_path=_json(tmp_path, "packet.json", packet),
+            decision_gate_audit_path=_json(tmp_path, "decision_gate.json", _decision_gate_payload()),
+            post_plan_audit_path=_json(tmp_path, "plan_audit.json", _plan_audit_payload()),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "remote_packet_safety_audit_failed"
+    assert "pending_decision_preflight_ready" in issue_ids
+    assert "pending_decision_preflight_status_ready" in issue_ids
+    assert "pending_decision_preflight_warm_start_not_pending" in issue_ids
+    assert "pending_decision_preflight_missing_pending_blocker" in issue_ids
+
+
+def test_remote_packet_safety_audit_catches_ready_packet_with_unready_embedded_preflight(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
+    packet = _packet_payload()
+    packet["status"] = "ready_for_gpu3070ti_remote_training"
+    packet["ready_to_run_remote_training"] = True
+
+    manifest = auditor.build_manifest(
+        auditor.RemotePacketSafetyAuditConfig(
+            output_dir=tmp_path,
+            remote_packet_path=_json(tmp_path, "packet.json", packet),
+            decision_gate_audit_path=_json(tmp_path, "decision_gate.json", _decision_gate_payload(record_status="approved", training_allowed=True)),
+            post_plan_audit_path=_json(tmp_path, "plan_audit.json", _plan_audit_payload(training_allowed=True, status_report_ready=True)),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "remote_packet_safety_audit_failed"
+    assert "ready_packet_preflight_not_ready" in issue_ids
+    assert "ready_packet_preflight_status_not_ready" in issue_ids
+    assert "ready_packet_preflight_warm_start_not_approved" in issue_ids
 
 
 def test_remote_packet_safety_audit_requires_post_plan_status_report_summary(tmp_path):
@@ -213,6 +263,14 @@ def _packet_payload():
             "remote_python": ".venv/bin/python",
             "training_host_required": "gpu3070ti-relay",
         },
+        "remote_preflight": {
+            "path": "0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_pending_remote_v1/gate3_preflight_manifest.json",
+            "exists": True,
+            "preflight_status": "blocked",
+            "formal_trial_ready": False,
+            "warm_start_decision": "pending",
+            "blocker_codes": ["warm_start_decision_pending"],
+        },
         "execution_steps": {
             "sync_to_remote": {
                 "allowed_now": False,
@@ -267,31 +325,31 @@ def _packet_payload():
     }
 
 
-def _decision_gate_payload():
+def _decision_gate_payload(*, record_status="pending_human_decision", training_allowed=False):
     return {
-        "status": "f02_6_decision_gate_pending_clean",
+        "status": "f02_6_decision_gate_pending_clean" if record_status == "pending_human_decision" else "f02_6_decision_gate_approved_clean",
         "decision_state": {
-            "record_status": "pending_human_decision",
-            "training_allowed_now": False,
+            "record_status": record_status,
+            "training_allowed_now": training_allowed,
         },
     }
 
 
-def _plan_audit_payload():
+def _plan_audit_payload(*, training_allowed=False, status_report_ready=False):
     return {
         "status": "post_f02_6_plan_audit_passed",
         "inputs": {
             "formal_gate_status_report": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
         },
         "current_blocking_summary": {
-            "training_allowed_now": False,
-            "remote_preflight_allowed_now": False,
+            "training_allowed_now": training_allowed,
+            "remote_preflight_allowed_now": training_allowed,
         },
         "status_report_summary": {
-            "status": "formal_gate_status_blocked",
-            "formal_claim_allowed_now": False,
+            "status": "formal_gate_status_ready_for_claim_audit" if status_report_ready else "formal_gate_status_blocked",
+            "formal_claim_allowed_now": status_report_ready,
             "local_training_allowed_now": False,
-            "next_blocked_lane_id": "decision",
+            "next_blocked_lane_id": None if status_report_ready else "decision",
         },
     }
 

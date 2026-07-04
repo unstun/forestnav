@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-04T13:33:41.811184+00:00",
-  "source_head": "4729e3e371124e04bb6c88d1a323a511bec0780f+dirty",
+  "created_at_utc": "2026-07-04T13:39:30.713866+00:00",
+  "source_head": "ea099a0093efa84f2b535ddec1a5290c3497e07a+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -259,7 +259,7 @@
         {
           "artifact_id": "remote_formal_execution_packet",
           "path": "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json",
-          "state": "historical_dirty",
+          "state": "current_dirty",
           "reason": "source freshness audit requires regeneration before the corresponding formal gate"
         },
         {
