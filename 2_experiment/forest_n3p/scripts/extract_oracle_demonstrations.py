@@ -20,6 +20,7 @@ from forest_n3p.rl_rs.terminal import check_terminal_rs_connectable
 from forest_n3p.scripts.run_oracle_connector_analysis import (
     _append_without_duplicate,
     _grid_for_row,
+    MapCacheKey,
     _plan_disabled_ha,
     _profiles_from_bucket_mode,
     _safe_rs_check,
@@ -142,7 +143,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         include_edt=True,
         edt_clip_m=float(args.obs_edt_clip_m),
     )
-    map_cache: dict[int, Any] = {}
+    map_cache: dict[MapCacheKey, Any] = {}
     demo_rows: list[dict[str, Any]] = []
     stats = ExtractionStats(selected_rows=len(rows_with_index))
 
