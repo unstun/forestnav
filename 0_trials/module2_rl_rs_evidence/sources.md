@@ -49,7 +49,7 @@ topic: module2 RL-RS evidence source index
 | S025 | A | code | ucsdarclab/motion_planning_transformer | GitHub API no license; `eval_model_car.py#L128-L208`, `#L220-L343`, `transformer/Models.py#L89-L164` | learned search mask / MPT code; not connector |
 | S026 | A | code | tedhuang96/nirrt_star | GitHub API license MIT; `nirrt_star_png_2d.py#L56-L175`, `train_pointnet_pointnet2.py#L15-L18`, `#L82-L108`, `#L153-L190` | learned sampling distribution, not connector |
 | S027 | A | code | mihdalal/neuralmotionplanner | GitHub API no license; `neural_motion_planner.py#L20-L68`, `#L209-L324`, `#L326-L420` | manipulator reactive planner; license blocked |
-| S028 | A | docs | GitHub Docs, Licensing a repository | `https://docs.github.com/articles/licensing-a-repository` opened 2026-07-04; no-license section checked | Project policy for no-license public repositories: do not copy/vendor code |
+| S028 | A | docs | GitHub Docs, Licensing a repository | `https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository`, lines 161, 176-179, 240-242 | Project policy for no-license public repositories: do not copy/vendor code |
 | S029 | A | code-license | jiamiya/HOPE | GitHub API `license.spdx_id=GPL-3.0`; `LICENSE#L1-L2` | GPL-3.0: idea-only for ForestNav core |
 | S030 | A | code-license | karlkurzer/path_planner | GitHub API `BSD-3-Clause`; `LICENSE.txt#L1-L18` | Permissive reference for Hybrid A* shot/fallback control flow |
 | S031 | A | code-license | AtsushiSakai/PythonRobotics | GitHub API `NOASSERTION/Other`; raw `LICENSE#L1-L14` is MIT text | Permissive reference, but record SPDX caveat |
