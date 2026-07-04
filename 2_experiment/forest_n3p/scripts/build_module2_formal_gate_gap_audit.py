@@ -1578,6 +1578,18 @@ def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
+def _step(steps: Any, step_id: str) -> dict[str, Any]:
+    if not isinstance(steps, dict):
+        return {}
+    item = steps.get(step_id)
+    return item if isinstance(item, dict) else {}
+
+
+def _remote_packet_step(remote: dict[str, Any], step_id: str) -> dict[str, Any]:
+    steps = remote.get("execution_steps") if isinstance(remote.get("execution_steps"), dict) else {}
+    return _step(steps, step_id)
+
+
 def _frontmatter(path: Path) -> dict[str, str]:
     if not Path(path).is_file():
         return {}
