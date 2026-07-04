@@ -82,6 +82,12 @@ DEFAULT_ARTIFACTS = (
         "approved_remote_preflight",
     ),
     ArtifactTarget(
+        "formal_gate_closure_checklist",
+        "formal_gate",
+        Path("0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json"),
+        "approved_remote_preflight",
+    ),
+    ArtifactTarget(
         "gpu3070ti_readiness_refresh",
         "remote_readiness",
         Path("0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json"),
