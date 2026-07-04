@@ -131,8 +131,13 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert manifest["input_status"]["closure_checklist_status"] == "formal_gate_closure_blocked"
     assert manifest["input_status"]["status_report_status"] == "formal_gate_status_ready_for_claim_audit"
     assert manifest["input_status"]["status_report_next_blocked_lane_id"] is None
+    assert manifest["input_status"]["status_report_handoff_status"] == "ready_for_manual_remote_execution_review"
+    assert manifest["input_status"]["status_report_transition_gate_status"] == "f02_6_transition_gate_audit_passed"
+    assert manifest["input_status"]["status_report_transition_gate_audit_issue_count"] == 0
+    assert manifest["input_status"]["status_report_handoff_safety_issue_count"] == 0
     assert manifest["input_status"]["status_report_closure_remote_training_allowed_now"] is True
     assert manifest["input_status"]["status_report_remote_packet_training_allowed_now"] is True
+    assert manifest["status_report_handoff_summary"]["transition_gate_status"] == "f02_6_transition_gate_audit_passed"
     assert manifest["status_report_remote_gate_summary"]["closure_remote_stage_summary"]["gate3_remote_training"] == {
         "present": True,
         "status": "ready",
@@ -415,6 +420,97 @@ def test_claim_safety_rejects_status_report_without_remote_gate_summaries(tmp_pa
     assert "status_report_remote_training_step_not_marked_training" in blockers
 
 
+def test_claim_safety_rejects_status_report_without_handoff_summary(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_claim_safety")
+    paper_tables = tmp_path / "paper_tables.json"
+    paper_tables.write_text(json.dumps({"status": "formal_ready", "formal_claim_allowed": True, "blockers": []}), encoding="utf-8")
+    h02_formal_acceptance = tmp_path / "h02_formal_acceptance.json"
+    h02_formal_acceptance.write_text(json.dumps({"status": "formal_output_accepted", "formal_output_accepted": True, "paper_result_input_allowed": True, "blockers": []}), encoding="utf-8")
+    h01_manifest = tmp_path / "h01.json"
+    h01_manifest.write_text(json.dumps({"status": "ready_for_formal_evaluation", "blockers": []}), encoding="utf-8")
+    f02_6_packet = tmp_path / "f02_6.json"
+    f02_6_packet.write_text(json.dumps({"status": "approved", "blockers": []}), encoding="utf-8")
+    gate3_audit = tmp_path / "gate3_audit.json"
+    gate3_audit.write_text(json.dumps({"formal_decision": "pass", "formal_claim_allowed": True}), encoding="utf-8")
+    method_algorithms = tmp_path / "method_algorithms.json"
+    method_algorithms.write_text(json.dumps({"status": "code_anchored"}), encoding="utf-8")
+    system_diagram = tmp_path / "system_diagram.json"
+    system_diagram.write_text(json.dumps({"status": "code_anchored_drawio"}), encoding="utf-8")
+    closure_checklist = tmp_path / "closure_checklist.json"
+    closure_checklist.write_text(json.dumps(_closure_checklist_payload(open_checklist=False)), encoding="utf-8")
+    status_payload = _status_report_payload(ready=True)
+    status_payload.pop("formal_gate_handoff_summary")
+    status_report = tmp_path / "status_report.json"
+    status_report.write_text(json.dumps(status_payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        repo_root=builder._repo_root(),
+        paper_tables_path=paper_tables,
+        h02_formal_acceptance_path=h02_formal_acceptance,
+        h01_manifest_path=h01_manifest,
+        f02_6_packet_path=f02_6_packet,
+        gate3_audit_path=gate3_audit,
+        method_algorithms_path=method_algorithms,
+        system_diagram_path=system_diagram,
+        closure_checklist_path=closure_checklist,
+        status_report_path=status_report,
+    )
+
+    assert manifest["status"] == "blocked_formal_performance_claims"
+    assert "status_report_missing_formal_gate_handoff_summary" in manifest["formal_performance_blockers"]
+
+
+def test_claim_safety_rejects_status_report_with_bad_transition_or_handoff_safety(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_claim_safety")
+    paper_tables = tmp_path / "paper_tables.json"
+    paper_tables.write_text(json.dumps({"status": "formal_ready", "formal_claim_allowed": True, "blockers": []}), encoding="utf-8")
+    h02_formal_acceptance = tmp_path / "h02_formal_acceptance.json"
+    h02_formal_acceptance.write_text(json.dumps({"status": "formal_output_accepted", "formal_output_accepted": True, "paper_result_input_allowed": True, "blockers": []}), encoding="utf-8")
+    h01_manifest = tmp_path / "h01.json"
+    h01_manifest.write_text(json.dumps({"status": "ready_for_formal_evaluation", "blockers": []}), encoding="utf-8")
+    f02_6_packet = tmp_path / "f02_6.json"
+    f02_6_packet.write_text(json.dumps({"status": "approved", "blockers": []}), encoding="utf-8")
+    gate3_audit = tmp_path / "gate3_audit.json"
+    gate3_audit.write_text(json.dumps({"formal_decision": "pass", "formal_claim_allowed": True}), encoding="utf-8")
+    method_algorithms = tmp_path / "method_algorithms.json"
+    method_algorithms.write_text(json.dumps({"status": "code_anchored"}), encoding="utf-8")
+    system_diagram = tmp_path / "system_diagram.json"
+    system_diagram.write_text(json.dumps({"status": "code_anchored_drawio"}), encoding="utf-8")
+    closure_checklist = tmp_path / "closure_checklist.json"
+    closure_checklist.write_text(json.dumps(_closure_checklist_payload(open_checklist=False)), encoding="utf-8")
+    status_payload = _status_report_payload(ready=False)
+    handoff = status_payload["formal_gate_handoff_summary"]
+    handoff["transition_gate_status"] = "f02_6_transition_gate_audit_failed"
+    handoff["transition_gate_audit_issue_count"] = 1
+    handoff["safety_issue_count"] = 1
+    handoff["remote_preflight_allowed_now"] = True
+    handoff["remote_training_allowed_now"] = True
+    handoff["formal_claim_allowed_now"] = True
+    status_report = tmp_path / "status_report.json"
+    status_report.write_text(json.dumps(status_payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        repo_root=builder._repo_root(),
+        paper_tables_path=paper_tables,
+        h02_formal_acceptance_path=h02_formal_acceptance,
+        h01_manifest_path=h01_manifest,
+        f02_6_packet_path=f02_6_packet,
+        gate3_audit_path=gate3_audit,
+        method_algorithms_path=method_algorithms,
+        system_diagram_path=system_diagram,
+        closure_checklist_path=closure_checklist,
+        status_report_path=status_report,
+    )
+
+    blockers = set(manifest["formal_performance_blockers"])
+    assert "status_report_transition_gate_not_passed" in blockers
+    assert "status_report_transition_gate_issues_open" in blockers
+    assert "status_report_handoff_safety_issues_open" in blockers
+    assert "status_report_blocked_but_handoff_remote_preflight_allowed" in blockers
+    assert "status_report_blocked_but_handoff_remote_training_allowed" in blockers
+    assert "status_report_blocked_but_handoff_formal_claim_allowed" in blockers
+
+
 def test_claim_safety_rejects_blocked_status_report_that_allows_remote_training(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_claim_safety")
     paper_tables = tmp_path / "paper_tables.json"
@@ -546,6 +642,18 @@ def _status_report_payload(*, ready, invalid=False):
             "formal_claim_allowed_now": bool(ready),
         },
         "next_blocked_lane": None if ready else {"lane_id": "decision"},
+        "formal_gate_handoff_summary": {
+            "present": True,
+            "status": "ready_for_manual_remote_execution_review" if ready else "blocked_until_f02_6_decision",
+            "transition_gate_status": "f02_6_transition_gate_audit_passed",
+            "transition_gate_audit_issue_count": 0,
+            "next_handoff_action_id": None if ready else "record_f02_6_decision",
+            "next_action_requires_dr_sun": not ready,
+            "safety_issue_count": 0,
+            "remote_training_allowed_now": bool(ready),
+            "remote_preflight_allowed_now": bool(ready),
+            "formal_claim_allowed_now": bool(ready),
+        },
         "closure_remote_stage_summary": {
             "approved_remote_preflight": {
                 "present": True,

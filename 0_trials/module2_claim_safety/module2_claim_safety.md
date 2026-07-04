@@ -34,6 +34,10 @@
 - `formal_performance_improvement`: blocked_until_formal_h02
 - `warm_start_effect`: blocked_until_f02_6_and_remote_formal
 
+## Status Report Handoff Summary
+
+- present=`True`, status=`blocked_until_f02_6_decision`, transition_gate_status=`f02_6_transition_gate_audit_passed`, transition_gate_audit_issue_count=`0`, safety_issue_count=`0`, remote_training_allowed_now=`False`
+
 ## Status Report Remote Gate Summary
 
 ### closure_remote_stage_summary
