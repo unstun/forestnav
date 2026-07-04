@@ -794,12 +794,70 @@ def _h01_manifest(*, complete):
 
 
 def _h02_acceptance(*, complete):
+    requirements = _h02_formal_acceptance_requirements(complete=complete)
+    status_counts = {"satisfied": 4} if complete else {"satisfied": 1, "blocked_formal_acceptance": 3}
     return {
         "status": "formal_output_accepted" if complete else "blocked_formal_output_acceptance",
         "formal_output_accepted": complete,
         "paper_result_input_allowed": complete,
         "local_training_allowed": False,
         "formal_claim_allowed": False,
+        "formal_acceptance_requirements": requirements,
+        "formal_acceptance_requirement_counts": status_counts,
+    }
+
+
+def _h02_formal_acceptance_requirements(*, complete):
+    return [
+        _h02_formal_acceptance_requirement(
+            "h01_schema_and_h02_output_schema_match",
+            "schema_acceptance",
+            complete=True,
+            status="satisfied",
+            paper_result_input_allowed_now=complete,
+        ),
+        _h02_formal_acceptance_requirement(
+            "h02_formal_scope_and_scale_match_h01",
+            "formal_scope",
+            complete=complete,
+            status="satisfied" if complete else "blocked_formal_acceptance",
+            paper_result_input_allowed_now=complete,
+        ),
+        _h02_formal_acceptance_requirement(
+            "gate3_audit_and_pullback_acceptance",
+            "remote_acceptance",
+            complete=complete,
+            status="satisfied" if complete else "blocked_formal_acceptance",
+            paper_result_input_allowed_now=complete,
+        ),
+        _h02_formal_acceptance_requirement(
+            "ppo_rows_and_checkpoint_hash_present",
+            "result_rows",
+            complete=complete,
+            status="satisfied" if complete else "blocked_formal_acceptance",
+            paper_result_input_allowed_now=complete,
+        ),
+    ]
+
+
+def _h02_formal_acceptance_requirement(
+    requirement_id,
+    phase,
+    *,
+    complete,
+    status,
+    paper_result_input_allowed_now,
+):
+    return {
+        "requirement_id": requirement_id,
+        "phase": phase,
+        "status": status,
+        "complete": complete,
+        "paper_result_input_allowed_now": paper_result_input_allowed_now,
+        "required_before": "paper_result_gate",
+        "missing_artifact_ids": [] if complete else [f"{requirement_id}_missing"],
+        "acceptable_evidence": [f"{requirement_id}_acceptable_evidence"],
+        "invalid_substitutes": [f"{requirement_id}_invalid_substitute"],
     }
 
 
