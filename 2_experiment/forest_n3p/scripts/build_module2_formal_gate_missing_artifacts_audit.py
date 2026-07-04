@@ -923,6 +923,37 @@ def _markdown(manifest: dict[str, Any]) -> str:
     ]
     for key, value in manifest["current_gate_summary"].items():
         lines.append(f"- {key}: `{value}`")
+    handoff_index = manifest["formal_gate_handoff_index"]
+    lines.extend(["", "## Formal Gate Handoff Index", ""])
+    lines.append(f"- status: `{handoff_index['status']}`")
+    lines.append(f"- open_requirement_count: `{handoff_index['open_requirement_count']}`")
+    lines.append(f"- local_training_allowed_now: `{handoff_index['local_training_allowed_now']}`")
+    lines.append(f"- remote_training_allowed_now: `{handoff_index['remote_training_allowed_now']}`")
+    lines.append(f"- formal_result_material_allowed_now: `{handoff_index['formal_result_material_allowed_now']}`")
+    next_action = handoff_index["next_action"]
+    lines.append(
+        f"- next_action: `{next_action['action_id']}` "
+        f"(requires_dr_sun=`{next_action['requires_dr_sun']}`, "
+        f"allowed_for_agent_now=`{next_action['allowed_for_agent_now']}`)"
+    )
+    lines.append(f"- next_action_description: {next_action['description']}")
+    lines.append(f"- claim_boundary: {handoff_index['claim_boundary']}")
+    lines.extend(["", "### Authority Artifacts", ""])
+    for key, value in handoff_index["authority_artifacts"].items():
+        lines.append(f"- {key}: `{value}`")
+    lines.extend(["", "### Handoff Requirements", ""])
+    for requirement in handoff_index["requirements"]:
+        lines.append(
+            f"- `{requirement['requirement_id']}` ({requirement['phase']}): "
+            f"status=`{requirement['status']}`, missing_count=`{requirement['missing_artifact_count']}`, "
+            f"execution_allowed_now=`{requirement['execution_allowed_now']}`"
+        )
+        if requirement["missing_artifact_ids"]:
+            lines.append(f"  - missing_artifact_ids: `{', '.join(requirement['missing_artifact_ids'])}`")
+        if requirement.get("source_artifacts"):
+            lines.append(f"  - source_artifacts: `{'; '.join(requirement['source_artifacts'])}`")
+        if requirement.get("downstream_consumers"):
+            lines.append(f"  - downstream_consumers: `{'; '.join(requirement['downstream_consumers'])}`")
     lines.extend(["", "## Missing Counts", ""])
     for category, count in sorted(manifest["missing_counts_by_category"].items()):
         lines.append(f"- {category}: `{count}`")
