@@ -38,6 +38,12 @@ POST_RUN_ACCEPTANCE_REQUIREMENT_IDS = (
     "gate3_formal_audit_accepts_remote_run",
     "h01_h02_regenerated_from_audited_checkpoint",
 )
+H02_FORMAL_ACCEPTANCE_REQUIREMENT_IDS = (
+    "h01_schema_and_h02_output_schema_match",
+    "h02_formal_scope_and_scale_match_h01",
+    "gate3_audit_and_pullback_acceptance",
+    "ppo_rows_and_checkpoint_hash_present",
+)
 CLOSURE_REMOTE_STAGE_IDS = (
     "approved_remote_preflight",
     "gate3_remote_training",
@@ -122,6 +128,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         count_key="post_run_acceptance_requirement_counts",
         required_ids=POST_RUN_ACCEPTANCE_REQUIREMENT_IDS,
     )
+    h02_acceptance_requirements = _h02_formal_acceptance_requirement_summary(h02)
     closure_remote_stages = _closure_remote_stage_summary(closure_checklist)
     handoff_summary = _handoff_bundle_summary(handoff_bundle)
     requirement_stage_summary = _formal_gate_requirement_stage_summary(handoff_bundle)
@@ -224,6 +231,12 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "h01_status": h01.get("status"),
             "h02_status": h02.get("status"),
             "h02_formal_output_accepted": h02.get("formal_output_accepted"),
+            "h02_formal_acceptance_requirement_satisfied_count": h02_acceptance_requirements["status_counts"].get(
+                "satisfied", 0
+            ),
+            "h02_formal_acceptance_requirement_blocked_count": h02_acceptance_requirements[
+                "blocked_requirement_count"
+            ],
             "claim_safety_status": claim_safety.get("status"),
             "claim_safety_formal_performance_claim_allowed": claim_safety.get("formal_performance_claim_allowed"),
             "paper_readiness_status": paper_readiness.get("status"),
@@ -250,6 +263,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "remote_execution_step_summary": remote_execution_steps,
         "remote_preflight_requirement_summary": remote_preflight_requirements,
         "post_run_acceptance_requirement_summary": post_run_acceptance_requirements,
+        "h02_formal_acceptance_requirement_summary": h02_acceptance_requirements,
         "formal_gate_handoff_summary": handoff_summary,
         "formal_gate_requirement_stage_summary": requirement_stage_summary,
         "missing_artifacts_handoff_index_summary": missing_artifacts_handoff_summary,
@@ -495,6 +509,8 @@ def _input_safety_issues(named_payloads: dict[str, dict[str, Any]]) -> list[dict
         if name == "remote_packet":
             issues.extend(_remote_execution_step_safety_issues(payload))
             issues.extend(_remote_requirement_matrix_safety_issues(payload))
+        if name == "h02_acceptance":
+            issues.extend(_h02_formal_acceptance_requirement_safety_issues(payload))
         if name == "handoff_bundle":
             issues.extend(_handoff_bundle_safety_issues(payload))
     return _unique_issues(issues)
