@@ -542,15 +542,17 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 边界: 这是 preview smoke, 不是正式 BC baseline; 结果显示 action MSE 不能替代闭环指标。
   - 验证: checkpoint 默认 `torch.load(..., map_location="cpu")` 通过; `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `24 passed`。
   - 记录: `.pipeline/experiments/20260703_module2_f02_bc_policy_smoke.md`。
-- [x] F02.2 BC 作为正式 baseline。
+- [!] F02.2 BC 作为正式 baseline（formal-v1 结果已失效, 需 formal-v2 重跑）。
   - 目的: 证明 PPO 精调是否真的必要。
   - 失败: 若 BC 已够好, 论文叙事要改成 "imitation initialized neural analytic expansion", PPO 只作 fine-tune。
-  - 已完成子项: 生成 formal-v1 corpus, 训练 scalar-observation BC lower-bound, 训练 obstacle-summary BC baseline, 并做 step-aligned 0.1m 闭环评估。
+  - 历史完成子项: 生成 formal-v1 corpus, 训练 scalar-observation BC lower-bound, 训练 obstacle-summary BC baseline, 并做 step-aligned 0.1m 闭环评估。
   - formal-v1 corpus: `demonstrations_formal_v1.parquet`, 85514 demo rows, 1035 source rows, Complex/Extreme 基本平衡。
   - scalar BC 结果: validation MAE 0.096 rad; 0.3m rollout success 11/259; 0.1m rollout success 45/259。
   - obstacle-summary BC 结果: validation MAE 0.100 rad; 0.1m rollout success 84/259, collision 164/259。
   - 关键发现: obstacle features 明显提升闭环行为, 但 32.4% success 仍不足以 planner insertion; action MAE 仍会误导。
-  - 当前边界: F02.2 已形成正式 BC baseline 证据, 但最大实现还应补 patch+scalar CNN warm-start。
+  - 2026-07-04 更正: formal-v1 是 profile-unaware map cache 生成的数据, 在真实 profile 地图下有 4764 条 colliding demo rows; 上述 scalar/obstacle-summary 结果只能保留作历史调试记录, 不能作为当前 BC 方法排名。
+  - formal-v2 corpus: `demonstrations_formal_v2.parquet`, 83809 demo rows, 1032 source rows, collision audit 为 0 current/next collision rows。
+  - 当前边界: F02.2 formal baseline 必须在 formal-v2 上重跑后才可恢复。
   - 记录: `.pipeline/experiments/20260703_module2_f02_formal_scalar_bc.md`。
   - 记录: `.pipeline/experiments/20260703_module2_f02_obstacle_summary_bc.md`。
 - [>] F02.3 patch+scalar CNN BC warm-start。
@@ -560,10 +562,22 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 已完成子项: 新增 `train_bc_patch_policy.py` 和 CNN forward 单测; preview smoke 与 stronger preview 均可复跑。
   - preview 结果: small CNN 0/5 success, stronger CNN 1/5 success, 均弱于 obstacle-summary preview 4/5。
   - formal bounded pilot: 4096 train rows / 1024 val rows, success 44/241, collision 185/241, runtime error 8/241。
-  - 当前边界: patch CNN 脚本已跑通, 但 formal baseline 未完成, 不可用于 PPO warm start。
-  - 下一步: 定位 runtime error 原因, 修正 CNN 训练协议或改用 patch cache/远端训练; 当前 practical warm-start 候选仍是 obstacle-summary。
+  - 2026-07-04 更正: 修复 profile-aware cache 后, 旧 checkpoint 重评估为 success 49/241, collision 175/241, runtime error 13/241; runtime error 均为 true-profile start collision。这证明 formal-v1 pilot 数据边界失效。
+  - 当前边界: patch CNN 脚本已跑通, 但 formal-v1 pilot 不可用于 PPO warm start。
+  - 下一步: 在 formal-v2 上重跑 scalar、obstacle-summary、patch+scalar CNN, 再决定 PPO warm-start。
   - 记录: `.pipeline/experiments/20260703_module2_f02_patch_cnn_preview.md`。
   - 记录: `.pipeline/experiments/20260703_module2_f02_patch_cnn_formal_pilot.md`。
+- [x] F02.4 修复 profile-aware map cache 并重建 formal-v2 corpus。
+  - 根因: `_grid_for_row()` 曾只用 `map_seed` 缓存地图; `validation_t06` 中同一 seed 被多个 `profile_name` 复用。
+  - 修复: row-derived map/EDT/checker cache 使用 `(profile_name, map_seed)`。
+  - formal-v1 审计: 85514 rows 中 4764 rows current/next collision, 覆盖 236 source rows。
+  - formal-v2 产物: `2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v2.parquet`, 83809 rows, 1032 source rows。
+  - formal-v2 审计: 0 current collision, 0 next collision, 0 any collision。
+  - 记录: `.pipeline/experiments/20260704_module2_f02_map_cache_formal_v2_rebuild.md`。
+- [>] F02.5 在 formal-v2 上重跑 BC baseline。
+  - 最低重跑: scalar lower-bound、obstacle-summary、patch+scalar CNN bounded pilot。
+  - 判定: 只用 formal-v2 的 0.1m closed-loop terminal-RS-success / collision / runtime_error 做 warm-start 决策; action MSE 只作辅助。
+  - 禁止: 继续引用 formal-v1 模型结果作为当前方法排名。
 
 #### F03. PPO 最大实现
 
