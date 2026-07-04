@@ -650,12 +650,16 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - Formal audit: 新增 `audit_rl_rs_gate3_trial.py`, 读取 trial manifest 并检查 smoke、episode 数、train/eval curriculum、warm-start 决策和 artifact 完整性后才允许 formal pass/fail。
   - audit smoke 产物: `0_trials/module2_ppo_smoke/f03_gate3_trial_runner_smoke/gate3_formal_audit.json`; 当前审计为 `formal_decision=not_formal`, blockers 包含 `smoke_trial`, `insufficient_eval_episodes`, `train_curriculum_not_f03`, `eval_curriculum_not_f03`, `warm_start_decision_pending`。
   - audit 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_audit_rl_rs_gate3_trial.py -q` -> `2 passed in 0.17s`。
-  - 边界: 三个 smoke 都是 open-connector 极小训练/评估; 无 warm-start smoke 写明 `not_applied_f02_6_pending`, warm-start smoke 写明 `applied_obstacle_summary_bc`; runner manifest 也固定 `formal_gate_claim=false`; audit 明确把 smoke pass 判为 `not_formal`; F03.5 Gate 结果仍未判定。
+  - Formal preflight: 新增 `preflight_rl_rs_gate3_formal_trial.py`, 不跑训练, 只冻结 formal runner/audit 命令、参数、expected artifacts 和 blockers。
+  - preflight 产物: no-warm-start `0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/gate3_preflight_manifest.json` 为 `preflight_status=ready`; obstacle-summary warm-start `0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_pending_v1/gate3_preflight_manifest.json` 因 `warm_start_decision_pending` 为 `blocked`。
+  - preflight 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_preflight_rl_rs_gate3_formal_trial.py -q` -> `2 passed in 0.19s`。
+  - 边界: 三个 smoke 都是 open-connector 极小训练/评估; 无 warm-start smoke 写明 `not_applied_f02_6_pending`, warm-start smoke 写明 `applied_obstacle_summary_bc`; runner manifest 也固定 `formal_gate_claim=false`; audit 明确把 smoke pass 判为 `not_formal`; preflight 只冻结正式运行协议, 不 claim F03.5 Gate 结果。
   - 记录: `.pipeline/experiments/20260704_module2_f03_ppo_training_entry.md`。
   - warm-start 记录: `.pipeline/experiments/20260704_module2_f03_obstacle_summary_warm_start.md`。
   - evaluator 记录: `.pipeline/experiments/20260704_module2_f03_gate3_evaluator.md`。
   - trial runner 记录: `.pipeline/experiments/20260704_module2_f03_gate3_trial_runner.md`。
   - formal audit 记录: `.pipeline/experiments/20260704_module2_f03_gate3_formal_audit.md`。
+  - formal preflight 记录: `.pipeline/experiments/20260704_module2_f03_gate3_formal_preflight.md`。
 
 ### Phase G: Planner 集成
 
