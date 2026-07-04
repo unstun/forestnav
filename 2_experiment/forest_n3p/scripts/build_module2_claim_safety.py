@@ -94,6 +94,7 @@ def build_manifest(
     )
     status_report_remote_gate_summary = _status_report_remote_gate_summary(status_report)
     status_report_handoff_summary = _status_report_handoff_summary(status_report)
+    status_report_missing_artifacts_handoff_summary = _status_report_missing_artifacts_handoff_summary(status_report)
     formal_allowed = not formal_blockers
     prohibited = _prohibited_claims()
     allowed = _allowed_claims(
@@ -154,6 +155,19 @@ def build_manifest(
             "status_report_handoff_remote_training_allowed_now": status_report_handoff_summary[
                 "remote_training_allowed_now"
             ],
+            "status_report_missing_artifacts_handoff_status": status_report_missing_artifacts_handoff_summary["status"],
+            "status_report_missing_artifacts_next_action": status_report_missing_artifacts_handoff_summary[
+                "next_action_id"
+            ],
+            "status_report_missing_artifacts_open_requirement_count": status_report_missing_artifacts_handoff_summary[
+                "open_requirement_count"
+            ],
+            "status_report_missing_artifacts_remote_training_allowed_now": status_report_missing_artifacts_handoff_summary[
+                "remote_training_allowed_now"
+            ],
+            "status_report_missing_artifacts_formal_result_material_allowed_now": status_report_missing_artifacts_handoff_summary[
+                "formal_result_material_allowed_now"
+            ],
             "status_report_closure_remote_training_allowed_now": status_report_remote_gate_summary[
                 "closure_remote_stage_summary"
             ]["gate3_remote_training"]["allowed_now"],
@@ -162,6 +176,7 @@ def build_manifest(
             ]["run_remote_training"]["allowed_now"],
         },
         "status_report_handoff_summary": status_report_handoff_summary,
+        "status_report_missing_artifacts_handoff_summary": status_report_missing_artifacts_handoff_summary,
         "status_report_remote_gate_summary": status_report_remote_gate_summary,
         "allowed_claims": allowed,
         "conditional_claims": _conditional_claims(),
@@ -256,6 +271,7 @@ def _formal_performance_blockers(
     if int(status_report.get("input_safety_issue_count") or 0) > 0:
         _append_unique(blockers, "status_report_input_safety_issues_open")
     blockers.extend(_status_report_handoff_blockers(status_report))
+    blockers.extend(_status_report_missing_artifacts_handoff_blockers(status_report))
     blockers.extend(_status_report_remote_summary_blockers(status_report))
     return blockers
 
@@ -301,6 +317,49 @@ def _status_report_handoff_blockers(status_report: dict[str, Any]) -> list[str]:
             blockers.append("status_report_blocked_but_handoff_remote_training_allowed")
         if summary["formal_claim_allowed_now"] is True:
             blockers.append("status_report_blocked_but_handoff_formal_claim_allowed")
+    return blockers
+
+
+def _status_report_missing_artifacts_handoff_summary(status_report: dict[str, Any]) -> dict[str, Any]:
+    summary = status_report.get("missing_artifacts_handoff_index_summary")
+    if not isinstance(summary, dict):
+        summary = {}
+    return {
+        "present": bool(summary),
+        "status": summary.get("status"),
+        "next_action_id": summary.get("next_action_id"),
+        "next_action_requires_dr_sun": summary.get("next_action_requires_dr_sun"),
+        "open_requirement_count": summary.get("open_requirement_count"),
+        "local_training_allowed_now": summary.get("local_training_allowed_now")
+        if isinstance(summary.get("local_training_allowed_now"), bool)
+        else None,
+        "remote_training_allowed_now": summary.get("remote_training_allowed_now")
+        if isinstance(summary.get("remote_training_allowed_now"), bool)
+        else None,
+        "formal_result_material_allowed_now": summary.get("formal_result_material_allowed_now")
+        if isinstance(summary.get("formal_result_material_allowed_now"), bool)
+        else None,
+    }
+
+
+def _status_report_missing_artifacts_handoff_blockers(status_report: dict[str, Any]) -> list[str]:
+    summary = _status_report_missing_artifacts_handoff_summary(status_report)
+    blockers: list[str] = []
+    if not summary["present"]:
+        blockers.append("status_report_missing_artifacts_handoff_index_missing")
+        return blockers
+    if summary["local_training_allowed_now"] is True:
+        blockers.append("status_report_missing_artifacts_handoff_allows_local_training")
+    if summary["formal_result_material_allowed_now"] is True:
+        blockers.append("status_report_missing_artifacts_handoff_allows_result_material")
+    if status_report.get("status") != "formal_gate_status_ready_for_claim_audit":
+        if summary["remote_training_allowed_now"] is True:
+            blockers.append("status_report_blocked_but_missing_artifacts_handoff_remote_training_allowed")
+    else:
+        if summary["status"] != "formal_gate_evidence_ready_for_h01_h02_claim_gates":
+            blockers.append("status_report_ready_but_missing_artifacts_handoff_not_clear")
+        if int(summary["open_requirement_count"] or 0) > 0:
+            blockers.append("status_report_ready_but_missing_artifacts_handoff_requirements_open")
     return blockers
 
 
@@ -562,6 +621,15 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"transition_gate_audit_issue_count=`{handoff['transition_gate_audit_issue_count']}`, "
         f"safety_issue_count=`{handoff['safety_issue_count']}`, "
         f"remote_training_allowed_now=`{handoff['remote_training_allowed_now']}`"
+    )
+    lines.extend(["", "## Status Report Missing-Artifacts Handoff Index", ""])
+    missing_handoff = manifest["status_report_missing_artifacts_handoff_summary"]
+    lines.append(
+        f"- present=`{missing_handoff['present']}`, status=`{missing_handoff['status']}`, "
+        f"next_action=`{missing_handoff['next_action_id']}`, "
+        f"open_requirement_count=`{missing_handoff['open_requirement_count']}`, "
+        f"remote_training_allowed_now=`{missing_handoff['remote_training_allowed_now']}`, "
+        f"formal_result_material_allowed_now=`{missing_handoff['formal_result_material_allowed_now']}`"
     )
     lines.extend(["", "## Status Report Remote Gate Summary", ""])
     for group_id, group in manifest["status_report_remote_gate_summary"].items():
