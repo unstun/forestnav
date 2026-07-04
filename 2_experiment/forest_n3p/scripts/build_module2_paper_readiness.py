@@ -664,6 +664,12 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- claim_safety_post_run_acceptance_requirement_present: `{input_status.get('claim_safety_post_run_acceptance_requirement_present')}`",
             f"- claim_safety_post_run_acceptance_requirement_satisfied_count: `{input_status.get('claim_safety_post_run_acceptance_requirement_satisfied_count')}`",
             f"- claim_safety_post_run_acceptance_requirement_blocked_count: `{input_status.get('claim_safety_post_run_acceptance_requirement_blocked_count')}`",
+            "",
+            "## Claim Safety H02 Acceptance Requirement Matrix",
+            "",
+            f"- claim_safety_h02_formal_acceptance_requirement_present: `{input_status.get('claim_safety_h02_formal_acceptance_requirement_present')}`",
+            f"- claim_safety_h02_formal_acceptance_requirement_satisfied_count: `{input_status.get('claim_safety_h02_formal_acceptance_requirement_satisfied_count')}`",
+            f"- claim_safety_h02_formal_acceptance_requirement_blocked_count: `{input_status.get('claim_safety_h02_formal_acceptance_requirement_blocked_count')}`",
         ]
     )
     lines.extend(["", "## Section Readiness", ""])
