@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_gap_audit",
   "status": "blocked_formal_gate_gaps_open",
-  "created_at_utc": "2026-07-04T15:37:02.212787+00:00",
-  "source_head": "02e0180d29c0862cd69a90099a804e2d8ac817d8",
+  "created_at_utc": "2026-07-04T16:19:43.731780+00:00",
+  "source_head": "4e882c09d8ede868504f3dbf63a31a1125841170+dirty",
   "not_paper_result_material": true,
   "local_training_allowed": false,
   "remote_training_resource": "gpu3070ti-relay",
@@ -36,11 +36,10 @@
     "formal_claim_allowed": false,
     "regeneration_required_before_remote_formal_execution": true,
     "risk_counts": {
-      "historical_dirty": 11,
-      "historical_clean": 3,
-      "current_dirty": 1
+      "historical_dirty": 10,
+      "historical_clean": 6
     },
-    "ordered_regeneration_target_count": 15,
+    "ordered_regeneration_target_count": 16,
     "ordered_regeneration_targets": [
       {
         "artifact_id": "f02_6_decision_gate_audit",
@@ -55,6 +54,12 @@
         "required_before": "approved_remote_preflight"
       },
       {
+        "artifact_id": "f02_6_transition_gate_audit",
+        "path": "0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json",
+        "freshness_state": "historical_dirty",
+        "required_before": "approved_remote_preflight"
+      },
+      {
         "artifact_id": "formal_gate_closure_checklist",
         "path": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
         "freshness_state": "historical_dirty",
@@ -63,7 +68,7 @@
       {
         "artifact_id": "formal_gate_gap_audit",
         "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
-        "freshness_state": "historical_dirty",
+        "freshness_state": "historical_clean",
         "required_before": "approved_remote_preflight"
       },
       {
@@ -81,7 +86,7 @@
       {
         "artifact_id": "post_f02_6_plan_audit",
         "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
-        "freshness_state": "historical_dirty",
+        "freshness_state": "historical_clean",
         "required_before": "approved_remote_preflight"
       },
       {
@@ -93,7 +98,7 @@
       {
         "artifact_id": "remote_packet_safety_audit",
         "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
-        "freshness_state": "current_dirty",
+        "freshness_state": "historical_dirty",
         "required_before": "approved_remote_preflight"
       },
       {
@@ -123,7 +128,7 @@
       {
         "artifact_id": "formal_gate_status_report",
         "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
-        "freshness_state": "historical_dirty",
+        "freshness_state": "historical_clean",
         "required_before": "formal_claim_gate"
       },
       {

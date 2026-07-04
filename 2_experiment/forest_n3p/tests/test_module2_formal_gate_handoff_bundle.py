@@ -23,6 +23,7 @@ def test_formal_gate_handoff_bundle_blocks_pending_decision_without_execution(tm
     assert manifest["next_handoff_action"]["requires_dr_sun"] is True
     assert manifest["next_handoff_action"]["allowed_for_agent_now"] is False
     assert manifest["current_state"]["decision_status"] == "pending_human_decision"
+    assert manifest["current_state"]["transition_gate_status"] == "f02_6_transition_gate_audit_passed"
     assert manifest["current_state"]["next_blocked_lane"] == "decision"
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
     assert manifest["remote_execution_steps"]["sync_to_remote"]["allowed_now"] is False
@@ -76,6 +77,29 @@ def test_formal_gate_handoff_bundle_catches_pending_decision_execution_drift(tmp
     assert "pending_decision_allows_run_remote_training" in issue_ids
 
 
+def test_formal_gate_handoff_bundle_consumes_transition_gate_audit(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_handoff_bundle")
+    config = _config(tmp_path, complete=False)
+    transition = json.loads(config.transition_gate_audit_path.read_text(encoding="utf-8"))
+    transition["status"] = "f02_6_transition_gate_audit_failed"
+    transition["audit_issue_count"] = 1
+    approved = next(item for item in transition["scenario_summaries"] if item["scenario_id"] == "approved")
+    approved["formal_gate_status_report_permissions_now"]["remote_training_allowed_now"] = True
+    approved["formal_gate_status_report_permissions_now"]["formal_claim_allowed_now"] = True
+    approved["post_plan_stage_summary"]["gate3_remote_training"]["allowed_now"] = True
+    config.transition_gate_audit_path.write_text(json.dumps(transition), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    assert manifest["status"] == "blocked_handoff_input_safety_issues"
+    issue_ids = {issue["issue_id"] for issue in manifest["safety_issues"]}
+    assert "transition_gate_audit_not_passed" in issue_ids
+    assert "transition_gate_audit_issues_open" in issue_ids
+    assert "transition_gate_approved_allows_remote_training" in issue_ids
+    assert "transition_gate_approved_allows_formal_claim" in issue_ids
+    assert "transition_gate_approved_gate3_remote_training_ready_too_early" in issue_ids
+
+
 def test_formal_gate_handoff_bundle_cli_writes_json_and_markdown(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_handoff_bundle")
     config = _config(tmp_path, complete=False)
@@ -92,6 +116,8 @@ def test_formal_gate_handoff_bundle_cli_writes_json_and_markdown(tmp_path):
             str(markdown_path),
             "--decision-record",
             str(config.decision_record_path),
+            "--transition-gate-audit",
+            str(config.transition_gate_audit_path),
             "--post-plan",
             str(config.post_plan_path),
             "--status-report",
@@ -120,6 +146,7 @@ def _config(tmp_path, *, complete):
     return builder.FormalGateHandoffBundleConfig(
         output_dir=tmp_path,
         decision_record_path=_json(tmp_path, "decision.json", _decision(complete=complete)),
+        transition_gate_audit_path=_json(tmp_path, "transition_gate.json", _transition_gate()),
         post_plan_path=_json(tmp_path, "post_plan.json", _post_plan(complete=complete)),
         status_report_path=_json(tmp_path, "status_report.json", _status_report(complete=complete)),
         remote_packet_path=_json(tmp_path, "remote_packet.json", _remote_packet(complete=complete)),
@@ -134,6 +161,59 @@ def _decision(*, complete):
         "decider": "Dr Sun" if complete else None,
         "local_training_allowed": False,
         "formal_claim_allowed": False,
+    }
+
+
+def _transition_gate():
+    return {
+        "status": "f02_6_transition_gate_audit_passed",
+        "not_paper_result_material": True,
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+        "audit_issue_count": 0,
+        "scenario_summaries": [
+            _transition_scenario(
+                "pending",
+                post_plan_status="blocked_until_f02_6_decision",
+                next_lane="decision",
+                regeneration_allowed=False,
+            ),
+            _transition_scenario(
+                "approved",
+                post_plan_status="ready_to_execute_post_f02_6_regeneration_plan",
+                next_lane="source_fresh_preflight",
+                regeneration_allowed=True,
+            ),
+            _transition_scenario(
+                "rejected",
+                post_plan_status="blocked_by_f02_6_rejected",
+                next_lane="source_fresh_preflight",
+                regeneration_allowed=False,
+            ),
+        ],
+    }
+
+
+def _transition_scenario(scenario_id, *, post_plan_status, next_lane, regeneration_allowed):
+    return {
+        "scenario_id": scenario_id,
+        "post_plan_status": post_plan_status,
+        "formal_gate_status_report_next_blocked_lane_id": next_lane,
+        "formal_gate_status_report_permissions_now": {
+            "local_training_allowed_now": False,
+            "remote_preflight_allowed_now": False,
+            "remote_training_allowed_now": False,
+            "formal_claim_allowed_now": False,
+        },
+        "post_plan_stage_summary": {
+            "regenerate_preflight_gate_artifacts": {"allowed_now": regeneration_allowed},
+            "approved_remote_preflight": {"allowed_now": False},
+            "gate3_remote_training": {"allowed_now": False},
+            "regenerate_claim_gate_artifacts": {"allowed_now": False},
+        },
     }
 
 

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_regeneration_plan",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-04T15:23:44.672190+00:00",
-  "source_head": "f26e179fa2eda43225a02a46e4e8406673b07b7e+dirty",
+  "created_at_utc": "2026-07-04T16:18:56.364402+00:00",
+  "source_head": "4e882c09d8ede868504f3dbf63a31a1125841170+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -37,6 +37,11 @@
         "freshness_state": "historical_dirty"
       },
       {
+        "artifact_id": "f02_6_transition_gate_audit",
+        "path": "0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json",
+        "freshness_state": "historical_dirty"
+      },
+      {
         "artifact_id": "formal_gate_closure_checklist",
         "path": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
         "freshness_state": "historical_dirty"
@@ -44,7 +49,7 @@
       {
         "artifact_id": "formal_gate_gap_audit",
         "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
-        "freshness_state": "historical_dirty"
+        "freshness_state": "historical_clean"
       },
       {
         "artifact_id": "formal_gate_handoff_bundle",
@@ -59,7 +64,7 @@
       {
         "artifact_id": "post_f02_6_plan_audit",
         "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
-        "freshness_state": "historical_dirty"
+        "freshness_state": "historical_clean"
       },
       {
         "artifact_id": "remote_formal_execution_packet",
@@ -69,7 +74,7 @@
       {
         "artifact_id": "remote_packet_safety_audit",
         "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
-        "freshness_state": "current_dirty"
+        "freshness_state": "historical_dirty"
       }
     ],
     "formal_h01_h02": [
@@ -98,7 +103,7 @@
       {
         "artifact_id": "formal_gate_status_report",
         "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
-        "freshness_state": "historical_dirty"
+        "freshness_state": "historical_clean"
       },
       {
         "artifact_id": "paper_readiness",
@@ -142,6 +147,7 @@
       "evidence_paths": [
         "0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json",
         "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+        "0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json",
         "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
         "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
         "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
@@ -153,6 +159,7 @@
       "command_templates": [
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_gate_audit",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_transition_gate_audit",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_closure_checklist",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_gap_audit",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_handoff_bundle",

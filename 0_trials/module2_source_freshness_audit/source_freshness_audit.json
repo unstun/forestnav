@@ -2,19 +2,18 @@
   "schema_version": 1,
   "artifact_name": "module2_source_freshness_audit",
   "status": "source_freshness_risks_recorded_gate_still_blocked",
-  "created_at_utc": "2026-07-04T15:23:44.605729+00:00",
-  "source_head": "f26e179fa2eda43225a02a46e4e8406673b07b7e+dirty",
+  "created_at_utc": "2026-07-04T16:18:05.611292+00:00",
+  "source_head": "4e882c09d8ede868504f3dbf63a31a1125841170+dirty",
   "not_paper_result_material": true,
   "runs_training": false,
   "runs_remote_preflight": false,
   "local_training_allowed": false,
   "formal_claim_allowed": false,
-  "current_head": "f26e179fa2eda43225a02a46e4e8406673b07b7e",
-  "artifact_count": 15,
+  "current_head": "4e882c09d8ede868504f3dbf63a31a1125841170",
+  "artifact_count": 16,
   "risk_counts": {
-    "historical_dirty": 11,
-    "historical_clean": 3,
-    "current_dirty": 1
+    "historical_dirty": 10,
+    "historical_clean": 6
   },
   "regeneration_required_before_remote_formal_execution": true,
   "artifact_records": [
@@ -41,6 +40,21 @@
       "status": "f02_6_decision_gate_pending_clean",
       "source_head": "e0e5c100c6a5fe777648a91e2039f1f40ed88262+dirty",
       "source_commit": "e0e5c100c6a5fe777648a91e2039f1f40ed88262",
+      "source_head_dirty": true,
+      "source_commit_exists": true,
+      "matches_current_head": false,
+      "freshness_state": "historical_dirty",
+      "required_before": "approved_remote_preflight",
+      "regenerate_before_formal_execution": true
+    },
+    {
+      "artifact_id": "f02_6_transition_gate_audit",
+      "category": "decision",
+      "path": "0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json",
+      "exists": true,
+      "status": "f02_6_transition_gate_audit_passed",
+      "source_head": "f20c00489a02112d5f906721428e6b8d163dfb27+dirty",
+      "source_commit": "f20c00489a02112d5f906721428e6b8d163dfb27",
       "source_head_dirty": true,
       "source_commit_exists": true,
       "matches_current_head": false,
@@ -129,12 +143,12 @@
       "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
       "exists": true,
       "status": "blocked_formal_gate_gaps_open",
-      "source_head": "073c271fb77714de6c498cd5114704d239faf8f8+dirty",
-      "source_commit": "073c271fb77714de6c498cd5114704d239faf8f8",
-      "source_head_dirty": true,
+      "source_head": "02e0180d29c0862cd69a90099a804e2d8ac817d8",
+      "source_commit": "02e0180d29c0862cd69a90099a804e2d8ac817d8",
+      "source_head_dirty": false,
       "source_commit_exists": true,
       "matches_current_head": false,
-      "freshness_state": "historical_dirty",
+      "freshness_state": "historical_clean",
       "required_before": "approved_remote_preflight",
       "regenerate_before_formal_execution": true
     },
@@ -144,12 +158,12 @@
       "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
       "exists": true,
       "status": "post_f02_6_plan_audit_passed",
-      "source_head": "073c271fb77714de6c498cd5114704d239faf8f8+dirty",
-      "source_commit": "073c271fb77714de6c498cd5114704d239faf8f8",
-      "source_head_dirty": true,
+      "source_head": "4d059189217e2b83dcd16831c9e84d3d029124ed",
+      "source_commit": "4d059189217e2b83dcd16831c9e84d3d029124ed",
+      "source_head_dirty": false,
       "source_commit_exists": true,
       "matches_current_head": false,
-      "freshness_state": "historical_dirty",
+      "freshness_state": "historical_clean",
       "required_before": "approved_remote_preflight",
       "regenerate_before_formal_execution": true
     },
@@ -159,12 +173,12 @@
       "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
       "exists": true,
       "status": "remote_packet_safety_audit_passed",
-      "source_head": "f26e179fa2eda43225a02a46e4e8406673b07b7e+dirty",
-      "source_commit": "f26e179fa2eda43225a02a46e4e8406673b07b7e",
+      "source_head": "4d059189217e2b83dcd16831c9e84d3d029124ed+dirty",
+      "source_commit": "4d059189217e2b83dcd16831c9e84d3d029124ed",
       "source_head_dirty": true,
       "source_commit_exists": true,
-      "matches_current_head": true,
-      "freshness_state": "current_dirty",
+      "matches_current_head": false,
+      "freshness_state": "historical_dirty",
       "required_before": "approved_remote_preflight",
       "regenerate_before_formal_execution": true
     },
@@ -219,12 +233,12 @@
       "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
       "exists": true,
       "status": "formal_gate_status_blocked",
-      "source_head": "073c271fb77714de6c498cd5114704d239faf8f8+dirty",
-      "source_commit": "073c271fb77714de6c498cd5114704d239faf8f8",
-      "source_head_dirty": true,
+      "source_head": "58793d6f6cb5ec699e8102842d9836d121b57a4f",
+      "source_commit": "58793d6f6cb5ec699e8102842d9836d121b57a4f",
+      "source_head_dirty": false,
       "source_commit_exists": true,
       "matches_current_head": false,
-      "freshness_state": "historical_dirty",
+      "freshness_state": "historical_clean",
       "required_before": "formal_claim_gate",
       "regenerate_before_formal_execution": true
     },
@@ -258,6 +272,12 @@
       "required_before": "approved_remote_preflight"
     },
     {
+      "artifact_id": "f02_6_transition_gate_audit",
+      "path": "0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json",
+      "freshness_state": "historical_dirty",
+      "required_before": "approved_remote_preflight"
+    },
+    {
       "artifact_id": "formal_gate_closure_checklist",
       "path": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
       "freshness_state": "historical_dirty",
@@ -266,7 +286,7 @@
     {
       "artifact_id": "formal_gate_gap_audit",
       "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
-      "freshness_state": "historical_dirty",
+      "freshness_state": "historical_clean",
       "required_before": "approved_remote_preflight"
     },
     {
@@ -284,7 +304,7 @@
     {
       "artifact_id": "post_f02_6_plan_audit",
       "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
-      "freshness_state": "historical_dirty",
+      "freshness_state": "historical_clean",
       "required_before": "approved_remote_preflight"
     },
     {
@@ -296,7 +316,7 @@
     {
       "artifact_id": "remote_packet_safety_audit",
       "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
-      "freshness_state": "current_dirty",
+      "freshness_state": "historical_dirty",
       "required_before": "approved_remote_preflight"
     },
     {
@@ -326,7 +346,7 @@
     {
       "artifact_id": "formal_gate_status_report",
       "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
-      "freshness_state": "historical_dirty",
+      "freshness_state": "historical_clean",
       "required_before": "formal_claim_gate"
     },
     {
