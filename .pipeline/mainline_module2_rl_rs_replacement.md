@@ -619,10 +619,15 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - stage 4: held-out procedural maps。
   - 已完成: 新增 `CurriculumContextConfig`, `CurriculumSampleMetadata`, `OpenConnectorContextSampler`, `ObstacleBypassContextSampler`, `OracleConnectorContextSampler`, `HeldoutQueryContextSampler`, `WeightedCurriculumContextSampler`。
   - 真实来源: stage 3 默认读取 `0_trials/module2_oracle_shape/oracle_connector_results.parquet` 并筛 `oracle_connectable=True`; stage 4 用 held-out seed 重新走 `build_query_set()`。
-  - Gym 接入: `GymAnalyticExpansionEnv.reset()` now exposes `info["curriculum"]`, 为 F03.4 logging 提供 stage/source/query metadata。
-  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q` -> `48 passed in 6.59s`; 真实四 stage Gym reset/step smoke 通过。
-  - 边界: F03.3 不选择 warm-start checkpoint, 不开始 PPO 训练, 不 claim Gate #3。
-  - 记录: `.pipeline/experiments/20260704_module2_f03_curriculum_sampler.md`。
+	  - Gym 接入: `GymAnalyticExpansionEnv.reset()` now exposes `info["curriculum"]`, 为 F03.4 logging 提供 stage/source/query metadata。
+	  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q` -> `48 passed in 6.59s`; 真实四 stage Gym reset/step smoke 通过。
+	  - 边界: F03.3 不选择 warm-start checkpoint, 不开始 PPO 训练, 不 claim Gate #3。
+	  - 2026-07-04 formal trial 修复: no-warm formal trial 首次运行暴露 oracle parquet 中有少量 row 在当前 profile-aware 地图重建下 start/goal collision; 量化为 6289 candidate rows 中 start_bad=4, goal_bad=54。
+	  - 修复: `OracleConnectorContextSampler` 抽样时跳过重建为 collision 的 row, 记录 `skipped_invalid_rows` 和 `last_invalid_metadata`; 超过尝试上限才报错。
+	  - 回归测试: `test_oracle_connector_sampler_skips_rows_that_reconstruct_to_colliding_context`; `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_rl_rs_curriculum.py -q` -> `6 passed in 6.27s`。
+	  - 失败证据: `0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/failed_attempt_01/`。
+	  - 记录: `.pipeline/experiments/20260704_module2_f03_curriculum_sampler.md`。
+	  - collision guard 记录: `.pipeline/experiments/20260704_module2_f03_oracle_sampler_collision_guard.md`。
 - [x] F03.4 logging。
   - TensorBoard/CSV: reward terms, success, terminal RS success, collision, truncation, rollout length, clearance, curvature rate。
   - 每个 checkpoint 存 config + source hash。
