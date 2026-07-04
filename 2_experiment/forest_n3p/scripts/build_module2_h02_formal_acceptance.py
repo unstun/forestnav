@@ -587,6 +587,20 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- PPO result rows: `{manifest['method_checks']['ppo_row_count']}`",
             f"- pullback artifacts present: `{manifest['pullback_checks']['remote_pullback_artifacts_present']}`",
             "",
+            "## Formal Acceptance Requirements",
+            "",
+        ]
+    )
+    for requirement in manifest["formal_acceptance_requirements"]:
+        lines.append(
+            f"- `{requirement['requirement_id']}` ({requirement['phase']}): "
+            f"status=`{requirement['status']}`, paper_result_input_allowed_now=`{requirement['paper_result_input_allowed_now']}`"
+        )
+        if requirement["missing_artifact_ids"]:
+            lines.append(f"  - missing_artifact_ids: `{', '.join(requirement['missing_artifact_ids'])}`")
+        lines.append(f"  - invalid_substitutes: `{'; '.join(requirement['invalid_substitutes'])}`")
+    lines.extend(
+        [
             "## Claim Boundaries",
             "",
         ]
