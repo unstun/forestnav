@@ -35,6 +35,11 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
     assert manifest["status_report_summary"]["status"] == "formal_gate_status_blocked"
     assert manifest["status_report_summary"]["formal_claim_allowed_now"] is False
     assert manifest["status_report_summary"]["next_blocked_lane_id"] == "decision"
+    steps = manifest["status_report_summary"]["remote_execution_step_summary"]
+    assert steps["sync_to_remote"]["allowed_now"] is False
+    assert steps["sync_to_remote"]["blocked_by"] == ["requires_dr_sun_approval"]
+    assert steps["run_remote_training"]["runs_training"] is True
+    assert "remote_packet_not_ready" in steps["run_remote_training"]["blocked_by"]
 
 
 def test_post_f02_6_plan_audit_catches_training_allowed_while_f02_6_pending(tmp_path):
@@ -272,6 +277,50 @@ def test_post_f02_6_plan_audit_rejects_status_report_that_runs_or_claims(tmp_pat
     assert "formal_gate_status_report_has_input_safety_issues" in issue_ids
 
 
+def test_post_f02_6_plan_audit_requires_status_report_remote_step_summary(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
+    status_report = _status_report_payload(ready=False)
+    status_report.pop("remote_execution_step_summary")
+
+    manifest = auditor.build_manifest(
+        auditor.PostF026PlanAuditConfig(
+            output_dir=tmp_path,
+            plan_path=_json(tmp_path, "plan.json", _plan_payload()),
+            formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate_payload()),
+            source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
+            missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
+            closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
+            status_report_path=_json(tmp_path, "status_report.json", status_report),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "post_f02_6_plan_audit_failed"
+    assert "formal_gate_status_report_missing_remote_step_summary" in issue_ids
+
+
+def test_post_f02_6_plan_audit_rejects_blocked_status_report_with_allowed_remote_step(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
+    status_report = _status_report_payload(ready=False)
+    status_report["remote_execution_step_summary"]["run_remote_training"]["allowed_now"] = True
+
+    manifest = auditor.build_manifest(
+        auditor.PostF026PlanAuditConfig(
+            output_dir=tmp_path,
+            plan_path=_json(tmp_path, "plan.json", _plan_payload()),
+            formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate_payload()),
+            source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
+            missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
+            closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
+            status_report_path=_json(tmp_path, "status_report.json", status_report),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "post_f02_6_plan_audit_failed"
+    assert "formal_gate_status_report_blocked_but_run_remote_training_allowed" in issue_ids
+
+
 def test_post_f02_6_plan_audit_catches_claim_gate_ready_with_blocked_status_report(tmp_path):
     auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
     plan = _plan_payload()
@@ -332,6 +381,7 @@ def test_post_f02_6_plan_audit_cli_writes_json_and_markdown(tmp_path):
     markdown = markdown_path.read_text(encoding="utf-8")
     assert manifest["status"] == "post_f02_6_plan_audit_passed"
     assert "Module2 Post-F02.6 Plan Audit" in markdown
+    assert "Status Report Remote Execution Steps" in markdown
     assert "does not execute the plan" in markdown
 
 
@@ -498,6 +548,8 @@ def _closure_checklist_payload(*, open_checklist, invalid=False):
 
 
 def _status_report_payload(*, ready, invalid=False):
+    step_blockers = [] if ready else ["requires_dr_sun_approval"]
+    training_blockers = [] if ready else ["requires_dr_sun_approval", "remote_packet_not_ready"]
     return {
         "status": "formal_gate_status_ready_for_claim_audit" if ready else "formal_gate_status_blocked",
         "executes_commands": bool(invalid),
@@ -513,6 +565,32 @@ def _status_report_payload(*, ready, invalid=False):
         },
         "input_safety_issue_count": 1 if invalid else 0,
         "next_blocked_lane": {} if ready else {"lane_id": "decision", "blocked_by": ["f02_6_decision_not_approved"]},
+        "remote_execution_step_summary": {
+            "sync_to_remote": {
+                "present": True,
+                "allowed_now": ready,
+                "runs_training": False,
+                "blocked_by": step_blockers,
+            },
+            "run_remote_preflight": {
+                "present": True,
+                "allowed_now": ready,
+                "runs_training": False,
+                "blocked_by": step_blockers,
+            },
+            "run_remote_training": {
+                "present": True,
+                "allowed_now": ready,
+                "runs_training": True,
+                "blocked_by": training_blockers,
+            },
+            "run_remote_audit": {
+                "present": True,
+                "allowed_now": ready,
+                "runs_training": False,
+                "blocked_by": training_blockers,
+            },
+        },
     }
 
 
