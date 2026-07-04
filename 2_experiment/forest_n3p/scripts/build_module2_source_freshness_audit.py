@@ -263,6 +263,12 @@ def _ordered_regeneration_targets(records: Sequence[dict[str, Any]]) -> list[dic
             "artifact_id": record["artifact_id"],
             "path": record["path"],
             "freshness_state": record["freshness_state"],
+            "source_head": record["source_head"],
+            "source_commit": record["source_commit"],
+            "source_head_dirty": record["source_head_dirty"],
+            "source_commit_exists": record["source_commit_exists"],
+            "matches_current_head": record["matches_current_head"],
+            "current_head": record["current_head"],
             "required_before": record["required_before"],
         }
         for record in records
@@ -294,6 +300,8 @@ def _markdown(manifest: dict[str, Any]) -> str:
         for target in manifest["ordered_regeneration_targets"]:
             lines.append(
                 f"- `{target['artifact_id']}`: `{target['freshness_state']}`, "
+                f"source_head=`{target['source_head']}`, current_head=`{target['current_head']}`, "
+                f"dirty=`{target['source_head_dirty']}`, commit_exists=`{target['source_commit_exists']}`, "
                 f"required before `{target['required_before']}`, path `{target['path']}`"
             )
     else:
