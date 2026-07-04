@@ -14,6 +14,7 @@ DEFAULT_PLAN = Path("0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_re
 DEFAULT_FORMAL_GATE = Path("0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json")
 DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_freshness_audit.json")
 DEFAULT_MISSING_ARTIFACTS = Path("0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json")
+DEFAULT_CLOSURE_CHECKLIST = Path("0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json")
 REQUIRED_STAGE_ORDER = (
     "f02_6_decision_record",
     "regenerate_preflight_gate_artifacts",
@@ -35,6 +36,7 @@ class PostF026PlanAuditConfig:
     formal_gate_path: Path = DEFAULT_FORMAL_GATE
     source_freshness_path: Path = DEFAULT_SOURCE_FRESHNESS
     missing_artifacts_path: Path = DEFAULT_MISSING_ARTIFACTS
+    closure_checklist_path: Path = DEFAULT_CLOSURE_CHECKLIST
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -47,6 +49,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         formal_gate_path=args.formal_gate,
         source_freshness_path=args.source_freshness_audit,
         missing_artifacts_path=args.missing_artifacts_audit,
+        closure_checklist_path=args.closure_checklist,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -66,12 +69,15 @@ def build_manifest(config: PostF026PlanAuditConfig) -> dict[str, Any]:
     formal_gate = _read_json(config.formal_gate_path)
     source_freshness = _read_json(config.source_freshness_path)
     missing_artifacts = _read_json(config.missing_artifacts_path)
+    closure_checklist = _read_json(config.closure_checklist_path)
     issues = _audit_issues(
         plan=plan,
         formal_gate=formal_gate,
         source_freshness=source_freshness,
         missing_artifacts=missing_artifacts,
         missing_artifacts_path=config.missing_artifacts_path,
+        closure_checklist=closure_checklist,
+        closure_checklist_path=config.closure_checklist_path,
     )
     return {
         "schema_version": 1,
@@ -90,9 +96,11 @@ def build_manifest(config: PostF026PlanAuditConfig) -> dict[str, Any]:
             "formal_gate_gap_audit": str(config.formal_gate_path),
             "source_freshness_audit": str(config.source_freshness_path),
             "formal_gate_missing_artifacts_audit": str(config.missing_artifacts_path),
+            "formal_gate_closure_checklist": str(config.closure_checklist_path),
         },
         "plan_status": plan.get("status"),
         "missing_artifacts_summary": _missing_artifacts_summary(config.missing_artifacts_path, missing_artifacts),
+        "closure_checklist_summary": _closure_checklist_summary(config.closure_checklist_path, closure_checklist),
         "audit_issue_count": len(issues),
         "audit_issues": issues,
         "required_stage_order": list(REQUIRED_STAGE_ORDER),
@@ -115,6 +123,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--formal-gate", type=Path, default=DEFAULT_FORMAL_GATE)
     parser.add_argument("--source-freshness-audit", type=Path, default=DEFAULT_SOURCE_FRESHNESS)
     parser.add_argument("--missing-artifacts-audit", type=Path, default=DEFAULT_MISSING_ARTIFACTS)
+    parser.add_argument("--closure-checklist", type=Path, default=DEFAULT_CLOSURE_CHECKLIST)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
@@ -125,6 +134,8 @@ def _audit_issues(
     source_freshness: dict[str, Any],
     missing_artifacts: dict[str, Any],
     missing_artifacts_path: Path,
+    closure_checklist: dict[str, Any],
+    closure_checklist_path: Path,
 ) -> list[dict[str, Any]]:
     issues: list[dict[str, Any]] = []
     issues.extend(_top_level_issues(plan))
@@ -133,6 +144,7 @@ def _audit_issues(
     issues.extend(_pending_gate_issues(plan))
     issues.extend(_cross_artifact_issues(plan=plan, formal_gate=formal_gate, source_freshness=source_freshness))
     issues.extend(_missing_artifacts_issues(plan=plan, missing_artifacts=missing_artifacts, missing_artifacts_path=missing_artifacts_path))
+    issues.extend(_closure_checklist_issues(plan=plan, closure_checklist=closure_checklist, closure_checklist_path=closure_checklist_path))
     return _unique_issues(issues)
 
 
