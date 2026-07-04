@@ -490,7 +490,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - [x] E03.1 单步运动学测试。
   - 与 `propagate()` 输出严格一致。
   - 已完成: `test_rollout_step_matches_planner_propagate_for_curved_action` 使用非零 steering, 逐项比较 `rollout.next_state`、`rollout.samples[-1]` 和 planner-source `propagate()`。
-  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `21 passed in 0.49s`。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `21 passed in 0.45s`。
   - 记录: `.pipeline/experiments/20260703_module2_e03_single_step_kinematics.md`。
 - [ ] E03.2 碰撞测试。
   - 同一 pose/path 下 env checker 与 planner checker 一致。
