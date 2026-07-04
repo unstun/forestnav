@@ -48,7 +48,7 @@ class PostF026PlanAuditConfig:
     missing_artifacts_path: Path = DEFAULT_MISSING_ARTIFACTS
     closure_checklist_path: Path = DEFAULT_CLOSURE_CHECKLIST
     status_report_path: Path = DEFAULT_STATUS_REPORT
-    remaining_deliverables_path: Path = DEFAULT_REMAINING_DELIVERABLES
+    remaining_deliverables_path: Path | None = None
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -85,7 +85,7 @@ def build_manifest(config: PostF026PlanAuditConfig) -> dict[str, Any]:
     missing_artifacts = _read_json(config.missing_artifacts_path)
     closure_checklist = _read_json(config.closure_checklist_path)
     status_report = _read_json(config.status_report_path)
-    remaining_deliverables = _read_json(config.remaining_deliverables_path)
+    remaining_deliverables = _read_json(config.remaining_deliverables_path) if config.remaining_deliverables_path else {}
     issues = _audit_issues(
         plan=plan,
         formal_gate=formal_gate,
@@ -118,14 +118,19 @@ def build_manifest(config: PostF026PlanAuditConfig) -> dict[str, Any]:
             "formal_gate_missing_artifacts_audit": str(config.missing_artifacts_path),
             "formal_gate_closure_checklist": str(config.closure_checklist_path),
             "formal_gate_status_report": str(config.status_report_path),
-            "formal_gate_remaining_deliverables": str(config.remaining_deliverables_path),
+        "formal_gate_remaining_deliverables": str(config.remaining_deliverables_path)
+        if config.remaining_deliverables_path
+        else None,
         },
         "plan_status": plan.get("status"),
         "source_regeneration_command_index_summary": _source_regeneration_command_index_summary(plan, source_freshness),
         "missing_artifacts_summary": _missing_artifacts_summary(config.missing_artifacts_path, missing_artifacts),
         "closure_checklist_summary": _closure_checklist_summary(config.closure_checklist_path, closure_checklist),
         "status_report_summary": _status_report_summary(config.status_report_path, status_report),
-        "remaining_deliverables_gap_summary": _remaining_deliverables_gap_summary(config.remaining_deliverables_path, remaining_deliverables),
+        "remaining_deliverables_gap_summary": _remaining_deliverables_gap_summary(
+            config.remaining_deliverables_path,
+            remaining_deliverables,
+        ),
         "audit_issue_count": len(issues),
         "audit_issues": issues,
         "required_stage_order": list(REQUIRED_STAGE_ORDER),
@@ -166,7 +171,7 @@ def _audit_issues(
     status_report: dict[str, Any],
     status_report_path: Path,
     remaining_deliverables: dict[str, Any],
-    remaining_deliverables_path: Path,
+    remaining_deliverables_path: Path | None,
 ) -> list[dict[str, Any]]:
     issues: list[dict[str, Any]] = []
     issues.extend(_top_level_issues(plan))
@@ -487,6 +492,8 @@ def _remaining_deliverables_gap_issues(
     remaining_deliverables: dict[str, Any],
     remaining_deliverables_path: Path,
 ) -> list[dict[str, Any]]:
+    if remaining_deliverables_path is None:
+        return []
     if not Path(remaining_deliverables_path).is_file():
         return [
             _issue(
@@ -894,10 +901,10 @@ def _status_report_summary(path: Path, status_report: dict[str, Any]) -> dict[st
     }
 
 
-def _remaining_deliverables_gap_summary(path: Path, remaining_deliverables: dict[str, Any]) -> dict[str, Any]:
+def _remaining_deliverables_gap_summary(path: Path | None, remaining_deliverables: dict[str, Any]) -> dict[str, Any]:
     summary = _normalize_gap_summary(remaining_deliverables.get("deliverable_gap_summary"))
-    summary["path"] = str(path)
-    summary["exists"] = Path(path).is_file()
+    summary["path"] = str(path) if path else None
+    summary["exists"] = Path(path).is_file() if path else False
     return summary
 
 
