@@ -723,7 +723,9 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - remote preflight: no-warm formal protocol 在 `0_trials/module2_remote_preflight/gate3_no_warm_remote_v1/gate3_preflight_manifest.json` 为 `formal_trial_ready=true`; obstacle-summary warm-start formal protocol 在 `0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_pending_remote_v1/gate3_preflight_manifest.json` 被 `warm_start_decision_pending` 正确阻塞。
   - remote smoke: `0_trials/module2_remote_smoke/gate3_warm_start_cuda_smoke/` 完成 16 timesteps CUDA warm-start train + 4 episode eval, `warm_start_status=applied_obstacle_summary_bc`, `formal_gate_claim=false`, audit `formal_decision=not_formal`, blockers 包含 `smoke_trial`, `train_curriculum_not_f03`, `eval_curriculum_not_f03`, `insufficient_eval_episodes`, `warm_start_decision_pending`。
   - remote 边界: 这是远端训练链路 smoke, 不是 formal Gate #3, 不能用其 `final_model.zip` 填 H01 `missing_module2_rl_rs_checkpoint`。
+  - remote formal execution packet: 新增 `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json`, 当前 status=`blocked_until_f02_6_decision`, `ready_to_run_remote_training=false`; 批准后所有 preflight/runner/audit 命令都经 `ssh gpu3070ti-relay` 执行, 同步命令无 `--delete`, 回传清单固定 7 类 formal artifact。
   - remote 记录: `.pipeline/experiments/20260704_module2_f03_gpu3070ti_remote_readiness.md`。
+  - remote execution packet 记录: `.pipeline/experiments/20260704_module2_remote_formal_execution_packet.md`。
 
 ### Phase G: Planner 集成
 
@@ -965,6 +967,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 40. [x] A02.3 P0 telemetry implementation 已完成: runtime NN forward timing、RL/RS canonical attempt columns、primitive fallback count 和 rollout/collision protocol metadata 已进入 evaluation outputs。
 41. [x] H02/I02 telemetry refresh 已完成: H02 available-subset 重跑后输出新 telemetry schema, I02 paper table artifact 新增 telemetry diagnostic table; 仍为 non-formal preview。
 42. [x] H01 output schema guard 已完成: formal manifest 已冻结 records/summary/summary.json 必需输出 schema, 包含 A02.3 telemetry columns。
+43. [x] Remote formal execution packet 已完成: F02.6 pending 时 hard-block 训练, 批准后只允许 `gpu3070ti-relay` 远端执行, 并冻结 preflight/runner/audit/pullback artifact contract。
 
 ## 7. 完成记录
 
@@ -1022,3 +1025,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 完成 A02.3 P0 telemetry implementation。RL-RS operator/evaluation records 现在输出 `rl_attempts`, `rl_successes`, `rs_attempts`, `nn_forward_time_s`, `fallback_to_primitives_count`, `rollout_protocol`, `collision_checker`; summary 输出 NN forward 聚合与 attempts totals。I01 code-anchored method/system diagram 已按 timed policy call 更新锚点并再生成。验证: full `2_experiment/forest_n3p/tests` 112 passed。记录见 `.pipeline/experiments/20260704_module2_a02_3_telemetry_implementation.md`。
 - 2026-07-04: 完成 H02/I02 telemetry refresh。重跑 H02.1 available subset 后 records/summary 均含 A02.3 新 telemetry columns; I02 paper table artifact 新增 `telemetry_diagnostic_table`。BC analytic 3-query smoke 暴露 `rl_attempts_total=126`, `rl_successes_total=3`, `fallback_to_primitives_total=123`; 这是 schema/diagnostic preview, 非 formal result。记录见 `.pipeline/experiments/20260704_module2_h02_i02_telemetry_refresh.md`。
 - 2026-07-04: 完成 H01 output schema guard。`module2_v1_evaluation_manifest.json` 新增 `required_output_schema`, 要求 formal records/summary 输出包含 A02.3 telemetry columns 与统计检验/CI sections; manifest 仍因 F02.6 pending 和缺 PPO checkpoint 保持 `blocked_pending_decisions`。记录见 `.pipeline/experiments/20260704_module2_h01_output_schema_guard.md`。
+- 2026-07-04: 完成 remote formal execution packet。新增 `build_module2_remote_formal_execution_packet.py`, 生成 `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json` 和 `.md`; 当前 `blocked_until_f02_6_decision`, `ready_to_run_remote_training=false`, 所有 runner/audit 命令均包为 `ssh gpu3070ti-relay`, 回传清单固定 7 类 formal artifact。记录见 `.pipeline/experiments/20260704_module2_remote_formal_execution_packet.md`。
