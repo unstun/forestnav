@@ -11,12 +11,18 @@
 - `f_n3p_knn`: ready_if_preflight_passes (blockers: none)
 - `mlp`: ready (blockers: none)
 - `bc_analytic_operator`: ready (blockers: none)
-- `ppo_analytic_operator`: blocked (blockers: missing_module2_rl_rs_checkpoint, f02_6_warm_start_decision_pending)
-- `ppo_rs_funnel`: blocked (blockers: missing_module2_rl_rs_checkpoint, f02_6_warm_start_decision_pending)
+- `ppo_analytic_operator`: blocked (blockers: missing_module2_rl_rs_checkpoint, f02_6_warm_start_decision_pending, f02_6_decision_packet_pending)
+- `ppo_rs_funnel`: blocked (blockers: missing_module2_rl_rs_checkpoint, f02_6_warm_start_decision_pending, f02_6_decision_packet_pending)
 
 ## Blockers
 - `f02_6_warm_start_decision_pending`
+- `f02_6_decision_packet_pending`
 - `missing_module2_rl_rs_checkpoint`
+
+## F02.6 Decision Packet
+- path: `0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json`
+- status: `pending_human_decision`
+- effective decision: `pending`
 
 ## Formal Command
 

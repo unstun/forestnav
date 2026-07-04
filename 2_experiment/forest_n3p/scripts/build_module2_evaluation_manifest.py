@@ -19,6 +19,7 @@ class Module2EvaluationManifestConfig:
     realmap_manifest_path: Path = Path("2_experiment/forest_n3p/assets/realmaps/manifest.json")
     realmap_query_protocol_path: Path | None = None
     warm_start_decision: str = "pending"
+    warm_start_decision_packet_path: Path | None = None
     bc_checkpoint: Path | None = None
     rl_rs_checkpoint: Path | None = None
     queries_per_bucket: int = 100
@@ -40,6 +41,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         realmap_manifest_path=args.realmap_manifest_path,
         realmap_query_protocol_path=args.realmap_query_protocol_path,
         warm_start_decision=str(args.warm_start_decision),
+        warm_start_decision_packet_path=args.warm_start_decision_packet,
         bc_checkpoint=args.bc_checkpoint,
         rl_rs_checkpoint=args.rl_rs_checkpoint,
         queries_per_bucket=int(args.queries_per_bucket),
@@ -67,9 +69,19 @@ def build_manifest(config: Module2EvaluationManifestConfig) -> dict[str, Any]:
     cutpoints = _frontmatter_record(config.cutpoint_supplement_path, keys=("reviewed", "status"))
     real_maps = _realmap_record(config.realmap_manifest_path)
     realmap_query_protocol = _realmap_query_protocol_record(config.realmap_query_protocol_path)
-    methods = _method_records(config)
-    blockers = _global_blockers(config, methods, realmap_query_protocol)
-    status = _manifest_status(config, methods, blockers)
+    f02_6_decision_packet = _f02_6_decision_packet_record(config)
+    effective_warm_start_decision = str(f02_6_decision_packet["effective_warm_start_decision"])
+    methods = _method_records(
+        config,
+        warm_start_decision=effective_warm_start_decision,
+        warm_start_blockers=tuple(f02_6_decision_packet["blockers"]),
+    )
+    blockers = _global_blockers(
+        warm_start_decision=effective_warm_start_decision,
+        methods=methods,
+        realmap_query_protocol=realmap_query_protocol,
+    )
+    status = _manifest_status(warm_start_decision=effective_warm_start_decision, blockers=blockers)
     return {
         "schema_version": 1,
         "manifest_name": "module2_v1_evaluation",
@@ -91,6 +103,7 @@ def build_manifest(config: Module2EvaluationManifestConfig) -> dict[str, Any]:
         "metrics": _metric_records(),
         "real_maps": real_maps,
         "realmap_query_protocol": realmap_query_protocol,
+        "f02_6_decision_packet": f02_6_decision_packet,
         "blockers": blockers,
         "run_command": _run_command(config, methods),
         "claim_boundaries": [
@@ -112,6 +125,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--realmap-manifest-path", type=Path, default=Module2EvaluationManifestConfig.realmap_manifest_path)
     parser.add_argument("--realmap-query-protocol-path", type=Path, default=None)
     parser.add_argument("--warm-start-decision", choices=("pending", "approved_obstacle_summary", "no_warm_only"), default="pending")
+    parser.add_argument("--warm-start-decision-packet", type=Path, default=None)
     parser.add_argument("--bc-checkpoint", type=Path, default=None)
     parser.add_argument("--rl-rs-checkpoint", type=Path, default=None)
     parser.add_argument("--queries-per-bucket", type=int, default=100)
@@ -123,7 +137,13 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
-def _method_records(config: Module2EvaluationManifestConfig) -> list[dict[str, Any]]:
+def _method_records(
+    config: Module2EvaluationManifestConfig,
+    *,
+    warm_start_decision: str | None = None,
+    warm_start_blockers: Sequence[str] = (),
+) -> list[dict[str, Any]]:
+    effective_warm_start_decision = str(warm_start_decision or config.warm_start_decision)
     bc_blockers: list[str] = []
     if config.bc_checkpoint is None:
         bc_blockers.append("missing_module2_bc_checkpoint")
@@ -135,8 +155,11 @@ def _method_records(config: Module2EvaluationManifestConfig) -> list[dict[str, A
         ppo_blockers.append("missing_module2_rl_rs_checkpoint")
     elif not Path(config.rl_rs_checkpoint).is_file():
         ppo_blockers.append("missing_module2_rl_rs_checkpoint")
-    if str(config.warm_start_decision) == "pending":
+    if effective_warm_start_decision == "pending":
         ppo_blockers.append("f02_6_warm_start_decision_pending")
+    for blocker in warm_start_blockers:
+        if blocker not in ppo_blockers:
+            ppo_blockers.append(blocker)
 
     records = [
         _method("ha_no_analytic", "HA* no analytic", "ha_no_analytic", "ready"),
@@ -209,13 +232,18 @@ def _metric_records() -> list[dict[str, str]]:
 
 
 def _global_blockers(
-    config: Module2EvaluationManifestConfig,
+    *,
+    warm_start_decision: str,
     methods: Sequence[dict[str, Any]],
     realmap_query_protocol: dict[str, Any],
 ) -> list[str]:
     blockers: list[str] = []
-    if str(config.warm_start_decision) == "pending":
+    if str(warm_start_decision) == "pending":
         blockers.append("f02_6_warm_start_decision_pending")
+    for method in methods:
+        for blocker in method.get("blockers", ()):
+            if str(blocker).startswith("f02_6_decision_packet") and str(blocker) not in blockers:
+                blockers.append(str(blocker))
     if any("missing_module2_bc_checkpoint" in method.get("blockers", ()) for method in methods):
         blockers.append("missing_module2_bc_checkpoint")
     if any("missing_module2_rl_rs_checkpoint" in method.get("blockers", ()) for method in methods):
@@ -227,14 +255,85 @@ def _global_blockers(
     return blockers
 
 
-def _manifest_status(config: Module2EvaluationManifestConfig, methods: Sequence[dict[str, Any]], blockers: Sequence[str]) -> str:
-    if str(config.warm_start_decision) == "pending":
+def _manifest_status(*, warm_start_decision: str, blockers: Sequence[str]) -> str:
+    if str(warm_start_decision) == "pending":
         return "blocked_pending_decisions"
     if "missing_required_method_implementation" in blockers:
         return "blocked_missing_implementation"
     if blockers:
         return "blocked_protocol_gap"
     return "ready_for_formal_run"
+
+
+def _f02_6_decision_packet_record(config: Module2EvaluationManifestConfig) -> dict[str, Any]:
+    requested = str(config.warm_start_decision)
+    path = config.warm_start_decision_packet_path
+    if path is None:
+        return {
+            "path": None,
+            "exists": False,
+            "status": "not_provided",
+            "requested_warm_start_decision": requested,
+            "effective_warm_start_decision": requested,
+            "recommendation": None,
+            "blockers": [],
+        }
+
+    packet_path = Path(path)
+    if not packet_path.is_file():
+        return {
+            "path": str(packet_path),
+            "exists": False,
+            "status": "missing",
+            "requested_warm_start_decision": requested,
+            "effective_warm_start_decision": "pending",
+            "recommendation": None,
+            "blockers": ["f02_6_decision_packet_missing"],
+        }
+
+    try:
+        payload = json.loads(packet_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {
+            "path": str(packet_path),
+            "exists": True,
+            "status": "unreadable",
+            "requested_warm_start_decision": requested,
+            "effective_warm_start_decision": "pending",
+            "recommendation": None,
+            "blockers": ["f02_6_decision_packet_unreadable"],
+        }
+
+    status = str(payload.get("status"))
+    recommendation = payload.get("recommendation") if isinstance(payload.get("recommendation"), dict) else {}
+    recommended_decision = recommendation.get("decision")
+    packet_blockers = [str(item) for item in payload.get("blockers", ()) if item]
+    approved = (
+        status in {"approved", "approved_obstacle_summary"}
+        and recommended_decision == "approve_obstacle_summary_warm_start"
+        and "requires_dr_sun_approval" not in packet_blockers
+    )
+    blockers: list[str] = []
+    effective = requested
+    if approved:
+        effective = "approved_obstacle_summary"
+    elif status == "pending_human_decision":
+        effective = "pending"
+        blockers.append("f02_6_decision_packet_pending")
+    else:
+        effective = "pending"
+        blockers.append("f02_6_decision_packet_not_approved")
+
+    return {
+        "path": str(packet_path),
+        "exists": True,
+        "status": status,
+        "requested_warm_start_decision": requested,
+        "effective_warm_start_decision": effective,
+        "recommendation": recommended_decision,
+        "packet_blockers": packet_blockers,
+        "blockers": blockers,
+    }
 
 
 def _run_command(config: Module2EvaluationManifestConfig, methods: Sequence[dict[str, Any]]) -> dict[str, Any]:
@@ -374,6 +473,16 @@ def _manifest_markdown(manifest: dict[str, Any]) -> str:
         lines.extend(f"- `{blocker}`" for blocker in manifest["blockers"])
     else:
         lines.append("- none")
+    packet = manifest.get("f02_6_decision_packet") or {}
+    lines.extend(
+        [
+            "",
+            "## F02.6 Decision Packet",
+            f"- path: `{packet.get('path')}`",
+            f"- status: `{packet.get('status')}`",
+            f"- effective decision: `{packet.get('effective_warm_start_decision')}`",
+        ]
+    )
     lines.extend(["", "## Formal Command", ""])
     command = manifest["run_command"]["formal_main_evaluation"]
     lines.append("```bash")

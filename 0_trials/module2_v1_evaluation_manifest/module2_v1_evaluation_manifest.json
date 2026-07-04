@@ -2,8 +2,8 @@
   "schema_version": 1,
   "manifest_name": "module2_v1_evaluation",
   "status": "blocked_pending_decisions",
-  "created_at_utc": "2026-07-04T05:34:52.316002+00:00",
-  "source_head": "1e4c528bfeebec0e927d7d496d42de32a014a9c5+dirty",
+  "created_at_utc": "2026-07-04T06:03:28.332562+00:00",
+  "source_head": "11a90a616fba016b88465cde30451d41ce665862+dirty",
   "contract": {
     "path": ".pipeline/contracts/module2-ppo-funnel-expansion.md",
     "exists": true,
@@ -88,7 +88,8 @@
       "status": "blocked",
       "blockers": [
         "missing_module2_rl_rs_checkpoint",
-        "f02_6_warm_start_decision_pending"
+        "f02_6_warm_start_decision_pending",
+        "f02_6_decision_packet_pending"
       ],
       "checkpoint": null
     },
@@ -99,7 +100,8 @@
       "status": "blocked",
       "blockers": [
         "missing_module2_rl_rs_checkpoint",
-        "f02_6_warm_start_decision_pending"
+        "f02_6_warm_start_decision_pending",
+        "f02_6_decision_packet_pending"
       ],
       "checkpoint": null
     }
@@ -189,15 +191,31 @@
     "queries_csv_sha256": "36f80e9e69cd41d3658d4d9858b04aee874c93933c85188254c7731565764b59",
     "query_rows_sha256": "47a85142114fb03d4ac29ca479f44821e1896f0e23c03705a992387a1b9aaa41"
   },
+  "f02_6_decision_packet": {
+    "path": "0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json",
+    "exists": true,
+    "status": "pending_human_decision",
+    "requested_warm_start_decision": "pending",
+    "effective_warm_start_decision": "pending",
+    "recommendation": "approve_obstacle_summary_warm_start",
+    "packet_blockers": [
+      "requires_dr_sun_approval"
+    ],
+    "blockers": [
+      "f02_6_decision_packet_pending"
+    ]
+  },
   "blockers": [
     "f02_6_warm_start_decision_pending",
+    "f02_6_decision_packet_pending",
     "missing_module2_rl_rs_checkpoint"
   ],
   "run_command": {
     "formal_main_evaluation": null,
     "blocked_reasons": [
       "missing_module2_rl_rs_checkpoint",
-      "f02_6_warm_start_decision_pending"
+      "f02_6_warm_start_decision_pending",
+      "f02_6_decision_packet_pending"
     ]
   },
   "claim_boundaries": [
