@@ -1158,6 +1158,70 @@ def _remaining_deliverables_acceptance_summary(remaining_deliverables: dict[str,
     }
 
 
+def _remaining_deliverables_gap_summary(remaining_deliverables: dict[str, Any]) -> dict[str, Any]:
+    raw_summary = remaining_deliverables.get("deliverable_gap_summary")
+    raw_summary = raw_summary if isinstance(raw_summary, dict) else {}
+    raw_categories = raw_summary.get("categories")
+    raw_categories = raw_categories if isinstance(raw_categories, list) else []
+    categories: dict[str, dict[str, Any]] = {}
+    for category in REMAINING_DELIVERABLE_ACCEPTANCE_MATRIX_IDS:
+        raw = next(
+            (
+                item
+                for item in raw_categories
+                if isinstance(item, dict) and item.get("category") == category
+            ),
+            {},
+        )
+        missing_artifacts_raw = raw.get("missing_artifacts")
+        missing_artifacts_raw = missing_artifacts_raw if isinstance(missing_artifacts_raw, list) else []
+        missing_artifacts = []
+        for item in missing_artifacts_raw:
+            if not isinstance(item, dict):
+                continue
+            invalid_substitutes = item.get("invalid_substitutes")
+            missing_artifacts.append(
+                {
+                    "matrix_id": item.get("matrix_id"),
+                    "artifact_id": item.get("artifact_id"),
+                    "expected_path": item.get("expected_path"),
+                    "current_state": item.get("current_state"),
+                    "missing_reason": item.get("missing_reason"),
+                    "acceptance_predicate_count": int(item.get("acceptance_predicate_count") or 0),
+                    "invalid_substitute_count": len(invalid_substitutes)
+                    if isinstance(invalid_substitutes, list)
+                    else 0,
+                }
+            )
+        categories[category] = {
+            "present": bool(raw),
+            "status": raw.get("status"),
+            "missing_count": int(raw.get("missing_count") or 0),
+            "present_count": int(raw.get("present_count") or 0),
+            "responsible_stage_id": raw.get("responsible_stage_id"),
+            "responsible_stage_allowed_now": raw.get("responsible_stage_allowed_now")
+            if isinstance(raw.get("responsible_stage_allowed_now"), bool)
+            else None,
+            "responsible_stage_blocked_by": _strings(raw.get("responsible_stage_blocked_by")),
+            "next_required_evidence_count": len(_strings(raw.get("next_required_evidence"))),
+            "missing_artifact_count": len(missing_artifacts),
+            "missing_artifact_matrix_ids": [
+                str(item["matrix_id"]) for item in missing_artifacts if item.get("matrix_id")
+            ],
+            "missing_artifacts": missing_artifacts,
+        }
+    return {
+        "present": bool(raw_summary),
+        "summary_id": raw_summary.get("summary_id"),
+        "execution_boundary": raw_summary.get("execution_boundary"),
+        "not_paper_result_material": raw_summary.get("not_paper_result_material") is True,
+        "total_missing_deliverables": int(raw_summary.get("total_missing_deliverables") or 0),
+        "open_category_count": int(raw_summary.get("open_category_count") or 0),
+        "category_order": _strings(raw_summary.get("category_order")),
+        "categories": categories,
+    }
+
+
 def _remaining_deliverables_acceptance_issues(
     *,
     remaining_deliverables: dict[str, Any],
@@ -1231,6 +1295,149 @@ def _remaining_deliverables_acceptance_issues(
                 _issue(
                     f"remaining_deliverables_{safe_matrix_id}_stage_allowed_while_blocked",
                     f"{matrix_id} responsible stage cannot be allowed while remaining deliverables are blocked.",
+                )
+            )
+    return issues
+
+
+def _remaining_deliverables_gap_summary_issues(
+    *,
+    remaining_deliverables: dict[str, Any],
+    acceptance_summary: dict[str, Any],
+    gap_summary: dict[str, Any],
+) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    if not remaining_deliverables:
+        return []
+    if not gap_summary["present"]:
+        return [
+            _issue(
+                "remaining_deliverables_gap_summary_missing",
+                "remaining-deliverables ledger must expose deliverable_gap_summary.",
+            )
+        ]
+    if gap_summary["summary_id"] != "module2_formal_gate_missing_training_eval_acceptance_summary":
+        issues.append(
+            _issue(
+                "remaining_deliverables_gap_summary_id_invalid",
+                "remaining-deliverables gap summary id must match the formal gate contract.",
+            )
+        )
+    if gap_summary["execution_boundary"] != "read_only_no_execution":
+        issues.append(
+            _issue(
+                "remaining_deliverables_gap_summary_execution_boundary_invalid",
+                "remaining-deliverables gap summary must be read-only.",
+            )
+        )
+    if not gap_summary["not_paper_result_material"]:
+        issues.append(
+            _issue(
+                "remaining_deliverables_gap_summary_marked_as_paper_result",
+                "remaining-deliverables gap summary must not be paper result material.",
+            )
+        )
+    if gap_summary["total_missing_deliverables"] != acceptance_summary["missing_row_count"]:
+        issues.append(
+            _issue(
+                "remaining_deliverables_gap_total_missing_mismatch",
+                "gap summary total missing deliverables must match the acceptance matrix missing row count.",
+            )
+        )
+    if gap_summary["open_category_count"] != acceptance_summary["blocked_category_count"]:
+        issues.append(
+            _issue(
+                "remaining_deliverables_gap_open_category_mismatch",
+                "gap summary open category count must match acceptance blocked category count.",
+            )
+        )
+    expected_order = list(REMAINING_DELIVERABLE_ACCEPTANCE_MATRIX_IDS)
+    if gap_summary["category_order"] != expected_order:
+        issues.append(
+            _issue(
+                "remaining_deliverables_gap_category_order_mismatch",
+                "gap summary category order must cover training, evaluation, acceptance, and formal_acceptance.",
+            )
+        )
+    category_counts = remaining_deliverables.get("category_counts")
+    category_counts = category_counts if isinstance(category_counts, dict) else {}
+    stage_by_category = {
+        "training": "gate3_remote_training",
+        "evaluation": "gate3_remote_audit_pullback",
+        "acceptance": "gate3_remote_audit_pullback",
+        "formal_acceptance": "regenerate_h01_h02_formal_artifacts",
+    }
+    blocked_status = remaining_deliverables.get("status") != "formal_gate_deliverables_ready_for_claim_audit"
+    for category, artifact_ids in REMAINING_DELIVERABLE_ACCEPTANCE_MATRIX_IDS.items():
+        raw_counts = category_counts.get(category) if isinstance(category_counts.get(category), dict) else {}
+        expected_missing_count = int(raw_counts.get("missing_count") or 0)
+        summary_category = gap_summary["categories"][category]
+        if not summary_category["present"]:
+            issues.append(
+                _issue(
+                    f"remaining_deliverables_gap_missing_category_{category}",
+                    f"gap summary must include {category}.",
+                )
+            )
+            continue
+        if summary_category["missing_count"] != expected_missing_count:
+            issues.append(
+                _issue(
+                    f"remaining_deliverables_gap_{category}_missing_count_mismatch",
+                    f"gap summary {category} missing count must match category_counts.",
+                )
+            )
+        if summary_category["responsible_stage_id"] != stage_by_category[category]:
+            issues.append(
+                _issue(
+                    f"remaining_deliverables_gap_{category}_wrong_responsible_stage",
+                    f"gap summary {category} responsible stage is wrong.",
+                )
+            )
+        if blocked_status and summary_category["responsible_stage_allowed_now"] is True:
+            issues.append(
+                _issue(
+                    f"remaining_deliverables_gap_{category}_stage_allowed_while_blocked",
+                    f"gap summary {category} stage cannot be allowed while remaining deliverables are blocked.",
+                )
+            )
+        expected_missing_matrix_ids = [
+            matrix_id
+            for matrix_id, row in acceptance_summary["rows"].items()
+            if row["category"] == category and row["missing"] is True
+        ]
+        if summary_category["missing_artifact_matrix_ids"] != expected_missing_matrix_ids:
+            issues.append(
+                _issue(
+                    f"remaining_deliverables_gap_{category}_missing_artifact_ids_mismatch",
+                    f"gap summary {category} missing artifact ids must match acceptance matrix missing rows.",
+                )
+            )
+        for artifact in summary_category["missing_artifacts"]:
+            matrix_id = artifact.get("matrix_id")
+            if matrix_id not in expected_missing_matrix_ids:
+                continue
+            safe_matrix_id = str(matrix_id).replace(":", "_")
+            if artifact["acceptance_predicate_count"] <= 0:
+                issues.append(
+                    _issue(
+                        f"remaining_deliverables_gap_{safe_matrix_id}_missing_predicates",
+                        f"gap summary {matrix_id} must preserve acceptance predicate count.",
+                    )
+                )
+            if artifact["invalid_substitute_count"] <= 0:
+                issues.append(
+                    _issue(
+                        f"remaining_deliverables_gap_{safe_matrix_id}_missing_invalid_substitutes",
+                        f"gap summary {matrix_id} must preserve invalid substitutes.",
+                    )
+                )
+        expected_artifact_count = len(artifact_ids)
+        if expected_missing_count > expected_artifact_count:
+            issues.append(
+                _issue(
+                    f"remaining_deliverables_gap_{category}_missing_count_too_large",
+                    f"gap summary {category} missing count exceeds expected artifact count.",
                 )
             )
     return issues
