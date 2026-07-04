@@ -770,9 +770,14 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 更新记录: `.pipeline/experiments/20260704_module2_h01_realmap_query_protocol.md`。
   - 更新记录: `.pipeline/experiments/20260704_module2_h01_ppo_analytic_operator_manifest.md`。
   - 更新记录: `.pipeline/experiments/20260704_module2_h01_f02_6_decision_packet_guard.md`。
-- [ ] H01.2 指标冻结。
+- [x] H01.2 指标冻结。
   - Contract 主指标: expansions, total wall-clock, timeout failure rate, path quality。
   - 诊断指标: analytic success, terminal RS success, collision checks, fallback count, clearance。
+  - 已完成: 新增 `build_module2_metric_protocol.py`, 产出 `0_trials/module2_metric_protocol/module2_metric_protocol.json` 和 `.md`, status=`frozen`。
+  - 输出口径: `records.csv.total_time_s` 用于跨方法 wall-clock claim; `summary_by_method_bucket.timeout_failure_count/timeout_failure_rate` 现在显式导出 Contract 的 timeout failure rate; `paired_wilcoxon_expansions()` 与 `paired_wilcoxon_time()` 分别支撑 expansions/time 的配对检验。
+  - 边界: 指标已冻结但不代表 formal evaluation 已可运行; H01 formal-ready 仍受 F02.6 pending 和缺 PPO checkpoint 阻塞。
+  - 验证: `PYTHONPATH=2_experiment pytest -q 2_experiment/forest_n3p/tests/test_evaluation_timing_protocol.py 2_experiment/forest_n3p/tests/test_module2_metric_protocol.py 2_experiment/forest_n3p/tests/test_module2_evaluation_manifest.py` -> `11 passed in 0.80s`。
+  - 记录: `.pipeline/experiments/20260704_module2_h01_metric_protocol.md`。
 
 #### H02. 正式评测
 
@@ -860,6 +865,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 30. [>] H01.1 module2 v1 evaluation manifest 已生成 blocked/preflight 版本; BC operator、PPO without-terminal-RS operator method 和 realmap query protocol 已解除工程实现 blocker, formal-ready 仍受 F02.6 和缺 PPO checkpoint 阻塞。
 31. [x] G02.4/H01.1a BC checkpoint-backed analytic operator 已接入 main evaluation, 并完成不训练 3-query smoke。
 32. [x] H01.1b RealMap query generation protocol 已冻结, 10 queries / 2 maps, endpoint audit pass。
+33. [x] H01.2 指标冻结: metric protocol status=`frozen`, timeout failure rate 已显式输出, expansions/time paired Wilcoxon 统计函数已具备。
 
 ## 7. 完成记录
 
@@ -905,3 +911,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 完成 `gpu3070ti-relay` 远端 PPO 执行链路预检。远端 GPU/CUDA/SB3/pyarrow 可用; no-warm formal preflight ready; obstacle-summary warm-start formal preflight 仍按 F02.6 pending 阻塞; 远端 warm-start CUDA smoke 产物已同步回本地并被 audit 判为 `not_formal`。记录见 `.pipeline/experiments/20260704_module2_f03_gpu3070ti_remote_readiness.md`。
 - 2026-07-04: 完成 F02.6 warm-start 决策包生成器与证据包。新增 `build_module2_f02_6_warm_start_decision_packet.py`, 输出 JSON/Markdown 决策包, 推荐 obstacle-summary warm-start 但状态保持 `pending_human_decision`; 下一步若 Dr Sun 批准, 正式训练必须走 `gpu3070ti-relay`, 不在本地训练。记录见 `.pipeline/experiments/20260704_module2_f02_6_warm_start_decision_packet.md`。
 - 2026-07-04: 完成 H01 manifest 的 F02.6 decision-packet guard。`build_module2_evaluation_manifest.py` 新增 `--warm-start-decision-packet`, 读取 packet 后计算 effective warm-start decision; 当前 pending packet 会把 H01 manifest 维持在 `blocked_pending_decisions`, 并加入 `f02_6_decision_packet_pending` blocker, 防止用 CLI 字符串绕过 Dr Sun 审批门。记录见 `.pipeline/experiments/20260704_module2_h01_f02_6_decision_packet_guard.md`。
+- 2026-07-04: 完成 H01.2 metric protocol。新增 `build_module2_metric_protocol.py`, 冻结 Contract 主指标与诊断指标; `GroupSummary` 新增 `timeout_failure_count/timeout_failure_rate`; `paired_wilcoxon_expansions()` 与现有 `paired_wilcoxon_time()` 分别支撑 expansions/time 的配对检验; H01.2 artifact status=`frozen` 且 blockers=[]。记录见 `.pipeline/experiments/20260704_module2_h01_metric_protocol.md`。

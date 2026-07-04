@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "protocol_name": "module2_h01_metric_protocol",
+  "status": "frozen",
+  "created_at_utc": "2026-07-04T06:11:25.644709+00:00",
+  "source_head": "a7f8236e60c70a6fb16ddfbc057a489dd2827ad5+dirty",
+  "contract": {
+    "path": ".pipeline/contracts/module2-ppo-funnel-expansion.md",
+    "status": "approved",
+    "primary_metric_anchor": ".pipeline/contracts/module2-ppo-funnel-expansion.md:19-32",
+    "statistical_test_anchor": ".pipeline/contracts/module2-ppo-funnel-expansion.md:41-45"
+  },
+  "metrics": [
+    {
+      "metric_id": "total_expansions",
+      "role": "contract_primary",
+      "hypothesis": "median reduction >= 50%",
+      "record_field": "records.csv.total_expansions",
+      "summary_fields": [
+        "summary_by_method_bucket.median_expansions",
+        "summary_by_method_bucket.p95_expansions"
+      ],
+      "statistical_test": {
+        "name": "paired_wilcoxon_signed_rank",
+        "function": "forest_n3p.evaluation.paired_wilcoxon_expansions",
+        "p_threshold": 0.05
+      }
+    },
+    {
+      "metric_id": "total_time_s",
+      "role": "contract_primary",
+      "hypothesis": "median reduction >= 30%",
+      "record_field": "records.csv.total_time_s",
+      "summary_fields": [
+        "summary_by_method_bucket.median_time_s",
+        "summary_by_method_bucket.p95_time_s"
+      ],
+      "statistical_test": {
+        "name": "paired_wilcoxon_signed_rank",
+        "function": "forest_n3p.evaluation.paired_wilcoxon_time",
+        "p_threshold": 0.05
+      }
+    },
+    {
+      "metric_id": "timeout_failure_rate",
+      "role": "contract_primary",
+      "hypothesis": "absolute reduction >= 20 percentage points",
+      "record_derivation": {
+        "source_field": "records.csv.failure_reason",
+        "rule": "count a timeout failure when lowercase failure_reason contains 'timeout'"
+      },
+      "summary_fields": [
+        "summary_by_method_bucket.timeout_failure_count",
+        "summary_by_method_bucket.timeout_failure_rate"
+      ],
+      "statistical_test": {
+        "name": "paired_bootstrap_ci",
+        "function": "bootstrap over paired timeout indicator differences",
+        "confidence_level": 0.95
+      }
+    },
+    {
+      "metric_id": "path_quality",
+      "role": "contract_primary",
+      "hypothesis": "path inflation <= 5% and smoothness/clearance not worse",
+      "submetrics": [
+        {
+          "record_field": "path_inflation_ratio",
+          "summary_fields": [
+            "summary_by_method_bucket.median_path_inflation_ratio",
+            "summary_by_method_bucket.p95_path_inflation_ratio"
+          ]
+        },
+        {
+          "record_field": "mean_abs_curvature",
+          "summary_fields": [
+            "summary_by_method_bucket.mean_direction_switches"
+          ]
+        },
+        {
+          "record_field": "min_clearance_m",
+          "summary_fields": [
+            "summary_by_method_bucket.median_min_clearance_m"
+          ]
+        }
+      ]
+    },
+    {
+      "metric_id": "analytic_success_rate",
+      "role": "diagnostic",
+      "record_derivation": {
+        "numerator": "records.csv.analytic_successes",
+        "denominator": "records.csv.analytic_attempts"
+      }
+    },
+    {
+      "metric_id": "terminal_rs_success_rate",
+      "role": "diagnostic",
+      "record_derivation": {
+        "numerator": "records.csv.terminal_rs_success_count",
+        "denominator": "records.csv.analytic_attempts"
+      }
+    },
+    {
+      "metric_id": "nn_forward_time_s",
+      "role": "diagnostic",
+      "external_artifact_fields": [
+        "Gate #3 eval summary nn_forward_time_s",
+        "Gate #3 eval summary mean_nn_forward_time_s",
+        "records.csv metadata.nn_forward_time_s when a runner explicitly flattens it"
+      ]
+    }
+  ],
+  "serialized_outputs": {
+    "records_csv_columns": [
+      "query_id",
+      "method",
+      "difficulty_bucket",
+      "distance_bin_key",
+      "success",
+      "feasible",
+      "total_time_s",
+      "total_expansions",
+      "path_length_m",
+      "reference_path_length_m",
+      "path_inflation_ratio",
+      "direction_switches",
+      "mean_abs_curvature",
+      "min_clearance_m",
+      "collision_violation_count",
+      "fallback_f1_count",
+      "fallback_f2_count",
+      "fallback_f3_count",
+      "fallback_triggered",
+      "subgoal_reachable_count",
+      "subgoal_attempt_count",
+      "subgoal_reachability_rate",
+      "analytic_operator",
+      "analytic_attempts",
+      "analytic_successes",
+      "analytic_failure_count",
+      "rl_rollout_steps",
+      "rl_rollout_collision_checks",
+      "rl_rollout_sample_time_s",
+      "rl_rollout_collision_time_s",
+      "terminal_rs_time_s",
+      "terminal_rs_success_count",
+      "terminal_rs_used_count",
+      "terminal_rs_action_count",
+      "bc_checkpoint",
+      "bc_checkpoint_sha256",
+      "rl_rs_checkpoint",
+      "rl_rs_checkpoint_sha256",
+      "failure_reason",
+      "metadata"
+    ],
+    "summary_by_method_bucket_columns": [
+      "method",
+      "difficulty_bucket",
+      "count",
+      "success_count",
+      "success_rate",
+      "feasible_count",
+      "feasible_rate",
+      "median_time_s",
+      "p95_time_s",
+      "min_time_s",
+      "mean_time_s",
+      "median_expansions",
+      "p95_expansions",
+      "median_path_inflation_ratio",
+      "p95_path_inflation_ratio",
+      "mean_direction_switches",
+      "median_min_clearance_m",
+      "collision_violation_total",
+      "timeout_failure_count",
+      "timeout_failure_rate",
+      "fallback_trigger_rate",
+      "fallback_f1_rate",
+      "fallback_f2_rate",
+      "fallback_f3_rate",
+      "subgoal_reachability_rate"
+    ],
+    "paired_time_tests_columns": [
+      "method_a",
+      "method_b",
+      "paired_query_count",
+      "statistic",
+      "p_value",
+      "median_delta_a_minus_b_s"
+    ],
+    "paired_expansion_tests_columns": [
+      "method_a",
+      "method_b",
+      "paired_query_count",
+      "statistic",
+      "p_value",
+      "median_delta_a_minus_b_expansions"
+    ],
+    "success_rate_bootstrap_ci_columns": [
+      "method_a",
+      "method_b",
+      "paired_query_count",
+      "observed_success_rate_diff_a_minus_b",
+      "ci_low",
+      "ci_high",
+      "confidence_level",
+      "n_resamples"
+    ]
+  },
+  "blockers": [],
+  "claim_boundaries": [
+    "Use records.csv.total_time_s, not planner_time_s, for cross-method timing claims.",
+    "Use timeout_failure_rate only when failure_reason contains timeout; other failures stay separate.",
+    "Use paired Wilcoxon p<0.05 for total_time_s and total_expansions comparisons where paired queries exist.",
+    "Use bootstrap CI for success/timeout/failure rate differences.",
+    "Path quality claims must report path_inflation_ratio plus curvature or clearance, not success alone."
+  ]
+}
