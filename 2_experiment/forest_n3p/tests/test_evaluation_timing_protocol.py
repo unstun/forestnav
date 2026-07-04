@@ -15,6 +15,7 @@ from forest_n3p.evaluation import (
     summarize_by_method_bucket,
     write_evaluation_outputs,
 )
+from forest_n3p.main_evaluation import _stat_pairs
 from forest_n3p.third_party.pathplan import GridMap, TwoCircleFootprint
 
 
@@ -280,6 +281,23 @@ def test_bootstrap_timeout_failure_rate_difference_uses_paired_timeout_indicator
 
     assert payload["timeout_failure_rate_bootstrap_ci"][0]["metric_id"] == "timeout_failure_rate"
     assert payload["timeout_failure_rate_bootstrap_ci"][0]["observed_rate_diff_a_minus_b"] == pytest.approx(1.0 / 3.0)
+
+
+def test_stat_pairs_include_module2_operator_against_dang_rs_baseline():
+    pairs = _stat_pairs(
+        (
+            "ha_no_analytic",
+            "ha_single_rs",
+            "ha_dang_multi_rs",
+            "bc_analytic_operator",
+            "ppo_analytic_operator",
+            "ha_rl_rs_ppo",
+        )
+    )
+
+    assert ("bc_analytic_operator", "ha_dang_multi_rs") in pairs
+    assert ("ppo_analytic_operator", "ha_dang_multi_rs") in pairs
+    assert ("ha_rl_rs_ppo", "ha_dang_multi_rs") in pairs
 
 
 def _record(
