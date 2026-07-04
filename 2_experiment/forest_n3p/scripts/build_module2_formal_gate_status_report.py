@@ -167,6 +167,9 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     decision_intake_summary = _decision_intake_summary(decision_intake)
     remaining_deliverables_acceptance_summary = _remaining_deliverables_acceptance_summary(remaining_deliverables)
     remaining_deliverables_gap_summary = _remaining_deliverables_gap_summary(remaining_deliverables)
+    formal_gate_gap_audit_remaining_deliverables_gap_summary = (
+        _formal_gate_gap_audit_remaining_deliverables_gap_summary(formal_gate)
+    )
 
     input_safety_issues = _input_safety_issues(
         {
@@ -198,6 +201,11 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             remaining_deliverables=remaining_deliverables,
             acceptance_summary=remaining_deliverables_acceptance_summary,
             gap_summary=remaining_deliverables_gap_summary,
+        )
+        + _formal_gate_gap_audit_remaining_deliverables_gap_summary_issues(
+            formal_gate=formal_gate,
+            formal_gate_gap_summary=formal_gate_gap_audit_remaining_deliverables_gap_summary,
+            ledger_gap_summary=remaining_deliverables_gap_summary,
         )
     )
     lanes = _lanes(
@@ -325,6 +333,12 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "formal_gate_execution_veto_all_rows_consistent": formal_gate_execution_veto["all_rows_consistent"],
             "formal_gate_execution_veto_remote_training_allowed_now": formal_gate_execution_veto["row_consensus"].get("remote_training"),
             "formal_gate_execution_veto_formal_claim_allowed_now": formal_gate_execution_veto["row_consensus"].get("formal_claim"),
+            "formal_gate_gap_audit_remaining_total_missing_deliverables": formal_gate_gap_audit_remaining_deliverables_gap_summary[
+                "total_missing_deliverables"
+            ],
+            "formal_gate_gap_audit_remaining_open_category_count": formal_gate_gap_audit_remaining_deliverables_gap_summary[
+                "open_category_count"
+            ],
         },
         "permissions_now": permissions,
         "missing_counts_by_category": missing_artifacts.get("missing_counts_by_category") if isinstance(missing_artifacts.get("missing_counts_by_category"), dict) else {},
@@ -345,6 +359,9 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "formal_gate_execution_veto_summary": formal_gate_execution_veto,
         "remaining_deliverables_acceptance_summary": remaining_deliverables_acceptance_summary,
         "remaining_deliverables_gap_summary": remaining_deliverables_gap_summary,
+        "formal_gate_gap_audit_remaining_deliverables_gap_summary": (
+            formal_gate_gap_audit_remaining_deliverables_gap_summary
+        ),
         "formal_gate_lanes": lanes,
         "next_blocked_lane": _next_blocked_lane(lanes),
         "input_safety_issue_count": len(input_safety_issues),
