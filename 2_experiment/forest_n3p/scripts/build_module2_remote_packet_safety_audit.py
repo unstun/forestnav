@@ -35,6 +35,12 @@ REMOTE_PREFLIGHT_REQUIREMENT_IDS = (
     "remote_preflight_protocol_contract",
     "remote_preflight_command_packetized",
 )
+POST_RUN_ACCEPTANCE_REQUIREMENT_IDS = (
+    "pullback_expected_artifacts_complete",
+    "checkpoint_hash_manifest_recorded",
+    "gate3_formal_audit_accepts_remote_run",
+    "h01_h02_regenerated_from_audited_checkpoint",
+)
 
 
 @dataclass(frozen=True)
@@ -126,6 +132,7 @@ def _audit_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any], plan
     issues.extend(_execution_step_issues(packet))
     issues.extend(_execution_step_blocker_issues(packet=packet, decision_gate=decision_gate))
     issues.extend(_pullback_issues(packet))
+    issues.extend(_post_run_acceptance_requirement_issues(packet))
     issues.extend(_downstream_issues(packet))
     issues.extend(_cross_gate_issues(packet=packet, decision_gate=decision_gate, plan_audit=plan_audit))
     return _unique_issues(issues)
@@ -320,6 +327,29 @@ def _pullback_issues(packet: dict[str, Any]) -> list[dict[str, Any]]:
     return issues
 
 
+def _post_run_acceptance_requirement_issues(packet: dict[str, Any]) -> list[dict[str, Any]]:
+    requirements = packet.get("post_run_acceptance_requirements")
+    issues: list[dict[str, Any]] = []
+    if not isinstance(requirements, list):
+        return [_issue("packet_missing_post_run_acceptance_requirements", "Remote packet must expose post_run_acceptance_requirements.")]
+    by_id = {str(item.get("requirement_id")): item for item in requirements if isinstance(item, dict)}
+    for requirement_id in POST_RUN_ACCEPTANCE_REQUIREMENT_IDS:
+        if requirement_id not in by_id:
+            issues.append(_issue(f"post_run_requirement_missing_{requirement_id}", "Post-run acceptance requirement is missing."))
+    for requirement_id, requirement in by_id.items():
+        if requirement.get("requirement_id") not in POST_RUN_ACCEPTANCE_REQUIREMENT_IDS:
+            continue
+        if not _strings(requirement.get("acceptable_evidence")):
+            issues.append(_issue(f"{requirement_id}_missing_acceptable_evidence", "Post-run requirement must list acceptable evidence."))
+        if not _strings(requirement.get("invalid_substitutes")):
+            issues.append(_issue(f"{requirement_id}_missing_invalid_substitutes", "Post-run requirement must list invalid substitutes."))
+        if requirement.get("execution_allowed_now") is True:
+            issues.append(_issue(f"{requirement_id}_execution_allowed_now", "Post-run acceptance requirements are descriptive; this audit must not allow execution."))
+        if requirement.get("status") == "satisfied" or requirement.get("complete") is True:
+            issues.append(_issue(f"{requirement_id}_satisfied_before_local_audit", "Remote packet must not mark post-run acceptance satisfied before local pullback/audit review."))
+    return issues
+
+
 def _downstream_issues(packet: dict[str, Any]) -> list[dict[str, Any]]:
     downstream = packet.get("downstream_after_successful_audit") if isinstance(packet.get("downstream_after_successful_audit"), dict) else {}
     issues: list[dict[str, Any]] = []
@@ -403,6 +433,7 @@ def _packet_summary(packet: dict[str, Any]) -> dict[str, Any]:
     env = packet.get("execution_environment") if isinstance(packet.get("execution_environment"), dict) else {}
     preflight = packet.get("remote_preflight") if isinstance(packet.get("remote_preflight"), dict) else {}
     requirement_counts = packet.get("remote_preflight_requirement_counts") if isinstance(packet.get("remote_preflight_requirement_counts"), dict) else {}
+    post_run_counts = packet.get("post_run_acceptance_requirement_counts") if isinstance(packet.get("post_run_acceptance_requirement_counts"), dict) else {}
     return {
         "status": packet.get("status"),
         "ready_to_run_remote_training": packet.get("ready_to_run_remote_training"),
@@ -422,6 +453,7 @@ def _packet_summary(packet: dict[str, Any]) -> dict[str, Any]:
         "pullback_artifact_count": len(_strings(pullback.get("expected_artifacts"))),
         "hash_manifest_required": pullback.get("hash_manifest_required"),
         "remote_preflight_requirement_counts": requirement_counts,
+        "post_run_acceptance_requirement_counts": post_run_counts,
     }
 
 
