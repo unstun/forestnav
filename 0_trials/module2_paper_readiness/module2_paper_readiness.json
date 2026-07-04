@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_paper_readiness",
   "status": "partial_methods_ready_results_blocked",
-  "created_at_utc": "2026-07-04T17:52:53.678592+00:00",
-  "source_head": "4368599f29da0e63bc272d3ef2facfcc942c5d47+dirty",
+  "created_at_utc": "2026-07-04T17:59:59.024189+00:00",
+  "source_head": "a79e686496ad84c85dafbf3421ba4b2a46b4998f+dirty",
   "manuscript_ready": false,
   "formal_results_ready": false,
   "local_training_allowed": false,
@@ -40,6 +40,12 @@
     "claim_safety_requirement_stage_unmapped_count": 0,
     "claim_safety_requirement_stage_mismatched_count": 0,
     "claim_safety_requirement_stage_blocked_stage_count": 4,
+    "claim_safety_remote_preflight_requirement_present": true,
+    "claim_safety_remote_preflight_requirement_satisfied_count": 2,
+    "claim_safety_remote_preflight_requirement_blocked_count": 2,
+    "claim_safety_post_run_acceptance_requirement_present": true,
+    "claim_safety_post_run_acceptance_requirement_satisfied_count": 0,
+    "claim_safety_post_run_acceptance_requirement_blocked_count": 4,
     "h02_formal_acceptance_status": "blocked_formal_output_acceptance",
     "h02_formal_output_accepted": false,
     "h02_paper_result_input_allowed": false,
@@ -93,6 +99,89 @@
         "responsible_stage_allowed_now": false,
         "mapping_present": true,
         "mapping_matches_expected": true
+      }
+    }
+  },
+  "claim_safety_remote_requirement_summary": {
+    "remote_preflight_requirement_summary": {
+      "present": true,
+      "required_requirement_count": 4,
+      "present_requirement_count": 4,
+      "blocked_requirement_count": 2,
+      "status_counts": {
+        "blocked_missing_preflight": 2,
+        "satisfied": 2
+      },
+      "missing_requirement_ids": [],
+      "requirements": {
+        "f02_6_decision_closed_for_preflight": {
+          "present": true,
+          "status": "blocked_missing_preflight",
+          "complete": false,
+          "execution_allowed_now": false,
+          "remote_training_ready_now": null
+        },
+        "approved_remote_preflight_manifest": {
+          "present": true,
+          "status": "blocked_missing_preflight",
+          "complete": false,
+          "execution_allowed_now": false,
+          "remote_training_ready_now": null
+        },
+        "remote_preflight_protocol_contract": {
+          "present": true,
+          "status": "satisfied",
+          "complete": true,
+          "execution_allowed_now": false,
+          "remote_training_ready_now": null
+        },
+        "remote_preflight_command_packetized": {
+          "present": true,
+          "status": "satisfied",
+          "complete": true,
+          "execution_allowed_now": false,
+          "remote_training_ready_now": null
+        }
+      }
+    },
+    "post_run_acceptance_requirement_summary": {
+      "present": true,
+      "required_requirement_count": 4,
+      "present_requirement_count": 4,
+      "blocked_requirement_count": 4,
+      "status_counts": {
+        "blocked_until_remote_audit": 4
+      },
+      "missing_requirement_ids": [],
+      "requirements": {
+        "pullback_expected_artifacts_complete": {
+          "present": true,
+          "status": "blocked_until_remote_audit",
+          "complete": false,
+          "execution_allowed_now": false,
+          "remote_training_ready_now": false
+        },
+        "checkpoint_hash_manifest_recorded": {
+          "present": true,
+          "status": "blocked_until_remote_audit",
+          "complete": false,
+          "execution_allowed_now": false,
+          "remote_training_ready_now": false
+        },
+        "gate3_formal_audit_accepts_remote_run": {
+          "present": true,
+          "status": "blocked_until_remote_audit",
+          "complete": false,
+          "execution_allowed_now": false,
+          "remote_training_ready_now": false
+        },
+        "h01_h02_regenerated_from_audited_checkpoint": {
+          "present": true,
+          "status": "blocked_until_remote_audit",
+          "complete": false,
+          "execution_allowed_now": false,
+          "remote_training_ready_now": false
+        }
       }
     }
   },

@@ -49,6 +49,15 @@
 - claim_safety_requirement_stage_mismatched_count: `0`
 - claim_safety_requirement_stage_blocked_stage_count: `4`
 
+## Claim Safety Remote Requirement Matrices
+
+- claim_safety_remote_preflight_requirement_present: `True`
+- claim_safety_remote_preflight_requirement_satisfied_count: `2`
+- claim_safety_remote_preflight_requirement_blocked_count: `2`
+- claim_safety_post_run_acceptance_requirement_present: `True`
+- claim_safety_post_run_acceptance_requirement_satisfied_count: `0`
+- claim_safety_post_run_acceptance_requirement_blocked_count: `4`
+
 ## Section Readiness
 
 ### method_algorithm

@@ -66,6 +66,25 @@
 - `run_remote_training`: allowed_now=`False`, runs_training=`True`, runs_remote_preflight=`None`, host=`None`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_packet_not_ready`
 - `run_remote_audit`: allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_packet_not_ready`
 
+## Status Report Remote Requirement Matrices
+
+### remote_preflight_requirement_summary
+- present=`True`
+- status_counts=`{'blocked_missing_preflight': 2, 'satisfied': 2}`
+- blocked_requirement_count=`2`
+- `f02_6_decision_closed_for_preflight`: status=`blocked_missing_preflight`, complete=`False`, execution_allowed_now=`False`, remote_training_ready_now=`None`
+- `approved_remote_preflight_manifest`: status=`blocked_missing_preflight`, complete=`False`, execution_allowed_now=`False`, remote_training_ready_now=`None`
+- `remote_preflight_protocol_contract`: status=`satisfied`, complete=`True`, execution_allowed_now=`False`, remote_training_ready_now=`None`
+- `remote_preflight_command_packetized`: status=`satisfied`, complete=`True`, execution_allowed_now=`False`, remote_training_ready_now=`None`
+### post_run_acceptance_requirement_summary
+- present=`True`
+- status_counts=`{'blocked_until_remote_audit': 4}`
+- blocked_requirement_count=`4`
+- `pullback_expected_artifacts_complete`: status=`blocked_until_remote_audit`, complete=`False`, execution_allowed_now=`False`, remote_training_ready_now=`False`
+- `checkpoint_hash_manifest_recorded`: status=`blocked_until_remote_audit`, complete=`False`, execution_allowed_now=`False`, remote_training_ready_now=`False`
+- `gate3_formal_audit_accepts_remote_run`: status=`blocked_until_remote_audit`, complete=`False`, execution_allowed_now=`False`, remote_training_ready_now=`False`
+- `h01_h02_regenerated_from_audited_checkpoint`: status=`blocked_until_remote_audit`, complete=`False`, execution_allowed_now=`False`, remote_training_ready_now=`False`
+
 ## Prohibited Claims
 
 - `global_optimality`: not allowed; patterns=全局最优, globally optimal, global optimality
