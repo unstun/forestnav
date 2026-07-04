@@ -25,6 +25,11 @@ REMOTE_EXECUTION_STEP_IDS = (
     "run_remote_training",
     "run_remote_audit",
 )
+CLOSURE_REMOTE_STAGE_IDS = (
+    "approved_remote_preflight",
+    "gate3_remote_training",
+    "gate3_remote_audit_pullback",
+)
 
 
 @dataclass(frozen=True)
@@ -83,6 +88,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     claim_safety = _read_json(config.claim_safety_path)
     paper_readiness = _read_json(config.paper_readiness_path)
     remote_execution_steps = _remote_execution_step_summary(remote_packet)
+    closure_remote_stages = _closure_remote_stage_summary(closure_checklist)
 
     input_safety_issues = _input_safety_issues(
         {
@@ -150,6 +156,9 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "missing_artifacts_status": missing_artifacts.get("status"),
             "closure_checklist_status": closure_checklist.get("status"),
             "closure_open_item_count": closure_checklist.get("open_item_count"),
+            "closure_remote_preflight_allowed_now": closure_remote_stages["approved_remote_preflight"]["allowed_now"],
+            "closure_remote_training_allowed_now": closure_remote_stages["gate3_remote_training"]["allowed_now"],
+            "closure_remote_audit_pullback_allowed_now": closure_remote_stages["gate3_remote_audit_pullback"]["allowed_now"],
             "remote_packet_status": remote_packet.get("status"),
             "ready_to_run_remote_training": remote_packet.get("ready_to_run_remote_training"),
             "remote_packet_sync_allowed_now": remote_execution_steps["sync_to_remote"]["allowed_now"],
@@ -171,6 +180,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "acceptance_artifacts_required": _artifact_list(closure_checklist, "acceptance_artifacts_required"),
         "evaluation_acceptance_required": _artifact_list(closure_checklist, "evaluation_acceptance_required"),
         "claim_gate_artifacts_required": _artifact_list(closure_checklist, "claim_gate_artifacts_required"),
+        "closure_remote_stage_summary": closure_remote_stages,
         "remote_execution_step_summary": remote_execution_steps,
         "formal_gate_lanes": lanes,
         "next_blocked_lane": _next_blocked_lane(lanes),
@@ -401,9 +411,58 @@ def _input_safety_issues(named_payloads: dict[str, dict[str, Any]]) -> list[dict
             issues.append(_issue(f"{name}_allows_formal_claim", f"{name} must not allow formal claims through status reporting."))
         if name == "remote_packet" and payload.get("formal_claim_allowed_before_audit") is True:
             issues.append(_issue("remote_packet_allows_claim_before_audit", "remote packet must not allow claims before audit."))
+        if name == "closure_checklist":
+            issues.extend(_closure_remote_stage_safety_issues(payload))
         if name == "remote_packet":
             issues.extend(_remote_execution_step_safety_issues(payload))
     return _unique_issues(issues)
+
+
+def _closure_remote_stage_summary(closure_checklist: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    raw = closure_checklist.get("post_plan_remote_stage_summary")
+    stages = raw if isinstance(raw, dict) else {}
+    summary: dict[str, dict[str, Any]] = {}
+    for stage_id in CLOSURE_REMOTE_STAGE_IDS:
+        stage = stages.get(stage_id) if isinstance(stages.get(stage_id), dict) else {}
+        summary[stage_id] = {
+            "present": bool(stage),
+            "status": stage.get("status"),
+            "allowed_now": stage.get("allowed_now") if isinstance(stage.get("allowed_now"), bool) else None,
+            "runs_training": stage.get("runs_training") if isinstance(stage.get("runs_training"), bool) else None,
+            "runs_remote_preflight": stage.get("runs_remote_preflight") if isinstance(stage.get("runs_remote_preflight"), bool) else None,
+            "host": stage.get("host"),
+            "blocked_by": _strings(stage.get("blocked_by")),
+        }
+    return summary
+
+
+def _closure_remote_stage_safety_issues(closure_checklist: dict[str, Any]) -> list[dict[str, str]]:
+    raw = closure_checklist.get("post_plan_remote_stage_summary")
+    if not isinstance(raw, dict):
+        return [_issue("closure_checklist_missing_remote_stage_summary", "closure checklist must expose post_plan_remote_stage_summary.")]
+    summary = _closure_remote_stage_summary(closure_checklist)
+    issues: list[dict[str, str]] = []
+    for stage_id, stage in summary.items():
+        if not stage["present"]:
+            issues.append(_issue(f"closure_checklist_missing_{stage_id}", f"closure checklist missing remote stage {stage_id}."))
+            continue
+        if stage["allowed_now"] is False and not stage["blocked_by"]:
+            issues.append(_issue(f"closure_checklist_{stage_id}_missing_blocked_by", f"disabled closure remote stage {stage_id} must explain blocked_by."))
+        if stage["allowed_now"] is True and stage["blocked_by"]:
+            issues.append(_issue(f"closure_checklist_{stage_id}_allowed_with_blockers", f"allowed closure remote stage {stage_id} must not carry blocked_by."))
+    training = summary.get("gate3_remote_training", {})
+    if training.get("runs_training") is not True:
+        issues.append(_issue("closure_checklist_training_stage_not_marked_training", "gate3_remote_training must remain marked as training."))
+    for stage_id in ("approved_remote_preflight", "gate3_remote_audit_pullback"):
+        if summary.get(stage_id, {}).get("runs_training") is True:
+            issues.append(_issue(f"closure_checklist_{stage_id}_claims_training", f"{stage_id} must not be marked as training."))
+    preflight = summary.get("approved_remote_preflight", {})
+    if preflight.get("runs_remote_preflight") is not True:
+        issues.append(_issue("closure_checklist_preflight_stage_not_marked_preflight", "approved_remote_preflight must remain marked as remote preflight."))
+    for stage_id, stage in summary.items():
+        if (stage.get("runs_training") is True or stage.get("runs_remote_preflight") is True) and stage.get("host") != "gpu3070ti-relay":
+            issues.append(_issue(f"closure_checklist_{stage_id}_wrong_host", f"{stage_id} must run only on gpu3070ti-relay."))
+    return issues
 
 
 def _remote_execution_step_summary(remote_packet: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -573,6 +632,14 @@ def _markdown(manifest: dict[str, Any]) -> str:
         lines.append(
             f"- `{step_id}`: present=`{step['present']}`, allowed_now=`{step['allowed_now']}`, "
             f"runs_training=`{step['runs_training']}`, blocked_by=`{blocked_by}`"
+        )
+    lines.extend(["", "## Closure Remote Stages", ""])
+    for stage_id, stage in manifest["closure_remote_stage_summary"].items():
+        blocked_by = ", ".join(stage["blocked_by"]) if stage["blocked_by"] else "none"
+        lines.append(
+            f"- `{stage_id}`: present=`{stage['present']}`, allowed_now=`{stage['allowed_now']}`, "
+            f"runs_training=`{stage['runs_training']}`, runs_remote_preflight=`{stage['runs_remote_preflight']}`, "
+            f"host=`{stage['host']}`, blocked_by=`{blocked_by}`"
         )
     lines.extend(["", "## Required Training Artifacts", ""])
     _append_artifacts(lines, manifest["training_artifacts_required"])
