@@ -370,6 +370,7 @@ def _global_blockers(
     _extend_unique(blockers, _claim_safety_h02_acceptance_requirement_blockers(claim_safety))
     _extend_unique(blockers, _claim_safety_decision_intake_blockers(claim_safety))
     _extend_unique(blockers, _claim_safety_remaining_deliverables_acceptance_blockers(claim_safety))
+    _extend_unique(blockers, _claim_safety_remaining_deliverables_gap_blockers(claim_safety))
     _extend_unique(blockers, h01_manifest.get("blockers", []))
     if str(decision_record.get("status")) == "pending_human_decision":
         _append_unique(blockers, "f02_6_pending")
@@ -788,6 +789,57 @@ def _claim_safety_remaining_deliverables_acceptance_blockers(claim_safety: dict[
             _append_unique(blockers, f"claim_safety_remaining_deliverables_acceptance_{safe_matrix_id}_missing_predicates")
         if row["invalid_substitute_count"] <= 0:
             _append_unique(blockers, f"claim_safety_remaining_deliverables_acceptance_{safe_matrix_id}_missing_invalid_substitutes")
+    return blockers
+
+
+def _claim_safety_remaining_deliverables_gap_summary(claim_safety: dict[str, Any]) -> dict[str, Any]:
+    summary = claim_safety.get("status_report_remaining_deliverables_gap_summary")
+    summary = summary if isinstance(summary, dict) else {}
+    raw_categories = summary.get("categories") if isinstance(summary.get("categories"), dict) else {}
+    categories: dict[str, dict[str, Any]] = {}
+    for category in CLAIM_SAFETY_REMAINING_DELIVERABLE_CATEGORY_IDS:
+        raw = raw_categories.get(category) if isinstance(raw_categories.get(category), dict) else {}
+        categories[category] = {
+            "present": bool(raw),
+            "missing_count": int(raw.get("missing_count") or 0),
+            "responsible_stage_id": raw.get("responsible_stage_id"),
+            "responsible_stage_allowed_now": raw.get("responsible_stage_allowed_now")
+            if isinstance(raw.get("responsible_stage_allowed_now"), bool)
+            else None,
+            "missing_artifact_matrix_ids": [str(value) for value in raw.get("missing_artifact_matrix_ids", []) if value]
+            if isinstance(raw.get("missing_artifact_matrix_ids"), list)
+            else [],
+        }
+    return {
+        "present": bool(summary),
+        "summary_id": summary.get("summary_id"),
+        "total_missing_deliverables": int(summary.get("total_missing_deliverables") or 0),
+        "open_category_count": int(summary.get("open_category_count") or 0),
+        "category_order": [str(value) for value in summary.get("category_order", []) if value]
+        if isinstance(summary.get("category_order"), list)
+        else [],
+        "categories": categories,
+    }
+
+
+def _claim_safety_remaining_deliverables_gap_blockers(claim_safety: dict[str, Any]) -> list[str]:
+    summary = _claim_safety_remaining_deliverables_gap_summary(claim_safety)
+    blockers: list[str] = []
+    if not summary["present"]:
+        blockers.append("claim_safety_missing_remaining_deliverables_gap_summary")
+        return blockers
+    if summary["category_order"] != list(CLAIM_SAFETY_REMAINING_DELIVERABLE_CATEGORY_IDS):
+        blockers.append("claim_safety_remaining_deliverables_gap_category_order_mismatch")
+    if summary["total_missing_deliverables"] > 0:
+        blockers.append("claim_safety_remaining_deliverables_gap_rows_missing")
+    if summary["open_category_count"] > 0:
+        blockers.append("claim_safety_remaining_deliverables_gap_categories_blocked")
+    for category, payload in summary["categories"].items():
+        if not payload["present"]:
+            _append_unique(blockers, f"claim_safety_remaining_deliverables_gap_missing_{category}")
+            continue
+        if payload["missing_count"] != len(payload["missing_artifact_matrix_ids"]):
+            _append_unique(blockers, f"claim_safety_remaining_deliverables_gap_{category}_missing_artifact_count_mismatch")
     return blockers
 
 
