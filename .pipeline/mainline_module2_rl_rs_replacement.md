@@ -644,10 +644,14 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - checkpoint reload 修复: warm-start model 现在使用可序列化 `RlRsMultiInputPolicy` + `TanhLinearActionHead`, 并持久化 feature normalization; save/load roundtrip 已测试。
   - eval smoke 产物: `0_trials/module2_ppo_smoke/f03_gate3_eval_entry_smoke/`; open-connector 4 episodes eval smoke 输出 `terminal_rs_success_rate=1.0`。
   - evaluator 验证: `KMP_DUPLICATE_LIB_OK=TRUE PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q` -> `56 passed in 7.28s`。
-  - 边界: 两个 smoke 都是 open-connector 极小训练; 无 warm-start smoke 写明 `not_applied_f02_6_pending`, warm-start smoke 写明 `applied_obstacle_summary_bc`; F03.5 Gate 结果仍未判定。
+  - Gate trial runner: 新增 `run_rl_rs_gate3_trial.py`, 一条命令串起 PPO train -> deterministic Gate #3 eval -> 顶层 `gate3_trial_manifest.json`。
+  - trial runner smoke 产物: `0_trials/module2_ppo_smoke/f03_gate3_trial_runner_smoke/`; manifest 写明 `warm_start_status=applied_obstacle_summary_bc`, `formal_gate_claim=false`, `terminal_rs_success_rate=1.0`。
+  - trial runner 验证: `KMP_DUPLICATE_LIB_OK=TRUE PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q` -> `57 passed in 7.41s`; 项目内 warm-start runner smoke 通过。
+  - 边界: 三个 smoke 都是 open-connector 极小训练/评估; 无 warm-start smoke 写明 `not_applied_f02_6_pending`, warm-start smoke 写明 `applied_obstacle_summary_bc`; runner manifest 也固定 `formal_gate_claim=false`; F03.5 Gate 结果仍未判定。
   - 记录: `.pipeline/experiments/20260704_module2_f03_ppo_training_entry.md`。
   - warm-start 记录: `.pipeline/experiments/20260704_module2_f03_obstacle_summary_warm_start.md`。
   - evaluator 记录: `.pipeline/experiments/20260704_module2_f03_gate3_evaluator.md`。
+  - trial runner 记录: `.pipeline/experiments/20260704_module2_f03_gate3_trial_runner.md`。
 
 ### Phase G: Planner 集成
 
