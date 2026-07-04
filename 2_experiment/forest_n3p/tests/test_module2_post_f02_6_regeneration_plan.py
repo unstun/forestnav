@@ -62,6 +62,7 @@ def test_post_f02_6_regeneration_plan_allows_only_regeneration_after_approval_wh
     assert stages["regenerate_preflight_gate_artifacts"]["runs_training"] is False
     joined_commands = "\n".join(stages["regenerate_preflight_gate_artifacts"]["command_templates"])
     assert "build_module2_f02_6_decision_gate_audit" in joined_commands
+    assert "build_module2_formal_gate_closure_checklist" in joined_commands
     assert "build_module2_formal_gate_gap_audit" in joined_commands
     assert "build_module2_remote_formal_execution_packet" in joined_commands
     assert "build_module2_remote_packet_safety_audit" in joined_commands
@@ -206,6 +207,12 @@ def _source_freshness(tmp_path, *, required):
         {
             "artifact_id": "formal_gate_gap_audit",
             "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
+            "freshness_state": "historical_dirty",
+            "required_before": "approved_remote_preflight",
+        },
+        {
+            "artifact_id": "formal_gate_closure_checklist",
+            "path": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
             "freshness_state": "historical_dirty",
             "required_before": "approved_remote_preflight",
         },
