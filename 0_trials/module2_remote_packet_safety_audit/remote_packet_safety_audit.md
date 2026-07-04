@@ -11,6 +11,9 @@ This file audits the remote formal execution packet. It does not execute any com
 - post_plan_status_report_next_blocked_lane_id: `decision`
 - post_plan_handoff_status: `blocked_until_f02_6_decision`
 - post_plan_handoff_remote_training_allowed_now: `False`
+- post_plan_execution_veto_present: `True`
+- post_plan_execution_veto_all_rows_consistent: `True`
+- post_plan_execution_veto_remote_training_allowed_now: `False`
 
 ## Audit Issues
 
