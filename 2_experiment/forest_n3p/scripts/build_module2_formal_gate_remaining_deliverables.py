@@ -83,6 +83,7 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
         closure_checklist=closure_checklist,
         missing_artifacts=missing_artifacts,
     )
+    deliverable_acceptance_matrix = _deliverable_acceptance_matrix(deliverable_groups)
     category_counts = _category_counts(deliverable_groups)
     audit_issues = _audit_issues(
         status_report=status_report,
@@ -131,6 +132,7 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
         "permissions_now": _permissions(status_report=status_report, remote_packet=remote_packet),
         "category_counts": category_counts,
         "deliverable_groups": deliverable_groups,
+        "deliverable_acceptance_matrix": deliverable_acceptance_matrix,
         "missing_deliverable_count": missing_count,
         "open_category_count": sum(1 for group in deliverable_groups if group["missing_count"] > 0),
         "audit_issue_count": len(audit_issues),
@@ -206,6 +208,86 @@ def _deliverable_item(item: dict[str, Any]) -> dict[str, Any]:
         "missing": item.get("missing") is True,
         "reason": item.get("reason"),
     }
+
+
+def _deliverable_acceptance_matrix(deliverable_groups: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for group in deliverable_groups:
+        category = str(group["category"])
+        for item in group["items"]:
+            artifact_id = str(item.get("artifact_id"))
+            rows.append(
+                {
+                    "matrix_id": f"{category}:{artifact_id}",
+                    "category": category,
+                    "artifact_id": artifact_id,
+                    "expected_path": item.get("path"),
+                    "current_exists": item.get("exists"),
+                    "current_state": item.get("state"),
+                    "missing": item.get("missing"),
+                    "missing_reason": item.get("reason"),
+                    "responsible_stage_id": group.get("responsible_stage_id"),
+                    "responsible_stage_status": group.get("responsible_stage_status"),
+                    "responsible_stage_allowed_now": group.get("responsible_stage_allowed_now"),
+                    "responsible_stage_blocked_by": list(group.get("responsible_stage_blocked_by", [])),
+                    "acceptance_predicates": _acceptance_predicates(category=category, artifact_id=artifact_id),
+                    "acceptable_evidence": list(group.get("acceptable_evidence", [])),
+                    "invalid_substitutes": list(group.get("invalid_substitutes", [])),
+                    "execution_boundary": "read_only_no_execution",
+                }
+            )
+    return rows
+
+
+def _acceptance_predicates(*, category: str, artifact_id: str) -> list[str]:
+    generic = [
+        "expected_path exists in the local pulled-back formal Gate3 artifact tree",
+        "artifact state is not missing, blocked, smoke, preview, or candidate",
+        "artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure",
+    ]
+    specific = {
+        "train_final_model_zip": [
+            "final_model.zip is non-empty and paired with summary.json plus training_manifest.json from the same run",
+            "checkpoint is later referenced by the pulled-back SHA-256 record",
+        ],
+        "train_summary_json": [
+            "summary.json parses as JSON and records formal PPO run metadata plus terminal-RS training signals",
+            "summary protocol label matches the approved obstacle-summary warm-start formal Gate3 run",
+        ],
+        "train_training_manifest_json": [
+            "training_manifest.json parses as JSON and records command provenance, source head, seed, and run host",
+            "training host is gpu3070ti-relay and local_training_allowed remains false",
+        ],
+        "eval_gate3_eval_episodes_csv": [
+            "gate3_eval_episodes.csv contains formal episode rows for the approved PPO/RL-RS method",
+            "episode rows satisfy the H01 output schema including success, collision, truncation, and timing fields",
+        ],
+        "eval_gate3_summary_json": [
+            "gate3_summary.json parses as JSON and summarizes the pulled-back formal evaluation CSV",
+            "summary scope and row counts match the H01 formal evaluation manifest",
+        ],
+        "gate3_trial_manifest_json": [
+            "gate3_trial_manifest.json records a formal non-smoke, non-preview, non-candidate trial",
+            "manifest records source head, protocol label, host, seed, command provenance, and pullback paths",
+        ],
+        "gate3_formal_audit_json": [
+            "gate3_formal_audit.json accepts the pulled-back run as formal and scoped to the approved protocol",
+            "audit is generated after checkpoint, eval CSV, summary, manifest, and hash records are present",
+        ],
+        "pulled_back_checkpoint_hash_record": [
+            "SHA-256 file or JSON exists for train/final_model.zip",
+            "recorded digest matches the locally pulled-back final_model.zip",
+        ],
+        "h01_ready_for_formal_run": [
+            "module2_v1_evaluation_manifest status is ready_for_formal_run or ready_for_formal_evaluation",
+            "manifest references the audited PPO checkpoint and requires formal PPO result rows",
+        ],
+        "h02_formal_output_acceptance": [
+            "h02_formal_acceptance has formal_output_accepted=true and paper_result_input_allowed=true",
+            "acceptance is regenerated from audited remote artifacts and rejects smoke or preview substitutes",
+        ],
+    }
+    return generic + specific.get(artifact_id, [f"{category} artifact has an explicit formal acceptance check"])
 
 
 def _formal_requirement_by_phase(missing_artifacts: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -384,6 +466,20 @@ def _markdown(manifest: dict[str, Any]) -> str:
         if group["invalid_substitutes"]:
             lines.append("- invalid_substitutes:")
             lines.extend(f"  - {item}" for item in group["invalid_substitutes"])
+    lines.extend(["", "## Deliverable Acceptance Matrix", ""])
+    for row in manifest["deliverable_acceptance_matrix"]:
+        lines.append(f"### {row['matrix_id']}")
+        lines.append(f"- expected_path: `{row['expected_path']}`")
+        lines.append(f"- missing: `{row['missing']}`")
+        lines.append(f"- current_state: `{row['current_state']}`")
+        lines.append(f"- responsible_stage_id: `{row['responsible_stage_id']}`")
+        lines.append(f"- responsible_stage_allowed_now: `{row['responsible_stage_allowed_now']}`")
+        blocked_by = ", ".join(row["responsible_stage_blocked_by"]) if row["responsible_stage_blocked_by"] else "none"
+        lines.append(f"- responsible_stage_blocked_by: `{blocked_by}`")
+        lines.append("- acceptance_predicates:")
+        lines.extend(f"  - {item}" for item in row["acceptance_predicates"])
+        lines.append("- invalid_substitutes:")
+        lines.extend(f"  - {item}" for item in row["invalid_substitutes"])
     lines.extend(["", "## Audit Issues", ""])
     if manifest["audit_issues"]:
         for issue in manifest["audit_issues"]:
