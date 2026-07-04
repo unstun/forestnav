@@ -86,6 +86,9 @@ class AnalyticExpansionStep:
     truncated: bool
     telemetry: RlRsStepTelemetry
     terminal_rs: TerminalRsCheckResult
+    rollout_path_length_m: float
+    min_clearance_m: float | None
+    curvature_delta_abs: float
 
     @property
     def info(self) -> dict[str, object]:
@@ -103,6 +106,9 @@ class AnalyticExpansionStep:
             "progress_to_goal_m": self.telemetry.progress_to_goal_m,
             "no_progress_count": self.telemetry.no_progress_count,
             "oscillation_detected": self.telemetry.oscillation_detected,
+            "rollout_path_length_m": self.rollout_path_length_m,
+            "min_clearance_m": self.min_clearance_m,
+            "curvature_delta_abs": self.curvature_delta_abs,
         }
 
 
@@ -289,6 +295,9 @@ class AnalyticExpansionEnv:
             truncated=truncated,
             telemetry=telemetry,
             terminal_rs=terminal,
+            rollout_path_length_m=rollout_path_length_m,
+            min_clearance_m=min_clearance_m,
+            curvature_delta_abs=curvature_delta_abs,
         )
 
 
