@@ -7,6 +7,7 @@ from forest_n3p.rl_rs.actions import (
     steering_action_to_primitive,
 )
 from forest_n3p.rl_rs.env import AnalyticExpansionContext, AnalyticExpansionEnv, AnalyticExpansionStep
+from forest_n3p.rl_rs.gym_env import GymAnalyticExpansionEnv, StaticContextSampler
 from forest_n3p.rl_rs.obs import (
     ObservationConfig,
     RlRsObservation,
@@ -36,6 +37,7 @@ __all__ = [
     "AnalyticExpansionStep",
     "ActionConfig",
     "ClippedSteeringAction",
+    "GymAnalyticExpansionEnv",
     "ObservationConfig",
     "RewardBreakdown",
     "RewardConfig",
@@ -46,6 +48,7 @@ __all__ = [
     "RolloutStepResult",
     "SteeringAction",
     "SteeringPolicy",
+    "StaticContextSampler",
     "TerminalRsCheckResult",
     "build_egocentric_edt_patch",
     "build_egocentric_occupancy_patch",
