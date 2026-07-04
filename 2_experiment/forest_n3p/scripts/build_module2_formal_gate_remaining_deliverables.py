@@ -380,8 +380,8 @@ def _acceptance_proof_commands(*, category: str, artifact_id: str, expected_path
                 purpose="verify training manifest records command provenance and source hashes",
                 command=_python_json_assert_command(
                     expected_path,
-                    "assert isinstance(data.get('command'), dict); "
-                    "assert data.get('command', {}).get('argv') or data.get('command', {}).get('shell'); "
+                    "assert isinstance(data.get('command'), (str, list)); "
+                    "assert data.get('command'); "
                     "assert isinstance(data.get('source_hashes'), dict) and data['source_hashes']; "
                     "assert data.get('config', {}).get('curriculum_preset') == 'f03'",
                 ),
