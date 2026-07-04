@@ -972,6 +972,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 45. [x] I02/I03 已显式消费 H02 formal acceptance audit: paper tables 和 claim safety 都不能只凭 H02 verdict 或自身状态放行 formal claim。
 46. [x] Paper readiness ledger 已完成: 方法算法、系统图和 no-warm scoped failure claim 可写, formal results/main table/warm-start effect 继续 blocked。
 47. [x] Paper section seed 已完成: readiness 放行的 method/system/no-warm failure 被转成 evidence-bound draft seed, draft audit clean; formal results 和 warm-start effect 继续 blocked。
+48. [x] Paper section LaTeX hook 已完成: `module2_paper_section_seed.tex` 已生成并由 `3_paper/main.tex` method 段 input; maintex static audit 和 pdflatex draftmode 均通过, Results 未接 formal Module2 claim。
 
 ## 7. 完成记录
 
@@ -1034,3 +1035,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 完成 I02/I03 H02 acceptance integration。`build_module2_paper_tables.py` 和 `build_module2_claim_safety.py` 均新增 `--h02-formal-acceptance`; 当前 I02/I03 均读取 `blocked_formal_output_acceptance` 并保持 blocked, 防止 H02 verdict 或 paper table 状态绕过 formal acceptance。验证: full `2_experiment/forest_n3p/tests` 120 passed。记录见 `.pipeline/experiments/20260704_module2_i02_i03_h02_acceptance_integration.md`。
 - 2026-07-04: 完成 paper readiness ledger。新增 `build_module2_paper_readiness.py`, 生成 `0_trials/module2_paper_readiness/module2_paper_readiness.json` 和 `.md`; 当前 `partial_methods_ready_results_blocked`, method/system/no-warm scoped claim 可写, formal results/main table/warm-start effect 继续 blocked。验证: full `2_experiment/forest_n3p/tests` 122 passed。记录见 `.pipeline/experiments/20260704_module2_paper_readiness_ledger.md`。
 - 2026-07-04: 完成 paper section seed。新增 `build_module2_paper_section_seed.py`, 生成 `3_paper/module2_section_seed/module2_paper_section_seed.json` 和 `.md`; 当前 `method_sections_ready_results_blocked`, method/system/no-warm failure 三段已形成 evidence-bound draft seed 且 claim audit clean, formal results/main table/warm-start effect 继续 blocked。记录见 `.pipeline/experiments/20260704_module2_paper_section_seed.md`。
+- 2026-07-04: 完成 paper section LaTeX hook。`build_module2_paper_section_seed.py` 新增 `.tex` 输出, `3_paper/main.tex` 在 Method/Experiments 分界前 input `module2_section_seed/module2_paper_section_seed.tex`; 静态 claim audit 通过, `pdflatex -draftmode` 通过, formal results/warm-start effect 仍只保留 blocked 注释。记录见 `.pipeline/experiments/20260704_module2_paper_section_seed.md`。

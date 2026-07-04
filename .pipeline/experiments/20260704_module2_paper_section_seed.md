@@ -23,11 +23,14 @@ Paper readiness ledger 已经把可写内容和 formal 结果 blocker 分开，�
 - `2_experiment/forest_n3p/tests/test_module2_paper_section_seed.py`
 - `3_paper/module2_section_seed/module2_paper_section_seed.json`
 - `3_paper/module2_section_seed/module2_paper_section_seed.md`
+- `3_paper/module2_section_seed/module2_paper_section_seed.tex`
+- `3_paper/main.tex` method-section input hook
 
 ## 当前状态
 
 - `status=method_sections_ready_results_blocked`
 - `draft_audit.status=clean`
+- `generated_outputs.latex=3_paper/module2_section_seed/module2_paper_section_seed.tex`
 - `methods_rl_rs_operator=draft_ready`
 - `system_figure_caption=draft_ready`
 - `no_warm_gate3_failure_note=draft_ready_with_scope_limit`
@@ -46,3 +49,6 @@ Paper readiness ledger 已经把可写内容和 formal 结果 blocker 分开，�
 - `PYTHONPATH=2_experiment pytest -q 2_experiment/forest_n3p/tests/test_module2_paper_section_seed.py 2_experiment/forest_n3p/tests/test_module2_paper_readiness.py 2_experiment/forest_n3p/tests/test_module2_claim_safety.py` -> `6 passed in 0.30s`
 - `python -m py_compile 2_experiment/forest_n3p/scripts/build_module2_paper_section_seed.py` -> pass
 - `KMP_DUPLICATE_LIB_OK=TRUE PYTHONPATH=2_experiment pytest -q 2_experiment/forest_n3p/tests` -> `124 passed in 11.54s`
+- `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_paper_section_seed --output-dir 3_paper/module2_section_seed --manifest-out 3_paper/module2_section_seed/module2_paper_section_seed.json --markdown-out 3_paper/module2_section_seed/module2_paper_section_seed.md --latex-out 3_paper/module2_section_seed/module2_paper_section_seed.tex` -> `status=method_sections_ready_results_blocked`
+- `maintex_module2_static_audit=pass`: `3_paper/main.tex` includes `module2_section_seed/module2_paper_section_seed.tex` exactly once; expanded text has no prohibited Module2 claim patterns; formal/warm-start sections remain blocked.
+- `cd 3_paper && pdflatex -interaction=nonstopmode -halt-on-error -draftmode -output-directory=/tmp/forestnav_module2_texcheck main.tex` -> pass; first-run citation/reference warnings only; temp directory removed.
