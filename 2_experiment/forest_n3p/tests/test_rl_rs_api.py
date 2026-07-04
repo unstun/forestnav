@@ -196,6 +196,38 @@ def test_env_step_terminates_on_rollout_collision_and_blocks_followup_step():
         env.step(0.0)
 
 
+def test_rollout_collision_matches_planner_checker_for_free_and_blocked_paths():
+    free_context = _empty_context()
+    free_checker = free_context.collision_checker()
+    free_result = rollout_constant_steer_step(
+        state=free_context.start,
+        action=SteeringAction(0.0),
+        params=free_context.params,
+        checker=free_checker,
+        action_step_m=free_context.action_step_m,
+        collision_sample_step_m=free_context.collision_sample_step_m,
+    )
+
+    assert not free_result.collided
+    assert free_result.collided == free_checker.collides_path(free_result.samples)
+
+    blocked_data = np.zeros((60, 60), dtype=np.uint8)
+    blocked_data[10, 13] = 1
+    blocked_context = _context_with_grid(blocked_data, goal=(3.0, 1.0, 0.0))
+    blocked_checker = blocked_context.collision_checker()
+    blocked_result = rollout_constant_steer_step(
+        state=blocked_context.start,
+        action=SteeringAction(0.0),
+        params=blocked_context.params,
+        checker=blocked_checker,
+        action_step_m=blocked_context.action_step_m,
+        collision_sample_step_m=blocked_context.collision_sample_step_m,
+    )
+
+    assert blocked_result.collided
+    assert blocked_result.collided == blocked_checker.collides_path(blocked_result.samples)
+
+
 def test_env_step_terminates_on_terminal_rs_success():
     env = AnalyticExpansionEnv()
     env.reset(_empty_context(goal=(1.6, 1.0, 0.0)))
