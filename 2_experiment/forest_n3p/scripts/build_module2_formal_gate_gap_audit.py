@@ -22,6 +22,20 @@ DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_
 DEFAULT_MISSING_ARTIFACTS = Path("0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json")
 DEFAULT_CLOSURE_CHECKLIST = Path("0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json")
 DEFAULT_STATUS_REPORT = Path("0_trials/module2_formal_gate_status_report/formal_gate_status_report.json")
+DEFAULT_HANDOFF_BUNDLE = Path("0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json")
+DEFAULT_REMOTE_PACKET_SAFETY = Path("0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json")
+REMOTE_EXECUTION_STEP_IDS = (
+    "sync_to_remote",
+    "run_remote_preflight",
+    "run_remote_training",
+    "run_remote_audit",
+)
+REMOTE_PACKET_SAFETY_STEP_MAP = {
+    "sync_to_remote": ("sync_allowed_now", "sync_blocked_by"),
+    "run_remote_preflight": ("remote_preflight_allowed_now", "remote_preflight_blocked_by"),
+    "run_remote_training": ("remote_training_allowed_now", "remote_training_blocked_by"),
+    "run_remote_audit": ("remote_audit_allowed_now", "remote_audit_blocked_by"),
+}
 
 
 @dataclass(frozen=True)
@@ -41,6 +55,8 @@ class FormalGateGapAuditConfig:
     missing_artifacts_path: Path = DEFAULT_MISSING_ARTIFACTS
     closure_checklist_path: Path = DEFAULT_CLOSURE_CHECKLIST
     status_report_path: Path = DEFAULT_STATUS_REPORT
+    handoff_bundle_path: Path = DEFAULT_HANDOFF_BUNDLE
+    remote_packet_safety_path: Path = DEFAULT_REMOTE_PACKET_SAFETY
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -61,6 +77,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         missing_artifacts_path=args.missing_artifacts_audit,
         closure_checklist_path=args.closure_checklist,
         status_report_path=args.status_report,
+        handoff_bundle_path=args.handoff_bundle,
+        remote_packet_safety_path=args.remote_packet_safety_audit,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -94,11 +112,26 @@ def build_manifest(config: FormalGateGapAuditConfig) -> dict[str, Any]:
     missing_artifacts = _read_json(config.missing_artifacts_path)
     closure_checklist = _read_json(config.closure_checklist_path)
     status_report = _read_json(config.status_report_path)
+    handoff_bundle = _read_json(config.handoff_bundle_path)
+    remote_packet_safety = _read_json(config.remote_packet_safety_path)
 
     decision_gaps = _decision_gaps(decision=decision, h01=h01, remote=remote)
     source_freshness_gaps = _source_freshness_gaps(source_freshness=source_freshness, source_freshness_path=config.source_freshness_path)
+    execution_veto_gaps = _unique_gaps(
+        _handoff_bundle_gaps(
+            handoff_bundle=handoff_bundle,
+            handoff_bundle_path=config.handoff_bundle_path,
+            remote=remote,
+        )
+        + _remote_packet_safety_gaps(
+            remote_packet_safety=remote_packet_safety,
+            remote_packet_safety_path=config.remote_packet_safety_path,
+            remote=remote,
+        )
+    )
     training_gaps = _training_gaps(remote=remote, h02=h02, remote_readiness=remote_readiness, remote_readiness_path=config.remote_readiness_path)
     training_gaps = _unique_gaps(training_gaps + source_freshness_gaps)
+    training_gaps = _unique_gaps(training_gaps + execution_veto_gaps)
     evaluation_gaps = _evaluation_gaps(h01=h01, h02=h02)
     acceptance_gaps = _acceptance_gaps(h02=h02, claim_safety=claim_safety, readiness=readiness)
     acceptance_gaps = _unique_gaps(
@@ -141,11 +174,22 @@ def build_manifest(config: FormalGateGapAuditConfig) -> dict[str, Any]:
             missing_artifacts=missing_artifacts,
             closure_checklist=closure_checklist,
             status_report=status_report,
+            handoff_bundle=handoff_bundle,
+            remote_packet_safety=remote_packet_safety,
         ),
         "missing_decision_items": decision_gaps,
         "missing_training_artifacts": training_gaps,
         "missing_evaluation_artifacts": evaluation_gaps,
         "missing_acceptance_artifacts": acceptance_gaps,
+        "formal_gate_handoff": _handoff_bundle_record(config.handoff_bundle_path, handoff_bundle),
+        "remote_packet_safety": _remote_packet_safety_record(config.remote_packet_safety_path, remote_packet_safety),
+        "execution_veto_matrix": _execution_veto_matrix(
+            decision=decision,
+            remote=remote,
+            status_report=status_report,
+            handoff_bundle=handoff_bundle,
+            remote_packet_safety=remote_packet_safety,
+        ),
         "ordered_next_steps": _ordered_next_steps(decision_gaps, training_gaps, evaluation_gaps, acceptance_gaps, remote),
         "claim_boundaries": [
             "This audit is a formal-gate gap ledger, not a paper result, table, or appendix.",
@@ -156,6 +200,7 @@ def build_manifest(config: FormalGateGapAuditConfig) -> dict[str, Any]:
             "Remote completion is insufficient until audit artifacts, checkpoint hashes, H01/H02 regeneration, and claim safety all pass.",
             "The closure checklist must be complete before the final claim gate can be treated as ready.",
             "The formal gate status report must be ready before the final claim gate can be treated as ready.",
+            "The handoff bundle and remote packet safety audit must agree with the remote packet before any remote execution.",
         ],
     }
 
@@ -177,6 +222,8 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--missing-artifacts-audit", type=Path, default=DEFAULT_MISSING_ARTIFACTS)
     parser.add_argument("--closure-checklist", type=Path, default=DEFAULT_CLOSURE_CHECKLIST)
     parser.add_argument("--status-report", type=Path, default=DEFAULT_STATUS_REPORT)
+    parser.add_argument("--handoff-bundle", type=Path, default=DEFAULT_HANDOFF_BUNDLE)
+    parser.add_argument("--remote-packet-safety-audit", type=Path, default=DEFAULT_REMOTE_PACKET_SAFETY)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
