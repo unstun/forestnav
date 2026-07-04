@@ -2,20 +2,20 @@
   "schema_version": 1,
   "artifact_name": "module2_source_freshness_audit",
   "status": "source_freshness_risks_recorded_gate_still_blocked",
-  "created_at_utc": "2026-07-04T14:14:50.924382+00:00",
-  "source_head": "693a91c977e590c0222efc2806c84d8daab26d0d+dirty",
+  "created_at_utc": "2026-07-04T14:24:08.920959+00:00",
+  "source_head": "c771672dd43dbca0f1cadc1cd799c2961ce5e765+dirty",
   "not_paper_result_material": true,
   "runs_training": false,
   "runs_remote_preflight": false,
   "local_training_allowed": false,
   "formal_claim_allowed": false,
-  "current_head": "693a91c977e590c0222efc2806c84d8daab26d0d",
+  "current_head": "c771672dd43dbca0f1cadc1cd799c2961ce5e765",
   "artifact_count": 14,
   "risk_counts": {
-    "historical_dirty": 8,
-    "current_clean": 2,
-    "current_dirty": 2,
-    "historical_clean": 2
+    "historical_dirty": 9,
+    "current_clean": 1,
+    "current_dirty": 1,
+    "historical_clean": 3
   },
   "regeneration_required_before_remote_formal_execution": true,
   "artifact_records": [
@@ -100,8 +100,8 @@
       "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
       "exists": true,
       "status": "blocked_formal_performance_claims",
-      "source_head": "693a91c977e590c0222efc2806c84d8daab26d0d",
-      "source_commit": "693a91c977e590c0222efc2806c84d8daab26d0d",
+      "source_head": "c771672dd43dbca0f1cadc1cd799c2961ce5e765",
+      "source_commit": "c771672dd43dbca0f1cadc1cd799c2961ce5e765",
       "source_head_dirty": false,
       "source_commit_exists": true,
       "matches_current_head": true,
@@ -115,8 +115,8 @@
       "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
       "exists": true,
       "status": "partial_methods_ready_results_blocked",
-      "source_head": "693a91c977e590c0222efc2806c84d8daab26d0d+dirty",
-      "source_commit": "693a91c977e590c0222efc2806c84d8daab26d0d",
+      "source_head": "c771672dd43dbca0f1cadc1cd799c2961ce5e765+dirty",
+      "source_commit": "c771672dd43dbca0f1cadc1cd799c2961ce5e765",
       "source_head_dirty": true,
       "source_commit_exists": true,
       "matches_current_head": true,
@@ -149,8 +149,8 @@
       "source_commit": "693a91c977e590c0222efc2806c84d8daab26d0d",
       "source_head_dirty": true,
       "source_commit_exists": true,
-      "matches_current_head": true,
-      "freshness_state": "current_dirty",
+      "matches_current_head": false,
+      "freshness_state": "historical_dirty",
       "required_before": "approved_remote_preflight",
       "regenerate_before_formal_execution": true
     },
@@ -160,8 +160,8 @@
       "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
       "exists": true,
       "status": "remote_packet_safety_audit_passed",
-      "source_head": "1c4364955a1f03c5120fc05ec1fce353a4b283a8+dirty",
-      "source_commit": "1c4364955a1f03c5120fc05ec1fce353a4b283a8",
+      "source_head": "693a91c977e590c0222efc2806c84d8daab26d0d+dirty",
+      "source_commit": "693a91c977e590c0222efc2806c84d8daab26d0d",
       "source_head_dirty": true,
       "source_commit_exists": true,
       "matches_current_head": false,
@@ -224,10 +224,10 @@
       "source_commit": "693a91c977e590c0222efc2806c84d8daab26d0d",
       "source_head_dirty": false,
       "source_commit_exists": true,
-      "matches_current_head": true,
-      "freshness_state": "current_clean",
+      "matches_current_head": false,
+      "freshness_state": "historical_clean",
       "required_before": "formal_claim_gate",
-      "regenerate_before_formal_execution": false
+      "regenerate_before_formal_execution": true
     }
   ],
   "ordered_regeneration_targets": [
@@ -264,7 +264,7 @@
     {
       "artifact_id": "post_f02_6_plan_audit",
       "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
-      "freshness_state": "current_dirty",
+      "freshness_state": "historical_dirty",
       "required_before": "approved_remote_preflight"
     },
     {
@@ -295,6 +295,12 @@
       "artifact_id": "formal_gate_missing_artifacts",
       "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
       "freshness_state": "historical_dirty",
+      "required_before": "formal_claim_gate"
+    },
+    {
+      "artifact_id": "formal_gate_status_report",
+      "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
+      "freshness_state": "historical_clean",
       "required_before": "formal_claim_gate"
     },
     {

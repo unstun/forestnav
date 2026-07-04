@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_claim_safety",
   "status": "blocked_formal_performance_claims",
-  "created_at_utc": "2026-07-04T14:14:50.687485+00:00",
-  "source_head": "693a91c977e590c0222efc2806c84d8daab26d0d",
+  "created_at_utc": "2026-07-04T14:23:58.135343+00:00",
+  "source_head": "c771672dd43dbca0f1cadc1cd799c2961ce5e765",
   "formal_performance_claim_allowed": false,
   "formal_performance_blockers": [
     "paper_tables_not_formal",
@@ -52,7 +52,104 @@
     "closure_checklist_input_safety_issue_count": 0,
     "status_report_status": "formal_gate_status_blocked",
     "status_report_formal_claim_allowed_now": false,
-    "status_report_input_safety_issue_count": 0
+    "status_report_input_safety_issue_count": 0,
+    "status_report_next_blocked_lane_id": "decision",
+    "status_report_closure_remote_training_allowed_now": false,
+    "status_report_remote_packet_training_allowed_now": false
+  },
+  "status_report_remote_gate_summary": {
+    "closure_remote_stage_summary": {
+      "approved_remote_preflight": {
+        "present": true,
+        "status": "blocked",
+        "allowed_now": false,
+        "runs_training": false,
+        "runs_remote_preflight": true,
+        "host": "gpu3070ti-relay",
+        "blocked_by": [
+          "f02_6_decision_not_approved",
+          "source_fresh_preflight_targets_open"
+        ]
+      },
+      "gate3_remote_training": {
+        "present": true,
+        "status": "blocked",
+        "allowed_now": false,
+        "runs_training": true,
+        "runs_remote_preflight": false,
+        "host": "gpu3070ti-relay",
+        "blocked_by": [
+          "f02_6_decision_not_approved",
+          "source_fresh_preflight_targets_open",
+          "remote_packet_not_ready"
+        ]
+      },
+      "gate3_remote_audit_pullback": {
+        "present": true,
+        "status": "blocked",
+        "allowed_now": false,
+        "runs_training": false,
+        "runs_remote_preflight": false,
+        "host": "gpu3070ti-relay",
+        "blocked_by": [
+          "f02_6_decision_not_approved",
+          "source_fresh_preflight_targets_open",
+          "remote_packet_not_ready"
+        ]
+      }
+    },
+    "remote_execution_step_summary": {
+      "sync_to_remote": {
+        "present": true,
+        "status": null,
+        "allowed_now": false,
+        "runs_training": false,
+        "runs_remote_preflight": null,
+        "host": null,
+        "blocked_by": [
+          "requires_dr_sun_approval"
+        ]
+      },
+      "run_remote_preflight": {
+        "present": true,
+        "status": null,
+        "allowed_now": false,
+        "runs_training": false,
+        "runs_remote_preflight": null,
+        "host": null,
+        "blocked_by": [
+          "requires_dr_sun_approval"
+        ]
+      },
+      "run_remote_training": {
+        "present": true,
+        "status": null,
+        "allowed_now": false,
+        "runs_training": true,
+        "runs_remote_preflight": null,
+        "host": null,
+        "blocked_by": [
+          "requires_dr_sun_approval",
+          "f02_6_warm_start_decision_pending",
+          "missing_module2_rl_rs_checkpoint",
+          "remote_packet_not_ready"
+        ]
+      },
+      "run_remote_audit": {
+        "present": true,
+        "status": null,
+        "allowed_now": false,
+        "runs_training": false,
+        "runs_remote_preflight": null,
+        "host": null,
+        "blocked_by": [
+          "requires_dr_sun_approval",
+          "f02_6_warm_start_decision_pending",
+          "missing_module2_rl_rs_checkpoint",
+          "remote_packet_not_ready"
+        ]
+      }
+    }
   },
   "allowed_claims": [
     {

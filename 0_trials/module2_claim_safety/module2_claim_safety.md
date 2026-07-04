@@ -34,6 +34,18 @@
 - `formal_performance_improvement`: blocked_until_formal_h02
 - `warm_start_effect`: blocked_until_f02_6_and_remote_formal
 
+## Status Report Remote Gate Summary
+
+### closure_remote_stage_summary
+- `approved_remote_preflight`: allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`True`, host=`gpu3070ti-relay`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open`
+- `gate3_remote_training`: allowed_now=`False`, runs_training=`True`, runs_remote_preflight=`False`, host=`gpu3070ti-relay`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
+- `gate3_remote_audit_pullback`: allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`False`, host=`gpu3070ti-relay`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
+### remote_execution_step_summary
+- `sync_to_remote`: allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`requires_dr_sun_approval`
+- `run_remote_preflight`: allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`requires_dr_sun_approval`
+- `run_remote_training`: allowed_now=`False`, runs_training=`True`, runs_remote_preflight=`None`, host=`None`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_packet_not_ready`
+- `run_remote_audit`: allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_packet_not_ready`
+
 ## Prohibited Claims
 
 - `global_optimality`: not allowed; patterns=全局最优, globally optimal, global optimality

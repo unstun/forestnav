@@ -130,6 +130,27 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert "formal_gate_closure_checklist_open" in manifest["formal_performance_blockers"]
     assert manifest["input_status"]["closure_checklist_status"] == "formal_gate_closure_blocked"
     assert manifest["input_status"]["status_report_status"] == "formal_gate_status_ready_for_claim_audit"
+    assert manifest["input_status"]["status_report_next_blocked_lane_id"] is None
+    assert manifest["input_status"]["status_report_closure_remote_training_allowed_now"] is True
+    assert manifest["input_status"]["status_report_remote_packet_training_allowed_now"] is True
+    assert manifest["status_report_remote_gate_summary"]["closure_remote_stage_summary"]["gate3_remote_training"] == {
+        "present": True,
+        "status": "ready",
+        "allowed_now": True,
+        "runs_training": True,
+        "runs_remote_preflight": False,
+        "host": "gpu3070ti-relay",
+        "blocked_by": [],
+    }
+    assert manifest["status_report_remote_gate_summary"]["remote_execution_step_summary"]["run_remote_training"] == {
+        "present": True,
+        "status": None,
+        "allowed_now": True,
+        "runs_training": True,
+        "runs_remote_preflight": None,
+        "host": None,
+        "blocked_by": [],
+    }
 
     allowed_ids = {item["claim_id"] for item in manifest["allowed_claims"]}
     assert "method_is_ha_star_analytic_operator" in allowed_ids
@@ -332,6 +353,109 @@ def test_claim_safety_blocks_formal_claim_when_status_report_is_blocked(tmp_path
     assert manifest["formal_performance_claim_allowed"] is False
     assert manifest["formal_performance_blockers"] == ["formal_gate_status_report_blocked"]
     assert manifest["input_status"]["status_report_status"] == "formal_gate_status_blocked"
+    assert manifest["input_status"]["status_report_next_blocked_lane_id"] == "decision"
+    assert manifest["input_status"]["status_report_closure_remote_training_allowed_now"] is False
+    assert manifest["input_status"]["status_report_remote_packet_training_allowed_now"] is False
+    assert manifest["status_report_remote_gate_summary"]["closure_remote_stage_summary"]["gate3_remote_training"][
+        "blocked_by"
+    ] == ["f02_6_decision_not_approved", "source_fresh_preflight_targets_open", "remote_packet_not_ready"]
+    assert manifest["status_report_remote_gate_summary"]["remote_execution_step_summary"]["run_remote_training"][
+        "blocked_by"
+    ] == [
+        "requires_dr_sun_approval",
+        "f02_6_warm_start_decision_pending",
+        "missing_module2_rl_rs_checkpoint",
+        "remote_packet_not_ready",
+    ]
+
+
+def test_claim_safety_rejects_status_report_without_remote_gate_summaries(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_claim_safety")
+    paper_tables = tmp_path / "paper_tables.json"
+    paper_tables.write_text(json.dumps({"status": "formal_ready", "formal_claim_allowed": True, "blockers": []}), encoding="utf-8")
+    h02_formal_acceptance = tmp_path / "h02_formal_acceptance.json"
+    h02_formal_acceptance.write_text(json.dumps({"status": "formal_output_accepted", "formal_output_accepted": True, "paper_result_input_allowed": True, "blockers": []}), encoding="utf-8")
+    h01_manifest = tmp_path / "h01.json"
+    h01_manifest.write_text(json.dumps({"status": "ready_for_formal_evaluation", "blockers": []}), encoding="utf-8")
+    f02_6_packet = tmp_path / "f02_6.json"
+    f02_6_packet.write_text(json.dumps({"status": "approved", "blockers": []}), encoding="utf-8")
+    gate3_audit = tmp_path / "gate3_audit.json"
+    gate3_audit.write_text(json.dumps({"formal_decision": "pass", "formal_claim_allowed": True}), encoding="utf-8")
+    method_algorithms = tmp_path / "method_algorithms.json"
+    method_algorithms.write_text(json.dumps({"status": "code_anchored"}), encoding="utf-8")
+    system_diagram = tmp_path / "system_diagram.json"
+    system_diagram.write_text(json.dumps({"status": "code_anchored_drawio"}), encoding="utf-8")
+    closure_checklist = tmp_path / "closure_checklist.json"
+    closure_checklist.write_text(json.dumps(_closure_checklist_payload(open_checklist=False)), encoding="utf-8")
+    status_payload = _status_report_payload(ready=True)
+    status_payload.pop("closure_remote_stage_summary")
+    status_payload.pop("remote_execution_step_summary")
+    status_report = tmp_path / "status_report.json"
+    status_report.write_text(json.dumps(status_payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        repo_root=builder._repo_root(),
+        paper_tables_path=paper_tables,
+        h02_formal_acceptance_path=h02_formal_acceptance,
+        h01_manifest_path=h01_manifest,
+        f02_6_packet_path=f02_6_packet,
+        gate3_audit_path=gate3_audit,
+        method_algorithms_path=method_algorithms,
+        system_diagram_path=system_diagram,
+        closure_checklist_path=closure_checklist,
+        status_report_path=status_report,
+    )
+
+    blockers = set(manifest["formal_performance_blockers"])
+    assert "status_report_missing_closure_remote_stage_summary" in blockers
+    assert "status_report_missing_remote_execution_step_summary" in blockers
+    assert "status_report_missing_gate3_remote_training" in blockers
+    assert "status_report_missing_run_remote_training" in blockers
+    assert "status_report_closure_training_stage_not_marked_training" in blockers
+    assert "status_report_remote_training_step_not_marked_training" in blockers
+
+
+def test_claim_safety_rejects_blocked_status_report_that_allows_remote_training(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_claim_safety")
+    paper_tables = tmp_path / "paper_tables.json"
+    paper_tables.write_text(json.dumps({"status": "formal_ready", "formal_claim_allowed": True, "blockers": []}), encoding="utf-8")
+    h02_formal_acceptance = tmp_path / "h02_formal_acceptance.json"
+    h02_formal_acceptance.write_text(json.dumps({"status": "formal_output_accepted", "formal_output_accepted": True, "paper_result_input_allowed": True, "blockers": []}), encoding="utf-8")
+    h01_manifest = tmp_path / "h01.json"
+    h01_manifest.write_text(json.dumps({"status": "ready_for_formal_evaluation", "blockers": []}), encoding="utf-8")
+    f02_6_packet = tmp_path / "f02_6.json"
+    f02_6_packet.write_text(json.dumps({"status": "approved", "blockers": []}), encoding="utf-8")
+    gate3_audit = tmp_path / "gate3_audit.json"
+    gate3_audit.write_text(json.dumps({"formal_decision": "pass", "formal_claim_allowed": True}), encoding="utf-8")
+    method_algorithms = tmp_path / "method_algorithms.json"
+    method_algorithms.write_text(json.dumps({"status": "code_anchored"}), encoding="utf-8")
+    system_diagram = tmp_path / "system_diagram.json"
+    system_diagram.write_text(json.dumps({"status": "code_anchored_drawio"}), encoding="utf-8")
+    closure_checklist = tmp_path / "closure_checklist.json"
+    closure_checklist.write_text(json.dumps(_closure_checklist_payload(open_checklist=False)), encoding="utf-8")
+    status_payload = _status_report_payload(ready=False)
+    status_payload["closure_remote_stage_summary"]["gate3_remote_training"]["allowed_now"] = True
+    status_payload["remote_execution_step_summary"]["run_remote_training"]["allowed_now"] = True
+    status_report = tmp_path / "status_report.json"
+    status_report.write_text(json.dumps(status_payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        repo_root=builder._repo_root(),
+        paper_tables_path=paper_tables,
+        h02_formal_acceptance_path=h02_formal_acceptance,
+        h01_manifest_path=h01_manifest,
+        f02_6_packet_path=f02_6_packet,
+        gate3_audit_path=gate3_audit,
+        method_algorithms_path=method_algorithms,
+        system_diagram_path=system_diagram,
+        closure_checklist_path=closure_checklist,
+        status_report_path=status_report,
+    )
+
+    blockers = set(manifest["formal_performance_blockers"])
+    assert "formal_gate_status_report_blocked" in blockers
+    assert "status_report_blocked_but_gate3_remote_training_allowed" in blockers
+    assert "status_report_blocked_but_run_remote_training_allowed" in blockers
 
 
 def test_claim_safety_rejects_status_report_that_runs_or_claims(tmp_path):
@@ -393,6 +517,18 @@ def _closure_checklist_payload(*, open_checklist, invalid=False):
 
 
 def _status_report_payload(*, ready, invalid=False):
+    status = "ready" if ready else "blocked"
+    training_blockers = [] if ready else ["f02_6_decision_not_approved", "source_fresh_preflight_targets_open", "remote_packet_not_ready"]
+    remote_training_blockers = (
+        []
+        if ready
+        else [
+            "requires_dr_sun_approval",
+            "f02_6_warm_start_decision_pending",
+            "missing_module2_rl_rs_checkpoint",
+            "remote_packet_not_ready",
+        ]
+    )
     return {
         "status": "formal_gate_status_ready_for_claim_audit" if ready else "formal_gate_status_blocked",
         "executes_commands": bool(invalid),
@@ -410,4 +546,59 @@ def _status_report_payload(*, ready, invalid=False):
             "formal_claim_allowed_now": bool(ready),
         },
         "next_blocked_lane": None if ready else {"lane_id": "decision"},
+        "closure_remote_stage_summary": {
+            "approved_remote_preflight": {
+                "present": True,
+                "status": status,
+                "allowed_now": bool(ready),
+                "runs_training": False,
+                "runs_remote_preflight": True,
+                "host": "gpu3070ti-relay",
+                "blocked_by": [] if ready else ["f02_6_decision_not_approved", "source_fresh_preflight_targets_open"],
+            },
+            "gate3_remote_training": {
+                "present": True,
+                "status": status,
+                "allowed_now": bool(ready),
+                "runs_training": True,
+                "runs_remote_preflight": False,
+                "host": "gpu3070ti-relay",
+                "blocked_by": training_blockers,
+            },
+            "gate3_remote_audit_pullback": {
+                "present": True,
+                "status": status,
+                "allowed_now": bool(ready),
+                "runs_training": False,
+                "runs_remote_preflight": False,
+                "host": "gpu3070ti-relay",
+                "blocked_by": training_blockers,
+            },
+        },
+        "remote_execution_step_summary": {
+            "sync_to_remote": {
+                "present": True,
+                "allowed_now": bool(ready),
+                "runs_training": False,
+                "blocked_by": [] if ready else ["requires_dr_sun_approval"],
+            },
+            "run_remote_preflight": {
+                "present": True,
+                "allowed_now": bool(ready),
+                "runs_training": False,
+                "blocked_by": [] if ready else ["requires_dr_sun_approval"],
+            },
+            "run_remote_training": {
+                "present": True,
+                "allowed_now": bool(ready),
+                "runs_training": True,
+                "blocked_by": remote_training_blockers,
+            },
+            "run_remote_audit": {
+                "present": True,
+                "allowed_now": bool(ready),
+                "runs_training": False,
+                "blocked_by": remote_training_blockers,
+            },
+        },
     }
