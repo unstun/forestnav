@@ -7,6 +7,17 @@ import torch
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 
 
+class TanhLinearActionHead(torch.nn.Module):
+    """Action head that preserves the F02 BC policy's normalized tanh output."""
+
+    def __init__(self, in_features: int, out_features: int) -> None:
+        super().__init__()
+        self.linear = torch.nn.Linear(int(in_features), int(out_features))
+
+    def forward(self, features: torch.Tensor) -> torch.Tensor:
+        return torch.tanh(self.linear(features))
+
+
 class RlRsObstacleSummaryExtractor(BaseFeaturesExtractor):
     """SB3 feature extractor aligned with the F02 obstacle-summary BC features."""
 
