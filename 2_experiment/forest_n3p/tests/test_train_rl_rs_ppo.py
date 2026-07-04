@@ -20,6 +20,7 @@ from forest_n3p.scripts.train_rl_rs_ppo import (
     _apply_smoke_overrides,
     _make_env_factory,
     _parse_args,
+    _policy_spec,
     _policy_kwargs,
     main as train_rl_rs_ppo_main,
 )
@@ -100,7 +101,7 @@ def test_obstacle_summary_bc_warm_start_matches_bc_normalized_action(tmp_path):
     _apply_smoke_overrides(args)
     env = DummyVecEnv([_make_env_factory(args=args, output_dir=tmp_path, rank=0)])
     model = PPO(
-        "MultiInputPolicy",
+        _policy_spec(args),
         env,
         n_steps=8,
         batch_size=8,
@@ -114,10 +115,15 @@ def test_obstacle_summary_bc_warm_start_matches_bc_normalized_action(tmp_path):
     obs = env.reset()
     action, _state = model.predict(obs, deterministic=True)
     expected = _bc_normalized_action(obs)
+    model_path = tmp_path / "warm_start_roundtrip.zip"
+    model.save(model_path)
+    loaded = PPO.load(model_path, device="cpu")
+    loaded_action, _loaded_state = loaded.predict(obs, deterministic=True)
     env.close()
 
     assert record["status"] == "applied_obstacle_summary_bc"
     assert float(action.reshape(-1)[0]) == pytest.approx(expected, abs=1e-5)
+    assert float(loaded_action.reshape(-1)[0]) == pytest.approx(expected, abs=1e-5)
 
 
 def _bc_normalized_action(obs) -> float:
