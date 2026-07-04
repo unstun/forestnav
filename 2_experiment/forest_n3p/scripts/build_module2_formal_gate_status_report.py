@@ -178,6 +178,15 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     remaining_deliverables_proof_command_plan = _remaining_deliverables_proof_command_plan(remaining_deliverables)
     formal_gate_proof_audit_summary = _formal_gate_proof_audit_summary(formal_gate_proof_audit)
     formal_gate_proof_audit_gap_summary = _formal_gate_proof_audit_gap_summary(formal_gate_proof_audit_summary)
+    next_action_guard_summary = _next_action_guard_summary(
+        decision=decision,
+        decision_intake_summary=decision_intake_summary,
+        handoff_summary=handoff_summary,
+        missing_artifacts_handoff_summary=missing_artifacts_handoff_summary,
+        remote_packet=remote_packet,
+        remote_execution_steps=remote_execution_steps,
+        closure_remote_stages=closure_remote_stages,
+    )
     formal_gate_gap_audit_remaining_deliverables_gap_summary = (
         _formal_gate_gap_audit_remaining_deliverables_gap_summary(formal_gate)
     )
@@ -236,6 +245,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         + _formal_gate_remote_packet_safety_claim_gate_command_index_issues(
             remote_packet_safety_claim_gate_command_index_summary
         )
+        + _next_action_guard_issues(next_action_guard_summary)
     )
     lanes = _lanes(
         formal_gate=formal_gate,
@@ -407,6 +417,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "remote_packet_safety_command_index_missing_target_count": len(
                 remote_packet_safety_claim_gate_command_index_summary["missing_target_ids"]
             ),
+            "next_action_guard_status": next_action_guard_summary["status"],
         },
         "permissions_now": permissions,
         "missing_counts_by_category": missing_artifacts.get("missing_counts_by_category") if isinstance(missing_artifacts.get("missing_counts_by_category"), dict) else {},
@@ -430,6 +441,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "remaining_deliverables_proof_command_plan": remaining_deliverables_proof_command_plan,
         "formal_gate_proof_audit_summary": formal_gate_proof_audit_summary,
         "formal_gate_proof_audit_gap_summary": formal_gate_proof_audit_gap_summary,
+        "next_action_guard_summary": next_action_guard_summary,
         "formal_gate_gap_audit_remaining_deliverables_gap_summary": (
             formal_gate_gap_audit_remaining_deliverables_gap_summary
         ),
