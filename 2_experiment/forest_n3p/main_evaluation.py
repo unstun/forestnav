@@ -33,6 +33,7 @@ from forest_n3p.baselines.dqn10_full import (
 )
 from forest_n3p.maps.forest import generate_forest_grid
 from forest_n3p.pilot_labeling import footprint_clearance_m
+from forest_n3p.rl_rs import ObservationConfig, load_rl_rs_funnel_operator_from_checkpoint
 from forest_n3p.training_data import TrainingDataConfig, TrainingProfile, make_forest_params
 from forest_n3p.third_party.pathplan import (
     AckermannParams,
@@ -63,6 +64,7 @@ DQN10_EXTRA_METHODS = tuple(method for method in DQN10_BASELINE_METHODS if metho
 DQN10_COMPAT_ALIAS_METHODS = tuple(DQN10_BASELINE_ALIASES)
 EXTERNAL_BASELINE_METHODS = ("idb_rrt_dynoplan",)
 ANALYTIC_OPERATOR_BASELINE_METHODS = ("ha_no_analytic", "ha_single_rs", "ha_dang_multi_rs")
+RL_RS_OPERATOR_METHODS = ("ha_rl_rs_ppo",)
 
 IMPLEMENTED_METHODS = frozenset(
     (
@@ -72,6 +74,7 @@ IMPLEMENTED_METHODS = frozenset(
         *DQN10_COMPAT_ALIAS_METHODS,
         *EXTERNAL_BASELINE_METHODS,
         *ANALYTIC_OPERATOR_BASELINE_METHODS,
+        *RL_RS_OPERATOR_METHODS,
     )
 )
 
@@ -129,6 +132,17 @@ class MainEvaluationConfig:
     idb_rrt_dynoplan_root: Path | None = None
     idb_rrt_motion_file: Path | None = None
     idb_rrt_timeout_s: float | None = None
+    module2_rl_rs_checkpoint: Path | None = None
+    module2_rl_rs_device: str = "cpu"
+    module2_rl_rs_obs_patch_size_m: float = 6.4
+    module2_rl_rs_obs_patch_cells: int = 64
+    module2_rl_rs_obs_include_edt: bool = True
+    module2_rl_rs_obs_edt_clip_m: float = 2.0
+    module2_rl_rs_max_steps: int = 32
+    module2_rl_rs_action_step_m: float = 0.3
+    module2_rl_rs_collision_sample_step_m: float = 0.1
+    module2_rl_rs_terminal_check_every: int = 1
+    module2_rl_rs_no_progress_patience: int = 3
     bootstrap_resamples: int = 5_000
     bootstrap_seed: int = 20260620
 
@@ -160,6 +174,22 @@ class MainEvaluationConfig:
             raise ValueError("prediction_noise_sigma_m must be non-negative")
         if self.idb_rrt_timeout_s is not None and float(self.idb_rrt_timeout_s) <= 0.0:
             raise ValueError("idb_rrt_timeout_s must be positive when set")
+        if int(self.module2_rl_rs_obs_patch_cells) <= 0:
+            raise ValueError("module2_rl_rs_obs_patch_cells must be positive")
+        for name in (
+            "module2_rl_rs_obs_patch_size_m",
+            "module2_rl_rs_obs_edt_clip_m",
+            "module2_rl_rs_action_step_m",
+            "module2_rl_rs_collision_sample_step_m",
+        ):
+            if float(getattr(self, name)) <= 0.0:
+                raise ValueError(f"{name} must be positive")
+        if int(self.module2_rl_rs_max_steps) <= 0:
+            raise ValueError("module2_rl_rs_max_steps must be positive")
+        if int(self.module2_rl_rs_terminal_check_every) <= 0:
+            raise ValueError("module2_rl_rs_terminal_check_every must be positive")
+        if int(self.module2_rl_rs_no_progress_patience) < 0:
+            raise ValueError("module2_rl_rs_no_progress_patience must be non-negative")
 
 
 @dataclass(frozen=True)
@@ -281,6 +311,12 @@ def preflight_main_evaluation(config: MainEvaluationConfig) -> PreflightReport:
                 idb_availability.reason or "unknown Dynoplan iDb-RRT adapter availability failure"
             )
             issues.append(f"idb_rrt_dynoplan unavailable: {unavailable['idb_rrt_dynoplan']}")
+
+    if any(method in config.methods for method in RL_RS_OPERATOR_METHODS):
+        if config.module2_rl_rs_checkpoint is None:
+            issues.append("module2_rl_rs_checkpoint is required for ha_rl_rs_ppo")
+        elif not Path(config.module2_rl_rs_checkpoint).is_file():
+            issues.append(f"RL-RS checkpoint does not exist: {config.module2_rl_rs_checkpoint}")
 
     human_decisions = _read_human_review_decisions(config.human_review_form_path)
     human_review_issues = _human_review_issues(human_decisions, form_path=config.human_review_form_path)
@@ -598,7 +634,7 @@ def _run_method(
             },
         )
 
-    if method in ANALYTIC_OPERATOR_BASELINE_METHODS:
+    if method in ANALYTIC_OPERATOR_BASELINE_METHODS or method in RL_RS_OPERATOR_METHODS:
         return _run_hybrid_a_operator(
             method,
             query,
@@ -706,8 +742,19 @@ def _run_hybrid_a_operator(
         "ha_single_rs": "single_rs",
         "ha_dang_multi_rs": "dang_multi_rs",
     }
-    analytic_operator = operator_by_method[method]
-    planner = _make_planner(grid_map, footprint, cfg, analytic_operator=analytic_operator)
+    analytic_expansion_operator = None
+    if method == "ha_rl_rs_ppo":
+        analytic_operator = "rl_rs_funnel_ppo"
+        analytic_expansion_operator = _load_module2_rl_rs_operator(cfg)
+    else:
+        analytic_operator = operator_by_method[method]
+    planner = _make_planner(
+        grid_map,
+        footprint,
+        cfg,
+        analytic_operator=analytic_operator,
+        analytic_expansion_operator=analytic_expansion_operator,
+    )
     states, stats = planner.plan(
         AckermannState(*query.start),
         AckermannState(*query.goal),
@@ -727,6 +774,7 @@ def _run_hybrid_a_operator(
             "map_seed": query.map_seed,
             "query_seed": query.query_seed,
             "analytic_operator": analytic_operator,
+            **_rl_rs_operator_metadata(analytic_expansion_operator),
         },
     )
 
@@ -776,12 +824,14 @@ def _make_planner(
     cfg: MainEvaluationConfig,
     *,
     analytic_operator: str | None = None,
+    analytic_expansion_operator=None,
 ) -> HybridAStarPlanner:
     return HybridAStarPlanner(
         grid_map,
         footprint,
         AckermannParams(wheelbase=0.6, min_turn_radius=1.0),
         analytic_operator=analytic_operator,
+        analytic_expansion_operator=analytic_expansion_operator,
         analytic_expansion=True,
         collision_step=0.1,
         goal_xy_tol=0.30,
@@ -789,6 +839,40 @@ def _make_planner(
         use_holonomic_heuristic=True,
         theta_bins=72,
     )
+
+
+def _load_module2_rl_rs_operator(cfg: MainEvaluationConfig):
+    if cfg.module2_rl_rs_checkpoint is None:
+        raise ValueError("module2_rl_rs_checkpoint is required for ha_rl_rs_ppo")
+    return load_rl_rs_funnel_operator_from_checkpoint(
+        cfg.module2_rl_rs_checkpoint,
+        device=str(cfg.module2_rl_rs_device),
+        observation_config=_module2_rl_rs_observation_config(cfg),
+        max_steps=int(cfg.module2_rl_rs_max_steps),
+        action_step_m=float(cfg.module2_rl_rs_action_step_m),
+        collision_sample_step_m=float(cfg.module2_rl_rs_collision_sample_step_m),
+        terminal_check_every=int(cfg.module2_rl_rs_terminal_check_every),
+        no_progress_patience=int(cfg.module2_rl_rs_no_progress_patience),
+        name="rl_rs_funnel_ppo",
+    )
+
+
+def _module2_rl_rs_observation_config(cfg: MainEvaluationConfig) -> ObservationConfig:
+    return ObservationConfig(
+        patch_size_m=float(cfg.module2_rl_rs_obs_patch_size_m),
+        patch_cells=int(cfg.module2_rl_rs_obs_patch_cells),
+        include_edt=bool(cfg.module2_rl_rs_obs_include_edt),
+        edt_clip_m=float(cfg.module2_rl_rs_obs_edt_clip_m),
+    )
+
+
+def _rl_rs_operator_metadata(operator) -> dict[str, Any]:
+    if operator is None:
+        return {}
+    return {
+        "rl_rs_checkpoint": getattr(operator, "checkpoint_path", None),
+        "rl_rs_checkpoint_sha256": getattr(operator, "checkpoint_sha256", None),
+    }
 
 
 def _inference_config(cfg: MainEvaluationConfig, *, k_neighbors: int, query_seed: int) -> InferenceConfig:

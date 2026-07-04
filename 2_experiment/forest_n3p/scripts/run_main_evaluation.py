@@ -40,6 +40,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--idb-rrt-dynoplan-root", type=Path, default=None)
     parser.add_argument("--idb-rrt-motion-file", type=Path, default=None)
     parser.add_argument("--idb-rrt-timeout-s", type=float, default=None)
+    parser.add_argument("--module2-rl-rs-checkpoint", type=Path, default=None)
+    parser.add_argument("--module2-rl-rs-device", default=MainEvaluationConfig().module2_rl_rs_device)
+    parser.add_argument("--module2-rl-rs-obs-patch-size-m", type=float, default=MainEvaluationConfig().module2_rl_rs_obs_patch_size_m)
+    parser.add_argument("--module2-rl-rs-obs-patch-cells", type=int, default=MainEvaluationConfig().module2_rl_rs_obs_patch_cells)
+    parser.add_argument("--module2-rl-rs-obs-include-edt", action=argparse.BooleanOptionalAction, default=MainEvaluationConfig().module2_rl_rs_obs_include_edt)
+    parser.add_argument("--module2-rl-rs-obs-edt-clip-m", type=float, default=MainEvaluationConfig().module2_rl_rs_obs_edt_clip_m)
+    parser.add_argument("--module2-rl-rs-max-steps", type=int, default=MainEvaluationConfig().module2_rl_rs_max_steps)
+    parser.add_argument("--module2-rl-rs-action-step-m", type=float, default=MainEvaluationConfig().module2_rl_rs_action_step_m)
+    parser.add_argument("--module2-rl-rs-collision-sample-step-m", type=float, default=MainEvaluationConfig().module2_rl_rs_collision_sample_step_m)
+    parser.add_argument("--module2-rl-rs-terminal-check-every", type=int, default=MainEvaluationConfig().module2_rl_rs_terminal_check_every)
+    parser.add_argument("--module2-rl-rs-no-progress-patience", type=int, default=MainEvaluationConfig().module2_rl_rs_no_progress_patience)
     parser.add_argument("--k-neighbors", type=int, default=MainEvaluationConfig().k_neighbors)
     parser.add_argument("--commit-verified-rs-segments", action="store_true")
     parser.add_argument("--max-steps-override", type=int, default=None)
@@ -75,6 +86,17 @@ def main(argv: list[str] | None = None) -> int:
         idb_rrt_dynoplan_root=args.idb_rrt_dynoplan_root,
         idb_rrt_motion_file=args.idb_rrt_motion_file,
         idb_rrt_timeout_s=args.idb_rrt_timeout_s,
+        module2_rl_rs_checkpoint=args.module2_rl_rs_checkpoint,
+        module2_rl_rs_device=str(args.module2_rl_rs_device),
+        module2_rl_rs_obs_patch_size_m=float(args.module2_rl_rs_obs_patch_size_m),
+        module2_rl_rs_obs_patch_cells=int(args.module2_rl_rs_obs_patch_cells),
+        module2_rl_rs_obs_include_edt=bool(args.module2_rl_rs_obs_include_edt),
+        module2_rl_rs_obs_edt_clip_m=float(args.module2_rl_rs_obs_edt_clip_m),
+        module2_rl_rs_max_steps=int(args.module2_rl_rs_max_steps),
+        module2_rl_rs_action_step_m=float(args.module2_rl_rs_action_step_m),
+        module2_rl_rs_collision_sample_step_m=float(args.module2_rl_rs_collision_sample_step_m),
+        module2_rl_rs_terminal_check_every=int(args.module2_rl_rs_terminal_check_every),
+        module2_rl_rs_no_progress_patience=int(args.module2_rl_rs_no_progress_patience),
         k_neighbors=int(args.k_neighbors),
         commit_verified_rs_segments=bool(args.commit_verified_rs_segments),
         max_steps_override=args.max_steps_override,
