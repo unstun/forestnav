@@ -1338,12 +1338,14 @@ def _current_gate_state(
     missing_artifacts: dict[str, Any],
     closure_checklist: dict[str, Any],
     status_report: dict[str, Any],
+    remaining_deliverables: dict[str, Any],
     handoff_bundle: dict[str, Any],
     remote_packet_safety: dict[str, Any],
 ) -> dict[str, Any]:
     method_checks = h02.get("method_checks") if isinstance(h02.get("method_checks"), dict) else {}
     status_permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
     handoff_permissions = handoff_bundle.get("permissions_now") if isinstance(handoff_bundle.get("permissions_now"), dict) else {}
+    remaining_gap = _remaining_deliverables_gap_summary(remaining_deliverables)
     return {
         "f02_6_decision_status": decision.get("status"),
         "effective_warm_start_decision": decision.get("effective_warm_start_decision"),
@@ -1364,6 +1366,9 @@ def _current_gate_state(
         "formal_gate_closure_checklist_open": closure_checklist.get("status") != "formal_gate_closure_ready_for_result_audit",
         "formal_gate_status_report_status": status_report.get("status"),
         "formal_gate_status_report_formal_claim_allowed_now": status_permissions.get("formal_claim_allowed_now"),
+        "remaining_deliverables_status": remaining_deliverables.get("status"),
+        "remaining_deliverables_gap_total_missing": remaining_gap.get("total_missing_deliverables"),
+        "remaining_deliverables_gap_open_category_count": remaining_gap.get("open_category_count"),
         "formal_gate_handoff_status": handoff_bundle.get("status"),
         "formal_gate_handoff_safety_issue_count": handoff_bundle.get("safety_issue_count"),
         "formal_gate_handoff_remote_training_allowed_now": handoff_permissions.get("remote_training_allowed_now"),
