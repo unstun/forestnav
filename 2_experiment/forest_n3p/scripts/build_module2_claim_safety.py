@@ -18,6 +18,17 @@ DEFAULT_METHOD_ALGORITHMS = Path("0_trials/module2_method_algorithms/module2_met
 DEFAULT_SYSTEM_DIAGRAM = Path("0_trials/module2_system_diagram/module2_system_diagram.json")
 DEFAULT_CLOSURE_CHECKLIST = Path("0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json")
 DEFAULT_STATUS_REPORT = Path("0_trials/module2_formal_gate_status_report/formal_gate_status_report.json")
+STATUS_REPORT_CLOSURE_STAGE_IDS = (
+    "approved_remote_preflight",
+    "gate3_remote_training",
+    "gate3_remote_audit_pullback",
+)
+STATUS_REPORT_REMOTE_STEP_IDS = (
+    "sync_to_remote",
+    "run_remote_preflight",
+    "run_remote_training",
+    "run_remote_audit",
+)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -81,6 +92,7 @@ def build_manifest(
         closure_checklist=closure_checklist,
         status_report=status_report,
     )
+    status_report_remote_gate_summary = _status_report_remote_gate_summary(status_report)
     formal_allowed = not formal_blockers
     prohibited = _prohibited_claims()
     allowed = _allowed_claims(
@@ -131,7 +143,11 @@ def build_manifest(
                 else None
             ),
             "status_report_input_safety_issue_count": status_report.get("input_safety_issue_count"),
+            "status_report_next_blocked_lane_id": _next_blocked_lane_id(status_report),
+            "status_report_closure_remote_training_allowed_now": status_report_remote_gate_summary["closure_remote_stage_summary"]["gate3_remote_training"]["allowed_now"],
+            "status_report_remote_packet_training_allowed_now": status_report_remote_gate_summary["remote_execution_step_summary"]["run_remote_training"]["allowed_now"],
         },
+        "status_report_remote_gate_summary": status_report_remote_gate_summary,
         "allowed_claims": allowed,
         "conditional_claims": _conditional_claims(),
         "prohibited_claims": prohibited,
@@ -224,7 +240,68 @@ def _formal_performance_blockers(
         _append_unique(blockers, "status_report_allows_local_training_now")
     if int(status_report.get("input_safety_issue_count") or 0) > 0:
         _append_unique(blockers, "status_report_input_safety_issues_open")
+    blockers.extend(_status_report_remote_summary_blockers(status_report))
     return blockers
+
+
+def _status_report_remote_gate_summary(status_report: dict[str, Any]) -> dict[str, dict[str, dict[str, Any]]]:
+    return {
+        "closure_remote_stage_summary": _summary_items(status_report.get("closure_remote_stage_summary"), STATUS_REPORT_CLOSURE_STAGE_IDS),
+        "remote_execution_step_summary": _summary_items(status_report.get("remote_execution_step_summary"), STATUS_REPORT_REMOTE_STEP_IDS),
+    }
+
+
+def _summary_items(raw: Any, item_ids: Sequence[str]) -> dict[str, dict[str, Any]]:
+    items = raw if isinstance(raw, dict) else {}
+    out: dict[str, dict[str, Any]] = {}
+    for item_id in item_ids:
+        item = items.get(item_id) if isinstance(items.get(item_id), dict) else {}
+        blocked_by = item.get("blocked_by")
+        out[item_id] = {
+            "present": bool(item),
+            "status": item.get("status"),
+            "allowed_now": item.get("allowed_now") if isinstance(item.get("allowed_now"), bool) else None,
+            "runs_training": item.get("runs_training") if isinstance(item.get("runs_training"), bool) else None,
+            "runs_remote_preflight": item.get("runs_remote_preflight") if isinstance(item.get("runs_remote_preflight"), bool) else None,
+            "host": item.get("host"),
+            "blocked_by": [str(value) for value in blocked_by if value] if isinstance(blocked_by, list) else [],
+        }
+    return out
+
+
+def _status_report_remote_summary_blockers(status_report: dict[str, Any]) -> list[str]:
+    summary = _status_report_remote_gate_summary(status_report)
+    blockers: list[str] = []
+    closure_raw = status_report.get("closure_remote_stage_summary")
+    remote_raw = status_report.get("remote_execution_step_summary")
+    if not isinstance(closure_raw, dict):
+        blockers.append("status_report_missing_closure_remote_stage_summary")
+    if not isinstance(remote_raw, dict):
+        blockers.append("status_report_missing_remote_execution_step_summary")
+    for group_id, group in summary.items():
+        for item_id, item in group.items():
+            if not item["present"]:
+                _append_unique(blockers, f"status_report_missing_{item_id}")
+                continue
+            if item["allowed_now"] is False and not item["blocked_by"]:
+                _append_unique(blockers, f"status_report_{item_id}_missing_blocked_by")
+            if status_report.get("status") != "formal_gate_status_ready_for_claim_audit" and item["allowed_now"] is True:
+                _append_unique(blockers, f"status_report_blocked_but_{item_id}_allowed")
+    closure_training = summary["closure_remote_stage_summary"].get("gate3_remote_training", {})
+    if closure_training.get("runs_training") is not True:
+        _append_unique(blockers, "status_report_closure_training_stage_not_marked_training")
+    remote_training = summary["remote_execution_step_summary"].get("run_remote_training", {})
+    if remote_training.get("runs_training") is not True:
+        _append_unique(blockers, "status_report_remote_training_step_not_marked_training")
+    return blockers
+
+
+def _next_blocked_lane_id(status_report: dict[str, Any]) -> str | None:
+    lane = status_report.get("next_blocked_lane")
+    if not isinstance(lane, dict):
+        return None
+    value = lane.get("lane_id")
+    return str(value) if value else None
 
 
 def _allowed_claims(*, method_algorithms: dict[str, Any], system_diagram: dict[str, Any], gate3_audit: dict[str, Any]) -> list[dict[str, Any]]:
@@ -411,6 +488,15 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.extend(["", "## Conditional Claims", ""])
     for claim in manifest["conditional_claims"]:
         lines.append(f"- `{claim['claim_id']}`: {claim['status']}")
+    lines.extend(["", "## Status Report Remote Gate Summary", ""])
+    for group_id, group in manifest["status_report_remote_gate_summary"].items():
+        lines.append(f"### {group_id}")
+        for item_id, item in group.items():
+            blocked_by = ", ".join(item["blocked_by"]) if item["blocked_by"] else "none"
+            lines.append(
+                f"- `{item_id}`: allowed_now=`{item['allowed_now']}`, runs_training=`{item['runs_training']}`, "
+                f"runs_remote_preflight=`{item['runs_remote_preflight']}`, host=`{item['host']}`, blocked_by=`{blocked_by}`"
+            )
     lines.extend(["", "## Prohibited Claims", ""])
     for claim in manifest["prohibited_claims"]:
         lines.append(f"- `{claim['claim_id']}`: not allowed; patterns={', '.join(claim['patterns'])}")
