@@ -18,7 +18,7 @@ import pyarrow.parquet as pq
 from forest_n3p.main_evaluation import MainEvaluationConfig
 from forest_n3p.rl_rs.env import AnalyticExpansionContext, AnalyticExpansionEnv
 from forest_n3p.rl_rs.obs import ObservationConfig, build_patch_observation
-from forest_n3p.scripts.run_oracle_connector_analysis import _grid_for_row, _profiles_from_bucket_mode
+from forest_n3p.scripts.run_oracle_connector_analysis import MapCacheKey, _grid_for_row, _profiles_from_bucket_mode
 from forest_n3p.scripts.train_bc_policy import (
     _load_torch,
     _parse_hidden_dims,
@@ -210,7 +210,7 @@ class PatchBcDataset:
         self.obs_config = obs_config
         self.scalar_mean = np.asarray(scalar_mean, dtype=np.float32).reshape(-1)
         self.scalar_std = np.asarray(scalar_std, dtype=np.float32).reshape(-1)
-        self.map_cache: dict[int, Any] = {}
+        self.map_cache: dict[MapCacheKey, Any] = {}
 
     def __len__(self) -> int:
         return len(self.rows)
@@ -381,7 +381,7 @@ def _closed_loop_metrics(
 ) -> dict[str, Any]:
     cfg = _evaluation_config()
     footprint = TwoCircleFootprint.from_box(length=0.924, width=0.740)
-    map_cache: dict[int, Any] = {}
+    map_cache: dict[MapCacheKey, Any] = {}
     first_by_source: dict[int, dict[str, Any]] = {}
     for row in val_rows:
         first_by_source.setdefault(int(row["source_row_index"]), row)
