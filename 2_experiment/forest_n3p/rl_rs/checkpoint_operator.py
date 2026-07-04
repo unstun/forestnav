@@ -63,6 +63,7 @@ def load_rl_rs_funnel_operator_from_checkpoint(
     collision_sample_step_m: float | None = None,
     terminal_check_every: int = 1,
     no_progress_patience: int = 3,
+    append_terminal_rs: bool = True,
     name: str = "rl_rs_funnel_ppo",
 ) -> RlRsFunnelOperator:
     path = Path(checkpoint_path)
@@ -89,6 +90,7 @@ def load_rl_rs_funnel_operator_from_checkpoint(
         terminal_check_every=int(terminal_check_every),
         no_progress_patience=int(no_progress_patience),
         observation_config=observation_config or ObservationConfig(),
+        append_terminal_rs=bool(append_terminal_rs),
         name=str(name),
         checkpoint_path=str(path),
         checkpoint_sha256=sha256,
@@ -105,6 +107,7 @@ def load_bc_funnel_operator_from_checkpoint(
     collision_sample_step_m: float | None = None,
     terminal_check_every: int = 1,
     no_progress_patience: int = 3,
+    append_terminal_rs: bool = True,
     name: str = "rl_rs_funnel_bc",
 ) -> RlRsFunnelOperator:
     path = Path(checkpoint_path)
@@ -150,6 +153,7 @@ def load_bc_funnel_operator_from_checkpoint(
         terminal_check_every=int(terminal_check_every),
         no_progress_patience=int(no_progress_patience),
         observation_config=observation_config or _bc_observation_config(checkpoint),
+        append_terminal_rs=bool(append_terminal_rs),
         name=str(name),
         checkpoint_path=str(path),
         checkpoint_sha256=sha256,
