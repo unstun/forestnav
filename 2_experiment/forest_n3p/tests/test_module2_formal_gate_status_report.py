@@ -25,6 +25,9 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
     assert manifest["current_state"]["decision_status"] == "pending_human_decision"
     assert manifest["current_state"]["closure_open_item_count"] == 8
+    assert manifest["current_state"]["closure_remote_preflight_allowed_now"] is False
+    assert manifest["current_state"]["closure_remote_training_allowed_now"] is False
+    assert manifest["current_state"]["closure_remote_audit_pullback_allowed_now"] is False
     assert manifest["current_state"]["remote_packet_sync_allowed_now"] is False
     assert manifest["current_state"]["remote_packet_preflight_allowed_now"] is False
     assert manifest["current_state"]["remote_packet_training_allowed_now"] is False
@@ -41,6 +44,14 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert steps["run_remote_training"]["allowed_now"] is False
     assert steps["run_remote_training"]["runs_training"] is True
     assert "remote_packet_not_ready" in steps["run_remote_training"]["blocked_by"]
+    closure_stages = manifest["closure_remote_stage_summary"]
+    assert closure_stages["approved_remote_preflight"]["allowed_now"] is False
+    assert closure_stages["approved_remote_preflight"]["runs_remote_preflight"] is True
+    assert closure_stages["approved_remote_preflight"]["host"] == "gpu3070ti-relay"
+    assert "source_fresh_preflight_targets_open" in closure_stages["approved_remote_preflight"]["blocked_by"]
+    assert closure_stages["gate3_remote_training"]["allowed_now"] is False
+    assert closure_stages["gate3_remote_training"]["runs_training"] is True
+    assert "remote_packet_not_ready" in closure_stages["gate3_remote_training"]["blocked_by"]
 
     lanes = {lane["lane_id"]: lane for lane in manifest["formal_gate_lanes"]}
     assert lanes["gate3_remote_training"]["runs_training"] is True
@@ -64,6 +75,8 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     assert manifest["next_blocked_lane"] is None
     assert all(step["allowed_now"] is True for step in manifest["remote_execution_step_summary"].values())
     assert all(step["blocked_by"] == [] for step in manifest["remote_execution_step_summary"].values())
+    assert all(stage["allowed_now"] is True for stage in manifest["closure_remote_stage_summary"].values())
+    assert all(stage["blocked_by"] == [] for stage in manifest["closure_remote_stage_summary"].values())
 
 
 def test_formal_gate_status_report_catches_status_input_drift(tmp_path):
@@ -94,6 +107,36 @@ def test_formal_gate_status_report_requires_remote_step_blockers(tmp_path):
     assert "remote_packet_sync_to_remote_missing_blocked_by" in issue_ids
     assert "remote_packet_run_remote_training_missing_blocked_by" in issue_ids
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+
+
+def test_formal_gate_status_report_requires_closure_remote_stage_summary(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    closure = json.loads(config.closure_checklist_path.read_text(encoding="utf-8"))
+    closure.pop("post_plan_remote_stage_summary")
+    config.closure_checklist_path.write_text(json.dumps(closure), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert manifest["status"] == "formal_gate_status_blocked"
+    assert "closure_checklist_missing_remote_stage_summary" in issue_ids
+
+
+def test_formal_gate_status_report_requires_closure_remote_stage_blockers(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    closure = json.loads(config.closure_checklist_path.read_text(encoding="utf-8"))
+    closure["post_plan_remote_stage_summary"]["approved_remote_preflight"]["blocked_by"] = []
+    closure["post_plan_remote_stage_summary"]["gate3_remote_training"]["blocked_by"] = []
+    config.closure_checklist_path.write_text(json.dumps(closure), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert manifest["status"] == "formal_gate_status_blocked"
+    assert "closure_checklist_approved_remote_preflight_missing_blocked_by" in issue_ids
+    assert "closure_checklist_gate3_remote_training_missing_blocked_by" in issue_ids
 
 
 def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
@@ -138,6 +181,7 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
     assert "Module2 Formal Gate Status Report" in markdown
     assert "gate3_remote_training" in markdown
     assert "Remote Execution Steps" in markdown
+    assert "Closure Remote Stages" in markdown
     assert "does not execute commands" in markdown
 
 
@@ -214,6 +258,8 @@ def _closure_checklist(*, complete, drift=False):
         "h01_h02_formal_acceptance",
         "claim_gate_regeneration",
     ]
+    stage_blockers = [] if complete else ["requires_dr_sun_approval", "source_fresh_preflight_targets_open"]
+    training_blockers = [] if complete else ["requires_dr_sun_approval", "source_fresh_preflight_targets_open", "remote_packet_not_ready"]
     payload = {
         "status": "formal_gate_closure_ready_for_result_audit" if complete else "formal_gate_closure_blocked",
         "not_paper_result_material": True,
@@ -228,6 +274,35 @@ def _closure_checklist(*, complete, drift=False):
         "acceptance_artifacts_required": _artifacts(["gate3_trial_manifest_json", "gate3_formal_audit_json", "pulled_back_checkpoint_hash_record"], complete=complete),
         "evaluation_acceptance_required": _artifacts(["h01_ready_for_formal_run", "h02_formal_output_acceptance"], complete=complete),
         "claim_gate_artifacts_required": _artifacts(["claim_safety", "paper_readiness"], complete=complete),
+        "post_plan_remote_stage_summary": {
+            "approved_remote_preflight": {
+                "present": True,
+                "status": "complete" if complete else "blocked",
+                "allowed_now": complete,
+                "runs_training": False,
+                "runs_remote_preflight": True,
+                "host": "gpu3070ti-relay",
+                "blocked_by": stage_blockers,
+            },
+            "gate3_remote_training": {
+                "present": True,
+                "status": "complete" if complete else "blocked",
+                "allowed_now": complete,
+                "runs_training": True,
+                "runs_remote_preflight": False,
+                "host": "gpu3070ti-relay",
+                "blocked_by": training_blockers,
+            },
+            "gate3_remote_audit_pullback": {
+                "present": True,
+                "status": "complete" if complete else "blocked",
+                "allowed_now": complete,
+                "runs_training": False,
+                "runs_remote_preflight": False,
+                "host": "gpu3070ti-relay",
+                "blocked_by": training_blockers,
+            },
+        },
         "closure_checklist": [
             {
                 "checklist_id": item,
