@@ -127,6 +127,28 @@ def test_paper_table_builder_blocks_formal_claims_without_formal_h02_data(tmp_pa
     )
     assert manifest["tables"]["ablation_table"]["status"] == "blocked_missing_formal_data"
     assert manifest["tables"]["failure_analysis_table"]["status"] == "preview_not_formal"
+    telemetry_table = manifest["tables"]["telemetry_diagnostic_table"]
+    assert telemetry_table["status"] == "preview_not_formal"
+    assert {
+        "method",
+        "record_count",
+        "rl_attempts_total",
+        "rl_successes_total",
+        "rs_attempts_total",
+        "nn_forward_time_mean_s",
+        "nn_forward_time_p95_s",
+        "fallback_to_primitives_total",
+        "rollout_protocol",
+        "collision_checker",
+    }.issubset(set(telemetry_table["columns"]))
+    bc_row = next(row for row in telemetry_table["rows"] if row["method"] == "bc_analytic_operator")
+    assert bc_row["rl_attempts_total"] == 3
+    assert bc_row["rl_successes_total"] == 2
+    assert bc_row["rs_attempts_total"] == 4
+    assert bc_row["fallback_to_primitives_total"] == 1
+    assert bc_row["nn_forward_time_mean_s"] == 0.003
+    assert bc_row["rollout_protocol"] == "constant_steer_grid_footprint_terminal_rs"
+    assert bc_row["collision_checker"] == "GridFootprintChecker"
     assert manifest["code_anchors"]
 
     assert "# Module2 Paper Tables Protocol" in markdown
@@ -148,6 +170,13 @@ def _write_records(path):
             "path_inflation_ratio": "1.1",
             "min_clearance_m": "0.2",
             "failure_reason": "",
+            "rl_attempts": "",
+            "rl_successes": "",
+            "rs_attempts": "",
+            "nn_forward_time_s": "",
+            "fallback_to_primitives_count": "",
+            "rollout_protocol": "",
+            "collision_checker": "",
         },
         {
             "query_id": "q2",
@@ -160,6 +189,13 @@ def _write_records(path):
             "path_inflation_ratio": "",
             "min_clearance_m": "0.0",
             "failure_reason": "timeout",
+            "rl_attempts": "",
+            "rl_successes": "",
+            "rs_attempts": "",
+            "nn_forward_time_s": "",
+            "fallback_to_primitives_count": "",
+            "rollout_protocol": "",
+            "collision_checker": "",
         },
         {
             "query_id": "q1",
@@ -172,6 +208,13 @@ def _write_records(path):
             "path_inflation_ratio": "1.05",
             "min_clearance_m": "0.25",
             "failure_reason": "",
+            "rl_attempts": "1",
+            "rl_successes": "1",
+            "rs_attempts": "2",
+            "nn_forward_time_s": "0.002",
+            "fallback_to_primitives_count": "0",
+            "rollout_protocol": "constant_steer_grid_footprint_terminal_rs",
+            "collision_checker": "GridFootprintChecker",
         },
         {
             "query_id": "q2",
@@ -184,6 +227,13 @@ def _write_records(path):
             "path_inflation_ratio": "",
             "min_clearance_m": "0.0",
             "failure_reason": "collision",
+            "rl_attempts": "2",
+            "rl_successes": "1",
+            "rs_attempts": "2",
+            "nn_forward_time_s": "0.004",
+            "fallback_to_primitives_count": "1",
+            "rollout_protocol": "constant_steer_grid_footprint_terminal_rs",
+            "collision_checker": "GridFootprintChecker",
         },
     ]
     with path.open("w", encoding="utf-8", newline="") as handle:
