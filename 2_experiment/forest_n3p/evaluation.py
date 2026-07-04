@@ -448,7 +448,7 @@ def _update_rl_rs_telemetry_summary(metadata: dict[str, Any], records: Sequence[
 
 
 def _update_canonical_analytic_fields(metadata: dict[str, Any]) -> None:
-    if "fallback_to_primitives_count" not in metadata and metadata.get("analytic_failure_count") is not None:
+    if metadata.get("analytic_failure_count") is not None:
         metadata["fallback_to_primitives_count"] = int(metadata.get("analytic_failure_count") or 0)
     if "rs_attempts" not in metadata and metadata.get("analytic_candidate_radius_count") is not None:
         metadata["rs_attempts"] = int(metadata.get("analytic_candidate_radius_count") or 0)
