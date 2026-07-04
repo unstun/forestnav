@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "artifact_name": "module2_paper_section_seed",
+  "status": "method_sections_ready_results_blocked",
+  "created_at_utc": "2026-07-04T09:20:10.565893+00:00",
+  "source_head": "72c93f7ada76f19d8d69dc93413f7271513426e4+dirty",
+  "local_training_allowed": false,
+  "remote_training_resource": "gpu3070ti-relay",
+  "inputs": {
+    "paper_readiness": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
+    "method_algorithms": "0_trials/module2_method_algorithms/module2_method_algorithms.json",
+    "system_diagram": "0_trials/module2_system_diagram/module2_system_diagram.json",
+    "claim_safety": "0_trials/module2_claim_safety/module2_claim_safety.json"
+  },
+  "input_status": {
+    "paper_readiness_status": "partial_methods_ready_results_blocked",
+    "method_algorithms_status": "code_anchored",
+    "system_diagram_status": "code_anchored_drawio",
+    "claim_safety_status": "blocked_formal_performance_claims",
+    "formal_performance_claim_allowed": false
+  },
+  "sections": [
+    {
+      "section_id": "methods_rl_rs_operator",
+      "title": "Methods: RL-RS analytic-expansion operator",
+      "status": "draft_ready",
+      "draft_text": "Module2 is implemented as a learned analytic-expansion operator inside the existing Hybrid A* search loop. The operator is invoked only at the planner's analytic-expansion hook; it rolls out steering actions from the current search node, then accepts a shortcut only when the terminal Reeds-Shepp check certifies a collision-free connection to the goal. If this certificate is absent, the operator returns no shortcut and Hybrid A* continues primitive expansion. This section should therefore describe a planner-side analytic operator with fallback semantics, not a standalone global planner.",
+      "evidence": [
+        "0_trials/module2_method_algorithms/module2_method_algorithms.json"
+      ],
+      "code_anchors": [
+        {
+          "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+          "line": 129,
+          "symbol": "HybridAStarPlanner.__init__",
+          "pattern": "analytic_expansion_operator=None"
+        },
+        {
+          "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+          "line": 175,
+          "symbol": "HybridAStarPlanner.__init__",
+          "pattern": "self.analytic_expansion_operator = analytic_expansion_operator"
+        },
+        {
+          "path": "2_experiment/forest_n3p/main_evaluation.py",
+          "line": 70,
+          "symbol": "main_evaluation.RL_RS_OPERATOR_METHODS",
+          "pattern": "RL_RS_OPERATOR_METHODS = ("
+        },
+        {
+          "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+          "line": 296,
+          "symbol": "HybridAStarPlanner._try_analytic_expansion",
+          "pattern": "return self._try_custom_analytic_expansion(state, goal)"
+        },
+        {
+          "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+          "line": 301,
+          "symbol": "HybridAStarPlanner._try_custom_analytic_expansion",
+          "pattern": "result = self.analytic_expansion_operator.try_connect"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/checkpoint_operator.py",
+          "line": 55,
+          "symbol": "load_rl_rs_funnel_operator_from_checkpoint",
+          "pattern": "def load_rl_rs_funnel_operator_from_checkpoint"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/checkpoint_operator.py",
+          "line": 77,
+          "symbol": "load_rl_rs_funnel_operator_from_checkpoint",
+          "pattern": "sha256 = file_sha256(path)"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/checkpoint_operator.py",
+          "line": 85,
+          "symbol": "load_rl_rs_funnel_operator_from_checkpoint",
+          "pattern": "return RlRsFunnelOperator("
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "section_id": "system_figure_caption",
+      "title": "Figure: system architecture and fallback semantics",
+      "status": "draft_ready",
+      "draft_text": "Figure caption seed: RL-RS analytic expansion is placed inside the Hybrid A* loop. The figure should show the analytic trigger, custom operator dispatch, checkpoint-policy rollout, terminal RS certificate, accepted shortcut path, and fallback primitive expansion. The visual boundary is important: the learned policy proposes a local analytic expansion, while Hybrid A* remains the global search authority.",
+      "evidence": [
+        "0_trials/module2_system_diagram/module2_system_diagram.json"
+      ],
+      "figure_nodes": [
+        "Hybrid A* search loop",
+        "Analytic expansion trigger",
+        "Custom analytic operator dispatch",
+        "RL-RS funnel operator",
+        "Planner-side RL rollout env",
+        "Terminal RS certificate",
+        "Accept shortcut",
+        "Fallback primitive expansion",
+        "PPO training environment",
+        "Checkpointed policy variants",
+        "Formal evaluation boundary"
+      ],
+      "blockers": []
+    },
+    {
+      "section_id": "no_warm_gate3_failure_note",
+      "title": "Scoped result note: no-warm Gate #3 failure",
+      "status": "draft_ready_with_scope_limit",
+      "draft_text": "No-warm PPO Gate #3 formal trial failed: terminal-RS success rate was 0.453125 over 64 episodes, below threshold 0.8. This does not evaluate obstacle-summary warm-start PPO and does not reject the whole RL-RS direction. This scoped result can be used as a negative training-dynamics observation, not as evidence against the approved-or-pending warm-start branch. Formal performance claims remain blocked.",
+      "evidence": [
+        "0_trials/module2_claim_safety/module2_claim_safety.json",
+        "0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/gate3_formal_audit.json"
+      ],
+      "blockers": []
+    },
+    {
+      "section_id": "formal_results",
+      "title": "Formal performance results",
+      "status": "blocked",
+      "draft_text": "",
+      "evidence": [
+        "0_trials/module2_claim_safety/module2_claim_safety.json",
+        "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+        "0_trials/module2_paper_tables/module2_paper_tables.json"
+      ],
+      "blockers": [
+        "paper_tables_not_formal",
+        "h02_verdict_not_formal",
+        "h02_formal_acceptance_not_accepted",
+        "h01_manifest_not_ready",
+        "f02_6_warm_start_decision_pending",
+        "missing_module2_rl_rs_checkpoint",
+        "remote_execution_packet_not_ready",
+        "requires_dr_sun_approval",
+        "missing_gate3_formal_audit",
+        "h02_scale_below_h01_manifest",
+        "missing_ppo_result_rows",
+        "missing_remote_pullback_artifacts",
+        "f02_6_formal_chain_pending",
+        "claim_safety_blocks_formal_performance",
+        "f02_6_pending"
+      ]
+    },
+    {
+      "section_id": "warm_start_effect",
+      "title": "Warm-start effect",
+      "status": "blocked",
+      "draft_text": "",
+      "evidence": [
+        "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+        "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json"
+      ],
+      "blockers": [
+        "f02_6_not_approved",
+        "requires_dr_sun_approval",
+        "f02_6_warm_start_decision_pending",
+        "missing_module2_rl_rs_checkpoint"
+      ]
+    }
+  ],
+  "draft_audit": {
+    "status": "clean",
+    "violations": []
+  },
+  "writing_boundaries": [
+    "These drafts may seed paper Methods and scoped failure text only.",
+    "Formal performance claims remain blocked until H02 formal acceptance and claim safety both pass.",
+    "Warm-start effect text remains blocked until F02.6 closes and a gpu3070ti-relay formal run is audited and pulled back.",
+    "Do not describe Module2 as a standalone RL planner or as a replacement for Hybrid A*."
+  ]
+}
