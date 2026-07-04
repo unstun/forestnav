@@ -1,0 +1,101 @@
+{
+  "status": "complete",
+  "created_at_utc": "2026-07-04T00:26:28.814933+00:00",
+  "execution_host": "MacBook-Pro.local",
+  "source_head": "45034d43ce5f23da82a2f7d7eb80da8caeea0f3c",
+  "command": "python -m forest_n3p.scripts.train_bc_policy --allow-duplicate-openmp --device cpu --epochs 30 --patience 8 --batch-size 128 --hidden-dims 64,64 --source-head 45034d43ce5f23da82a2f7d7eb80da8caeea0f3c --output-dir 2_experiment/forest_n3p/models/module2_rl_rs_bc_preview_smoke",
+  "dataset": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_preview20.parquet",
+  "manifest": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/manifest.json",
+  "output_dir": "2_experiment/forest_n3p/models/module2_rl_rs_bc_preview_smoke",
+  "checkpoint": "2_experiment/forest_n3p/models/module2_rl_rs_bc_preview_smoke/checkpoint.pt",
+  "dataset_rows": 1109,
+  "train_rows": 828,
+  "val_rows": 281,
+  "train_source_rows": 15,
+  "val_source_rows": 5,
+  "best_epoch": 29,
+  "epochs_ran": 30,
+  "best_val_mse": 0.044572457671165466,
+  "action_metrics": {
+    "val_mse": 0.044572457671165466,
+    "val_mae_rad": 0.14736425876617432,
+    "val_max_abs_error_rad": 0.7077865600585938,
+    "prediction_mean_rad": 0.022122040390968323,
+    "target_mean_rad": 0.020193852484226227
+  },
+  "closed_loop_metrics": {
+    "episodes": 5,
+    "terminal_rs_success": 2,
+    "collision": 3,
+    "truncated": 0,
+    "runtime_error": 0,
+    "terminal_rs_success_rate": 0.4,
+    "collision_rate": 0.6,
+    "truncation_rate": 0.0,
+    "episodes_detail": [
+      {
+        "source_row_index": 2,
+        "query_id": "complex_s00_q0000",
+        "success": true,
+        "collision": false,
+        "truncated": false,
+        "steps": 22,
+        "failure_reason": null
+      },
+      {
+        "source_row_index": 4,
+        "query_id": "complex_s00_q0000",
+        "success": false,
+        "collision": true,
+        "truncated": false,
+        "steps": 5,
+        "failure_reason": "collision"
+      },
+      {
+        "source_row_index": 11,
+        "query_id": "complex_s00_q0000",
+        "success": true,
+        "collision": false,
+        "truncated": false,
+        "steps": 14,
+        "failure_reason": null
+      },
+      {
+        "source_row_index": 12,
+        "query_id": "complex_s00_q0000",
+        "success": false,
+        "collision": true,
+        "truncated": false,
+        "steps": 1,
+        "failure_reason": "collision"
+      },
+      {
+        "source_row_index": 17,
+        "query_id": "complex_s00_q0000",
+        "success": false,
+        "collision": true,
+        "truncated": false,
+        "steps": 2,
+        "failure_reason": "collision"
+      }
+    ]
+  },
+  "config": {
+    "seed": 20260703,
+    "hidden_dims": [
+      64,
+      64
+    ],
+    "batch_size": 128,
+    "epochs": 30,
+    "learning_rate": 0.001,
+    "weight_decay": 1e-05,
+    "patience": 8,
+    "val_fraction": 0.25,
+    "rollout_max_steps": 32,
+    "rollout_action_step_m": 0.3,
+    "collision_sample_step_m": 0.1,
+    "device": "cpu",
+    "allow_duplicate_openmp": true
+  }
+}

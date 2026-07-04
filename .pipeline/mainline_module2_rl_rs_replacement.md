@@ -533,9 +533,15 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 
 #### F02. BC 预热
 
-- [ ] F02.1 训练 BC policy。
+- [x] F02.1 训练 BC policy。
   - loss: steer regression + terminal classifier optional。
   - metric: rollout success to RS-connectable set, not only action MSE。
+  - 已完成: 新增 `train_bc_policy.py`, 从 F01 preview demonstrations 训练 scalar-observation MLP steering regressor, 按 `source_row_index` 做 group split, 输出 checkpoint/history/summary, 并在 held-out source rows 上做闭环 terminal-RS-success rollout。
+  - 产物: `2_experiment/forest_n3p/models/module2_rl_rs_bc_preview_smoke/`。
+  - 结果: validation MAE 0.147 rad; closed-loop 5 episodes 中 terminal RS success 2、collision 3。
+  - 边界: 这是 preview smoke, 不是正式 BC baseline; 结果显示 action MSE 不能替代闭环指标。
+  - 验证: checkpoint 默认 `torch.load(..., map_location="cpu")` 通过; `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `24 passed`。
+  - 记录: `.pipeline/experiments/20260703_module2_f02_bc_policy_smoke.md`。
 - [ ] F02.2 BC 作为正式 baseline。
   - 目的: 证明 PPO 精调是否真的必要。
   - 失败: 若 BC 已够好, 论文叙事要改成 "imitation initialized neural analytic expansion", PPO 只作 fine-tune。
