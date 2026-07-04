@@ -542,9 +542,16 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 边界: 这是 preview smoke, 不是正式 BC baseline; 结果显示 action MSE 不能替代闭环指标。
   - 验证: checkpoint 默认 `torch.load(..., map_location="cpu")` 通过; `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `24 passed`。
   - 记录: `.pipeline/experiments/20260703_module2_f02_bc_policy_smoke.md`。
-- [ ] F02.2 BC 作为正式 baseline。
+- [>] F02.2 BC 作为正式 baseline。
   - 目的: 证明 PPO 精调是否真的必要。
   - 失败: 若 BC 已够好, 论文叙事要改成 "imitation initialized neural analytic expansion", PPO 只作 fine-tune。
+  - 已完成子项: 生成 formal-v1 corpus, 训练 scalar-observation BC lower-bound, 并做 0.3m/0.1m 闭环评估。
+  - formal-v1 corpus: `demonstrations_formal_v1.parquet`, 85514 demo rows, 1035 source rows, Complex/Extreme 基本平衡。
+  - scalar BC 结果: validation MAE 0.096 rad; 0.3m rollout success 11/259; 0.1m rollout success 45/259。
+  - 关键发现: formal-v1 expert step length 约 0.1m, 不能用 0.3m rollout 直接判定; scalar-only observation 仍严重碰撞。
+  - 当前边界: 这只是 lower-bound, 不是最终强 BC baseline。
+  - 下一步: patch+scalar 或 obstacle-summary BC, 并在 action-step 对齐后再决定 PPO 是否必要。
+  - 记录: `.pipeline/experiments/20260703_module2_f02_formal_scalar_bc.md`。
 
 #### F03. PPO 最大实现
 
