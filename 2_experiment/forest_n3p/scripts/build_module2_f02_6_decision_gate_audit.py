@@ -143,6 +143,10 @@ def _record_issues(record: dict[str, Any]) -> list[dict[str, Any]]:
         issues.append(_issue("record_allows_local_training", "Decision record must never allow local training."))
     if record.get("formal_claim_allowed") is not False:
         issues.append(_issue("record_allows_formal_claim", "Decision record must not allow formal claims."))
+    if record.get("remote_preflight_allowed_now") is not False:
+        issues.append(_issue("record_allows_remote_preflight_now", "Decision record alone must not allow remote preflight now."))
+    if record.get("remote_training_allowed_now") is not False:
+        issues.append(_issue("record_allows_remote_training_now", "Decision record alone must not allow remote training now."))
     if status == "pending_human_decision":
         if record.get("decider") is not None:
             issues.append(_issue("pending_record_has_decider", "Pending record must not name a decider.", observed=record.get("decider")))
@@ -206,6 +210,8 @@ def _decision_state(*, packet: dict[str, Any], record: dict[str, Any], plan: dic
         "record_decider": record.get("decider"),
         "effective_warm_start_decision": record.get("effective_warm_start_decision"),
         "remote_training_allowed": record.get("remote_training_allowed"),
+        "remote_preflight_allowed_now": record.get("remote_preflight_allowed_now"),
+        "remote_training_allowed_now": record.get("remote_training_allowed_now"),
         "local_training_allowed": record.get("local_training_allowed"),
         "formal_claim_allowed": record.get("formal_claim_allowed"),
         "post_plan_status": plan.get("status"),
