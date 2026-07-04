@@ -358,6 +358,18 @@ def _markdown(manifest: dict[str, Any]) -> str:
         lines.extend(f"- `{item}`" for item in manifest["global_blockers"])
     else:
         lines.append("- none")
+    input_status = manifest["input_status"]
+    lines.extend(
+        [
+            "",
+            "## Claim Safety Handoff Summary",
+            "",
+            f"- claim_safety_handoff_status: `{input_status.get('claim_safety_handoff_status')}`",
+            f"- claim_safety_transition_gate_status: `{input_status.get('claim_safety_transition_gate_status')}`",
+            f"- claim_safety_transition_gate_audit_issue_count: `{input_status.get('claim_safety_transition_gate_audit_issue_count')}`",
+            f"- claim_safety_handoff_safety_issue_count: `{input_status.get('claim_safety_handoff_safety_issue_count')}`",
+        ]
+    )
     lines.extend(["", "## Section Readiness", ""])
     for section in manifest["section_readiness"]:
         lines.append(f"### {section['section_id']}")
