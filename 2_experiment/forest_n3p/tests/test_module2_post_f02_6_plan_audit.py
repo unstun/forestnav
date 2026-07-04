@@ -105,6 +105,78 @@ def test_post_f02_6_plan_audit_catches_stage_order_and_source_target_mismatch(tm
     assert "plan_source_regeneration_target_counts_mismatch" in issue_ids
 
 
+def test_post_f02_6_plan_audit_consumes_open_missing_artifacts_inventory_without_blocking_training_step(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
+    plan = _plan_payload()
+
+    manifest = auditor.build_manifest(
+        auditor.PostF026PlanAuditConfig(
+            output_dir=tmp_path,
+            plan_path=_json(tmp_path, "plan.json", plan),
+            formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate_payload()),
+            source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
+            missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
+        )
+    )
+
+    assert manifest["status"] == "post_f02_6_plan_audit_passed"
+    assert manifest["missing_artifacts_summary"]["all_required_evidence_present"] is False
+    assert manifest["missing_artifacts_summary"]["missing_counts_by_category"]["training"] == 3
+    assert manifest["audit_issues"] == []
+
+
+def test_post_f02_6_plan_audit_catches_claim_gate_ready_with_open_missing_artifacts(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
+    plan = _plan_payload()
+    plan["current_gate_summary"]["f02_6_decision_status"] = "approved"
+    plan["status"] = "ready_for_claim_gate"
+    claim_stage = _stage(plan, "regenerate_claim_gate_artifacts")
+    claim_stage["allowed_now"] = True
+    claim_stage["status"] = "ready"
+    claim_stage["blocked_by"] = []
+
+    manifest = auditor.build_manifest(
+        auditor.PostF026PlanAuditConfig(
+            output_dir=tmp_path,
+            plan_path=_json(tmp_path, "plan.json", plan),
+            formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate_payload(decision_status="approved")),
+            source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
+            missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "post_f02_6_plan_audit_failed"
+    assert "claim_gate_ready_before_formal_acceptance" in issue_ids
+    assert "claim_gate_ready_with_missing_artifacts" in issue_ids
+
+
+def test_post_f02_6_plan_audit_rejects_missing_artifacts_inventory_that_runs_or_claims(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
+
+    manifest = auditor.build_manifest(
+        auditor.PostF026PlanAuditConfig(
+            output_dir=tmp_path,
+            plan_path=_json(tmp_path, "plan.json", _plan_payload()),
+            formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate_payload()),
+            source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
+            missing_artifacts_path=_json(
+                tmp_path,
+                "missing_artifacts.json",
+                _missing_artifacts_payload(open_inventory=False, invalid=True),
+            ),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "missing_artifacts_inventory_executes_commands" in issue_ids
+    assert "missing_artifacts_inventory_runs_training" in issue_ids
+    assert "missing_artifacts_inventory_runs_preflight" in issue_ids
+    assert "missing_artifacts_inventory_allows_local_training" in issue_ids
+    assert "missing_artifacts_inventory_allows_claim" in issue_ids
+    assert "missing_artifacts_inventory_has_audit_issues" in issue_ids
+
+
 def test_post_f02_6_plan_audit_cli_writes_json_and_markdown(tmp_path):
     auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
     manifest_path = tmp_path / "audit.json"
