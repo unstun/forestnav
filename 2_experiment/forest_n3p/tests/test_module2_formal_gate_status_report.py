@@ -670,6 +670,17 @@ def _handoff_bundle(*, complete, drift=False):
             "run_remote_training": _handoff_step(complete, True, training_blockers),
             "run_remote_audit": _handoff_step(complete, False, training_blockers),
         },
+        "formal_gate_requirements": [
+            _handoff_requirement("training_remote_ppo_checkpoint", "training", complete=complete, stage_id="gate3_remote_training"),
+            _handoff_requirement("evaluation_gate3_episode_outputs", "evaluation", complete=complete, stage_id="gate3_remote_audit_pullback"),
+            _handoff_requirement("acceptance_remote_pullback_and_audit", "acceptance", complete=complete, stage_id="gate3_remote_audit_pullback"),
+            _handoff_requirement(
+                "h01_h02_formal_evaluation_acceptance",
+                "evaluation_acceptance",
+                complete=complete,
+                stage_id="regenerate_h01_h02_formal_artifacts",
+            ),
+        ],
         "safety_issue_count": 0,
         "safety_issues": [],
     }
@@ -684,6 +695,24 @@ def _handoff_step(allowed, runs_training, blockers):
         "allowed_now": allowed,
         "runs_training": runs_training,
         "blocked_by": blockers,
+    }
+
+
+def _handoff_requirement(requirement_id, phase, *, complete, stage_id):
+    return {
+        "requirement_id": requirement_id,
+        "phase": phase,
+        "status": "satisfied" if complete else "blocked_missing_outputs",
+        "complete": complete,
+        "execution_allowed_now": False,
+        "missing_artifact_ids": [] if complete else [f"{requirement_id}_missing"],
+        "responsible_stage_id": stage_id,
+        "responsible_stage_status": "ready" if complete else "blocked",
+        "responsible_stage_allowed_now": complete,
+        "responsible_stage_blocked_by": [] if complete else ["remote_packet_not_ready"],
+        "responsible_stage_evidence_paths": [
+            "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip"
+        ],
     }
 
 
