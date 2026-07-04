@@ -18,6 +18,7 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
             source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
             missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
             closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
+            status_report_path=_json(tmp_path, "status_report.json", _status_report_payload(ready=False)),
         )
     )
 
@@ -30,6 +31,10 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
     assert manifest["runs_remote_preflight"] is False
     assert manifest["current_blocking_summary"]["training_allowed_now"] is False
     assert manifest["current_blocking_summary"]["remote_preflight_allowed_now"] is False
+    assert manifest["inputs"]["formal_gate_status_report"].endswith("status_report.json")
+    assert manifest["status_report_summary"]["status"] == "formal_gate_status_blocked"
+    assert manifest["status_report_summary"]["formal_claim_allowed_now"] is False
+    assert manifest["status_report_summary"]["next_blocked_lane_id"] == "decision"
 
 
 def test_post_f02_6_plan_audit_catches_training_allowed_while_f02_6_pending(tmp_path):
@@ -48,6 +53,7 @@ def test_post_f02_6_plan_audit_catches_training_allowed_while_f02_6_pending(tmp_
             source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
             missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
             closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
+            status_report_path=_json(tmp_path, "status_report.json", _status_report_payload(ready=False)),
         )
     )
 
@@ -79,6 +85,7 @@ def test_post_f02_6_plan_audit_catches_remote_training_host_and_command_drift(tm
             source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
             missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
             closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
+            status_report_path=_json(tmp_path, "status_report.json", _status_report_payload(ready=False)),
         )
     )
 
@@ -101,6 +108,7 @@ def test_post_f02_6_plan_audit_catches_stage_order_and_source_target_mismatch(tm
             source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
             missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
             closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
+            status_report_path=_json(tmp_path, "status_report.json", _status_report_payload(ready=False)),
         )
     )
 
@@ -121,6 +129,7 @@ def test_post_f02_6_plan_audit_consumes_open_missing_artifacts_inventory_without
             source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
             missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
             closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
+            status_report_path=_json(tmp_path, "status_report.json", _status_report_payload(ready=False)),
         )
     )
 
@@ -148,6 +157,7 @@ def test_post_f02_6_plan_audit_catches_claim_gate_ready_with_open_missing_artifa
             source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
             missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
             closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
+            status_report_path=_json(tmp_path, "status_report.json", _status_report_payload(ready=False)),
         )
     )
 
@@ -172,6 +182,7 @@ def test_post_f02_6_plan_audit_rejects_missing_artifacts_inventory_that_runs_or_
                 _missing_artifacts_payload(open_inventory=False, invalid=True),
             ),
             closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=False)),
+            status_report_path=_json(tmp_path, "status_report.json", _status_report_payload(ready=False)),
         )
     )
 
@@ -202,6 +213,7 @@ def test_post_f02_6_plan_audit_catches_claim_gate_ready_with_open_closure_checkl
             source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
             missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=False)),
             closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
+            status_report_path=_json(tmp_path, "status_report.json", _status_report_payload(ready=False)),
         )
     )
 
@@ -221,6 +233,7 @@ def test_post_f02_6_plan_audit_rejects_closure_checklist_that_runs_or_claims(tmp
             source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
             missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
             closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=False, invalid=True)),
+            status_report_path=_json(tmp_path, "status_report.json", _status_report_payload(ready=False)),
         )
     )
 
