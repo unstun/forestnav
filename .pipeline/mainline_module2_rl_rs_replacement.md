@@ -507,7 +507,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 已完成: no-progress 已有测试继续覆盖; 新增 oscillation guard, 在短窗口内 steering 符号反复翻转且净 progress 不足阈值时 `truncated`, failure reason 为 `oscillation`。
   - telemetry/info: `oscillation_detected`。
   - reward: `RewardConfig.oscillation_penalty` 接入 terminal penalty。
-  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `24 passed in 0.52s`。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `24 passed in 0.46s`。
   - 记录: `.pipeline/experiments/20260703_module2_e03_no_progress_oscillation.md`。
 
 ### Phase F: BC warm-start 与 PPO 训练
