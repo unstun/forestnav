@@ -2501,6 +2501,17 @@ def _markdown(manifest: dict[str, Any]) -> str:
     for matrix_id, row in proof_plan["rows"].items():
         command_ids = ", ".join(row["proof_command_ids"]) if row["proof_command_ids"] else "none"
         lines.append(f"- `{matrix_id}`: proof_command_count=`{row['proof_command_count']}`, command_ids=`{command_ids}`")
+    proof_audit = manifest["formal_gate_proof_audit_summary"]
+    lines.extend(["", "## Formal Gate Proof Audit", ""])
+    lines.append(f"- present: `{proof_audit['present']}`")
+    lines.append(f"- status: `{proof_audit['status']}`")
+    lines.append(f"- total_matrix_rows: `{proof_audit['total_matrix_rows']}`")
+    lines.append(f"- total_proof_command_count: `{proof_audit['total_proof_command_count']}`")
+    lines.append(f"- passed_proof_command_count: `{proof_audit['passed_proof_command_count']}`")
+    lines.append(f"- failed_proof_command_count: `{proof_audit['failed_proof_command_count']}`")
+    lines.append(f"- blocked_proof_command_count: `{proof_audit['blocked_proof_command_count']}`")
+    for command_id, result in proof_audit["results_by_id"].items():
+        lines.append(f"- `{command_id}`: status=`{result['status']}`, matrix_id=`{result['matrix_id']}`")
     formal_gate_gap = manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]
     lines.extend(["", "## Formal Gate Gap Audit Remaining Deliverables Gap Summary", ""])
     lines.append(f"- present: `{formal_gate_gap['present']}`")
