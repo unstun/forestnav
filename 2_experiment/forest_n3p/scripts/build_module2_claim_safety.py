@@ -437,6 +437,7 @@ def _formal_performance_blockers(
     blockers.extend(_status_report_h02_acceptance_requirement_blockers(status_report))
     blockers.extend(_status_report_remaining_deliverables_acceptance_blockers(status_report))
     blockers.extend(_status_report_remaining_deliverables_gap_blockers(status_report))
+    blockers.extend(_status_report_formal_gate_gap_audit_remaining_deliverables_gap_blockers(status_report))
     blockers.extend(_status_report_decision_intake_blockers(status_report))
     blockers.extend(_status_report_remote_summary_blockers(status_report))
     return blockers
@@ -909,7 +910,15 @@ def _status_report_remaining_deliverables_acceptance_blockers(status_report: dic
 
 
 def _status_report_remaining_deliverables_gap_summary(status_report: dict[str, Any]) -> dict[str, Any]:
-    summary = status_report.get("remaining_deliverables_gap_summary")
+    return _status_report_gap_summary(status_report.get("remaining_deliverables_gap_summary"))
+
+
+def _status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary(status_report: dict[str, Any]) -> dict[str, Any]:
+    return _status_report_gap_summary(status_report.get("formal_gate_gap_audit_remaining_deliverables_gap_summary"))
+
+
+def _status_report_gap_summary(raw_summary: Any) -> dict[str, Any]:
+    summary = raw_summary
     summary = summary if isinstance(summary, dict) else {}
     raw_categories = summary.get("categories") if isinstance(summary.get("categories"), dict) else {}
     categories: dict[str, dict[str, Any]] = {}
@@ -931,6 +940,25 @@ def _status_report_remaining_deliverables_gap_summary(status_report: dict[str, A
         "open_category_count": int(summary.get("open_category_count") or 0),
         "category_order": _strings(summary.get("category_order")),
         "categories": categories,
+    }
+
+
+def _gap_signature(summary: dict[str, Any]) -> dict[str, Any]:
+    categories = summary.get("categories") if isinstance(summary.get("categories"), dict) else {}
+    return {
+        "summary_id": summary.get("summary_id"),
+        "total_missing_deliverables": summary.get("total_missing_deliverables"),
+        "open_category_count": summary.get("open_category_count"),
+        "category_order": summary.get("category_order"),
+        "categories": {
+            key: {
+                "missing_count": value.get("missing_count"),
+                "responsible_stage_id": value.get("responsible_stage_id"),
+                "missing_artifact_matrix_ids": value.get("missing_artifact_matrix_ids", []),
+            }
+            for key, value in sorted(categories.items())
+            if isinstance(value, dict)
+        },
     }
 
 
@@ -962,6 +990,46 @@ def _status_report_remaining_deliverables_gap_blockers(status_report: dict[str, 
                 _append_unique(blockers, f"status_report_remaining_deliverables_gap_{category}_stage_allowed_while_blocked")
         if payload["missing_count"] != len(payload["missing_artifact_matrix_ids"]):
             _append_unique(blockers, f"status_report_remaining_deliverables_gap_{category}_missing_artifact_count_mismatch")
+    return blockers
+
+
+def _status_report_formal_gate_gap_audit_remaining_deliverables_gap_blockers(status_report: dict[str, Any]) -> list[str]:
+    summary = _status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary(status_report)
+    ledger_summary = _status_report_remaining_deliverables_gap_summary(status_report)
+    blockers: list[str] = []
+    if not summary["present"]:
+        blockers.append("status_report_missing_formal_gate_gap_audit_remaining_deliverables_gap_summary")
+        return blockers
+    if summary["summary_id"] != "module2_formal_gate_missing_training_eval_acceptance_summary":
+        blockers.append("status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary_id_invalid")
+    if summary["category_order"] != list(STATUS_REPORT_REMAINING_DELIVERABLE_CATEGORY_IDS):
+        blockers.append("status_report_formal_gate_gap_audit_remaining_deliverables_gap_category_order_mismatch")
+    if ledger_summary["present"] and _gap_signature(summary) != _gap_signature(ledger_summary):
+        blockers.append("status_report_formal_gate_gap_audit_remaining_deliverables_gap_mismatch")
+    if summary["total_missing_deliverables"] > 0:
+        blockers.append("status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing")
+    if summary["open_category_count"] > 0:
+        blockers.append("status_report_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked")
+    if status_report.get("status") == "formal_gate_status_ready_for_claim_audit":
+        if summary["total_missing_deliverables"] > 0:
+            blockers.append("status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing_while_status_ready")
+        if summary["open_category_count"] > 0:
+            blockers.append("status_report_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked_while_status_ready")
+    for category, payload in summary["categories"].items():
+        if not payload["present"]:
+            _append_unique(blockers, f"status_report_formal_gate_gap_audit_remaining_deliverables_gap_missing_{category}")
+            continue
+        if status_report.get("status") != "formal_gate_status_ready_for_claim_audit":
+            if payload["responsible_stage_allowed_now"] is True:
+                _append_unique(
+                    blockers,
+                    f"status_report_formal_gate_gap_audit_remaining_deliverables_gap_{category}_stage_allowed_while_blocked",
+                )
+        if payload["missing_count"] != len(payload["missing_artifact_matrix_ids"]):
+            _append_unique(
+                blockers,
+                f"status_report_formal_gate_gap_audit_remaining_deliverables_gap_{category}_missing_artifact_count_mismatch",
+            )
     return blockers
 
 
