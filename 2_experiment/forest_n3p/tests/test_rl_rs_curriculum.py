@@ -92,6 +92,57 @@ def test_oracle_connector_sampler_reconstructs_profile_aware_failure_node_contex
     assert sampler.last_metadata.profile_name == "complex_d02"
 
 
+def test_oracle_connector_sampler_skips_rows_that_reconstruct_to_colliding_context(tmp_path):
+    parquet_path = tmp_path / "oracle_rows_with_bad_goal.parquet"
+    bad_goal_row = {
+        "query_id": "extreme_s00_q0006",
+        "difficulty_bucket": "Extreme",
+        "profile_name": "extreme_d05",
+        "map_seed": 20460621,
+        "query_seed": 20461621,
+        "distance_bin_key": "d08_12",
+        "dedup_key": "extreme_s00_q0006:259:123:0",
+        "expansion_idx": 0,
+        "state_x": 25.9,
+        "state_y": 12.3,
+        "state_theta": 0.0,
+        "goal_x": 9.3,
+        "goal_y": 11.1,
+        "goal_theta": 0.0,
+        "nearest_obstacle_m": 1.0,
+        "oracle_connectable": True,
+    }
+    good_row = {
+        "query_id": "complex_s00_q0000",
+        "difficulty_bucket": "Complex",
+        "profile_name": "complex_d02",
+        "map_seed": 20360620,
+        "query_seed": 20361620,
+        "distance_bin_key": "d08_12",
+        "dedup_key": "complex_s00_q0000:122:231:69",
+        "expansion_idx": 1,
+        "state_x": 12.2,
+        "state_y": 23.1,
+        "state_theta": -0.191184,
+        "goal_x": 21.5,
+        "goal_y": 21.3,
+        "goal_theta": -0.191184,
+        "nearest_obstacle_m": 1.655295,
+        "oracle_connectable": True,
+    }
+    pd.DataFrame([bad_goal_row, good_row]).to_parquet(parquet_path)
+    sampler = OracleConnectorContextSampler(parquet_path, config=_small_config())
+
+    context = sampler(np.random.default_rng(1))
+
+    checker = context.collision_checker()
+    assert not checker.collides_pose(context.start.x, context.start.y, context.start.theta)
+    assert not checker.collides_pose(context.goal.x, context.goal.y, context.goal.theta)
+    assert sampler.last_metadata is not None
+    assert sampler.last_metadata.query_id == "complex_s00_q0000"
+    assert sampler.skipped_invalid_rows == 1
+
+
 def test_heldout_query_sampler_uses_heldout_seed_and_records_metadata():
     sampler = HeldoutQueryContextSampler(
         seed=20260704,
