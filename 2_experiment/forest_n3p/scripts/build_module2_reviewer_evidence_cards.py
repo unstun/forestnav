@@ -259,5 +259,102 @@ def _markdown(manifest: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def _latex(manifest: dict[str, Any]) -> str:
+    lines = [
+        "% Auto-generated Module2 reviewer evidence appendix.",
+        f"% Source manifest: {manifest['generated_outputs']['manifest']}",
+        "% This appendix is traceability material, not formal performance evidence.",
+        "",
+        r"\section{Module2 Reviewer Evidence Cards}",
+        r"\label{app:module2_reviewer_evidence_cards}",
+        "",
+        "This appendix records source-level traceability for the Module2 manuscript text. "
+        "It is generated from the reviewer evidence-card manifest and should be read as a claim-audit aid, not as a formal result.",
+        "",
+        r"\begin{itemize}",
+        rf"\item Status: \texttt{{{_latex_escape(str(manifest['status']))}}}.",
+        rf"\item Local training allowed: \texttt{{{_latex_escape(str(manifest['local_training_allowed']))}}}.",
+        rf"\item Remote training resource: \texttt{{{_latex_escape(str(manifest['remote_training_resource']))}}}.",
+        rf"\item Formal performance claim allowed: \texttt{{{_latex_escape(str(manifest['upstream_status']['formal_performance_claim_allowed']))}}}.",
+        r"\end{itemize}",
+        "",
+    ]
+    for card in manifest["cards"]:
+        lines.extend(_latex_card(card))
+    lines.extend(
+        [
+            r"\subsection{Verification Commands}",
+            r"\begin{itemize}",
+        ]
+    )
+    for command in manifest["verification_commands"]:
+        lines.append(rf"\item \texttt{{{_latex_escape(command)}}}")
+    lines.extend([r"\end{itemize}", "", r"\subsection{Review Boundaries}", r"\begin{itemize}"])
+    for boundary in manifest["review_boundaries"]:
+        lines.append(rf"\item {_latex_escape(boundary)}")
+    lines.extend([r"\end{itemize}", ""])
+    return "\n".join(lines)
+
+
+def _latex_card(card: dict[str, Any]) -> list[str]:
+    lines = [
+        rf"\subsection{{{_latex_escape(str(card['card_id']))}}}",
+        r"\begin{itemize}",
+        rf"\item Reviewer verdict: \texttt{{{_latex_escape(str(card['reviewer_verdict']))}}}.",
+        rf"\item Claim status: \texttt{{{_latex_escape(str(card['claim_status']))}}}.",
+        rf"\item Evidence state: \texttt{{{_latex_escape(str(card['evidence_state']))}}}.",
+        rf"\item Writing instruction: {_latex_escape(str(card['writing_instruction']))}",
+        r"\end{itemize}",
+        r"\paragraph{Manuscript anchors.}",
+        r"\begin{itemize}",
+    ]
+    for anchor in card.get("manuscript_anchors", []):
+        lines.append(
+            rf"\item \texttt{{{_latex_escape(str(anchor['cue']))}}} "
+            rf"$\rightarrow$ \texttt{{{_latex_escape(str(anchor['path']))}:{_latex_escape(str(anchor['line']))}}} "
+            rf"(raw=\texttt{{{_latex_escape(str(anchor['cue_in_raw_line']))}}}, "
+            rf"stripped=\texttt{{{_latex_escape(str(anchor['cue_in_comment_stripped_line']))}}})."
+        )
+    lines.extend([r"\end{itemize}", r"\paragraph{Primary evidence.}", r"\begin{itemize}"])
+    for evidence in card.get("primary_evidence", []):
+        lines.append(
+            rf"\item \texttt{{{_latex_escape(str(evidence.get('path')))}}}, "
+            rf"status=\texttt{{{_latex_escape(str(evidence.get('status')))}}}."
+        )
+    lines.append(r"\end{itemize}")
+    if card.get("metric_values"):
+        metrics = ", ".join(f"{key}={value}" for key, value in card["metric_values"].items())
+        lines.extend([r"\paragraph{Metric values.}", rf"\texttt{{{_latex_escape(metrics)}}}", ""])
+    if card.get("paper_blockers"):
+        lines.extend([r"\paragraph{Paper blockers.}", r"\begin{itemize}"])
+        for blocker in card["paper_blockers"]:
+            lines.append(rf"\item \texttt{{{_latex_escape(str(blocker))}}}")
+        lines.append(r"\end{itemize}")
+    if card.get("code_anchors"):
+        lines.extend([r"\paragraph{Code anchors.}", r"\begin{itemize}"])
+        for anchor in card["code_anchors"][:8]:
+            path_line = f"{anchor.get('path')}:{anchor.get('line')}"
+            lines.append(rf"\item \texttt{{{_latex_escape(path_line)}}} \texttt{{{_latex_escape(str(anchor.get('symbol')))}}}")
+        lines.append(r"\end{itemize}")
+    lines.append("")
+    return lines
+
+
+def _latex_escape(text: str) -> str:
+    replacements = {
+        "\\": r"\textbackslash{}",
+        "&": r"\&",
+        "%": r"\%",
+        "$": r"\$",
+        "#": r"\#",
+        "_": r"\_",
+        "{": r"\{",
+        "}": r"\}",
+        "~": r"\textasciitilde{}",
+        "^": r"\textasciicircum{}",
+    }
+    return "".join(replacements.get(char, char) for char in text)
+
+
 if __name__ == "__main__":
     raise SystemExit(main())
