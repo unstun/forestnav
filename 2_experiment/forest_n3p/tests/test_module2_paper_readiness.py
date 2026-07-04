@@ -187,6 +187,8 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert "claim_safety_remaining_deliverables_acceptance_matrix_row_count" in markdown
     assert "Claim Safety Formal Gate Gap Audit Remaining Deliverables Gap Summary" in markdown
     assert "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_total_missing_deliverables" in markdown
+    assert "Claim Safety Remaining Deliverables Proof Command Plan" in markdown
+    assert "claim_safety_remaining_deliverables_proof_command_plan_command_count" in markdown
     assert "Claim Safety Remote-Safety Claim-Gate Command Index" in markdown
     assert "claim_safety_remote_packet_safety_command_index_row_count" in markdown
 
