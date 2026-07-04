@@ -251,6 +251,7 @@ def _apply_obstacle_summary_bc_warm_start(model: Any, checkpoint_path: Path) -> 
     action_head.linear.bias.data.copy_(final_bias.to(device=action_head.linear.bias.device, dtype=action_head.linear.bias.dtype))
     model.policy.action_net = action_head
     _set_feature_normalization(model.policy, checkpoint["feature_mean"], checkpoint["feature_std"])
+    _persist_feature_normalization(model, checkpoint["feature_mean"], checkpoint["feature_std"])
     _rebuild_policy_optimizer(model.policy)
     return {
         "status": "applied_obstacle_summary_bc",
@@ -289,6 +290,17 @@ def _set_feature_normalization(policy: Any, feature_mean: Sequence[float], featu
         extractor._feature_mean.data.copy_(mean)
         extractor._feature_std.data.copy_(std)
         extractor._has_normalization = True
+
+
+def _persist_feature_normalization(model: Any, feature_mean: Sequence[float], feature_std: Sequence[float]) -> None:
+    kwargs = dict(getattr(model, "policy_kwargs", {}) or {})
+    kwargs["features_extractor_kwargs"] = {
+        "feature_mean": [float(value) for value in feature_mean],
+        "feature_std": [float(value) for value in feature_std],
+    }
+    model.policy_kwargs = kwargs
+    if hasattr(model.policy, "features_extractor_kwargs"):
+        model.policy.features_extractor_kwargs = dict(kwargs["features_extractor_kwargs"])
 
 
 def _rebuild_policy_optimizer(policy: Any) -> None:
