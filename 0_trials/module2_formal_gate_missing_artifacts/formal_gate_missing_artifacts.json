@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_missing_artifacts_audit",
   "status": "formal_gate_missing_artifacts_open",
-  "created_at_utc": "2026-07-04T12:24:15.686133+00:00",
-  "source_head": "196a6dd297d94dd55bd5eeb4b8360558a546bb8e+dirty",
+  "created_at_utc": "2026-07-04T12:51:07.027674+00:00",
+  "source_head": "3cbf62bc0f572416355c4afdb2a68971dd292ee9+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -182,17 +182,17 @@
           "reason": "source freshness audit requires regeneration before the corresponding formal gate"
         },
         {
-          "artifact_id": "claim_safety",
-          "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
+          "artifact_id": "formal_gate_missing_artifacts",
+          "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
           "exists": true,
-          "state": "historical_clean",
+          "state": "current_dirty",
           "missing": true,
           "required_before": "formal_claim_gate",
           "reason": "source freshness audit requires regeneration before the corresponding formal gate"
         },
         {
-          "artifact_id": "formal_gate_missing_artifacts",
-          "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
+          "artifact_id": "formal_gate_status_report",
+          "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
           "exists": true,
           "state": "current_dirty",
           "missing": true,
@@ -203,7 +203,7 @@
           "artifact_id": "paper_readiness",
           "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
           "exists": true,
-          "state": "historical_dirty",
+          "state": "current_dirty",
           "missing": true,
           "required_before": "formal_claim_gate",
           "reason": "source freshness audit requires regeneration before the corresponding formal gate"
@@ -283,7 +283,7 @@
         },
         {
           "artifact_id": "regenerate_claim_gate_artifacts",
-          "path": "0_trials/module2_claim_safety/module2_claim_safety.json; 0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json; 0_trials/module2_paper_readiness/module2_paper_readiness.json",
+          "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json; 0_trials/module2_formal_gate_status_report/formal_gate_status_report.json; 0_trials/module2_paper_readiness/module2_paper_readiness.json",
           "exists": true,
           "state": "blocked",
           "missing": true,
@@ -427,20 +427,12 @@
       "required_before": "formal_claim",
       "complete": false,
       "blocked_by": [
-        "claim_safety",
         "formal_gate_missing_artifacts",
+        "formal_gate_status_report",
         "paper_readiness",
         "h02_formal_acceptance_before_claim_gate"
       ],
       "items": [
-        {
-          "artifact_id": "claim_safety",
-          "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
-          "exists": true,
-          "state": "historical_clean",
-          "missing": true,
-          "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
-        },
         {
           "artifact_id": "formal_gate_missing_artifacts",
           "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
@@ -450,10 +442,18 @@
           "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
         },
         {
+          "artifact_id": "formal_gate_status_report",
+          "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
+          "exists": true,
+          "state": "current_dirty",
+          "missing": true,
+          "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
+        },
+        {
           "artifact_id": "paper_readiness",
           "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
           "exists": true,
-          "state": "historical_dirty",
+          "state": "current_dirty",
           "missing": true,
           "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
         },

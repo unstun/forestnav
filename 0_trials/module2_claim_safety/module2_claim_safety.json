@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_claim_safety",
   "status": "blocked_formal_performance_claims",
-  "created_at_utc": "2026-07-04T12:35:09.082621+00:00",
-  "source_head": "b7460f0222750cd2d385719781aeff66a7f5e6ef",
+  "created_at_utc": "2026-07-04T12:51:07.426903+00:00",
+  "source_head": "3cbf62bc0f572416355c4afdb2a68971dd292ee9",
   "formal_performance_claim_allowed": false,
   "formal_performance_blockers": [
     "paper_tables_not_formal",

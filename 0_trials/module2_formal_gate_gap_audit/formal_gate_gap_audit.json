@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_gap_audit",
   "status": "blocked_formal_gate_gaps_open",
-  "created_at_utc": "2026-07-04T12:24:15.770377+00:00",
-  "source_head": "196a6dd297d94dd55bd5eeb4b8360558a546bb8e+dirty",
+  "created_at_utc": "2026-07-04T12:51:07.300646+00:00",
+  "source_head": "3cbf62bc0f572416355c4afdb2a68971dd292ee9+dirty",
   "not_paper_result_material": true,
   "local_training_allowed": false,
   "remote_training_resource": "gpu3070ti-relay",
@@ -36,9 +36,10 @@
     "formal_claim_allowed": false,
     "regeneration_required_before_remote_formal_execution": true,
     "risk_counts": {
-      "historical_dirty": 7,
-      "historical_clean": 2,
-      "current_dirty": 4
+      "historical_dirty": 6,
+      "current_clean": 1,
+      "current_dirty": 6,
+      "historical_clean": 1
     },
     "ordered_regeneration_target_count": 13,
     "ordered_regeneration_targets": [
@@ -103,21 +104,21 @@
         "required_before": "formal_h01_h02"
       },
       {
-        "artifact_id": "claim_safety",
-        "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
-        "freshness_state": "historical_clean",
-        "required_before": "formal_claim_gate"
-      },
-      {
         "artifact_id": "formal_gate_missing_artifacts",
         "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
         "freshness_state": "current_dirty",
         "required_before": "formal_claim_gate"
       },
       {
+        "artifact_id": "formal_gate_status_report",
+        "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
+        "freshness_state": "current_dirty",
+        "required_before": "formal_claim_gate"
+      },
+      {
         "artifact_id": "paper_readiness",
         "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
-        "freshness_state": "historical_dirty",
+        "freshness_state": "current_dirty",
         "required_before": "formal_claim_gate"
       }
     ]
