@@ -138,6 +138,8 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
         },
         "permissions_now": _permissions(status_report),
         "next_handoff_action": _next_handoff_action(decision=decision, status_report=status_report),
+        "remaining_deliverables_gap_summary": _remaining_deliverables_gap_summary(status_report),
+        "post_plan_remaining_deliverables_gap_summary": _remaining_deliverables_gap_summary(post_plan),
         "formal_gate_requirements": _requirements(missing_artifacts, "formal_gate_requirements"),
         "h02_formal_acceptance_requirements": _requirements(h02_acceptance, "formal_acceptance_requirements"),
         "remote_execution_steps": remote_steps,
@@ -268,12 +270,30 @@ def _safety_issues(
         issues.append(_issue("status_report_allows_local_training", "local training is forbidden for formal PPO"))
     if permissions.get("remote_training_allowed_now") is True and remote_packet.get("ready_to_run_remote_training") is not True:
         issues.append(_issue("status_report_allows_training_without_ready_packet", "remote training needs a ready remote packet"))
+    issues.extend(_remaining_gap_issues(post_plan=post_plan, status_report=status_report))
 
     for stage in stages:
         if stage["runs_training"] and stage["host"] not in {None, "gpu3070ti-relay"}:
             issues.append(_issue(f"{stage['stage_id']}_wrong_training_host", "formal training stage must target gpu3070ti-relay"))
         if not stage["source_allowed_now"] and stage["stage_id"] in {"approved_remote_preflight", "gate3_remote_training"} and not stage["blocked_by"]:
             issues.append(_issue(f"{stage['stage_id']}_missing_blocked_by", "disabled remote stages must explain their blockers"))
+    return issues
+
+
+def _remaining_gap_issues(*, post_plan: dict[str, Any], status_report: dict[str, Any]) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    plan_gap = _remaining_deliverables_gap_summary(post_plan)
+    status_gap = _remaining_deliverables_gap_summary(status_report)
+    if not plan_gap["present"]:
+        issues.append(_issue("post_plan_missing_remaining_deliverables_gap_summary", "post-plan must expose remaining deliverables gap summary"))
+    if not status_gap["present"]:
+        issues.append(_issue("status_report_missing_remaining_deliverables_gap_summary", "status report must expose remaining deliverables gap summary"))
+    if plan_gap["present"] and status_gap["present"] and _gap_signature(plan_gap) != _gap_signature(status_gap):
+        issues.append(_issue("remaining_deliverables_gap_summary_mismatch", "post-plan and status report gap summaries must match"))
+    if status_gap["total_missing_deliverables"] > 0 or status_gap["open_category_count"] > 0:
+        permissions = _permissions(status_report)
+        if permissions.get("formal_claim_allowed_now") is True:
+            issues.append(_issue("formal_claim_allowed_with_remaining_deliverables_gap_open", "formal claim must stay blocked while deliverable gaps are open"))
     return issues
 
 
@@ -376,6 +396,64 @@ def _requirements(artifact: dict[str, Any], key: str) -> list[dict[str, Any]]:
             }
         )
     return out
+
+
+def _remaining_deliverables_gap_summary(artifact: dict[str, Any]) -> dict[str, Any]:
+    raw = artifact.get("remaining_deliverables_gap_summary")
+    summary = raw if isinstance(raw, dict) else {}
+    categories = _gap_categories(summary.get("categories"))
+    return {
+        "present": bool(summary),
+        "summary_id": summary.get("summary_id"),
+        "total_missing_deliverables": int(summary.get("total_missing_deliverables") or 0),
+        "open_category_count": int(summary.get("open_category_count") or 0),
+        "category_order": [str(item) for item in summary.get("category_order", []) if item]
+        if isinstance(summary.get("category_order"), list)
+        else list(categories),
+        "categories": categories,
+    }
+
+
+def _gap_categories(raw_categories: Any) -> dict[str, dict[str, Any]]:
+    if isinstance(raw_categories, dict):
+        items = raw_categories.items()
+    elif isinstance(raw_categories, list):
+        items = ((item.get("category"), item) for item in raw_categories if isinstance(item, dict))
+    else:
+        items = ()
+    out: dict[str, dict[str, Any]] = {}
+    for category, raw in items:
+        if not category or not isinstance(raw, dict):
+            continue
+        matrix_ids = raw.get("missing_artifact_matrix_ids")
+        if not isinstance(matrix_ids, list):
+            missing_artifacts = raw.get("missing_artifacts") if isinstance(raw.get("missing_artifacts"), list) else []
+            matrix_ids = [item.get("matrix_id") for item in missing_artifacts if isinstance(item, dict)]
+        out[str(category)] = {
+            "missing_count": int(raw.get("missing_count") or 0),
+            "responsible_stage_id": raw.get("responsible_stage_id"),
+            "responsible_stage_allowed_now": raw.get("responsible_stage_allowed_now"),
+            "missing_artifact_matrix_ids": [str(item) for item in matrix_ids if item],
+        }
+    return out
+
+
+def _gap_signature(summary: dict[str, Any]) -> dict[str, Any]:
+    categories = summary.get("categories") if isinstance(summary.get("categories"), dict) else {}
+    return {
+        "summary_id": summary.get("summary_id"),
+        "total_missing_deliverables": summary.get("total_missing_deliverables"),
+        "open_category_count": summary.get("open_category_count"),
+        "categories": {
+            key: {
+                "missing_count": value.get("missing_count"),
+                "responsible_stage_id": value.get("responsible_stage_id"),
+                "missing_artifact_matrix_ids": value.get("missing_artifact_matrix_ids", []),
+            }
+            for key, value in sorted(categories.items())
+            if isinstance(value, dict)
+        },
+    }
 
 
 def _post_run_expected_artifacts(remote_packet: dict[str, Any]) -> list[str]:
