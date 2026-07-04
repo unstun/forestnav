@@ -588,6 +588,33 @@ def _decision_intake_summary(decision_intake: dict[str, Any]) -> dict[str, Any]:
         if isinstance(decision_intake.get("current_state"), dict)
         else {}
     )
+    contract = (
+        decision_intake.get("decision_intake_contract")
+        if isinstance(decision_intake.get("decision_intake_contract"), dict)
+        else {}
+    )
+    valid_decisions = _string_list(contract.get("valid_decisions"))
+    required_fields = _string_list(contract.get("required_record_fields_for_non_pending_decision"))
+    command_templates = (
+        contract.get("record_command_templates")
+        if isinstance(contract.get("record_command_templates"), list)
+        else []
+    )
+    human_actions = (
+        contract.get("allowed_next_human_actions_from_gate_audit")
+        if isinstance(contract.get("allowed_next_human_actions_from_gate_audit"), list)
+        else []
+    )
+    invalid_inputs = (
+        decision_intake.get("invalid_inputs")
+        if isinstance(decision_intake.get("invalid_inputs"), list)
+        else []
+    )
+    non_authorizations = (
+        decision_intake.get("post_decision_non_authorizations")
+        if isinstance(decision_intake.get("post_decision_non_authorizations"), list)
+        else []
+    )
     return {
         "present": bool(decision_intake),
         "status": decision_intake.get("status"),
@@ -609,6 +636,16 @@ def _decision_intake_summary(decision_intake: dict[str, Any]) -> dict[str, Any]:
         "local_training_allowed_now": current_state.get("status_report_local_training_allowed_now")
         if isinstance(current_state.get("status_report_local_training_allowed_now"), bool)
         else None,
+        "decision_owner_required": contract.get("decision_owner_required"),
+        "valid_decisions": valid_decisions,
+        "valid_decision_count": len(valid_decisions),
+        "required_record_fields": required_fields,
+        "required_record_field_count": len(required_fields),
+        "decision_note_required": "decision_note" in required_fields,
+        "record_command_template_count": len(command_templates),
+        "allowed_next_human_action_count": len(human_actions),
+        "invalid_input_count": len(invalid_inputs),
+        "post_decision_non_authorization_count": len(non_authorizations),
     }
 
 
@@ -621,6 +658,18 @@ def _decision_intake_safety_issues(decision_intake: dict[str, Any]) -> list[dict
         issues.append(_issue("decision_intake_not_clean", "F02.6 decision intake must be clean before status reporting."))
     if summary["audit_issue_count"] > 0:
         issues.append(_issue("decision_intake_audit_issues_open", "F02.6 decision intake reports open audit issues."))
+    if summary["decision_owner_required"] != "Dr Sun":
+        issues.append(_issue("decision_intake_contract_decision_owner_not_dr_sun", "F02.6 intake contract must require Dr Sun as decision owner."))
+    expected_decisions = {"approve_obstacle_summary_warm_start", "reject_obstacle_summary_warm_start"}
+    if not expected_decisions.issubset(set(summary["valid_decisions"])):
+        issues.append(_issue("decision_intake_contract_missing_valid_decisions", "F02.6 intake contract must list approve and reject decisions."))
+    expected_fields = {"decision", "decider", "decision_note"}
+    if not expected_fields.issubset(set(summary["required_record_fields"])):
+        issues.append(_issue("decision_intake_contract_missing_required_record_fields", "F02.6 intake contract must require decision, decider, and decision_note."))
+    if summary["invalid_input_count"] == 0:
+        issues.append(_issue("decision_intake_invalid_inputs_missing", "F02.6 intake must list invalid substitutes and malformed inputs."))
+    if summary["post_decision_non_authorization_count"] == 0:
+        issues.append(_issue("decision_intake_post_decision_non_authorizations_missing", "F02.6 intake must state what approval still does not authorize."))
     record_status = summary["record_status"]
     if record_status == "pending_human_decision":
         if summary["next_blocked_lane"] != "decision":
@@ -636,6 +685,12 @@ def _decision_intake_safety_issues(decision_intake: dict[str, Any]) -> list[dict
     else:
         issues.append(_issue("decision_intake_unknown_record_status", "F02.6 intake record_status must be pending_human_decision, approved, or rejected."))
     return issues
+
+
+def _string_list(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [str(item) for item in value if isinstance(item, str)]
 
 
 def _missing_artifacts_handoff_index_summary(missing_artifacts: dict[str, Any]) -> dict[str, Any]:
