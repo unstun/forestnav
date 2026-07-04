@@ -190,6 +190,51 @@ def _decision_record(tmp_path, *, status):
     return path
 
 
+def _remaining_deliverables(tmp_path, *, open_gaps):
+    path = tmp_path / f"remaining_deliverables_{open_gaps}.json"
+    categories = [
+        _gap_category("training", 3, "gate3_remote_training"),
+        _gap_category("evaluation", 2, "gate3_remote_audit_pullback"),
+        _gap_category("acceptance", 3, "gate3_remote_audit_pullback"),
+        _gap_category("formal_acceptance", 2, "regenerate_h01_h02_formal_artifacts"),
+    ]
+    if not open_gaps:
+        categories = [_gap_category(item["category"], 0, item["responsible_stage_id"], allowed=True) for item in categories]
+    path.write_text(
+        json.dumps(
+            {
+                "deliverable_gap_summary": {
+                    "summary_id": "module2_formal_gate_missing_training_eval_acceptance_summary",
+                    "execution_boundary": "read_only_no_execution",
+                    "not_paper_result_material": True,
+                    "total_missing_deliverables": 10 if open_gaps else 0,
+                    "open_category_count": 4 if open_gaps else 0,
+                    "category_order": ["training", "evaluation", "acceptance", "formal_acceptance"],
+                    "categories": categories,
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    return path
+
+
+def _gap_category(category, missing_count, stage_id, *, allowed=False):
+    return {
+        "category": category,
+        "status": "blocked" if missing_count else "complete",
+        "missing_count": missing_count,
+        "present_count": 0,
+        "responsible_stage_id": stage_id,
+        "responsible_stage_allowed_now": allowed,
+        "responsible_stage_blocked_by": [] if allowed else ["f02_6_decision_not_approved"],
+        "missing_artifacts": [
+            {"matrix_id": f"{category}:artifact_{index}", "artifact_id": f"artifact_{index}"}
+            for index in range(missing_count)
+        ],
+    }
+
+
 def _formal_gate(tmp_path, *, decision_status):
     path = tmp_path / f"formal_gate_{decision_status}.json"
     path.write_text(
