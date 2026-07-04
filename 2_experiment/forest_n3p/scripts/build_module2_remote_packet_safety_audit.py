@@ -747,6 +747,8 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- post_plan_execution_veto_present: `{bool(manifest['cross_gate_summary']['post_plan_status_report_execution_veto_summary'])}`",
         f"- post_plan_execution_veto_all_rows_consistent: `{manifest['cross_gate_summary']['post_plan_status_report_execution_veto_summary'].get('all_rows_consistent')}`",
         f"- post_plan_execution_veto_remote_training_allowed_now: `{manifest['cross_gate_summary']['post_plan_status_report_execution_veto_summary'].get('row_consensus', {}).get('remote_training')}`",
+        f"- post_plan_remaining_deliverables_gap_total_missing: `{manifest['cross_gate_summary']['post_plan_remaining_deliverables_gap_summary'].get('total_missing_deliverables')}`",
+        f"- post_plan_status_report_gap_total_missing: `{manifest['cross_gate_summary']['post_plan_status_report_remaining_deliverables_gap_summary'].get('total_missing_deliverables')}`",
         "",
         "## Audit Issues",
         "",
