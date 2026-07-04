@@ -99,6 +99,14 @@
 - `gate3_audit_and_pullback_acceptance`: status=`blocked_formal_acceptance`, complete=`False`, paper_result_input_allowed_now=`False`
 - `ppo_rows_and_checkpoint_hash_present`: status=`blocked_formal_acceptance`, complete=`False`, paper_result_input_allowed_now=`False`
 
+## Status Report Remaining Deliverables Acceptance Matrix
+
+- present=`True`
+- status=`formal_gate_deliverables_blocked`
+- matrix_row_count=`10`
+- missing_row_count=`10`
+- blocked_category_count=`4`
+
 ## Prohibited Claims
 
 - `global_optimality`: not allowed; patterns=全局最优, globally optimal, global optimality
