@@ -1118,6 +1118,13 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_present: `{input_status.get('claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_present')}`",
             f"- claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_total_missing_deliverables: `{input_status.get('claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_total_missing_deliverables')}`",
             f"- claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_open_category_count: `{input_status.get('claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_open_category_count')}`",
+            "",
+            "## Claim Safety Remote-Safety Claim-Gate Command Index",
+            "",
+            f"- claim_safety_remote_packet_safety_command_index_present: `{input_status.get('claim_safety_remote_packet_safety_command_index_present')}`",
+            f"- claim_safety_remote_packet_safety_command_index_row_count: `{input_status.get('claim_safety_remote_packet_safety_command_index_row_count')}`",
+            f"- claim_safety_remote_packet_safety_command_index_source_target_count: `{input_status.get('claim_safety_remote_packet_safety_command_index_source_target_count')}`",
+            f"- claim_safety_remote_packet_safety_command_index_missing_target_count: `{input_status.get('claim_safety_remote_packet_safety_command_index_missing_target_count')}`",
         ]
     )
     lines.extend(["", "## Section Readiness", ""])
