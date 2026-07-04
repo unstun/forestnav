@@ -21,6 +21,7 @@ from forest_n3p.rl_rs import (
 )
 from forest_n3p.third_party.pathplan import AckermannParams, AckermannState, GridMap, TwoCircleFootprint
 from forest_n3p.third_party.pathplan.geometry import GridFootprintChecker
+from forest_n3p.third_party.pathplan.robot import propagate
 
 
 def _empty_context(goal=(2.0, 1.0, 0.0), *, max_steps=4, terminal_check_every=1, no_progress_patience=3):
@@ -80,6 +81,33 @@ def test_rollout_step_uses_ackermann_sampling_and_checker():
     assert math.isclose(result.next_state.x, 1.3, abs_tol=1e-9)
     assert math.isclose(result.next_state.y, 1.0, abs_tol=1e-9)
     assert result.primitive.direction == 1
+
+
+def test_rollout_step_matches_planner_propagate_for_curved_action():
+    context = _empty_context()
+    result = rollout_constant_steer_step(
+        state=context.start,
+        action=SteeringAction(0.2),
+        params=context.params,
+        checker=context.collision_checker(),
+        action_step_m=context.action_step_m,
+        collision_sample_step_m=context.collision_sample_step_m,
+    )
+    expected = propagate(
+        context.start,
+        result.applied_steering_rad,
+        result.primitive.direction,
+        context.action_step_m,
+        context.params,
+    )
+
+    assert not result.collided
+    assert math.isclose(result.next_state.x, expected.x, abs_tol=1e-12)
+    assert math.isclose(result.next_state.y, expected.y, abs_tol=1e-12)
+    assert math.isclose(result.next_state.theta, expected.theta, abs_tol=1e-12)
+    assert math.isclose(result.samples[-1].x, expected.x, abs_tol=1e-12)
+    assert math.isclose(result.samples[-1].y, expected.y, abs_tol=1e-12)
+    assert math.isclose(result.samples[-1].theta, expected.theta, abs_tol=1e-12)
 
 
 def test_env_reset_step_returns_telemetry_and_reward_marker():
