@@ -145,6 +145,12 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert manifest["input_status"]["status_report_requirement_stage_blocked_stage_count"] == 0
     assert manifest["input_status"]["status_report_closure_remote_training_allowed_now"] is True
     assert manifest["input_status"]["status_report_remote_packet_training_allowed_now"] is True
+    assert manifest["input_status"]["status_report_remote_preflight_requirement_present"] is True
+    assert manifest["input_status"]["status_report_remote_preflight_requirement_satisfied_count"] == 4
+    assert manifest["input_status"]["status_report_remote_preflight_requirement_blocked_count"] == 0
+    assert manifest["input_status"]["status_report_post_run_acceptance_requirement_present"] is True
+    assert manifest["input_status"]["status_report_post_run_acceptance_requirement_satisfied_count"] == 4
+    assert manifest["input_status"]["status_report_post_run_acceptance_requirement_blocked_count"] == 0
     assert manifest["status_report_handoff_summary"]["transition_gate_status"] == "f02_6_transition_gate_audit_passed"
     assert manifest["status_report_missing_artifacts_handoff_summary"]["status"] == "formal_gate_evidence_ready_for_h01_h02_claim_gates"
     assert manifest["status_report_requirement_stage_summary"]["mapped_requirement_count"] == 4
@@ -670,6 +676,58 @@ def test_claim_safety_rejects_blocked_status_report_that_allows_remote_training(
     assert "status_report_blocked_but_missing_artifacts_handoff_remote_training_allowed" in blockers
 
 
+def test_claim_safety_rejects_status_report_remote_requirement_matrix_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_claim_safety")
+    paper_tables = tmp_path / "paper_tables.json"
+    paper_tables.write_text(json.dumps({"status": "formal_ready", "formal_claim_allowed": True, "blockers": []}), encoding="utf-8")
+    h02_formal_acceptance = tmp_path / "h02_formal_acceptance.json"
+    h02_formal_acceptance.write_text(json.dumps({"status": "formal_output_accepted", "formal_output_accepted": True, "paper_result_input_allowed": True, "blockers": []}), encoding="utf-8")
+    h01_manifest = tmp_path / "h01.json"
+    h01_manifest.write_text(json.dumps({"status": "ready_for_formal_evaluation", "blockers": []}), encoding="utf-8")
+    f02_6_packet = tmp_path / "f02_6.json"
+    f02_6_packet.write_text(json.dumps({"status": "approved", "blockers": []}), encoding="utf-8")
+    gate3_audit = tmp_path / "gate3_audit.json"
+    gate3_audit.write_text(json.dumps({"formal_decision": "pass", "formal_claim_allowed": True}), encoding="utf-8")
+    method_algorithms = tmp_path / "method_algorithms.json"
+    method_algorithms.write_text(json.dumps({"status": "code_anchored"}), encoding="utf-8")
+    system_diagram = tmp_path / "system_diagram.json"
+    system_diagram.write_text(json.dumps({"status": "code_anchored_drawio"}), encoding="utf-8")
+    closure_checklist = tmp_path / "closure_checklist.json"
+    closure_checklist.write_text(json.dumps(_closure_checklist_payload(open_checklist=False)), encoding="utf-8")
+    status_payload = _status_report_payload(ready=False)
+    status_payload.pop("remote_preflight_requirement_summary")
+    post_run = status_payload["post_run_acceptance_requirement_summary"]["requirements"]
+    post_run["checkpoint_hash_manifest_recorded"]["acceptable_evidence_count"] = 0
+    post_run["gate3_formal_audit_accepts_remote_run"]["execution_allowed_now"] = True
+    status_report = tmp_path / "status_report.json"
+    status_report.write_text(json.dumps(status_payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        repo_root=builder._repo_root(),
+        paper_tables_path=paper_tables,
+        h02_formal_acceptance_path=h02_formal_acceptance,
+        h01_manifest_path=h01_manifest,
+        f02_6_packet_path=f02_6_packet,
+        gate3_audit_path=gate3_audit,
+        method_algorithms_path=method_algorithms,
+        system_diagram_path=system_diagram,
+        closure_checklist_path=closure_checklist,
+        status_report_path=status_report,
+    )
+
+    blockers = set(manifest["formal_performance_blockers"])
+    assert "status_report_remote_preflight_requirement_summary_missing" in blockers
+    assert (
+        "status_report_post_run_acceptance_requirement_checkpoint_hash_manifest_recorded_missing_acceptable_evidence"
+        in blockers
+    )
+    assert (
+        "status_report_post_run_acceptance_requirement_gate3_formal_audit_accepts_remote_run_allowed_while_status_blocked"
+        in blockers
+    )
+    assert manifest["status_report_remote_requirement_summary"]["remote_preflight_requirement_summary"]["present"] is False
+
+
 def test_claim_safety_rejects_status_report_that_runs_or_claims(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_claim_safety")
     paper_tables = tmp_path / "paper_tables.json"
@@ -784,6 +842,10 @@ def _status_report_payload(*, ready, invalid=False):
             "formal_result_material_allowed_now": False,
         },
         "formal_gate_requirement_stage_summary": _status_report_requirement_stage_summary_payload(ready=ready),
+        "remote_preflight_requirement_summary": _status_report_remote_preflight_requirement_summary_payload(ready=ready),
+        "post_run_acceptance_requirement_summary": _status_report_post_run_acceptance_requirement_summary_payload(
+            ready=ready
+        ),
         "closure_remote_stage_summary": {
             "approved_remote_preflight": {
                 "present": True,
@@ -839,6 +901,125 @@ def _status_report_payload(*, ready, invalid=False):
                 "blocked_by": remote_training_blockers,
             },
         },
+    }
+
+
+def _status_report_remote_preflight_requirement_summary_payload(*, ready):
+    requirements = {
+        "f02_6_decision_closed_for_preflight": _status_report_remote_requirement_row(
+            requirement_id="f02_6_decision_closed_for_preflight",
+            phase="decision",
+            status="satisfied" if ready else "blocked_missing_preflight",
+            complete=ready,
+            execution_allowed_now=ready,
+            blocked_by=[] if ready else ["requires_dr_sun_approval"],
+        ),
+        "approved_remote_preflight_manifest": _status_report_remote_requirement_row(
+            requirement_id="approved_remote_preflight_manifest",
+            phase="remote_preflight",
+            status="satisfied" if ready else "blocked_missing_preflight",
+            complete=ready,
+            execution_allowed_now=ready,
+            blocked_by=[] if ready else ["warm_start_decision_pending"],
+        ),
+        "remote_preflight_protocol_contract": _status_report_remote_requirement_row(
+            requirement_id="remote_preflight_protocol_contract",
+            phase="remote_preflight",
+            status="satisfied",
+            complete=True,
+            execution_allowed_now=ready,
+        ),
+        "remote_preflight_command_packetized": _status_report_remote_requirement_row(
+            requirement_id="remote_preflight_command_packetized",
+            phase="remote_preflight",
+            status="satisfied",
+            complete=True,
+            execution_allowed_now=ready,
+            blocked_by=[] if ready else ["requires_dr_sun_approval"],
+        ),
+    }
+    return _status_report_remote_requirement_summary(
+        requirements=requirements,
+        status_counts={"satisfied": 4} if ready else {"blocked_missing_preflight": 2, "satisfied": 2},
+    )
+
+
+def _status_report_post_run_acceptance_requirement_summary_payload(*, ready):
+    status = "satisfied" if ready else "blocked_until_remote_audit"
+    requirements = {
+        "pullback_expected_artifacts_complete": _status_report_remote_requirement_row(
+            requirement_id="pullback_expected_artifacts_complete",
+            phase="pullback",
+            status=status,
+            complete=ready,
+            execution_allowed_now=False,
+            remote_training_ready_now=ready,
+        ),
+        "checkpoint_hash_manifest_recorded": _status_report_remote_requirement_row(
+            requirement_id="checkpoint_hash_manifest_recorded",
+            phase="pullback",
+            status=status,
+            complete=ready,
+            execution_allowed_now=False,
+            remote_training_ready_now=ready,
+        ),
+        "gate3_formal_audit_accepts_remote_run": _status_report_remote_requirement_row(
+            requirement_id="gate3_formal_audit_accepts_remote_run",
+            phase="acceptance",
+            status=status,
+            complete=ready,
+            execution_allowed_now=False,
+            remote_training_ready_now=ready,
+        ),
+        "h01_h02_regenerated_from_audited_checkpoint": _status_report_remote_requirement_row(
+            requirement_id="h01_h02_regenerated_from_audited_checkpoint",
+            phase="evaluation_acceptance",
+            status=status,
+            complete=ready,
+            execution_allowed_now=False,
+            remote_training_ready_now=ready,
+        ),
+    }
+    return _status_report_remote_requirement_summary(
+        requirements=requirements,
+        status_counts={"satisfied": 4} if ready else {"blocked_until_remote_audit": 4},
+    )
+
+
+def _status_report_remote_requirement_summary(*, requirements, status_counts):
+    return {
+        "present": True,
+        "required_requirement_count": len(requirements),
+        "present_requirement_count": len(requirements),
+        "blocked_requirement_count": sum(1 for row in requirements.values() if row["status"] != "satisfied"),
+        "status_counts": status_counts,
+        "missing_requirement_ids": [],
+        "requirements": requirements,
+    }
+
+
+def _status_report_remote_requirement_row(
+    *,
+    requirement_id,
+    phase,
+    status,
+    complete,
+    execution_allowed_now,
+    blocked_by=None,
+    remote_training_ready_now=None,
+):
+    return {
+        "requirement_id": requirement_id,
+        "present": True,
+        "status": status,
+        "phase": phase,
+        "complete": complete,
+        "execution_allowed_now": execution_allowed_now,
+        "remote_training_ready_now": remote_training_ready_now,
+        "missing_artifact_ids": [] if complete else [f"{requirement_id}_missing"],
+        "blocked_by": [] if blocked_by is None else blocked_by,
+        "acceptable_evidence_count": 1,
+        "invalid_substitute_count": 1,
     }
 
 
