@@ -17,6 +17,8 @@ class RlRsStepTelemetry:
     oscillation_detected: bool
     sample_time_s: float
     collision_check_time_s: float
+    nn_forward_time_s: float = 0.0
+    terminal_rs_checked: bool = False
     terminal_rs_time_s: float
     collided: bool
     terminal_rs_success: bool
@@ -29,7 +31,11 @@ class RlRsEpisodeTelemetry:
 
     @property
     def nn_forward_time_s(self) -> float:
-        return 0.0
+        return float(sum(step.nn_forward_time_s for step in self.steps))
+
+    @property
+    def terminal_rs_check_count(self) -> int:
+        return int(sum(1 for step in self.steps if step.terminal_rs_checked))
 
     @property
     def rollout_collision_time_s(self) -> float:
@@ -58,6 +64,7 @@ class RlRsEpisodeTelemetry:
             "rollout_sample_time_s": self.rollout_sample_time_s,
             "rollout_collision_time_s": self.rollout_collision_time_s,
             "terminal_rs_time_s": self.terminal_rs_time_s,
+            "terminal_rs_check_count": self.terminal_rs_check_count,
             "rollout_steps": self.rollout_steps,
             "rollout_collision_checks": self.rollout_collision_checks,
             "collided": bool(last.collided) if last is not None else False,
