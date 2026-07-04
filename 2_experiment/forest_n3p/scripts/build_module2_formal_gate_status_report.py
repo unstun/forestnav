@@ -1107,31 +1107,32 @@ def _remaining_deliverables_acceptance_issues(
     for matrix_id, row in summary["rows"].items():
         if not row["present"]:
             continue
+        safe_matrix_id = matrix_id.replace(":", "_")
         if row["execution_boundary"] != "read_only_no_execution":
             issues.append(
                 _issue(
-                    f"remaining_deliverables_{matrix_id}_execution_boundary_invalid",
+                    f"remaining_deliverables_{safe_matrix_id}_execution_boundary_invalid",
                     f"{matrix_id} must be read-only.",
                 )
             )
         if row["acceptance_predicate_count"] <= 0:
             issues.append(
                 _issue(
-                    f"remaining_deliverables_{matrix_id}_missing_acceptance_predicates",
+                    f"remaining_deliverables_{safe_matrix_id}_missing_acceptance_predicates",
                     f"{matrix_id} must list acceptance predicates.",
                 )
             )
         if row["invalid_substitute_count"] <= 0:
             issues.append(
                 _issue(
-                    f"remaining_deliverables_{matrix_id}_missing_invalid_substitutes",
+                    f"remaining_deliverables_{safe_matrix_id}_missing_invalid_substitutes",
                     f"{matrix_id} must list invalid substitutes.",
                 )
             )
         if blocked_status and row["responsible_stage_allowed_now"] is True:
             issues.append(
                 _issue(
-                    f"remaining_deliverables_{matrix_id}_stage_allowed_while_blocked",
+                    f"remaining_deliverables_{safe_matrix_id}_stage_allowed_while_blocked",
                     f"{matrix_id} responsible stage cannot be allowed while remaining deliverables are blocked.",
                 )
             )
