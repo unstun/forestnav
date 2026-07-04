@@ -202,6 +202,67 @@ def test_module2_manifest_cannot_bypass_pending_f02_6_packet_with_cli_decision(t
     assert manifest["run_command"]["formal_main_evaluation"] is None
 
 
+def test_module2_manifest_can_consume_dr_sun_approved_f02_6_decision_record(tmp_path):
+    checkpoint = tmp_path / "final_model.zip"
+    checkpoint.write_bytes(b"not a real model; manifest preflight only checks presence")
+    bc_checkpoint = tmp_path / "bc_model.pt"
+    bc_checkpoint.write_bytes(b"not a real model; manifest preflight only checks presence")
+    decision_packet = tmp_path / "f02_6_packet.json"
+    decision_packet.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "packet_name": "module2_f02_6_warm_start_decision_packet",
+                "status": "pending_human_decision",
+                "blockers": ["requires_dr_sun_approval"],
+                "recommendation": {"decision": "approve_obstacle_summary_warm_start"},
+            }
+        ),
+        encoding="utf-8",
+    )
+    decision_record = tmp_path / "f02_6_decision_record.json"
+    decision_record.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "record_name": "module2_f02_6_decision_record",
+                "status": "approved",
+                "decider": "Dr Sun",
+                "effective_warm_start_decision": "approved_obstacle_summary",
+                "remote_training_allowed": True,
+                "local_training_allowed": False,
+                "formal_claim_allowed": False,
+                "blockers": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    manifest = build_manifest(
+        Module2EvaluationManifestConfig(
+            output_dir=tmp_path,
+            contract_path=_frontmatter(tmp_path, "contract.md", status="approved"),
+            cutpoint_supplement_path=_frontmatter(tmp_path, "cutpoints.md", reviewed="true"),
+            warm_start_decision="pending",
+            warm_start_decision_packet_path=decision_packet,
+            warm_start_decision_record_path=decision_record,
+            realmap_query_protocol_path=_realmap_protocol(tmp_path),
+            bc_checkpoint=bc_checkpoint,
+            rl_rs_checkpoint=checkpoint,
+            queries_per_bucket=100,
+            seed_count=5,
+        )
+    )
+
+    assert manifest["f02_6_decision_packet"]["status"] == "pending_human_decision"
+    assert manifest["f02_6_decision_packet"]["decision_record"]["status"] == "approved"
+    assert manifest["f02_6_decision_packet"]["effective_warm_start_decision"] == "approved_obstacle_summary"
+    assert manifest["status"] == "ready_for_formal_run"
+    assert "f02_6_warm_start_decision_pending" not in manifest["blockers"]
+    assert "f02_6_decision_packet_pending" not in manifest["blockers"]
+    assert manifest["run_command"]["formal_main_evaluation"] is not None
+
+
 def _frontmatter(tmp_path: Path, name: str, **fields) -> Path:
     path = tmp_path / name
     body = "---\n" + "".join(f"{key}: {value}\n" for key, value in fields.items()) + "---\n"

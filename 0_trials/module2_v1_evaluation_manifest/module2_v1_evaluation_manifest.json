@@ -2,8 +2,8 @@
   "schema_version": 1,
   "manifest_name": "module2_v1_evaluation",
   "status": "blocked_pending_decisions",
-  "created_at_utc": "2026-07-04T06:03:28.332562+00:00",
-  "source_head": "11a90a616fba016b88465cde30451d41ce665862+dirty",
+  "created_at_utc": "2026-07-04T07:07:24.945365+00:00",
+  "source_head": "339ac16391a3fd5581c13cb2200ea08fefe1c12b+dirty",
   "contract": {
     "path": ".pipeline/contracts/module2-ppo-funnel-expansion.md",
     "exists": true,
@@ -89,7 +89,8 @@
       "blockers": [
         "missing_module2_rl_rs_checkpoint",
         "f02_6_warm_start_decision_pending",
-        "f02_6_decision_packet_pending"
+        "requires_dr_sun_approval",
+        "f02_6_decision_record_pending"
       ],
       "checkpoint": null
     },
@@ -101,7 +102,8 @@
       "blockers": [
         "missing_module2_rl_rs_checkpoint",
         "f02_6_warm_start_decision_pending",
-        "f02_6_decision_packet_pending"
+        "requires_dr_sun_approval",
+        "f02_6_decision_record_pending"
       ],
       "checkpoint": null
     }
@@ -201,13 +203,23 @@
     "packet_blockers": [
       "requires_dr_sun_approval"
     ],
+    "decision_record": {
+      "path": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+      "exists": true,
+      "status": "pending_human_decision",
+      "effective_warm_start_decision": "pending",
+      "decider": null,
+      "blockers": [
+        "requires_dr_sun_approval"
+      ]
+    },
     "blockers": [
-      "f02_6_decision_packet_pending"
+      "requires_dr_sun_approval",
+      "f02_6_decision_record_pending"
     ]
   },
   "blockers": [
     "f02_6_warm_start_decision_pending",
-    "f02_6_decision_packet_pending",
     "missing_module2_rl_rs_checkpoint"
   ],
   "run_command": {
@@ -215,7 +227,8 @@
     "blocked_reasons": [
       "missing_module2_rl_rs_checkpoint",
       "f02_6_warm_start_decision_pending",
-      "f02_6_decision_packet_pending"
+      "requires_dr_sun_approval",
+      "f02_6_decision_record_pending"
     ]
   },
   "claim_boundaries": [

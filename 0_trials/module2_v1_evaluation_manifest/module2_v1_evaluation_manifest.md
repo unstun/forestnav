@@ -11,12 +11,11 @@
 - `f_n3p_knn`: ready_if_preflight_passes (blockers: none)
 - `mlp`: ready (blockers: none)
 - `bc_analytic_operator`: ready (blockers: none)
-- `ppo_analytic_operator`: blocked (blockers: missing_module2_rl_rs_checkpoint, f02_6_warm_start_decision_pending, f02_6_decision_packet_pending)
-- `ppo_rs_funnel`: blocked (blockers: missing_module2_rl_rs_checkpoint, f02_6_warm_start_decision_pending, f02_6_decision_packet_pending)
+- `ppo_analytic_operator`: blocked (blockers: missing_module2_rl_rs_checkpoint, f02_6_warm_start_decision_pending, requires_dr_sun_approval, f02_6_decision_record_pending)
+- `ppo_rs_funnel`: blocked (blockers: missing_module2_rl_rs_checkpoint, f02_6_warm_start_decision_pending, requires_dr_sun_approval, f02_6_decision_record_pending)
 
 ## Blockers
 - `f02_6_warm_start_decision_pending`
-- `f02_6_decision_packet_pending`
 - `missing_module2_rl_rs_checkpoint`
 
 ## F02.6 Decision Packet
