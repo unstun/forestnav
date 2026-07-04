@@ -1,0 +1,17 @@
+% Auto-generated Module2 section seed.
+% Source manifest: 3_paper/module2_section_seed/module2_paper_section_seed.json
+% This file is a draft seed only; formal result text is intentionally blocked.
+% Include manually only after human review.
+
+\subsection{RL-RS Analytic Expansion Operator}
+\label{sec:module2_rl_rs_operator}
+Module2 is implemented as a learned analytic-expansion operator inside the existing Hybrid A* search loop. The operator is invoked only at the planner's analytic-expansion hook; it rolls out steering actions from the current search node, then accepts a shortcut only when the terminal Reeds-Shepp check certifies a collision-free connection to the goal. If this certificate is absent, the operator returns no shortcut and Hybrid A* continues primitive expansion. This section should therefore describe a planner-side analytic operator with fallback semantics, not a standalone global planner.
+
+\paragraph{System boundary.}
+Figure caption seed: RL-RS analytic expansion is placed inside the Hybrid A* loop. The figure should show the analytic trigger, custom operator dispatch, checkpoint-policy rollout, terminal RS certificate, accepted shortcut path, and fallback primitive expansion. The visual boundary is important: the learned policy proposes a local analytic expansion, while Hybrid A* remains the global search authority.
+
+\paragraph{No-warm Gate \#3 boundary.}
+No-warm PPO Gate \#3 formal trial failed: terminal-RS success rate was 0.453125 over 64 episodes, below threshold 0.8. This does not evaluate obstacle-summary warm-start PPO and does not reject the whole RL-RS direction. This scoped result can be used as a negative training-dynamics observation, not as evidence against the approved-or-pending warm-start branch. Formal performance claims remain blocked.
+
+% BLOCKED: formal_results :: paper_tables_not_formal, h02_verdict_not_formal, h02_formal_acceptance_not_accepted, h01_manifest_not_ready, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_execution_packet_not_ready, requires_dr_sun_approval, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts, f02_6_formal_chain_pending, claim_safety_blocks_formal_performance, f02_6_pending
+% BLOCKED: warm_start_effect :: f02_6_not_approved, requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint
