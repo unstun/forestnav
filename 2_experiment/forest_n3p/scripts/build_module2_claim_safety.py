@@ -16,6 +16,7 @@ DEFAULT_F02_6_PACKET = Path("0_trials/module2_f02_6_warm_start_decision_packet/f
 DEFAULT_GATE3_AUDIT = Path("0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/gate3_formal_audit.json")
 DEFAULT_METHOD_ALGORITHMS = Path("0_trials/module2_method_algorithms/module2_method_algorithms.json")
 DEFAULT_SYSTEM_DIAGRAM = Path("0_trials/module2_system_diagram/module2_system_diagram.json")
+DEFAULT_CLOSURE_CHECKLIST = Path("0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json")
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -30,6 +31,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         gate3_audit_path=args.gate3_audit,
         method_algorithms_path=args.method_algorithms,
         system_diagram_path=args.system_diagram,
+        closure_checklist_path=args.closure_checklist,
         draft_text_path=args.draft_text,
     )
 
@@ -55,6 +57,7 @@ def build_manifest(
     gate3_audit_path: Path,
     method_algorithms_path: Path,
     system_diagram_path: Path,
+    closure_checklist_path: Path = DEFAULT_CLOSURE_CHECKLIST,
     draft_text_path: Path | None = None,
 ) -> dict[str, Any]:
     paper_tables = _read_json(paper_tables_path)
@@ -64,12 +67,14 @@ def build_manifest(
     gate3_audit = _read_json(gate3_audit_path)
     method_algorithms = _read_json(method_algorithms_path)
     system_diagram = _read_json(system_diagram_path)
+    closure_checklist = _read_json(closure_checklist_path)
 
     formal_blockers = _formal_performance_blockers(
         paper_tables=paper_tables,
         h02_formal_acceptance=h02_formal_acceptance,
         h01_manifest=h01_manifest,
         f02_6_packet=f02_6_packet,
+        closure_checklist=closure_checklist,
     )
     formal_allowed = not formal_blockers
     prohibited = _prohibited_claims()
@@ -95,6 +100,7 @@ def build_manifest(
             "gate3_audit": str(gate3_audit_path),
             "method_algorithms": str(method_algorithms_path),
             "system_diagram": str(system_diagram_path),
+            "formal_gate_closure_checklist": str(closure_checklist_path),
             "draft_text": None if draft_text_path is None else str(draft_text_path),
         },
         "input_status": {
@@ -109,6 +115,9 @@ def build_manifest(
             "gate3_formal_claim_allowed": gate3_audit.get("formal_claim_allowed"),
             "method_algorithms_status": method_algorithms.get("status"),
             "system_diagram_status": system_diagram.get("status"),
+            "closure_checklist_status": closure_checklist.get("status"),
+            "closure_checklist_open_item_count": closure_checklist.get("open_item_count"),
+            "closure_checklist_input_safety_issue_count": closure_checklist.get("input_safety_issue_count"),
         },
         "allowed_claims": allowed,
         "conditional_claims": _conditional_claims(),
@@ -121,6 +130,7 @@ def build_manifest(
             "Method claims must say the learned policy is an analytic-expansion operator inside Hybrid A*, not a standalone global planner.",
             "Completeness/global-optimality/generalization claims are prohibited unless a future contract explicitly proves them.",
             "Formal PPO training/checkpoint production must run on gpu3070ti-relay or another explicitly approved remote GPU.",
+            "Formal gate closure checklist must be closed before any formal performance claim is allowed.",
         ],
     }
 
@@ -134,6 +144,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--gate3-audit", type=Path, default=DEFAULT_GATE3_AUDIT)
     parser.add_argument("--method-algorithms", type=Path, default=DEFAULT_METHOD_ALGORITHMS)
     parser.add_argument("--system-diagram", type=Path, default=DEFAULT_SYSTEM_DIAGRAM)
+    parser.add_argument("--closure-checklist", type=Path, default=DEFAULT_CLOSURE_CHECKLIST)
     parser.add_argument("--draft-text", type=Path, default=None)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--manifest-out", type=Path, default=None)
