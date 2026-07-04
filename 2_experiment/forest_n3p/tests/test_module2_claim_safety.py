@@ -1185,6 +1185,51 @@ def _status_report_h02_acceptance_requirement_row(
     }
 
 
+def _status_report_remaining_deliverables_acceptance_summary_payload(*, ready):
+    matrix_ids = [
+        "training:train_final_model_zip",
+        "training:train_summary_json",
+        "training:train_training_manifest_json",
+        "evaluation:eval_gate3_eval_episodes_csv",
+        "evaluation:eval_gate3_summary_json",
+        "acceptance:gate3_trial_manifest_json",
+        "acceptance:gate3_formal_audit_json",
+        "acceptance: pulled_back_checkpoint_hash_record",
+        "formal_acceptance:h01_ready_for_formal_run",
+        "formal_acceptance:h02_formal_output_acceptance",
+    ]
+    # Keep the public matrix ids exact; this replaces the human-readable typo above.
+    matrix_ids[7] = "acceptance:pulled_back_checkpoint_hash_record"
+    rows = {}
+    for matrix_id in matrix_ids:
+        category, artifact_id = matrix_id.split(":", 1)
+        rows[matrix_id] = {
+            "present": True,
+            "category": category,
+            "artifact_id": artifact_id,
+            "missing": not ready,
+            "responsible_stage_id": "gate3_remote_training"
+            if category == "training"
+            else "regenerate_h01_h02_formal_artifacts"
+            if category == "formal_acceptance"
+            else "gate3_remote_audit_pullback",
+            "responsible_stage_allowed_now": ready,
+            "acceptance_predicate_count": 1,
+            "invalid_substitute_count": 1,
+        }
+    return {
+        "present": True,
+        "status": "formal_gate_deliverables_ready_for_claim_audit" if ready else "formal_gate_deliverables_blocked",
+        "missing_deliverable_count": 0 if ready else len(matrix_ids),
+        "matrix_row_count": len(matrix_ids),
+        "expected_matrix_row_count": len(matrix_ids),
+        "missing_row_count": 0 if ready else len(matrix_ids),
+        "blocked_category_count": 0 if ready else 4,
+        "missing_expected_matrix_ids": [],
+        "rows": rows,
+    }
+
+
 def _status_report_remote_requirement_summary(*, requirements, status_counts):
     return {
         "present": True,
