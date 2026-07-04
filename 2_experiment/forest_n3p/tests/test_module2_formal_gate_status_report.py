@@ -576,6 +576,32 @@ def test_formal_gate_status_report_rejects_formal_gate_gap_summary_drift(tmp_pat
     assert manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]["categories"]["training"]["missing_count"] == 2
 
 
+def test_formal_gate_status_report_rejects_remote_safety_command_index_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=True)
+    formal_gate = json.loads(config.formal_gate_path.read_text(encoding="utf-8"))
+    summary = formal_gate["remote_packet_safety"]["claim_gate_command_index_summary"]
+    summary["missing_target_ids"] = ["paper_readiness"]
+    summary["unknown_manual_count"] = 1
+    summary["forbidden_command_count"] = 1
+    summary["claim_gate_rows"]["claim_safety"]["stage_id"] = "regenerate_preflight_gate_artifacts"
+    summary["claim_gate_rows"]["claim_safety"]["command_kind"] = "unknown_manual"
+    summary["claim_gate_rows"].pop("paper_readiness")
+    config.formal_gate_path.write_text(json.dumps(formal_gate), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert manifest["status"] == "formal_gate_status_blocked"
+    assert "formal_gate_remote_packet_safety_command_index_missing_targets" in issue_ids
+    assert "formal_gate_remote_packet_safety_command_index_unknown_manual_rows" in issue_ids
+    assert "formal_gate_remote_packet_safety_command_index_forbidden_commands" in issue_ids
+    assert "formal_gate_remote_packet_safety_command_index_claim_safety_wrong_stage" in issue_ids
+    assert "formal_gate_remote_packet_safety_command_index_claim_safety_manual_command" in issue_ids
+    assert "formal_gate_remote_packet_safety_command_index_missing_paper_readiness" in issue_ids
+    assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
+
+
 def test_formal_gate_status_report_requires_closure_remote_stage_summary(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
     config = _config(tmp_path, complete=False)
