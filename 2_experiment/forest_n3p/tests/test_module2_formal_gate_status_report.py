@@ -1375,6 +1375,30 @@ def _remaining_deliverables(*, complete):
             matrix=matrix,
             complete=complete,
         ),
+        "proof_command_plan": _remaining_deliverable_proof_command_plan(matrix),
+    }
+
+
+def _remaining_deliverable_proof_command_plan(matrix):
+    return {
+        "plan_id": "module2_formal_gate_local_read_only_proof_commands",
+        "execution_boundary": "local_read_only_after_formal_remote_pullback",
+        "not_paper_result_material": True,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "total_matrix_rows": len(matrix),
+        "total_proof_command_count": sum(len(row["proof_commands"]) for row in matrix),
+        "rows": [
+            {
+                "matrix_id": row["matrix_id"],
+                "category": row["category"],
+                "artifact_id": row["artifact_id"],
+                "expected_path": row["expected_path"],
+                "proof_command_count": len(row["proof_commands"]),
+                "proof_command_ids": [command["command_id"] for command in row["proof_commands"]],
+            }
+            for row in matrix
+        ],
     }
 
 
@@ -1410,6 +1434,8 @@ def _remaining_deliverable_gap_summary(*, category_artifacts, matrix, complete):
                         "current_state": row["current_state"],
                         "missing_reason": row["missing_reason"],
                         "acceptance_predicate_count": len(row["acceptance_predicates"]),
+                        "proof_command_count": len(row["proof_commands"]),
+                        "proof_command_ids": [command["command_id"] for command in row["proof_commands"]],
                         "invalid_substitutes": row["invalid_substitutes"],
                     }
                     for row in missing_rows
@@ -1448,6 +1474,18 @@ def _remaining_deliverable_row(category, artifact_id, *, complete):
         "responsible_stage_allowed_now": complete,
         "responsible_stage_blocked_by": [] if complete else ["remote_packet_not_ready"],
         "acceptance_predicates": [f"{artifact_id}_acceptance_predicate"],
+        "proof_commands": [
+            {
+                "command_id": f"{artifact_id}_exists",
+                "command": f"python -c \"from pathlib import Path; assert Path('{artifact_id}').exists()\"",
+                "execution_boundary": "local_read_only_after_formal_remote_pullback",
+            },
+            {
+                "command_id": f"{artifact_id}_schema",
+                "command": f"python -c \"print('{artifact_id}_schema')\"",
+                "execution_boundary": "local_read_only_after_formal_remote_pullback",
+            },
+        ],
         "acceptable_evidence": [f"{artifact_id}_acceptable_evidence"],
         "invalid_substitutes": [f"{artifact_id}_invalid_substitute"],
         "execution_boundary": "read_only_no_execution",
