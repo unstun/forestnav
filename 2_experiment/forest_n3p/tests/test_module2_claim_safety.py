@@ -134,6 +134,12 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert manifest["input_status"]["status_report_decision_intake_status"] == "f02_6_decision_intake_closed_clean"
     assert manifest["input_status"]["status_report_decision_intake_record_status"] == "approved"
     assert manifest["input_status"]["status_report_decision_intake_audit_issue_count"] == 0
+    assert manifest["input_status"]["status_report_decision_intake_decision_owner_required"] == "Dr Sun"
+    assert manifest["input_status"]["status_report_decision_intake_valid_decision_count"] == 2
+    assert manifest["input_status"]["status_report_decision_intake_required_record_field_count"] == 3
+    assert manifest["input_status"]["status_report_decision_intake_decision_note_required"] is True
+    assert manifest["input_status"]["status_report_decision_intake_invalid_input_count"] == 2
+    assert manifest["input_status"]["status_report_decision_intake_post_decision_non_authorization_count"] == 2
     assert manifest["input_status"]["status_report_handoff_status"] == "ready_for_manual_remote_execution_review"
     assert manifest["input_status"]["status_report_transition_gate_status"] == "f02_6_transition_gate_audit_passed"
     assert manifest["input_status"]["status_report_transition_gate_audit_issue_count"] == 0
@@ -190,6 +196,8 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert manifest["status_report_remaining_deliverables_acceptance_summary"]["missing_row_count"] == 0
     assert manifest["status_report_decision_intake_summary"]["status"] == "f02_6_decision_intake_closed_clean"
     assert manifest["status_report_decision_intake_summary"]["record_status"] == "approved"
+    assert manifest["status_report_decision_intake_summary"]["decision_owner_required"] == "Dr Sun"
+    assert manifest["status_report_decision_intake_summary"]["decision_note_required"] is True
 
     allowed_ids = {item["claim_id"] for item in manifest["allowed_claims"]}
     assert "method_is_ha_star_analytic_operator" in allowed_ids
@@ -894,6 +902,58 @@ def test_claim_safety_rejects_status_report_remaining_deliverables_acceptance_dr
     assert manifest["status_report_remaining_deliverables_acceptance_summary"]["matrix_row_count"] == 9
 
 
+def test_claim_safety_rejects_status_report_decision_intake_contract_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_claim_safety")
+    paper_tables = tmp_path / "paper_tables.json"
+    paper_tables.write_text(json.dumps({"status": "formal_ready", "formal_claim_allowed": True, "blockers": []}), encoding="utf-8")
+    h02_formal_acceptance = tmp_path / "h02_formal_acceptance.json"
+    h02_formal_acceptance.write_text(json.dumps({"status": "formal_output_accepted", "formal_output_accepted": True, "paper_result_input_allowed": True, "blockers": []}), encoding="utf-8")
+    h01_manifest = tmp_path / "h01.json"
+    h01_manifest.write_text(json.dumps({"status": "ready_for_formal_evaluation", "blockers": []}), encoding="utf-8")
+    f02_6_packet = tmp_path / "f02_6.json"
+    f02_6_packet.write_text(json.dumps({"status": "approved", "blockers": []}), encoding="utf-8")
+    gate3_audit = tmp_path / "gate3_audit.json"
+    gate3_audit.write_text(json.dumps({"formal_decision": "pass", "formal_claim_allowed": True}), encoding="utf-8")
+    method_algorithms = tmp_path / "method_algorithms.json"
+    method_algorithms.write_text(json.dumps({"status": "code_anchored"}), encoding="utf-8")
+    system_diagram = tmp_path / "system_diagram.json"
+    system_diagram.write_text(json.dumps({"status": "code_anchored_drawio"}), encoding="utf-8")
+    closure_checklist = tmp_path / "closure_checklist.json"
+    closure_checklist.write_text(json.dumps(_closure_checklist_payload(open_checklist=False)), encoding="utf-8")
+    status_payload = _status_report_payload(ready=True)
+    intake = status_payload["f02_6_decision_intake_summary"]
+    intake["decision_owner_required"] = "Assistant"
+    intake["valid_decisions"] = ["approve_obstacle_summary_warm_start"]
+    intake["required_record_fields"] = ["decision", "decider"]
+    intake["decision_note_required"] = False
+    intake["invalid_input_count"] = 0
+    intake["post_decision_non_authorization_count"] = 0
+    status_report = tmp_path / "status_report.json"
+    status_report.write_text(json.dumps(status_payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        repo_root=builder._repo_root(),
+        paper_tables_path=paper_tables,
+        h02_formal_acceptance_path=h02_formal_acceptance,
+        h01_manifest_path=h01_manifest,
+        f02_6_packet_path=f02_6_packet,
+        gate3_audit_path=gate3_audit,
+        method_algorithms_path=method_algorithms,
+        system_diagram_path=system_diagram,
+        closure_checklist_path=closure_checklist,
+        status_report_path=status_report,
+    )
+
+    blockers = set(manifest["formal_performance_blockers"])
+    assert "status_report_f02_6_decision_intake_decision_owner_not_dr_sun" in blockers
+    assert "status_report_f02_6_decision_intake_valid_decisions_incomplete" in blockers
+    assert "status_report_f02_6_decision_intake_required_fields_incomplete" in blockers
+    assert "status_report_f02_6_decision_intake_decision_note_not_required" in blockers
+    assert "status_report_f02_6_decision_intake_invalid_inputs_missing" in blockers
+    assert "status_report_f02_6_decision_intake_non_authorizations_missing" in blockers
+    assert manifest["status_report_decision_intake_summary"]["decision_owner_required"] == "Assistant"
+
+
 def test_claim_safety_rejects_status_report_that_runs_or_claims(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_claim_safety")
     paper_tables = tmp_path / "paper_tables.json"
@@ -1001,6 +1061,17 @@ def _status_report_payload(*, ready, invalid=False):
             "record_status": "approved" if ready else "pending_human_decision",
             "record_decider": "Dr Sun" if ready else None,
             "next_blocked_lane": None if ready else "decision",
+            "decision_owner_required": "Dr Sun",
+            "valid_decisions": [
+                "approve_obstacle_summary_warm_start",
+                "reject_obstacle_summary_warm_start",
+            ],
+            "valid_decision_count": 2,
+            "required_record_fields": ["decision", "decider", "decision_note"],
+            "required_record_field_count": 3,
+            "decision_note_required": True,
+            "invalid_input_count": 2,
+            "post_decision_non_authorization_count": 2,
             "remote_preflight_allowed_now": bool(ready),
             "remote_training_allowed_now": bool(ready),
             "formal_claim_allowed_now": bool(ready),
