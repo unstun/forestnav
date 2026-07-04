@@ -122,6 +122,7 @@ def build_manifest(
     status_report_requirement_stage_summary = _status_report_requirement_stage_summary(status_report)
     status_report_remote_requirement_summary = _status_report_remote_requirement_summary(status_report)
     status_report_h02_acceptance_requirement_summary = _status_report_h02_acceptance_requirement_summary(status_report)
+    status_report_decision_intake_summary = _status_report_decision_intake_summary(status_report)
     formal_allowed = not formal_blockers
     prohibited = _prohibited_claims()
     allowed = _allowed_claims(
@@ -173,6 +174,17 @@ def build_manifest(
             ),
             "status_report_input_safety_issue_count": status_report.get("input_safety_issue_count"),
             "status_report_next_blocked_lane_id": _next_blocked_lane_id(status_report),
+            "status_report_decision_intake_status": status_report_decision_intake_summary["status"],
+            "status_report_decision_intake_record_status": status_report_decision_intake_summary["record_status"],
+            "status_report_decision_intake_audit_issue_count": status_report_decision_intake_summary[
+                "audit_issue_count"
+            ],
+            "status_report_decision_intake_remote_training_allowed_now": status_report_decision_intake_summary[
+                "remote_training_allowed_now"
+            ],
+            "status_report_decision_intake_formal_claim_allowed_now": status_report_decision_intake_summary[
+                "formal_claim_allowed_now"
+            ],
             "status_report_handoff_status": status_report_handoff_summary["status"],
             "status_report_transition_gate_status": status_report_handoff_summary["transition_gate_status"],
             "status_report_transition_gate_audit_issue_count": status_report_handoff_summary[
@@ -246,6 +258,7 @@ def build_manifest(
         "status_report_requirement_stage_summary": status_report_requirement_stage_summary,
         "status_report_remote_requirement_summary": status_report_remote_requirement_summary,
         "status_report_h02_acceptance_requirement_summary": status_report_h02_acceptance_requirement_summary,
+        "status_report_decision_intake_summary": status_report_decision_intake_summary,
         "status_report_remote_gate_summary": status_report_remote_gate_summary,
         "allowed_claims": allowed,
         "conditional_claims": _conditional_claims(),
@@ -344,6 +357,7 @@ def _formal_performance_blockers(
     blockers.extend(_status_report_requirement_stage_blockers(status_report))
     blockers.extend(_status_report_remote_requirement_blockers(status_report))
     blockers.extend(_status_report_h02_acceptance_requirement_blockers(status_report))
+    blockers.extend(_status_report_decision_intake_blockers(status_report))
     blockers.extend(_status_report_remote_summary_blockers(status_report))
     return blockers
 
