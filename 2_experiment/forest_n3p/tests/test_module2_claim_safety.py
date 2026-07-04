@@ -972,7 +972,7 @@ def test_claim_safety_rejects_status_report_remaining_deliverables_acceptance_dr
     summary["rows"].pop("formal_acceptance:h02_formal_output_acceptance")
     summary["matrix_row_count"] = 9
     proof_plan = status_payload["remaining_deliverables_proof_command_plan"]
-    proof_plan["total_matrix_rows"] = 9
+    proof_plan["total_matrix_rows"] = 8
     proof_plan["total_proof_command_count"] = 17
     proof_plan["rows"].pop("formal_acceptance:h02_formal_output_acceptance")
     proof_plan["runs_training"] = True
