@@ -94,6 +94,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     remote_execution_steps = _remote_execution_step_summary(remote_packet)
     closure_remote_stages = _closure_remote_stage_summary(closure_checklist)
     handoff_summary = _handoff_bundle_summary(handoff_bundle)
+    formal_gate_execution_veto = _formal_gate_execution_veto_summary(formal_gate)
 
     input_safety_issues = _input_safety_issues(
         {
@@ -108,6 +109,13 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "paper_readiness": paper_readiness,
             "handoff_bundle": handoff_bundle,
         }
+    )
+    input_safety_issues = _unique_issues(
+        input_safety_issues
+        + _formal_gate_execution_veto_issues(
+            formal_gate=formal_gate,
+            formal_gate_execution_veto=formal_gate_execution_veto,
+        )
     )
     lanes = _lanes(
         formal_gate=formal_gate,
@@ -183,6 +191,10 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "handoff_bundle_next_action": handoff_summary["next_handoff_action_id"],
             "handoff_bundle_safety_issue_count": handoff_summary["safety_issue_count"],
             "handoff_bundle_remote_training_allowed_now": handoff_summary["remote_training_allowed_now"],
+            "formal_gate_execution_veto_present": formal_gate_execution_veto["present"],
+            "formal_gate_execution_veto_all_rows_consistent": formal_gate_execution_veto["all_rows_consistent"],
+            "formal_gate_execution_veto_remote_training_allowed_now": formal_gate_execution_veto["row_consensus"].get("remote_training"),
+            "formal_gate_execution_veto_formal_claim_allowed_now": formal_gate_execution_veto["row_consensus"].get("formal_claim"),
         },
         "permissions_now": permissions,
         "missing_counts_by_category": missing_artifacts.get("missing_counts_by_category") if isinstance(missing_artifacts.get("missing_counts_by_category"), dict) else {},
@@ -194,6 +206,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "closure_remote_stage_summary": closure_remote_stages,
         "remote_execution_step_summary": remote_execution_steps,
         "formal_gate_handoff_summary": handoff_summary,
+        "formal_gate_execution_veto_summary": formal_gate_execution_veto,
         "formal_gate_lanes": lanes,
         "next_blocked_lane": _next_blocked_lane(lanes),
         "input_safety_issue_count": len(input_safety_issues),
@@ -209,6 +222,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "It must not be used to approve F02.6; only Dr Sun's decision record can do that.",
             "Formal PPO training remains gpu3070ti-relay-only and blocked until F02.6, source freshness, and remote packet gates close.",
             "Formal result writing remains blocked until H02 acceptance, claim safety, paper readiness, and the closure checklist all pass after audited pullback hashes.",
+            "The formal gate execution veto matrix must agree across status, handoff, remote packet, and remote packet safety before this report can become claim-ready.",
         ],
     }
 
