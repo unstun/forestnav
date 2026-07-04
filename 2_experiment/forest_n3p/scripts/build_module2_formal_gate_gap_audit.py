@@ -1094,6 +1094,18 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- open_item_count: `{manifest['closure_checklist']['open_item_count']}`",
             f"- input_safety_issue_count: `{manifest['closure_checklist']['input_safety_issue_count']}`",
             "",
+            "## Formal Gate Status Report",
+            "",
+            f"- path: `{manifest['formal_gate_status_report']['path']}`",
+            f"- status: `{manifest['formal_gate_status_report']['status']}`",
+            f"- executes_commands: `{manifest['formal_gate_status_report']['executes_commands']}`",
+            f"- runs_training: `{manifest['formal_gate_status_report']['runs_training']}`",
+            f"- runs_remote_preflight: `{manifest['formal_gate_status_report']['runs_remote_preflight']}`",
+            f"- local_training_allowed_now: `{manifest['formal_gate_status_report']['local_training_allowed_now']}`",
+            f"- formal_claim_allowed_now: `{manifest['formal_gate_status_report']['formal_claim_allowed_now']}`",
+            f"- next_blocked_lane_id: `{manifest['formal_gate_status_report']['next_blocked_lane_id']}`",
+            f"- input_safety_issue_count: `{manifest['formal_gate_status_report']['input_safety_issue_count']}`",
+            "",
         ]
     )
     for title, key in [
