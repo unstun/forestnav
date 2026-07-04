@@ -1351,6 +1351,58 @@ def _remaining_deliverables_proof_command_plan(remaining_deliverables: dict[str,
     }
 
 
+def _formal_gate_proof_audit_summary(proof_audit: dict[str, Any]) -> dict[str, Any]:
+    raw_results = proof_audit.get("proof_command_results")
+    raw_results = raw_results if isinstance(raw_results, list) else []
+    results_by_id: dict[str, dict[str, Any]] = {}
+    for raw in raw_results:
+        if not isinstance(raw, dict) or not raw.get("command_id"):
+            continue
+        command_id = str(raw["command_id"])
+        results_by_id[command_id] = {
+            "present": True,
+            "matrix_id": raw.get("matrix_id"),
+            "category": raw.get("category"),
+            "artifact_id": raw.get("artifact_id"),
+            "status": raw.get("status"),
+            "expected_path": raw.get("expected_path"),
+            "command_was_executed": raw.get("command_was_executed") is True,
+            "diagnostic": raw.get("diagnostic"),
+        }
+    raw_counts = proof_audit.get("category_status_counts")
+    raw_counts = raw_counts if isinstance(raw_counts, dict) else {}
+    category_status_counts: dict[str, dict[str, int]] = {}
+    for category, counts in raw_counts.items():
+        if not isinstance(counts, dict):
+            continue
+        category_status_counts[str(category)] = {
+            "passed": int(counts.get("passed") or 0),
+            "failed": int(counts.get("failed") or 0),
+            "blocked_missing_artifact": int(counts.get("blocked_missing_artifact") or 0),
+        }
+    return {
+        "present": bool(proof_audit),
+        "status": proof_audit.get("status"),
+        "not_paper_result_material": proof_audit.get("not_paper_result_material") is True,
+        "executes_commands": proof_audit.get("executes_commands") is True,
+        "runs_training": proof_audit.get("runs_training") is True,
+        "runs_remote_preflight": proof_audit.get("runs_remote_preflight") is True,
+        "formal_claim_allowed": proof_audit.get("formal_claim_allowed") is True,
+        "proof_command_plan_id": proof_audit.get("proof_command_plan_id"),
+        "execution_boundary": proof_audit.get("execution_boundary"),
+        "total_matrix_rows": int(proof_audit.get("total_matrix_rows") or 0),
+        "total_proof_command_count": int(proof_audit.get("total_proof_command_count") or 0),
+        "declared_total_proof_command_count": int(proof_audit.get("declared_total_proof_command_count") or 0),
+        "passed_proof_command_count": int(proof_audit.get("passed_proof_command_count") or 0),
+        "failed_proof_command_count": int(proof_audit.get("failed_proof_command_count") or 0),
+        "blocked_proof_command_count": int(proof_audit.get("blocked_proof_command_count") or 0),
+        "category_status_counts": category_status_counts,
+        "blockers": _strings(proof_audit.get("blockers")),
+        "input_safety_issue_count": int(proof_audit.get("input_safety_issue_count") or 0),
+        "results_by_id": results_by_id,
+    }
+
+
 def _formal_gate_gap_audit_remaining_deliverables_gap_summary(formal_gate: dict[str, Any]) -> dict[str, Any]:
     return _normalize_gap_summary(formal_gate.get("remaining_deliverables_gap_summary"))
 
