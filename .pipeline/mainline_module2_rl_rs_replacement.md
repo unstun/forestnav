@@ -578,6 +578,11 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 最低重跑: scalar lower-bound、obstacle-summary、patch+scalar CNN bounded pilot。
   - 判定: 只用 formal-v2 的 0.1m closed-loop terminal-RS-success / collision / runtime_error 做 warm-start 决策; action MSE 只作辅助。
   - 禁止: 继续引用 formal-v1 模型结果作为当前方法排名。
+  - 已完成子项: scalar lower-bound 和 obstacle-summary MLP rerun。
+  - scalar formal-v2: 0.3m success 6/258, collision 252/258; 0.1m success 38/258, collision 200/258。
+  - obstacle-summary formal-v2: 0.1m success 67/258, collision 178/258, truncated 13/258, runtime_error 0。
+  - 当前边界: obstacle-summary 仍强于 scalar, 但不足以 planner insertion; patch+scalar CNN formal-v2 尚未重跑。
+  - 记录: `.pipeline/experiments/20260704_module2_f02_formal_v2_mlp_bc_baselines.md`。
 
 #### F03. PPO 最大实现
 
@@ -745,3 +750,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-03: 完成 F01.1 oracle demonstration extraction pipeline。新增 C02 oracle replay extractor, 已产出 oracle A smoke、B-only smoke 和 20-row preview dataset; 尚未声明完整 BC corpus。记录见 `.pipeline/experiments/20260703_module2_f01_oracle_demonstration_extraction.md`。
 - 2026-07-03: 完成 F01.2 dataset manifest。`module2_rl_rs_bc/manifest.json` 记录 preview dataset 的 source hash、schema、filters、file hash 和边界; 尚未开始 BC/PPO 训练。记录见 `.pipeline/experiments/20260703_module2_f01_dataset_manifest.md`。
 - 2026-07-04: 完成 F02.4 profile-aware map cache 修复与 formal-v2 corpus 重建。formal-v1 在真实 profile 地图下有 4764 colliding demo rows, 因此 F02.2/F02.3 formal-v1 结果失效; formal-v2 产出 83809 demo rows / 1032 source rows, current/next collision audit 均为 0。记录见 `.pipeline/experiments/20260704_module2_f02_map_cache_formal_v2_rebuild.md`。
+- 2026-07-04: 完成 F02.5 的 formal-v2 scalar 与 obstacle-summary MLP baseline rerun。scalar 0.1m success 38/258; obstacle-summary 0.1m success 67/258; 二者均不足以 planner insertion, patch+scalar CNN formal-v2 仍待跑。记录见 `.pipeline/experiments/20260704_module2_f02_formal_v2_mlp_bc_baselines.md`。
