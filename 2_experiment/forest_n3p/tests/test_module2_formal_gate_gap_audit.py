@@ -283,8 +283,9 @@ def test_formal_gate_gap_audit_consumes_missing_artifacts_inventory(tmp_path):
             remote_readiness_path=_remote_readiness(tmp_path, good=True),
             source_freshness_path=_source_freshness(tmp_path, clean=True),
             missing_artifacts_path=_missing_artifacts(tmp_path, complete=False),
-            closure_checklist_path=_closure_checklist(tmp_path, complete=True),
-            status_report_path=_status_report(tmp_path, ready=True),
+            closure_checklist_path=_closure_checklist(tmp_path, complete=True, deliverables_complete=False),
+            status_report_path=_status_report(tmp_path, ready=True, deliverables_complete=False),
+            remaining_deliverables_path=_remaining_deliverables(tmp_path, complete=False),
             handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
             remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True),
         )
@@ -318,6 +319,7 @@ def test_formal_gate_gap_audit_rejects_missing_artifacts_inventory_that_runs_or_
             missing_artifacts_path=_missing_artifacts(tmp_path, complete=True, invalid=True),
             closure_checklist_path=_closure_checklist(tmp_path, complete=True),
             status_report_path=_status_report(tmp_path, ready=True),
+            remaining_deliverables_path=_remaining_deliverables(tmp_path, complete=True),
             handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
             remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True),
         )
@@ -347,8 +349,9 @@ def test_formal_gate_gap_audit_consumes_closure_checklist(tmp_path):
             remote_readiness_path=_remote_readiness(tmp_path, good=True),
             source_freshness_path=_source_freshness(tmp_path, clean=True),
             missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
-            closure_checklist_path=_closure_checklist(tmp_path, complete=False),
-            status_report_path=_status_report(tmp_path, ready=True),
+            closure_checklist_path=_closure_checklist(tmp_path, complete=False, deliverables_complete=False),
+            status_report_path=_status_report(tmp_path, ready=True, deliverables_complete=False),
+            remaining_deliverables_path=_remaining_deliverables(tmp_path, complete=False),
             handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
             remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True),
         )
@@ -382,6 +385,7 @@ def test_formal_gate_gap_audit_rejects_closure_checklist_that_runs_or_claims(tmp
             missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
             closure_checklist_path=_closure_checklist(tmp_path, complete=True, invalid=True),
             status_report_path=_status_report(tmp_path, ready=True),
+            remaining_deliverables_path=_remaining_deliverables(tmp_path, complete=True),
             handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
             remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True),
         )
@@ -412,8 +416,9 @@ def test_formal_gate_gap_audit_consumes_status_report(tmp_path):
             remote_readiness_path=_remote_readiness(tmp_path, good=True),
             source_freshness_path=_source_freshness(tmp_path, clean=True),
             missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
-            closure_checklist_path=_closure_checklist(tmp_path, complete=True),
-            status_report_path=_status_report(tmp_path, ready=False),
+            closure_checklist_path=_closure_checklist(tmp_path, complete=True, deliverables_complete=False),
+            status_report_path=_status_report(tmp_path, ready=False, deliverables_complete=False),
+            remaining_deliverables_path=_remaining_deliverables(tmp_path, complete=False),
             handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
             remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True),
         )
