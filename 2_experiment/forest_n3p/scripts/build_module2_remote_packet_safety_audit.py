@@ -300,6 +300,7 @@ def _packet_summary(packet: dict[str, Any]) -> dict[str, Any]:
     steps = packet.get("execution_steps") if isinstance(packet.get("execution_steps"), dict) else {}
     pullback = packet.get("post_run_pullback") if isinstance(packet.get("post_run_pullback"), dict) else {}
     env = packet.get("execution_environment") if isinstance(packet.get("execution_environment"), dict) else {}
+    preflight = packet.get("remote_preflight") if isinstance(packet.get("remote_preflight"), dict) else {}
     return {
         "status": packet.get("status"),
         "ready_to_run_remote_training": packet.get("ready_to_run_remote_training"),
