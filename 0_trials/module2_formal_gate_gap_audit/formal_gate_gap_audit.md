@@ -37,6 +37,17 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - `claim_safety`: `historical_clean`, required before `formal_claim_gate`, path `0_trials/module2_claim_safety/module2_claim_safety.json`
 - `paper_readiness`: `historical_dirty`, required before `formal_claim_gate`, path `0_trials/module2_paper_readiness/module2_paper_readiness.json`
 
+## Missing Artifacts Inventory
+
+- path: `0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json`
+- status: `formal_gate_missing_artifacts_open`
+- executes_commands: `False`
+- runs_training: `False`
+- runs_remote_preflight: `False`
+- all_required_evidence_present: `False`
+- audit_issue_count: `0`
+- missing_counts_by_category: `{'decision': 1, 'regeneration': 8, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 3}`
+
 ## Decision Gaps
 
 - `f02_6_warm_start_decision_pending`
@@ -140,6 +151,10 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
   - evidence: `0_trials/module2_paper_readiness/module2_paper_readiness.json`
   - why: Readiness status is partial_methods_ready_results_blocked; formal_results_ready=False.
   - needed: Use readiness only as a gate; do not write result material until it reports formal_results_ready=true.
+- `formal_gate_missing_artifacts_open`
+  - evidence: `0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json`
+  - why: Formal gate inventory still reports missing evidence counts: {'decision': 1, 'regeneration': 8, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 3}.
+  - needed: Close every missing-artifacts group before final H02/claim readiness can pass.
 
 ## Ordered Next Steps
 

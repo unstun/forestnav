@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_gap_audit",
   "status": "blocked_formal_gate_gaps_open",
-  "created_at_utc": "2026-07-04T11:06:12.721252+00:00",
-  "source_head": "4341f521530cbb0ec1b25e78163820434079870b",
+  "created_at_utc": "2026-07-04T11:49:41.639965+00:00",
+  "source_head": "acb1ee8a523c8a0f0ba3a0d1f60015f1db1871ac+dirty",
   "not_paper_result_material": true,
   "local_training_allowed": false,
   "remote_training_resource": "gpu3070ti-relay",
@@ -91,6 +91,28 @@
       }
     ]
   },
+  "missing_artifacts_inventory": {
+    "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
+    "exists": true,
+    "status": "formal_gate_missing_artifacts_open",
+    "executes_commands": false,
+    "runs_training": false,
+    "runs_remote_preflight": false,
+    "local_training_allowed": false,
+    "formal_claim_allowed": false,
+    "all_required_evidence_present": false,
+    "audit_issue_count": 0,
+    "missing_counts_by_category": {
+      "decision": 1,
+      "regeneration": 8,
+      "gate_sequence": 7,
+      "training": 3,
+      "evaluation": 2,
+      "acceptance": 3,
+      "evaluation_acceptance": 2,
+      "claim_gate": 3
+    }
+  },
   "current_gate_state": {
     "f02_6_decision_status": "pending_human_decision",
     "effective_warm_start_decision": "pending",
@@ -104,7 +126,9 @@
     "ppo_checkpoint_hashes": [],
     "formal_performance_claim_allowed": false,
     "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
-    "source_freshness_regeneration_required": true
+    "source_freshness_regeneration_required": true,
+    "formal_gate_missing_artifacts_status": "formal_gate_missing_artifacts_open",
+    "formal_gate_missing_artifacts_open": true
   },
   "missing_decision_items": [
     {
@@ -273,6 +297,13 @@
       "why_missing": "Readiness status is partial_methods_ready_results_blocked; formal_results_ready=False.",
       "evidence_path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
       "required_next_artifact": "Use readiness only as a gate; do not write result material until it reports formal_results_ready=true."
+    },
+    {
+      "category": "acceptance",
+      "gap_id": "formal_gate_missing_artifacts_open",
+      "why_missing": "Formal gate inventory still reports missing evidence counts: {'decision': 1, 'regeneration': 8, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 3}.",
+      "evidence_path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
+      "required_next_artifact": "Close every missing-artifacts group before final H02/claim readiness can pass."
     }
   ],
   "ordered_next_steps": [
@@ -379,7 +410,8 @@
         "missing_or_failed_gate3_formal_audit",
         "h02_formal_output_not_accepted",
         "claim_safety_blocks_formal_performance",
-        "readiness_blocks_formal_results"
+        "readiness_blocks_formal_results",
+        "formal_gate_missing_artifacts_open"
       ],
       "runs_training": false,
       "action": "Regenerate claim safety/readiness; allow formal claims only if all gates pass.",

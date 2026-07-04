@@ -513,3 +513,25 @@ def _source_freshness(tmp_path, *, clean, invalid=False):
         encoding="utf-8",
     )
     return path
+
+
+def _missing_artifacts(tmp_path, *, complete, invalid=False):
+    path = tmp_path / f"missing_artifacts_{complete}_{invalid}.json"
+    missing_counts = {} if complete else {"training": 3, "evaluation": 2, "acceptance": 3}
+    path.write_text(
+        json.dumps(
+            {
+                "status": "formal_gate_artifacts_complete" if complete else "formal_gate_missing_artifacts_open",
+                "executes_commands": bool(invalid),
+                "runs_training": bool(invalid),
+                "runs_remote_preflight": bool(invalid),
+                "local_training_allowed": bool(invalid),
+                "formal_claim_allowed": bool(invalid),
+                "all_required_evidence_present": complete,
+                "audit_issue_count": 1 if invalid else 0,
+                "missing_counts_by_category": missing_counts,
+            }
+        ),
+        encoding="utf-8",
+    )
+    return path
