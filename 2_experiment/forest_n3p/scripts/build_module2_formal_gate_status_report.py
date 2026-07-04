@@ -19,6 +19,7 @@ DEFAULT_H01_MANIFEST = Path("0_trials/module2_v1_evaluation_manifest/module2_v1_
 DEFAULT_H02_ACCEPTANCE = Path("0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json")
 DEFAULT_CLAIM_SAFETY = Path("0_trials/module2_claim_safety/module2_claim_safety.json")
 DEFAULT_PAPER_READINESS = Path("0_trials/module2_paper_readiness/module2_paper_readiness.json")
+DEFAULT_HANDOFF_BUNDLE = Path("0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json")
 REMOTE_EXECUTION_STEP_IDS = (
     "sync_to_remote",
     "run_remote_preflight",
@@ -46,6 +47,7 @@ class FormalGateStatusReportConfig:
     h02_acceptance_path: Path = DEFAULT_H02_ACCEPTANCE
     claim_safety_path: Path = DEFAULT_CLAIM_SAFETY
     paper_readiness_path: Path = DEFAULT_PAPER_READINESS
+    handoff_bundle_path: Path = DEFAULT_HANDOFF_BUNDLE
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -63,6 +65,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         h02_acceptance_path=args.h02_acceptance,
         claim_safety_path=args.claim_safety,
         paper_readiness_path=args.paper_readiness,
+        handoff_bundle_path=args.handoff_bundle,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -87,8 +90,10 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     h02 = _read_json(config.h02_acceptance_path)
     claim_safety = _read_json(config.claim_safety_path)
     paper_readiness = _read_json(config.paper_readiness_path)
+    handoff_bundle = _read_json(config.handoff_bundle_path)
     remote_execution_steps = _remote_execution_step_summary(remote_packet)
     closure_remote_stages = _closure_remote_stage_summary(closure_checklist)
+    handoff_summary = _handoff_bundle_summary(handoff_bundle)
 
     input_safety_issues = _input_safety_issues(
         {
@@ -101,6 +106,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "h02_acceptance": h02,
             "claim_safety": claim_safety,
             "paper_readiness": paper_readiness,
+            "handoff_bundle": handoff_bundle,
         }
     )
     lanes = _lanes(
@@ -148,6 +154,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "h02_formal_acceptance": str(config.h02_acceptance_path),
             "claim_safety": str(config.claim_safety_path),
             "paper_readiness": str(config.paper_readiness_path),
+            "formal_gate_handoff_bundle": str(config.handoff_bundle_path),
         },
         "current_state": {
             "decision_status": decision.get("status"),
@@ -172,6 +179,10 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "claim_safety_formal_performance_claim_allowed": claim_safety.get("formal_performance_claim_allowed"),
             "paper_readiness_status": paper_readiness.get("status"),
             "paper_readiness_formal_results_ready": paper_readiness.get("formal_results_ready"),
+            "handoff_bundle_status": handoff_bundle.get("status"),
+            "handoff_bundle_next_action": handoff_summary["next_handoff_action_id"],
+            "handoff_bundle_safety_issue_count": handoff_summary["safety_issue_count"],
+            "handoff_bundle_remote_training_allowed_now": handoff_summary["remote_training_allowed_now"],
         },
         "permissions_now": permissions,
         "missing_counts_by_category": missing_artifacts.get("missing_counts_by_category") if isinstance(missing_artifacts.get("missing_counts_by_category"), dict) else {},
@@ -182,6 +193,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "claim_gate_artifacts_required": _artifact_list(closure_checklist, "claim_gate_artifacts_required"),
         "closure_remote_stage_summary": closure_remote_stages,
         "remote_execution_step_summary": remote_execution_steps,
+        "formal_gate_handoff_summary": handoff_summary,
         "formal_gate_lanes": lanes,
         "next_blocked_lane": _next_blocked_lane(lanes),
         "input_safety_issue_count": len(input_safety_issues),
@@ -215,6 +227,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--h02-acceptance", type=Path, default=DEFAULT_H02_ACCEPTANCE)
     parser.add_argument("--claim-safety", type=Path, default=DEFAULT_CLAIM_SAFETY)
     parser.add_argument("--paper-readiness", type=Path, default=DEFAULT_PAPER_READINESS)
+    parser.add_argument("--handoff-bundle", type=Path, default=DEFAULT_HANDOFF_BUNDLE)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
