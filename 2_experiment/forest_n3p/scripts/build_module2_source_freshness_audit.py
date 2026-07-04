@@ -266,7 +266,7 @@ def _ordered_regeneration_targets(records: Sequence[dict[str, Any]]) -> list[dic
             "required_before": record["required_before"],
         }
         for record in records
-        if record["freshness_state"] != "current_clean"
+        if record["freshness_state"] != "current_clean" or record["artifact_id"] == "formal_gate_handoff_bundle"
     ]
     return sorted(targets, key=lambda item: (order.get(str(item["required_before"]), 99), str(item["artifact_id"])))
 
