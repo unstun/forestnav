@@ -6,6 +6,7 @@ from forest_n3p.rl_rs.actions import (
     decode_steering_action,
     steering_action_to_primitive,
 )
+from forest_n3p.rl_rs.checkpoint_operator import Sb3RlRsActionPolicy, load_rl_rs_funnel_operator_from_checkpoint
 from forest_n3p.rl_rs.curriculum import (
     CurriculumContextConfig,
     CurriculumSampleMetadata,
@@ -72,6 +73,7 @@ __all__ = [
     "RlRsObservation",
     "RlRsStepTelemetry",
     "RolloutStepResult",
+    "Sb3RlRsActionPolicy",
     "SteeringAction",
     "SteeringPolicy",
     "StaticContextSampler",
@@ -90,6 +92,7 @@ __all__ = [
     "decode_steering_action",
     "create_tensorboard_writer",
     "file_sha256",
+    "load_rl_rs_funnel_operator_from_checkpoint",
     "make_f03_curriculum_sampler",
     "min_rollout_clearance_m",
     "rollout_constant_steer_step",

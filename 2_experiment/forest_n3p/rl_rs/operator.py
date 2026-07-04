@@ -6,7 +6,7 @@ from typing import Any, Optional
 
 from forest_n3p.rl_rs.actions import SteeringAction
 from forest_n3p.rl_rs.env import AnalyticExpansionContext, AnalyticExpansionEnv
-from forest_n3p.rl_rs.obs import RlRsObservation
+from forest_n3p.rl_rs.obs import ObservationConfig, RlRsObservation
 from forest_n3p.rl_rs.telemetry import RlRsEpisodeTelemetry
 from forest_n3p.third_party.pathplan import AckermannState
 from forest_n3p.third_party.pathplan.hybrid_a_star import AnalyticExpansionResult
@@ -51,7 +51,10 @@ class RlRsFunnelOperator:
     collision_sample_step_m: float | None = None
     terminal_check_every: int = 1
     no_progress_patience: int = 3
+    observation_config: ObservationConfig = ObservationConfig()
     name: str = "rl_rs_funnel"
+    checkpoint_path: str | None = None
+    checkpoint_sha256: str | None = None
     last_telemetry: RlRsFunnelTelemetry | None = None
 
     def try_connect(
@@ -116,6 +119,7 @@ class RlRsFunnelOperator:
             terminal_check_every=int(self.terminal_check_every),
             theta_bins=int(context.theta_bins),
             no_progress_patience=int(self.no_progress_patience),
+            observation_config=self.observation_config,
         )
 
     def _terminal_rs_segments(
