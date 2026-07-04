@@ -59,6 +59,43 @@ def test_module2_manifest_freezes_h01_methods_metrics_and_pending_decision_block
     metric_ids = {metric["metric_id"] for metric in manifest["metrics"]}
     assert {"total_time_s", "total_expansions", "timeout_failure_rate", "path_inflation_ratio"}.issubset(metric_ids)
     assert {"analytic_success_rate", "terminal_rs_success_rate", "fallback_count", "nn_forward_time_s"}.issubset(metric_ids)
+    output_schema = manifest["required_output_schema"]
+    assert {
+        "query_id",
+        "method",
+        "success",
+        "feasible",
+        "total_time_s",
+        "total_expansions",
+        "analytic_attempts",
+        "analytic_successes",
+        "rl_attempts",
+        "rl_successes",
+        "rs_attempts",
+        "nn_forward_time_s",
+        "fallback_to_primitives_count",
+        "rollout_protocol",
+        "collision_checker",
+    }.issubset(set(output_schema["records_csv_required_columns"]))
+    assert {
+        "method",
+        "difficulty_bucket",
+        "count",
+        "success_rate",
+        "timeout_failure_rate",
+        "mean_nn_forward_time_s",
+        "p95_nn_forward_time_s",
+        "rl_attempts_total",
+        "rl_successes_total",
+        "rs_attempts_total",
+        "fallback_to_primitives_total",
+    }.issubset(set(output_schema["summary_by_method_bucket_required_columns"]))
+    assert {
+        "summary_by_method_bucket",
+        "paired_time_tests",
+        "paired_expansion_tests",
+        "timeout_failure_rate_bootstrap_ci",
+    }.issubset(set(output_schema["summary_json_required_sections"]))
 
     assert manifest["real_maps"]["manifest"].endswith("2_experiment/forest_n3p/assets/realmaps/manifest.json")
     assert manifest["real_maps"]["usable_map_count"] >= 2
