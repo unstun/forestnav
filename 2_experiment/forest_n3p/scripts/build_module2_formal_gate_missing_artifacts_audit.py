@@ -414,6 +414,126 @@ def _claim_gate_group(*, source_freshness: dict[str, Any], h02_acceptance: dict[
     }
 
 
+def _formal_gate_requirements(
+    *,
+    groups: Sequence[dict[str, Any]],
+    current_gate_summary: dict[str, Any],
+) -> list[dict[str, Any]]:
+    groups_by_id = {str(group.get("group_id")): group for group in groups}
+    remote_training_allowed = current_gate_summary.get("ready_to_run_remote_training") is True
+    return [
+        _requirement(
+            requirement_id="training_remote_ppo_checkpoint",
+            phase="training",
+            group=groups_by_id.get("remote_training_outputs", {}),
+            execution_allowed_now=remote_training_allowed,
+            required_before="gate3_remote_audit_pullback",
+            acceptable_evidence=[
+                "remote-produced train/final_model.zip pulled back to the local formal Gate3 trial directory",
+                "train/summary.json with PPO run metadata and terminal-RS training signals",
+                "train/training_manifest.json with protocol label, source head, host, seed, and command provenance",
+            ],
+            invalid_substitutes=[
+                "local training output",
+                "available-subset smoke model",
+                "no-warm Gate3 failed checkpoint",
+                "stdout without pulled-back checkpoint and manifest",
+            ],
+        ),
+        _requirement(
+            requirement_id="evaluation_gate3_episode_outputs",
+            phase="evaluation",
+            group=groups_by_id.get("gate3_evaluation_outputs", {}),
+            execution_allowed_now=remote_training_allowed,
+            required_before="h01_h02_formal_regeneration",
+            acceptable_evidence=[
+                "eval/gate3_eval_episodes.csv from the approved formal remote run",
+                "eval/gate3_summary.json with formal terminal-RS success, collision, truncation, and timing fields",
+            ],
+            invalid_substitutes=[
+                "H02 available-subset smoke CSV",
+                "paper table preview",
+                "no-warm formal failure eval reused as warm-start evidence",
+            ],
+        ),
+        _requirement(
+            requirement_id="acceptance_remote_pullback_and_audit",
+            phase="acceptance",
+            group=groups_by_id.get("gate3_acceptance_pullback", {}),
+            execution_allowed_now=remote_training_allowed,
+            required_before="h02_formal_acceptance",
+            acceptable_evidence=[
+                "gate3_trial_manifest.json copied back from the formal remote run",
+                "gate3_formal_audit.json marking the run formal, scoped, and non-smoke",
+                "checkpoint SHA-256 record for the pulled-back final_model.zip",
+            ],
+            invalid_substitutes=[
+                "remote command success without local pullback",
+                "checkpoint file without hash record",
+                "audit marked candidate, smoke, preview, or not_formal",
+            ],
+        ),
+        _requirement(
+            requirement_id="h01_h02_formal_evaluation_acceptance",
+            phase="evaluation_acceptance",
+            group=groups_by_id.get("h01_h02_formal_evaluation_acceptance", {}),
+            execution_allowed_now=False,
+            required_before="formal_claim_gate",
+            acceptable_evidence=[
+                "H01 manifest status ready_for_formal_run or ready_for_formal_evaluation after F02.6 is closed",
+                "H02 acceptance with formal_output_accepted=true and paper_result_input_allowed=true",
+                "formal PPO rows present and accepted against the H01 required output schema",
+            ],
+            invalid_substitutes=[
+                "blocked H01 manifest",
+                "blocked H02 acceptance audit",
+                "formal-looking tables generated from smoke or missing PPO rows",
+            ],
+        ),
+    ]
+
+
+def _requirement(
+    *,
+    requirement_id: str,
+    phase: str,
+    group: dict[str, Any],
+    execution_allowed_now: bool,
+    required_before: str,
+    acceptable_evidence: Sequence[str],
+    invalid_substitutes: Sequence[str],
+) -> dict[str, Any]:
+    complete = group.get("complete") is True
+    missing_items = [item for item in group.get("items", ()) if isinstance(item, dict) and item.get("missing")]
+    if complete:
+        status = "satisfied"
+    elif execution_allowed_now:
+        status = "ready_to_execute_missing_outputs"
+    else:
+        status = "blocked_missing_outputs"
+    return {
+        "requirement_id": requirement_id,
+        "phase": phase,
+        "status": status,
+        "complete": complete,
+        "execution_allowed_now": execution_allowed_now,
+        "required_before": required_before,
+        "missing_artifact_ids": [str(item.get("artifact_id")) for item in missing_items],
+        "missing_paths": [str(item.get("path") or "") for item in missing_items],
+        "blocked_by": _strings(group.get("blocked_by")),
+        "acceptable_evidence": list(acceptable_evidence),
+        "invalid_substitutes": list(invalid_substitutes),
+    }
+
+
+def _requirement_counts(requirements: Sequence[dict[str, Any]]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for requirement in requirements:
+        status = str(requirement.get("status") or "unknown")
+        counts[status] = counts.get(status, 0) + 1
+    return counts
+
+
 def _audit_issues(
     *,
     decision: dict[str, Any],
