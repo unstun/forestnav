@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_remote_packet_safety_audit",
   "status": "remote_packet_safety_audit_passed",
-  "created_at_utc": "2026-07-04T14:40:11.406777+00:00",
-  "source_head": "46781e5ef22f7d400f17440daa5199bb09d54ceb+dirty",
+  "created_at_utc": "2026-07-04T14:47:30.357267+00:00",
+  "source_head": "01c57e4da7473cff42e2aafbd62431772eae0bb6+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -50,6 +50,9 @@
     "remote_preflight_requirement_counts": {
       "blocked_missing_preflight": 2,
       "satisfied": 2
+    },
+    "post_run_acceptance_requirement_counts": {
+      "blocked_until_remote_audit": 4
     }
   },
   "cross_gate_summary": {

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "packet_name": "module2_remote_formal_execution_packet",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-04T14:39:59.020980+00:00",
-  "source_head": "46781e5ef22f7d400f17440daa5199bb09d54ceb+dirty",
+  "created_at_utc": "2026-07-04T14:47:30.282211+00:00",
+  "source_head": "01c57e4da7473cff42e2aafbd62431772eae0bb6+dirty",
   "ready_to_run_remote_training": false,
   "local_training_allowed": false,
   "formal_claim_allowed_before_audit": false,
@@ -218,6 +218,92 @@
     ],
     "pullback_command": "rsync -az 'gpu3070ti-relay:~/ForestNav/0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/' /Users/sun/tongbu/study/phdproject/ForestNav/0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/",
     "hash_manifest_required": true
+  },
+  "post_run_acceptance_requirements": [
+    {
+      "requirement_id": "pullback_expected_artifacts_complete",
+      "phase": "pullback",
+      "status": "blocked_until_remote_audit",
+      "complete": false,
+      "remote_training_ready_now": false,
+      "execution_allowed_now": false,
+      "required_before": "local_gate3_formal_audit_review",
+      "missing_artifact_ids": [],
+      "acceptable_evidence": [
+        "all seven expected Gate3 train/eval/audit artifacts pulled back under the local formal trial directory",
+        "pullback command copies from gpu3070ti-relay:~/ForestNav without --delete",
+        "pulled-back files are inspected locally before H01/H02 regeneration"
+      ],
+      "invalid_substitutes": [
+        "remote stdout saying files exist",
+        "partial pullback with only checkpoint or summary",
+        "local files copied from a non-gpu3070ti host"
+      ]
+    },
+    {
+      "requirement_id": "checkpoint_hash_manifest_recorded",
+      "phase": "pullback",
+      "status": "blocked_until_remote_audit",
+      "complete": false,
+      "remote_training_ready_now": false,
+      "execution_allowed_now": false,
+      "required_before": "h01_h02_regeneration",
+      "missing_artifact_ids": [],
+      "acceptable_evidence": [
+        "SHA-256 record for train/final_model.zip next to the pulled-back checkpoint",
+        "hash record is generated after remote pullback and names the exact checkpoint used by H01/H02"
+      ],
+      "invalid_substitutes": [
+        "checkpoint file without hash",
+        "hash written before remote pullback",
+        "hash of a smoke or no-warm checkpoint"
+      ]
+    },
+    {
+      "requirement_id": "gate3_formal_audit_accepts_remote_run",
+      "phase": "acceptance",
+      "status": "blocked_until_remote_audit",
+      "complete": false,
+      "remote_training_ready_now": false,
+      "execution_allowed_now": false,
+      "required_before": "formal_claim_gate",
+      "missing_artifact_ids": [
+        "gate3_formal_audit_formal_decision_pass"
+      ],
+      "acceptable_evidence": [
+        "gate3_formal_audit.json pulled back locally",
+        "audit records warm_start_decision=approved_obstacle_summary",
+        "audit records formal_decision=pass before any improvement claim"
+      ],
+      "invalid_substitutes": [
+        "audit marked not_formal, candidate, smoke, or preview",
+        "no-warm Gate3 audit reused as warm-start audit",
+        "training completion without audit"
+      ]
+    },
+    {
+      "requirement_id": "h01_h02_regenerated_from_audited_checkpoint",
+      "phase": "evaluation_acceptance",
+      "status": "blocked_until_remote_audit",
+      "complete": false,
+      "remote_training_ready_now": false,
+      "execution_allowed_now": false,
+      "required_before": "paper_result_gate",
+      "missing_artifact_ids": [],
+      "acceptable_evidence": [
+        "H01 manifest regenerated with the audited checkpoint",
+        "H02 full all-method evaluation regenerated with required output schema",
+        "paper tables regenerated only from H02 formal accepted outputs"
+      ],
+      "invalid_substitutes": [
+        "paper table preview generated before H02 acceptance",
+        "H01/H02 generated from a smoke checkpoint",
+        "claim safety run without regenerated formal evaluation rows"
+      ]
+    }
+  ],
+  "post_run_acceptance_requirement_counts": {
+    "blocked_until_remote_audit": 4
   },
   "downstream_after_successful_audit": {
     "h01_manifest_must_be_regenerated": true,

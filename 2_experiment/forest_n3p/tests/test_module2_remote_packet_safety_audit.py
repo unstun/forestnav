@@ -33,6 +33,7 @@ def test_remote_packet_safety_audit_passes_current_blocked_packet(tmp_path):
     assert manifest["packet_summary"]["embedded_preflight_warm_start_decision"] == "pending"
     assert manifest["packet_summary"]["remote_training_allowed_now"] is False
     assert manifest["packet_summary"]["remote_preflight_requirement_counts"] == {"blocked_missing_preflight": 2, "satisfied": 2}
+    assert manifest["packet_summary"]["post_run_acceptance_requirement_counts"] == {"blocked_until_remote_audit": 4}
     assert "requires_dr_sun_approval" in manifest["packet_summary"]["sync_blocked_by"]
     assert "remote_packet_not_ready" in manifest["packet_summary"]["remote_training_blocked_by"]
     assert manifest["packet_summary"]["pullback_artifact_count"] == 7
@@ -183,6 +184,49 @@ def test_remote_packet_safety_audit_catches_ready_packet_with_unready_embedded_p
     assert "ready_packet_preflight_not_ready" in issue_ids
     assert "ready_packet_preflight_status_not_ready" in issue_ids
     assert "ready_packet_preflight_warm_start_not_approved" in issue_ids
+
+
+def test_remote_packet_safety_audit_requires_post_run_acceptance_requirement_matrix(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
+    packet = _packet_payload()
+    packet.pop("post_run_acceptance_requirements")
+    packet.pop("post_run_acceptance_requirement_counts")
+
+    manifest = auditor.build_manifest(
+        auditor.RemotePacketSafetyAuditConfig(
+            output_dir=tmp_path,
+            remote_packet_path=_json(tmp_path, "packet.json", packet),
+            decision_gate_audit_path=_json(tmp_path, "decision_gate.json", _decision_gate_payload()),
+            post_plan_audit_path=_json(tmp_path, "plan_audit.json", _plan_audit_payload()),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "remote_packet_safety_audit_failed"
+    assert "packet_missing_post_run_acceptance_requirements" in issue_ids
+
+
+def test_remote_packet_safety_audit_catches_post_run_requirement_drift(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
+    packet = _packet_payload()
+    requirements = {item["requirement_id"]: item for item in packet["post_run_acceptance_requirements"]}
+    requirements["checkpoint_hash_manifest_recorded"]["status"] = "satisfied"
+    requirements["checkpoint_hash_manifest_recorded"]["complete"] = True
+    requirements["gate3_formal_audit_accepts_remote_run"]["execution_allowed_now"] = True
+
+    manifest = auditor.build_manifest(
+        auditor.RemotePacketSafetyAuditConfig(
+            output_dir=tmp_path,
+            remote_packet_path=_json(tmp_path, "packet.json", packet),
+            decision_gate_audit_path=_json(tmp_path, "decision_gate.json", _decision_gate_payload()),
+            post_plan_audit_path=_json(tmp_path, "plan_audit.json", _plan_audit_payload()),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "remote_packet_safety_audit_failed"
+    assert "checkpoint_hash_manifest_recorded_satisfied_before_local_audit" in issue_ids
+    assert "gate3_formal_audit_accepts_remote_run_execution_allowed_now" in issue_ids
 
 
 def test_remote_packet_safety_audit_requires_post_plan_status_report_summary(tmp_path):
@@ -430,6 +474,8 @@ def _packet_payload():
             ],
             "pullback_command": f"rsync -az 'gpu3070ti-relay:~/ForestNav/{trial}/' /local/ForestNav/{trial}/",
         },
+        "post_run_acceptance_requirements": _post_run_acceptance_requirements_payload(),
+        "post_run_acceptance_requirement_counts": {"blocked_until_remote_audit": 4},
         "downstream_after_successful_audit": {
             "h01_manifest_must_be_regenerated": True,
             "h02_full_smoke_must_be_regenerated": True,
@@ -493,6 +539,59 @@ def _remote_preflight_requirements_payload():
             "blocked_by": ["requires_dr_sun_approval"],
             "acceptable_evidence": ["run_remote_preflight command is an ssh gpu3070ti-relay command"],
             "invalid_substitutes": ["bare local python preflight command"],
+        },
+    ]
+
+
+def _post_run_acceptance_requirements_payload():
+    return [
+        {
+            "requirement_id": "pullback_expected_artifacts_complete",
+            "phase": "pullback",
+            "status": "blocked_until_remote_audit",
+            "complete": False,
+            "remote_training_ready_now": False,
+            "execution_allowed_now": False,
+            "required_before": "local_gate3_formal_audit_review",
+            "missing_artifact_ids": [],
+            "acceptable_evidence": ["all seven expected Gate3 artifacts pulled back locally"],
+            "invalid_substitutes": ["remote stdout saying files exist"],
+        },
+        {
+            "requirement_id": "checkpoint_hash_manifest_recorded",
+            "phase": "pullback",
+            "status": "blocked_until_remote_audit",
+            "complete": False,
+            "remote_training_ready_now": False,
+            "execution_allowed_now": False,
+            "required_before": "h01_h02_regeneration",
+            "missing_artifact_ids": [],
+            "acceptable_evidence": ["SHA-256 record for train/final_model.zip"],
+            "invalid_substitutes": ["checkpoint file without hash"],
+        },
+        {
+            "requirement_id": "gate3_formal_audit_accepts_remote_run",
+            "phase": "acceptance",
+            "status": "blocked_until_remote_audit",
+            "complete": False,
+            "remote_training_ready_now": False,
+            "execution_allowed_now": False,
+            "required_before": "formal_claim_gate",
+            "missing_artifact_ids": ["gate3_formal_audit_formal_decision_pass"],
+            "acceptable_evidence": ["gate3_formal_audit.json with formal_decision=pass"],
+            "invalid_substitutes": ["training completion without audit"],
+        },
+        {
+            "requirement_id": "h01_h02_regenerated_from_audited_checkpoint",
+            "phase": "evaluation_acceptance",
+            "status": "blocked_until_remote_audit",
+            "complete": False,
+            "remote_training_ready_now": False,
+            "execution_allowed_now": False,
+            "required_before": "paper_result_gate",
+            "missing_artifact_ids": [],
+            "acceptable_evidence": ["H01 and H02 regenerated from the audited checkpoint"],
+            "invalid_substitutes": ["paper table preview generated before H02 acceptance"],
         },
     ]
 
