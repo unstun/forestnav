@@ -96,6 +96,13 @@ def build_manifest(config: H02FormalAcceptanceConfig) -> dict[str, Any]:
         remote_packet=remote_packet,
     )
     accepted = not blockers
+    formal_requirements = _formal_acceptance_requirements(
+        schema_checks=schema_checks,
+        formal_checks=formal_checks,
+        method_checks=method_checks,
+        pullback_checks=pullback_checks,
+        accepted=accepted,
+    )
     return {
         "schema_version": 1,
         "artifact_name": "module2_h02_formal_acceptance",
@@ -121,6 +128,8 @@ def build_manifest(config: H02FormalAcceptanceConfig) -> dict[str, Any]:
         "formal_checks": formal_checks,
         "method_checks": method_checks,
         "pullback_checks": pullback_checks,
+        "formal_acceptance_requirements": formal_requirements,
+        "formal_acceptance_requirement_counts": _requirement_counts(formal_requirements),
         "claim_boundaries": [
             "This audit accepts or rejects H02 formal output inputs; it is not itself a paper result table.",
             "Candidate/smoke H02 outputs must remain blocked even if their CSV schema is valid.",
@@ -304,6 +313,181 @@ def _blockers(
     if h01_manifest.get("status") == "blocked_pending_decisions" and remote_packet.get("status") == "blocked_until_f02_6_decision":
         _append_unique(blockers, "f02_6_formal_chain_pending")
     return _unique(blockers)
+
+
+def _formal_acceptance_requirements(
+    *,
+    schema_checks: dict[str, Any],
+    formal_checks: dict[str, Any],
+    method_checks: dict[str, Any],
+    pullback_checks: dict[str, Any],
+    accepted: bool,
+) -> list[dict[str, Any]]:
+    schema_missing = _schema_missing_artifacts(schema_checks)
+    scope_missing = _scope_missing_artifacts(formal_checks)
+    audit_missing = _audit_pullback_missing_artifacts(formal_checks, pullback_checks)
+    ppo_missing = _ppo_missing_artifacts(method_checks)
+    return [
+        _requirement(
+            requirement_id="h01_schema_and_h02_output_schema_match",
+            phase="schema_acceptance",
+            complete=not schema_missing,
+            paper_result_input_allowed_now=accepted,
+            required_before="h02_formal_output_acceptance",
+            missing_artifact_ids=schema_missing,
+            acceptable_evidence=[
+                "H01 required_output_schema has schema_status=frozen_for_module2_v1",
+                "records.csv contains all H01 required columns",
+                "summary_by_method_bucket.csv and summary.json contain all H01 required fields",
+            ],
+            invalid_substitutes=[
+                "CSV files with extra columns but missing required telemetry",
+                "paper table preview generated before H02 acceptance",
+                "summary JSON missing paired tests or bootstrap CI sections",
+            ],
+        ),
+        _requirement(
+            requirement_id="h02_formal_scope_and_scale_match_h01",
+            phase="formal_scope",
+            complete=not scope_missing,
+            paper_result_input_allowed_now=accepted,
+            required_before="paper_table_generation",
+            missing_artifact_ids=scope_missing,
+            acceptable_evidence=[
+                "verdict.json has formal_acceptance=true",
+                "H01 manifest status is ready for formal run/evaluation",
+                "run_config scale satisfies H01 queries_per_bucket, seed_count, and queries_per_map",
+            ],
+            invalid_substitutes=[
+                "candidate_or_smoke verdict",
+                "available-subset smoke scale",
+                "blocked H01 manifest with pending F02.6 or missing checkpoint blockers",
+            ],
+        ),
+        _requirement(
+            requirement_id="gate3_audit_and_pullback_acceptance",
+            phase="remote_acceptance",
+            complete=not audit_missing,
+            paper_result_input_allowed_now=accepted,
+            required_before="h02_formal_output_acceptance",
+            missing_artifact_ids=audit_missing,
+            acceptable_evidence=[
+                "gate3_formal_audit.json exists locally and records formal_decision=pass",
+                "remote packet pullback artifacts are all present locally",
+                "formal audit and pullback correspond to approved_obstacle_summary warm-start run",
+            ],
+            invalid_substitutes=[
+                "remote stdout without local pullback",
+                "not_formal, candidate, smoke, preview, or no-warm Gate3 audit",
+                "partial pullback without train/eval/audit artifacts",
+            ],
+        ),
+        _requirement(
+            requirement_id="ppo_rows_and_checkpoint_hash_present",
+            phase="result_rows",
+            complete=not ppo_missing,
+            paper_result_input_allowed_now=accepted,
+            required_before="paper_result_gate",
+            missing_artifact_ids=ppo_missing,
+            acceptable_evidence=[
+                "records.csv includes ha_rl_rs_ppo or ppo_analytic_operator rows",
+                "PPO rows include non-empty rl_rs_checkpoint_sha256",
+                "checkpoint hash matches the pulled-back formal checkpoint used by H01/H02",
+            ],
+            invalid_substitutes=[
+                "BC analytic rows used as PPO result rows",
+                "PPO rows with empty checkpoint hash",
+                "checkpoint hash from a smoke or no-warm run",
+            ],
+        ),
+    ]
+
+
+def _requirement(
+    *,
+    requirement_id: str,
+    phase: str,
+    complete: bool,
+    paper_result_input_allowed_now: bool,
+    required_before: str,
+    missing_artifact_ids: Sequence[str],
+    acceptable_evidence: Sequence[str],
+    invalid_substitutes: Sequence[str],
+) -> dict[str, Any]:
+    return {
+        "requirement_id": requirement_id,
+        "phase": phase,
+        "status": "satisfied" if complete else "blocked_formal_acceptance",
+        "complete": complete,
+        "paper_result_input_allowed_now": paper_result_input_allowed_now and complete,
+        "required_before": required_before,
+        "missing_artifact_ids": list(missing_artifact_ids),
+        "acceptable_evidence": list(acceptable_evidence),
+        "invalid_substitutes": list(invalid_substitutes),
+    }
+
+
+def _schema_missing_artifacts(schema_checks: dict[str, Any]) -> list[str]:
+    missing: list[str] = []
+    if schema_checks.get("h01_schema_status") != "frozen_for_module2_v1":
+        missing.append("h01_required_output_schema_frozen")
+    records = schema_checks.get("records_csv") if isinstance(schema_checks.get("records_csv"), dict) else {}
+    if not records.get("exists") or int(records.get("row_count") or 0) == 0:
+        missing.append("records_csv_rows")
+    missing.extend(f"records_csv_column_{column}" for column in records.get("missing_columns", ()) if column)
+    summary_csv = schema_checks.get("summary_by_method_bucket_csv") if isinstance(schema_checks.get("summary_by_method_bucket_csv"), dict) else {}
+    if not summary_csv.get("exists") or int(summary_csv.get("row_count") or 0) == 0:
+        missing.append("summary_by_method_bucket_rows")
+    missing.extend(f"summary_by_method_bucket_column_{column}" for column in summary_csv.get("missing_columns", ()) if column)
+    summary_json = schema_checks.get("summary_json") if isinstance(schema_checks.get("summary_json"), dict) else {}
+    if not summary_json.get("exists"):
+        missing.append("summary_json")
+    missing.extend(f"summary_json_section_{section}" for section in summary_json.get("missing_sections", ()) if section)
+    return _unique(missing)
+
+
+def _scope_missing_artifacts(formal_checks: dict[str, Any]) -> list[str]:
+    missing: list[str] = []
+    if formal_checks.get("h02_verdict_formal_acceptance") is not True:
+        missing.append("h02_verdict_formal_acceptance_true")
+    if formal_checks.get("h01_manifest_ready") is not True:
+        missing.append("h01_manifest_ready")
+    missing.extend(f"h01_blocker_{blocker}" for blocker in formal_checks.get("h01_blockers", ()) if blocker)
+    if formal_checks.get("remote_execution_packet_ready") is not True:
+        missing.append("remote_execution_packet_ready")
+    missing.extend(f"remote_packet_blocker_{blocker}" for blocker in formal_checks.get("remote_packet_blockers", ()) if blocker)
+    if formal_checks.get("scale_satisfies_h01") is not True:
+        missing.append("h02_scale_satisfies_h01")
+    return _unique(missing)
+
+
+def _audit_pullback_missing_artifacts(formal_checks: dict[str, Any], pullback_checks: dict[str, Any]) -> list[str]:
+    missing: list[str] = []
+    if formal_checks.get("gate3_audit_exists") is not True:
+        missing.append("gate3_formal_audit_json")
+    elif formal_checks.get("gate3_formal_audit_passed") is not True:
+        missing.append("gate3_formal_audit_pass")
+    if pullback_checks.get("required_before_local_claim") is True and pullback_checks.get("remote_pullback_artifacts_present") is not True:
+        missing.append("remote_pullback_artifacts")
+    missing.extend(f"pullback_missing_{index}" for index, _ in enumerate(pullback_checks.get("missing_artifacts", ()), start=1))
+    return _unique(missing)
+
+
+def _ppo_missing_artifacts(method_checks: dict[str, Any]) -> list[str]:
+    missing: list[str] = []
+    if method_checks.get("has_ppo_result_rows") is not True:
+        missing.append("ppo_result_rows")
+    elif method_checks.get("ppo_rows_have_checkpoint_hash") is not True:
+        missing.append("ppo_checkpoint_hash")
+    return missing
+
+
+def _requirement_counts(requirements: Sequence[dict[str, Any]]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for requirement in requirements:
+        status = str(requirement.get("status") or "unknown")
+        counts[status] = counts.get(status, 0) + 1
+    return counts
 
 
 def _scale_item(run_config: dict[str, Any], h01_scale: dict[str, Any], key: str) -> dict[str, Any]:
