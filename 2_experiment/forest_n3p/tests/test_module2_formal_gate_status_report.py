@@ -237,6 +237,8 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     assert manifest["remaining_deliverables_acceptance_summary"]["missing_row_count"] == 0
     assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 0
     assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 0
+    assert manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 0
+    assert manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]["open_category_count"] == 0
     assert all(
         category["missing_artifact_matrix_ids"] == []
         for category in manifest["remaining_deliverables_gap_summary"]["categories"].values()
