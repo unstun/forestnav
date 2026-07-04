@@ -453,6 +453,50 @@ def test_claim_safety_rejects_status_report_without_remote_gate_summaries(tmp_pa
     assert "status_report_remote_training_step_not_marked_training" in blockers
 
 
+def test_claim_safety_rejects_status_report_without_clean_decision_intake_summary(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_claim_safety")
+    paper_tables = tmp_path / "paper_tables.json"
+    paper_tables.write_text(json.dumps({"status": "formal_ready", "formal_claim_allowed": True, "blockers": []}), encoding="utf-8")
+    h02_formal_acceptance = tmp_path / "h02_formal_acceptance.json"
+    h02_formal_acceptance.write_text(json.dumps({"status": "formal_output_accepted", "formal_output_accepted": True, "paper_result_input_allowed": True, "blockers": []}), encoding="utf-8")
+    h01_manifest = tmp_path / "h01.json"
+    h01_manifest.write_text(json.dumps({"status": "ready_for_formal_evaluation", "blockers": []}), encoding="utf-8")
+    f02_6_packet = tmp_path / "f02_6.json"
+    f02_6_packet.write_text(json.dumps({"status": "approved", "blockers": []}), encoding="utf-8")
+    gate3_audit = tmp_path / "gate3_audit.json"
+    gate3_audit.write_text(json.dumps({"formal_decision": "pass", "formal_claim_allowed": True}), encoding="utf-8")
+    method_algorithms = tmp_path / "method_algorithms.json"
+    method_algorithms.write_text(json.dumps({"status": "code_anchored"}), encoding="utf-8")
+    system_diagram = tmp_path / "system_diagram.json"
+    system_diagram.write_text(json.dumps({"status": "code_anchored_drawio"}), encoding="utf-8")
+    closure_checklist = tmp_path / "closure_checklist.json"
+    closure_checklist.write_text(json.dumps(_closure_checklist_payload(open_checklist=False)), encoding="utf-8")
+    status_payload = _status_report_payload(ready=True)
+    status_payload["f02_6_decision_intake_summary"]["status"] = "f02_6_decision_intake_failed"
+    status_payload["f02_6_decision_intake_summary"]["audit_issue_count"] = 1
+    status_payload["f02_6_decision_intake_summary"]["record_decider"] = "Assistant"
+    status_report = tmp_path / "status_report.json"
+    status_report.write_text(json.dumps(status_payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        repo_root=builder._repo_root(),
+        paper_tables_path=paper_tables,
+        h02_formal_acceptance_path=h02_formal_acceptance,
+        h01_manifest_path=h01_manifest,
+        f02_6_packet_path=f02_6_packet,
+        gate3_audit_path=gate3_audit,
+        method_algorithms_path=method_algorithms,
+        system_diagram_path=system_diagram,
+        closure_checklist_path=closure_checklist,
+        status_report_path=status_report,
+    )
+
+    blockers = set(manifest["formal_performance_blockers"])
+    assert "status_report_f02_6_decision_intake_not_clean" in blockers
+    assert "status_report_f02_6_decision_intake_audit_issues_open" in blockers
+    assert "status_report_closed_f02_6_intake_decider_not_dr_sun" in blockers
+
+
 def test_claim_safety_rejects_status_report_without_handoff_summary(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_claim_safety")
     paper_tables = tmp_path / "paper_tables.json"
