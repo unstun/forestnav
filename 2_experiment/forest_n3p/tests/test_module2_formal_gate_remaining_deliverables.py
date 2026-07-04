@@ -43,6 +43,17 @@ def test_remaining_deliverables_blocks_pending_formal_gate(tmp_path):
     assert "checkpoint file without hash record" in groups["acceptance"]["invalid_substitutes"]
     assert groups["formal_acceptance"]["responsible_stage_id"] == "regenerate_h01_h02_formal_artifacts"
     assert "blocked H02 acceptance audit" in groups["formal_acceptance"]["invalid_substitutes"]
+    matrix = {row["artifact_id"]: row for row in manifest["deliverable_acceptance_matrix"]}
+    assert len(matrix) == 10
+    assert matrix["train_final_model_zip"]["matrix_id"] == "training:train_final_model_zip"
+    assert matrix["train_final_model_zip"]["execution_boundary"] == "read_only_no_execution"
+    assert matrix["train_final_model_zip"]["responsible_stage_id"] == "gate3_remote_training"
+    assert matrix["train_final_model_zip"]["responsible_stage_allowed_now"] is False
+    assert "remote_packet_not_ready" in matrix["train_final_model_zip"]["responsible_stage_blocked_by"]
+    assert any("gpu3070ti-relay" in item for item in matrix["train_final_model_zip"]["acceptance_predicates"])
+    assert "local training output" in matrix["train_final_model_zip"]["invalid_substitutes"]
+    assert matrix["h02_formal_output_acceptance"]["category"] == "formal_acceptance"
+    assert any("formal_output_accepted=true" in item for item in matrix["h02_formal_output_acceptance"]["acceptance_predicates"])
     assert manifest["audit_issue_count"] == 0
 
 
@@ -56,6 +67,7 @@ def test_remaining_deliverables_accepts_synthetic_complete_gate(tmp_path):
     assert manifest["open_category_count"] == 0
     assert manifest["audit_issue_count"] == 0
     assert all(group["status"] == "complete" for group in manifest["deliverable_groups"])
+    assert all(row["missing"] is False for row in manifest["deliverable_acceptance_matrix"])
     assert manifest["permissions_now"]["remote_training_allowed_now"] is True
     assert manifest["permissions_now"]["formal_claim_allowed_now"] is True
 
@@ -126,6 +138,10 @@ def test_remaining_deliverables_cli_writes_json_and_markdown(tmp_path):
     assert "eval_gate3_eval_episodes_csv" in markdown
     assert "gate3_formal_audit_json" in markdown
     assert "h02_formal_output_acceptance" in markdown
+    assert "Deliverable Acceptance Matrix" in markdown
+    assert "training:train_final_model_zip" in markdown
+    assert "acceptance_predicates" in markdown
+    assert "gpu3070ti-relay formal run" in markdown
     assert "invalid_substitutes" in markdown
 
 
