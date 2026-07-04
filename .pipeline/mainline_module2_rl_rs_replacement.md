@@ -482,7 +482,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 后续论文可做消融, 不允许写死。
   - 已完成: 新增 `RewardTermSwitches` 和 `RewardConfig.enabled_terms`; success/terminal/collision/progress/rs_progress/clearance/curvature/path_length/step 每项均可显式启停。
   - info metadata: `step.info["reward_ablation"]` 记录每项开关状态, 不再只靠权重为 0 推断消融配置。
-  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `20 passed in 0.50s`。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `20 passed in 0.45s`。
   - 记录: `.pipeline/experiments/20260703_module2_e02_reward_ablation_hooks.md`。
 
 #### E03. 环境测试
