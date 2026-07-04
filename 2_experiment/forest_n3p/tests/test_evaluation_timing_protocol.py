@@ -6,6 +6,7 @@ import pytest
 
 from forest_n3p.evaluation import (
     EvaluationRecord,
+    bootstrap_timeout_failure_rate_difference,
     evaluate_run,
     paired_wilcoxon_expansions,
     planner_run_from_path_stats,
@@ -251,6 +252,33 @@ def test_paired_wilcoxon_expansions_uses_paired_query_total_expansions():
     assert result.method_b == "ha_dang_multi_rs"
     assert result.paired_query_count == 2
     assert result.median_delta_a_minus_b_expansions == pytest.approx(-45.0)
+
+
+def test_bootstrap_timeout_failure_rate_difference_uses_paired_timeout_indicators(tmp_path):
+    rows = [
+        _record("q0", method="ha_rl_rs_ppo", success=False, feasible=False, failure_reason="timeout", total_expansions=10),
+        _record("q0", method="ha_dang_multi_rs", success=True, feasible=True, failure_reason=None, total_expansions=20),
+        _record("q1", method="ha_rl_rs_ppo", success=True, feasible=True, failure_reason=None, total_expansions=10),
+        _record("q1", method="ha_dang_multi_rs", success=False, feasible=False, failure_reason="planner_timeout", total_expansions=20),
+        _record("q2", method="ha_rl_rs_ppo", success=False, feasible=False, failure_reason="timeout:max_nodes", total_expansions=10),
+        _record("q2", method="ha_dang_multi_rs", success=True, feasible=True, failure_reason=None, total_expansions=20),
+    ]
+
+    result = bootstrap_timeout_failure_rate_difference(rows, "ha_rl_rs_ppo", "ha_dang_multi_rs")
+
+    assert result.metric_id == "timeout_failure_rate"
+    assert result.method_a == "ha_rl_rs_ppo"
+    assert result.method_b == "ha_dang_multi_rs"
+    assert result.paired_query_count == 3
+    assert result.observed_rate_diff_a_minus_b == pytest.approx(1.0 / 3.0)
+    assert result.ci_low is not None
+    assert result.ci_high is not None
+
+    paths = write_evaluation_outputs(rows, tmp_path, timeout_failure_rate_cis=(result,))
+    payload = json.loads(paths["summary_json"].read_text(encoding="utf-8"))
+
+    assert payload["timeout_failure_rate_bootstrap_ci"][0]["metric_id"] == "timeout_failure_rate"
+    assert payload["timeout_failure_rate_bootstrap_ci"][0]["observed_rate_diff_a_minus_b"] == pytest.approx(1.0 / 3.0)
 
 
 def _record(
