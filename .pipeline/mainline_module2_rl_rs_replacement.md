@@ -553,10 +553,15 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 当前边界: F02.2 已形成正式 BC baseline 证据, 但最大实现还应补 patch+scalar CNN warm-start。
   - 记录: `.pipeline/experiments/20260703_module2_f02_formal_scalar_bc.md`。
   - 记录: `.pipeline/experiments/20260703_module2_f02_obstacle_summary_bc.md`。
-- [ ] F02.3 patch+scalar CNN BC warm-start。
+- [>] F02.3 patch+scalar CNN BC warm-start。
   - 目的: 直接使用 `(2,64,64)` occupancy/EDT patch + scalar obs, 形成 PPO 前更强的 imitation initialization。
   - metric: 0.1m rollout terminal-RS-success, collision, truncation; action MSE 只作辅助。
   - 判定: 若 CNN-BC 明显强于 obstacle-summary, 用作 PPO warm start; 若仍弱, 记录 BC ceiling 并进入 PPO/curriculum。
+  - 已完成子项: 新增 `train_bc_patch_policy.py` 和 CNN forward 单测; preview smoke 与 stronger preview 均可复跑。
+  - preview 结果: small CNN 0/5 success, stronger CNN 1/5 success, 均弱于 obstacle-summary preview 4/5。
+  - 当前边界: patch CNN 脚本已跑通, 但 formal baseline 未完成, 不可用于 PPO warm start。
+  - 下一步: formal-v1 bounded pilot 或修正 CNN 训练协议。
+  - 记录: `.pipeline/experiments/20260703_module2_f02_patch_cnn_preview.md`。
 
 #### F03. PPO 最大实现
 
