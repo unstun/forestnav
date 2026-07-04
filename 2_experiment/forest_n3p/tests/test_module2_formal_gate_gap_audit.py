@@ -879,6 +879,89 @@ def _status_report(tmp_path, *, ready, invalid=False, deliverables_complete=True
     return path
 
 
+def _remaining_deliverables(tmp_path, *, complete, invalid=False, summary_invalid=False):
+    path = tmp_path / f"remaining_deliverables_{complete}_{invalid}_{summary_invalid}.json"
+    summary = _gap_summary(open_gaps=not complete)
+    if summary_invalid:
+        summary = {**summary, "execution_boundary": "ran_training", "not_paper_result_material": False}
+    path.write_text(
+        json.dumps(
+            {
+                "status": "formal_gate_deliverables_ready" if complete else "formal_gate_deliverables_blocked",
+                "not_paper_result_material": not invalid,
+                "executes_commands": bool(invalid),
+                "runs_training": bool(invalid),
+                "runs_remote_preflight": bool(invalid),
+                "local_training_allowed": bool(invalid),
+                "formal_claim_allowed": bool(invalid),
+                "deliverable_gap_summary": summary,
+            }
+        ),
+        encoding="utf-8",
+    )
+    return path
+
+
+def _gap_summary(*, open_gaps):
+    if open_gaps:
+        categories = {
+            "training": _gap_category(
+                missing_count=3,
+                responsible_stage_id="gate3_remote_training",
+                matrix_ids=[
+                    "training:train_final_model_zip",
+                    "training:train_summary_json",
+                    "training:train_training_manifest_json",
+                ],
+            ),
+            "evaluation": _gap_category(
+                missing_count=2,
+                responsible_stage_id="gate3_remote_audit_pullback",
+                matrix_ids=[
+                    "evaluation:eval_gate3_eval_episodes_csv",
+                    "evaluation:eval_gate3_summary_json",
+                ],
+            ),
+            "acceptance": _gap_category(
+                missing_count=3,
+                responsible_stage_id="gate3_remote_audit_pullback",
+                matrix_ids=[
+                    "acceptance:gate3_trial_manifest_json",
+                    "acceptance:gate3_formal_audit_json",
+                    "acceptance:pulled_back_checkpoint_hash_record",
+                ],
+            ),
+            "formal_acceptance": _gap_category(
+                missing_count=2,
+                responsible_stage_id="regenerate_h01_h02_formal_artifacts",
+                matrix_ids=[
+                    "formal_acceptance:h01_ready_for_formal_run",
+                    "formal_acceptance:h02_formal_output_acceptance",
+                ],
+            ),
+        }
+    else:
+        categories = {}
+    return {
+        "summary_id": "module2_formal_gate_missing_training_eval_acceptance_summary",
+        "execution_boundary": "read_only_no_execution",
+        "not_paper_result_material": True,
+        "total_missing_deliverables": 10 if open_gaps else 0,
+        "open_category_count": 4 if open_gaps else 0,
+        "category_order": ["training", "evaluation", "acceptance", "formal_acceptance"] if open_gaps else [],
+        "categories": categories,
+    }
+
+
+def _gap_category(*, missing_count, responsible_stage_id, matrix_ids):
+    return {
+        "missing_count": missing_count,
+        "responsible_stage_id": responsible_stage_id,
+        "responsible_stage_allowed_now": False,
+        "missing_artifact_matrix_ids": matrix_ids,
+    }
+
+
 def _handoff_bundle(tmp_path, *, ready, pending, mismatch=False):
     path = tmp_path / f"handoff_{ready}_{pending}_{mismatch}.json"
     steps = _remote_steps(ready=ready)
