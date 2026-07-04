@@ -267,12 +267,25 @@ def build_manifest(
             "status_report_h02_formal_acceptance_requirement_blocked_count": status_report_h02_acceptance_requirement_summary[
                 "blocked_requirement_count"
             ],
+            "status_report_remaining_deliverables_acceptance_present": status_report_remaining_deliverables_acceptance_summary[
+                "present"
+            ],
+            "status_report_remaining_deliverables_acceptance_matrix_row_count": status_report_remaining_deliverables_acceptance_summary[
+                "matrix_row_count"
+            ],
+            "status_report_remaining_deliverables_acceptance_missing_row_count": status_report_remaining_deliverables_acceptance_summary[
+                "missing_row_count"
+            ],
+            "status_report_remaining_deliverables_acceptance_blocked_category_count": status_report_remaining_deliverables_acceptance_summary[
+                "blocked_category_count"
+            ],
         },
         "status_report_handoff_summary": status_report_handoff_summary,
         "status_report_missing_artifacts_handoff_summary": status_report_missing_artifacts_handoff_summary,
         "status_report_requirement_stage_summary": status_report_requirement_stage_summary,
         "status_report_remote_requirement_summary": status_report_remote_requirement_summary,
         "status_report_h02_acceptance_requirement_summary": status_report_h02_acceptance_requirement_summary,
+        "status_report_remaining_deliverables_acceptance_summary": status_report_remaining_deliverables_acceptance_summary,
         "status_report_decision_intake_summary": status_report_decision_intake_summary,
         "status_report_remote_gate_summary": status_report_remote_gate_summary,
         "allowed_claims": allowed,
