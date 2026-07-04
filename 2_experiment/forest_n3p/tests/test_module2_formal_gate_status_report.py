@@ -804,6 +804,11 @@ def _config(tmp_path, *, complete, drift=False):
             "remaining_deliverables.json",
             _remaining_deliverables(complete=complete),
         ),
+        formal_gate_proof_audit_path=_json(
+            tmp_path,
+            "formal_gate_proof_audit.json",
+            _formal_gate_proof_audit(complete=complete),
+        ),
     )
 
 
