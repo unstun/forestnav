@@ -177,6 +177,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     remaining_deliverables_gap_summary = _remaining_deliverables_gap_summary(remaining_deliverables)
     remaining_deliverables_proof_command_plan = _remaining_deliverables_proof_command_plan(remaining_deliverables)
     formal_gate_proof_audit_summary = _formal_gate_proof_audit_summary(formal_gate_proof_audit)
+    formal_gate_proof_audit_gap_summary = _formal_gate_proof_audit_gap_summary(formal_gate_proof_audit_summary)
     formal_gate_gap_audit_remaining_deliverables_gap_summary = (
         _formal_gate_gap_audit_remaining_deliverables_gap_summary(formal_gate)
     )
@@ -373,6 +374,12 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "formal_gate_proof_audit_blocked_count": formal_gate_proof_audit_summary[
                 "blocked_proof_command_count"
             ],
+            "formal_gate_proof_audit_missing_artifact_count": formal_gate_proof_audit_gap_summary[
+                "missing_artifact_count"
+            ],
+            "formal_gate_proof_audit_failed_acceptance_artifact_count": formal_gate_proof_audit_gap_summary[
+                "failed_acceptance_artifact_count"
+            ],
             "handoff_bundle_next_action": handoff_summary["next_handoff_action_id"],
             "handoff_bundle_safety_issue_count": handoff_summary["safety_issue_count"],
             "handoff_bundle_remote_training_allowed_now": handoff_summary["remote_training_allowed_now"],
@@ -422,6 +429,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "remaining_deliverables_gap_summary": remaining_deliverables_gap_summary,
         "remaining_deliverables_proof_command_plan": remaining_deliverables_proof_command_plan,
         "formal_gate_proof_audit_summary": formal_gate_proof_audit_summary,
+        "formal_gate_proof_audit_gap_summary": formal_gate_proof_audit_gap_summary,
         "formal_gate_gap_audit_remaining_deliverables_gap_summary": (
             formal_gate_gap_audit_remaining_deliverables_gap_summary
         ),
