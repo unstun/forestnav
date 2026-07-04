@@ -45,14 +45,22 @@ topic: module2 RL-RS paper claim audit
 
 - 来源: HOPE arXiv 2405.20579。
 - 锚点:
-  - arXiv HTML lines 357-360: 论文声称构造 normal/complex/extreme 场景, 对比 Hybrid A*、naive PPO、SAC, 并称 rule-based + learning-based 组合有泛化能力。
+  - arXiv HTML lines 39-41: 摘要说明 HOPE integrates RL agent with Reeds-Shepp curves, 并包含 action mask。
+  - lines 113-116: 总体框架是 agent 每步输出 action, action mask 后与环境交互。
+  - lines 145-172: hybrid policy 在 RL policy 和 RS policy 间选择, RS 只在接近目标且存在 collision-free RS curve 时激活。
+  - lines 173-200: action mask 估计给定 steering 下的最大 safe step velocity。
+  - lines 247-267: 表 II 对比 RS、Hybrid A*、PPO、SAC、HOPE(PPO/SAC), HOPE 成功率最高。
+  - lines 293-301: 单步成本拆成 network forward、action mask、RS curve calculation、simulator。
+  - lines 302-339: RS threshold、action mask、transformer、BEV、AE 消融。
+  - lines 340-353: 训练 difficulty 覆盖不足会导致 extreme 场景 success 下降。
   - GitHub README lines 237-238: 仓库称 planner integrates RL agent with Reeds-Shepp curves。
 - 对本项目的作用:
   - 证明 reviewer 可能会问 RL+RS/HOPE 差异。
-  - 可借鉴 RS-distance reward、action mask、curriculum。
+  - 可借鉴 RS-distance reward、action mask、difficulty curriculum、RS hybrid ablation 和成本拆分。
 - 不能外推:
   - HOPE 不是 HA* analytic expansion operator replacement。
   - HOPE 代码 GPL-3.0, 不能直接复制。
+  - HOPE 的 parking success rate 不能作为 ForestNav 森林地图或 Contract 指标证据。
 
 ## C002b: Adapting RL for Path Planning 是替换整个 HA* module, 不是替换内部 RS shot
 

@@ -10,22 +10,32 @@ topic: module2 RL-RS GitHub evidence
 ## jiamiya/HOPE
 
 - URL: https://github.com/jiamiya/HOPE
+- Pinned HEAD: `2accab93e8602bd7dac780078a012574cc2cb4d7`
 - License: GPL-3.0
 - 当前判断: 可借鉴, 不能直接复制核心代码。
 - 关键代码:
   - `src/train/train_HOPE_ppo.py#L100-L166`: PPO 训练入口, 创建 `CarParkingWrapper`, `PPO`, `RsPlanner`, `ParkingAgent`。
+  - `src/train/train_HOPE_ppo.py#L176-L208`: 训练 loop 每步调用 `parking_agent.choose_action`, env 返回 `path_to_dest` 后再 `set_planner_path()`。
+  - `src/train/train_HOPE_sac.py#L155-L166`, `#L191-L213`: SAC 训练使用同一 `RsPlanner`/`ParkingAgent` hybrid 框架。
   - `src/model/agent/parking_agent.py#L2-L47`: `RsPlanner` 将 RS path 的 ctypes/lengths 转为动作序列。
   - `src/model/agent/parking_agent.py#L49-L95`: `ParkingAgent` 在执行 RS 时返回 planner action, 否则调用 RL agent。
   - `src/env/vehicle.py#L69-L96`: kinematic single-track model step。
+  - `src/env/car_parking_base.py#L84-L87`: action space 是 `[steer, speed]`。
   - `src/env/car_parking_base.py#L186-L227`: reward 含 RS distance progress。
+  - `src/env/car_parking_base.py#L291-L299`: 接近目标且 RS path 存在时, `info['path_to_dest']` 被写入。
+  - `src/env/car_parking_base.py#L413-L450`: 枚举 RS paths, 按 path length priority 取 collision-free path。
+  - `src/model/action_mask.py#L8-L20`, `#L114-L184`, `#L199-L227`: action mask 预计算 safe step 并影响 action sampling。
+  - `src/evaluation/eval_mix_scene.py#L82-L115`, `src/evaluation/eval_utils.py#L31-L84`: evaluation 是 scenario-level agent rollout。
 - 与 ForestNav 相容点:
   - 连续 steering action。
   - RS 作为学习过程中的结构化辅助。
   - curriculum/difficulty scene 设计。
+  - action mask / safe-action prior 和 RS-distance shaping 可作为重新实现的思路。
 - 不相容点:
   - GPL-3.0 许可不适合直接并入。
   - 环境是 parking, 不是 HA* 内部 analytic expansion。
   - 它在 agent 执行层融合 RS, 不是 planner open-list 节点上的 operator。
+  - 评测输出是 success/reward/step/path length, 不包含 ForestNav Contract 所需 expansions、planner wall-clock、analytic telemetry。
 
 ## omron-sinicx/neural-astar
 

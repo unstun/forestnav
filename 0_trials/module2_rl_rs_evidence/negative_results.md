@@ -18,8 +18,10 @@ topic: module2 RL-RS negative results
 ## N002: HOPE 不是 HA* analytic expansion slot replacement
 
 - 外部代码依据:
-  - `ParkingAgent.choose_action()` 在 RS route 执行期取 `RsPlanner` 动作, 否则取 RL 动作。
-  - `CarParking` 环境是 parking gym env, 不是 HA* open-list 节点内部。
+  - `src/model/agent/parking_agent.py#L90-L95`: `ParkingAgent.choose_action()` 在 RS route 执行期取 `RsPlanner` 动作, 否则取 RL agent 动作。
+  - `src/train/train_HOPE_ppo.py#L192-L208`: train loop 先执行 `parking_agent.choose_action(obs)`, env step 后若 `info['path_to_dest']` 存在才把 RS path 注入 agent。
+  - `src/env/car_parking_base.py#L291-L299`: 接近目标且 `find_rs_path()` 成功时 env 写入 `path_to_dest`。
+  - `src/env/car_parking_base.py#L413-L450`: RS path 在 parking env 内枚举和碰撞验证。
 - 结论: HOPE 是强相关竞品和设计线索, 但不能作为 "本任务已有人直接做过" 的证据。
 
 ## N003: Neural A* 不是 local analytic connector

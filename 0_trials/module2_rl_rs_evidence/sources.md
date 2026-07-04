@@ -23,8 +23,8 @@ topic: module2 RL-RS evidence source index
 | ID | 等级 | 类型 | 来源 | 已核验锚点 | 当前用途 |
 |---|---|---|---|---|---|
 | S001 | A | paper | Dang et al. 2022, Improved Analytic Expansions in Hybrid A-Star Path Planning for Non-Holonomic Robots | MDPI HTML lines 334-337, 347, 360-371, 433-434 | 证明 RS analytic expansion 的问题与 Dang baseline |
-| S002 | A | paper | HOPE arXiv 2405.20579 | arXiv HTML lines 357-360 | 证明 RL+RS parking planner 是强相关竞品 |
-| S003 | A | code | jiamiya/HOPE | `src/model/agent/parking_agent.py#L2-L95`, `src/env/vehicle.py#L69-L96`, `src/env/car_parking_base.py#L186-L227` | 证明 HOPE 是 RL agent 与 RS planner 融合, 不是 HA* analytic slot replacement |
+| S002 | A | paper | HOPE arXiv 2405.20579 | arXiv HTML lines 39-41, 113-172, 173-200, 247-267, 293-339, 340-353 | 证明 RL+RS parking planner 是强相关竞品, 但方法层级是 hybrid policy |
+| S003 | A | code | jiamiya/HOPE@2accab93e8602bd7dac780078a012574cc2cb4d7 | `parking_agent.py#L2-L95`, `train_HOPE_ppo.py#L100-L208`, `car_parking_base.py#L84-L87`, `#L186-L299`, `#L413-L450`, `action_mask.py#L8-L227`, `eval_mix_scene.py#L82-L115`, `eval_utils.py#L31-L84` | 证明 HOPE 是 RL agent 与 RS planner 执行层融合, 不是 HA* analytic slot replacement |
 | S004 | A | code | omron-sinicx/neural-astar | `src/neural_astar/planner/astar.py#L105-L153`, `#L182-L213` | 证明 Neural A* 是 learned cost/search guidance |
 | S005 | A | code | AtsushiSakai/PythonRobotics ReedsSheppPath | `PathPlanning/ReedsSheppPath/reeds_shepp_path_planning.py#L22-L37` | RS path data structure reference |
 | S006 | A | code | karlkurzer/path_planner | `src/algorithm.cpp#L165-L223` | Hybrid A* shot/fallback control-flow reference |

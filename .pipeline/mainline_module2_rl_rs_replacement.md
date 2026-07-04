@@ -210,10 +210,15 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 文件: `sources.md`, `github_repos.md`, `paper_claims.md`, `negative_results.md`
   - 每条证据必须有 URL、行号/section、trust label。
   - 验证: 所有 URL 至少打开一次; 403/付费墙标为 blocked。
-- [ ] A01.2 深读 HOPE 论文和代码。
+- [x] A01.2 深读 HOPE 论文和代码。
   - 必读: arXiv method/algorithm/experiment, `parking_agent.py`, `car_parking_base.py`, `vehicle.py`, `model/action_mask.py`, `train_HOPE_ppo.py`, `eval_mix_scene.py`
   - 输出: HOPE 与 ForestNav 插槽差异表。
   - 失败条件: 只读 README 即停止。
+  - 已完成: 新增 `0_trials/module2_rl_rs_evidence/hope_deep_read.md`, 核验 HOPE 论文 method/experiment/ablation/cost 与 PPO/SAC train、ParkingAgent、CarParking env、Vehicle dynamics、ActionMask、eval code。
+  - 判定: HOPE 是 parking Gym agent execution loop 里的 RL+RS hybrid policy; RS route 来自 env `path_to_dest` 并被 `ParkingAgent` 逐步执行。它不是 HA* open-list node 上的 analytic expansion replacement。
+  - 可借鉴: action mask/safe-action prior、RS-distance reward、difficulty curriculum、RS hybrid ablation、成本拆分。
+  - 禁止: 直接复制 GPL-3.0 代码; 将 HOPE success rate 当 ForestNav 森林结果; 声称 HOPE 已做掉本项目 analytic slot。
+  - 记录: `.pipeline/experiments/20260704_module2_a01_2_hope_deep_read.md`。
 - [ ] A01.3 深读 Dang 2022 analytic expansion。
   - 必读: Section 2.1, Section 3, Eq.2-4, experiment table。
   - 输出: 本项目已有 Dang 多曲率实现与论文公式差异。
