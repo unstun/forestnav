@@ -1,0 +1,448 @@
+{
+  "schema_version": 1,
+  "artifact_name": "module2_manuscript_evidence_map",
+  "status": "module2_manuscript_evidence_mapped",
+  "created_at_utc": "2026-07-04T09:45:09.232643+00:00",
+  "source_head": "8a835f210cc22c66d780d88b14ce55a45b3f4e3b+dirty",
+  "local_training_allowed": false,
+  "remote_training_resource": "gpu3070ti-relay",
+  "inputs": {
+    "main_tex": "3_paper/main.tex",
+    "claim_audit": "3_paper/module2_claim_audit/module2_manuscript_claim_audit.json",
+    "section_seed": "3_paper/module2_section_seed/module2_paper_section_seed.json",
+    "paper_readiness": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
+    "claim_safety": "0_trials/module2_claim_safety/module2_claim_safety.json",
+    "method_algorithms": "0_trials/module2_method_algorithms/module2_method_algorithms.json",
+    "system_diagram": "0_trials/module2_system_diagram/module2_system_diagram.json",
+    "gate3_audit": "0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/gate3_formal_audit.json",
+    "f02_6_decision_record": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+    "remote_execution_packet": "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json"
+  },
+  "expanded_manuscript": {
+    "sha256": "8b6f31bbb3dcb815f3c9c3fb4519d415795ae13a6e630cb1a4bf67ad1d032877",
+    "expanded_input_files": [
+      "/Users/sun/tongbu/study/phdproject/ForestNav/3_paper/main.tex",
+      "/Users/sun/tongbu/study/phdproject/ForestNav/3_paper/module2_section_seed/module2_paper_section_seed.tex"
+    ],
+    "comment_stripped_char_count": 31499
+  },
+  "upstream_status": {
+    "claim_audit_status": "maintex_module2_claim_audit_passed",
+    "claim_audit_prohibited_status": "clean",
+    "paper_readiness_status": "partial_methods_ready_results_blocked",
+    "section_seed_status": "method_sections_ready_results_blocked",
+    "claim_safety_status": "blocked_formal_performance_claims",
+    "formal_performance_claim_allowed": false,
+    "allowed_claim_ids": [
+      "method_is_ha_star_analytic_operator",
+      "no_warm_gate3_formal_failure"
+    ],
+    "f02_6_decision_status": "pending_human_decision",
+    "remote_execution_packet_status": "blocked_until_f02_6_decision",
+    "remote_execution_ready": false
+  },
+  "claim_units": [
+    {
+      "unit_id": "method_is_ha_star_analytic_operator",
+      "paper_scope": "methods",
+      "claim_status": "allowed_method_structure",
+      "manuscript_cues": [
+        {
+          "cue": "learned analytic-expansion operator inside",
+          "present_in_comment_stripped_text": true,
+          "present_in_expanded_text": true
+        },
+        {
+          "cue": "not a standalone global planner",
+          "present_in_comment_stripped_text": true,
+          "present_in_expanded_text": true
+        },
+        {
+          "cue": "terminal RS",
+          "present_in_comment_stripped_text": true,
+          "present_in_expanded_text": true
+        }
+      ],
+      "evidence_state": "mapped",
+      "claim_text": "Module2 implements a learned analytic-expansion operator inside Hybrid A*, with terminal RS certification and primitive fallback.",
+      "required_qualifier": "Do not describe it as an end-to-end RL global planner.",
+      "evidence": [
+        {
+          "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
+          "artifact_name": "module2_claim_safety",
+          "status": "blocked_formal_performance_claims",
+          "allowed_claim_present": true
+        },
+        {
+          "path": "0_trials/module2_method_algorithms/module2_method_algorithms.json",
+          "artifact_name": "module2_method_algorithms",
+          "status": "code_anchored",
+          "status_required": "code_anchored"
+        },
+        {
+          "path": "0_trials/module2_system_diagram/module2_system_diagram.json",
+          "artifact_name": "module2_system_diagram",
+          "status": "code_anchored_drawio",
+          "status_required": "code_anchored_drawio"
+        },
+        {
+          "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
+          "artifact_name": null,
+          "status": "ready_to_write",
+          "section_id": "method_algorithm",
+          "blockers": []
+        },
+        {
+          "path": "3_paper/module2_section_seed/module2_paper_section_seed.json",
+          "artifact_name": null,
+          "status": "draft_ready",
+          "section_id": "methods_rl_rs_operator",
+          "blockers": []
+        }
+      ],
+      "code_anchors": [
+        {
+          "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+          "line": 129,
+          "symbol": "HybridAStarPlanner.__init__",
+          "pattern": "analytic_expansion_operator=None",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+          "line": 175,
+          "symbol": "HybridAStarPlanner.__init__",
+          "pattern": "self.analytic_expansion_operator = analytic_expansion_operator",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/main_evaluation.py",
+          "line": 70,
+          "symbol": "main_evaluation.RL_RS_OPERATOR_METHODS",
+          "pattern": "RL_RS_OPERATOR_METHODS = (",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+          "line": 296,
+          "symbol": "HybridAStarPlanner._try_analytic_expansion",
+          "pattern": "return self._try_custom_analytic_expansion(state, goal)",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+          "line": 301,
+          "symbol": "HybridAStarPlanner._try_custom_analytic_expansion",
+          "pattern": "result = self.analytic_expansion_operator.try_connect",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/checkpoint_operator.py",
+          "line": 55,
+          "symbol": "load_rl_rs_funnel_operator_from_checkpoint",
+          "pattern": "def load_rl_rs_funnel_operator_from_checkpoint",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/checkpoint_operator.py",
+          "line": 77,
+          "symbol": "load_rl_rs_funnel_operator_from_checkpoint",
+          "pattern": "sha256 = file_sha256(path)",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/checkpoint_operator.py",
+          "line": 85,
+          "symbol": "load_rl_rs_funnel_operator_from_checkpoint",
+          "pattern": "return RlRsFunnelOperator(",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+          "line": 81,
+          "symbol": "RlRsFunnelOperator.try_connect",
+          "pattern": "def try_connect(",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+          "line": 87,
+          "symbol": "RlRsFunnelOperator.try_connect",
+          "pattern": "env_context = self._env_context",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+          "line": 89,
+          "symbol": "RlRsFunnelOperator.try_connect",
+          "pattern": "observation = env.reset(env_context)",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/env.py",
+          "line": 156,
+          "symbol": "AnalyticExpansionEnv.reset",
+          "pattern": "def reset(",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+          "line": 97,
+          "symbol": "RlRsFunnelOperator.try_connect",
+          "pattern": "action = self.action_policy(observation)",
+          "source_artifact": "module2_method_algorithms"
+        },
+        {
+          "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+          "line": 99,
+          "symbol": "RlRsFunnelOperator.try_connect",
+          "pattern": "step = env.step(action, nn_forward_time_s=policy_elapsed)",
+          "source_artifact": "module2_method_algorithms"
+        }
+      ],
+      "mapping_blockers": []
+    },
+    {
+      "unit_id": "no_warm_gate3_formal_failure",
+      "paper_scope": "scoped_negative_training_dynamics_note",
+      "claim_status": "allowed_with_no_warm_scope_limit",
+      "manuscript_cues": [
+        {
+          "cue": "No-warm PPO Gate",
+          "present_in_comment_stripped_text": true,
+          "present_in_expanded_text": true
+        },
+        {
+          "cue": "0.453125",
+          "present_in_comment_stripped_text": true,
+          "present_in_expanded_text": true
+        },
+        {
+          "cue": "does not evaluate obstacle-summary warm-start",
+          "present_in_comment_stripped_text": true,
+          "present_in_expanded_text": true
+        },
+        {
+          "cue": "Formal performance claims remain blocked",
+          "present_in_comment_stripped_text": true,
+          "present_in_expanded_text": true
+        }
+      ],
+      "evidence_state": "mapped",
+      "claim_text": "No-warm PPO Gate #3 formal trial failed: terminal-RS success rate was 0.453125 over 64 episodes, below threshold 0.8.",
+      "required_qualifier": "This does not evaluate obstacle-summary warm-start PPO and does not reject the whole RL-RS direction.",
+      "evidence": [
+        {
+          "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
+          "artifact_name": "module2_claim_safety",
+          "status": "blocked_formal_performance_claims",
+          "allowed_claim_present": true
+        },
+        {
+          "path": "0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/gate3_formal_audit.json",
+          "artifact_name": null,
+          "status": "fail",
+          "formal_decision": "fail",
+          "terminal_rs_success_rate": 0.453125,
+          "episodes": 64,
+          "success_threshold": 0.8
+        },
+        {
+          "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
+          "artifact_name": null,
+          "status": "ready_with_scope_limit",
+          "section_id": "no_warm_failure_claim",
+          "blockers": []
+        },
+        {
+          "path": "3_paper/module2_section_seed/module2_paper_section_seed.json",
+          "artifact_name": null,
+          "status": "draft_ready_with_scope_limit",
+          "section_id": "no_warm_gate3_failure_note",
+          "blockers": []
+        }
+      ],
+      "metric_values": {
+        "terminal_rs_success_rate": 0.453125,
+        "episodes": 64,
+        "success_threshold": 0.8
+      },
+      "mapping_blockers": []
+    },
+    {
+      "unit_id": "formal_results_blocked",
+      "paper_scope": "results_placeholder",
+      "claim_status": "blocked_placeholder_not_a_result_claim",
+      "manuscript_cues": [
+        {
+          "cue": "Formal performance claims remain blocked",
+          "present_in_comment_stripped_text": true,
+          "present_in_expanded_text": true
+        },
+        {
+          "cue": "% BLOCKED: formal_results",
+          "present_in_comment_stripped_text": false,
+          "present_in_expanded_text": true
+        }
+      ],
+      "evidence_state": "blocked_as_expected",
+      "evidence": [
+        {
+          "path": "3_paper/module2_claim_audit/module2_manuscript_claim_audit.json",
+          "artifact_name": "module2_manuscript_claim_audit",
+          "status": "maintex_module2_claim_audit_passed",
+          "required_status": "maintex_module2_claim_audit_passed"
+        },
+        {
+          "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
+          "artifact_name": "module2_claim_safety",
+          "status": "blocked_formal_performance_claims",
+          "formal_performance_claim_allowed": false
+        },
+        {
+          "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
+          "artifact_name": null,
+          "status": "blocked",
+          "section_id": "formal_results",
+          "blockers": [
+            "paper_tables_not_formal",
+            "h02_verdict_not_formal",
+            "h02_formal_acceptance_not_accepted",
+            "h01_manifest_not_ready",
+            "f02_6_warm_start_decision_pending",
+            "missing_module2_rl_rs_checkpoint",
+            "remote_execution_packet_not_ready",
+            "requires_dr_sun_approval",
+            "missing_gate3_formal_audit",
+            "h02_scale_below_h01_manifest",
+            "missing_ppo_result_rows",
+            "missing_remote_pullback_artifacts",
+            "f02_6_formal_chain_pending",
+            "claim_safety_blocks_formal_performance",
+            "f02_6_pending"
+          ]
+        },
+        {
+          "path": "3_paper/module2_section_seed/module2_paper_section_seed.json",
+          "artifact_name": null,
+          "status": "blocked",
+          "section_id": "formal_results",
+          "blockers": [
+            "paper_tables_not_formal",
+            "h02_verdict_not_formal",
+            "h02_formal_acceptance_not_accepted",
+            "h01_manifest_not_ready",
+            "f02_6_warm_start_decision_pending",
+            "missing_module2_rl_rs_checkpoint",
+            "remote_execution_packet_not_ready",
+            "requires_dr_sun_approval",
+            "missing_gate3_formal_audit",
+            "h02_scale_below_h01_manifest",
+            "missing_ppo_result_rows",
+            "missing_remote_pullback_artifacts",
+            "f02_6_formal_chain_pending",
+            "claim_safety_blocks_formal_performance",
+            "f02_6_pending"
+          ]
+        }
+      ],
+      "paper_blockers": [
+        "paper_tables_not_formal",
+        "h02_verdict_not_formal",
+        "h02_formal_acceptance_not_accepted",
+        "h01_manifest_not_ready",
+        "f02_6_warm_start_decision_pending",
+        "missing_module2_rl_rs_checkpoint",
+        "remote_execution_packet_not_ready",
+        "requires_dr_sun_approval",
+        "missing_gate3_formal_audit",
+        "h02_scale_below_h01_manifest",
+        "missing_ppo_result_rows",
+        "missing_remote_pullback_artifacts",
+        "f02_6_formal_chain_pending",
+        "claim_safety_blocks_formal_performance",
+        "f02_6_pending"
+      ],
+      "mapping_blockers": []
+    },
+    {
+      "unit_id": "warm_start_effect_blocked",
+      "paper_scope": "warm_start_placeholder",
+      "claim_status": "blocked_placeholder_pending_f02_6",
+      "manuscript_cues": [
+        {
+          "cue": "% BLOCKED: warm_start_effect",
+          "present_in_comment_stripped_text": false,
+          "present_in_expanded_text": true
+        },
+        {
+          "cue": "does not evaluate obstacle-summary warm-start",
+          "present_in_comment_stripped_text": true,
+          "present_in_expanded_text": true
+        }
+      ],
+      "evidence_state": "blocked_as_expected",
+      "evidence": [
+        {
+          "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
+          "artifact_name": null,
+          "status": "blocked",
+          "section_id": "warm_start_effect",
+          "blockers": [
+            "f02_6_not_approved",
+            "requires_dr_sun_approval",
+            "f02_6_warm_start_decision_pending",
+            "missing_module2_rl_rs_checkpoint"
+          ]
+        },
+        {
+          "path": "3_paper/module2_section_seed/module2_paper_section_seed.json",
+          "artifact_name": null,
+          "status": "blocked",
+          "section_id": "warm_start_effect",
+          "blockers": [
+            "f02_6_not_approved",
+            "requires_dr_sun_approval",
+            "f02_6_warm_start_decision_pending",
+            "missing_module2_rl_rs_checkpoint"
+          ]
+        },
+        {
+          "path": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+          "artifact_name": "module2_f02_6_decision_record",
+          "status": "pending_human_decision",
+          "required_status": "pending_human_decision",
+          "blockers": [
+            "requires_dr_sun_approval"
+          ]
+        },
+        {
+          "path": "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json",
+          "artifact_name": "module2_remote_formal_execution_packet",
+          "status": "blocked_until_f02_6_decision",
+          "ready_to_run_remote_training": false,
+          "blockers": [
+            "requires_dr_sun_approval",
+            "f02_6_warm_start_decision_pending",
+            "missing_module2_rl_rs_checkpoint"
+          ]
+        }
+      ],
+      "paper_blockers": [
+        "f02_6_not_approved",
+        "requires_dr_sun_approval",
+        "f02_6_warm_start_decision_pending",
+        "missing_module2_rl_rs_checkpoint"
+      ],
+      "mapping_blockers": []
+    }
+  ],
+  "missing_evidence": [],
+  "blocking_reasons": [],
+  "writing_boundaries": [
+    "Use this artifact as a claim-to-evidence map, not as a formal result.",
+    "The method/system/no-warm units are mapped because their manuscript cues and upstream evidence are present.",
+    "Formal result and warm-start units are mapped only as blocked placeholders; they are not paper claims yet.",
+    "No local training is allowed; formal PPO checkpoint production remains gated on F02.6 and gpu3070ti-relay."
+  ]
+}
