@@ -29,6 +29,9 @@ from forest_n3p.third_party.pathplan import AckermannParams, AckermannState, Gri
 from forest_n3p.third_party.pathplan.geometry import EDTCollisionChecker, GridFootprintChecker
 from forest_n3p.third_party.pathplan.robot import sample_constant_steer_motion
 
+MapCacheKey = tuple[str, int]
+CheckerCacheKey = tuple[str, int, str]
+
 
 AGGREGATE_SCHEMA = pa.schema(
     [
@@ -142,8 +145,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     params = AckermannParams(wheelbase=float(args.wheelbase_m), min_turn_radius=float(args.turning_radius_m))
     source_rows = _selected_source_rows(args, cfg, footprint)
 
-    map_cache: dict[int, GridMap] = {}
-    checker_cache: dict[tuple[int, str], Any] = {}
+    map_cache: dict[MapCacheKey, GridMap] = {}
+    checker_cache: dict[CheckerCacheKey, Any] = {}
     aggregate_rows: list[dict[str, Any]] = []
     sample_rows: list[dict[str, Any]] = []
     skipped_colliding = 0
@@ -293,27 +296,32 @@ def _grid_for_row(
     row: dict[str, Any],
     cfg: MainEvaluationConfig,
     footprint: TwoCircleFootprint,
-    map_cache: dict[int, GridMap],
+    map_cache: dict[MapCacheKey, GridMap],
 ) -> GridMap:
+    cache_key = _map_cache_key(row)
     map_seed = int(row["map_seed"])
-    grid_map = map_cache.get(map_seed)
+    grid_map = map_cache.get(cache_key)
     if grid_map is not None:
         return grid_map
     profile = _profile_by_name(cfg.profiles, str(row["profile_name"]))
     grid_map = _generate_grid_map(profile, map_seed, cfg, footprint)
-    map_cache[map_seed] = grid_map
+    map_cache[cache_key] = grid_map
     return grid_map
+
+
+def _map_cache_key(row: dict[str, Any]) -> MapCacheKey:
+    return (str(row["profile_name"]), int(row["map_seed"]))
 
 
 def _checker_for_row(
     row: dict[str, Any],
     grid_map: GridMap,
     footprint: TwoCircleFootprint,
-    checker_cache: dict[tuple[int, str], Any],
+    checker_cache: dict[CheckerCacheKey, Any],
     checker_type: str,
     args: argparse.Namespace,
 ):
-    key = (int(row["map_seed"]), str(checker_type))
+    key = (*_map_cache_key(row), str(checker_type))
     cached = checker_cache.get(key)
     if cached is not None:
         return cached
