@@ -176,11 +176,14 @@ class AnalyticExpansionEnv:
             config=context.observation_config,
         )
 
-    def step(self, action: SteeringAction | float) -> AnalyticExpansionStep:
+    def step(self, action: SteeringAction | float, *, nn_forward_time_s: float = 0.0) -> AnalyticExpansionStep:
         if self._context is None or self._state is None or self._checker is None:
             raise RuntimeError("AnalyticExpansionEnv.reset() must be called before step().")
         if self._done:
             raise RuntimeError("AnalyticExpansionEnv episode is done; call reset() before step().")
+        forward_time = float(nn_forward_time_s)
+        if not (math.isfinite(forward_time) and forward_time >= 0.0):
+            raise ValueError("nn_forward_time_s must be finite and non-negative")
         context = self._context
         step_index = len(self._steps)
         previous_goal_distance = (
@@ -207,6 +210,7 @@ class AnalyticExpansionEnv:
         self._last_goal_distance_m = goal_distance
         budget_exhausted = (step_index + 1) >= int(context.max_steps)
         should_check_terminal = budget_exhausted or (step_index + 1) % int(context.terminal_check_every) == 0
+        terminal_checked = bool(should_check_terminal and not rollout.collided)
         terminal = (
             check_terminal_rs_connectable(
                 grid_map=context.grid_map,
@@ -220,7 +224,7 @@ class AnalyticExpansionEnv:
                 collision_padding_m=context.collision_padding_m,
                 checker=self._checker,
             )
-            if should_check_terminal and not rollout.collided
+            if terminal_checked
             else TerminalRsCheckResult(False, 0.0, None, 0, None)
         )
         goal_tolerance_reached = _goal_tolerance_reached(
@@ -296,6 +300,8 @@ class AnalyticExpansionEnv:
             collided=rollout.collided,
             terminal_rs_success=terminal.success,
             failure_reason=failure_reason,
+            nn_forward_time_s=forward_time,
+            terminal_rs_checked=terminal_checked,
         )
         self._steps.append(telemetry)
         self._done = bool(terminated or truncated)
