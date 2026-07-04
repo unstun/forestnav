@@ -710,7 +710,11 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 16. [x] E03.4 no progress/oscillation 测试。
 17. [x] F01.1 从 C02 oracle path 提取 state-action demonstrations。
 18. [x] F01.2 数据 manifest。
-19. [ ] F02.1 训练 BC policy。
+19. [x] F02.1 训练 BC policy。
+20. [!] F02.2 formal-v1 BC baseline 已被 map-cache audit 失效。
+21. [!] F02.3 formal-v1 patch-CNN pilot 已被 map-cache audit 失效。
+22. [x] F02.4 修复 profile-aware map cache 并重建 formal-v2 corpus。
+23. [>] F02.5 在 formal-v2 上重跑 BC baseline。
 
 ## 7. 完成记录
 
@@ -740,3 +744,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-03: 完成 E03.4 no-progress/oscillation tests。新增 oscillation guard 与 telemetry/reward 连接, 原先未实现的 `oscillation` failure label 已变成可测终止语义。记录见 `.pipeline/experiments/20260703_module2_e03_no_progress_oscillation.md`。
 - 2026-07-03: 完成 F01.1 oracle demonstration extraction pipeline。新增 C02 oracle replay extractor, 已产出 oracle A smoke、B-only smoke 和 20-row preview dataset; 尚未声明完整 BC corpus。记录见 `.pipeline/experiments/20260703_module2_f01_oracle_demonstration_extraction.md`。
 - 2026-07-03: 完成 F01.2 dataset manifest。`module2_rl_rs_bc/manifest.json` 记录 preview dataset 的 source hash、schema、filters、file hash 和边界; 尚未开始 BC/PPO 训练。记录见 `.pipeline/experiments/20260703_module2_f01_dataset_manifest.md`。
+- 2026-07-04: 完成 F02.4 profile-aware map cache 修复与 formal-v2 corpus 重建。formal-v1 在真实 profile 地图下有 4764 colliding demo rows, 因此 F02.2/F02.3 formal-v1 结果失效; formal-v2 产出 83809 demo rows / 1032 source rows, current/next collision audit 均为 0。记录见 `.pipeline/experiments/20260704_module2_f02_map_cache_formal_v2_rebuild.md`。
