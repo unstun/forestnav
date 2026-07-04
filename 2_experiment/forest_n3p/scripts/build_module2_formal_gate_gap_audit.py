@@ -316,11 +316,25 @@ def _ordered_next_steps(
     remote: dict[str, Any],
 ) -> list[dict[str, Any]]:
     steps: list[dict[str, Any]] = []
+    remote_preflight_gaps = _gaps_with_ids(training_gaps, {"remote_training_packet_not_ready"})
+    post_training_output_gaps = _gaps_with_ids(
+        training_gaps,
+        {
+            "missing_remote_pullback_artifact",
+            "missing_ppo_result_rows",
+            "missing_ppo_checkpoint_hash",
+        },
+    )
+    training_precondition_gaps = list(decision_gaps) + remote_preflight_gaps
+    audit_precondition_gaps = training_precondition_gaps + post_training_output_gaps
+    evaluation_precondition_gaps = audit_precondition_gaps + list(evaluation_gaps)
+    claim_precondition_gaps = evaluation_precondition_gaps + list(acceptance_gaps)
     steps.append(
         {
             "step_id": "F02.6",
             "phase": "decision",
             "status": "blocked" if decision_gaps else "ready",
+            "blocked_by": _gap_ids(decision_gaps),
             "runs_training": False,
             "action": "Close Dr Sun's obstacle-summary warm-start decision record.",
             "evidence_to_update": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
@@ -331,6 +345,7 @@ def _ordered_next_steps(
             "step_id": "remote_preflight",
             "phase": "training",
             "status": "blocked" if decision_gaps else "pending_execution",
+            "blocked_by": _gap_ids(decision_gaps),
             "runs_training": False,
             "host": _remote_training_resource(remote),
             "action": "Regenerate approved gpu3070ti preflight and require formal_trial_ready=true.",
@@ -341,7 +356,8 @@ def _ordered_next_steps(
         {
             "step_id": "gate3_remote_training",
             "phase": "training",
-            "status": "blocked" if decision_gaps or training_gaps else "pending_execution",
+            "status": "blocked" if training_precondition_gaps else "pending_execution",
+            "blocked_by": _gap_ids(training_precondition_gaps),
             "runs_training": True,
             "host": _remote_training_resource(remote),
             "action": "Run formal PPO Gate3 trial remotely; never on local Mac.",
@@ -352,7 +368,8 @@ def _ordered_next_steps(
         {
             "step_id": "gate3_remote_audit_pullback",
             "phase": "acceptance",
-            "status": "blocked" if training_gaps else "pending_execution",
+            "status": "blocked" if audit_precondition_gaps else "pending_execution",
+            "blocked_by": _gap_ids(audit_precondition_gaps),
             "runs_training": False,
             "host": _remote_training_resource(remote),
             "action": "Audit remote trial, pull back checkpoint/eval/audit artifacts, and record hashes.",
@@ -363,7 +380,8 @@ def _ordered_next_steps(
         {
             "step_id": "h01_h02_regeneration",
             "phase": "evaluation",
-            "status": "blocked" if training_gaps or evaluation_gaps else "pending_execution",
+            "status": "blocked" if evaluation_precondition_gaps else "pending_execution",
+            "blocked_by": _gap_ids(evaluation_precondition_gaps),
             "runs_training": False,
             "action": "Regenerate H01 with checkpoint and run H02 formal evaluation at H01 scale.",
             "evidence_to_update": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
@@ -373,13 +391,22 @@ def _ordered_next_steps(
         {
             "step_id": "claim_safety_final_gate",
             "phase": "acceptance",
-            "status": "blocked" if acceptance_gaps else "ready",
+            "status": "blocked" if claim_precondition_gaps else "ready",
+            "blocked_by": _gap_ids(claim_precondition_gaps),
             "runs_training": False,
             "action": "Regenerate claim safety/readiness; allow formal claims only if all gates pass.",
             "evidence_to_update": "0_trials/module2_claim_safety/module2_claim_safety.json",
         }
     )
     return steps
+
+
+def _gaps_with_ids(gaps: Sequence[dict[str, Any]], ids: set[str]) -> list[dict[str, Any]]:
+    return [gap for gap in gaps if str(gap.get("gap_id")) in ids]
+
+
+def _gap_ids(gaps: Sequence[dict[str, Any]]) -> list[str]:
+    return [str(gap.get("gap_id")) for gap in gaps if gap.get("gap_id")]
 
 
 def _current_gate_state(
