@@ -15,6 +15,7 @@ def test_module2_manifest_freezes_h01_methods_metrics_and_pending_decision_block
             contract_path=_frontmatter(tmp_path, "contract.md", status="approved"),
             cutpoint_supplement_path=_frontmatter(tmp_path, "cutpoints.md", reviewed="true"),
             warm_start_decision="pending",
+            bc_checkpoint=None,
             rl_rs_checkpoint=None,
             queries_per_bucket=100,
             seed_count=5,
@@ -45,10 +46,11 @@ def test_module2_manifest_freezes_h01_methods_metrics_and_pending_decision_block
 
     assert methods["ha_no_analytic"]["status"] == "ready"
     assert methods["ha_dang_multi_rs"]["main_evaluation_method"] == "ha_dang_multi_rs"
+    assert methods["bc_analytic_operator"]["main_evaluation_method"] == "bc_analytic_operator"
+    assert "missing_module2_bc_checkpoint" in methods["bc_analytic_operator"]["blockers"]
     assert methods["ppo_rs_funnel"]["main_evaluation_method"] == "ha_rl_rs_ppo"
     assert "missing_module2_rl_rs_checkpoint" in methods["ppo_rs_funnel"]["blockers"]
     assert "f02_6_warm_start_decision_pending" in methods["ppo_rs_funnel"]["blockers"]
-    assert "missing_main_evaluation_method" in methods["bc_analytic_operator"]["blockers"]
     assert "missing_main_evaluation_method" in methods["ppo_analytic_operator"]["blockers"]
 
     metric_ids = {metric["metric_id"] for metric in manifest["metrics"]}
@@ -63,6 +65,8 @@ def test_module2_manifest_freezes_h01_methods_metrics_and_pending_decision_block
 
 
 def test_module2_manifest_cli_writes_json_and_markdown_with_checkpoint_unblocked(tmp_path):
+    bc_checkpoint = tmp_path / "bc_model.pt"
+    bc_checkpoint.write_bytes(b"not a real model; manifest preflight only checks presence")
     checkpoint = tmp_path / "final_model.zip"
     checkpoint.write_bytes(b"not a real model; manifest preflight only checks presence")
     manifest_path = tmp_path / "module2_manifest.json"
@@ -82,6 +86,8 @@ def test_module2_manifest_cli_writes_json_and_markdown_with_checkpoint_unblocked
             str(_frontmatter(tmp_path, "cutpoints.md", reviewed="true")),
             "--warm-start-decision",
             "approved_obstacle_summary",
+            "--bc-checkpoint",
+            str(bc_checkpoint),
             "--rl-rs-checkpoint",
             str(checkpoint),
             "--queries-per-bucket",
@@ -92,14 +98,19 @@ def test_module2_manifest_cli_writes_json_and_markdown_with_checkpoint_unblocked
     )
     payload = json.loads(manifest_path.read_text(encoding="utf-8"))
     markdown = markdown_path.read_text(encoding="utf-8")
+    bc = next(method for method in payload["methods"] if method["method_id"] == "bc_analytic_operator")
     ppo_rs = next(method for method in payload["methods"] if method["method_id"] == "ppo_rs_funnel")
 
     assert rc == 0
     assert payload["status"] == "blocked_missing_implementation"
+    assert bc["status"] == "ready"
+    assert bc["main_evaluation_method"] == "bc_analytic_operator"
+    assert bc["checkpoint"] == str(bc_checkpoint)
     assert "missing_module2_rl_rs_checkpoint" not in ppo_rs["blockers"]
     assert "f02_6_warm_start_decision_pending" not in ppo_rs["blockers"]
     assert ppo_rs["checkpoint"] == str(checkpoint)
-    assert "--methods ha_no_analytic,ha_single_rs,ha_dang_multi_rs,mlp,ha_rl_rs_ppo" in payload["run_command"]["formal_main_evaluation"]
+    assert "--methods ha_no_analytic,ha_single_rs,ha_dang_multi_rs,mlp,bc_analytic_operator,ha_rl_rs_ppo" in payload["run_command"]["formal_main_evaluation"]
+    assert "--module2-bc-checkpoint" in payload["run_command"]["formal_main_evaluation"]
     assert "--module2-rl-rs-checkpoint" in payload["run_command"]["formal_main_evaluation"]
     assert "# Module2 v1 Evaluation Manifest" in markdown
     assert "blocked_missing_implementation" in markdown
