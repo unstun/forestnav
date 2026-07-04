@@ -14,6 +14,11 @@ DEFAULT_MISSING_ARTIFACTS = Path("0_trials/module2_formal_gate_missing_artifacts
 DEFAULT_FORMAL_GATE = Path("0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json")
 DEFAULT_POST_PLAN = Path("0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json")
 DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_freshness_audit.json")
+REMOTE_POST_PLAN_STAGE_IDS = (
+    "approved_remote_preflight",
+    "gate3_remote_training",
+    "gate3_remote_audit_pullback",
+)
 
 
 @dataclass(frozen=True)
@@ -102,6 +107,7 @@ def build_manifest(config: FormalGateClosureChecklistConfig) -> dict[str, Any]:
         "acceptance_artifacts_required": _artifacts_for_category(missing_groups, "acceptance"),
         "evaluation_acceptance_required": _artifacts_for_category(missing_groups, "evaluation_acceptance"),
         "claim_gate_artifacts_required": _artifacts_for_category(missing_groups, "claim_gate"),
+        "post_plan_remote_stage_summary": _post_plan_remote_stage_summary(post_plan),
         "closure_checklist": checklist,
         "input_safety_issue_count": len(safety_issues),
         "input_safety_issues": safety_issues,
@@ -319,6 +325,7 @@ def _input_safety_issues(
             issues.append(_issue(f"{name}_allows_local_training", f"{name} must preserve local-training prohibition."))
         if payload.get("formal_claim_allowed") is True:
             issues.append(_issue(f"{name}_allows_formal_claim", f"{name} must not allow formal claims."))
+    issues.extend(_post_plan_remote_stage_safety_issues(post_plan))
     return _unique_issues(issues)
 
 
@@ -328,6 +335,53 @@ def _post_plan_blocked_stage_ids(post_plan: dict[str, Any]) -> list[str]:
     if isinstance(blocked, list):
         return [str(item) for item in blocked if item]
     return []
+
+
+def _post_plan_remote_stage_summary(post_plan: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    stages = {
+        str(stage.get("stage_id")): stage
+        for stage in post_plan.get("ordered_stages", ())
+        if isinstance(stage, dict)
+    }
+    summary: dict[str, dict[str, Any]] = {}
+    for stage_id in REMOTE_POST_PLAN_STAGE_IDS:
+        stage = stages.get(stage_id, {})
+        summary[stage_id] = {
+            "present": bool(stage),
+            "status": stage.get("status"),
+            "allowed_now": stage.get("allowed_now") if isinstance(stage.get("allowed_now"), bool) else None,
+            "runs_training": stage.get("runs_training") if isinstance(stage.get("runs_training"), bool) else None,
+            "runs_remote_preflight": stage.get("runs_remote_preflight") if isinstance(stage.get("runs_remote_preflight"), bool) else None,
+            "host": stage.get("host"),
+            "blocked_by": _strings(stage.get("blocked_by")),
+        }
+    return summary
+
+
+def _post_plan_remote_stage_safety_issues(post_plan: dict[str, Any]) -> list[dict[str, str]]:
+    summary = _post_plan_remote_stage_summary(post_plan)
+    issues: list[dict[str, str]] = []
+    for stage_id, stage in summary.items():
+        if not stage["present"]:
+            issues.append(_issue(f"post_plan_missing_{stage_id}", f"post plan must include remote stage {stage_id}."))
+            continue
+        if stage["allowed_now"] is False and not stage["blocked_by"]:
+            issues.append(_issue(f"post_plan_{stage_id}_missing_blocked_by", f"disabled post-plan stage {stage_id} must explain blocked_by."))
+        if stage["allowed_now"] is True and stage["blocked_by"]:
+            issues.append(_issue(f"post_plan_{stage_id}_allowed_with_blockers", f"allowed post-plan stage {stage_id} must not carry blocked_by."))
+    training = summary.get("gate3_remote_training", {})
+    if training.get("runs_training") is not True:
+        issues.append(_issue("post_plan_training_stage_not_marked_training", "gate3_remote_training must remain marked as the training stage."))
+    for stage_id in ("approved_remote_preflight", "gate3_remote_audit_pullback"):
+        if summary.get(stage_id, {}).get("runs_training") is True:
+            issues.append(_issue(f"post_plan_{stage_id}_claims_training", f"{stage_id} must not be marked as training."))
+    preflight = summary.get("approved_remote_preflight", {})
+    if preflight.get("runs_remote_preflight") is not True:
+        issues.append(_issue("post_plan_preflight_stage_not_marked_preflight", "approved_remote_preflight must remain marked as a remote preflight stage."))
+    for stage_id, stage in summary.items():
+        if (stage.get("runs_training") is True or stage.get("runs_remote_preflight") is True) and stage.get("host") != "gpu3070ti-relay":
+            issues.append(_issue(f"post_plan_{stage_id}_wrong_host", f"{stage_id} must run only on gpu3070ti-relay."))
+    return issues
 
 
 def _strings(value: Any) -> list[str]:
@@ -414,6 +468,14 @@ def _markdown(manifest: dict[str, Any]) -> str:
     _append_artifacts(lines, manifest["evaluation_artifacts_required"])
     lines.extend(["", "## Required Acceptance Artifacts", ""])
     _append_artifacts(lines, manifest["acceptance_artifacts_required"])
+    lines.extend(["", "## Post-Plan Remote Stages", ""])
+    for stage_id, stage in manifest["post_plan_remote_stage_summary"].items():
+        blocked_by = ", ".join(stage["blocked_by"]) if stage["blocked_by"] else "none"
+        lines.append(
+            f"- `{stage_id}`: present=`{stage['present']}`, allowed_now=`{stage['allowed_now']}`, "
+            f"runs_training=`{stage['runs_training']}`, runs_remote_preflight=`{stage['runs_remote_preflight']}`, "
+            f"host=`{stage['host']}`, blocked_by=`{blocked_by}`"
+        )
     lines.extend(["", "## Input Safety Issues", ""])
     if manifest["input_safety_issues"]:
         lines.extend(f"- `{issue['issue_id']}`: {issue['message']}" for issue in manifest["input_safety_issues"])
