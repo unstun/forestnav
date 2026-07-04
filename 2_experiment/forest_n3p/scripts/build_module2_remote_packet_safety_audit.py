@@ -501,12 +501,90 @@ def _packet_summary(packet: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _status_report_execution_veto_issues(
+    *,
+    packet: dict[str, Any],
+    status_summary: dict[str, Any],
+    execution_veto: dict[str, Any],
+) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    if execution_veto.get("all_rows_consistent") is not True:
+        issues.append(_issue("post_plan_execution_veto_rows_inconsistent", "Post-plan status report execution veto matrix must be consistent."))
+    if _strings(execution_veto.get("mismatch_rows")):
+        issues.append(_issue("post_plan_execution_veto_mismatch_rows_open", "Post-plan status report execution veto matrix reports mismatch rows."))
+    row_consensus = _execution_veto_row_consensus(execution_veto)
+    required_rows = {"local_training", "remote_preflight", "remote_training", "remote_audit", "formal_claim"}
+    for row_id in sorted(required_rows - set(row_consensus)):
+        issues.append(_issue(f"post_plan_execution_veto_missing_{row_id}", f"Post-plan status report execution veto missing row {row_id}."))
+
+    if status_summary.get("status") != "formal_gate_status_ready_for_claim_audit":
+        for row_id in ("local_training", "remote_preflight", "remote_training", "remote_audit", "formal_claim"):
+            if row_consensus.get(row_id) is True:
+                issues.append(
+                    _issue(
+                        f"blocked_status_report_execution_veto_allows_{row_id}",
+                        f"Blocked status report execution veto must not allow {row_id}.",
+                    )
+                )
+
+    packet_summary = _packet_summary(packet)
+    packet_allowed_map = {
+        "remote_preflight": packet_summary.get("remote_preflight_allowed_now"),
+        "remote_training": packet_summary.get("remote_training_allowed_now"),
+        "remote_audit": packet_summary.get("remote_audit_allowed_now"),
+    }
+    for row_id, packet_value in packet_allowed_map.items():
+        row_value = row_consensus.get(row_id)
+        if isinstance(row_value, bool) and isinstance(packet_value, bool) and row_value != packet_value:
+            issues.append(
+                _issue(
+                    f"post_plan_execution_veto_{row_id}_packet_mismatch",
+                    "Post-plan execution veto consensus must match the remote packet allowed_now state.",
+                    observed={"execution_veto": row_value, "packet": packet_value},
+                )
+            )
+
+    permission_map = {
+        "local_training": "local_training_allowed_now",
+        "formal_claim": "formal_claim_allowed_now",
+    }
+    for row_id, permission_key in permission_map.items():
+        row_value = row_consensus.get(row_id)
+        permission_value = status_summary.get(permission_key)
+        if isinstance(row_value, bool) and isinstance(permission_value, bool) and row_value != permission_value:
+            issues.append(
+                _issue(
+                    f"post_plan_execution_veto_{row_id}_status_permission_mismatch",
+                    "Post-plan execution veto consensus must match status report permissions.",
+                    observed={"execution_veto": row_value, permission_key: permission_value},
+                )
+            )
+    return issues
+
+
+def _execution_veto_row_consensus(execution_veto: dict[str, Any]) -> dict[str, bool | None]:
+    raw = execution_veto.get("row_consensus")
+    if isinstance(raw, dict):
+        return {str(key): value if isinstance(value, bool) else None for key, value in raw.items()}
+    rows = execution_veto.get("rows")
+    if not isinstance(rows, dict):
+        return {}
+    out: dict[str, bool | None] = {}
+    for row_id, row in rows.items():
+        if not isinstance(row, dict):
+            continue
+        value = row.get("consensus_allowed_now")
+        out[str(row_id)] = value if isinstance(value, bool) else None
+    return out
+
+
 def _cross_gate_summary(*, decision_gate: dict[str, Any], plan_audit: dict[str, Any]) -> dict[str, Any]:
     decision = decision_gate.get("decision_state") if isinstance(decision_gate.get("decision_state"), dict) else {}
     blocking = plan_audit.get("current_blocking_summary") if isinstance(plan_audit.get("current_blocking_summary"), dict) else {}
     status_summary = plan_audit.get("status_report_summary") if isinstance(plan_audit.get("status_report_summary"), dict) else {}
     remote_steps = status_summary.get("remote_execution_step_summary") if isinstance(status_summary.get("remote_execution_step_summary"), dict) else {}
     handoff_summary = status_summary.get("formal_gate_handoff_summary") if isinstance(status_summary.get("formal_gate_handoff_summary"), dict) else {}
+    execution_veto = status_summary.get("formal_gate_execution_veto_summary") if isinstance(status_summary.get("formal_gate_execution_veto_summary"), dict) else {}
     return {
         "decision_gate_status": decision_gate.get("status"),
         "f02_6_record_status": decision.get("record_status"),
@@ -520,6 +598,7 @@ def _cross_gate_summary(*, decision_gate: dict[str, Any], plan_audit: dict[str, 
         "post_plan_status_report_next_blocked_lane_id": status_summary.get("next_blocked_lane_id"),
         "post_plan_status_report_remote_execution_step_summary": remote_steps,
         "post_plan_status_report_handoff_summary": handoff_summary,
+        "post_plan_status_report_execution_veto_summary": execution_veto,
     }
 
 
