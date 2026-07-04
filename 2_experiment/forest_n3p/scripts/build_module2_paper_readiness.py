@@ -43,6 +43,18 @@ CLAIM_SAFETY_H02_FORMAL_ACCEPTANCE_REQUIREMENT_IDS = (
     "gate3_audit_and_pullback_acceptance",
     "ppo_rows_and_checkpoint_hash_present",
 )
+CLAIM_SAFETY_REMAINING_DELIVERABLE_MATRIX_IDS = (
+    "training:train_final_model_zip",
+    "training:train_summary_json",
+    "training:train_training_manifest_json",
+    "evaluation:eval_gate3_eval_episodes_csv",
+    "evaluation:eval_gate3_summary_json",
+    "acceptance:gate3_trial_manifest_json",
+    "acceptance:gate3_formal_audit_json",
+    "acceptance:pulled_back_checkpoint_hash_record",
+    "formal_acceptance:h01_ready_for_formal_run",
+    "formal_acceptance:h02_formal_output_acceptance",
+)
 CLAIM_SAFETY_DECISION_INTAKE_CLEAN_STATUSES = (
     "f02_6_decision_intake_pending_clean",
     "f02_6_decision_intake_closed_clean",
@@ -132,6 +144,9 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
     claim_remote_requirement_summary = _claim_safety_remote_requirement_summary(claim_safety)
     claim_h02_acceptance_requirement_summary = _claim_safety_h02_acceptance_requirement_summary(claim_safety)
     claim_decision_intake_summary = _claim_safety_decision_intake_summary(claim_safety)
+    claim_remaining_deliverables_acceptance_summary = _claim_safety_remaining_deliverables_acceptance_summary(
+        claim_safety
+    )
     input_status = {
         "method_algorithms_status": method_algorithms.get("status"),
         "system_diagram_status": system_diagram.get("status"),
@@ -200,6 +215,18 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_decision_intake_formal_claim_allowed_now": claim_decision_intake_summary[
             "formal_claim_allowed_now"
         ],
+        "claim_safety_remaining_deliverables_acceptance_present": claim_remaining_deliverables_acceptance_summary[
+            "present"
+        ],
+        "claim_safety_remaining_deliverables_acceptance_matrix_row_count": claim_remaining_deliverables_acceptance_summary[
+            "matrix_row_count"
+        ],
+        "claim_safety_remaining_deliverables_acceptance_missing_row_count": claim_remaining_deliverables_acceptance_summary[
+            "missing_row_count"
+        ],
+        "claim_safety_remaining_deliverables_acceptance_blocked_category_count": claim_remaining_deliverables_acceptance_summary[
+            "blocked_category_count"
+        ],
         "h02_formal_acceptance_status": h02_acceptance.get("status"),
         "h02_formal_output_accepted": h02_acceptance.get("formal_output_accepted"),
         "h02_paper_result_input_allowed": h02_acceptance.get("paper_result_input_allowed"),
@@ -252,6 +279,7 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_remote_requirement_summary": claim_remote_requirement_summary,
         "claim_safety_h02_acceptance_requirement_summary": claim_h02_acceptance_requirement_summary,
         "claim_safety_decision_intake_summary": claim_decision_intake_summary,
+        "claim_safety_remaining_deliverables_acceptance_summary": claim_remaining_deliverables_acceptance_summary,
         "global_blockers": global_blockers,
         "allowed_claim_ids": allowed_claim_ids,
         "conditional_claim_ids": conditional_claim_ids,
@@ -308,6 +336,7 @@ def _global_blockers(
     _extend_unique(blockers, _claim_safety_remote_requirement_blockers(claim_safety))
     _extend_unique(blockers, _claim_safety_h02_acceptance_requirement_blockers(claim_safety))
     _extend_unique(blockers, _claim_safety_decision_intake_blockers(claim_safety))
+    _extend_unique(blockers, _claim_safety_remaining_deliverables_acceptance_blockers(claim_safety))
     _extend_unique(blockers, h01_manifest.get("blockers", []))
     if str(decision_record.get("status")) == "pending_human_decision":
         _append_unique(blockers, "f02_6_pending")
