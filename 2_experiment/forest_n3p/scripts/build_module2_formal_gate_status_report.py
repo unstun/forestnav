@@ -117,6 +117,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         claim_safety_path=args.claim_safety,
         paper_readiness_path=args.paper_readiness,
         handoff_bundle_path=args.handoff_bundle,
+        remaining_deliverables_path=args.remaining_deliverables,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -143,6 +144,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     claim_safety = _read_json(config.claim_safety_path)
     paper_readiness = _read_json(config.paper_readiness_path)
     handoff_bundle = _read_json(config.handoff_bundle_path)
+    remaining_deliverables = _read_json(config.remaining_deliverables_path)
     remote_execution_steps = _remote_execution_step_summary(remote_packet)
     remote_preflight_requirements = _remote_requirement_matrix_summary(
         remote_packet=remote_packet,
@@ -163,6 +165,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     missing_artifacts_handoff_summary = _missing_artifacts_handoff_index_summary(missing_artifacts)
     formal_gate_execution_veto = _formal_gate_execution_veto_summary(formal_gate)
     decision_intake_summary = _decision_intake_summary(decision_intake)
+    remaining_deliverables_acceptance_summary = _remaining_deliverables_acceptance_summary(remaining_deliverables)
 
     input_safety_issues = _input_safety_issues(
         {
@@ -177,6 +180,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "claim_safety": claim_safety,
             "paper_readiness": paper_readiness,
             "handoff_bundle": handoff_bundle,
+            "remaining_deliverables": remaining_deliverables,
         }
     )
     input_safety_issues = _unique_issues(
@@ -184,6 +188,10 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         + _formal_gate_execution_veto_issues(
             formal_gate=formal_gate,
             formal_gate_execution_veto=formal_gate_execution_veto,
+        )
+        + _remaining_deliverables_acceptance_issues(
+            remaining_deliverables=remaining_deliverables,
+            summary=remaining_deliverables_acceptance_summary,
         )
     )
     lanes = _lanes(
@@ -233,6 +241,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "claim_safety": str(config.claim_safety_path),
             "paper_readiness": str(config.paper_readiness_path),
             "formal_gate_handoff_bundle": str(config.handoff_bundle_path),
+            "formal_gate_remaining_deliverables": str(config.remaining_deliverables_path),
         },
         "current_state": {
             "decision_status": decision.get("status"),
@@ -280,6 +289,19 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "paper_readiness_status": paper_readiness.get("status"),
             "paper_readiness_formal_results_ready": paper_readiness.get("formal_results_ready"),
             "handoff_bundle_status": handoff_bundle.get("status"),
+            "remaining_deliverables_status": remaining_deliverables.get("status"),
+            "remaining_deliverables_missing_deliverable_count": remaining_deliverables.get(
+                "missing_deliverable_count"
+            ),
+            "remaining_deliverables_acceptance_matrix_count": remaining_deliverables_acceptance_summary[
+                "matrix_row_count"
+            ],
+            "remaining_deliverables_acceptance_missing_row_count": remaining_deliverables_acceptance_summary[
+                "missing_row_count"
+            ],
+            "remaining_deliverables_acceptance_blocked_category_count": remaining_deliverables_acceptance_summary[
+                "blocked_category_count"
+            ],
             "handoff_bundle_next_action": handoff_summary["next_handoff_action_id"],
             "handoff_bundle_safety_issue_count": handoff_summary["safety_issue_count"],
             "handoff_bundle_remote_training_allowed_now": handoff_summary["remote_training_allowed_now"],
@@ -307,6 +329,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "formal_gate_requirement_stage_summary": requirement_stage_summary,
         "missing_artifacts_handoff_index_summary": missing_artifacts_handoff_summary,
         "formal_gate_execution_veto_summary": formal_gate_execution_veto,
+        "remaining_deliverables_acceptance_summary": remaining_deliverables_acceptance_summary,
         "formal_gate_lanes": lanes,
         "next_blocked_lane": _next_blocked_lane(lanes),
         "input_safety_issue_count": len(input_safety_issues),
@@ -343,6 +366,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--claim-safety", type=Path, default=DEFAULT_CLAIM_SAFETY)
     parser.add_argument("--paper-readiness", type=Path, default=DEFAULT_PAPER_READINESS)
     parser.add_argument("--handoff-bundle", type=Path, default=DEFAULT_HANDOFF_BUNDLE)
+    parser.add_argument("--remaining-deliverables", type=Path, default=DEFAULT_REMAINING_DELIVERABLES)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
