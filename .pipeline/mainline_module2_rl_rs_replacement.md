@@ -830,17 +830,28 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 
 #### I02. 实验表格
 
-- [ ] I02.1 主表。
+- [>] I02.1 主表。
   - rows: methods。
   - columns: success, timeout, time p50/p95, expansions p50/p95, path inflation, clearance。
-- [ ] I02.2 消融表。
+  - 已完成子项: 新增 `build_module2_paper_tables.py`, 可从 `records.csv`/`summary.json` 生成 method-level paper table preview。
+  - 当前产物: `0_trials/module2_paper_tables/module2_paper_tables.json`, `0_trials/module2_paper_tables/module2_paper_tables.md`。
+  - 当前状态: `blocked_no_formal_h02_data`, `formal_claim_allowed=false`; blockers 包含 `h02_verdict_not_formal`, `h01_manifest_not_ready`, `missing_module2_rl_rs_checkpoint`, `missing_ppo_result_rows`。
+  - 边界: 当前表只验证 schema 和渲染口径, 不能作为论文结果表; formal 主表必须等 H02.2 all-method formal run。
+  - 记录: `.pipeline/experiments/20260704_module2_i02_paper_table_protocol.md`。
+- [>] I02.2 消融表。
   - occupancy only vs occupancy+EDT。
   - BC vs PPO。
   - terminal RS on/off。
   - action mask on/off。
   - forward-only vs forward+reverse if enabled。
-- [ ] I02.3 失败分析表。
+  - 已完成子项: table protocol 已冻结 planned contrasts, 当前因缺 PPO formal rows 标记 `blocked_missing_formal_data`。
+  - 边界: 不能用 available subset smoke 代替 BC vs PPO / terminal-RS on/off 消融。
+  - 记录: `.pipeline/experiments/20260704_module2_i02_paper_table_protocol.md`。
+- [>] I02.3 失败分析表。
   - oracle no-solution, terminal RS fail, collision, oscillation, compute-overhead fail。
+  - 已完成子项: 从 `records.csv.failure_reason` 生成 failure-analysis preview, 分类 timeout/collision/terminal_rs_fail/oscillation/oracle_no_solution/other。
+  - 当前状态: `preview_not_formal`; H02 available subset 无 failure rows, 不支持论文 failure claim。
+  - 记录: `.pipeline/experiments/20260704_module2_i02_paper_table_protocol.md`。
 
 #### I03. 论文 claim 安全线
 
@@ -894,6 +905,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 35. [>] H02.3 统计检验基础设施: success/failure/timeout bootstrap CI 和 module2-vs-Dang paired stats 已接入; formal analysis 等 H02.2 数据。
 36. [x] I01.2/I01.3 code-anchored method algorithms 已生成: Algorithm 1 覆盖 RL-RS funnel analytic expansion, Algorithm 2 覆盖 PPO training environment; 仍不代表 formal result 或可本地训练。
 37. [x] I01.1 code-anchored Draw.io system diagram 已生成: 图中显式覆盖 HA* loop、analytic trigger、RL rollout、terminal RS certificate 和 fallback primitives, 并标注 F02.6 pending / PPO checkpoint missing / gpu3070ti-relay 训练边界。
+38. [>] I02 paper table protocol/preview 已生成: 可从 H02 evaluation outputs 生成主表、消融计划和失败分析 preview; 当前因 H02 非 formal、H01 blocked 和缺 PPO checkpoint 正确阻塞 formal claim。
 
 ## 7. 完成记录
 
@@ -944,3 +956,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 推进 H02.3 statistical CI infrastructure。新增 failure/timeout paired bootstrap CI, module2 operator vs Dang multi-RS paired stat pairs, 并重跑 H02.1 available subset smoke 以确认 summary.json 输出 paired time/expansions 和 success/failure/timeout CI slots。记录见 `.pipeline/experiments/20260704_module2_h02_statistical_ci_infra.md`。
 - 2026-07-04: 完成 I01.2/I01.3 code-anchored method algorithms。新增 `build_module2_method_algorithms.py`, 输出 Algorithm 1 RL-RS funnel analytic expansion 和 Algorithm 2 PPO training environment 的 JSON/Markdown, 每个步骤均带本地源码行号锚点; artifact 明确 `local_training_allowed=false`, `remote_training_resource=gpu3070ti-relay`, F02.6 pending 和缺 PPO checkpoint 仍阻塞 formal claim。记录见 `.pipeline/experiments/20260704_module2_i01_method_algorithms.md`。
 - 2026-07-04: 完成 I01.1 code-anchored system diagram。新增 `build_module2_system_diagram.py`, 输出 Draw.io/JSON/Markdown 系统图 artifact, 展示 HA* analytic expansion 槽内的 RL-RS operator、terminal RS certificate 和 primitive fallback; artifact 明确 `local_training_allowed=false`, `remote_training_resource=gpu3070ti-relay`, F02.6 pending 和缺 PPO checkpoint 仍阻塞 formal claim。记录见 `.pipeline/experiments/20260704_module2_i01_system_diagram.md`。
+- 2026-07-04: 推进 I02 paper table protocol/preview。新增 `build_module2_paper_tables.py`, 从 H02 evaluation outputs 生成 I02.1 主表 preview、I02.2 消融计划和 I02.3 failure-analysis preview; 当前 artifact status=`blocked_no_formal_h02_data`, 明确阻塞项为 H02 非 formal、H01 未 ready、F02.6 pending、缺 PPO checkpoint/rows, 因此不能作为论文结果表。记录见 `.pipeline/experiments/20260704_module2_i02_paper_table_protocol.md`。
