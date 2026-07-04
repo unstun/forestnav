@@ -56,6 +56,8 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["current_state"]["formal_gate_execution_veto_all_rows_consistent"] is True
     assert manifest["current_state"]["formal_gate_execution_veto_remote_training_allowed_now"] is False
     assert manifest["current_state"]["formal_gate_execution_veto_formal_claim_allowed_now"] is False
+    assert manifest["current_state"]["formal_gate_gap_audit_remaining_total_missing_deliverables"] == 10
+    assert manifest["current_state"]["formal_gate_gap_audit_remaining_open_category_count"] == 4
     assert manifest["current_state"]["remaining_deliverables_status"] == "formal_gate_deliverables_blocked"
     assert manifest["current_state"]["remaining_deliverables_missing_deliverable_count"] == 10
     assert manifest["current_state"]["remaining_deliverables_acceptance_matrix_count"] == 10
@@ -184,6 +186,15 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
         "training:train_training_manifest_json",
     ]
     assert remaining_gap["categories"]["formal_acceptance"]["missing_count"] == 2
+    formal_gate_gap = manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]
+    assert formal_gate_gap["present"] is True
+    assert formal_gate_gap["total_missing_deliverables"] == 10
+    assert formal_gate_gap["open_category_count"] == 4
+    assert formal_gate_gap["categories"]["training"]["missing_artifact_matrix_ids"] == [
+        "training:train_final_model_zip",
+        "training:train_summary_json",
+        "training:train_training_manifest_json",
+    ]
 
     lanes = {lane["lane_id"]: lane for lane in manifest["formal_gate_lanes"]}
     assert lanes["gate3_remote_training"]["runs_training"] is True
