@@ -502,8 +502,13 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 已完成: `test_terminal_rs_success_set_distinguishes_free_and_blocked_connections` 直接调用 `check_terminal_rs_connectable()`, 覆盖空图 success 和障碍阻挡 `terminal_rs_collision`。
   - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `23 passed in 0.48s`。
   - 记录: `.pipeline/experiments/20260703_module2_e03_terminal_rs_success_set.md`。
-- [ ] E03.4 no progress/oscillation 测试。
+- [x] E03.4 no progress/oscillation 测试。
   - 防止 policy 原地左右打舵拿 shaping。
+  - 已完成: no-progress 已有测试继续覆盖; 新增 oscillation guard, 在短窗口内 steering 符号反复翻转且净 progress 不足阈值时 `truncated`, failure reason 为 `oscillation`。
+  - telemetry/info: `oscillation_detected`。
+  - reward: `RewardConfig.oscillation_penalty` 接入 terminal penalty。
+  - 验证: `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `24 passed in 0.52s`。
+  - 记录: `.pipeline/experiments/20260703_module2_e03_no_progress_oscillation.md`。
 
 ### Phase F: BC warm-start 与 PPO 训练
 
@@ -654,7 +659,8 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 13. [x] E03.1 单步运动学测试。
 14. [x] E03.2 碰撞测试。
 15. [x] E03.3 success set 测试。
-16. [ ] E03.4 no progress/oscillation 测试。
+16. [x] E03.4 no progress/oscillation 测试。
+17. [ ] F01.1 从 C02 oracle path 提取 state-action demonstrations。
 
 ## 7. 完成记录
 
@@ -681,3 +687,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-03: 完成 E03.1 single-step kinematics test。非零 steering rollout 的 `next_state` 和最后一个 sample 已严格对齐 planner `propagate()`。记录见 `.pipeline/experiments/20260703_module2_e03_single_step_kinematics.md`。
 - 2026-07-03: 完成 E03.2 collision consistency test。free/blocked rollout path 的 collision flag 已与 shared `GridFootprintChecker.collides_path(samples)` 对齐。记录见 `.pipeline/experiments/20260703_module2_e03_collision_consistency.md`。
 - 2026-07-03: 完成 E03.3 terminal RS success set test。直接测试 `check_terminal_rs_connectable()` 在空图和障碍阻挡样例中的 success/failure 语义。记录见 `.pipeline/experiments/20260703_module2_e03_terminal_rs_success_set.md`。
+- 2026-07-03: 完成 E03.4 no-progress/oscillation tests。新增 oscillation guard 与 telemetry/reward 连接, 原先未实现的 `oscillation` failure label 已变成可测终止语义。记录见 `.pipeline/experiments/20260703_module2_e03_no_progress_oscillation.md`。
