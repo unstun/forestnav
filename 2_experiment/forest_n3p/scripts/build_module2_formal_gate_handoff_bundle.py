@@ -1,0 +1,372 @@
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+from dataclasses import dataclass
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any, Sequence
+
+
+DEFAULT_OUTPUT_DIR = Path("0_trials/module2_formal_gate_handoff_bundle")
+DEFAULT_DECISION_RECORD = Path("0_trials/module2_f02_6_decision_record/f02_6_decision_record.json")
+DEFAULT_POST_PLAN = Path("0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json")
+DEFAULT_STATUS_REPORT = Path("0_trials/module2_formal_gate_status_report/formal_gate_status_report.json")
+DEFAULT_REMOTE_PACKET = Path("0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json")
+DEFAULT_MISSING_ARTIFACTS = Path("0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json")
+DEFAULT_H02_ACCEPTANCE = Path("0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json")
+REMOTE_STEP_IDS = ("sync_to_remote", "run_remote_preflight", "run_remote_training", "run_remote_audit")
+FORMAL_STAGE_IDS = (
+    "f02_6_decision_record",
+    "regenerate_preflight_gate_artifacts",
+    "approved_remote_preflight",
+    "regenerate_remote_execution_packet",
+    "gate3_remote_training",
+    "gate3_remote_audit_pullback",
+    "regenerate_h01_h02_formal_artifacts",
+    "regenerate_claim_gate_artifacts",
+)
+
+
+@dataclass(frozen=True)
+class FormalGateHandoffBundleConfig:
+    output_dir: Path
+    manifest_out: Path | None = None
+    markdown_out: Path | None = None
+    decision_record_path: Path = DEFAULT_DECISION_RECORD
+    post_plan_path: Path = DEFAULT_POST_PLAN
+    status_report_path: Path = DEFAULT_STATUS_REPORT
+    remote_packet_path: Path = DEFAULT_REMOTE_PACKET
+    missing_artifacts_path: Path = DEFAULT_MISSING_ARTIFACTS
+    h02_acceptance_path: Path = DEFAULT_H02_ACCEPTANCE
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    args = _parse_args(argv)
+    config = FormalGateHandoffBundleConfig(
+        output_dir=args.output_dir,
+        manifest_out=args.manifest_out,
+        markdown_out=args.markdown_out,
+        decision_record_path=args.decision_record,
+        post_plan_path=args.post_plan,
+        status_report_path=args.status_report,
+        remote_packet_path=args.remote_packet,
+        missing_artifacts_path=args.missing_artifacts,
+        h02_acceptance_path=args.h02_acceptance,
+    )
+    manifest = build_manifest(config)
+    output_dir = Path(config.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    manifest_out = config.manifest_out or output_dir / "formal_gate_handoff_bundle.json"
+    markdown_out = config.markdown_out or output_dir / "formal_gate_handoff_bundle.md"
+    manifest_out.parent.mkdir(parents=True, exist_ok=True)
+    markdown_out.parent.mkdir(parents=True, exist_ok=True)
+    manifest_out.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    markdown_out.write_text(_markdown(manifest), encoding="utf-8")
+    print(
+        json.dumps(
+            {"manifest": str(manifest_out), "markdown": str(markdown_out), "status": manifest["status"]},
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
+    decision = _read_json(config.decision_record_path)
+    post_plan = _read_json(config.post_plan_path)
+    status_report = _read_json(config.status_report_path)
+    remote_packet = _read_json(config.remote_packet_path)
+    missing_artifacts = _read_json(config.missing_artifacts_path)
+    h02_acceptance = _read_json(config.h02_acceptance_path)
+
+    stages = _handoff_stages(post_plan)
+    remote_steps = _remote_steps(remote_packet)
+    safety_issues = _safety_issues(
+        decision=decision,
+        post_plan=post_plan,
+        status_report=status_report,
+        remote_packet=remote_packet,
+        missing_artifacts=missing_artifacts,
+        h02_acceptance=h02_acceptance,
+        stages=stages,
+        remote_steps=remote_steps,
+    )
+    status = _status(decision=decision, status_report=status_report, remote_packet=remote_packet, safety_issues=safety_issues)
+    return {
+        "schema_version": 1,
+        "artifact_name": "module2_formal_gate_handoff_bundle",
+        "status": status,
+        "created_at_utc": datetime.now(UTC).isoformat(),
+        "source_head": _source_head(),
+        "not_paper_result_material": True,
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+        "inputs": {
+            "decision_record": str(config.decision_record_path),
+            "post_f02_6_regeneration_plan": str(config.post_plan_path),
+            "formal_gate_status_report": str(config.status_report_path),
+            "remote_formal_execution_packet": str(config.remote_packet_path),
+            "formal_gate_missing_artifacts": str(config.missing_artifacts_path),
+            "h02_formal_acceptance": str(config.h02_acceptance_path),
+        },
+        "current_state": {
+            "decision_status": decision.get("status"),
+            "decision_decider": decision.get("decider"),
+            "post_plan_status": post_plan.get("status"),
+            "status_report_status": status_report.get("status"),
+            "remote_packet_status": remote_packet.get("status"),
+            "ready_to_run_remote_training": bool(remote_packet.get("ready_to_run_remote_training")),
+            "missing_artifacts_status": missing_artifacts.get("status"),
+            "h02_status": h02_acceptance.get("status"),
+            "h02_formal_output_accepted": bool(h02_acceptance.get("formal_output_accepted")),
+            "h02_paper_result_input_allowed": bool(h02_acceptance.get("paper_result_input_allowed")),
+            "next_blocked_lane": _next_blocked_lane_id(status_report),
+        },
+        "permissions_now": _permissions(status_report),
+        "next_handoff_action": _next_handoff_action(decision=decision, status_report=status_report),
+        "formal_gate_requirements": _requirements(missing_artifacts, "formal_gate_requirements"),
+        "h02_formal_acceptance_requirements": _requirements(h02_acceptance, "formal_acceptance_requirements"),
+        "remote_execution_steps": remote_steps,
+        "handoff_stages": stages,
+        "post_run_expected_artifacts": _post_run_expected_artifacts(remote_packet),
+        "safety_issue_count": len(safety_issues),
+        "safety_issues": safety_issues,
+        "claim_boundaries": [
+            "This handoff bundle is read-only and does not execute shell, ssh, rsync, preflight, training, audit, or pullback.",
+            "Pending F02.6 means all remote execution steps must remain disabled.",
+            "Any formal training command remains gpu3070ti-relay-only after Dr Sun approval and source-fresh regeneration.",
+            "Pulled-back checkpoint, audit, hash, H01, and H02 evidence are required before paper result claims.",
+        ],
+    }
+
+
+def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Build a read-only Module2 formal gate handoff bundle.")
+    parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    parser.add_argument("--manifest-out", type=Path, default=None)
+    parser.add_argument("--markdown-out", type=Path, default=None)
+    parser.add_argument("--decision-record", type=Path, default=DEFAULT_DECISION_RECORD)
+    parser.add_argument("--post-plan", type=Path, default=DEFAULT_POST_PLAN)
+    parser.add_argument("--status-report", type=Path, default=DEFAULT_STATUS_REPORT)
+    parser.add_argument("--remote-packet", type=Path, default=DEFAULT_REMOTE_PACKET)
+    parser.add_argument("--missing-artifacts", type=Path, default=DEFAULT_MISSING_ARTIFACTS)
+    parser.add_argument("--h02-acceptance", type=Path, default=DEFAULT_H02_ACCEPTANCE)
+    return parser.parse_args(list(argv) if argv is not None else None)
+
+
+def _status(
+    *,
+    decision: dict[str, Any],
+    status_report: dict[str, Any],
+    remote_packet: dict[str, Any],
+    safety_issues: Sequence[dict[str, str]],
+) -> str:
+    if safety_issues:
+        return "blocked_handoff_input_safety_issues"
+    if decision.get("status") == "pending_human_decision":
+        return "blocked_until_f02_6_decision"
+    permissions = _permissions(status_report)
+    if permissions.get("remote_training_allowed_now") is True and remote_packet.get("ready_to_run_remote_training") is True:
+        return "ready_for_manual_remote_execution_review"
+    return "blocked_formal_gate_handoff"
+
+
+def _handoff_stages(post_plan: dict[str, Any]) -> list[dict[str, Any]]:
+    stages_by_id = {
+        str(stage.get("stage_id")): stage
+        for stage in post_plan.get("ordered_stages", [])
+        if isinstance(stage, dict) and stage.get("stage_id")
+    }
+    handoff: list[dict[str, Any]] = []
+    for index, stage_id in enumerate(FORMAL_STAGE_IDS, start=1):
+        stage = stages_by_id.get(stage_id, {})
+        handoff.append(
+            {
+                "order": index,
+                "stage_id": stage_id,
+                "phase": stage.get("phase"),
+                "status": stage.get("status", "missing"),
+                "source_allowed_now": bool(stage.get("allowed_now")),
+                "runs_training": bool(stage.get("runs_training")),
+                "runs_remote_preflight": bool(stage.get("runs_remote_preflight")),
+                "host": stage.get("host"),
+                "blocked_by": [str(item) for item in stage.get("blocked_by", []) if item],
+                "evidence_paths": [str(item) for item in stage.get("evidence_paths", []) if item],
+                "command_templates": [str(item) for item in stage.get("command_templates", []) if item],
+            }
+        )
+    return handoff
+
+
+def _remote_steps(remote_packet: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    steps = remote_packet.get("execution_steps") if isinstance(remote_packet.get("execution_steps"), dict) else {}
+    out: dict[str, dict[str, Any]] = {}
+    for step_id in REMOTE_STEP_IDS:
+        step = steps.get(step_id) if isinstance(steps.get(step_id), dict) else {}
+        out[step_id] = {
+            "allowed_now": bool(step.get("allowed_now")),
+            "runs_training": bool(step.get("runs_training")),
+            "command": str(step.get("command") or ""),
+            "blocked_by": [str(item) for item in step.get("blocked_by", []) if item],
+        }
+    return out
+
+
+def _safety_issues(
+    *,
+    decision: dict[str, Any],
+    post_plan: dict[str, Any],
+    status_report: dict[str, Any],
+    remote_packet: dict[str, Any],
+    missing_artifacts: dict[str, Any],
+    h02_acceptance: dict[str, Any],
+    stages: Sequence[dict[str, Any]],
+    remote_steps: dict[str, dict[str, Any]],
+) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    for name, artifact in (
+        ("post_plan", post_plan),
+        ("status_report", status_report),
+        ("missing_artifacts", missing_artifacts),
+        ("h02_acceptance", h02_acceptance),
+    ):
+        if artifact.get("executes_commands") is True:
+            issues.append(_issue(f"{name}_executes_commands", f"{name} must remain read-only"))
+        if artifact.get("runs_training") is True:
+            issues.append(_issue(f"{name}_runs_training", f"{name} must not run training"))
+        if artifact.get("runs_remote_preflight") is True:
+            issues.append(_issue(f"{name}_runs_remote_preflight", f"{name} must not run remote preflight"))
+        if artifact.get("local_training_allowed") is True:
+            issues.append(_issue(f"{name}_allows_local_training", f"{name} must not allow local training"))
+        if artifact.get("formal_claim_allowed") is True:
+            issues.append(_issue(f"{name}_allows_formal_claim", f"{name} must not allow formal claims"))
+
+    permissions = _permissions(status_report)
+    pending = decision.get("status") == "pending_human_decision"
+    if pending:
+        for step_id, step in remote_steps.items():
+            if step["allowed_now"]:
+                issues.append(_issue(f"pending_decision_allows_{step_id}", "remote steps must be disabled while F02.6 is pending"))
+    if permissions.get("local_training_allowed_now") is True:
+        issues.append(_issue("status_report_allows_local_training", "local training is forbidden for formal PPO"))
+    if permissions.get("remote_training_allowed_now") is True and remote_packet.get("ready_to_run_remote_training") is not True:
+        issues.append(_issue("status_report_allows_training_without_ready_packet", "remote training needs a ready remote packet"))
+
+    for stage in stages:
+        if stage["runs_training"] and stage["host"] not in {None, "gpu3070ti-relay"}:
+            issues.append(_issue(f"{stage['stage_id']}_wrong_training_host", "formal training stage must target gpu3070ti-relay"))
+        if not stage["source_allowed_now"] and stage["stage_id"] in {"approved_remote_preflight", "gate3_remote_training"} and not stage["blocked_by"]:
+            issues.append(_issue(f"{stage['stage_id']}_missing_blocked_by", "disabled remote stages must explain their blockers"))
+    return issues
+
+
+def _next_handoff_action(*, decision: dict[str, Any], status_report: dict[str, Any]) -> dict[str, Any]:
+    if decision.get("status") == "pending_human_decision":
+        return {
+            "action_id": "record_f02_6_decision",
+            "requires_dr_sun": True,
+            "allowed_for_agent_now": False,
+            "description": "Dr Sun must approve obstacle-summary warm-start or reject it before remote formal execution can proceed.",
+        }
+    lane = _next_blocked_lane_id(status_report)
+    return {
+        "action_id": f"resolve_{lane}" if lane else "manual_execution_review",
+        "requires_dr_sun": False,
+        "allowed_for_agent_now": False,
+        "description": "Use the handoff stages as an audit checklist; this artifact does not execute commands.",
+    }
+
+
+def _permissions(status_report: dict[str, Any]) -> dict[str, bool]:
+    permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
+    return {str(key): bool(value) for key, value in permissions.items()}
+
+
+def _next_blocked_lane_id(status_report: dict[str, Any]) -> str | None:
+    lane = status_report.get("next_blocked_lane")
+    if isinstance(lane, dict) and lane.get("lane_id"):
+        return str(lane["lane_id"])
+    return None
+
+
+def _requirements(artifact: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    reqs = artifact.get(key) if isinstance(artifact.get(key), list) else []
+    out: list[dict[str, Any]] = []
+    for req in reqs:
+        if not isinstance(req, dict):
+            continue
+        out.append(
+            {
+                "requirement_id": req.get("requirement_id"),
+                "phase": req.get("phase"),
+                "status": req.get("status"),
+                "complete": bool(req.get("complete")),
+                "execution_allowed_now": bool(req.get("execution_allowed_now")),
+                "missing_artifact_ids": [str(item) for item in req.get("missing_artifact_ids", []) if item],
+                "acceptable_evidence": [str(item) for item in req.get("acceptable_evidence", []) if item],
+                "invalid_substitutes": [str(item) for item in req.get("invalid_substitutes", []) if item],
+            }
+        )
+    return out
+
+
+def _post_run_expected_artifacts(remote_packet: dict[str, Any]) -> list[str]:
+    pullback = remote_packet.get("post_run_pullback") if isinstance(remote_packet.get("post_run_pullback"), dict) else {}
+    return [str(item) for item in pullback.get("expected_artifacts", []) if item]
+
+
+def _read_json(path: Path) -> dict[str, Any]:
+    if not Path(path).is_file():
+        return {}
+    with Path(path).open("r", encoding="utf-8") as fh:
+        data = json.load(fh)
+    return data if isinstance(data, dict) else {}
+
+
+def _issue(issue_id: str, detail: str) -> dict[str, str]:
+    return {"issue_id": issue_id, "detail": detail}
+
+
+def _source_head() -> str | None:
+    try:
+        return subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+    except Exception:
+        return None
+
+
+def _markdown(manifest: dict[str, Any]) -> str:
+    lines = [
+        "# Module2 Formal Gate Handoff Bundle",
+        "",
+        f"- status: `{manifest['status']}`",
+        f"- executes commands: `{manifest['executes_commands']}`",
+        f"- runs training: `{manifest['runs_training']}`",
+        f"- local training allowed: `{manifest['local_training_allowed']}`",
+        f"- next action: `{manifest['next_handoff_action']['action_id']}`",
+        "",
+        "## Remote Steps",
+        "",
+    ]
+    for step_id, step in manifest["remote_execution_steps"].items():
+        blockers = ", ".join(step["blocked_by"]) or "none"
+        lines.append(f"- `{step_id}`: allowed_now=`{step['allowed_now']}`, blocked_by=`{blockers}`")
+    lines.extend(["", "## Handoff Stages", ""])
+    for stage in manifest["handoff_stages"]:
+        blockers = ", ".join(stage["blocked_by"]) or "none"
+        lines.append(f"- {stage['order']}. `{stage['stage_id']}`: allowed_now=`{stage['source_allowed_now']}`, blocked_by=`{blockers}`")
+    lines.extend(["", "## Requirement Summary", ""])
+    lines.append(f"- formal gate requirements: `{len(manifest['formal_gate_requirements'])}`")
+    lines.append(f"- H02 acceptance requirements: `{len(manifest['h02_formal_acceptance_requirements'])}`")
+    lines.append(f"- safety issues: `{manifest['safety_issue_count']}`")
+    lines.extend(["", "This artifact is read-only and does not execute commands."])
+    return "\n".join(lines) + "\n"
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
