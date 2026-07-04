@@ -1365,6 +1365,50 @@ def _status_report_remaining_deliverables_acceptance_summary_payload(*, ready):
     }
 
 
+def _status_report_remaining_deliverables_gap_summary_payload(*, ready):
+    category_artifacts = {
+        "training": [
+            "training:train_final_model_zip",
+            "training:train_summary_json",
+            "training:train_training_manifest_json",
+        ],
+        "evaluation": [
+            "evaluation:eval_gate3_eval_episodes_csv",
+            "evaluation:eval_gate3_summary_json",
+        ],
+        "acceptance": [
+            "acceptance:gate3_trial_manifest_json",
+            "acceptance:gate3_formal_audit_json",
+            "acceptance:pulled_back_checkpoint_hash_record",
+        ],
+        "formal_acceptance": [
+            "formal_acceptance:h01_ready_for_formal_run",
+            "formal_acceptance:h02_formal_output_acceptance",
+        ],
+    }
+    categories = {}
+    for category, matrix_ids in category_artifacts.items():
+        categories[category] = {
+            "present": True,
+            "missing_count": 0 if ready else len(matrix_ids),
+            "responsible_stage_id": "gate3_remote_training"
+            if category == "training"
+            else "regenerate_h01_h02_formal_artifacts"
+            if category == "formal_acceptance"
+            else "gate3_remote_audit_pullback",
+            "responsible_stage_allowed_now": ready,
+            "missing_artifact_matrix_ids": [] if ready else matrix_ids,
+        }
+    return {
+        "present": True,
+        "summary_id": "module2_formal_gate_missing_training_eval_acceptance_summary",
+        "total_missing_deliverables": 0 if ready else sum(len(ids) for ids in category_artifacts.values()),
+        "open_category_count": 0 if ready else len(category_artifacts),
+        "category_order": list(category_artifacts),
+        "categories": categories,
+    }
+
+
 def _status_report_remote_requirement_summary(*, requirements, status_counts):
     return {
         "present": True,
