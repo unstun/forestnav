@@ -405,7 +405,9 @@ def test_claim_safety_blocks_formal_claim_when_status_report_is_blocked(tmp_path
 
     assert manifest["status"] == "blocked_formal_performance_claims"
     assert manifest["formal_performance_claim_allowed"] is False
-    assert manifest["formal_performance_blockers"] == ["formal_gate_status_report_blocked"]
+    assert "formal_gate_status_report_blocked" in manifest["formal_performance_blockers"]
+    assert "status_report_remaining_deliverables_gap_rows_missing" in manifest["formal_performance_blockers"]
+    assert "status_report_remaining_deliverables_gap_categories_blocked" in manifest["formal_performance_blockers"]
     assert manifest["input_status"]["status_report_status"] == "formal_gate_status_blocked"
     assert manifest["input_status"]["status_report_next_blocked_lane_id"] == "decision"
     assert manifest["input_status"]["status_report_decision_intake_status"] == "f02_6_decision_intake_pending_clean"
