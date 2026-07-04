@@ -452,6 +452,7 @@ def test_formal_gate_gap_audit_rejects_status_report_that_runs_or_claims(tmp_pat
             missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
             closure_checklist_path=_closure_checklist(tmp_path, complete=True),
             status_report_path=_status_report(tmp_path, ready=True, invalid=True),
+            remaining_deliverables_path=_remaining_deliverables(tmp_path, complete=True),
             handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
             remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True),
         )
@@ -485,6 +486,7 @@ def test_formal_gate_gap_audit_does_not_allow_local_training_even_when_remote_is
             missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
             closure_checklist_path=_closure_checklist(tmp_path, complete=True),
             status_report_path=_status_report(tmp_path, ready=True),
+            remaining_deliverables_path=_remaining_deliverables(tmp_path, complete=True),
             handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
             remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True),
         )
@@ -512,6 +514,7 @@ def test_formal_gate_gap_audit_blocks_remote_execution_when_handoff_disagrees_wi
             missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
             closure_checklist_path=_closure_checklist(tmp_path, complete=True),
             status_report_path=_status_report(tmp_path, ready=True),
+            remaining_deliverables_path=_remaining_deliverables(tmp_path, complete=True),
             handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False, mismatch=True),
             remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True),
         )
@@ -544,6 +547,7 @@ def test_formal_gate_gap_audit_blocks_remote_execution_when_remote_packet_safety
             missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
             closure_checklist_path=_closure_checklist(tmp_path, complete=True),
             status_report_path=_status_report(tmp_path, ready=True),
+            remaining_deliverables_path=_remaining_deliverables(tmp_path, complete=True),
             handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
             remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True, stale=True),
         )
