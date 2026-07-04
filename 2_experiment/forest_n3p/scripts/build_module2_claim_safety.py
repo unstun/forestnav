@@ -1569,6 +1569,11 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.append(f"- matrix_row_count=`{remaining['matrix_row_count']}`")
     lines.append(f"- missing_row_count=`{remaining['missing_row_count']}`")
     lines.append(f"- blocked_category_count=`{remaining['blocked_category_count']}`")
+    for matrix_id, row in remaining["rows"].items():
+        lines.append(
+            f"- `{matrix_id}`: proof_command_count=`{row['proof_command_count']}`, "
+            f"proof_command_ids=`{', '.join(row['proof_command_ids']) if row['proof_command_ids'] else 'none'}`"
+        )
     lines.extend(["", "## Status Report Remaining Deliverables Gap Summary", ""])
     gap = manifest["status_report_remaining_deliverables_gap_summary"]
     lines.append(f"- present=`{gap['present']}`")
@@ -1577,12 +1582,25 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.append(f"- open_category_count=`{gap['open_category_count']}`")
     for category, payload in gap["categories"].items():
         missing_ids = ", ".join(payload["missing_artifact_matrix_ids"]) if payload["missing_artifact_matrix_ids"] else "none"
+        proof_ids = ", ".join(payload["proof_command_ids"]) if payload["proof_command_ids"] else "none"
         lines.append(
             f"- `{category}`: missing_count=`{payload['missing_count']}`, "
             f"stage=`{payload['responsible_stage_id']}`, "
             f"stage_allowed_now=`{payload['responsible_stage_allowed_now']}`, "
-            f"missing_artifacts=`{missing_ids}`"
+            f"missing_artifacts=`{missing_ids}`, proof_commands=`{proof_ids}`"
         )
+    proof_plan = manifest["status_report_remaining_deliverables_proof_command_plan"]
+    lines.extend(["", "## Status Report Remaining Deliverables Proof Command Plan", ""])
+    lines.append(f"- present=`{proof_plan['present']}`")
+    lines.append(f"- plan_id=`{proof_plan['plan_id']}`")
+    lines.append(f"- execution_boundary=`{proof_plan['execution_boundary']}`")
+    lines.append(f"- total_matrix_rows=`{proof_plan['total_matrix_rows']}`")
+    lines.append(f"- total_proof_command_count=`{proof_plan['total_proof_command_count']}`")
+    lines.append(f"- runs_training=`{proof_plan['runs_training']}`")
+    lines.append(f"- runs_remote_preflight=`{proof_plan['runs_remote_preflight']}`")
+    for matrix_id, row in proof_plan["rows"].items():
+        proof_ids = ", ".join(row["proof_command_ids"]) if row["proof_command_ids"] else "none"
+        lines.append(f"- `{matrix_id}`: present=`{row['present']}`, proof_command_count=`{row['proof_command_count']}`, proof_command_ids=`{proof_ids}`")
     formal_gate_gap = manifest["status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary"]
     lines.extend(["", "## Status Report Formal Gate Gap Audit Remaining Deliverables Gap Summary", ""])
     lines.append(f"- present=`{formal_gate_gap['present']}`")
