@@ -1,0 +1,602 @@
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+from dataclasses import dataclass
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any, Sequence
+
+
+DEFAULT_OUTPUT_DIR = Path("0_trials/module2_formal_gate_missing_artifacts")
+DEFAULT_DECISION_RECORD = Path("0_trials/module2_f02_6_decision_record/f02_6_decision_record.json")
+DEFAULT_DECISION_GATE_AUDIT = Path("0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json")
+DEFAULT_POST_PLAN = Path("0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json")
+DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_freshness_audit.json")
+DEFAULT_REMOTE_PACKET = Path("0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json")
+DEFAULT_REMOTE_PACKET_AUDIT = Path("0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json")
+DEFAULT_H01_MANIFEST = Path("0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json")
+DEFAULT_H02_ACCEPTANCE = Path("0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json")
+
+TRAINING_SUFFIXES = (
+    "train/final_model.zip",
+    "train/summary.json",
+    "train/training_manifest.json",
+)
+GATE3_EVAL_SUFFIXES = (
+    "eval/gate3_eval_episodes.csv",
+    "eval/gate3_summary.json",
+)
+GATE3_ACCEPTANCE_SUFFIXES = (
+    "gate3_trial_manifest.json",
+    "gate3_formal_audit.json",
+)
+
+
+@dataclass(frozen=True)
+class FormalGateMissingArtifactsAuditConfig:
+    output_dir: Path
+    manifest_out: Path | None = None
+    markdown_out: Path | None = None
+    decision_record_path: Path = DEFAULT_DECISION_RECORD
+    decision_gate_audit_path: Path = DEFAULT_DECISION_GATE_AUDIT
+    post_plan_path: Path = DEFAULT_POST_PLAN
+    source_freshness_path: Path = DEFAULT_SOURCE_FRESHNESS
+    remote_packet_path: Path = DEFAULT_REMOTE_PACKET
+    remote_packet_audit_path: Path = DEFAULT_REMOTE_PACKET_AUDIT
+    h01_manifest_path: Path = DEFAULT_H01_MANIFEST
+    h02_acceptance_path: Path = DEFAULT_H02_ACCEPTANCE
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    args = _parse_args(argv)
+    config = FormalGateMissingArtifactsAuditConfig(
+        output_dir=args.output_dir,
+        manifest_out=args.manifest_out,
+        markdown_out=args.markdown_out,
+        decision_record_path=args.decision_record,
+        decision_gate_audit_path=args.decision_gate_audit,
+        post_plan_path=args.post_plan,
+        source_freshness_path=args.source_freshness_audit,
+        remote_packet_path=args.remote_packet,
+        remote_packet_audit_path=args.remote_packet_audit,
+        h01_manifest_path=args.h01_manifest,
+        h02_acceptance_path=args.h02_acceptance,
+    )
+    manifest = build_manifest(config)
+    output_dir = Path(config.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    manifest_out = config.manifest_out or output_dir / "formal_gate_missing_artifacts.json"
+    markdown_out = config.markdown_out or output_dir / "formal_gate_missing_artifacts.md"
+    manifest_out.parent.mkdir(parents=True, exist_ok=True)
+    markdown_out.parent.mkdir(parents=True, exist_ok=True)
+    manifest_out.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    markdown_out.write_text(_markdown(manifest), encoding="utf-8")
+    print(json.dumps({"manifest": str(manifest_out), "markdown": str(markdown_out), "status": manifest["status"]}, indent=2, ensure_ascii=False))
+    return 0
+
+
+def build_manifest(config: FormalGateMissingArtifactsAuditConfig) -> dict[str, Any]:
+    decision = _read_json(config.decision_record_path)
+    decision_gate = _read_json(config.decision_gate_audit_path)
+    post_plan = _read_json(config.post_plan_path)
+    source_freshness = _read_json(config.source_freshness_path)
+    remote_packet = _read_json(config.remote_packet_path)
+    remote_packet_audit = _read_json(config.remote_packet_audit_path)
+    h01_manifest = _read_json(config.h01_manifest_path)
+    h02_acceptance = _read_json(config.h02_acceptance_path)
+
+    groups = _missing_evidence_groups(
+        decision=decision,
+        post_plan=post_plan,
+        source_freshness=source_freshness,
+        remote_packet=remote_packet,
+        h01_manifest=h01_manifest,
+        h02_acceptance=h02_acceptance,
+    )
+    audit_issues = _audit_issues(
+        decision=decision,
+        decision_gate=decision_gate,
+        post_plan=post_plan,
+        source_freshness=source_freshness,
+        remote_packet=remote_packet,
+        remote_packet_audit=remote_packet_audit,
+        h01_manifest=h01_manifest,
+        h02_acceptance=h02_acceptance,
+        groups=groups,
+    )
+    missing_counts = _missing_counts(groups)
+    all_required_evidence_present = all(count == 0 for count in missing_counts.values())
+    return {
+        "schema_version": 1,
+        "artifact_name": "module2_formal_gate_missing_artifacts_audit",
+        "status": "formal_gate_artifacts_complete" if all_required_evidence_present and not audit_issues else "formal_gate_missing_artifacts_open",
+        "created_at_utc": datetime.now(UTC).isoformat(),
+        "source_head": _source_head(),
+        "not_paper_result_material": True,
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+        "inputs": {
+            "decision_record": str(config.decision_record_path),
+            "f02_6_decision_gate_audit": str(config.decision_gate_audit_path),
+            "post_f02_6_regeneration_plan": str(config.post_plan_path),
+            "source_freshness_audit": str(config.source_freshness_path),
+            "remote_formal_execution_packet": str(config.remote_packet_path),
+            "remote_packet_safety_audit": str(config.remote_packet_audit_path),
+            "h01_manifest": str(config.h01_manifest_path),
+            "h02_formal_acceptance": str(config.h02_acceptance_path),
+        },
+        "current_gate_summary": _current_gate_summary(
+            decision=decision,
+            decision_gate=decision_gate,
+            post_plan=post_plan,
+            source_freshness=source_freshness,
+            remote_packet=remote_packet,
+            remote_packet_audit=remote_packet_audit,
+            h01_manifest=h01_manifest,
+            h02_acceptance=h02_acceptance,
+        ),
+        "missing_counts_by_category": missing_counts,
+        "all_required_evidence_present": all_required_evidence_present,
+        "missing_evidence_groups": groups,
+        "audit_issue_count": len(audit_issues),
+        "audit_issues": audit_issues,
+        "claim_boundaries": [
+            "This audit lists missing formal-gate evidence; it does not run training, preflight, sync, audit, pullback, or evaluation.",
+            "A complete file list is still not a paper claim unless Gate3 audit passes, hashes are recorded, H01 is ready, and H02 accepts formal outputs.",
+            "F02.6 approval by Dr Sun is required before obstacle-summary warm-start formal training.",
+            "PPO formal training remains gpu3070ti-relay-only; local training remains prohibited.",
+            "This artifact is a gate inventory, not result-table or appendix material.",
+        ],
+    }
+
+
+def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Audit missing Module2 formal-gate training/evaluation/acceptance artifacts without executing commands.")
+    parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    parser.add_argument("--manifest-out", type=Path, default=None)
+    parser.add_argument("--markdown-out", type=Path, default=None)
+    parser.add_argument("--decision-record", type=Path, default=DEFAULT_DECISION_RECORD)
+    parser.add_argument("--decision-gate-audit", type=Path, default=DEFAULT_DECISION_GATE_AUDIT)
+    parser.add_argument("--post-plan", type=Path, default=DEFAULT_POST_PLAN)
+    parser.add_argument("--source-freshness-audit", type=Path, default=DEFAULT_SOURCE_FRESHNESS)
+    parser.add_argument("--remote-packet", type=Path, default=DEFAULT_REMOTE_PACKET)
+    parser.add_argument("--remote-packet-audit", type=Path, default=DEFAULT_REMOTE_PACKET_AUDIT)
+    parser.add_argument("--h01-manifest", type=Path, default=DEFAULT_H01_MANIFEST)
+    parser.add_argument("--h02-acceptance", type=Path, default=DEFAULT_H02_ACCEPTANCE)
+    return parser.parse_args(list(argv) if argv is not None else None)
+
+
+def _missing_evidence_groups(
+    *,
+    decision: dict[str, Any],
+    post_plan: dict[str, Any],
+    source_freshness: dict[str, Any],
+    remote_packet: dict[str, Any],
+    h01_manifest: dict[str, Any],
+    h02_acceptance: dict[str, Any],
+) -> list[dict[str, Any]]:
+    return [
+        _decision_group(decision),
+        _source_regeneration_group(source_freshness),
+        _post_plan_group(post_plan),
+        _remote_artifact_group(
+            group_id="remote_training_outputs",
+            category="training",
+            remote_packet=remote_packet,
+            suffixes=TRAINING_SUFFIXES,
+            required_before="gate3_remote_audit_pullback",
+        ),
+        _remote_artifact_group(
+            group_id="gate3_evaluation_outputs",
+            category="evaluation",
+            remote_packet=remote_packet,
+            suffixes=GATE3_EVAL_SUFFIXES,
+            required_before="gate3_remote_audit_pullback",
+        ),
+        _remote_artifact_group(
+            group_id="gate3_acceptance_pullback",
+            category="acceptance",
+            remote_packet=remote_packet,
+            suffixes=GATE3_ACCEPTANCE_SUFFIXES,
+            required_before="h01_h02_formal_regeneration",
+            extra_items=_hash_items(remote_packet),
+        ),
+        _h01_h02_group(h01_manifest=h01_manifest, h02_acceptance=h02_acceptance),
+        _claim_gate_group(source_freshness=source_freshness, h02_acceptance=h02_acceptance),
+    ]
+
+
+def _decision_group(decision: dict[str, Any]) -> dict[str, Any]:
+    status = str(decision.get("status") or "missing")
+    complete = status == "approved" and decision.get("decider") == "Dr Sun"
+    return {
+        "group_id": "f02_6_decision_record",
+        "category": "decision",
+        "required_before": "source_fresh_regeneration",
+        "complete": complete,
+        "blocked_by": [] if complete else ["f02_6_decision_not_approved"],
+        "items": [
+            {
+                "artifact_id": "f02_6_decision_record",
+                "path": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+                "exists": bool(decision),
+                "state": status,
+                "missing": not complete,
+                "reason": "requires Dr Sun approval record before warm-start formal chain",
+            }
+        ],
+    }
+
+
+def _source_regeneration_group(source_freshness: dict[str, Any]) -> dict[str, Any]:
+    targets = _source_targets(source_freshness)
+    required = bool(source_freshness.get("regeneration_required_before_remote_formal_execution"))
+    items = []
+    for target in targets:
+        items.append(
+            {
+                "artifact_id": target.get("artifact_id"),
+                "path": target.get("path"),
+                "exists": Path(str(target.get("path") or "")).is_file(),
+                "state": target.get("freshness_state"),
+                "missing": required,
+                "required_before": target.get("required_before"),
+                "reason": "source freshness audit requires regeneration before the corresponding formal gate",
+            }
+        )
+    return {
+        "group_id": "source_fresh_regeneration_targets",
+        "category": "regeneration",
+        "required_before": "approved_remote_preflight",
+        "complete": not required,
+        "blocked_by": ["source_freshness_regeneration_required"] if required else [],
+        "items": items,
+    }
+
+
+def _post_plan_group(post_plan: dict[str, Any]) -> dict[str, Any]:
+    stages = post_plan.get("ordered_stages") if isinstance(post_plan.get("ordered_stages"), list) else []
+    blocked = [str(stage.get("stage_id")) for stage in stages if isinstance(stage, dict) and stage.get("status") == "blocked"]
+    return {
+        "group_id": "post_f02_6_ordered_stages",
+        "category": "gate_sequence",
+        "required_before": "remote_training",
+        "complete": not blocked,
+        "blocked_by": blocked,
+        "items": [
+            {
+                "artifact_id": str(stage.get("stage_id")),
+                "path": "; ".join(str(item) for item in stage.get("evidence_paths", ()) if item),
+                "exists": True,
+                "state": stage.get("status"),
+                "missing": stage.get("status") == "blocked",
+                "reason": ", ".join(str(item) for item in stage.get("blocked_by", ()) if item),
+            }
+            for stage in stages
+            if isinstance(stage, dict)
+        ],
+    }
+
+
+def _remote_artifact_group(
+    *,
+    group_id: str,
+    category: str,
+    remote_packet: dict[str, Any],
+    suffixes: Sequence[str],
+    required_before: str,
+    extra_items: Sequence[dict[str, Any]] = (),
+) -> dict[str, Any]:
+    artifacts = _expected_artifacts(remote_packet)
+    items = []
+    for suffix in suffixes:
+        path = _artifact_for_suffix(artifacts, suffix)
+        exists = bool(path) and Path(path).is_file()
+        items.append(
+            {
+                "artifact_id": _slug(suffix),
+                "path": path,
+                "exists": exists,
+                "state": "present" if exists else "missing",
+                "missing": not exists,
+                "reason": f"required formal Gate3 {category} artifact",
+            }
+        )
+    items.extend(extra_items)
+    missing = [item for item in items if item.get("missing")]
+    return {
+        "group_id": group_id,
+        "category": category,
+        "required_before": required_before,
+        "complete": not missing,
+        "blocked_by": [str(item.get("artifact_id")) for item in missing],
+        "items": items,
+    }
+
+
+def _hash_items(remote_packet: dict[str, Any]) -> list[dict[str, Any]]:
+    pullback = remote_packet.get("post_run_pullback") if isinstance(remote_packet.get("post_run_pullback"), dict) else {}
+    required = pullback.get("hash_manifest_required") is True
+    artifact_paths = _expected_artifacts(remote_packet)
+    final_model = _artifact_for_suffix(artifact_paths, "train/final_model.zip")
+    candidate_paths = [f"{final_model}.sha256", f"{final_model}.sha256.json"] if final_model else []
+    exists = any(Path(path).is_file() for path in candidate_paths)
+    return [
+        {
+            "artifact_id": "pulled_back_checkpoint_hash_record",
+            "path": " or ".join(candidate_paths) if candidate_paths else "",
+            "exists": exists,
+            "state": "present" if exists else "missing",
+            "missing": required and not exists,
+            "reason": "remote packet requires checkpoint hash before any local formal claim",
+        }
+    ]
+
+
+def _h01_h02_group(*, h01_manifest: dict[str, Any], h02_acceptance: dict[str, Any]) -> dict[str, Any]:
+    h01_ready = str(h01_manifest.get("status")) in {"ready", "formal_ready", "ready_for_formal_run", "ready_for_formal_evaluation"}
+    h02_accepted = h02_acceptance.get("formal_output_accepted") is True and h02_acceptance.get("paper_result_input_allowed") is True
+    h02_blockers = _strings(h02_acceptance.get("blockers"))
+    items = [
+        {
+            "artifact_id": "h01_ready_for_formal_run",
+            "path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
+            "exists": bool(h01_manifest),
+            "state": h01_manifest.get("status"),
+            "missing": not h01_ready,
+            "reason": ", ".join(_strings(h01_manifest.get("blockers"))) or "H01 manifest must become ready for formal run",
+        },
+        {
+            "artifact_id": "h02_formal_output_acceptance",
+            "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+            "exists": bool(h02_acceptance),
+            "state": h02_acceptance.get("status"),
+            "missing": not h02_accepted,
+            "reason": ", ".join(h02_blockers) or "H02 must accept formal outputs",
+        },
+    ]
+    missing = [item for item in items if item["missing"]]
+    return {
+        "group_id": "h01_h02_formal_evaluation_acceptance",
+        "category": "evaluation_acceptance",
+        "required_before": "claim_gate",
+        "complete": not missing,
+        "blocked_by": [str(item["artifact_id"]) for item in missing],
+        "items": items,
+    }
+
+
+def _claim_gate_group(*, source_freshness: dict[str, Any], h02_acceptance: dict[str, Any]) -> dict[str, Any]:
+    claim_targets = [target for target in _source_targets(source_freshness) if str(target.get("required_before")) == "formal_claim_gate"]
+    h02_accepted = h02_acceptance.get("formal_output_accepted") is True
+    items = [
+        {
+            "artifact_id": str(target.get("artifact_id")),
+            "path": str(target.get("path") or ""),
+            "exists": Path(str(target.get("path") or "")).is_file(),
+            "state": target.get("freshness_state"),
+            "missing": True,
+            "reason": "claim gate artifact must be regenerated after H02 formal acceptance",
+        }
+        for target in claim_targets
+    ]
+    if not h02_accepted:
+        items.append(
+            {
+                "artifact_id": "h02_formal_acceptance_before_claim_gate",
+                "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+                "exists": bool(h02_acceptance),
+                "state": h02_acceptance.get("status"),
+                "missing": True,
+                "reason": "claim gate cannot be regenerated from blocked H02 outputs",
+            }
+        )
+    missing = [item for item in items if item.get("missing")]
+    return {
+        "group_id": "claim_gate_regeneration",
+        "category": "claim_gate",
+        "required_before": "formal_claim",
+        "complete": not missing,
+        "blocked_by": [str(item.get("artifact_id")) for item in missing],
+        "items": items,
+    }
+
+
+def _audit_issues(
+    *,
+    decision: dict[str, Any],
+    decision_gate: dict[str, Any],
+    post_plan: dict[str, Any],
+    source_freshness: dict[str, Any],
+    remote_packet: dict[str, Any],
+    remote_packet_audit: dict[str, Any],
+    h01_manifest: dict[str, Any],
+    h02_acceptance: dict[str, Any],
+    groups: Sequence[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    inputs = [decision, decision_gate, post_plan, source_freshness, remote_packet, remote_packet_audit, h01_manifest, h02_acceptance]
+    for name, payload in zip(
+        (
+            "decision",
+            "decision_gate",
+            "post_plan",
+            "source_freshness",
+            "remote_packet",
+            "remote_packet_audit",
+            "h01_manifest",
+            "h02_acceptance",
+        ),
+        inputs,
+    ):
+        if payload.get("local_training_allowed") is True:
+            issues.append(_issue(f"{name}_allows_local_training", f"{name} must not allow local training."))
+        if payload.get("formal_claim_allowed") is True or payload.get("formal_claim_allowed_before_audit") is True:
+            issues.append(_issue(f"{name}_allows_formal_claim", f"{name} must not allow formal claims before acceptance."))
+    decision_status = str(decision.get("status") or "")
+    if decision_status in {"pending_human_decision", "pending"} and remote_packet.get("ready_to_run_remote_training") is True:
+        issues.append(_issue("pending_decision_remote_packet_ready", "Remote packet must not be ready while F02.6 is pending."))
+    if remote_packet_audit and remote_packet_audit.get("status") != "remote_packet_safety_audit_passed":
+        issues.append(_issue("remote_packet_safety_audit_not_passed", "Remote packet safety audit must pass before formal execution."))
+    if h02_acceptance.get("formal_output_accepted") is True and _group_missing(groups, "gate3_acceptance_pullback"):
+        issues.append(_issue("h02_accepts_missing_pullback_artifacts", "H02 cannot accept formal output while Gate3 audit/pullback artifacts are missing."))
+    if h01_manifest.get("status") in {"ready", "ready_for_formal_run"} and _group_missing(groups, "remote_training_outputs"):
+        issues.append(_issue("h01_ready_without_remote_training_outputs", "H01 should not be ready without remote PPO training artifacts."))
+    return _unique_issues(issues)
+
+
+def _current_gate_summary(
+    *,
+    decision: dict[str, Any],
+    decision_gate: dict[str, Any],
+    post_plan: dict[str, Any],
+    source_freshness: dict[str, Any],
+    remote_packet: dict[str, Any],
+    remote_packet_audit: dict[str, Any],
+    h01_manifest: dict[str, Any],
+    h02_acceptance: dict[str, Any],
+) -> dict[str, Any]:
+    post_summary = post_plan.get("blocking_summary") if isinstance(post_plan.get("blocking_summary"), dict) else {}
+    return {
+        "f02_6_decision_record_status": decision.get("status"),
+        "f02_6_decision_gate_status": decision_gate.get("status"),
+        "post_f02_6_plan_status": post_plan.get("status"),
+        "post_plan_training_allowed_now": post_summary.get("training_allowed_now"),
+        "post_plan_remote_preflight_allowed_now": post_summary.get("remote_preflight_allowed_now"),
+        "source_freshness_status": source_freshness.get("status"),
+        "source_freshness_regeneration_required": source_freshness.get("regeneration_required_before_remote_formal_execution"),
+        "remote_packet_status": remote_packet.get("status"),
+        "ready_to_run_remote_training": remote_packet.get("ready_to_run_remote_training"),
+        "remote_packet_safety_audit_status": remote_packet_audit.get("status"),
+        "h01_manifest_status": h01_manifest.get("status"),
+        "h01_blockers": _strings(h01_manifest.get("blockers")),
+        "h02_acceptance_status": h02_acceptance.get("status"),
+        "h02_blockers": _strings(h02_acceptance.get("blockers")),
+    }
+
+
+def _missing_counts(groups: Sequence[dict[str, Any]]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for group in groups:
+        category = str(group.get("category") or "unknown")
+        counts[category] = counts.get(category, 0) + sum(1 for item in group.get("items", ()) if isinstance(item, dict) and item.get("missing"))
+    return counts
+
+
+def _expected_artifacts(remote_packet: dict[str, Any]) -> list[str]:
+    pullback = remote_packet.get("post_run_pullback") if isinstance(remote_packet.get("post_run_pullback"), dict) else {}
+    artifacts = pullback.get("expected_artifacts") if isinstance(pullback.get("expected_artifacts"), list) else []
+    return [str(item) for item in artifacts if item]
+
+
+def _artifact_for_suffix(paths: Sequence[str], suffix: str) -> str:
+    for path in paths:
+        if path.endswith(suffix):
+            return path
+    return ""
+
+
+def _source_targets(source_freshness: dict[str, Any]) -> list[dict[str, Any]]:
+    targets = source_freshness.get("ordered_regeneration_targets")
+    if not isinstance(targets, list):
+        return []
+    return [target for target in targets if isinstance(target, dict)]
+
+
+def _group_missing(groups: Sequence[dict[str, Any]], group_id: str) -> bool:
+    for group in groups:
+        if group.get("group_id") == group_id:
+            return any(isinstance(item, dict) and item.get("missing") for item in group.get("items", ()))
+    return False
+
+
+def _strings(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [str(item) for item in value if item]
+
+
+def _issue(issue_id: str, message: str) -> dict[str, str]:
+    return {"issue_id": issue_id, "message": message}
+
+
+def _unique_issues(issues: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+    seen: set[str] = set()
+    out: list[dict[str, Any]] = []
+    for issue in issues:
+        issue_id = str(issue.get("issue_id"))
+        if not issue_id or issue_id in seen:
+            continue
+        seen.add(issue_id)
+        out.append(issue)
+    return out
+
+
+def _slug(value: str) -> str:
+    out = []
+    for char in value.lower():
+        out.append(char if char.isalnum() else "_")
+    return "".join(out).strip("_")
+
+
+def _read_json(path: Path) -> dict[str, Any]:
+    if not Path(path).is_file():
+        return {}
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def _source_head() -> str:
+    try:
+        head = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL).strip()
+        dirty = subprocess.check_output(["git", "status", "--short"], text=True, stderr=subprocess.DEVNULL).strip()
+        return f"{head}+dirty" if dirty else head
+    except Exception:
+        return "unknown"
+
+
+def _markdown(manifest: dict[str, Any]) -> str:
+    lines = [
+        "# Module2 Formal Gate Missing Artifacts Audit",
+        "",
+        "This file inventories missing formal-gate evidence. It does not execute commands or write paper results.",
+        "",
+        f"- status: `{manifest['status']}`",
+        f"- all_required_evidence_present: `{manifest['all_required_evidence_present']}`",
+        f"- audit_issue_count: `{manifest['audit_issue_count']}`",
+        f"- local_training_allowed: `{manifest['local_training_allowed']}`",
+        f"- formal_claim_allowed: `{manifest['formal_claim_allowed']}`",
+        "",
+        "## Current Gate Summary",
+        "",
+    ]
+    for key, value in manifest["current_gate_summary"].items():
+        lines.append(f"- {key}: `{value}`")
+    lines.extend(["", "## Missing Counts", ""])
+    for category, count in sorted(manifest["missing_counts_by_category"].items()):
+        lines.append(f"- {category}: `{count}`")
+    lines.extend(["", "## Evidence Groups", ""])
+    for group in manifest["missing_evidence_groups"]:
+        lines.append(
+            f"- `{group['group_id']}` ({group['category']}): complete=`{group['complete']}`, "
+            f"blocked_by=`{', '.join(group['blocked_by'])}`"
+        )
+        for item in group["items"]:
+            if item.get("missing"):
+                lines.append(f"  - missing `{item.get('artifact_id')}`: `{item.get('path')}` ({item.get('reason')})")
+    lines.extend(["", "## Audit Issues", ""])
+    if manifest["audit_issues"]:
+        lines.extend(f"- `{issue['issue_id']}`: {issue['message']}" for issue in manifest["audit_issues"])
+    else:
+        lines.append("- none")
+    lines.extend(["", "## Claim Boundaries", ""])
+    lines.extend(f"- {item}" for item in manifest["claim_boundaries"])
+    return "\n".join(lines) + "\n"
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
