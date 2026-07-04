@@ -53,6 +53,18 @@ STATUS_REPORT_H02_FORMAL_ACCEPTANCE_REQUIREMENT_IDS = (
     "gate3_audit_and_pullback_acceptance",
     "ppo_rows_and_checkpoint_hash_present",
 )
+STATUS_REPORT_REMAINING_DELIVERABLE_MATRIX_IDS = (
+    "training:train_final_model_zip",
+    "training:train_summary_json",
+    "training:train_training_manifest_json",
+    "evaluation:eval_gate3_eval_episodes_csv",
+    "evaluation:eval_gate3_summary_json",
+    "acceptance:gate3_trial_manifest_json",
+    "acceptance:gate3_formal_audit_json",
+    "acceptance:pulled_back_checkpoint_hash_record",
+    "formal_acceptance:h01_ready_for_formal_run",
+    "formal_acceptance:h02_formal_output_acceptance",
+)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -122,6 +134,9 @@ def build_manifest(
     status_report_requirement_stage_summary = _status_report_requirement_stage_summary(status_report)
     status_report_remote_requirement_summary = _status_report_remote_requirement_summary(status_report)
     status_report_h02_acceptance_requirement_summary = _status_report_h02_acceptance_requirement_summary(status_report)
+    status_report_remaining_deliverables_acceptance_summary = _status_report_remaining_deliverables_acceptance_summary(
+        status_report
+    )
     status_report_decision_intake_summary = _status_report_decision_intake_summary(status_report)
     formal_allowed = not formal_blockers
     prohibited = _prohibited_claims()
