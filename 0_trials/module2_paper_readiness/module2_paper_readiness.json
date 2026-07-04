@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "artifact_name": "module2_paper_readiness",
+  "status": "partial_methods_ready_results_blocked",
+  "created_at_utc": "2026-07-04T09:09:09.176388+00:00",
+  "source_head": "6689b3ab720df72d364492094379eb76a8b09ef2+dirty",
+  "manuscript_ready": false,
+  "formal_results_ready": false,
+  "local_training_allowed": false,
+  "remote_training_resource": "gpu3070ti-relay",
+  "inputs": {
+    "method_algorithms": "0_trials/module2_method_algorithms/module2_method_algorithms.json",
+    "system_diagram": "0_trials/module2_system_diagram/module2_system_diagram.json",
+    "paper_tables": "0_trials/module2_paper_tables/module2_paper_tables.json",
+    "claim_safety": "0_trials/module2_claim_safety/module2_claim_safety.json",
+    "h02_formal_acceptance": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+    "h01_manifest": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
+    "f02_6_decision_record": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+    "remote_execution_packet": "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json"
+  },
+  "input_status": {
+    "method_algorithms_status": "code_anchored",
+    "system_diagram_status": "code_anchored_drawio",
+    "paper_tables_status": "blocked_no_formal_h02_data",
+    "paper_tables_formal_claim_allowed": false,
+    "claim_safety_status": "blocked_formal_performance_claims",
+    "claim_safety_formal_performance_claim_allowed": false,
+    "h02_formal_acceptance_status": "blocked_formal_output_acceptance",
+    "h02_formal_output_accepted": false,
+    "h02_paper_result_input_allowed": false,
+    "h01_manifest_status": "blocked_pending_decisions",
+    "f02_6_decision_status": "pending_human_decision",
+    "remote_execution_packet_status": "blocked_until_f02_6_decision",
+    "remote_execution_ready": false
+  },
+  "global_blockers": [
+    "paper_tables_not_formal",
+    "h02_verdict_not_formal",
+    "h02_formal_acceptance_not_accepted",
+    "h01_manifest_not_ready",
+    "f02_6_warm_start_decision_pending",
+    "missing_module2_rl_rs_checkpoint",
+    "remote_execution_packet_not_ready",
+    "requires_dr_sun_approval",
+    "missing_gate3_formal_audit",
+    "h02_scale_below_h01_manifest",
+    "missing_ppo_result_rows",
+    "missing_remote_pullback_artifacts",
+    "f02_6_formal_chain_pending",
+    "claim_safety_blocks_formal_performance",
+    "f02_6_pending"
+  ],
+  "allowed_claim_ids": [
+    "method_is_ha_star_analytic_operator",
+    "no_warm_gate3_formal_failure"
+  ],
+  "conditional_claim_ids": [
+    "formal_performance_improvement",
+    "warm_start_effect"
+  ],
+  "section_readiness": [
+    {
+      "section_id": "method_algorithm",
+      "paper_target": "Methods: RL-RS analytic-expansion operator and PPO environment",
+      "status": "ready_to_write",
+      "evidence": [
+        "0_trials/module2_method_algorithms/module2_method_algorithms.json"
+      ],
+      "blockers": []
+    },
+    {
+      "section_id": "system_figure",
+      "paper_target": "Figure: system architecture and fallback semantics",
+      "status": "ready_to_write",
+      "evidence": [
+        "0_trials/module2_system_diagram/module2_system_diagram.json"
+      ],
+      "blockers": []
+    },
+    {
+      "section_id": "no_warm_failure_claim",
+      "paper_target": "Scoped result note: no-warm PPO Gate #3 failure",
+      "status": "ready_with_scope_limit",
+      "evidence": [
+        "0_trials/module2_claim_safety/module2_claim_safety.json"
+      ],
+      "blockers": []
+    },
+    {
+      "section_id": "main_results_table",
+      "paper_target": "Results: main H02 formal comparison table",
+      "status": "blocked",
+      "evidence": [
+        "0_trials/module2_paper_tables/module2_paper_tables.json",
+        "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
+      ],
+      "blockers": [
+        "h02_verdict_not_formal",
+        "h02_formal_acceptance_not_accepted",
+        "h01_manifest_not_ready",
+        "f02_6_warm_start_decision_pending",
+        "missing_module2_rl_rs_checkpoint",
+        "remote_execution_packet_not_ready",
+        "requires_dr_sun_approval",
+        "missing_gate3_formal_audit",
+        "h02_scale_below_h01_manifest",
+        "missing_ppo_result_rows",
+        "missing_remote_pullback_artifacts",
+        "f02_6_formal_chain_pending"
+      ]
+    },
+    {
+      "section_id": "formal_results",
+      "paper_target": "Results: formal performance improvement claims",
+      "status": "blocked",
+      "evidence": [
+        "0_trials/module2_claim_safety/module2_claim_safety.json",
+        "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+        "0_trials/module2_paper_tables/module2_paper_tables.json"
+      ],
+      "blockers": [
+        "paper_tables_not_formal",
+        "h02_verdict_not_formal",
+        "h02_formal_acceptance_not_accepted",
+        "h01_manifest_not_ready",
+        "f02_6_warm_start_decision_pending",
+        "missing_module2_rl_rs_checkpoint",
+        "remote_execution_packet_not_ready",
+        "requires_dr_sun_approval",
+        "missing_gate3_formal_audit",
+        "h02_scale_below_h01_manifest",
+        "missing_ppo_result_rows",
+        "missing_remote_pullback_artifacts",
+        "f02_6_formal_chain_pending",
+        "claim_safety_blocks_formal_performance",
+        "f02_6_pending"
+      ]
+    },
+    {
+      "section_id": "warm_start_effect",
+      "paper_target": "Ablation: obstacle-summary warm-start effect",
+      "status": "blocked",
+      "evidence": [
+        "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+        "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json"
+      ],
+      "blockers": [
+        "f02_6_not_approved",
+        "requires_dr_sun_approval",
+        "f02_6_warm_start_decision_pending",
+        "missing_module2_rl_rs_checkpoint"
+      ]
+    }
+  ],
+  "claim_boundaries": [
+    "Method and system-description sections may be drafted from code-anchored artifacts.",
+    "Formal result, ablation, and performance-improvement sections remain blocked until H02 acceptance and claim safety are both formal-ready.",
+    "No-warm Gate #3 failure can be written only with no-warm scope qualification.",
+    "Obstacle-summary warm-start effect remains blocked until F02.6 closes and a remote formal run/audit is pulled back.",
+    "Do not use this readiness ledger as a performance result; it only routes paper writing work to evidence."
+  ]
+}
