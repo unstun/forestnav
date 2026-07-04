@@ -33,8 +33,6 @@ from forest_n3p.baselines.dqn10_full import (
 )
 from forest_n3p.maps.forest import generate_forest_grid
 from forest_n3p.pilot_labeling import footprint_clearance_m
-from forest_n3p.rl_rs.checkpoint_operator import load_rl_rs_funnel_operator_from_checkpoint
-from forest_n3p.rl_rs.obs import ObservationConfig
 from forest_n3p.training_data import TrainingDataConfig, TrainingProfile, make_forest_params
 from forest_n3p.third_party.pathplan import (
     AckermannParams,
@@ -858,7 +856,15 @@ def _load_module2_rl_rs_operator(cfg: MainEvaluationConfig):
     )
 
 
-def _module2_rl_rs_observation_config(cfg: MainEvaluationConfig) -> ObservationConfig:
+def load_rl_rs_funnel_operator_from_checkpoint(*args, **kwargs):
+    from forest_n3p.rl_rs.checkpoint_operator import load_rl_rs_funnel_operator_from_checkpoint as _load
+
+    return _load(*args, **kwargs)
+
+
+def _module2_rl_rs_observation_config(cfg: MainEvaluationConfig):
+    from forest_n3p.rl_rs.obs import ObservationConfig
+
     return ObservationConfig(
         patch_size_m=float(cfg.module2_rl_rs_obs_patch_size_m),
         patch_cells=int(cfg.module2_rl_rs_obs_patch_cells),
