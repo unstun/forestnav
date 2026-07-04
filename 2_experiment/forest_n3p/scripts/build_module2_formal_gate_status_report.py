@@ -833,6 +833,16 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"runs_training=`{stage['runs_training']}`, runs_remote_preflight=`{stage['runs_remote_preflight']}`, "
             f"host=`{stage['host']}`, blocked_by=`{blocked_by}`"
         )
+    lines.extend(["", "## Missing-Artifacts Handoff Index", ""])
+    missing_handoff = manifest["missing_artifacts_handoff_index_summary"]
+    lines.append(f"- present: `{missing_handoff['present']}`")
+    lines.append(f"- status: `{missing_handoff['status']}`")
+    lines.append(f"- next_action: `{missing_handoff['next_action_id']}`")
+    lines.append(f"- next_action_requires_dr_sun: `{missing_handoff['next_action_requires_dr_sun']}`")
+    lines.append(f"- open_requirement_count: `{missing_handoff['open_requirement_count']}`")
+    lines.append(f"- local_training_allowed_now: `{missing_handoff['local_training_allowed_now']}`")
+    lines.append(f"- remote_training_allowed_now: `{missing_handoff['remote_training_allowed_now']}`")
+    lines.append(f"- formal_result_material_allowed_now: `{missing_handoff['formal_result_material_allowed_now']}`")
     lines.extend(["", "## Formal Gate Handoff Bundle", ""])
     handoff = manifest["formal_gate_handoff_summary"]
     lines.append(f"- present: `{handoff['present']}`")
