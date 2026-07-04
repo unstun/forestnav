@@ -911,8 +911,10 @@ def _current_gate_state(
     source_freshness: dict[str, Any],
     missing_artifacts: dict[str, Any],
     closure_checklist: dict[str, Any],
+    status_report: dict[str, Any],
 ) -> dict[str, Any]:
     method_checks = h02.get("method_checks") if isinstance(h02.get("method_checks"), dict) else {}
+    status_permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
     return {
         "f02_6_decision_status": decision.get("status"),
         "effective_warm_start_decision": decision.get("effective_warm_start_decision"),
@@ -931,6 +933,8 @@ def _current_gate_state(
         "formal_gate_missing_artifacts_open": missing_artifacts.get("all_required_evidence_present") is not True,
         "formal_gate_closure_checklist_status": closure_checklist.get("status"),
         "formal_gate_closure_checklist_open": closure_checklist.get("status") != "formal_gate_closure_ready_for_result_audit",
+        "formal_gate_status_report_status": status_report.get("status"),
+        "formal_gate_status_report_formal_claim_allowed_now": status_permissions.get("formal_claim_allowed_now"),
     }
 
 
@@ -998,6 +1002,25 @@ def _closure_checklist_record(path: Path, closure_checklist: dict[str, Any]) -> 
         "closure_item_count": closure_checklist.get("closure_item_count"),
         "open_item_count": closure_checklist.get("open_item_count"),
         "input_safety_issue_count": closure_checklist.get("input_safety_issue_count"),
+    }
+
+
+def _status_report_record(path: Path, status_report: dict[str, Any]) -> dict[str, Any]:
+    permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
+    next_blocked_lane = status_report.get("next_blocked_lane") if isinstance(status_report.get("next_blocked_lane"), dict) else {}
+    return {
+        "path": str(path),
+        "exists": Path(path).is_file(),
+        "status": status_report.get("status"),
+        "executes_commands": status_report.get("executes_commands"),
+        "runs_training": status_report.get("runs_training"),
+        "runs_remote_preflight": status_report.get("runs_remote_preflight"),
+        "local_training_allowed": status_report.get("local_training_allowed"),
+        "formal_claim_allowed": status_report.get("formal_claim_allowed"),
+        "formal_claim_allowed_now": permissions.get("formal_claim_allowed_now"),
+        "local_training_allowed_now": permissions.get("local_training_allowed_now"),
+        "next_blocked_lane_id": next_blocked_lane.get("lane_id"),
+        "input_safety_issue_count": status_report.get("input_safety_issue_count"),
     }
 
 
