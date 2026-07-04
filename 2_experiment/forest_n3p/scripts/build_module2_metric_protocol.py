@@ -10,6 +10,7 @@ from typing import Any, Sequence
 
 from forest_n3p.evaluation import (
     BootstrapCIResult,
+    BootstrapRateCIResult,
     EvaluationRecord,
     GroupSummary,
     PairedWilcoxonExpansionsResult,
@@ -41,6 +42,7 @@ def build_metric_protocol(*, contract_path: Path = DEFAULT_CONTRACT_PATH) -> dic
     paired_time_columns = _dataclass_fields(PairedWilcoxonResult)
     paired_expansion_columns = _dataclass_fields(PairedWilcoxonExpansionsResult)
     bootstrap_columns = _dataclass_fields(BootstrapCIResult)
+    bootstrap_rate_columns = _dataclass_fields(BootstrapRateCIResult)
     metrics = _metric_records()
     blockers = _protocol_blockers(metrics=metrics, record_columns=record_columns, summary_columns=summary_columns)
     return {
@@ -62,6 +64,8 @@ def build_metric_protocol(*, contract_path: Path = DEFAULT_CONTRACT_PATH) -> dic
             "paired_time_tests_columns": paired_time_columns,
             "paired_expansion_tests_columns": paired_expansion_columns,
             "success_rate_bootstrap_ci_columns": bootstrap_columns,
+            "failure_rate_bootstrap_ci_columns": bootstrap_rate_columns,
+            "timeout_failure_rate_bootstrap_ci_columns": bootstrap_rate_columns,
         },
         "blockers": blockers,
         "claim_boundaries": [
@@ -129,7 +133,20 @@ def _metric_records() -> list[dict[str, Any]]:
             ],
             "statistical_test": {
                 "name": "paired_bootstrap_ci",
-                "function": "bootstrap over paired timeout indicator differences",
+                "function": "forest_n3p.evaluation.bootstrap_timeout_failure_rate_difference",
+                "confidence_level": 0.95,
+            },
+        },
+        {
+            "metric_id": "failure_rate",
+            "role": "diagnostic",
+            "record_derivation": {
+                "source_field": "records.csv.feasible",
+                "rule": "count a failure when feasible is false",
+            },
+            "statistical_test": {
+                "name": "paired_bootstrap_ci",
+                "function": "forest_n3p.evaluation.bootstrap_failure_rate_difference",
                 "confidence_level": 0.95,
             },
         },

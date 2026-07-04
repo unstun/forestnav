@@ -16,7 +16,9 @@ from forest_n3p.evaluation import (
     EvaluationConfig,
     EvaluationRecord,
     EvaluationRun,
+    bootstrap_failure_rate_difference,
     bootstrap_success_rate_difference,
+    bootstrap_timeout_failure_rate_difference,
     evaluate_run,
     paired_wilcoxon_expansions,
     paired_wilcoxon_time,
@@ -476,12 +478,16 @@ def run_main_evaluation(
     paired_tests = tuple(paired_wilcoxon_time(records, a, b) for a, b in stat_pairs)
     paired_expansion_tests = tuple(paired_wilcoxon_expansions(records, a, b) for a, b in stat_pairs)
     sr_cis = tuple(bootstrap_success_rate_difference(records, a, b, config=eval_cfg) for a, b in stat_pairs)
+    failure_cis = tuple(bootstrap_failure_rate_difference(records, a, b, config=eval_cfg) for a, b in stat_pairs)
+    timeout_cis = tuple(bootstrap_timeout_failure_rate_difference(records, a, b, config=eval_cfg) for a, b in stat_pairs)
     paths = write_evaluation_outputs(
         records,
         out_dir,
         paired_time_tests=paired_tests,
         paired_expansion_tests=paired_expansion_tests,
         success_rate_cis=sr_cis,
+        failure_rate_cis=failure_cis,
+        timeout_failure_rate_cis=timeout_cis,
     )
     paths["queries_csv"] = _write_query_manifest(out_dir / "queries.csv", queries)
     paths["preflight_json"] = _write_json(out_dir / "preflight.json", asdict(preflight))

@@ -164,6 +164,19 @@ class BootstrapCIResult:
     n_resamples: int
 
 
+@dataclass(frozen=True)
+class BootstrapRateCIResult:
+    metric_id: str
+    method_a: str
+    method_b: str
+    paired_query_count: int
+    observed_rate_diff_a_minus_b: float | None
+    ci_low: float | None
+    ci_high: float | None
+    confidence_level: float
+    n_resamples: int
+
+
 def planner_run_from_result(
     result: Any,
     *,
@@ -583,6 +596,94 @@ def bootstrap_success_rate_difference(
     )
 
 
+def bootstrap_failure_rate_difference(
+    records: Iterable[EvaluationRecord],
+    method_a: str,
+    method_b: str,
+    *,
+    config: EvaluationConfig | None = None,
+) -> BootstrapRateCIResult:
+    return _bootstrap_rate_difference(
+        records,
+        method_a,
+        method_b,
+        metric_id="failure_rate",
+        indicator=lambda row: not bool(row.feasible),
+        config=config,
+    )
+
+
+def bootstrap_timeout_failure_rate_difference(
+    records: Iterable[EvaluationRecord],
+    method_a: str,
+    method_b: str,
+    *,
+    config: EvaluationConfig | None = None,
+) -> BootstrapRateCIResult:
+    return _bootstrap_rate_difference(
+        records,
+        method_a,
+        method_b,
+        metric_id="timeout_failure_rate",
+        indicator=lambda row: _is_timeout_failure(row.failure_reason),
+        config=config,
+    )
+
+
+def _bootstrap_rate_difference(
+    records: Iterable[EvaluationRecord],
+    method_a: str,
+    method_b: str,
+    *,
+    metric_id: str,
+    indicator,
+    config: EvaluationConfig | None = None,
+) -> BootstrapRateCIResult:
+    cfg = config or EvaluationConfig()
+    pairs = _paired_records(records, method_a, method_b)
+    diffs = np.asarray([float(indicator(a)) - float(indicator(b)) for a, b in pairs], dtype=np.float64)
+    if diffs.size == 0:
+        return BootstrapRateCIResult(metric_id, method_a, method_b, 0, None, None, None, cfg.bootstrap_confidence, cfg.bootstrap_resamples)
+    observed = float(np.mean(diffs))
+    if diffs.size < 2 or np.allclose(diffs, diffs[0]):
+        return BootstrapRateCIResult(
+            metric_id,
+            method_a,
+            method_b,
+            int(diffs.size),
+            observed,
+            observed,
+            observed,
+            float(cfg.bootstrap_confidence),
+            int(cfg.bootstrap_resamples),
+        )
+
+    def statistic(sample: np.ndarray, axis: int = 0) -> np.ndarray:
+        return np.mean(sample, axis=axis)
+
+    from scipy.stats import bootstrap
+
+    res = bootstrap(
+        (diffs,),
+        statistic,
+        n_resamples=int(cfg.bootstrap_resamples),
+        confidence_level=float(cfg.bootstrap_confidence),
+        method="percentile",
+        rng=np.random.default_rng(int(cfg.bootstrap_seed)),
+    )
+    return BootstrapRateCIResult(
+        metric_id=metric_id,
+        method_a=method_a,
+        method_b=method_b,
+        paired_query_count=int(diffs.size),
+        observed_rate_diff_a_minus_b=observed,
+        ci_low=float(res.confidence_interval.low),
+        ci_high=float(res.confidence_interval.high),
+        confidence_level=float(cfg.bootstrap_confidence),
+        n_resamples=int(cfg.bootstrap_resamples),
+    )
+
+
 def write_evaluation_outputs(
     records: Iterable[EvaluationRecord],
     output_dir: str | Path,
@@ -590,6 +691,8 @@ def write_evaluation_outputs(
     paired_time_tests: Sequence[PairedWilcoxonResult] = (),
     paired_expansion_tests: Sequence[PairedWilcoxonExpansionsResult] = (),
     success_rate_cis: Sequence[BootstrapCIResult] = (),
+    failure_rate_cis: Sequence[BootstrapRateCIResult] = (),
+    timeout_failure_rate_cis: Sequence[BootstrapRateCIResult] = (),
 ) -> dict[str, Path]:
     rows = tuple(records)
     out_dir = Path(output_dir)
@@ -606,6 +709,8 @@ def write_evaluation_outputs(
         "paired_time_tests": [asdict(item) for item in paired_time_tests],
         "paired_expansion_tests": [asdict(item) for item in paired_expansion_tests],
         "success_rate_bootstrap_ci": [asdict(item) for item in success_rate_cis],
+        "failure_rate_bootstrap_ci": [asdict(item) for item in failure_rate_cis],
+        "timeout_failure_rate_bootstrap_ci": [asdict(item) for item in timeout_failure_rate_cis],
     }
     summary_json.write_text(json.dumps(_json_safe(payload), indent=2, ensure_ascii=False), encoding="utf-8")
     return {

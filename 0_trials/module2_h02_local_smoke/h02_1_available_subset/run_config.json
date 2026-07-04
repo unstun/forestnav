@@ -1,7 +1,7 @@
 {
-  "created_at_utc": "2026-07-04T06:17:50.892760+00:00",
+  "created_at_utc": "2026-07-04T06:23:48.697200+00:00",
   "execution_host": "MacBook-Pro.local",
-  "source_head": "684cce8c103dc534e790cab1cc80e96f4fafbe31+dirty",
+  "source_head": "dc5df61265942d82c8ee1c71995e58d51731b2df+dirty",
   "command": "python -m forest_n3p.scripts.run_main_evaluation --output-dir 0_trials/module2_h02_local_smoke/h02_1_available_subset --methods ha_no_analytic,ha_single_rs,ha_dang_multi_rs,mlp,bc_analytic_operator --queries-per-bucket 1 --seed-count 1 --queries-per-map 1 --density-profile-buckets validation_t06 --contract-path .pipeline/contracts/module2-ppo-funnel-expansion.md --cutpoint-supplement-path .pipeline/contracts/v9-forest-n3p-t06-calibration-supplement.md --allow-unresolved-human-review --no-enforce-t14-scale --module2-bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt",
   "config": {
     "seed": 20260620,

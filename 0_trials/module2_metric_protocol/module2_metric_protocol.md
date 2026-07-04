@@ -7,6 +7,7 @@
 - `total_expansions`: contract_primary
 - `total_time_s`: contract_primary
 - `timeout_failure_rate`: contract_primary
+- `failure_rate`: diagnostic
 - `path_quality`: contract_primary
 - `analytic_success_rate`: diagnostic
 - `terminal_rs_success_rate`: diagnostic
