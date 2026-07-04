@@ -550,6 +550,7 @@ def _remote_packet(tmp_path, *, ready, artifacts_present):
                 "ready_to_run_remote_training": ready,
                 "local_training_allowed": False,
                 "blockers": [] if ready else ["requires_dr_sun_approval", "f02_6_warm_start_decision_pending"],
+                "execution_steps": _remote_steps(ready=ready),
                 "execution_environment": {
                     "gpu_alias": "gpu3070ti-relay",
                     "training_host_required": "gpu3070ti-relay",
@@ -563,6 +564,38 @@ def _remote_packet(tmp_path, *, ready, artifacts_present):
         encoding="utf-8",
     )
     return path
+
+
+def _remote_steps(*, ready):
+    disabled_preflight_blockers = ["requires_dr_sun_approval"]
+    disabled_training_blockers = [
+        "requires_dr_sun_approval",
+        "f02_6_warm_start_decision_pending",
+        "missing_module2_rl_rs_checkpoint",
+        "remote_packet_not_ready",
+    ]
+    return {
+        "sync_to_remote": {
+            "allowed_now": ready,
+            "runs_training": False,
+            "blocked_by": [] if ready else disabled_preflight_blockers,
+        },
+        "run_remote_preflight": {
+            "allowed_now": ready,
+            "runs_training": False,
+            "blocked_by": [] if ready else disabled_preflight_blockers,
+        },
+        "run_remote_training": {
+            "allowed_now": ready,
+            "runs_training": True,
+            "blocked_by": [] if ready else disabled_training_blockers,
+        },
+        "run_remote_audit": {
+            "allowed_now": ready,
+            "runs_training": False,
+            "blocked_by": [] if ready else disabled_training_blockers,
+        },
+    }
 
 
 def _h02_acceptance(tmp_path, *, accepted):
