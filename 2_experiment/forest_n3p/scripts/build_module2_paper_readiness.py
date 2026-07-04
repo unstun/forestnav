@@ -205,6 +205,9 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
     claim_formal_gate_gap_audit_remaining_deliverables_gap_summary = (
         _claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_summary(claim_safety)
     )
+    claim_remaining_deliverables_proof_command_plan = _claim_safety_remaining_deliverables_proof_command_plan(
+        claim_safety
+    )
     claim_remote_packet_safety_claim_gate_command_index_summary = (
         _claim_safety_remote_packet_safety_claim_gate_command_index_summary(claim_safety)
     )
@@ -322,6 +325,15 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_open_category_count": claim_formal_gate_gap_audit_remaining_deliverables_gap_summary[
             "open_category_count"
         ],
+        "claim_safety_remaining_deliverables_proof_command_plan_present": claim_remaining_deliverables_proof_command_plan[
+            "present"
+        ],
+        "claim_safety_remaining_deliverables_proof_command_plan_matrix_row_count": claim_remaining_deliverables_proof_command_plan[
+            "total_matrix_rows"
+        ],
+        "claim_safety_remaining_deliverables_proof_command_plan_command_count": claim_remaining_deliverables_proof_command_plan[
+            "total_proof_command_count"
+        ],
         "claim_safety_remote_packet_safety_command_index_present": claim_remote_packet_safety_claim_gate_command_index_summary[
             "present"
         ],
@@ -389,6 +401,7 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_remaining_deliverables_acceptance_summary": claim_remaining_deliverables_acceptance_summary,
         "claim_safety_remaining_deliverables_gap_summary": claim_remaining_deliverables_gap_summary,
         "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_summary": claim_formal_gate_gap_audit_remaining_deliverables_gap_summary,
+        "claim_safety_remaining_deliverables_proof_command_plan": claim_remaining_deliverables_proof_command_plan,
         "claim_safety_remote_packet_safety_claim_gate_command_index_summary": (
             claim_remote_packet_safety_claim_gate_command_index_summary
         ),
