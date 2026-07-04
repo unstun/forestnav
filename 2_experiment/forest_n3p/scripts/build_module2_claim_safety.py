@@ -29,6 +29,12 @@ STATUS_REPORT_REMOTE_STEP_IDS = (
     "run_remote_training",
     "run_remote_audit",
 )
+STATUS_REPORT_REQUIREMENT_IDS = (
+    "training_remote_ppo_checkpoint",
+    "evaluation_gate3_episode_outputs",
+    "acceptance_remote_pullback_and_audit",
+    "h01_h02_formal_evaluation_acceptance",
+)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -95,6 +101,7 @@ def build_manifest(
     status_report_remote_gate_summary = _status_report_remote_gate_summary(status_report)
     status_report_handoff_summary = _status_report_handoff_summary(status_report)
     status_report_missing_artifacts_handoff_summary = _status_report_missing_artifacts_handoff_summary(status_report)
+    status_report_requirement_stage_summary = _status_report_requirement_stage_summary(status_report)
     formal_allowed = not formal_blockers
     prohibited = _prohibited_claims()
     allowed = _allowed_claims(
@@ -168,6 +175,18 @@ def build_manifest(
             "status_report_missing_artifacts_formal_result_material_allowed_now": status_report_missing_artifacts_handoff_summary[
                 "formal_result_material_allowed_now"
             ],
+            "status_report_requirement_stage_mapped_count": status_report_requirement_stage_summary[
+                "mapped_requirement_count"
+            ],
+            "status_report_requirement_stage_unmapped_count": status_report_requirement_stage_summary[
+                "unmapped_requirement_count"
+            ],
+            "status_report_requirement_stage_mismatched_count": status_report_requirement_stage_summary[
+                "mismatched_requirement_count"
+            ],
+            "status_report_requirement_stage_blocked_stage_count": status_report_requirement_stage_summary[
+                "blocked_stage_count"
+            ],
             "status_report_closure_remote_training_allowed_now": status_report_remote_gate_summary[
                 "closure_remote_stage_summary"
             ]["gate3_remote_training"]["allowed_now"],
@@ -177,6 +196,7 @@ def build_manifest(
         },
         "status_report_handoff_summary": status_report_handoff_summary,
         "status_report_missing_artifacts_handoff_summary": status_report_missing_artifacts_handoff_summary,
+        "status_report_requirement_stage_summary": status_report_requirement_stage_summary,
         "status_report_remote_gate_summary": status_report_remote_gate_summary,
         "allowed_claims": allowed,
         "conditional_claims": _conditional_claims(),
