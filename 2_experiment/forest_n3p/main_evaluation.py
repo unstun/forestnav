@@ -64,7 +64,7 @@ DQN10_COMPAT_ALIAS_METHODS = tuple(DQN10_BASELINE_ALIASES)
 EXTERNAL_BASELINE_METHODS = ("idb_rrt_dynoplan",)
 ANALYTIC_OPERATOR_BASELINE_METHODS = ("ha_no_analytic", "ha_single_rs", "ha_dang_multi_rs")
 BC_OPERATOR_METHODS = ("bc_analytic_operator",)
-RL_RS_OPERATOR_METHODS = ("ha_rl_rs_ppo",)
+RL_RS_OPERATOR_METHODS = ("ha_rl_rs_ppo", "ppo_analytic_operator")
 
 IMPLEMENTED_METHODS = frozenset(
     (
@@ -323,7 +323,7 @@ def preflight_main_evaluation(config: MainEvaluationConfig) -> PreflightReport:
 
     if any(method in config.methods for method in RL_RS_OPERATOR_METHODS):
         if config.module2_rl_rs_checkpoint is None:
-            issues.append("module2_rl_rs_checkpoint is required for ha_rl_rs_ppo")
+            issues.append("module2_rl_rs_checkpoint is required for ha_rl_rs_ppo/ppo_analytic_operator")
         elif not Path(config.module2_rl_rs_checkpoint).is_file():
             issues.append(f"RL-RS checkpoint does not exist: {config.module2_rl_rs_checkpoint}")
 
@@ -758,6 +758,9 @@ def _run_hybrid_a_operator(
     elif method == "ha_rl_rs_ppo":
         analytic_operator = "rl_rs_funnel_ppo"
         analytic_expansion_operator = _load_module2_rl_rs_operator(cfg)
+    elif method == "ppo_analytic_operator":
+        analytic_operator = "rl_rs_ppo_no_terminal_rs"
+        analytic_expansion_operator = _load_module2_ppo_analytic_operator(cfg)
     else:
         analytic_operator = operator_by_method[method]
     planner = _make_planner(
@@ -865,7 +868,25 @@ def _load_module2_rl_rs_operator(cfg: MainEvaluationConfig):
         collision_sample_step_m=float(cfg.module2_rl_rs_collision_sample_step_m),
         terminal_check_every=int(cfg.module2_rl_rs_terminal_check_every),
         no_progress_patience=int(cfg.module2_rl_rs_no_progress_patience),
+        append_terminal_rs=True,
         name="rl_rs_funnel_ppo",
+    )
+
+
+def _load_module2_ppo_analytic_operator(cfg: MainEvaluationConfig):
+    if cfg.module2_rl_rs_checkpoint is None:
+        raise ValueError("module2_rl_rs_checkpoint is required for ppo_analytic_operator")
+    return load_rl_rs_funnel_operator_from_checkpoint(
+        cfg.module2_rl_rs_checkpoint,
+        device=str(cfg.module2_rl_rs_device),
+        observation_config=_module2_rl_rs_observation_config(cfg),
+        max_steps=int(cfg.module2_rl_rs_max_steps),
+        action_step_m=float(cfg.module2_rl_rs_action_step_m),
+        collision_sample_step_m=float(cfg.module2_rl_rs_collision_sample_step_m),
+        terminal_check_every=int(cfg.module2_rl_rs_terminal_check_every),
+        no_progress_patience=int(cfg.module2_rl_rs_no_progress_patience),
+        append_terminal_rs=False,
+        name="rl_rs_ppo_no_terminal_rs",
     )
 
 
@@ -881,6 +902,7 @@ def _load_module2_bc_operator(cfg: MainEvaluationConfig):
         collision_sample_step_m=float(cfg.module2_rl_rs_collision_sample_step_m),
         terminal_check_every=int(cfg.module2_rl_rs_terminal_check_every),
         no_progress_patience=int(cfg.module2_rl_rs_no_progress_patience),
+        append_terminal_rs=True,
         name="rl_rs_funnel_bc",
     )
 
