@@ -448,6 +448,8 @@ def _input_safety_issues(named_payloads: dict[str, dict[str, Any]]) -> list[dict
             issues.append(_issue(f"{name}_allows_formal_claim", f"{name} must not allow formal claims through status reporting."))
         if name == "remote_packet" and payload.get("formal_claim_allowed_before_audit") is True:
             issues.append(_issue("remote_packet_allows_claim_before_audit", "remote packet must not allow claims before audit."))
+        if name == "missing_artifacts":
+            issues.extend(_missing_artifacts_handoff_index_issues(payload))
         if name == "closure_checklist":
             issues.extend(_closure_remote_stage_safety_issues(payload))
         if name == "remote_packet":
@@ -455,6 +457,48 @@ def _input_safety_issues(named_payloads: dict[str, dict[str, Any]]) -> list[dict
         if name == "handoff_bundle":
             issues.extend(_handoff_bundle_safety_issues(payload))
     return _unique_issues(issues)
+
+
+def _missing_artifacts_handoff_index_summary(missing_artifacts: dict[str, Any]) -> dict[str, Any]:
+    index = missing_artifacts.get("formal_gate_handoff_index")
+    index = index if isinstance(index, dict) else {}
+    next_action = index.get("next_action") if isinstance(index.get("next_action"), dict) else {}
+    return {
+        "present": bool(index),
+        "status": index.get("status"),
+        "next_action_id": next_action.get("action_id"),
+        "next_action_requires_dr_sun": next_action.get("requires_dr_sun"),
+        "next_action_allowed_for_agent_now": next_action.get("allowed_for_agent_now"),
+        "requirement_count": index.get("requirement_count"),
+        "open_requirement_count": index.get("open_requirement_count"),
+        "local_training_allowed_now": bool(index.get("local_training_allowed_now")),
+        "remote_training_allowed_now": bool(index.get("remote_training_allowed_now")),
+        "formal_result_material_allowed_now": bool(index.get("formal_result_material_allowed_now")),
+    }
+
+
+def _missing_artifacts_handoff_index_issues(missing_artifacts: dict[str, Any]) -> list[dict[str, str]]:
+    if not missing_artifacts:
+        return []
+    summary = _missing_artifacts_handoff_index_summary(missing_artifacts)
+    if not summary["present"]:
+        return [
+            _issue(
+                "missing_artifacts_handoff_index_missing",
+                "formal gate missing-artifacts inventory must expose formal_gate_handoff_index.",
+            )
+        ]
+    issues: list[dict[str, str]] = []
+    inventory_open = missing_artifacts.get("status") != "formal_gate_artifacts_complete"
+    if summary["local_training_allowed_now"]:
+        issues.append(_issue("missing_artifacts_handoff_allows_local_training", "missing-artifacts handoff index must never allow local training."))
+    if inventory_open and summary["remote_training_allowed_now"]:
+        issues.append(_issue("missing_artifacts_handoff_allows_remote_training_while_open", "open missing-artifacts inventory must not allow remote training."))
+    if summary["formal_result_material_allowed_now"]:
+        issues.append(_issue("missing_artifacts_handoff_allows_result_material", "missing-artifacts handoff index must not allow formal result material."))
+    if inventory_open and not summary["next_action_id"]:
+        issues.append(_issue("missing_artifacts_handoff_missing_next_action", "open missing-artifacts handoff index must expose the next blocked action."))
+    return issues
 
 
 def _handoff_bundle_summary(handoff_bundle: dict[str, Any]) -> dict[str, Any]:
