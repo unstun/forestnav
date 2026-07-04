@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-04T16:43:11.309925+00:00",
-  "source_head": "59caee5cc01ed95e6e8d5d82384dafdb09292d45+dirty",
+  "created_at_utc": "2026-07-04T17:04:41.219039+00:00",
+  "source_head": "5ec66b6cf6f75d654d5e5ac8da72f5a1a42521f6+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -27,6 +27,11 @@
     "decision_decider": null,
     "formal_gate_status": "blocked_formal_gate_gaps_open",
     "missing_artifacts_status": "formal_gate_missing_artifacts_open",
+    "missing_artifacts_handoff_index_status": "blocked_until_f02_6_decision",
+    "missing_artifacts_handoff_next_action": "record_f02_6_decision",
+    "missing_artifacts_handoff_open_requirement_count": 5,
+    "missing_artifacts_handoff_remote_training_allowed_now": false,
+    "missing_artifacts_handoff_formal_result_material_allowed_now": false,
     "closure_checklist_status": "formal_gate_closure_blocked",
     "closure_open_item_count": 8,
     "closure_remote_preflight_allowed_now": false,
@@ -336,6 +341,18 @@
         ]
       }
     }
+  },
+  "missing_artifacts_handoff_index_summary": {
+    "present": true,
+    "status": "blocked_until_f02_6_decision",
+    "next_action_id": "record_f02_6_decision",
+    "next_action_requires_dr_sun": true,
+    "next_action_allowed_for_agent_now": false,
+    "requirement_count": 5,
+    "open_requirement_count": 5,
+    "local_training_allowed_now": false,
+    "remote_training_allowed_now": false,
+    "formal_result_material_allowed_now": false
   },
   "formal_gate_execution_veto_summary": {
     "present": true,

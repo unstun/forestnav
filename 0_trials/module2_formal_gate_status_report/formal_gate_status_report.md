@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `59caee5cc01ed95e6e8d5d82384dafdb09292d45+dirty`
+- source_head: `5ec66b6cf6f75d654d5e5ac8da72f5a1a42521f6+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -16,6 +16,11 @@ This file is a read-only formal-gate status report. It does not execute commands
 - decision_decider: `None`
 - formal_gate_status: `blocked_formal_gate_gaps_open`
 - missing_artifacts_status: `formal_gate_missing_artifacts_open`
+- missing_artifacts_handoff_index_status: `blocked_until_f02_6_decision`
+- missing_artifacts_handoff_next_action: `record_f02_6_decision`
+- missing_artifacts_handoff_open_requirement_count: `5`
+- missing_artifacts_handoff_remote_training_allowed_now: `False`
+- missing_artifacts_handoff_formal_result_material_allowed_now: `False`
 - closure_checklist_status: `formal_gate_closure_blocked`
 - closure_open_item_count: `8`
 - closure_remote_preflight_allowed_now: `False`
@@ -93,6 +98,17 @@ This file is a read-only formal-gate status report. It does not execute commands
 - `approved_remote_preflight`: present=`True`, allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`True`, host=`gpu3070ti-relay`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open`
 - `gate3_remote_training`: present=`True`, allowed_now=`False`, runs_training=`True`, runs_remote_preflight=`False`, host=`gpu3070ti-relay`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 - `gate3_remote_audit_pullback`: present=`True`, allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`False`, host=`gpu3070ti-relay`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
+
+## Missing-Artifacts Handoff Index
+
+- present: `True`
+- status: `blocked_until_f02_6_decision`
+- next_action: `record_f02_6_decision`
+- next_action_requires_dr_sun: `True`
+- open_requirement_count: `5`
+- local_training_allowed_now: `False`
+- remote_training_allowed_now: `False`
+- formal_result_material_allowed_now: `False`
 
 ## Formal Gate Handoff Bundle
 

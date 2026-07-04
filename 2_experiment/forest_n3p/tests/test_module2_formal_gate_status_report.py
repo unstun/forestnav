@@ -306,7 +306,7 @@ def _config(tmp_path, *, complete, drift=False):
     return builder.FormalGateStatusReportConfig(
         output_dir=tmp_path,
         formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate(complete=complete)),
-        missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts(complete=complete)),
+        missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts(complete=complete, drift=drift)),
         closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist(complete=complete, drift=drift)),
         decision_record_path=_json(tmp_path, "decision_record.json", _decision_record(complete=complete)),
         remote_packet_path=_json(tmp_path, "remote_packet.json", _remote_packet(complete=complete, drift=drift)),
@@ -400,7 +400,7 @@ def _veto_row(row_id, sources):
     }
 
 
-def _missing_artifacts(*, complete):
+def _missing_artifacts(*, complete, drift=False):
     groups = [
         _group("f02_6_decision_record", "decision", ["f02_6_decision_record"], complete=complete),
         _group("source_fresh_regeneration_targets", "regeneration", ["formal_gate_gap_audit"], complete=complete),
@@ -425,13 +425,13 @@ def _missing_artifacts(*, complete):
         "current_gate_summary": {
             "source_freshness_status": "source_freshness_clean" if complete else "source_freshness_risks_recorded_gate_still_blocked",
         },
-        "formal_gate_handoff_index": _missing_artifacts_handoff_index(complete=complete),
+        "formal_gate_handoff_index": _missing_artifacts_handoff_index(complete=complete, drift=drift),
         "missing_counts_by_category": counts,
         "missing_evidence_groups": groups,
     }
 
 
-def _missing_artifacts_handoff_index(*, complete):
+def _missing_artifacts_handoff_index(*, complete, drift=False):
     status = "formal_gate_evidence_ready_for_h01_h02_claim_gates" if complete else "blocked_until_f02_6_decision"
     next_action_id = "no_open_formal_gate_handoff_requirements" if complete else "record_f02_6_decision"
     return {
@@ -442,8 +442,8 @@ def _missing_artifacts_handoff_index(*, complete):
             "allowed_for_agent_now": False,
         },
         "local_training_allowed_now": False,
-        "remote_training_allowed_now": complete,
-        "formal_result_material_allowed_now": False,
+        "remote_training_allowed_now": complete or drift,
+        "formal_result_material_allowed_now": bool(drift),
         "requirement_count": 5,
         "open_requirement_count": 0 if complete else 5,
     }
