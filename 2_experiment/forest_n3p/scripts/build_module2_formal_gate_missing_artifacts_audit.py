@@ -114,6 +114,7 @@ def build_manifest(config: FormalGateMissingArtifactsAuditConfig) -> dict[str, A
     formal_requirements = _formal_gate_requirements(
         groups=groups,
         current_gate_summary=current_gate_summary,
+        post_plan=post_plan,
     )
     inputs = {
         "decision_record": str(config.decision_record_path),
@@ -462,14 +463,17 @@ def _formal_gate_requirements(
     *,
     groups: Sequence[dict[str, Any]],
     current_gate_summary: dict[str, Any],
+    post_plan: dict[str, Any],
 ) -> list[dict[str, Any]]:
     groups_by_id = {str(group.get("group_id")): group for group in groups}
+    stages_by_id = _post_plan_stages_by_id(post_plan)
     remote_training_allowed = current_gate_summary.get("ready_to_run_remote_training") is True
     return [
         _requirement(
             requirement_id="training_remote_ppo_checkpoint",
             phase="training",
             group=groups_by_id.get("remote_training_outputs", {}),
+            responsible_stage=_stage_context(stages_by_id, "gate3_remote_training"),
             execution_allowed_now=remote_training_allowed,
             required_before="gate3_remote_audit_pullback",
             acceptable_evidence=[
@@ -488,6 +492,7 @@ def _formal_gate_requirements(
             requirement_id="evaluation_gate3_episode_outputs",
             phase="evaluation",
             group=groups_by_id.get("gate3_evaluation_outputs", {}),
+            responsible_stage=_stage_context(stages_by_id, "gate3_remote_audit_pullback"),
             execution_allowed_now=remote_training_allowed,
             required_before="h01_h02_formal_regeneration",
             acceptable_evidence=[
@@ -504,6 +509,7 @@ def _formal_gate_requirements(
             requirement_id="acceptance_remote_pullback_and_audit",
             phase="acceptance",
             group=groups_by_id.get("gate3_acceptance_pullback", {}),
+            responsible_stage=_stage_context(stages_by_id, "gate3_remote_audit_pullback"),
             execution_allowed_now=remote_training_allowed,
             required_before="h02_formal_acceptance",
             acceptable_evidence=[
@@ -521,6 +527,7 @@ def _formal_gate_requirements(
             requirement_id="h01_h02_formal_evaluation_acceptance",
             phase="evaluation_acceptance",
             group=groups_by_id.get("h01_h02_formal_evaluation_acceptance", {}),
+            responsible_stage=_stage_context(stages_by_id, "regenerate_h01_h02_formal_artifacts"),
             execution_allowed_now=False,
             required_before="formal_claim_gate",
             acceptable_evidence=[
@@ -650,6 +657,11 @@ def _formal_requirement_handoff_row(*, requirement: dict[str, Any], inputs: dict
         "missing_paths": _strings(requirement.get("missing_paths")),
         "source_artifacts": source_artifacts.get(requirement_id, []),
         "downstream_consumers": downstream_consumers.get(requirement_id, []),
+        "responsible_stage_id": requirement.get("responsible_stage_id"),
+        "responsible_stage_status": requirement.get("responsible_stage_status"),
+        "responsible_stage_allowed_now": requirement.get("responsible_stage_allowed_now"),
+        "responsible_stage_blocked_by": _strings(requirement.get("responsible_stage_blocked_by")),
+        "responsible_stage_evidence_paths": _strings(requirement.get("responsible_stage_evidence_paths")),
         "acceptable_evidence": _strings(requirement.get("acceptable_evidence")),
         "invalid_substitutes": _strings(requirement.get("invalid_substitutes")),
     }
@@ -693,6 +705,7 @@ def _requirement(
     requirement_id: str,
     phase: str,
     group: dict[str, Any],
+    responsible_stage: dict[str, Any],
     execution_allowed_now: bool,
     required_before: str,
     acceptable_evidence: Sequence[str],
@@ -716,6 +729,11 @@ def _requirement(
         "missing_artifact_ids": [str(item.get("artifact_id")) for item in missing_items],
         "missing_paths": [str(item.get("path") or "") for item in missing_items],
         "blocked_by": _strings(group.get("blocked_by")),
+        "responsible_stage_id": responsible_stage.get("stage_id"),
+        "responsible_stage_status": responsible_stage.get("status"),
+        "responsible_stage_allowed_now": responsible_stage.get("allowed_now"),
+        "responsible_stage_blocked_by": _strings(responsible_stage.get("blocked_by")),
+        "responsible_stage_evidence_paths": _strings(responsible_stage.get("evidence_paths")),
         "acceptable_evidence": list(acceptable_evidence),
         "invalid_substitutes": list(invalid_substitutes),
     }
