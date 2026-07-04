@@ -1,6 +1,6 @@
 ---
 date: 2026-07-04
-status: f02_5_formal_v2_scalar_and_obstacle_summary_complete_patch_cnn_pending
+status: f02_5_formal_v2_bc_baselines_complete_no_clear_patch_gain
 origin: codex+code+experiment
 reviewed: false
 task: Module2 F02.5
@@ -10,12 +10,13 @@ source_head: 801455da1acd77af8cea9b42f674d3039c52e394
 execution_host: MacBook-Pro.local
 ---
 
-# Module2 F02.5 Formal V2 MLP BC Baselines
+# Module2 F02.5 Formal V2 BC Baselines
 
 ## 直观结论
 
 在 profile-aware formal-v2 corpus 上, obstacle-summary BC 仍明显强于
-scalar-only BC, 但还远不足以进入 planner insertion 或直接当 PPO warm start。
+scalar-only BC。patch+scalar CNN bounded pilot 的成功率与 obstacle-summary
+接近, 但没有证明自己更好。
 
 关键数字:
 
@@ -24,14 +25,14 @@ scalar-only BC, 但还远不足以进入 planner insertion 或直接当 PPO warm
 | scalar | 0.3m | 6/258 | 252/258 | 0/258 | 0 |
 | scalar | 0.1m | 38/258 | 200/258 | 20/258 | 0 |
 | obstacle-summary | 0.1m | 67/258 | 178/258 | 13/258 | 0 |
+| patch+scalar CNN bounded | 0.1m | 63/242 | 171/242 | 8/242 | 0 |
 
 这说明:
 
 1. action MAE 仍不能替代闭环指标;
 2. step-aligned 0.1m eval 对 scalar 有帮助, 但仍弱;
 3. obstacle features 仍有真实闭环收益;
-4. 当前 practical warm-start 只能暂记为 obstacle-summary, 但必须等
-   patch+scalar CNN formal-v2 rerun 后再决策。
+4. patch-CNN bounded pilot 不能自动替代 obstacle-summary 作为 PPO warm-start。
 
 ## Dataset
 
@@ -143,6 +144,55 @@ Artifacts:
 | `2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/history.json` | `3bc13c766f566ba2e0985bbb8d9a3f54a301cca1f450d3b6f7421b83f5df3491` |
 | `2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/summary.json` | `73baacd42654fa63b94b2323d5612098e55a870a0e81064d53880f80d342a2d7` |
 
+## Patch-Scalar CNN Bounded Pilot
+
+Training command:
+
+```bash
+PYTHONPATH=2_experiment KMP_DUPLICATE_LIB_OK=TRUE \
+python -m forest_n3p.scripts.train_bc_patch_policy \
+  --allow-duplicate-openmp \
+  --device cpu \
+  --dataset 2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v2.parquet \
+  --manifest 2_experiment/forest_n3p/datasets/module2_rl_rs_bc/manifest_formal_v2.json \
+  --output-dir 2_experiment/forest_n3p/models/module2_rl_rs_bc_patch_formal_v2_pilot \
+  --max-train-rows 4096 \
+  --max-val-rows 1024 \
+  --epochs 24 \
+  --patience 8 \
+  --batch-size 128 \
+  --cnn-channels 16,32,64 \
+  --hidden-dims 128,64 \
+  --rollout-action-step-m 0.1 \
+  --collision-sample-step-m 0.05 \
+  --rollout-max-steps 96 \
+  --source-head dc94ac9f234ff9a1606895bc79b8809326981002
+```
+
+Metrics:
+
+| Metric | Value |
+|---|---:|
+| train rows | 4096 |
+| val rows | 1024 |
+| train source rows | 747 |
+| val source rows | 242 |
+| best epoch | 22 |
+| epochs ran | 24 |
+| validation MAE rad | 0.14376741647720337 |
+| terminal RS success | 63/242 |
+| collision | 171/242 |
+| truncated | 8/242 |
+| runtime error | 0/242 |
+
+Artifacts:
+
+| File | SHA-256 |
+|---|---|
+| `2_experiment/forest_n3p/models/module2_rl_rs_bc_patch_formal_v2_pilot/checkpoint.pt` | `2e1d069178e5b76ac2ac78a94cff690edac702749ddf7e7ed8bfe04f00daf0ed` |
+| `2_experiment/forest_n3p/models/module2_rl_rs_bc_patch_formal_v2_pilot/history.json` | `86388ab8337fd0175c72a696f61f8f93e66e429793e24728e91d694950f68b80` |
+| `2_experiment/forest_n3p/models/module2_rl_rs_bc_patch_formal_v2_pilot/summary.json` | `0454193ac49c55194cca168d196c1a7ea82f27d14c9cc989f215cc82e704d669` |
+
 ## Verification
 
 Commands:
@@ -160,23 +210,25 @@ PYTHONPATH=2_experiment KMP_DUPLICATE_LIB_OK=TRUE python -m pytest \
 jq empty \
   2_experiment/forest_n3p/models/module2_rl_rs_bc_formal_v2_scalar/summary.json \
   2_experiment/forest_n3p/models/module2_rl_rs_bc_formal_v2_scalar/eval_rollout_step01.json \
-  2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/summary.json
+  2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/summary.json \
+  2_experiment/forest_n3p/models/module2_rl_rs_bc_patch_formal_v2_pilot/summary.json
 ```
 
 ## Allowed Conclusions
 
-- Formal-v2 scalar and obstacle-summary MLP baselines are current and source-bound.
+- Formal-v2 scalar, obstacle-summary, and bounded patch-CNN baselines are current and source-bound.
 - Obstacle-summary is the stronger MLP BC baseline under formal-v2.
 - Neither MLP baseline is strong enough for planner insertion.
+- Patch-CNN bounded pilot did not clearly beat obstacle-summary.
 
 ## Disallowed Conclusions
 
-- Do not select PPO warm-start before patch+scalar CNN formal-v2 rerun.
+- Do not select patch-CNN as PPO warm-start from this bounded pilot alone.
 - Do not compare these formal-v2 metrics numerically against formal-v1 as if the
   datasets shared the same map semantics.
 - Do not claim PPO training or planner integration exists.
 
 ## Next Step
 
-Run patch+scalar CNN bounded pilot on formal-v2 using the fixed profile-aware
-map cache, then decide whether obstacle-summary or patch-CNN should seed PPO.
+Make an explicit warm-start decision before PPO: either use obstacle-summary as
+the practical initialization, or run a stronger/full patch-CNN protocol first.
