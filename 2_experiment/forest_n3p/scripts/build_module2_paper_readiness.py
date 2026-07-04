@@ -55,6 +55,12 @@ CLAIM_SAFETY_REMAINING_DELIVERABLE_MATRIX_IDS = (
     "formal_acceptance:h01_ready_for_formal_run",
     "formal_acceptance:h02_formal_output_acceptance",
 )
+CLAIM_SAFETY_REMAINING_DELIVERABLE_CATEGORY_IDS = (
+    "training",
+    "evaluation",
+    "acceptance",
+    "formal_acceptance",
+)
 CLAIM_SAFETY_DECISION_INTAKE_CLEAN_STATUSES = (
     "f02_6_decision_intake_pending_clean",
     "f02_6_decision_intake_closed_clean",
@@ -147,6 +153,7 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
     claim_remaining_deliverables_acceptance_summary = _claim_safety_remaining_deliverables_acceptance_summary(
         claim_safety
     )
+    claim_remaining_deliverables_gap_summary = _claim_safety_remaining_deliverables_gap_summary(claim_safety)
     input_status = {
         "method_algorithms_status": method_algorithms.get("status"),
         "system_diagram_status": system_diagram.get("status"),
@@ -245,6 +252,13 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_remaining_deliverables_acceptance_blocked_category_count": claim_remaining_deliverables_acceptance_summary[
             "blocked_category_count"
         ],
+        "claim_safety_remaining_deliverables_gap_present": claim_remaining_deliverables_gap_summary["present"],
+        "claim_safety_remaining_deliverables_gap_total_missing_deliverables": claim_remaining_deliverables_gap_summary[
+            "total_missing_deliverables"
+        ],
+        "claim_safety_remaining_deliverables_gap_open_category_count": claim_remaining_deliverables_gap_summary[
+            "open_category_count"
+        ],
         "h02_formal_acceptance_status": h02_acceptance.get("status"),
         "h02_formal_output_accepted": h02_acceptance.get("formal_output_accepted"),
         "h02_paper_result_input_allowed": h02_acceptance.get("paper_result_input_allowed"),
@@ -298,6 +312,7 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_h02_acceptance_requirement_summary": claim_h02_acceptance_requirement_summary,
         "claim_safety_decision_intake_summary": claim_decision_intake_summary,
         "claim_safety_remaining_deliverables_acceptance_summary": claim_remaining_deliverables_acceptance_summary,
+        "claim_safety_remaining_deliverables_gap_summary": claim_remaining_deliverables_gap_summary,
         "global_blockers": global_blockers,
         "allowed_claim_ids": allowed_claim_ids,
         "conditional_claim_ids": conditional_claim_ids,
