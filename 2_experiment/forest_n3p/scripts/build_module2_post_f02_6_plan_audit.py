@@ -573,6 +573,7 @@ def _status_report_summary(path: Path, status_report: dict[str, Any]) -> dict[st
     permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
     next_lane = status_report.get("next_blocked_lane") if isinstance(status_report.get("next_blocked_lane"), dict) else {}
     remote_steps = _status_report_remote_steps(status_report)
+    execution_veto = _status_report_execution_veto(status_report)
     return {
         "path": str(path),
         "exists": Path(path).is_file(),
@@ -590,6 +591,7 @@ def _status_report_summary(path: Path, status_report: dict[str, Any]) -> dict[st
         "formal_gate_handoff_summary": status_report.get("formal_gate_handoff_summary")
         if isinstance(status_report.get("formal_gate_handoff_summary"), dict)
         else {},
+        "formal_gate_execution_veto_summary": execution_veto,
     }
 
 
