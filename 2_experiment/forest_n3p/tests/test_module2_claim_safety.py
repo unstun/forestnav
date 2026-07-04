@@ -157,6 +157,10 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert manifest["input_status"]["status_report_h02_formal_acceptance_requirement_present"] is True
     assert manifest["input_status"]["status_report_h02_formal_acceptance_requirement_satisfied_count"] == 4
     assert manifest["input_status"]["status_report_h02_formal_acceptance_requirement_blocked_count"] == 0
+    assert manifest["input_status"]["status_report_remaining_deliverables_acceptance_present"] is True
+    assert manifest["input_status"]["status_report_remaining_deliverables_acceptance_matrix_row_count"] == 10
+    assert manifest["input_status"]["status_report_remaining_deliverables_acceptance_missing_row_count"] == 0
+    assert manifest["input_status"]["status_report_remaining_deliverables_acceptance_blocked_category_count"] == 0
     assert manifest["status_report_handoff_summary"]["transition_gate_status"] == "f02_6_transition_gate_audit_passed"
     assert manifest["status_report_missing_artifacts_handoff_summary"]["status"] == "formal_gate_evidence_ready_for_h01_h02_claim_gates"
     assert manifest["status_report_requirement_stage_summary"]["mapped_requirement_count"] == 4
@@ -182,6 +186,8 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
         "blocked_by": [],
     }
     assert manifest["status_report_h02_acceptance_requirement_summary"]["status_counts"] == {"satisfied": 4}
+    assert manifest["status_report_remaining_deliverables_acceptance_summary"]["matrix_row_count"] == 10
+    assert manifest["status_report_remaining_deliverables_acceptance_summary"]["missing_row_count"] == 0
     assert manifest["status_report_decision_intake_summary"]["status"] == "f02_6_decision_intake_closed_clean"
     assert manifest["status_report_decision_intake_summary"]["record_status"] == "approved"
 
