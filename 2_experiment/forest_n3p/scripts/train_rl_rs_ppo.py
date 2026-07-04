@@ -216,6 +216,8 @@ def _apply_obstacle_summary_bc_warm_start(model: Any, checkpoint_path: Path) -> 
     if len(policy_layers) != len(hidden_dims):
         raise ValueError(f"BC hidden_dims {hidden_dims} do not match PPO policy_net {len(policy_layers)} linear layers")
     for idx, (layer, expected_out) in enumerate(zip(policy_layers, hidden_dims, strict=True)):
+        if int(layer.out_features) != int(expected_out):
+            raise ValueError(f"BC hidden layer {idx} out_features {expected_out} does not match PPO policy layer")
         key = f"net.{2 * idx}"
         weight = state_dict[f"{key}.weight"]
         bias = state_dict[f"{key}.bias"]
@@ -226,8 +228,9 @@ def _apply_obstacle_summary_bc_warm_start(model: Any, checkpoint_path: Path) -> 
 
     old_action_net = model.policy.action_net
     action_head = TanhLinearActionHead(old_action_net.in_features, old_action_net.out_features).to(old_action_net.weight.device)
-    final_weight = state_dict["net.6.weight"]
-    final_bias = state_dict["net.6.bias"]
+    action_key = f"net.{2 * len(hidden_dims)}"
+    final_weight = state_dict[f"{action_key}.weight"]
+    final_bias = state_dict[f"{action_key}.bias"]
     if tuple(action_head.linear.weight.shape) != tuple(final_weight.shape) or tuple(action_head.linear.bias.shape) != tuple(final_bias.shape):
         raise ValueError("BC final action layer shape does not match PPO action head")
     action_head.linear.weight.data.copy_(final_weight.to(device=action_head.linear.weight.device, dtype=action_head.linear.weight.dtype))
