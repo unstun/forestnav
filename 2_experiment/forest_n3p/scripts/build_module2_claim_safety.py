@@ -929,6 +929,10 @@ def _status_report_remaining_deliverables_gap_blockers(status_report: dict[str, 
         blockers.append("status_report_remaining_deliverables_gap_summary_id_invalid")
     if summary["category_order"] != list(STATUS_REPORT_REMAINING_DELIVERABLE_CATEGORY_IDS):
         blockers.append("status_report_remaining_deliverables_gap_category_order_mismatch")
+    if summary["total_missing_deliverables"] > 0:
+        blockers.append("status_report_remaining_deliverables_gap_rows_missing")
+    if summary["open_category_count"] > 0:
+        blockers.append("status_report_remaining_deliverables_gap_categories_blocked")
     if status_report.get("status") == "formal_gate_status_ready_for_claim_audit":
         if summary["total_missing_deliverables"] > 0:
             blockers.append("status_report_remaining_deliverables_gap_rows_missing_while_status_ready")
