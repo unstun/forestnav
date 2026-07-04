@@ -37,6 +37,10 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
     assert manifest["status_report_summary"]["next_blocked_lane_id"] == "decision"
     assert manifest["status_report_summary"]["formal_gate_handoff_summary"]["status"] == "blocked_until_f02_6_decision"
     assert manifest["status_report_summary"]["formal_gate_handoff_summary"]["remote_training_allowed_now"] is False
+    assert manifest["status_report_summary"]["formal_gate_execution_veto_summary"]["present"] is True
+    assert manifest["status_report_summary"]["formal_gate_execution_veto_summary"]["all_rows_consistent"] is True
+    assert manifest["status_report_summary"]["formal_gate_execution_veto_summary"]["row_consensus"]["remote_training"] is False
+    assert manifest["status_report_summary"]["formal_gate_execution_veto_summary"]["row_consensus"]["formal_claim"] is False
     steps = manifest["status_report_summary"]["remote_execution_step_summary"]
     assert steps["sync_to_remote"]["allowed_now"] is False
     assert steps["sync_to_remote"]["blocked_by"] == ["requires_dr_sun_approval"]
@@ -364,6 +368,58 @@ def test_post_f02_6_plan_audit_rejects_blocked_status_report_with_allowed_remote
     assert "formal_gate_status_report_blocked_but_run_remote_training_allowed" in issue_ids
 
 
+def test_post_f02_6_plan_audit_requires_status_report_execution_veto_summary(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
+    status_report = _status_report_payload(ready=False)
+    status_report.pop("formal_gate_execution_veto_summary")
+
+    manifest = auditor.build_manifest(
+        auditor.PostF026PlanAuditConfig(
+            output_dir=tmp_path,
+            plan_path=_json(tmp_path, "plan.json", _plan_payload()),
+            formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate_payload()),
+            source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
+            missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
+            closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
+            status_report_path=_json(tmp_path, "status_report.json", status_report),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "post_f02_6_plan_audit_failed"
+    assert "formal_gate_status_report_missing_execution_veto_summary" in issue_ids
+
+
+def test_post_f02_6_plan_audit_rejects_status_report_execution_veto_drift(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
+    status_report = _status_report_payload(ready=False)
+    veto = status_report["formal_gate_execution_veto_summary"]
+    veto["all_rows_consistent"] = False
+    veto["mismatch_rows"] = ["remote_training"]
+    veto["row_consensus"]["remote_training"] = True
+    veto["rows"]["remote_training"]["consistent"] = False
+    veto["rows"]["remote_training"]["consensus_allowed_now"] = True
+
+    manifest = auditor.build_manifest(
+        auditor.PostF026PlanAuditConfig(
+            output_dir=tmp_path,
+            plan_path=_json(tmp_path, "plan.json", _plan_payload()),
+            formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate_payload()),
+            source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
+            missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
+            closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
+            status_report_path=_json(tmp_path, "status_report.json", status_report),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "post_f02_6_plan_audit_failed"
+    assert "formal_gate_status_report_execution_veto_inconsistent" in issue_ids
+    assert "formal_gate_status_report_execution_veto_mismatch_rows_open" in issue_ids
+    assert "formal_gate_status_report_blocked_veto_allows_remote_training" in issue_ids
+    assert "formal_gate_status_report_execution_veto_permission_mismatch_remote_training" in issue_ids
+
+
 def test_post_f02_6_plan_audit_catches_claim_gate_ready_with_blocked_status_report(tmp_path):
     auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
     plan = _plan_payload()
@@ -425,6 +481,7 @@ def test_post_f02_6_plan_audit_cli_writes_json_and_markdown(tmp_path):
     assert manifest["status"] == "post_f02_6_plan_audit_passed"
     assert "Module2 Post-F02.6 Plan Audit" in markdown
     assert "Status Report Remote Execution Steps" in markdown
+    assert "Status Report Execution Veto Matrix" in markdown
     assert "does not execute the plan" in markdown
 
 
