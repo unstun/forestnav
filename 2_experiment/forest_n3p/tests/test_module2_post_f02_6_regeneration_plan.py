@@ -68,7 +68,21 @@ def test_post_f02_6_regeneration_plan_allows_only_regeneration_after_approval_wh
     assert "build_module2_remote_formal_execution_packet" in joined_commands
     assert "build_module2_remote_packet_safety_audit" in joined_commands
     assert "build_module2_formal_gate_handoff_bundle" in joined_commands
+    assert "build_module2_f02_6_decision_intake" in joined_commands
+    assert "build_module2_post_f02_6_plan_audit" in joined_commands
     assert "manual read-only gpu3070ti readiness refresh" in joined_commands
+    command_index = {entry["artifact_id"]: entry for entry in manifest["source_regeneration_command_index"]}
+    assert command_index["f02_6_decision_intake"]["stage_id"] == "regenerate_preflight_gate_artifacts"
+    assert "build_module2_f02_6_decision_intake" in command_index["f02_6_decision_intake"]["command_template"]
+    assert command_index["formal_gate_status_report"]["stage_id"] == "regenerate_claim_gate_artifacts"
+    assert "build_module2_formal_gate_status_report" in command_index["formal_gate_status_report"]["command_template"]
+    assert command_index["formal_gate_remaining_deliverables"]["stage_id"] == "regenerate_claim_gate_artifacts"
+    assert "build_module2_formal_gate_remaining_deliverables" in command_index["formal_gate_remaining_deliverables"]["command_template"]
+    assert command_index["h02_formal_acceptance"]["stage_id"] == "regenerate_h01_h02_formal_artifacts"
+    assert "build_module2_h02_formal_acceptance" in command_index["h02_formal_acceptance"]["command_template"]
+    assert command_index["paper_readiness"]["stage_id"] == "regenerate_claim_gate_artifacts"
+    assert "build_module2_paper_readiness" in command_index["paper_readiness"]["command_template"]
+    assert all(entry["command_kind"] != "unknown_manual" for entry in command_index.values())
     assert stages["approved_remote_preflight"]["allowed_now"] is False
     assert stages["approved_remote_preflight"]["runs_remote_preflight"] is True
     assert "source_fresh_preflight_targets_open" in stages["approved_remote_preflight"]["blocked_by"]
@@ -130,6 +144,8 @@ def test_post_f02_6_regeneration_plan_cli_writes_json_and_markdown(tmp_path):
     assert manifest["artifact_name"] == "module2_post_f02_6_regeneration_plan"
     assert manifest["status"] == "blocked_until_f02_6_decision"
     assert "Module2 Post-F02.6 Regeneration Plan" in markdown
+    assert "Source Regeneration Command Index" in markdown
+    assert "build_module2_f02_6_decision_intake" in markdown
     assert "does not execute commands" in markdown
 
 
@@ -201,6 +217,12 @@ def _source_freshness(tmp_path, *, required):
             "required_before": "approved_remote_preflight",
         },
         {
+            "artifact_id": "f02_6_decision_intake",
+            "path": "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
+            "freshness_state": "historical_dirty",
+            "required_before": "approved_remote_preflight",
+        },
+        {
             "artifact_id": "f02_6_decision_gate_audit",
             "path": "0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json",
             "freshness_state": "historical_dirty",
@@ -243,6 +265,12 @@ def _source_freshness(tmp_path, *, required):
             "required_before": "approved_remote_preflight",
         },
         {
+            "artifact_id": "post_f02_6_plan_audit",
+            "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
+            "freshness_state": "historical_dirty",
+            "required_before": "approved_remote_preflight",
+        },
+        {
             "artifact_id": "formal_gate_handoff_bundle",
             "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
             "freshness_state": "historical_dirty",
@@ -255,9 +283,33 @@ def _source_freshness(tmp_path, *, required):
             "required_before": "formal_h01_h02",
         },
         {
+            "artifact_id": "h02_formal_acceptance",
+            "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+            "freshness_state": "historical_dirty",
+            "required_before": "formal_h01_h02",
+        },
+        {
             "artifact_id": "claim_safety",
             "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
             "freshness_state": "historical_clean",
+            "required_before": "formal_claim_gate",
+        },
+        {
+            "artifact_id": "formal_gate_status_report",
+            "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
+            "freshness_state": "historical_dirty",
+            "required_before": "formal_claim_gate",
+        },
+        {
+            "artifact_id": "formal_gate_remaining_deliverables",
+            "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
+            "freshness_state": "historical_dirty",
+            "required_before": "formal_claim_gate",
+        },
+        {
+            "artifact_id": "paper_readiness",
+            "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
+            "freshness_state": "historical_dirty",
             "required_before": "formal_claim_gate",
         },
     ]
