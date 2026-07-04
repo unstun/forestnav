@@ -312,6 +312,71 @@ def _remote_readiness_gaps(*, remote_readiness: dict[str, Any], remote_readiness
     return gaps
 
 
+def _source_freshness_gaps(*, source_freshness: dict[str, Any], source_freshness_path: Path) -> list[dict[str, Any]]:
+    if not Path(source_freshness_path).is_file():
+        return [
+            _gap(
+                "training",
+                "source_freshness_audit_missing",
+                "No source freshness audit is available for the formal gate.",
+                str(source_freshness_path),
+                "Regenerate the source freshness audit before approved remote preflight, H01/H02 regeneration, or formal claims.",
+            )
+        ]
+    gaps: list[dict[str, Any]] = []
+    if source_freshness.get("runs_training") is not False:
+        gaps.append(
+            _gap(
+                "training",
+                "source_freshness_audit_ran_training",
+                "Source freshness audit claims it ran training; freshness checks must be read-only.",
+                str(source_freshness_path),
+                "Replace with a read-only source freshness audit before using it as gate evidence.",
+            )
+        )
+    if source_freshness.get("runs_remote_preflight") is not False:
+        gaps.append(
+            _gap(
+                "training",
+                "source_freshness_audit_ran_preflight",
+                "Source freshness audit claims it ran remote preflight; this audit must not execute preflight.",
+                str(source_freshness_path),
+                "Keep source freshness checks separate from approved remote preflight execution.",
+            )
+        )
+    if source_freshness.get("local_training_allowed") is not False:
+        gaps.append(
+            _gap(
+                "training",
+                "source_freshness_allows_local_training",
+                "Source freshness audit does not preserve the local-training prohibition.",
+                str(source_freshness_path),
+                "Regenerate source freshness with local_training_allowed=false.",
+            )
+        )
+    if source_freshness.get("formal_claim_allowed") is not False:
+        gaps.append(
+            _gap(
+                "training",
+                "source_freshness_allows_formal_claim",
+                "Source freshness audit incorrectly allows formal claims.",
+                str(source_freshness_path),
+                "Regenerate source freshness as non-result evidence only.",
+            )
+        )
+    if source_freshness.get("regeneration_required_before_remote_formal_execution") is True:
+        gaps.append(
+            _gap(
+                "training",
+                "source_freshness_regeneration_required",
+                "Source freshness audit reports stale or dirty gate artifacts that must be regenerated before formal execution.",
+                str(source_freshness_path),
+                "After F02.6 closes, regenerate the listed targets before approved remote preflight, H01/H02, and formal claim gates.",
+            )
+        )
+    return _unique_gaps(gaps)
+
+
 def _evaluation_gaps(*, h01: dict[str, Any], h02: dict[str, Any]) -> list[dict[str, Any]]:
     gaps: list[dict[str, Any]] = []
     if str(h01.get("status")) not in {"ready", "formal_ready", "ready_for_formal_run", "ready_for_formal_evaluation"}:
@@ -428,6 +493,17 @@ def _ordered_next_steps(
             "remote_readiness_obstacle_summary_bc_checkpoint_mismatch",
         },
     )
+    source_freshness_gaps = _gaps_with_ids(
+        training_gaps,
+        {
+            "source_freshness_audit_missing",
+            "source_freshness_audit_ran_training",
+            "source_freshness_audit_ran_preflight",
+            "source_freshness_allows_local_training",
+            "source_freshness_allows_formal_claim",
+            "source_freshness_regeneration_required",
+        },
+    )
     remote_preflight_gaps = _gaps_with_ids(training_gaps, {"remote_training_packet_not_ready"})
     post_training_output_gaps = _gaps_with_ids(
         training_gaps,
@@ -437,7 +513,7 @@ def _ordered_next_steps(
             "missing_ppo_checkpoint_hash",
         },
     )
-    training_precondition_gaps = list(decision_gaps) + remote_readiness_gaps + remote_preflight_gaps
+    training_precondition_gaps = list(decision_gaps) + remote_readiness_gaps + source_freshness_gaps + remote_preflight_gaps
     audit_precondition_gaps = training_precondition_gaps + post_training_output_gaps
     evaluation_precondition_gaps = audit_precondition_gaps + list(evaluation_gaps)
     claim_precondition_gaps = evaluation_precondition_gaps + list(acceptance_gaps)
@@ -456,11 +532,11 @@ def _ordered_next_steps(
         {
             "step_id": "remote_preflight",
             "phase": "training",
-            "status": "blocked" if decision_gaps or remote_readiness_gaps else "pending_execution",
-            "blocked_by": _gap_ids(list(decision_gaps) + remote_readiness_gaps),
+            "status": "blocked" if decision_gaps or remote_readiness_gaps or source_freshness_gaps else "pending_execution",
+            "blocked_by": _gap_ids(list(decision_gaps) + remote_readiness_gaps + source_freshness_gaps),
             "runs_training": False,
             "host": _remote_training_resource(remote),
-            "action": "Regenerate approved gpu3070ti preflight and require formal_trial_ready=true.",
+            "action": "Regenerate source-fresh gate artifacts, then approved gpu3070ti preflight and require formal_trial_ready=true.",
             "evidence_to_update": "0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1/gate3_preflight_manifest.json",
         }
     )
@@ -536,6 +612,7 @@ def _current_gate_state(
     remote: dict[str, Any],
     h02: dict[str, Any],
     claim_safety: dict[str, Any],
+    source_freshness: dict[str, Any],
 ) -> dict[str, Any]:
     method_checks = h02.get("method_checks") if isinstance(h02.get("method_checks"), dict) else {}
     return {
@@ -550,6 +627,8 @@ def _current_gate_state(
         "ppo_row_count": method_checks.get("ppo_row_count"),
         "ppo_checkpoint_hashes": method_checks.get("ppo_checkpoint_hashes", []),
         "formal_performance_claim_allowed": bool(claim_safety.get("formal_performance_claim_allowed")),
+        "source_freshness_status": source_freshness.get("status"),
+        "source_freshness_regeneration_required": bool(source_freshness.get("regeneration_required_before_remote_formal_execution")),
     }
 
 
@@ -565,6 +644,24 @@ def _remote_readiness_record(path: Path, readiness: dict[str, Any]) -> dict[str,
         "remote_training_resource": readiness.get("remote_training_resource"),
         "oracle_connector_results_match": _critical_input_matches(readiness, "oracle_connector_results"),
         "obstacle_summary_bc_checkpoint_match": _critical_input_matches(readiness, "obstacle_summary_bc_checkpoint"),
+    }
+
+
+def _source_freshness_record(path: Path, source_freshness: dict[str, Any]) -> dict[str, Any]:
+    targets = source_freshness.get("ordered_regeneration_targets")
+    ordered_targets = targets if isinstance(targets, list) else []
+    return {
+        "path": str(path),
+        "exists": Path(path).is_file(),
+        "status": source_freshness.get("status"),
+        "runs_training": source_freshness.get("runs_training"),
+        "runs_remote_preflight": source_freshness.get("runs_remote_preflight"),
+        "local_training_allowed": source_freshness.get("local_training_allowed"),
+        "formal_claim_allowed": source_freshness.get("formal_claim_allowed"),
+        "regeneration_required_before_remote_formal_execution": source_freshness.get("regeneration_required_before_remote_formal_execution"),
+        "risk_counts": source_freshness.get("risk_counts") if isinstance(source_freshness.get("risk_counts"), dict) else {},
+        "ordered_regeneration_target_count": len(ordered_targets),
+        "ordered_regeneration_targets": ordered_targets,
     }
 
 
