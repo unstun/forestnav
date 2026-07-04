@@ -454,6 +454,7 @@ def _handoff_bundle_summary(handoff_bundle: dict[str, Any]) -> dict[str, Any]:
     permissions = handoff_bundle.get("permissions_now") if isinstance(handoff_bundle.get("permissions_now"), dict) else {}
     next_action = handoff_bundle.get("next_handoff_action") if isinstance(handoff_bundle.get("next_handoff_action"), dict) else {}
     steps = handoff_bundle.get("remote_execution_steps") if isinstance(handoff_bundle.get("remote_execution_steps"), dict) else {}
+    current_state = handoff_bundle.get("current_state") if isinstance(handoff_bundle.get("current_state"), dict) else {}
     step_summary: dict[str, dict[str, Any]] = {}
     for step_id in REMOTE_EXECUTION_STEP_IDS:
         step = steps.get(step_id) if isinstance(steps.get(step_id), dict) else {}
@@ -466,6 +467,8 @@ def _handoff_bundle_summary(handoff_bundle: dict[str, Any]) -> dict[str, Any]:
     return {
         "present": bool(handoff_bundle),
         "status": handoff_bundle.get("status"),
+        "transition_gate_status": current_state.get("transition_gate_status"),
+        "transition_gate_audit_issue_count": current_state.get("transition_gate_audit_issue_count"),
         "next_handoff_action_id": next_action.get("action_id"),
         "next_action_requires_dr_sun": next_action.get("requires_dr_sun"),
         "safety_issue_count": int(handoff_bundle.get("safety_issue_count") or 0),

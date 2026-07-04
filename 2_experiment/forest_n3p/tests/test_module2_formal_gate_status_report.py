@@ -62,6 +62,8 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert "remote_packet_not_ready" in closure_stages["gate3_remote_training"]["blocked_by"]
     handoff = manifest["formal_gate_handoff_summary"]
     assert handoff["status"] == "blocked_until_f02_6_decision"
+    assert handoff["transition_gate_status"] == "f02_6_transition_gate_audit_passed"
+    assert handoff["transition_gate_audit_issue_count"] == 0
     assert handoff["next_handoff_action_id"] == "record_f02_6_decision"
     assert handoff["remote_training_allowed_now"] is False
     assert handoff["remote_execution_steps"]["run_remote_training"]["allowed_now"] is False
@@ -561,6 +563,8 @@ def _handoff_bundle(*, complete, drift=False):
         "current_state": {
             "decision_status": "approved" if complete else "pending_human_decision",
             "ready_to_run_remote_training": complete,
+            "transition_gate_status": "f02_6_transition_gate_audit_passed",
+            "transition_gate_audit_issue_count": 0,
         },
         "permissions_now": {
             "remote_preflight_allowed_now": complete,
