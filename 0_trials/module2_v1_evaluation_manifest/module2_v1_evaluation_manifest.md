@@ -17,7 +17,6 @@
 ## Blockers
 - `f02_6_warm_start_decision_pending`
 - `missing_required_method_implementation`
-- `realmap_query_generation_not_frozen`
 
 ## Formal Command
 

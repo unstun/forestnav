@@ -2,8 +2,8 @@
   "schema_version": 1,
   "manifest_name": "module2_v1_evaluation",
   "status": "blocked_pending_decisions",
-  "created_at_utc": "2026-07-04T05:10:35.244104+00:00",
-  "source_head": "fd331aef0e862a46a11848c73c777efe6dd75ef6+dirty",
+  "created_at_utc": "2026-07-04T05:22:26.810839+00:00",
+  "source_head": "6c6ebbde09804fffaa6c7e39f9f43a4800d979b8+dirty",
   "contract": {
     "path": ".pipeline/contracts/module2-ppo-funnel-expansion.md",
     "exists": true,
@@ -175,10 +175,23 @@
     ],
     "status": "inventory_available"
   },
+  "realmap_query_protocol": {
+    "path": "0_trials/module2_realmap_query_protocol/module2_realmap_query_protocol.json",
+    "status": "frozen",
+    "frozen": true,
+    "endpoint_audit_pass": true,
+    "query_count": 10,
+    "query_count_by_map": {
+      "dqn_realmap_a": 5,
+      "willow_garage_0p10": 5
+    },
+    "queries_csv": "0_trials/module2_realmap_query_protocol/module2_realmap_queries.csv",
+    "queries_csv_sha256": "36f80e9e69cd41d3658d4d9858b04aee874c93933c85188254c7731565764b59",
+    "query_rows_sha256": "47a85142114fb03d4ac29ca479f44821e1896f0e23c03705a992387a1b9aaa41"
+  },
   "blockers": [
     "f02_6_warm_start_decision_pending",
-    "missing_required_method_implementation",
-    "realmap_query_generation_not_frozen"
+    "missing_required_method_implementation"
   ],
   "run_command": {
     "formal_main_evaluation": null,

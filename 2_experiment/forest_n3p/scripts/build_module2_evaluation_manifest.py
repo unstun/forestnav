@@ -17,6 +17,7 @@ class Module2EvaluationManifestConfig:
     contract_path: Path = Path(".pipeline/contracts/module2-ppo-funnel-expansion.md")
     cutpoint_supplement_path: Path = Path(".pipeline/contracts/v9-forest-n3p-t06-calibration-supplement.md")
     realmap_manifest_path: Path = Path("2_experiment/forest_n3p/assets/realmaps/manifest.json")
+    realmap_query_protocol_path: Path | None = None
     warm_start_decision: str = "pending"
     bc_checkpoint: Path | None = None
     rl_rs_checkpoint: Path | None = None
@@ -37,6 +38,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         contract_path=args.contract_path,
         cutpoint_supplement_path=args.cutpoint_supplement_path,
         realmap_manifest_path=args.realmap_manifest_path,
+        realmap_query_protocol_path=args.realmap_query_protocol_path,
         warm_start_decision=str(args.warm_start_decision),
         bc_checkpoint=args.bc_checkpoint,
         rl_rs_checkpoint=args.rl_rs_checkpoint,
@@ -64,8 +66,9 @@ def build_manifest(config: Module2EvaluationManifestConfig) -> dict[str, Any]:
     contract = _frontmatter_record(config.contract_path, keys=("status", "version", "approved_by", "approved_date", "reviewed"))
     cutpoints = _frontmatter_record(config.cutpoint_supplement_path, keys=("reviewed", "status"))
     real_maps = _realmap_record(config.realmap_manifest_path)
+    realmap_query_protocol = _realmap_query_protocol_record(config.realmap_query_protocol_path)
     methods = _method_records(config)
-    blockers = _global_blockers(config, methods)
+    blockers = _global_blockers(config, methods, realmap_query_protocol)
     status = _manifest_status(config, methods, blockers)
     return {
         "schema_version": 1,
@@ -87,6 +90,7 @@ def build_manifest(config: Module2EvaluationManifestConfig) -> dict[str, Any]:
         "methods": methods,
         "metrics": _metric_records(),
         "real_maps": real_maps,
+        "realmap_query_protocol": realmap_query_protocol,
         "blockers": blockers,
         "run_command": _run_command(config, methods),
         "claim_boundaries": [
@@ -106,6 +110,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--contract-path", type=Path, default=Module2EvaluationManifestConfig.contract_path)
     parser.add_argument("--cutpoint-supplement-path", type=Path, default=Module2EvaluationManifestConfig.cutpoint_supplement_path)
     parser.add_argument("--realmap-manifest-path", type=Path, default=Module2EvaluationManifestConfig.realmap_manifest_path)
+    parser.add_argument("--realmap-query-protocol-path", type=Path, default=None)
     parser.add_argument("--warm-start-decision", choices=("pending", "approved_obstacle_summary", "no_warm_only"), default="pending")
     parser.add_argument("--bc-checkpoint", type=Path, default=None)
     parser.add_argument("--rl-rs-checkpoint", type=Path, default=None)
@@ -201,7 +206,11 @@ def _metric_records() -> list[dict[str, str]]:
     ]
 
 
-def _global_blockers(config: Module2EvaluationManifestConfig, methods: Sequence[dict[str, Any]]) -> list[str]:
+def _global_blockers(
+    config: Module2EvaluationManifestConfig,
+    methods: Sequence[dict[str, Any]],
+    realmap_query_protocol: dict[str, Any],
+) -> list[str]:
     blockers: list[str] = []
     if str(config.warm_start_decision) == "pending":
         blockers.append("f02_6_warm_start_decision_pending")
@@ -209,7 +218,7 @@ def _global_blockers(config: Module2EvaluationManifestConfig, methods: Sequence[
         blockers.append("missing_module2_bc_checkpoint")
     if any("missing_main_evaluation_method" in method.get("blockers", ()) for method in methods):
         blockers.append("missing_required_method_implementation")
-    if not _realmap_queries_frozen():
+    if not bool(realmap_query_protocol.get("frozen")):
         blockers.append("realmap_query_generation_not_frozen")
     return blockers
 
@@ -274,6 +283,29 @@ def _realmap_record(path: Path) -> dict[str, Any]:
     }
 
 
+def _realmap_query_protocol_record(path: Path | None) -> dict[str, Any]:
+    if path is None:
+        return {"path": None, "status": "missing", "frozen": False, "endpoint_audit_pass": False}
+    protocol_path = Path(path)
+    if not protocol_path.is_file():
+        return {"path": str(protocol_path), "status": "missing", "frozen": False, "endpoint_audit_pass": False}
+    payload = json.loads(protocol_path.read_text(encoding="utf-8"))
+    endpoint_audit = payload.get("endpoint_audit") if isinstance(payload.get("endpoint_audit"), dict) else {}
+    endpoint_audit_pass = bool(endpoint_audit.get("pass"))
+    frozen = str(payload.get("status")) == "frozen" and endpoint_audit_pass
+    return {
+        "path": str(protocol_path),
+        "status": str(payload.get("status")),
+        "frozen": bool(frozen),
+        "endpoint_audit_pass": bool(endpoint_audit_pass),
+        "query_count": int(payload.get("query_count", 0) or 0),
+        "query_count_by_map": dict(payload.get("query_count_by_map") or {}),
+        "queries_csv": payload.get("queries_csv"),
+        "queries_csv_sha256": payload.get("queries_csv_sha256"),
+        "query_rows_sha256": payload.get("query_rows_sha256"),
+    }
+
+
 def _frontmatter_record(path: Path, *, keys: Sequence[str]) -> dict[str, Any]:
     record: dict[str, Any] = {"path": str(path), "exists": Path(path).exists()}
     for key in keys:
@@ -298,8 +330,6 @@ def _frontmatter_value(path: Path, key: str) -> str | None:
     return None
 
 
-def _realmap_queries_frozen() -> bool:
-    return False
 
 
 def _source_head() -> str:
