@@ -16,7 +16,7 @@ import numpy as np
 import pyarrow.parquet as pq
 
 from forest_n3p.rl_rs.env import AnalyticExpansionContext, AnalyticExpansionEnv
-from forest_n3p.rl_rs.obs import ObservationConfig
+from forest_n3p.rl_rs.obs import ObservationConfig, RlRsObservation, build_patch_observation
 from forest_n3p.scripts.run_oracle_connector_analysis import _grid_for_row, _profiles_from_bucket_mode
 from forest_n3p.main_evaluation import MainEvaluationConfig
 from forest_n3p.third_party.pathplan import AckermannParams, AckermannState, TwoCircleFootprint
@@ -44,16 +44,32 @@ def main(argv: Sequence[str] | None = None) -> int:
     if not train_rows or not val_rows:
         raise ValueError("train/val split must produce non-empty row sets")
 
-    x_train = _feature_matrix(train_rows)
+    cfg = MainEvaluationConfig(
+        seed=20260620,
+        profiles=_profiles_from_bucket_mode("validation_t06"),
+        methods=("ha_no_analytic",),
+        allow_unreviewed_cutpoints=True,
+        allow_unresolved_human_review=True,
+        enforce_t14_scale=False,
+    )
+    params = AckermannParams(wheelbase=float(args.wheelbase_m), min_turn_radius=float(args.turning_radius_m))
+    footprint = TwoCircleFootprint.from_box(length=0.924, width=0.740)
+    obs_config = ObservationConfig(
+        patch_size_m=float(args.obs_patch_size_m),
+        patch_cells=int(args.obs_patch_cells),
+        include_edt=bool(args.obs_include_edt),
+        edt_clip_m=float(args.obs_edt_clip_m),
+    )
+
+    x_train = _feature_matrix(train_rows, feature_mode=str(args.feature_mode), cfg=cfg, footprint=footprint, obs_config=obs_config)
     y_train = _target_vector(train_rows)
-    x_val = _feature_matrix(val_rows)
+    x_val = _feature_matrix(val_rows, feature_mode=str(args.feature_mode), cfg=cfg, footprint=footprint, obs_config=obs_config)
     y_val = _target_vector(val_rows)
     mean = x_train.mean(axis=0, keepdims=True)
     std = np.maximum(x_train.std(axis=0, keepdims=True), 1e-6)
     x_train_n = (x_train - mean) / std
     x_val_n = (x_val - mean) / std
 
-    params = AckermannParams(wheelbase=float(args.wheelbase_m), min_turn_radius=float(args.turning_radius_m))
     model = _build_scalar_steering_mlp(
         torch=torch,
         input_dim=x_train.shape[1],
@@ -115,19 +131,23 @@ def main(argv: Sequence[str] | None = None) -> int:
         std=std,
         args=args,
         params=params,
+        feature_mode=str(args.feature_mode),
+        obs_config=obs_config,
         device=device,
     )
 
     checkpoint_path = output_dir / "checkpoint.pt"
     torch.save(
         {
-            "model_type": "scalar_steering_mlp",
+            "model_type": f"{args.feature_mode}_steering_mlp",
             "state_dict": model.state_dict(),
             "input_dim": int(x_train.shape[1]),
             "hidden_dims": _parse_hidden_dims(str(args.hidden_dims)),
             "max_steer": float(params.max_steer),
+            "feature_mode": str(args.feature_mode),
             "feature_mean": mean.astype(np.float32).reshape(-1).tolist(),
             "feature_std": std.astype(np.float32).reshape(-1).tolist(),
+            "observation_config": _observation_config_record(obs_config),
             "source_head": source_head,
         },
         checkpoint_path,
@@ -154,6 +174,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "closed_loop_metrics": rollout_metrics,
         "config": {
             "seed": int(args.seed),
+            "feature_mode": str(args.feature_mode),
             "hidden_dims": list(_parse_hidden_dims(str(args.hidden_dims))),
             "batch_size": int(args.batch_size),
             "epochs": int(args.epochs),
@@ -166,6 +187,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             "collision_sample_step_m": float(args.collision_sample_step_m),
             "device": str(device),
             "allow_duplicate_openmp": bool(args.allow_duplicate_openmp),
+            "observation_config": _observation_config_record(obs_config),
         },
     }
     (output_dir / "summary.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -195,11 +217,12 @@ def _build_scalar_steering_mlp(*, torch: Any, input_dim: int, hidden_dims: tuple
 
 
 def _parse_args(argv: Sequence[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Train a Module2 RL-RS scalar-observation BC steering policy.")
+    parser = argparse.ArgumentParser(description="Train a Module2 RL-RS BC steering policy.")
     parser.add_argument("--dataset", type=Path, default=Path("2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_preview20.parquet"))
     parser.add_argument("--manifest", type=Path, default=Path("2_experiment/forest_n3p/datasets/module2_rl_rs_bc/manifest.json"))
     parser.add_argument("--output-dir", type=Path, default=Path("2_experiment/forest_n3p/models/module2_rl_rs_bc_preview"))
     parser.add_argument("--seed", type=int, default=20260703)
+    parser.add_argument("--feature-mode", choices=("scalar", "obstacle_summary"), default="scalar")
     parser.add_argument("--hidden-dims", default="64,64")
     parser.add_argument("--val-fraction", type=float, default=0.25)
     parser.add_argument("--batch-size", type=int, default=128)
@@ -215,6 +238,11 @@ def _parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser.add_argument("--turning-radius-m", type=float, default=1.0)
     parser.add_argument("--wheelbase-m", type=float, default=0.6)
     parser.add_argument("--theta-bins", type=int, default=72)
+    parser.add_argument("--obs-patch-size-m", type=float, default=6.4)
+    parser.add_argument("--obs-patch-cells", type=int, default=64)
+    parser.add_argument("--obs-edt-clip-m", type=float, default=3.0)
+    parser.add_argument("--no-obs-include-edt", dest="obs_include_edt", action="store_false")
+    parser.set_defaults(obs_include_edt=True)
     parser.add_argument("--source-head", default=None)
     parser.add_argument("--allow-duplicate-openmp", action="store_true")
     args = parser.parse_args(argv)
@@ -228,10 +256,20 @@ def _validate_args(args: argparse.Namespace) -> None:
     for name in ("batch_size", "epochs", "patience", "rollout_max_steps", "theta_bins"):
         if int(getattr(args, name)) <= 0:
             raise ValueError(f"--{name.replace('_', '-')} must be positive")
-    for name in ("learning_rate", "rollout_action_step_m", "collision_sample_step_m", "turning_radius_m", "wheelbase_m"):
+    for name in (
+        "learning_rate",
+        "rollout_action_step_m",
+        "collision_sample_step_m",
+        "turning_radius_m",
+        "wheelbase_m",
+        "obs_patch_size_m",
+        "obs_edt_clip_m",
+    ):
         value = float(getattr(args, name))
         if not (math.isfinite(value) and value > 0.0):
             raise ValueError(f"--{name.replace('_', '-')} must be finite and positive")
+    if int(args.obs_patch_cells) <= 0:
+        raise ValueError("--obs-patch-cells must be positive")
 
 
 def _load_torch():
@@ -276,8 +314,87 @@ def _split_by_source(rows: list[dict[str, Any]], *, val_fraction: float, seed: i
     return {"train_sources": train_sources, "val_sources": val_sources}
 
 
-def _feature_matrix(rows: list[dict[str, Any]]) -> np.ndarray:
-    return np.asarray([row["obs_scalar"] for row in rows], dtype=np.float32)
+def _feature_matrix(
+    rows: list[dict[str, Any]],
+    *,
+    feature_mode: str,
+    cfg: MainEvaluationConfig | None = None,
+    footprint: TwoCircleFootprint | None = None,
+    obs_config: ObservationConfig | None = None,
+) -> np.ndarray:
+    if str(feature_mode) == "scalar":
+        return np.asarray([_policy_features_from_scalar_and_patch(row["obs_scalar"], None, feature_mode="scalar") for row in rows], dtype=np.float32)
+    if str(feature_mode) != "obstacle_summary":
+        raise ValueError(f"unsupported feature_mode: {feature_mode}")
+    if cfg is None or footprint is None or obs_config is None:
+        raise ValueError("cfg, footprint, and obs_config are required for obstacle_summary features")
+    map_cache: dict[int, Any] = {}
+    features: list[np.ndarray] = []
+    for row in rows:
+        grid_map = _grid_for_row(row, cfg, footprint, map_cache)
+        state = AckermannState(float(row["current_x"]), float(row["current_y"]), float(row["current_theta"]))
+        patch = build_patch_observation(grid_map, state, obs_config)
+        features.append(_policy_features_from_scalar_and_patch(row["obs_scalar"], patch, feature_mode="obstacle_summary"))
+    return np.asarray(features, dtype=np.float32)
+
+
+def _policy_features_from_observation(obs: RlRsObservation, *, feature_mode: str) -> np.ndarray:
+    return _policy_features_from_scalar_and_patch(obs.scalar, obs.patch, feature_mode=feature_mode)
+
+
+def _policy_features_from_scalar_and_patch(scalar: Sequence[float], patch: np.ndarray | None, *, feature_mode: str) -> np.ndarray:
+    scalar_arr = np.asarray(scalar, dtype=np.float32).reshape(-1)
+    if str(feature_mode) == "scalar":
+        return scalar_arr
+    if str(feature_mode) == "obstacle_summary":
+        if patch is None:
+            raise ValueError("obstacle_summary features require a patch observation")
+        return np.concatenate((scalar_arr, _obstacle_summary_features(patch)), axis=0).astype(np.float32, copy=False)
+    raise ValueError(f"unsupported feature_mode: {feature_mode}")
+
+
+def _obstacle_summary_features(patch: np.ndarray) -> np.ndarray:
+    patch_arr = np.asarray(patch, dtype=np.float32)
+    if patch_arr.ndim != 3:
+        raise ValueError("patch must have shape (channels, cells, cells)")
+    occupancy = patch_arr[0]
+    edt = patch_arr[1] if patch_arr.shape[0] > 1 else 1.0 - occupancy
+    cells_y, cells_x = occupancy.shape
+    x_axis = _normalized_axis(cells_x)
+    y_axis = _normalized_axis(cells_y)
+    xx, yy = np.meshgrid(x_axis, y_axis, indexing="xy")
+    masks = (
+        np.ones_like(occupancy, dtype=bool),
+        xx >= 0.0,
+        (xx >= 0.0) & (xx <= 0.5) & (np.abs(yy) <= 0.35),
+        (xx > 0.5) & (np.abs(yy) <= 0.5),
+        (xx >= 0.0) & (yy > 0.0),
+        (xx >= 0.0) & (yy < 0.0),
+        (xx >= 0.0) & (np.abs(yy) <= 0.15),
+    )
+    out: list[float] = []
+    for mask in masks:
+        out.extend(_region_features(occupancy, edt, mask))
+    return np.asarray(out, dtype=np.float32)
+
+
+def _normalized_axis(size: int) -> np.ndarray:
+    if int(size) <= 1:
+        return np.zeros((int(size),), dtype=np.float32)
+    center = (float(size) - 1.0) / 2.0
+    return ((np.arange(int(size), dtype=np.float32) - center) / max(center, 1.0)).astype(np.float32, copy=False)
+
+
+def _region_features(occupancy: np.ndarray, edt: np.ndarray, mask: np.ndarray) -> tuple[float, float, float]:
+    if not bool(np.any(mask)):
+        return 0.0, 0.0, 0.0
+    occ_values = occupancy[mask]
+    edt_values = edt[mask]
+    return (
+        float(np.mean(occ_values)),
+        float(np.min(edt_values)),
+        float(np.mean(edt_values)),
+    )
 
 
 def _target_vector(rows: list[dict[str, Any]]) -> np.ndarray:
@@ -308,6 +425,8 @@ def _closed_loop_metrics(
     std: np.ndarray,
     args: argparse.Namespace,
     params: AckermannParams,
+    feature_mode: str,
+    obs_config: ObservationConfig,
     device: Any,
 ) -> dict[str, Any]:
     cfg = MainEvaluationConfig(
@@ -345,13 +464,13 @@ def _closed_loop_metrics(
                     collision_sample_step_m=float(args.collision_sample_step_m),
                     terminal_check_every=1,
                     theta_bins=int(args.theta_bins),
-                    observation_config=ObservationConfig(),
+                    observation_config=obs_config,
                 )
             )
             final_step = None
             for _ in range(int(args.rollout_max_steps)):
-                scalar = np.asarray(obs.scalar, dtype=np.float32).reshape(1, -1)
-                scalar = (scalar - mean) / std
+                features = _policy_features_from_observation(obs, feature_mode=str(feature_mode)).reshape(1, -1)
+                scalar = (features - mean) / std
                 with torch.no_grad():
                     action = float(model(torch.as_tensor(scalar, dtype=torch.float32, device=device)).detach().cpu().numpy()[0, 0])
                 final_step = env.step(action)
@@ -395,6 +514,15 @@ def _closed_loop_metrics(
         "collision_rate": float(counts["collision"]) / float(episodes),
         "truncation_rate": float(counts["truncated"]) / float(episodes),
         "episodes_detail": episode_rows,
+    }
+
+
+def _observation_config_record(config: ObservationConfig) -> dict[str, Any]:
+    return {
+        "patch_size_m": float(config.patch_size_m),
+        "patch_cells": int(config.patch_cells),
+        "include_edt": bool(config.include_edt),
+        "edt_clip_m": float(config.edt_clip_m),
     }
 
 
