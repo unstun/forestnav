@@ -35,6 +35,18 @@ STATUS_REPORT_REQUIREMENT_IDS = (
     "acceptance_remote_pullback_and_audit",
     "h01_h02_formal_evaluation_acceptance",
 )
+STATUS_REPORT_REMOTE_PREFLIGHT_REQUIREMENT_IDS = (
+    "f02_6_decision_closed_for_preflight",
+    "approved_remote_preflight_manifest",
+    "remote_preflight_protocol_contract",
+    "remote_preflight_command_packetized",
+)
+STATUS_REPORT_POST_RUN_ACCEPTANCE_REQUIREMENT_IDS = (
+    "pullback_expected_artifacts_complete",
+    "checkpoint_hash_manifest_recorded",
+    "gate3_formal_audit_accepts_remote_run",
+    "h01_h02_regenerated_from_audited_checkpoint",
+)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -102,6 +114,7 @@ def build_manifest(
     status_report_handoff_summary = _status_report_handoff_summary(status_report)
     status_report_missing_artifacts_handoff_summary = _status_report_missing_artifacts_handoff_summary(status_report)
     status_report_requirement_stage_summary = _status_report_requirement_stage_summary(status_report)
+    status_report_remote_requirement_summary = _status_report_remote_requirement_summary(status_report)
     formal_allowed = not formal_blockers
     prohibited = _prohibited_claims()
     allowed = _allowed_claims(
@@ -193,10 +206,29 @@ def build_manifest(
             "status_report_remote_packet_training_allowed_now": status_report_remote_gate_summary[
                 "remote_execution_step_summary"
             ]["run_remote_training"]["allowed_now"],
+            "status_report_remote_preflight_requirement_present": status_report_remote_requirement_summary[
+                "remote_preflight_requirement_summary"
+            ]["present"],
+            "status_report_remote_preflight_requirement_satisfied_count": status_report_remote_requirement_summary[
+                "remote_preflight_requirement_summary"
+            ]["status_counts"].get("satisfied", 0),
+            "status_report_remote_preflight_requirement_blocked_count": status_report_remote_requirement_summary[
+                "remote_preflight_requirement_summary"
+            ]["blocked_requirement_count"],
+            "status_report_post_run_acceptance_requirement_present": status_report_remote_requirement_summary[
+                "post_run_acceptance_requirement_summary"
+            ]["present"],
+            "status_report_post_run_acceptance_requirement_satisfied_count": status_report_remote_requirement_summary[
+                "post_run_acceptance_requirement_summary"
+            ]["status_counts"].get("satisfied", 0),
+            "status_report_post_run_acceptance_requirement_blocked_count": status_report_remote_requirement_summary[
+                "post_run_acceptance_requirement_summary"
+            ]["blocked_requirement_count"],
         },
         "status_report_handoff_summary": status_report_handoff_summary,
         "status_report_missing_artifacts_handoff_summary": status_report_missing_artifacts_handoff_summary,
         "status_report_requirement_stage_summary": status_report_requirement_stage_summary,
+        "status_report_remote_requirement_summary": status_report_remote_requirement_summary,
         "status_report_remote_gate_summary": status_report_remote_gate_summary,
         "allowed_claims": allowed,
         "conditional_claims": _conditional_claims(),
@@ -293,6 +325,7 @@ def _formal_performance_blockers(
     blockers.extend(_status_report_handoff_blockers(status_report))
     blockers.extend(_status_report_missing_artifacts_handoff_blockers(status_report))
     blockers.extend(_status_report_requirement_stage_blockers(status_report))
+    blockers.extend(_status_report_remote_requirement_blockers(status_report))
     blockers.extend(_status_report_remote_summary_blockers(status_report))
     return blockers
 
@@ -466,6 +499,118 @@ def _status_report_remote_gate_summary(status_report: dict[str, Any]) -> dict[st
     }
 
 
+def _status_report_remote_requirement_summary(status_report: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    return {
+        "remote_preflight_requirement_summary": _remote_requirement_matrix_summary(
+            status_report=status_report,
+            summary_key="remote_preflight_requirement_summary",
+            required_ids=STATUS_REPORT_REMOTE_PREFLIGHT_REQUIREMENT_IDS,
+        ),
+        "post_run_acceptance_requirement_summary": _remote_requirement_matrix_summary(
+            status_report=status_report,
+            summary_key="post_run_acceptance_requirement_summary",
+            required_ids=STATUS_REPORT_POST_RUN_ACCEPTANCE_REQUIREMENT_IDS,
+        ),
+    }
+
+
+def _remote_requirement_matrix_summary(
+    *,
+    status_report: dict[str, Any],
+    summary_key: str,
+    required_ids: Sequence[str],
+) -> dict[str, Any]:
+    summary = status_report.get(summary_key)
+    summary = summary if isinstance(summary, dict) else {}
+    raw_requirements = summary.get("requirements") if isinstance(summary.get("requirements"), dict) else {}
+    requirements: dict[str, dict[str, Any]] = {}
+    for requirement_id in required_ids:
+        row = raw_requirements.get(requirement_id) if isinstance(raw_requirements.get(requirement_id), dict) else {}
+        requirements[requirement_id] = {
+            "present": bool(row),
+            "status": row.get("status"),
+            "phase": row.get("phase"),
+            "complete": row.get("complete") if isinstance(row.get("complete"), bool) else None,
+            "execution_allowed_now": row.get("execution_allowed_now")
+            if isinstance(row.get("execution_allowed_now"), bool)
+            else None,
+            "remote_training_ready_now": row.get("remote_training_ready_now")
+            if isinstance(row.get("remote_training_ready_now"), bool)
+            else None,
+            "missing_artifact_ids": _strings(row.get("missing_artifact_ids")),
+            "blocked_by": _strings(row.get("blocked_by")),
+            "acceptable_evidence_count": int(row.get("acceptable_evidence_count") or 0),
+            "invalid_substitute_count": int(row.get("invalid_substitute_count") or 0),
+        }
+    status_counts = summary.get("status_counts") if isinstance(summary.get("status_counts"), dict) else {}
+    return {
+        "present": bool(summary),
+        "required_requirement_count": int(summary.get("required_requirement_count") or len(required_ids)),
+        "present_requirement_count": int(summary.get("present_requirement_count") or 0),
+        "blocked_requirement_count": int(summary.get("blocked_requirement_count") or 0),
+        "status_counts": {str(key): int(value or 0) for key, value in status_counts.items()},
+        "missing_requirement_ids": _strings(summary.get("missing_requirement_ids")),
+        "requirements": requirements,
+    }
+
+
+def _status_report_remote_requirement_blockers(status_report: dict[str, Any]) -> list[str]:
+    summary = _status_report_remote_requirement_summary(status_report)
+    blockers: list[str] = []
+    blockers.extend(
+        _remote_requirement_matrix_blockers(
+            status_report=status_report,
+            summary=summary["remote_preflight_requirement_summary"],
+            prefix="status_report_remote_preflight_requirement",
+            required_ids=STATUS_REPORT_REMOTE_PREFLIGHT_REQUIREMENT_IDS,
+        )
+    )
+    blockers.extend(
+        _remote_requirement_matrix_blockers(
+            status_report=status_report,
+            summary=summary["post_run_acceptance_requirement_summary"],
+            prefix="status_report_post_run_acceptance_requirement",
+            required_ids=STATUS_REPORT_POST_RUN_ACCEPTANCE_REQUIREMENT_IDS,
+        )
+    )
+    return blockers
+
+
+def _remote_requirement_matrix_blockers(
+    *,
+    status_report: dict[str, Any],
+    summary: dict[str, Any],
+    prefix: str,
+    required_ids: Sequence[str],
+) -> list[str]:
+    blockers: list[str] = []
+    if not summary["present"]:
+        blockers.append(f"{prefix}_summary_missing")
+        return blockers
+    if int(summary["required_requirement_count"] or 0) != len(required_ids):
+        blockers.append(f"{prefix}_required_count_mismatch")
+    for requirement_id in summary["missing_requirement_ids"]:
+        _append_unique(blockers, f"{prefix}_missing_{requirement_id}")
+    if status_report.get("status") == "formal_gate_status_ready_for_claim_audit" and int(summary["blocked_requirement_count"] or 0) > 0:
+        blockers.append(f"{prefix}_blocked_while_status_ready")
+    blocked_status = status_report.get("status") != "formal_gate_status_ready_for_claim_audit"
+    for requirement_id, row in summary["requirements"].items():
+        if not row["present"]:
+            _append_unique(blockers, f"{prefix}_missing_{requirement_id}")
+            continue
+        if int(row["acceptable_evidence_count"] or 0) <= 0:
+            _append_unique(blockers, f"{prefix}_{requirement_id}_missing_acceptable_evidence")
+        if int(row["invalid_substitute_count"] or 0) <= 0:
+            _append_unique(blockers, f"{prefix}_{requirement_id}_missing_invalid_substitutes")
+        if blocked_status and row["execution_allowed_now"] is True:
+            _append_unique(blockers, f"{prefix}_{requirement_id}_allowed_while_status_blocked")
+        if row["complete"] is True and row["status"] != "satisfied":
+            _append_unique(blockers, f"{prefix}_{requirement_id}_complete_not_satisfied")
+        if row["status"] == "satisfied" and row["missing_artifact_ids"]:
+            _append_unique(blockers, f"{prefix}_{requirement_id}_satisfied_with_missing_artifacts")
+    return blockers
+
+
 def _summary_items(raw: Any, item_ids: Sequence[str]) -> dict[str, dict[str, Any]]:
     items = raw if isinstance(raw, dict) else {}
     out: dict[str, dict[str, Any]] = {}
@@ -482,6 +627,12 @@ def _summary_items(raw: Any, item_ids: Sequence[str]) -> dict[str, dict[str, Any
             "blocked_by": [str(value) for value in blocked_by if value] if isinstance(blocked_by, list) else [],
         }
     return out
+
+
+def _strings(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [str(item) for item in value if item]
 
 
 def _status_report_remote_summary_blockers(status_report: dict[str, Any]) -> list[str]:
@@ -743,6 +894,19 @@ def _markdown(manifest: dict[str, Any]) -> str:
             lines.append(
                 f"- `{item_id}`: allowed_now=`{item['allowed_now']}`, runs_training=`{item['runs_training']}`, "
                 f"runs_remote_preflight=`{item['runs_remote_preflight']}`, host=`{item['host']}`, blocked_by=`{blocked_by}`"
+            )
+    lines.extend(["", "## Status Report Remote Requirement Matrices", ""])
+    remote_requirements = manifest["status_report_remote_requirement_summary"]
+    for group_id, group in remote_requirements.items():
+        lines.append(f"### {group_id}")
+        lines.append(f"- present=`{group['present']}`")
+        lines.append(f"- status_counts=`{group['status_counts']}`")
+        lines.append(f"- blocked_requirement_count=`{group['blocked_requirement_count']}`")
+        for requirement_id, row in group["requirements"].items():
+            lines.append(
+                f"- `{requirement_id}`: status=`{row['status']}`, complete=`{row['complete']}`, "
+                f"execution_allowed_now=`{row['execution_allowed_now']}`, "
+                f"remote_training_ready_now=`{row['remote_training_ready_now']}`"
             )
     lines.extend(["", "## Prohibited Claims", ""])
     for claim in manifest["prohibited_claims"]:
