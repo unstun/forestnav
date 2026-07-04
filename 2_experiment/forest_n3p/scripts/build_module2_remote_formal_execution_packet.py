@@ -87,6 +87,7 @@ def build_packet(config: RemoteFormalExecutionPacketConfig) -> dict[str, Any]:
     commands["run_remote_preflight"]["allowed_now"] = decision["status"] == "approved"
     commands["run_remote_training"]["allowed_now"] = ready
     commands["run_remote_audit"]["allowed_now"] = ready
+    _annotate_step_blockers(commands=commands, decision=decision, blockers=blockers, ready=ready)
 
     return {
         "schema_version": 1,
@@ -249,6 +250,29 @@ def _commands(
             "command": _remote_command(config, audit_command),
         },
     }
+
+
+def _annotate_step_blockers(
+    *,
+    commands: dict[str, Any],
+    decision: dict[str, Any],
+    blockers: Sequence[str],
+    ready: bool,
+) -> None:
+    decision_blockers = _decision_step_blockers(decision)
+    commands["sync_to_remote"]["blocked_by"] = [] if commands["sync_to_remote"]["allowed_now"] else decision_blockers
+    commands["run_remote_preflight"]["blocked_by"] = [] if commands["run_remote_preflight"]["allowed_now"] else decision_blockers
+    training_blockers = _unique(list(blockers) + ([] if ready else ["remote_packet_not_ready"]))
+    commands["run_remote_training"]["blocked_by"] = [] if commands["run_remote_training"]["allowed_now"] else training_blockers
+    commands["run_remote_audit"]["blocked_by"] = [] if commands["run_remote_audit"]["allowed_now"] else training_blockers
+
+
+def _decision_step_blockers(decision: dict[str, Any]) -> list[str]:
+    if decision["status"] == "approved":
+        return []
+    if decision["blockers"]:
+        return list(decision["blockers"])
+    return [f"f02_6_decision_status_{decision['status']}"]
 
 
 def _approved_actions(decision_record: dict[str, Any]) -> dict[str, Any]:
