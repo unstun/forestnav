@@ -92,7 +92,21 @@ def test_h02_formal_acceptance_blocks_current_smoke_and_pending_remote_packet(tm
     assert manifest["schema_checks"]["records_csv"]["missing_columns"] == []
     assert manifest["schema_checks"]["summary_by_method_bucket_csv"]["missing_columns"] == []
     assert manifest["schema_checks"]["summary_json"]["missing_sections"] == []
+    assert manifest["formal_acceptance_requirement_counts"] == {
+        "satisfied": 1,
+        "blocked_formal_acceptance": 3,
+    }
+    requirements = {item["requirement_id"]: item for item in manifest["formal_acceptance_requirements"]}
+    assert requirements["h01_schema_and_h02_output_schema_match"]["status"] == "satisfied"
+    assert requirements["h01_schema_and_h02_output_schema_match"]["paper_result_input_allowed_now"] is False
+    assert requirements["h02_formal_scope_and_scale_match_h01"]["status"] == "blocked_formal_acceptance"
+    assert "candidate_or_smoke verdict" in requirements["h02_formal_scope_and_scale_match_h01"]["invalid_substitutes"]
+    assert requirements["gate3_audit_and_pullback_acceptance"]["status"] == "blocked_formal_acceptance"
+    assert "remote stdout without local pullback" in requirements["gate3_audit_and_pullback_acceptance"]["invalid_substitutes"]
+    assert requirements["ppo_rows_and_checkpoint_hash_present"]["status"] == "blocked_formal_acceptance"
+    assert "BC analytic rows used as PPO result rows" in requirements["ppo_rows_and_checkpoint_hash_present"]["invalid_substitutes"]
     assert "blocked_formal_output_acceptance" in markdown
+    assert "Formal Acceptance Requirements" in markdown
 
 
 def test_h02_formal_acceptance_accepts_synthetic_formal_outputs(tmp_path):
@@ -120,6 +134,9 @@ def test_h02_formal_acceptance_accepts_synthetic_formal_outputs(tmp_path):
     assert manifest["formal_checks"]["remote_pullback_artifacts_present"] is True
     assert manifest["method_checks"]["has_ppo_result_rows"] is True
     assert manifest["method_checks"]["ppo_checkpoint_hashes"] == ["abc123"]
+    assert manifest["formal_acceptance_requirement_counts"] == {"satisfied": 4}
+    assert all(item["status"] == "satisfied" for item in manifest["formal_acceptance_requirements"])
+    assert all(item["paper_result_input_allowed_now"] is True for item in manifest["formal_acceptance_requirements"])
 
 
 def test_h02_formal_acceptance_blocks_missing_required_schema(tmp_path):
@@ -139,6 +156,9 @@ def test_h02_formal_acceptance_blocks_missing_required_schema(tmp_path):
     assert manifest["status"] == "blocked_formal_output_acceptance"
     assert "records_csv_missing_required_columns" in manifest["blockers"]
     assert manifest["schema_checks"]["records_csv"]["missing_columns"] == ["nn_forward_time_s"]
+    requirements = {item["requirement_id"]: item for item in manifest["formal_acceptance_requirements"]}
+    assert requirements["h01_schema_and_h02_output_schema_match"]["status"] == "blocked_formal_acceptance"
+    assert "records_csv_column_nn_forward_time_s" in requirements["h01_schema_and_h02_output_schema_match"]["missing_artifact_ids"]
 
 
 def _evaluation_dir(tmp_path, *, formal, omit_record_column=None):
