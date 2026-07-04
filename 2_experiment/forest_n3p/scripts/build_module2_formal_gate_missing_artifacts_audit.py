@@ -706,6 +706,18 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.extend(["", "## Missing Counts", ""])
     for category, count in sorted(manifest["missing_counts_by_category"].items()):
         lines.append(f"- {category}: `{count}`")
+    lines.extend(["", "## Formal Gate Requirements", ""])
+    for requirement in manifest["formal_gate_requirements"]:
+        lines.append(
+            f"- `{requirement['requirement_id']}` ({requirement['phase']}): "
+            f"status=`{requirement['status']}`, execution_allowed_now=`{requirement['execution_allowed_now']}`"
+        )
+        if requirement["missing_artifact_ids"]:
+            lines.append(f"  - missing_artifact_ids: `{', '.join(requirement['missing_artifact_ids'])}`")
+        if requirement["blocked_by"]:
+            lines.append(f"  - blocked_by: `{', '.join(requirement['blocked_by'])}`")
+        lines.append(f"  - acceptable_evidence: `{'; '.join(requirement['acceptable_evidence'])}`")
+        lines.append(f"  - invalid_substitutes: `{'; '.join(requirement['invalid_substitutes'])}`")
     lines.extend(["", "## Evidence Groups", ""])
     for group in manifest["missing_evidence_groups"]:
         lines.append(
