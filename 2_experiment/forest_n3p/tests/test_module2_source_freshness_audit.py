@@ -85,10 +85,14 @@ def test_source_freshness_audit_cli_writes_json_and_markdown(tmp_path):
     assert manifest["artifact_name"] == "module2_source_freshness_audit"
     assert manifest["runs_training"] is False
     artifact_ids = {record["artifact_id"] for record in manifest["artifact_records"]}
+    assert "f02_6_decision_gate_audit" in artifact_ids
     assert "post_f02_6_plan_audit" in artifact_ids
+    assert "remote_packet_safety_audit" in artifact_ids
     assert "formal_gate_missing_artifacts" in artifact_ids
     required_before = {target["artifact_id"]: target["required_before"] for target in manifest["ordered_regeneration_targets"]}
+    assert required_before.get("f02_6_decision_gate_audit") == "approved_remote_preflight"
     assert required_before.get("post_f02_6_plan_audit") == "approved_remote_preflight"
+    assert required_before.get("remote_packet_safety_audit") == "approved_remote_preflight"
     assert required_before.get("formal_gate_missing_artifacts") == "formal_claim_gate"
     assert "Module2 Source Freshness Audit" in markdown
     assert "not a training run" in markdown
