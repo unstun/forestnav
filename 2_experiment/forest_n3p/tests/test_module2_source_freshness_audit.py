@@ -109,8 +109,7 @@ def test_source_freshness_audit_cli_writes_json_and_markdown(tmp_path):
         assert required_before.get("post_f02_6_plan_audit") == "approved_remote_preflight"
     if records["remote_packet_safety_audit"]["freshness_state"] != "current_clean":
         assert required_before.get("remote_packet_safety_audit") == "approved_remote_preflight"
-    if records["formal_gate_handoff_bundle"]["freshness_state"] != "current_clean":
-        assert required_before.get("formal_gate_handoff_bundle") == "approved_remote_preflight"
+    assert required_before.get("formal_gate_handoff_bundle") == "approved_remote_preflight"
     assert required_before.get("formal_gate_missing_artifacts") == "formal_claim_gate"
     if records["formal_gate_status_report"]["freshness_state"] != "current_clean":
         assert required_before.get("formal_gate_status_report") == "formal_claim_gate"

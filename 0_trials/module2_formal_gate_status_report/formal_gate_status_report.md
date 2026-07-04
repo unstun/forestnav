@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `6448a955286c0d56b8d8744c9885fa12f6f71120+dirty`
+- source_head: `1cb9f5e32e3b27b40e32bc591c5ed5d83766eb87+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -56,7 +56,7 @@ This file is a read-only formal-gate status report. It does not execute commands
   - blocked_by: `f02_6_decision_not_approved, f02_6_warm_start_decision_pending, requires_dr_sun_approval`
   - completion_signal: F02.6 decision record is approved or rejected by Dr Sun.
   - action_when_blocked: Record Dr Sun's F02.6 decision before any formal preflight or training.
-- `source_fresh_preflight` (regeneration): status=`blocked`, missing=`15`, runs_training=`False`
+- `source_fresh_preflight` (regeneration): status=`blocked`, missing=`16`, runs_training=`False`
   - blocked_by: `source_freshness_regeneration_required, f02_6_warm_start_decision_pending, requires_dr_sun_approval, f02_6_decision_not_approved`
   - completion_signal: Source-fresh preflight targets are regenerated from the current head.
   - action_when_blocked: After F02.6 closes, regenerate source-fresh gate artifacts before approved preflight.

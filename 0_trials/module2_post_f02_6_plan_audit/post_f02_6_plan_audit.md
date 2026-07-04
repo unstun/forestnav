@@ -2,8 +2,8 @@
 
 This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
-- status: `post_f02_6_plan_audit_failed`
-- audit_issue_count: `2`
+- status: `post_f02_6_plan_audit_passed`
+- audit_issue_count: `0`
 - executes_commands: `False`
 - runs_training: `False`
 - runs_remote_preflight: `False`
@@ -24,7 +24,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - runs_remote_preflight: `False`
 - all_required_evidence_present: `False`
 - audit_issue_count: `0`
-- missing_counts_by_category: `{'decision': 1, 'decision_gate': 0, 'regeneration': 15, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 5}`
+- missing_counts_by_category: `{'decision': 1, 'decision_gate': 0, 'regeneration': 16, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 5}`
 
 ## Closure Checklist
 
@@ -73,8 +73,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
 ## Audit Issues
 
-- `handoff_bundle_missing_from_plan_preflight_targets`: Post-F02.6 plan must list formal_gate_handoff_bundle under approved_remote_preflight source-regeneration targets.
-- `handoff_bundle_missing_regeneration_command`: Post-F02.6 regeneration stage must include build_module2_formal_gate_handoff_bundle.
+- none
 
 ## Claim Boundaries
 

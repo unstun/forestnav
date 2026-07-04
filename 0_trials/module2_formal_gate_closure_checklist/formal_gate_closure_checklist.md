@@ -16,10 +16,10 @@ This file is a formal-gate closure checklist. It does not execute commands, trai
 - missing_artifacts_status: `formal_gate_missing_artifacts_open`
 - post_plan_status: `blocked_until_f02_6_decision`
 - source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
-- missing_counts_by_category: `{'decision': 1, 'decision_gate': 0, 'regeneration': 15, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 5}`
+- missing_counts_by_category: `{'decision': 1, 'decision_gate': 0, 'regeneration': 16, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 5}`
 - formal_ordered_next_step_count: `6`
 - post_plan_blocked_stage_ids: `['regenerate_preflight_gate_artifacts', 'approved_remote_preflight', 'regenerate_remote_execution_packet', 'gate3_remote_training', 'gate3_remote_audit_pullback', 'regenerate_h01_h02_formal_artifacts', 'regenerate_claim_gate_artifacts']`
-- source_regeneration_target_count: `15`
+- source_regeneration_target_count: `16`
 
 ## Closure Checklist
 
@@ -27,7 +27,7 @@ This file is a formal-gate closure checklist. It does not execute commands, trai
   - blocked_by: `f02_6_decision_not_approved, f02_6_warm_start_decision_pending, requires_dr_sun_approval`
   - completion_signal: Dr Sun approved/rejected decision record is present and source-fresh.
   - next_action: Close the F02.6 warm-start decision record before any approved preflight.
-- `preflight_source_fresh_regeneration` (regeneration): status=`blocked`, missing=`15`, runs_training=`False`
+- `preflight_source_fresh_regeneration` (regeneration): status=`blocked`, missing=`16`, runs_training=`False`
   - blocked_by: `source_freshness_regeneration_required, f02_6_warm_start_decision_pending, requires_dr_sun_approval, f02_6_decision_not_approved`
   - completion_signal: All approved_remote_preflight source-fresh targets are regenerated from the current head.
   - next_action: Regenerate source freshness targets only after F02.6 is closed.

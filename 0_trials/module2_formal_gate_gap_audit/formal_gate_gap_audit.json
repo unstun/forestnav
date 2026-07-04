@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_gap_audit",
   "status": "blocked_formal_gate_gaps_open",
-  "created_at_utc": "2026-07-04T16:32:31.405017+00:00",
-  "source_head": "6448a955286c0d56b8d8744c9885fa12f6f71120+dirty",
+  "created_at_utc": "2026-07-04T16:34:44.437687+00:00",
+  "source_head": "1cb9f5e32e3b27b40e32bc591c5ed5d83766eb87+dirty",
   "not_paper_result_material": true,
   "local_training_allowed": false,
   "remote_training_resource": "gpu3070ti-relay",
@@ -36,12 +36,10 @@
     "formal_claim_allowed": false,
     "regeneration_required_before_remote_formal_execution": true,
     "risk_counts": {
-      "historical_dirty": 7,
-      "historical_clean": 2,
-      "current_dirty": 6,
-      "current_clean": 1
+      "historical_dirty": 13,
+      "historical_clean": 3
     },
-    "ordered_regeneration_target_count": 15,
+    "ordered_regeneration_target_count": 16,
     "ordered_regeneration_targets": [
       {
         "artifact_id": "f02_6_decision_gate_audit",
@@ -64,13 +62,19 @@
       {
         "artifact_id": "formal_gate_closure_checklist",
         "path": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
-        "freshness_state": "current_dirty",
+        "freshness_state": "historical_dirty",
         "required_before": "approved_remote_preflight"
       },
       {
         "artifact_id": "formal_gate_gap_audit",
         "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
-        "freshness_state": "current_dirty",
+        "freshness_state": "historical_dirty",
+        "required_before": "approved_remote_preflight"
+      },
+      {
+        "artifact_id": "formal_gate_handoff_bundle",
+        "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
+        "freshness_state": "historical_clean",
         "required_before": "approved_remote_preflight"
       },
       {
@@ -82,7 +86,7 @@
       {
         "artifact_id": "post_f02_6_plan_audit",
         "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
-        "freshness_state": "current_dirty",
+        "freshness_state": "historical_dirty",
         "required_before": "approved_remote_preflight"
       },
       {
@@ -94,7 +98,7 @@
       {
         "artifact_id": "remote_packet_safety_audit",
         "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
-        "freshness_state": "current_dirty",
+        "freshness_state": "historical_dirty",
         "required_before": "approved_remote_preflight"
       },
       {
@@ -118,13 +122,13 @@
       {
         "artifact_id": "formal_gate_missing_artifacts",
         "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
-        "freshness_state": "current_dirty",
+        "freshness_state": "historical_dirty",
         "required_before": "formal_claim_gate"
       },
       {
         "artifact_id": "formal_gate_status_report",
         "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
-        "freshness_state": "current_dirty",
+        "freshness_state": "historical_dirty",
         "required_before": "formal_claim_gate"
       },
       {
@@ -149,7 +153,7 @@
     "missing_counts_by_category": {
       "decision": 1,
       "decision_gate": 0,
-      "regeneration": 15,
+      "regeneration": 16,
       "gate_sequence": 7,
       "training": 3,
       "evaluation": 2,
@@ -382,7 +386,7 @@
     {
       "category": "acceptance",
       "gap_id": "formal_gate_missing_artifacts_open",
-      "why_missing": "Formal gate inventory still reports missing evidence counts: {'decision': 1, 'decision_gate': 0, 'regeneration': 15, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 5}.",
+      "why_missing": "Formal gate inventory still reports missing evidence counts: {'decision': 1, 'decision_gate': 0, 'regeneration': 16, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 5}.",
       "evidence_path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
       "required_next_artifact": "Close every missing-artifacts group before final H02/claim readiness can pass."
     },
