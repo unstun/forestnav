@@ -1,0 +1,351 @@
+{
+  "schema_version": 1,
+  "artifact_name": "module2_paper_tables",
+  "status": "blocked_no_formal_h02_data",
+  "created_at_utc": "2026-07-04T06:50:47.775724+00:00",
+  "source_head": "2db279a41e9c7fa8bc88dfac156c0b88d80996b8",
+  "formal_claim_allowed": false,
+  "local_training_allowed": false,
+  "remote_training_resource": "gpu3070ti-relay",
+  "inputs": {
+    "evaluation_dir": "0_trials/module2_h02_local_smoke/h02_1_available_subset",
+    "records_csv": "0_trials/module2_h02_local_smoke/h02_1_available_subset/records.csv",
+    "summary_json": "0_trials/module2_h02_local_smoke/h02_1_available_subset/summary.json",
+    "verdict_json": "0_trials/module2_h02_local_smoke/h02_1_available_subset/verdict.json",
+    "h01_manifest": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
+    "metric_protocol": "0_trials/module2_metric_protocol/module2_metric_protocol.json"
+  },
+  "input_status": {
+    "record_count": 15,
+    "summary_record_count": 15,
+    "h02_verdict_status": "candidate_or_smoke",
+    "h02_formal_acceptance": false,
+    "h01_manifest_status": "blocked_pending_decisions",
+    "metric_protocol_status": "frozen"
+  },
+  "blockers": [
+    "h02_verdict_not_formal",
+    "h01_manifest_not_ready",
+    "f02_6_warm_start_decision_pending",
+    "f02_6_decision_packet_pending",
+    "missing_module2_rl_rs_checkpoint",
+    "missing_ppo_result_rows"
+  ],
+  "tables": {
+    "main_table": {
+      "i02_item": "I02.1",
+      "status": "preview_not_formal",
+      "columns": [
+        "method",
+        "record_count",
+        "success_rate",
+        "timeout_failure_rate",
+        "time_p50_s",
+        "time_p95_s",
+        "expansions_p50",
+        "expansions_p95",
+        "path_inflation_p50",
+        "clearance_p50_m"
+      ],
+      "rows": [
+        {
+          "method": "bc_analytic_operator",
+          "record_count": 3,
+          "success_rate": 1.0,
+          "timeout_failure_rate": 0.0,
+          "time_p50_s": 0.1799938678741455,
+          "time_p95_s": 1.9054020643234253,
+          "expansions_p50": 13.0,
+          "expansions_p95": 571.8999999999999,
+          "path_inflation_p50": null,
+          "clearance_p50_m": 0.19094533266411373
+        },
+        {
+          "method": "ha_dang_multi_rs",
+          "record_count": 3,
+          "success_rate": 1.0,
+          "timeout_failure_rate": 0.0,
+          "time_p50_s": 0.1677548885345459,
+          "time_p95_s": 0.521745753288269,
+          "expansions_p50": 31.0,
+          "expansions_p95": 659.1999999999999,
+          "path_inflation_p50": null,
+          "clearance_p50_m": 0.19094533266411373
+        },
+        {
+          "method": "ha_no_analytic",
+          "record_count": 3,
+          "success_rate": 1.0,
+          "timeout_failure_rate": 0.0,
+          "time_p50_s": 0.4083709716796875,
+          "time_p95_s": 0.5820566654205322,
+          "expansions_p50": 658.0,
+          "expansions_p95": 1064.8,
+          "path_inflation_p50": null,
+          "clearance_p50_m": 0.07062133687483008
+        },
+        {
+          "method": "ha_single_rs",
+          "record_count": 3,
+          "success_rate": 1.0,
+          "timeout_failure_rate": 0.0,
+          "time_p50_s": 0.17154407501220703,
+          "time_p95_s": 0.5745326757431031,
+          "expansions_p50": 61.0,
+          "expansions_p95": 662.1999999999999,
+          "path_inflation_p50": null,
+          "clearance_p50_m": 0.17356669633722155
+        },
+        {
+          "method": "mlp",
+          "record_count": 3,
+          "success_rate": 1.0,
+          "timeout_failure_rate": 0.0,
+          "time_p50_s": 0.20343945900094695,
+          "time_p95_s": 0.52325232059884,
+          "expansions_p50": 31.0,
+          "expansions_p95": 659.1999999999999,
+          "path_inflation_p50": null,
+          "clearance_p50_m": 0.19094533266411373
+        }
+      ],
+      "source": "records.csv method-level aggregation"
+    },
+    "ablation_table": {
+      "i02_item": "I02.2",
+      "status": "blocked_missing_formal_data",
+      "planned_contrasts": [
+        "occupancy_only_vs_occupancy_plus_edt",
+        "bc_vs_ppo",
+        "terminal_rs_on_vs_off",
+        "action_mask_on_vs_off",
+        "forward_only_vs_forward_reverse_if_enabled"
+      ],
+      "available_method_families": [
+        "bc",
+        "bc",
+        "bc",
+        "f_n3p",
+        "f_n3p",
+        "f_n3p",
+        "other",
+        "other",
+        "other",
+        "rs_baseline",
+        "rs_baseline",
+        "rs_baseline",
+        "rs_baseline",
+        "rs_baseline",
+        "rs_baseline"
+      ],
+      "rows": [
+        {
+          "family": "bc",
+          "record_count": 3
+        },
+        {
+          "family": "f_n3p",
+          "record_count": 3
+        },
+        {
+          "family": "other",
+          "record_count": 3
+        },
+        {
+          "family": "rs_baseline",
+          "record_count": 6
+        }
+      ]
+    },
+    "failure_analysis_table": {
+      "i02_item": "I02.3",
+      "status": "preview_not_formal",
+      "columns": [
+        "method",
+        "record_count",
+        "failure_count",
+        "timeout",
+        "collision",
+        "terminal_rs_fail",
+        "oscillation",
+        "oracle_no_solution",
+        "other"
+      ],
+      "rows": [
+        {
+          "method": "bc_analytic_operator",
+          "record_count": 3,
+          "failure_count": 0,
+          "timeout": 0,
+          "collision": 0,
+          "terminal_rs_fail": 0,
+          "oscillation": 0,
+          "oracle_no_solution": 0,
+          "other": 0
+        },
+        {
+          "method": "ha_dang_multi_rs",
+          "record_count": 3,
+          "failure_count": 0,
+          "timeout": 0,
+          "collision": 0,
+          "terminal_rs_fail": 0,
+          "oscillation": 0,
+          "oracle_no_solution": 0,
+          "other": 0
+        },
+        {
+          "method": "ha_no_analytic",
+          "record_count": 3,
+          "failure_count": 0,
+          "timeout": 0,
+          "collision": 0,
+          "terminal_rs_fail": 0,
+          "oscillation": 0,
+          "oracle_no_solution": 0,
+          "other": 0
+        },
+        {
+          "method": "ha_single_rs",
+          "record_count": 3,
+          "failure_count": 0,
+          "timeout": 0,
+          "collision": 0,
+          "terminal_rs_fail": 0,
+          "oscillation": 0,
+          "oracle_no_solution": 0,
+          "other": 0
+        },
+        {
+          "method": "mlp",
+          "record_count": 3,
+          "failure_count": 0,
+          "timeout": 0,
+          "collision": 0,
+          "terminal_rs_fail": 0,
+          "oscillation": 0,
+          "oracle_no_solution": 0,
+          "other": 0
+        }
+      ],
+      "source": "records.csv failure_reason aggregation"
+    }
+  },
+  "statistics": {
+    "paired_time_tests": [
+      {
+        "method_a": "bc_analytic_operator",
+        "method_b": "ha_dang_multi_rs",
+        "paired_query_count": 3,
+        "statistic": 0.0,
+        "p_value": 0.25,
+        "median_delta_a_minus_b_s": 0.02505183219909668
+      }
+    ],
+    "paired_expansion_tests": [
+      {
+        "method_a": "bc_analytic_operator",
+        "method_b": "ha_dang_multi_rs",
+        "paired_query_count": 3,
+        "statistic": 0.0,
+        "p_value": 0.5,
+        "median_delta_a_minus_b_expansions": -30.0
+      }
+    ],
+    "success_rate_bootstrap_ci": [
+      {
+        "method_a": "bc_analytic_operator",
+        "method_b": "ha_dang_multi_rs",
+        "paired_query_count": 3,
+        "observed_success_rate_diff_a_minus_b": 0.0,
+        "ci_low": 0.0,
+        "ci_high": 0.0,
+        "confidence_level": 0.95,
+        "n_resamples": 5000
+      }
+    ],
+    "failure_rate_bootstrap_ci": [
+      {
+        "metric_id": "failure_rate",
+        "method_a": "bc_analytic_operator",
+        "method_b": "ha_dang_multi_rs",
+        "paired_query_count": 3,
+        "observed_rate_diff_a_minus_b": 0.0,
+        "ci_low": 0.0,
+        "ci_high": 0.0,
+        "confidence_level": 0.95,
+        "n_resamples": 5000
+      }
+    ],
+    "timeout_failure_rate_bootstrap_ci": [
+      {
+        "metric_id": "timeout_failure_rate",
+        "method_a": "bc_analytic_operator",
+        "method_b": "ha_dang_multi_rs",
+        "paired_query_count": 3,
+        "observed_rate_diff_a_minus_b": 0.0,
+        "ci_low": 0.0,
+        "ci_high": 0.0,
+        "confidence_level": 0.95,
+        "n_resamples": 5000
+      }
+    ]
+  },
+  "code_anchors": [
+    {
+      "path": "2_experiment/forest_n3p/evaluation.py",
+      "line": 63,
+      "symbol": "EvaluationRecord",
+      "pattern": "class EvaluationRecord"
+    },
+    {
+      "path": "2_experiment/forest_n3p/evaluation.py",
+      "line": 107,
+      "symbol": "GroupSummary",
+      "pattern": "class GroupSummary"
+    },
+    {
+      "path": "2_experiment/forest_n3p/evaluation.py",
+      "line": 480,
+      "symbol": "paired_wilcoxon_time",
+      "pattern": "def paired_wilcoxon_time"
+    },
+    {
+      "path": "2_experiment/forest_n3p/evaluation.py",
+      "line": 515,
+      "symbol": "paired_wilcoxon_expansions",
+      "pattern": "def paired_wilcoxon_expansions"
+    },
+    {
+      "path": "2_experiment/forest_n3p/evaluation.py",
+      "line": 616,
+      "symbol": "bootstrap_timeout_failure_rate_difference",
+      "pattern": "def bootstrap_timeout_failure_rate_difference"
+    },
+    {
+      "path": "2_experiment/forest_n3p/evaluation.py",
+      "line": 687,
+      "symbol": "write_evaluation_outputs",
+      "pattern": "def write_evaluation_outputs"
+    },
+    {
+      "path": "2_experiment/forest_n3p/scripts/build_module2_metric_protocol.py",
+      "line": 93,
+      "symbol": "module2_metric_protocol.total_expansions",
+      "pattern": "\"metric_id\": \"total_expansions\""
+    },
+    {
+      "path": "2_experiment/forest_n3p/scripts/build_module2_evaluation_manifest.py",
+      "line": 322,
+      "symbol": "module2_evaluation_manifest.F02.6_guard",
+      "pattern": "f02_6_decision_packet_pending"
+    }
+  ],
+  "claim_boundaries": [
+    "Do not use preview_not_formal rows as paper results.",
+    "Main paper claims require H02 formal_acceptance=true, H01 formal-ready status, frozen metric protocol, and no missing PPO checkpoint blocker.",
+    "Use records.csv.total_time_s for timing claims; planner_time_s is diagnostic only.",
+    "Use paired Wilcoxon for total_time_s and total_expansions and bootstrap CI for success/failure/timeout-rate differences.",
+    "PPO formal training and checkpoint production must run on gpu3070ti-relay or another explicitly approved remote GPU, not locally."
+  ]
+}
