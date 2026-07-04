@@ -13,6 +13,7 @@ DEFAULT_OUTPUT_DIR = Path("0_trials/module2_post_f02_6_plan_audit")
 DEFAULT_PLAN = Path("0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json")
 DEFAULT_FORMAL_GATE = Path("0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json")
 DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_freshness_audit.json")
+DEFAULT_MISSING_ARTIFACTS = Path("0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json")
 REQUIRED_STAGE_ORDER = (
     "f02_6_decision_record",
     "regenerate_preflight_gate_artifacts",
@@ -33,6 +34,7 @@ class PostF026PlanAuditConfig:
     plan_path: Path = DEFAULT_PLAN
     formal_gate_path: Path = DEFAULT_FORMAL_GATE
     source_freshness_path: Path = DEFAULT_SOURCE_FRESHNESS
+    missing_artifacts_path: Path = DEFAULT_MISSING_ARTIFACTS
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -44,6 +46,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         plan_path=args.plan,
         formal_gate_path=args.formal_gate,
         source_freshness_path=args.source_freshness_audit,
+        missing_artifacts_path=args.missing_artifacts_audit,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -62,7 +65,14 @@ def build_manifest(config: PostF026PlanAuditConfig) -> dict[str, Any]:
     plan = _read_json(config.plan_path)
     formal_gate = _read_json(config.formal_gate_path)
     source_freshness = _read_json(config.source_freshness_path)
-    issues = _audit_issues(plan=plan, formal_gate=formal_gate, source_freshness=source_freshness)
+    missing_artifacts = _read_json(config.missing_artifacts_path)
+    issues = _audit_issues(
+        plan=plan,
+        formal_gate=formal_gate,
+        source_freshness=source_freshness,
+        missing_artifacts=missing_artifacts,
+        missing_artifacts_path=config.missing_artifacts_path,
+    )
     return {
         "schema_version": 1,
         "artifact_name": "module2_post_f02_6_plan_audit",
@@ -79,8 +89,10 @@ def build_manifest(config: PostF026PlanAuditConfig) -> dict[str, Any]:
             "post_f02_6_regeneration_plan": str(config.plan_path),
             "formal_gate_gap_audit": str(config.formal_gate_path),
             "source_freshness_audit": str(config.source_freshness_path),
+            "formal_gate_missing_artifacts_audit": str(config.missing_artifacts_path),
         },
         "plan_status": plan.get("status"),
+        "missing_artifacts_summary": _missing_artifacts_summary(config.missing_artifacts_path, missing_artifacts),
         "audit_issue_count": len(issues),
         "audit_issues": issues,
         "required_stage_order": list(REQUIRED_STAGE_ORDER),
@@ -102,16 +114,25 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--plan", type=Path, default=DEFAULT_PLAN)
     parser.add_argument("--formal-gate", type=Path, default=DEFAULT_FORMAL_GATE)
     parser.add_argument("--source-freshness-audit", type=Path, default=DEFAULT_SOURCE_FRESHNESS)
+    parser.add_argument("--missing-artifacts-audit", type=Path, default=DEFAULT_MISSING_ARTIFACTS)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
-def _audit_issues(*, plan: dict[str, Any], formal_gate: dict[str, Any], source_freshness: dict[str, Any]) -> list[dict[str, Any]]:
+def _audit_issues(
+    *,
+    plan: dict[str, Any],
+    formal_gate: dict[str, Any],
+    source_freshness: dict[str, Any],
+    missing_artifacts: dict[str, Any],
+    missing_artifacts_path: Path,
+) -> list[dict[str, Any]]:
     issues: list[dict[str, Any]] = []
     issues.extend(_top_level_issues(plan))
     issues.extend(_stage_order_issues(plan))
     issues.extend(_stage_safety_issues(plan))
     issues.extend(_pending_gate_issues(plan))
     issues.extend(_cross_artifact_issues(plan=plan, formal_gate=formal_gate, source_freshness=source_freshness))
+    issues.extend(_missing_artifacts_issues(plan=plan, missing_artifacts=missing_artifacts, missing_artifacts_path=missing_artifacts_path))
     return _unique_issues(issues)
 
 
