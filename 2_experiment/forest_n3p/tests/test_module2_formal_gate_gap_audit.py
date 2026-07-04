@@ -120,6 +120,7 @@ def test_formal_gate_gap_audit_does_not_treat_expected_training_outputs_as_train
     assert steps["gate3_remote_training"]["blocked_by"] == []
     assert steps["gate3_remote_audit_pullback"]["status"] == "blocked"
     assert "missing_remote_pullback_artifact" in steps["gate3_remote_audit_pullback"]["blocked_by"]
+    assert steps["gate3_remote_audit_pullback"]["blocked_by"].count("missing_remote_pullback_artifact") == 1
     assert steps["h01_h02_regeneration"]["status"] == "blocked"
     assert "missing_ppo_result_rows" in steps["h01_h02_regeneration"]["blocked_by"]
     assert steps["claim_safety_final_gate"]["status"] == "blocked"
