@@ -1194,12 +1194,10 @@ def _status_report_remaining_deliverables_acceptance_summary_payload(*, ready):
         "evaluation:eval_gate3_summary_json",
         "acceptance:gate3_trial_manifest_json",
         "acceptance:gate3_formal_audit_json",
-        "acceptance: pulled_back_checkpoint_hash_record",
+        "acceptance:pulled_back_checkpoint_hash_record",
         "formal_acceptance:h01_ready_for_formal_run",
         "formal_acceptance:h02_formal_output_acceptance",
     ]
-    # Keep the public matrix ids exact; this replaces the human-readable typo above.
-    matrix_ids[7] = "acceptance:pulled_back_checkpoint_hash_record"
     rows = {}
     for matrix_id in matrix_ids:
         category, artifact_id = matrix_id.split(":", 1)
