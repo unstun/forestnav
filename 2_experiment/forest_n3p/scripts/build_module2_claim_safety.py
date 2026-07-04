@@ -1056,6 +1056,65 @@ def _status_report_formal_gate_gap_audit_remaining_deliverables_gap_blockers(sta
     return blockers
 
 
+def _status_report_remote_packet_safety_claim_gate_command_index_summary(
+    status_report: dict[str, Any],
+) -> dict[str, Any]:
+    summary = status_report.get("remote_packet_safety_claim_gate_command_index_summary")
+    summary = summary if isinstance(summary, dict) else {}
+    raw_rows = summary.get("claim_gate_rows") if isinstance(summary.get("claim_gate_rows"), dict) else {}
+    rows: dict[str, dict[str, Any]] = {}
+    for artifact_id in STATUS_REPORT_CLAIM_GATE_REGENERATION_ARTIFACT_IDS:
+        row = raw_rows.get(artifact_id) if isinstance(raw_rows.get(artifact_id), dict) else {}
+        rows[artifact_id] = {
+            "present": bool(row.get("present")),
+            "stage_id": row.get("stage_id"),
+            "required_before": row.get("required_before"),
+            "command_kind": row.get("command_kind"),
+            "command_template": row.get("command_template"),
+        }
+    return {
+        "present": bool(summary.get("present")),
+        "index_row_count": int(summary.get("index_row_count") or 0),
+        "source_target_count": int(summary.get("source_target_count") or 0),
+        "missing_target_ids": _strings(summary.get("missing_target_ids")),
+        "unknown_manual_count": int(summary.get("unknown_manual_count") or 0),
+        "unknown_manual_ids": _strings(summary.get("unknown_manual_ids")),
+        "forbidden_command_count": int(summary.get("forbidden_command_count") or 0),
+        "forbidden_command_ids": _strings(summary.get("forbidden_command_ids")),
+        "claim_gate_rows": rows,
+    }
+
+
+def _status_report_remote_packet_safety_claim_gate_command_index_blockers(
+    status_report: dict[str, Any],
+) -> list[str]:
+    summary = _status_report_remote_packet_safety_claim_gate_command_index_summary(status_report)
+    blockers: list[str] = []
+    if not summary["present"]:
+        blockers.append("status_report_missing_remote_packet_safety_claim_gate_command_index_summary")
+        return blockers
+    if summary["missing_target_ids"]:
+        blockers.append("status_report_remote_packet_safety_command_index_missing_targets")
+    if summary["unknown_manual_count"] > 0:
+        blockers.append("status_report_remote_packet_safety_command_index_unknown_manual_rows")
+    if summary["forbidden_command_count"] > 0:
+        blockers.append("status_report_remote_packet_safety_command_index_forbidden_commands")
+    for artifact_id, row in summary["claim_gate_rows"].items():
+        if not row["present"]:
+            _append_unique(blockers, f"status_report_remote_packet_safety_command_index_missing_{artifact_id}")
+            continue
+        if row["stage_id"] != "regenerate_claim_gate_artifacts":
+            _append_unique(blockers, f"status_report_remote_packet_safety_command_index_{artifact_id}_wrong_stage")
+        if row["required_before"] != "formal_claim_gate":
+            _append_unique(
+                blockers,
+                f"status_report_remote_packet_safety_command_index_{artifact_id}_wrong_required_before",
+            )
+        if row["command_kind"] == "unknown_manual":
+            _append_unique(blockers, f"status_report_remote_packet_safety_command_index_{artifact_id}_manual_command")
+    return blockers
+
+
 def _remote_requirement_matrix_blockers(
     *,
     status_report: dict[str, Any],
