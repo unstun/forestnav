@@ -542,16 +542,21 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 边界: 这是 preview smoke, 不是正式 BC baseline; 结果显示 action MSE 不能替代闭环指标。
   - 验证: checkpoint 默认 `torch.load(..., map_location="cpu")` 通过; `PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests/test_policy_forward_budget.py 2_experiment/forest_n3p/tests/test_rollout_collision_budget.py 2_experiment/forest_n3p/tests/test_rl_rs_api.py -q` -> `24 passed`。
   - 记录: `.pipeline/experiments/20260703_module2_f02_bc_policy_smoke.md`。
-- [>] F02.2 BC 作为正式 baseline。
+- [x] F02.2 BC 作为正式 baseline。
   - 目的: 证明 PPO 精调是否真的必要。
   - 失败: 若 BC 已够好, 论文叙事要改成 "imitation initialized neural analytic expansion", PPO 只作 fine-tune。
-  - 已完成子项: 生成 formal-v1 corpus, 训练 scalar-observation BC lower-bound, 并做 0.3m/0.1m 闭环评估。
+  - 已完成子项: 生成 formal-v1 corpus, 训练 scalar-observation BC lower-bound, 训练 obstacle-summary BC baseline, 并做 step-aligned 0.1m 闭环评估。
   - formal-v1 corpus: `demonstrations_formal_v1.parquet`, 85514 demo rows, 1035 source rows, Complex/Extreme 基本平衡。
   - scalar BC 结果: validation MAE 0.096 rad; 0.3m rollout success 11/259; 0.1m rollout success 45/259。
-  - 关键发现: formal-v1 expert step length 约 0.1m, 不能用 0.3m rollout 直接判定; scalar-only observation 仍严重碰撞。
-  - 当前边界: 这只是 lower-bound, 不是最终强 BC baseline。
-  - 下一步: patch+scalar 或 obstacle-summary BC, 并在 action-step 对齐后再决定 PPO 是否必要。
+  - obstacle-summary BC 结果: validation MAE 0.100 rad; 0.1m rollout success 84/259, collision 164/259。
+  - 关键发现: obstacle features 明显提升闭环行为, 但 32.4% success 仍不足以 planner insertion; action MAE 仍会误导。
+  - 当前边界: F02.2 已形成正式 BC baseline 证据, 但最大实现还应补 patch+scalar CNN warm-start。
   - 记录: `.pipeline/experiments/20260703_module2_f02_formal_scalar_bc.md`。
+  - 记录: `.pipeline/experiments/20260703_module2_f02_obstacle_summary_bc.md`。
+- [ ] F02.3 patch+scalar CNN BC warm-start。
+  - 目的: 直接使用 `(2,64,64)` occupancy/EDT patch + scalar obs, 形成 PPO 前更强的 imitation initialization。
+  - metric: 0.1m rollout terminal-RS-success, collision, truncation; action MSE 只作辅助。
+  - 判定: 若 CNN-BC 明显强于 obstacle-summary, 用作 PPO warm start; 若仍弱, 记录 BC ceiling 并进入 PPO/curriculum。
 
 #### F03. PPO 最大实现
 
