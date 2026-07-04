@@ -721,6 +721,20 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"remote_training_allowed_now=`{missing_handoff['remote_training_allowed_now']}`, "
         f"formal_result_material_allowed_now=`{missing_handoff['formal_result_material_allowed_now']}`"
     )
+    lines.extend(["", "## Status Report Requirement Stage Summary", ""])
+    requirement_summary = manifest["status_report_requirement_stage_summary"]
+    lines.append(f"- present=`{requirement_summary['present']}`")
+    lines.append(f"- mapped_requirement_count=`{requirement_summary['mapped_requirement_count']}`")
+    lines.append(f"- unmapped_requirement_count=`{requirement_summary['unmapped_requirement_count']}`")
+    lines.append(f"- mismatched_requirement_count=`{requirement_summary['mismatched_requirement_count']}`")
+    lines.append(f"- blocked_stage_count=`{requirement_summary['blocked_stage_count']}`")
+    for requirement_id, row in requirement_summary["requirements"].items():
+        blocked_by = ", ".join(row["responsible_stage_blocked_by"]) if row["responsible_stage_blocked_by"] else "none"
+        lines.append(
+            f"- `{requirement_id}`: stage=`{row['responsible_stage_id']}`, "
+            f"stage_status=`{row['responsible_stage_status']}`, "
+            f"allowed_now=`{row['responsible_stage_allowed_now']}`, blocked_by=`{blocked_by}`"
+        )
     lines.extend(["", "## Status Report Remote Gate Summary", ""])
     for group_id, group in manifest["status_report_remote_gate_summary"].items():
         lines.append(f"### {group_id}")
