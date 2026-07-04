@@ -13,6 +13,16 @@
 - `run_remote_training`: allowed_now=`False`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_packet_not_ready`
 - `run_remote_audit`: allowed_now=`False`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_packet_not_ready`
 
+## F02.6 Route Handoff
+
+- present: `True`
+- post_decision_route_count: `2`
+- post_decision_route_decisions: `approve_obstacle_summary_warm_start, reject_obstacle_summary_warm_start`
+- approved_route_next_lane: `source_fresh_regeneration`
+- approved_route_allows_remote_training_now: `False`
+- rejected_route_next_lane: `protocol_redesign`
+- rejected_route_requires_new_protocol_contract: `True`
+
 ## Handoff Stages
 
 - 1. `f02_6_decision_record`: allowed_now=`True`, blocked_by=`none`

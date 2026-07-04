@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_regeneration_plan",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-04T23:45:24.918788+00:00",
-  "source_head": "858ece7f044510d35900ae0fa133b33e375e3dcf+dirty",
+  "created_at_utc": "2026-07-04T23:51:22.072198+00:00",
+  "source_head": "aa814ebef2258443346712aebec65994deb80e8e+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -120,7 +120,7 @@
       {
         "artifact_id": "f02_6_decision_intake",
         "path": "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
-        "freshness_state": "current_dirty"
+        "freshness_state": "historical_dirty"
       },
       {
         "artifact_id": "f02_6_decision_record",
@@ -140,12 +140,12 @@
       {
         "artifact_id": "formal_gate_gap_audit",
         "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
-        "freshness_state": "historical_dirty"
+        "freshness_state": "current_dirty"
       },
       {
         "artifact_id": "formal_gate_handoff_bundle",
         "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
-        "freshness_state": "historical_clean"
+        "freshness_state": "current_clean"
       },
       {
         "artifact_id": "gpu3070ti_readiness_refresh",
@@ -226,7 +226,7 @@
     {
       "artifact_id": "f02_6_decision_intake",
       "required_before": "approved_remote_preflight",
-      "freshness_state": "current_dirty",
+      "freshness_state": "historical_dirty",
       "path": "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
       "stage_id": "regenerate_preflight_gate_artifacts",
       "command_kind": "known_builder",
@@ -262,7 +262,7 @@
     {
       "artifact_id": "formal_gate_gap_audit",
       "required_before": "approved_remote_preflight",
-      "freshness_state": "historical_dirty",
+      "freshness_state": "current_dirty",
       "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
       "stage_id": "regenerate_preflight_gate_artifacts",
       "command_kind": "known_builder",
@@ -271,7 +271,7 @@
     {
       "artifact_id": "formal_gate_handoff_bundle",
       "required_before": "approved_remote_preflight",
-      "freshness_state": "historical_clean",
+      "freshness_state": "current_clean",
       "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
       "stage_id": "regenerate_preflight_gate_artifacts",
       "command_kind": "known_builder",

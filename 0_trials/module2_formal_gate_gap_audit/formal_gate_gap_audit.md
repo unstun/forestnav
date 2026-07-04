@@ -29,12 +29,12 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 ### Source Freshness Regeneration Targets
 
 - `f02_6_decision_gate_audit`: `historical_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json`
-- `f02_6_decision_intake`: `current_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json`
+- `f02_6_decision_intake`: `historical_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json`
 - `f02_6_decision_record`: `historical_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json`
 - `f02_6_transition_gate_audit`: `historical_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json`
 - `formal_gate_closure_checklist`: `historical_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json`
-- `formal_gate_gap_audit`: `historical_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json`
-- `formal_gate_handoff_bundle`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`
+- `formal_gate_gap_audit`: `current_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json`
+- `formal_gate_handoff_bundle`: `current_clean`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`
 - `gpu3070ti_readiness_refresh`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json`
 - `post_f02_6_plan_audit`: `historical_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json`
 - `remote_formal_execution_packet`: `historical_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json`

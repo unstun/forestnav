@@ -88,6 +88,7 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
 
     stages = _handoff_stages(post_plan)
     remote_steps = _remote_steps(remote_packet)
+    route_summary = _f02_6_route_handoff_summary(status_report)
     safety_issues = _safety_issues(
         decision=decision,
         transition_gate=transition_gate,
@@ -98,6 +99,7 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
         h02_acceptance=h02_acceptance,
         stages=stages,
         remote_steps=remote_steps,
+        route_summary=route_summary,
     )
     status = _status(decision=decision, status_report=status_report, remote_packet=remote_packet, safety_issues=safety_issues)
     return {
@@ -138,6 +140,7 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
         },
         "permissions_now": _permissions(status_report),
         "next_handoff_action": _next_handoff_action(decision=decision, status_report=status_report),
+        "f02_6_route_handoff_summary": route_summary,
         "remaining_deliverables_gap_summary": _remaining_deliverables_gap_summary(status_report),
         "post_plan_remaining_deliverables_gap_summary": _remaining_deliverables_gap_summary(post_plan),
         "formal_gate_requirements": _requirements(missing_artifacts, "formal_gate_requirements"),
@@ -240,9 +243,11 @@ def _safety_issues(
     h02_acceptance: dict[str, Any],
     stages: Sequence[dict[str, Any]],
     remote_steps: dict[str, dict[str, Any]],
+    route_summary: dict[str, Any],
 ) -> list[dict[str, str]]:
     issues: list[dict[str, str]] = []
     issues.extend(_transition_gate_issues(transition_gate))
+    issues.extend(_f02_6_route_handoff_issues(route_summary))
     for name, artifact in (
         ("post_plan", post_plan),
         ("status_report", status_report),
@@ -277,6 +282,46 @@ def _safety_issues(
             issues.append(_issue(f"{stage['stage_id']}_wrong_training_host", "formal training stage must target gpu3070ti-relay"))
         if not stage["source_allowed_now"] and stage["stage_id"] in {"approved_remote_preflight", "gate3_remote_training"} and not stage["blocked_by"]:
             issues.append(_issue(f"{stage['stage_id']}_missing_blocked_by", "disabled remote stages must explain their blockers"))
+    return issues
+
+
+def _f02_6_route_handoff_summary(status_report: dict[str, Any]) -> dict[str, Any]:
+    summary = (
+        status_report.get("f02_6_decision_intake_summary")
+        if isinstance(status_report.get("f02_6_decision_intake_summary"), dict)
+        else {}
+    )
+    route_decisions = summary.get("post_decision_route_decisions")
+    if not isinstance(route_decisions, list):
+        route_decisions = []
+    return {
+        "present": bool(summary),
+        "post_decision_route_count": int(summary.get("post_decision_route_count") or 0),
+        "post_decision_route_decisions": [str(item) for item in route_decisions if item],
+        "approved_route_next_lane": summary.get("approved_route_next_lane"),
+        "approved_route_allows_remote_training_now": summary.get("approved_route_allows_remote_training_now"),
+        "rejected_route_next_lane": summary.get("rejected_route_next_lane"),
+        "rejected_route_requires_new_protocol_contract": summary.get("rejected_route_requires_new_protocol_contract"),
+    }
+
+
+def _f02_6_route_handoff_issues(route_summary: dict[str, Any]) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    expected = {"approve_obstacle_summary_warm_start", "reject_obstacle_summary_warm_start"}
+    if not route_summary["present"]:
+        return [_issue("f02_6_route_summary_missing", "handoff bundle must consume F02.6 approve/reject route summary")]
+    if int(route_summary["post_decision_route_count"] or 0) < 2:
+        issues.append(_issue("f02_6_route_count_incomplete", "handoff bundle must see both approve and reject routes"))
+    if not expected.issubset(set(route_summary["post_decision_route_decisions"])):
+        issues.append(_issue("f02_6_route_decisions_incomplete", "F02.6 routes must include approve and reject decisions"))
+    if route_summary["approved_route_next_lane"] != "source_fresh_regeneration":
+        issues.append(_issue("f02_6_approved_route_next_lane_invalid", "approval must route first to source-fresh regeneration"))
+    if route_summary["approved_route_allows_remote_training_now"] is not False:
+        issues.append(_issue("f02_6_approved_route_allows_remote_training", "approval route must not directly allow remote training"))
+    if route_summary["rejected_route_next_lane"] != "protocol_redesign":
+        issues.append(_issue("f02_6_rejected_route_next_lane_invalid", "rejection must route to protocol redesign"))
+    if route_summary["rejected_route_requires_new_protocol_contract"] is not True:
+        issues.append(_issue("f02_6_rejected_route_missing_protocol_contract", "rejection route must require a new or revised protocol contract"))
     return issues
 
 
@@ -496,6 +541,17 @@ def _markdown(manifest: dict[str, Any]) -> str:
     for step_id, step in manifest["remote_execution_steps"].items():
         blockers = ", ".join(step["blocked_by"]) or "none"
         lines.append(f"- `{step_id}`: allowed_now=`{step['allowed_now']}`, blocked_by=`{blockers}`")
+    route = manifest["f02_6_route_handoff_summary"]
+    lines.extend(["", "## F02.6 Route Handoff", ""])
+    lines.append(f"- present: `{route['present']}`")
+    lines.append(f"- post_decision_route_count: `{route['post_decision_route_count']}`")
+    lines.append(f"- post_decision_route_decisions: `{', '.join(route['post_decision_route_decisions'])}`")
+    lines.append(f"- approved_route_next_lane: `{route['approved_route_next_lane']}`")
+    lines.append(f"- approved_route_allows_remote_training_now: `{route['approved_route_allows_remote_training_now']}`")
+    lines.append(f"- rejected_route_next_lane: `{route['rejected_route_next_lane']}`")
+    lines.append(
+        f"- rejected_route_requires_new_protocol_contract: `{route['rejected_route_requires_new_protocol_contract']}`"
+    )
     lines.extend(["", "## Handoff Stages", ""])
     for stage in manifest["handoff_stages"]:
         blockers = ", ".join(stage["blocked_by"]) or "none"

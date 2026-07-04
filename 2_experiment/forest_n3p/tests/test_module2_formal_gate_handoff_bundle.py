@@ -26,6 +26,17 @@ def test_formal_gate_handoff_bundle_blocks_pending_decision_without_execution(tm
     assert manifest["current_state"]["transition_gate_status"] == "f02_6_transition_gate_audit_passed"
     assert manifest["current_state"]["next_blocked_lane"] == "decision"
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+    route_summary = manifest["f02_6_route_handoff_summary"]
+    assert route_summary["present"] is True
+    assert route_summary["post_decision_route_count"] == 2
+    assert set(route_summary["post_decision_route_decisions"]) == {
+        "approve_obstacle_summary_warm_start",
+        "reject_obstacle_summary_warm_start",
+    }
+    assert route_summary["approved_route_next_lane"] == "source_fresh_regeneration"
+    assert route_summary["approved_route_allows_remote_training_now"] is False
+    assert route_summary["rejected_route_next_lane"] == "protocol_redesign"
+    assert route_summary["rejected_route_requires_new_protocol_contract"] is True
     assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
     assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 4
     assert manifest["remaining_deliverables_gap_summary"]["categories"]["training"]["missing_count"] == 3
@@ -127,6 +138,22 @@ def test_formal_gate_handoff_bundle_catches_gap_summary_drift(tmp_path):
     assert "remaining_deliverables_gap_summary_mismatch" in issue_ids
 
 
+def test_formal_gate_handoff_bundle_catches_f02_6_route_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_handoff_bundle")
+    config = _config(tmp_path, complete=False)
+    status_report = json.loads(config.status_report_path.read_text(encoding="utf-8"))
+    status_report["f02_6_decision_intake_summary"]["approved_route_allows_remote_training_now"] = True
+    status_report["f02_6_decision_intake_summary"]["rejected_route_requires_new_protocol_contract"] = False
+    config.status_report_path.write_text(json.dumps(status_report), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    assert manifest["status"] == "blocked_handoff_input_safety_issues"
+    issue_ids = {issue["issue_id"] for issue in manifest["safety_issues"]}
+    assert "f02_6_approved_route_allows_remote_training" in issue_ids
+    assert "f02_6_rejected_route_missing_protocol_contract" in issue_ids
+
+
 def test_formal_gate_handoff_bundle_cli_writes_json_and_markdown(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_handoff_bundle")
     config = _config(tmp_path, complete=False)
@@ -165,6 +192,7 @@ def test_formal_gate_handoff_bundle_cli_writes_json_and_markdown(tmp_path):
     assert "Module2 Formal Gate Handoff Bundle" in markdown
     assert "Remote Steps" in markdown
     assert "Handoff Stages" in markdown
+    assert "F02.6 Route Handoff" in markdown
     assert "remaining deliverables gap" in markdown
     assert "responsible_stage=`gate3_remote_training`" in markdown
     assert "does not execute commands" in markdown
@@ -305,6 +333,18 @@ def _status_report(*, complete):
         },
         "next_blocked_lane": None if complete else {"lane_id": "decision"},
         "remaining_deliverables_gap_summary": _gap_summary(open_gaps=not complete),
+        "f02_6_decision_intake_summary": {
+            "present": True,
+            "post_decision_route_count": 2,
+            "post_decision_route_decisions": [
+                "approve_obstacle_summary_warm_start",
+                "reject_obstacle_summary_warm_start",
+            ],
+            "approved_route_next_lane": "source_fresh_regeneration",
+            "approved_route_allows_remote_training_now": False,
+            "rejected_route_next_lane": "protocol_redesign",
+            "rejected_route_requires_new_protocol_contract": True,
+        },
     }
 
 
