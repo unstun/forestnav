@@ -52,6 +52,38 @@ def test_rl_rs_funnel_operator_rolls_out_then_appends_terminal_rs_success():
     assert record["terminal_rs_success"] is True
     assert record["failure_reason"] is None
     assert record["terminal_rs_used"] is True
+    assert record["rl_attempts"] == 1
+    assert record["rl_successes"] == 1
+    assert record["rs_attempts"] >= 1
+    assert record["nn_forward_time_s"] >= 0.0
+    assert record["rollout_protocol"] == "constant_steer_grid_footprint_terminal_rs"
+    assert record["collision_checker"] == "GridFootprintChecker"
+
+
+def test_rl_rs_funnel_operator_records_policy_forward_time():
+    def policy(_obs):
+        # Use a tiny deterministic loop so the wall-clock timer has measurable work
+        # without adding sleeps or external timing dependencies.
+        acc = 0
+        for value in range(1024):
+            acc += value
+        assert acc > 0
+        return SteeringAction(0.0)
+
+    operator = RlRsFunnelOperator(
+        action_policy=policy,
+        max_steps=4,
+        action_step_m=0.3,
+        terminal_check_every=1,
+    )
+
+    result = operator.try_connect(AckermannState(1.0, 1.0, 0.0), AckermannState(1.8, 1.0, 0.0), _planner())
+
+    assert result is not None
+    record = result.telemetry.to_record()
+    assert record["nn_forward_time_s"] > 0.0
+    assert record["rl_attempts"] == 1
+    assert record["rl_successes"] == 1
 
 
 def test_rl_rs_operator_without_terminal_rs_requires_goal_tolerance_success():
@@ -105,6 +137,8 @@ def test_rl_rs_operator_without_terminal_rs_rejects_rs_connectable_non_goal_roll
     assert record["rl_rollout_steps"] == 1
     assert record["terminal_rs_success"] is True
     assert record["terminal_rs_used"] is False
+    assert record["rl_attempts"] == 1
+    assert record["rl_successes"] == 0
     assert record["failure_reason"] == "goal_tolerance_not_reached"
 
 
