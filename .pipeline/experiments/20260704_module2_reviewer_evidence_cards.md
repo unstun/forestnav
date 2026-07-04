@@ -19,10 +19,12 @@ topic: module2_reviewer_evidence_cards
 - `2_experiment/forest_n3p/tests/test_module2_reviewer_evidence_cards.py`
 - `3_paper/module2_reviewer_evidence_cards/module2_reviewer_evidence_cards.json`
 - `3_paper/module2_reviewer_evidence_cards/module2_reviewer_evidence_cards.md`
+- `3_paper/module2_reviewer_evidence_cards/module2_reviewer_evidence_cards.tex`
 
 ## 当前状态
 
 - `status=reviewer_evidence_cards_ready`
+- `supplement_latex_audit.status=clean`
 - `formal_performance_claim_allowed=False`
 - `f02_6_decision_status=pending_human_decision`
 - `remote_execution_ready=False`
@@ -37,6 +39,7 @@ topic: module2_reviewer_evidence_cards
 ## 边界
 
 - reviewer cards 是 traceability/supplement-ready artifact, 不是 formal result。
+- LaTeX appendix fragment 是 supplement/input-ready 产物, 不是默认接入主稿正文的正式结果段。
 - method/no-warm cards 可用于写作, 但只能按卡片 scope/qualifier 写。
 - formal results/main table/warm-start effect 仍不能写成论文结果或效果 claim。
 - 本地禁止训练；正式训练/审计/回传只能在 F02.6 关闭后走 `gpu3070ti-relay`。
@@ -46,6 +49,7 @@ topic: module2_reviewer_evidence_cards
 - `PYTHONPATH=2_experiment pytest -q 2_experiment/forest_n3p/tests/test_module2_manuscript_evidence_map.py 2_experiment/forest_n3p/tests/test_module2_reviewer_evidence_cards.py` -> `4 passed in 0.30s`
 - `python -m py_compile 2_experiment/forest_n3p/scripts/build_module2_manuscript_evidence_map.py 2_experiment/forest_n3p/scripts/build_module2_reviewer_evidence_cards.py` -> pass
 - `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_manuscript_evidence_map` -> `status=module2_manuscript_evidence_mapped`
-- `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_reviewer_evidence_cards` -> `status=reviewer_evidence_cards_ready`
-- `KMP_DUPLICATE_LIB_OK=TRUE PYTHONPATH=2_experiment pytest -q 2_experiment/forest_n3p/tests` -> `130 passed in 11.56s`
+- `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_reviewer_evidence_cards` -> `status=reviewer_evidence_cards_ready`, outputs JSON/Markdown/LaTeX
+- wrapper compile for `3_paper/module2_reviewer_evidence_cards/module2_reviewer_evidence_cards.tex` -> pdflatex draftmode pass; long path overfull warnings remain.
+- `KMP_DUPLICATE_LIB_OK=TRUE PYTHONPATH=2_experiment pytest -q 2_experiment/forest_n3p/tests` -> `130 passed in 14.77s`
 - `cd 3_paper && pdflatex -interaction=nonstopmode -halt-on-error -draftmode -output-directory=/tmp/forestnav_module2_texcheck main.tex` -> pass; 仅有既有 undefined citation/reference warnings; temp directory removed.
