@@ -51,3 +51,13 @@ topic: module2 RL-RS negative results
   - 论文 lines 86-88 自述是 autonomous driving pipeline 中 Hybrid A* module 的 drop-in replacement。
   - lines 125-130, 154-162 显示它使用 closed-loop PPO + curriculum/action chunking 生成整条路径。
 - 结论: 可借 PPO/chunking/curriculum 设计, 但不是 ForestNav module2 的 HA* analytic operator。
+
+## N006: Dang 2022 不是 learned analytic connector
+
+- 外部依据:
+  - Dang Section 3 生成的是不同 curvature values 下的 multiple RS curves, 再按 objective function 选择最低成本曲线。
+  - 若没有可用 RS curve, 算法继续 forward search; 没有 neural policy、RL rollout 或 learned steering function。
+- 本地依据:
+  - ForestNav `dang_multi_rs` 只调用 `reeds_shepp_shortest_path()`、采样、碰撞检查和 `_dang2022_cost()`。
+  - 本地 risk cost 还是 Eq.2 的 EDT 近似, 不是 learned obstacle-aware policy。
+- 结论: Dang 是强 classical baseline 和问题动机, 不能作为 "已有学习式 RS 替换" 的证据。

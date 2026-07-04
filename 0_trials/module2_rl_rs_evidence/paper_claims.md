@@ -11,15 +11,19 @@ topic: module2 RL-RS paper claim audit
 
 - 来源: Dang et al. 2022, Applied Sciences 12(12):5999, DOI 10.3390/app12125999。
 - 锚点:
-  - MDPI HTML lines 334-337: 摘要说明 RS curve 在 analytic expansion phase 提高 accuracy/speed, 但 corner 附近可能贴障碍。
-  - lines 347: Hybrid A* 包含 forward search 和 analytic expansion。
-  - lines 368-371: analytic expansion 用 RS 到达 exact continuous goal, 发明者声称有 accuracy/search speed benefit。
-  - lines 433-434: 论文方法是在 analytic expansion phase 改进 safety。
+  - MDPI HTML lines 330-337: 摘要说明 Hybrid A* 有 forward search 和 analytic expansion; RS curve 在 analytic expansion phase 提高 accuracy/speed, 但 corner 附近可能贴障碍。
+  - MDPI lines 380-402: Section 3 前后说明原 RS path 在角落贴墙, 改进方法生成多曲率 RS、碰撞检查、按 Eq.3 选最低成本, 无可用 RS 则继续 forward search。
+  - ResearchGate full-text lines 556-621: Eq.2 Voronoi field 依赖 nearest obstacle distance `d0` 和 generalized Voronoi edge distance `dv`, 用于偏向通道中线。
+  - ResearchGate lines 758-844: Eq.3/Eq.4 将 risk cost `v` 与 movement cost `m` 组合; `m` 包含 path length、steering angle、steer switching。
+  - MDPI lines 414-419; ResearchGate lines 935-960: Table 1 显示 improved RS 降低 risk cost, 但 execution time 增加。
+  - ResearchGate lines 1082-1086, 1109-1174: benchmark maps 上 risk reduction 与 time penalty; 结论说方法在 analytic expansion phase 内生成不同曲率 RS 并选最小 collision-risk candidate。
 - 对本项目的作用:
   - 可作为问题动机。
-  - 可作为 strong classical baseline。
+  - 可作为 strong classical baseline, 但应写成 "Dang-style multi-curvature RS analytic expansion baseline"。
 - 不能外推:
   - Dang 只在 RS 曲率集合里选 safer route, 不等于 learned obstacle-aware rollout。
+  - 当前本地实现用 mean EDT clearance inverse 近似 Eq.2, 没有 generalized Voronoi edge distance `dv`; 不能 claim exact Dang Eq.2。
+  - Dang 的 risk reduction 来自其仿真/benchmark maps, 不能外推为 ForestNav 森林场景性能。
 
 ## C001b: Dolgov 原始 Hybrid A* 的 analytic expansion 定义
 

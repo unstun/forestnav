@@ -116,14 +116,17 @@ base_commit: 640c76bf
 
 Dang et al. 2022 明确把 Hybrid A* 分成 forward search 和 analytic expansion 两阶段, 并指出 RS curve 在 analytic expansion 中提高准确性和速度, 但在角落/障碍附近可能贴障碍:
 
-- MDPI HTML lines 334-337: https://www.mdpi.com/2076-3417/12/12/5999
-- Hybrid A* 两阶段: lines 347, 360-371: https://www.mdpi.com/2076-3417/12/12/5999
-- 论文结论说他们是在 analytic expansion phase 改进安全性: lines 433-434: https://www.mdpi.com/2076-3417/12/12/5999
+- MDPI HTML lines 330-337: https://www.mdpi.com/2076-3417/12/12/5999
+- 原 RS path 贴墙/角落风险与 Section 3 改进目标: MDPI lines 380-402: https://www.mdpi.com/2076-3417/12/12/5999
+- Eq.2 Voronoi field: ResearchGate full-text lines 556-621, 包含 nearest-obstacle distance `d0` 与 generalized Voronoi edge distance `dv`: https://www.researchgate.net/publication/361291293_Improved_Analytic_Expansions_in_Hybrid_A-Star_Path_Planning_for_Non-Holonomic_Robots
+- Eq.3/Eq.4 cost: ResearchGate lines 758-844, `v` 为 risk cost, `m` 包含 path length / steering angle / steer switching。
+- Table 1/2 和结论: MDPI lines 414-419, 433-435; ResearchGate lines 935-960, 1082-1086, 1109-1174。
 
 可用结论:
 
 - "RS analytic expansion 快但无视障碍/可能贴障碍" 是可引用问题。
 - Dang 2022 是直接相邻 baseline, 但它仍在 RS 家族内多曲率选优, 没有学习闭环避障 steering policy。
+- 本地实现应称为 Dang-style baseline: 当前 `planner.py` 匹配 multi-curvature RS + collision filtering + lowest-cost selection + fallback 语义, 但 Eq.2 risk 用 mean EDT clearance inverse 近似, 没有 generalized Voronoi edge distance `dv`。
 
 ### 3.2 HOPE 是强相关竞品, 但不是同一个插槽
 
@@ -223,10 +226,13 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 可借鉴: action mask/safe-action prior、RS-distance reward、difficulty curriculum、RS hybrid ablation、成本拆分。
   - 禁止: 直接复制 GPL-3.0 代码; 将 HOPE success rate 当 ForestNav 森林结果; 声称 HOPE 已做掉本项目 analytic slot。
   - 记录: `.pipeline/experiments/20260704_module2_a01_2_hope_deep_read.md`。
-- [ ] A01.3 深读 Dang 2022 analytic expansion。
+- [x] A01.3 深读 Dang 2022 analytic expansion。
   - 必读: Section 2.1, Section 3, Eq.2-4, experiment table。
   - 输出: 本项目已有 Dang 多曲率实现与论文公式差异。
   - 验证: 对照 `planner.py:204-280` 写逐项匹配/偏离。
+  - 已完成: 新增 `0_trials/module2_rl_rs_evidence/dang2022_deep_read.md`, 核验 MDPI HTML 与 ResearchGate full-text 中 Section 2.1、Section 3、Eq.2-4、Table 1/2、Conclusion。
+  - 判定: Dang 是 correct-slot classical baseline, 不是 RL; 本地 `dang_multi_rs` 匹配 analytic slot、multi-radius RS、collision filter、cost selection、failure fallback, 但 Eq.2 用 mean EDT clearance inverse 近似, 缺 generalized Voronoi edge distance `dv`。
+  - 记录: `.pipeline/experiments/20260704_module2_a01_3_dang2022_deep_read.md`。
 - [ ] A01.4 查 "learned connector / learned goal shot / neural steering function"。
   - 查询词: `learned steering function motion planning`, `goal connect neural motion planner`, `RL local connector Hybrid A*`, `Reeds-Shepp neural planner`
   - 输出: 正例、负例、未知项。
