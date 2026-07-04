@@ -701,6 +701,19 @@ def _status_report_payload(*, ready, invalid=False):
             "remote_preflight_allowed_now": bool(ready),
             "formal_claim_allowed_now": bool(ready),
         },
+        "missing_artifacts_handoff_index_summary": {
+            "present": True,
+            "status": "formal_gate_evidence_ready_for_h01_h02_claim_gates"
+            if ready
+            else "blocked_until_f02_6_decision",
+            "next_action_id": None if ready else "record_f02_6_decision",
+            "next_action_requires_dr_sun": not ready,
+            "next_action_allowed_for_agent_now": False,
+            "open_requirement_count": 0 if ready else 5,
+            "local_training_allowed_now": False,
+            "remote_training_allowed_now": bool(ready),
+            "formal_result_material_allowed_now": False,
+        },
         "closure_remote_stage_summary": {
             "approved_remote_preflight": {
                 "present": True,
