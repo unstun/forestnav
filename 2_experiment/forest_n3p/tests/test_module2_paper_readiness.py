@@ -101,10 +101,29 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert manifest["input_status"]["claim_safety_remaining_deliverables_gap_present"] is True
     assert manifest["input_status"]["claim_safety_remaining_deliverables_gap_total_missing_deliverables"] == 10
     assert manifest["input_status"]["claim_safety_remaining_deliverables_gap_open_category_count"] == 4
+    assert manifest["input_status"]["claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_present"] is True
+    assert (
+        manifest["input_status"][
+            "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_total_missing_deliverables"
+        ]
+        == 10
+    )
+    assert (
+        manifest["input_status"]["claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_open_category_count"]
+        == 4
+    )
     assert "claim_safety_remaining_deliverables_acceptance_rows_missing" in manifest["global_blockers"]
     assert "claim_safety_remaining_deliverables_acceptance_categories_blocked" in manifest["global_blockers"]
     assert "claim_safety_remaining_deliverables_gap_rows_missing" in manifest["global_blockers"]
     assert "claim_safety_remaining_deliverables_gap_categories_blocked" in manifest["global_blockers"]
+    assert (
+        "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing"
+        in manifest["global_blockers"]
+    )
+    assert (
+        "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked"
+        in manifest["global_blockers"]
+    )
     assert manifest["claim_safety_requirement_stage_summary"]["requirements"]["training_remote_ppo_checkpoint"][
         "responsible_stage_id"
     ] == "gate3_remote_training"
@@ -147,6 +166,8 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert "claim_safety_decision_intake_decision_note_required" in markdown
     assert "Claim Safety Remaining Deliverables Acceptance Matrix" in markdown
     assert "claim_safety_remaining_deliverables_acceptance_matrix_row_count" in markdown
+    assert "Claim Safety Formal Gate Gap Audit Remaining Deliverables Gap Summary" in markdown
+    assert "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_total_missing_deliverables" in markdown
 
 
 def test_paper_readiness_accepts_synthetic_complete_evidence(tmp_path):
@@ -187,6 +208,16 @@ def test_paper_readiness_accepts_synthetic_complete_evidence(tmp_path):
     assert manifest["input_status"]["claim_safety_decision_intake_remote_training_allowed_now"] is True
     assert manifest["input_status"]["claim_safety_remaining_deliverables_acceptance_matrix_row_count"] == 10
     assert manifest["input_status"]["claim_safety_remaining_deliverables_acceptance_missing_row_count"] == 0
+    assert (
+        manifest["input_status"][
+            "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_total_missing_deliverables"
+        ]
+        == 0
+    )
+    assert (
+        manifest["input_status"]["claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_open_category_count"]
+        == 0
+    )
     assert all(item["status"] != "blocked" for item in manifest["section_readiness"])
     assert "formal_performance_improvement" in manifest["conditional_claim_ids"]
 
@@ -427,6 +458,59 @@ def test_paper_readiness_rejects_claim_safety_without_remaining_deliverables_gap
     assert manifest["claim_safety_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 1
 
 
+def test_paper_readiness_rejects_claim_safety_without_formal_gate_gap_audit_summary(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_paper_readiness")
+    paths = _write_inputs(tmp_path, formal=True)
+
+    claim_safety_payload = json.loads(paths["claim_safety"].read_text(encoding="utf-8"))
+    summary = claim_safety_payload["status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary"]
+    summary["total_missing_deliverables"] = 1
+    summary["open_category_count"] = 1
+    summary["category_order"] = ["training", "evaluation"]
+    summary["categories"]["training"]["missing_count"] = 1
+    summary["categories"]["training"]["missing_artifact_matrix_ids"] = []
+    paths["claim_safety"].write_text(json.dumps(claim_safety_payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        builder.PaperReadinessConfig(
+            output_dir=tmp_path,
+            method_algorithms_path=paths["method_algorithms"],
+            system_diagram_path=paths["system_diagram"],
+            paper_tables_path=paths["paper_tables"],
+            claim_safety_path=paths["claim_safety"],
+            h02_formal_acceptance_path=paths["h02_acceptance"],
+            h01_manifest_path=paths["h01_manifest"],
+            f02_6_decision_record_path=paths["decision_record"],
+            remote_execution_packet_path=paths["remote_packet"],
+            status_report_path=paths["status_report"],
+        )
+    )
+
+    assert manifest["status"] == "partial_methods_ready_results_blocked"
+    assert (
+        "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_category_order_mismatch"
+        in manifest["global_blockers"]
+    )
+    assert (
+        "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing"
+        in manifest["global_blockers"]
+    )
+    assert (
+        "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked"
+        in manifest["global_blockers"]
+    )
+    assert (
+        "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_training_missing_artifact_count_mismatch"
+        in manifest["global_blockers"]
+    )
+    assert (
+        manifest["claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_summary"][
+            "total_missing_deliverables"
+        ]
+        == 1
+    )
+
+
 def _write_inputs(tmp_path, *, formal):
     paths = {}
     paths["method_algorithms"] = _write_json(
@@ -506,6 +590,9 @@ def _write_inputs(tmp_path, *, formal):
                 formal=formal
             ),
             "status_report_remaining_deliverables_gap_summary": _claim_safety_remaining_deliverables_gap_summary_payload(
+                formal=formal
+            ),
+            "status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary": _claim_safety_remaining_deliverables_gap_summary_payload(
                 formal=formal
             ),
             "allowed_claims": [
