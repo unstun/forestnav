@@ -44,6 +44,14 @@ def test_remote_packet_safety_audit_passes_current_blocked_packet(tmp_path):
     assert manifest["cross_gate_summary"]["post_plan_status_report_execution_veto_summary"]["all_rows_consistent"] is True
     assert manifest["cross_gate_summary"]["post_plan_status_report_execution_veto_summary"]["row_consensus"]["remote_training"] is False
     assert manifest["cross_gate_summary"]["post_plan_status_report_execution_veto_summary"]["row_consensus"]["formal_claim"] is False
+    assert manifest["cross_gate_summary"]["post_plan_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
+    assert manifest["cross_gate_summary"]["post_plan_remaining_deliverables_gap_summary"]["open_category_count"] == 4
+    assert (
+        manifest["cross_gate_summary"]["post_plan_status_report_remaining_deliverables_gap_summary"][
+            "total_missing_deliverables"
+        ]
+        == 10
+    )
     status_steps = manifest["cross_gate_summary"]["post_plan_status_report_remote_execution_step_summary"]
     assert status_steps["sync_to_remote"]["blocked_by"] == ["requires_dr_sun_approval"]
     assert status_steps["run_remote_training"]["blocked_by"] == ["requires_dr_sun_approval", "remote_packet_not_ready"]
