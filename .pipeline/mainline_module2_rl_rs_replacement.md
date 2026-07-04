@@ -255,9 +255,12 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 输入: `planner.py:204-245`, `planner.py:454-500`, `robot.py:29-113`
   - 输出: `0_trials/module2_rl_rs_evidence/local_slot_api.md`
   - 必含: 输入状态、goal、map、footprint、params、返回 states/actions、failure reason。
-- [ ] A02.2 形成 collision checker 统一备忘。
+- [x] A02.2 形成 collision checker 统一备忘。
   - 输入: `geometry.py:262-406`, `geometry.py:419-518`
   - 输出: 训练/推理共享碰撞语义方案。
+  - 已完成: 新增 `0_trials/module2_rl_rs_evidence/collision_checker_unification.md`, 核验 `GridFootprintChecker`、`EDTCollisionChecker`、HA* primitive/RS analytic collision path、RL-RS env/operator/terminal 复用 checker 的代码入口。
+  - 判定: 当前主线应默认用 `GridFootprintChecker + TwoCircleFootprint + planner.collision_step` 作为 formal protocol, 但必须在后续 telemetry/data/train/eval artifact 中记录 checker manifest; EDT 统一属于后续 protocol change。
+  - 记录: `.pipeline/experiments/20260704_module2_a02_2_collision_checker_unification.md`。
 - [ ] A02.3 评估当前 evaluation 字段缺口。
   - 输入: `evaluation.py:39-84`, `evaluation.py:216-260`
   - 输出: 需要新增 telemetry 字段列表。

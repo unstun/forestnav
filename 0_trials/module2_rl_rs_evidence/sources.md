@@ -60,6 +60,7 @@ topic: module2 RL-RS evidence source index
 | L001 | A | local | ForestNav HybridAStarPlanner | `2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py:204-245`, `:454-500` | 本项目真实插入点 |
 | L002 | A | local | ForestNav collision checkers | `2_experiment/forest_n3p/third_party/pathplan/geometry.py:398-425`, `:449-518` | 训练/推理碰撞语义统一 |
 | L003 | A | local | ForestNav evaluation | `2_experiment/forest_n3p/evaluation.py:39-84`, `:216-260` | 主实验指标地基 |
+| L004 | A | local | ForestNav collision protocol audit | `0_trials/module2_rl_rs_evidence/collision_checker_unification.md`; `geometry.py:262-416`, `:419-518`; `rl_rs/env.py:86-92`, `:191-222`; `rl_rs/rollout.py:42-56`; `rl_rs/terminal.py:44-50`; `rl_rs/operator.py:133-162` | A02.2 训练/推理共享碰撞语义方案 |
 
 ## 待核验来源
 
