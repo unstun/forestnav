@@ -494,6 +494,31 @@ def test_formal_gate_status_report_requires_remaining_deliverables_gap_summary(t
     assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 9
 
 
+def test_formal_gate_status_report_requires_remaining_deliverables_proof_command_plan(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    remaining = json.loads(config.remaining_deliverables_path.read_text(encoding="utf-8"))
+    remaining["proof_command_plan"]["total_matrix_rows"] = 9
+    remaining["proof_command_plan"]["total_proof_command_count"] = 18
+    remaining["proof_command_plan"]["rows"] = remaining["proof_command_plan"]["rows"][:-1]
+    remaining["proof_command_plan"]["runs_training"] = True
+    remaining["deliverable_acceptance_matrix"][0]["proof_commands"] = []
+    remaining["deliverable_gap_summary"]["categories"][0]["missing_artifacts"][0]["proof_command_count"] = 0
+    remaining["deliverable_gap_summary"]["categories"][0]["missing_artifacts"][0]["proof_command_ids"] = []
+    config.remaining_deliverables_path.write_text(json.dumps(remaining), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert "remaining_deliverables_proof_command_plan_runs_training" in issue_ids
+    assert "remaining_deliverables_proof_command_plan_matrix_count_mismatch" in issue_ids
+    assert "remaining_deliverables_proof_command_plan_command_count_mismatch" in issue_ids
+    assert "remaining_deliverables_training_train_final_model_zip_missing_proof_commands" in issue_ids
+    assert "remaining_deliverables_gap_training_train_final_model_zip_missing_proof_commands" in issue_ids
+    assert "remaining_deliverables_proof_command_plan_missing_formal_acceptance_h02_formal_output_acceptance" in issue_ids
+    assert manifest["remaining_deliverables_proof_command_plan"]["total_matrix_rows"] == 9
+
+
 def test_formal_gate_status_report_consumes_handoff_bundle_safety(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
     config = _config(tmp_path, complete=False)
