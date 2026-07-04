@@ -1412,6 +1412,13 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"stage_allowed_now=`{payload['responsible_stage_allowed_now']}`, "
             f"missing_artifacts=`{missing_ids}`"
         )
+    formal_gate_gap = manifest["status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary"]
+    lines.extend(["", "## Status Report Formal Gate Gap Audit Remaining Deliverables Gap Summary", ""])
+    lines.append(f"- present=`{formal_gate_gap['present']}`")
+    lines.append(f"- summary_id=`{formal_gate_gap['summary_id']}`")
+    lines.append(f"- total_missing_deliverables=`{formal_gate_gap['total_missing_deliverables']}`")
+    lines.append(f"- open_category_count=`{formal_gate_gap['open_category_count']}`")
+    lines.append(f"- matches_status_report_remaining_gap=`{_gap_signature(formal_gate_gap) == _gap_signature(gap)}`")
     lines.extend(["", "## Prohibited Claims", ""])
     for claim in manifest["prohibited_claims"]:
         lines.append(f"- `{claim['claim_id']}`: not allowed; patterns={', '.join(claim['patterns'])}")
