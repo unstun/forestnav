@@ -36,7 +36,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     env = DummyVecEnv([_make_env_factory(args=args, output_dir=output_dir, rank=rank) for rank in range(int(args.n_envs))])
     callbacks = _callbacks(args=args, output_dir=output_dir, n_envs=int(args.n_envs), CallbackList=CallbackList, CheckpointCallback=CheckpointCallback)
     model = PPO(
-        "MultiInputPolicy",
+        _policy_spec(args),
         env,
         learning_rate=float(args.learning_rate),
         n_steps=int(args.n_steps),
@@ -153,6 +153,14 @@ def _load_sb3():
     return PPO, CallbackList, CheckpointCallback, DummyVecEnv
 
 
+def _policy_spec(args: argparse.Namespace):
+    if args.bc_checkpoint is None:
+        return "MultiInputPolicy"
+    from forest_n3p.rl_rs.sb3_policy import RlRsMultiInputPolicy
+
+    return RlRsMultiInputPolicy
+
+
 def _make_env_factory(*, args: argparse.Namespace, output_dir: Path, rank: int):
     def _factory():
         cfg = _curriculum_config(args)
@@ -193,7 +201,7 @@ def _policy_kwargs(args: argparse.Namespace) -> dict[str, Any]:
     import torch
     from forest_n3p.rl_rs.sb3_policy import RlRsObstacleSummaryExtractor
 
-    return {
+    kwargs = {
         "activation_fn": torch.nn.ReLU,
         "features_extractor_class": RlRsObstacleSummaryExtractor,
         "net_arch": {
@@ -201,6 +209,9 @@ def _policy_kwargs(args: argparse.Namespace) -> dict[str, Any]:
             "vf": list(_parse_ints(str(args.value_net_arch))),
         },
     }
+    if args.bc_checkpoint is not None:
+        kwargs["use_tanh_action_head"] = True
+    return kwargs
 
 
 def _apply_obstacle_summary_bc_warm_start(model: Any, checkpoint_path: Path) -> dict[str, Any]:
@@ -227,7 +238,10 @@ def _apply_obstacle_summary_bc_warm_start(model: Any, checkpoint_path: Path) -> 
         layer.bias.data.copy_(bias.to(device=layer.bias.device, dtype=layer.bias.dtype))
 
     old_action_net = model.policy.action_net
-    action_head = TanhLinearActionHead(old_action_net.in_features, old_action_net.out_features).to(old_action_net.weight.device)
+    if isinstance(old_action_net, TanhLinearActionHead):
+        action_head = old_action_net
+    else:
+        action_head = TanhLinearActionHead(old_action_net.in_features, old_action_net.out_features).to(old_action_net.weight.device)
     action_key = f"net.{2 * len(hidden_dims)}"
     final_weight = state_dict[f"{action_key}.weight"]
     final_bias = state_dict[f"{action_key}.bias"]
