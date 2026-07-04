@@ -14,6 +14,8 @@ This file audits the remote formal execution packet. It does not execute any com
 - post_plan_execution_veto_present: `True`
 - post_plan_execution_veto_all_rows_consistent: `True`
 - post_plan_execution_veto_remote_training_allowed_now: `False`
+- post_plan_remaining_deliverables_gap_total_missing: `10`
+- post_plan_status_report_gap_total_missing: `10`
 
 ## Audit Issues
 

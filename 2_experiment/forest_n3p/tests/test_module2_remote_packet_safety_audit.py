@@ -764,11 +764,13 @@ def _plan_audit_payload(*, training_allowed=False, status_report_ready=False):
             "training_allowed_now": training_allowed,
             "remote_preflight_allowed_now": training_allowed,
         },
+        "remaining_deliverables_gap_summary": _gap_summary(open_gaps=not status_report_ready),
         "status_report_summary": {
             "status": "formal_gate_status_ready_for_claim_audit" if status_report_ready else "formal_gate_status_blocked",
             "formal_claim_allowed_now": status_report_ready,
             "local_training_allowed_now": False,
             "next_blocked_lane_id": None if status_report_ready else "decision",
+            "remaining_deliverables_gap_summary": _gap_summary(open_gaps=not status_report_ready),
             "remote_execution_step_summary": {
                 "sync_to_remote": {
                     "present": True,
@@ -831,6 +833,35 @@ def _plan_audit_payload(*, training_allowed=False, status_report_ready=False):
             },
             "formal_gate_execution_veto_summary": _execution_veto_summary(ready=status_report_ready),
         },
+    }
+
+
+def _gap_summary(*, open_gaps):
+    return {
+        "summary_id": "module2_formal_gate_missing_training_eval_acceptance_summary",
+        "total_missing_deliverables": 10 if open_gaps else 0,
+        "open_category_count": 4 if open_gaps else 0,
+        "category_order": ["training", "evaluation", "acceptance", "formal_acceptance"],
+        "categories": {
+            "training": _gap_category("training", 3 if open_gaps else 0, "gate3_remote_training", open_gaps=open_gaps),
+            "evaluation": _gap_category("evaluation", 2 if open_gaps else 0, "gate3_remote_audit_pullback", open_gaps=open_gaps),
+            "acceptance": _gap_category("acceptance", 3 if open_gaps else 0, "gate3_remote_audit_pullback", open_gaps=open_gaps),
+            "formal_acceptance": _gap_category(
+                "formal_acceptance",
+                2 if open_gaps else 0,
+                "regenerate_h01_h02_formal_artifacts",
+                open_gaps=open_gaps,
+            ),
+        },
+    }
+
+
+def _gap_category(category, missing_count, stage_id, *, open_gaps):
+    return {
+        "missing_count": missing_count,
+        "responsible_stage_id": stage_id,
+        "responsible_stage_allowed_now": not open_gaps,
+        "missing_artifact_matrix_ids": [f"{category}:artifact_{index}" for index in range(missing_count)],
     }
 
 
