@@ -1023,6 +1023,16 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"safety_issue_count=`{handoff['safety_issue_count']}`, "
         f"remote_training_allowed_now=`{handoff['remote_training_allowed_now']}`"
     )
+    lines.extend(["", "## F02.6 Decision Intake Summary", ""])
+    intake = manifest["status_report_decision_intake_summary"]
+    lines.append(
+        f"- present=`{intake['present']}`, status=`{intake['status']}`, "
+        f"record_status=`{intake['record_status']}`, record_decider=`{intake['record_decider']}`, "
+        f"next_blocked_lane=`{intake['next_blocked_lane']}`, "
+        f"audit_issue_count=`{intake['audit_issue_count']}`, "
+        f"remote_training_allowed_now=`{intake['remote_training_allowed_now']}`, "
+        f"formal_claim_allowed_now=`{intake['formal_claim_allowed_now']}`"
+    )
     lines.extend(["", "## Status Report Missing-Artifacts Handoff Index", ""])
     missing_handoff = manifest["status_report_missing_artifacts_handoff_summary"]
     lines.append(
