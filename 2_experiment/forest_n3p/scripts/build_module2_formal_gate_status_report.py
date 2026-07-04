@@ -1825,6 +1825,22 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"acceptance_predicate_count=`{row['acceptance_predicate_count']}`, "
             f"invalid_substitute_count=`{row['invalid_substitute_count']}`, blocked_by=`{blocked_by}`"
         )
+    lines.extend(["", "## Remaining Deliverables Gap Summary", ""])
+    gap = manifest["remaining_deliverables_gap_summary"]
+    lines.append(f"- present: `{gap['present']}`")
+    lines.append(f"- summary_id: `{gap['summary_id']}`")
+    lines.append(f"- total_missing_deliverables: `{gap['total_missing_deliverables']}`")
+    lines.append(f"- open_category_count: `{gap['open_category_count']}`")
+    lines.append(f"- execution_boundary: `{gap['execution_boundary']}`")
+    for category, payload in gap["categories"].items():
+        blocked_by = ", ".join(payload["responsible_stage_blocked_by"]) if payload["responsible_stage_blocked_by"] else "none"
+        missing_ids = ", ".join(payload["missing_artifact_matrix_ids"]) if payload["missing_artifact_matrix_ids"] else "none"
+        lines.append(
+            f"- `{category}`: missing_count=`{payload['missing_count']}`, "
+            f"stage=`{payload['responsible_stage_id']}`, "
+            f"stage_allowed_now=`{payload['responsible_stage_allowed_now']}`, "
+            f"missing_artifacts=`{missing_ids}`, blocked_by=`{blocked_by}`"
+        )
     lines.extend(["", "## Closure Remote Stages", ""])
     for stage_id, stage in manifest["closure_remote_stage_summary"].items():
         blocked_by = ", ".join(stage["blocked_by"]) if stage["blocked_by"] else "none"
