@@ -67,6 +67,12 @@ def test_formal_gate_gap_audit_blocks_current_pending_gate_and_lists_missing_art
     assert manifest["source_freshness"]["regeneration_required_before_remote_formal_execution"] is False
     assert manifest["formal_gate_handoff"]["status"] == "blocked_until_f02_6_decision"
     assert manifest["remote_packet_safety"]["status"] == "remote_packet_safety_audit_passed"
+    command_index = manifest["remote_packet_safety"]["claim_gate_command_index_summary"]
+    assert command_index["present"] is True
+    assert command_index["index_row_count"] == 18
+    assert command_index["missing_target_ids"] == []
+    assert command_index["claim_gate_rows"]["claim_safety"]["stage_id"] == "regenerate_claim_gate_artifacts"
+    assert command_index["claim_gate_rows"]["paper_readiness"]["required_before"] == "formal_claim_gate"
     assert manifest["execution_veto_matrix"]["all_rows_consistent"] is True
     assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
     assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 4
