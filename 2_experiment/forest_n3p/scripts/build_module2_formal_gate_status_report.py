@@ -586,6 +586,23 @@ def _input_safety_issues(named_payloads: dict[str, dict[str, Any]]) -> list[dict
     return _unique_issues(issues)
 
 
+def _decision_record_safety_issues(decision_record: dict[str, Any]) -> list[dict[str, str]]:
+    if not decision_record:
+        return [_issue("decision_record_missing", "status report must consume the F02.6 decision record.")]
+    issues: list[dict[str, str]] = []
+    if decision_record.get("status") not in {"pending_human_decision", "approved", "rejected"}:
+        issues.append(_issue("decision_record_unknown_status", "F02.6 decision record status must be pending_human_decision, approved, or rejected."))
+    if decision_record.get("remote_preflight_allowed_now") is not False:
+        issues.append(_issue("decision_record_allows_remote_preflight_now", "F02.6 decision record alone must not allow remote preflight now."))
+    if decision_record.get("remote_training_allowed_now") is not False:
+        issues.append(_issue("decision_record_allows_remote_training_now", "F02.6 decision record alone must not allow remote training now."))
+    if decision_record.get("local_training_allowed") is not False:
+        issues.append(_issue("decision_record_allows_local_training", "F02.6 decision record must never allow local training."))
+    if decision_record.get("formal_claim_allowed") is not False:
+        issues.append(_issue("decision_record_allows_formal_claim", "F02.6 decision record must not allow formal claims."))
+    return issues
+
+
 def _decision_intake_summary(decision_intake: dict[str, Any]) -> dict[str, Any]:
     current_state = (
         decision_intake.get("current_state")
