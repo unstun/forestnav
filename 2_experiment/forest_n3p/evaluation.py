@@ -293,6 +293,7 @@ def planner_run_from_path_stats(
     if "remediations" in stats:
         run_metadata.setdefault("planner_remediations", stats["remediations"])
     _update_rl_rs_telemetry_summary(run_metadata, stats.get("analytic_telemetry_records") or ())
+    _update_canonical_analytic_fields(run_metadata)
     run_metadata["total_planner_time_s"] = planner_time
     run_metadata["timing_protocol"] = _timing_protocol(
         adapter="planner_run_from_path_stats",
@@ -393,6 +394,13 @@ def evaluate_run(
         analytic_attempts=_metadata_int(run.metadata, "analytic_attempts"),
         analytic_successes=_metadata_int(run.metadata, "analytic_successes"),
         analytic_failure_count=_metadata_int(run.metadata, "analytic_failure_count"),
+        rl_attempts=_metadata_int(run.metadata, "rl_attempts"),
+        rl_successes=_metadata_int(run.metadata, "rl_successes"),
+        rs_attempts=_metadata_int(run.metadata, "rs_attempts"),
+        nn_forward_time_s=_metadata_float(run.metadata, "nn_forward_time_s"),
+        fallback_to_primitives_count=_metadata_int(run.metadata, "fallback_to_primitives_count"),
+        rollout_protocol=_metadata_str(run.metadata, "rollout_protocol"),
+        collision_checker=_metadata_str(run.metadata, "collision_checker"),
         rl_rollout_steps=_metadata_int(run.metadata, "rl_rollout_steps"),
         rl_rollout_collision_checks=_metadata_int(run.metadata, "rl_rollout_collision_checks"),
         rl_rollout_sample_time_s=_metadata_float(run.metadata, "rl_rollout_sample_time_s"),
@@ -414,12 +422,47 @@ def _update_rl_rs_telemetry_summary(metadata: dict[str, Any], records: Sequence[
     clean = [record for record in records if isinstance(record, dict) and _has_rl_rs_telemetry(record)]
     if not clean:
         return
-    for key in ("rl_rollout_steps", "rl_rollout_collision_checks", "terminal_rs_action_count"):
+    for key in (
+        "rl_attempts",
+        "rl_successes",
+        "rs_attempts",
+        "fallback_to_primitives_count",
+        "rl_rollout_steps",
+        "rl_rollout_collision_checks",
+        "terminal_rs_action_count",
+    ):
         metadata.setdefault(key, sum(int(record.get(key, 0) or 0) for record in clean))
-    for key in ("rl_rollout_sample_time_s", "rl_rollout_collision_time_s", "terminal_rs_time_s"):
+    for key in ("nn_forward_time_s", "rl_rollout_sample_time_s", "rl_rollout_collision_time_s", "terminal_rs_time_s"):
         metadata.setdefault(key, sum(float(record.get(key, 0.0) or 0.0) for record in clean))
     metadata.setdefault("terminal_rs_success_count", sum(1 for record in clean if bool(record.get("terminal_rs_success"))))
     metadata.setdefault("terminal_rs_used_count", sum(1 for record in clean if bool(record.get("terminal_rs_used"))))
+    for key in ("rollout_protocol", "collision_checker"):
+        value = _single_string_value(clean, key)
+        if value is not None:
+            metadata.setdefault(key, value)
+    for key in (
+        "rollout_max_steps",
+        "rollout_action_step_m",
+        "rollout_collision_sample_step_m",
+        "terminal_success_mode",
+    ):
+        value = next((record.get(key) for record in clean if record.get(key) is not None), None)
+        if value is not None:
+            metadata.setdefault(key, value)
+
+
+def _update_canonical_analytic_fields(metadata: dict[str, Any]) -> None:
+    if "fallback_to_primitives_count" not in metadata and metadata.get("analytic_failure_count") is not None:
+        metadata["fallback_to_primitives_count"] = int(metadata.get("analytic_failure_count") or 0)
+    if "rs_attempts" not in metadata and metadata.get("analytic_candidate_radius_count") is not None:
+        metadata["rs_attempts"] = int(metadata.get("analytic_candidate_radius_count") or 0)
+
+
+def _single_string_value(records: Sequence[dict[str, Any]], key: str) -> str | None:
+    values = {str(record[key]) for record in records if record.get(key) is not None}
+    if not values:
+        return None
+    return next(iter(values)) if len(values) == 1 else "mixed"
 
 
 def _has_rl_rs_telemetry(record: dict[str, Any]) -> bool:
