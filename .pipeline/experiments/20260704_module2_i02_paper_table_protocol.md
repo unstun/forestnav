@@ -85,7 +85,7 @@ depends_on:
 - Syntax: `python -m py_compile 2_experiment/forest_n3p/scripts/build_module2_paper_tables.py`.
 - Artifact audit: `module2_paper_tables_artifact=ok`.
 - 2026-07-04 telemetry refresh: RED failed on missing `telemetry_diagnostic_table`; GREEN targeted `9 passed`; full `2_experiment/forest_n3p/tests` -> `112 passed in 12.15s`.
-- 2026-07-04 H02 acceptance integration: `--h02-formal-acceptance` 已接入; synthetic formal table + blocked H02 acceptance 仍会输出 `blocked_no_formal_h02_data`; I02/I03 targeted `4 passed in 0.12s`。
+- 2026-07-04 H02 acceptance integration: `--h02-formal-acceptance` 已接入; synthetic formal table + blocked H02 acceptance 仍会输出 `blocked_no_formal_h02_data`; targeted `12 passed in 0.57s`; full `2_experiment/forest_n3p/tests` -> `120 passed in 12.01s`。
 
 ## 边界
 

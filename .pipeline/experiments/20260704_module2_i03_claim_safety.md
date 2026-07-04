@@ -81,7 +81,7 @@ The builder also supports `--draft-text` audit and reports matched prohibited pa
 - Adjacent: `PYTHONPATH=2_experiment pytest -q 2_experiment/forest_n3p/tests/test_module2_claim_safety.py 2_experiment/forest_n3p/tests/test_module2_paper_tables.py 2_experiment/forest_n3p/tests/test_module2_method_algorithms.py 2_experiment/forest_n3p/tests/test_module2_system_diagram.py` -> `4 passed in 0.13s`.
 - Syntax: `python -m py_compile 2_experiment/forest_n3p/scripts/build_module2_claim_safety.py`.
 - Artifact audit: `module2_claim_safety_artifact=ok`.
-- 2026-07-04 H02 acceptance integration: `--h02-formal-acceptance` 已接入; 即使 paper tables/H01/F02.6 都看似 formal, 只要 H02 acceptance blocked, I03 仍输出 `blocked_formal_performance_claims`; I02/I03 targeted `4 passed in 0.12s`。
+- 2026-07-04 H02 acceptance integration: `--h02-formal-acceptance` 已接入; 即使 paper tables/H01/F02.6 都看似 formal, 只要 H02 acceptance blocked, I03 仍输出 `blocked_formal_performance_claims`; targeted `12 passed in 0.57s`; full `2_experiment/forest_n3p/tests` -> `120 passed in 12.01s`。
 
 ## 边界
 
