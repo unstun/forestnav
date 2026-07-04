@@ -41,6 +41,10 @@ POST_RUN_ACCEPTANCE_REQUIREMENT_IDS = (
     "gate3_formal_audit_accepts_remote_run",
     "h01_h02_regenerated_from_audited_checkpoint",
 )
+CLAIM_GATE_REGENERATION_ARTIFACT_IDS = (
+    "claim_safety",
+    "paper_readiness",
+)
 
 
 @dataclass(frozen=True)
@@ -387,6 +391,9 @@ def _cross_gate_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any],
     status_step_summary = status_summary.get("remote_execution_step_summary") if isinstance(status_summary.get("remote_execution_step_summary"), dict) else {}
     handoff_summary = status_summary.get("formal_gate_handoff_summary") if isinstance(status_summary.get("formal_gate_handoff_summary"), dict) else {}
     execution_veto = status_summary.get("formal_gate_execution_veto_summary") if isinstance(status_summary.get("formal_gate_execution_veto_summary"), dict) else {}
+    command_index_summary = _normalize_command_index_summary(
+        plan_audit.get("source_regeneration_command_index_summary")
+    )
     plan_gap = _normalize_gap_summary(plan_audit.get("remaining_deliverables_gap_summary"))
     status_gap = _normalize_gap_summary(status_summary.get("remaining_deliverables_gap_summary"))
     if plan_audit and status_summary and not status_step_summary:
@@ -395,6 +402,62 @@ def _cross_gate_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any],
         issues.append(_issue("post_plan_missing_status_report_handoff_summary", "Post-F02.6 plan audit must forward status report handoff summary."))
     if plan_audit and status_summary and not execution_veto:
         issues.append(_issue("post_plan_missing_status_report_execution_veto_summary", "Post-F02.6 plan audit must forward status report execution veto summary."))
+    if plan_audit and not command_index_summary["present"]:
+        issues.append(
+            _issue(
+                "post_plan_missing_source_regeneration_command_index_summary",
+                "Post-F02.6 plan audit must expose source_regeneration_command_index_summary.",
+            )
+        )
+    if command_index_summary["missing_target_ids"]:
+        issues.append(
+            _issue(
+                "post_plan_source_regeneration_command_index_missing_targets",
+                "Remote packet safety requires a complete post-plan source-regeneration command index.",
+                observed=command_index_summary["missing_target_ids"],
+            )
+        )
+    if command_index_summary["unknown_manual_count"] > 0:
+        issues.append(
+            _issue(
+                "post_plan_source_regeneration_command_index_unknown_manual_rows",
+                "Remote packet safety rejects unknown/manual post-plan source-regeneration rows.",
+                observed=command_index_summary["unknown_manual_ids"],
+            )
+        )
+    if command_index_summary["forbidden_command_count"] > 0:
+        issues.append(
+            _issue(
+                "post_plan_source_regeneration_command_index_forbidden_commands",
+                "Remote packet safety rejects source-regeneration rows containing remote execution commands.",
+                observed=command_index_summary["forbidden_command_ids"],
+            )
+        )
+    for artifact_id in CLAIM_GATE_REGENERATION_ARTIFACT_IDS:
+        row = command_index_summary["rows"].get(artifact_id)
+        if not isinstance(row, dict):
+            issues.append(
+                _issue(
+                    f"post_plan_source_regeneration_command_index_missing_{artifact_id}",
+                    f"Post-plan command index must include {artifact_id} before remote packet safety can pass.",
+                )
+            )
+            continue
+        if row.get("stage_id") != "regenerate_claim_gate_artifacts":
+            issues.append(
+                _issue(
+                    f"post_plan_source_regeneration_command_index_{artifact_id}_wrong_stage",
+                    f"{artifact_id} must be regenerated in regenerate_claim_gate_artifacts.",
+                    observed=row.get("stage_id"),
+                )
+            )
+        if str(row.get("command_template") or "").startswith("manual regeneration required"):
+            issues.append(
+                _issue(
+                    f"post_plan_source_regeneration_command_index_{artifact_id}_manual_command",
+                    f"{artifact_id} must use a known builder command, not manual regeneration.",
+                )
+            )
     if plan_audit and not plan_gap["present"]:
         issues.append(_issue("post_plan_missing_remaining_deliverables_gap_summary", "Post-F02.6 plan audit must expose remaining_deliverables_gap_summary."))
     if plan_audit and status_summary and not status_gap["present"]:
@@ -601,6 +664,9 @@ def _cross_gate_summary(*, decision_gate: dict[str, Any], plan_audit: dict[str, 
     remote_steps = status_summary.get("remote_execution_step_summary") if isinstance(status_summary.get("remote_execution_step_summary"), dict) else {}
     handoff_summary = status_summary.get("formal_gate_handoff_summary") if isinstance(status_summary.get("formal_gate_handoff_summary"), dict) else {}
     execution_veto = status_summary.get("formal_gate_execution_veto_summary") if isinstance(status_summary.get("formal_gate_execution_veto_summary"), dict) else {}
+    command_index_summary = _normalize_command_index_summary(
+        plan_audit.get("source_regeneration_command_index_summary")
+    )
     plan_gap = _normalize_gap_summary(plan_audit.get("remaining_deliverables_gap_summary"))
     status_gap = _normalize_gap_summary(status_summary.get("remaining_deliverables_gap_summary"))
     return {
@@ -617,8 +683,35 @@ def _cross_gate_summary(*, decision_gate: dict[str, Any], plan_audit: dict[str, 
         "post_plan_status_report_remote_execution_step_summary": remote_steps,
         "post_plan_status_report_handoff_summary": handoff_summary,
         "post_plan_status_report_execution_veto_summary": execution_veto,
+        "post_plan_source_regeneration_command_index_summary": command_index_summary,
         "post_plan_remaining_deliverables_gap_summary": plan_gap,
         "post_plan_status_report_remaining_deliverables_gap_summary": status_gap,
+    }
+
+
+def _normalize_command_index_summary(raw: Any) -> dict[str, Any]:
+    summary = raw if isinstance(raw, dict) else {}
+    rows = summary.get("rows") if isinstance(summary.get("rows"), dict) else {}
+    normalized_rows: dict[str, dict[str, Any]] = {}
+    for artifact_id, row in rows.items():
+        if not isinstance(row, dict):
+            continue
+        normalized_rows[str(artifact_id)] = {
+            "stage_id": row.get("stage_id"),
+            "required_before": row.get("required_before"),
+            "command_kind": row.get("command_kind"),
+            "command_template": row.get("command_template"),
+        }
+    return {
+        "present": bool(summary),
+        "index_row_count": int(summary.get("index_row_count") or 0),
+        "source_target_count": int(summary.get("source_target_count") or 0),
+        "missing_target_ids": _strings(summary.get("missing_target_ids")),
+        "unknown_manual_count": int(summary.get("unknown_manual_count") or 0),
+        "unknown_manual_ids": _strings(summary.get("unknown_manual_ids")),
+        "forbidden_command_count": int(summary.get("forbidden_command_count") or 0),
+        "forbidden_command_ids": _strings(summary.get("forbidden_command_ids")),
+        "rows": normalized_rows,
     }
 
 
