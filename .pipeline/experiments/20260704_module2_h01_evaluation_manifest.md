@@ -11,6 +11,12 @@ depends_on:
 
 # Module2 H01.1 Evaluation Manifest 记录
 
+## 后续更新
+
+2026-07-04 后续任务已解除 `bc_analytic_operator` 的 main evaluation method blocker。当前 H01 manifest 已重新生成, `bc_analytic_operator` 映射到同名 main evaluation method, 并指向 `2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt`。更新记录见 `.pipeline/experiments/20260704_module2_h01_bc_operator_main_eval.md`。
+
+因此本文件下方关于 "BC analytic operator 还没有 main evaluation method" 的表述只描述本记录创建时的历史状态, 不代表当前最新状态。当前仍未关闭的 H01 blockers 是 F02.6 warm-start decision、`ppo_analytic_operator` without terminal RS 未实现、realmap query protocol 未冻结。
+
 ## 直观结论
 
 H01.1 已推进到可审计的 manifest/preflight 形态, 但不能 claim formal-ready。当前产物明确写出 module2 v1 评测所需方法、正式规模、指标、realmap inventory 和 run command blocker。
