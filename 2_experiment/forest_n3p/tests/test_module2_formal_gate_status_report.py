@@ -24,6 +24,8 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
     assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
     assert manifest["current_state"]["decision_status"] == "pending_human_decision"
+    assert manifest["current_state"]["decision_remote_preflight_allowed_now"] is False
+    assert manifest["current_state"]["decision_remote_training_allowed_now"] is False
     assert manifest["current_state"]["decision_intake_status"] == "f02_6_decision_intake_pending_clean"
     assert manifest["current_state"]["decision_intake_record_status"] == "pending_human_decision"
     assert manifest["current_state"]["decision_intake_next_blocked_lane"] == "decision"
