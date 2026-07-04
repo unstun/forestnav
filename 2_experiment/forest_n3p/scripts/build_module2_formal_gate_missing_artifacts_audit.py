@@ -1002,6 +1002,12 @@ def _markdown(manifest: dict[str, Any]) -> str:
             lines.append(f"  - source_artifacts: `{'; '.join(requirement['source_artifacts'])}`")
         if requirement.get("downstream_consumers"):
             lines.append(f"  - downstream_consumers: `{'; '.join(requirement['downstream_consumers'])}`")
+        if requirement.get("responsible_stage_id"):
+            lines.append(
+                f"  - responsible_stage: `{requirement['responsible_stage_id']}` "
+                f"(status=`{requirement.get('responsible_stage_status')}`, "
+                f"allowed_now=`{requirement.get('responsible_stage_allowed_now')}`)"
+            )
     lines.extend(["", "## Missing Counts", ""])
     for category, count in sorted(manifest["missing_counts_by_category"].items()):
         lines.append(f"- {category}: `{count}`")
@@ -1015,6 +1021,14 @@ def _markdown(manifest: dict[str, Any]) -> str:
             lines.append(f"  - missing_artifact_ids: `{', '.join(requirement['missing_artifact_ids'])}`")
         if requirement["blocked_by"]:
             lines.append(f"  - blocked_by: `{', '.join(requirement['blocked_by'])}`")
+        if requirement.get("responsible_stage_id"):
+            lines.append(
+                f"  - responsible_stage: `{requirement['responsible_stage_id']}` "
+                f"(status=`{requirement.get('responsible_stage_status')}`, "
+                f"allowed_now=`{requirement.get('responsible_stage_allowed_now')}`)"
+            )
+        if requirement.get("responsible_stage_blocked_by"):
+            lines.append(f"  - responsible_stage_blocked_by: `{', '.join(requirement['responsible_stage_blocked_by'])}`")
         lines.append(f"  - acceptable_evidence: `{'; '.join(requirement['acceptable_evidence'])}`")
         lines.append(f"  - invalid_substitutes: `{'; '.join(requirement['invalid_substitutes'])}`")
     lines.extend(["", "## Evidence Groups", ""])
