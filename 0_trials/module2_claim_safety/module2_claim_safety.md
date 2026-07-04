@@ -42,6 +42,18 @@
 
 - present=`True`, status=`blocked_until_f02_6_decision`, next_action=`record_f02_6_decision`, open_requirement_count=`5`, remote_training_allowed_now=`False`, formal_result_material_allowed_now=`False`
 
+## Status Report Requirement Stage Summary
+
+- present=`True`
+- mapped_requirement_count=`4`
+- unmapped_requirement_count=`0`
+- mismatched_requirement_count=`0`
+- blocked_stage_count=`4`
+- `training_remote_ppo_checkpoint`: stage=`gate3_remote_training`, stage_status=`blocked`, allowed_now=`False`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
+- `evaluation_gate3_episode_outputs`: stage=`gate3_remote_audit_pullback`, stage_status=`blocked`, allowed_now=`False`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
+- `acceptance_remote_pullback_and_audit`: stage=`gate3_remote_audit_pullback`, stage_status=`blocked`, allowed_now=`False`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
+- `h01_h02_formal_evaluation_acceptance`: stage=`regenerate_h01_h02_formal_artifacts`, stage_status=`blocked`, allowed_now=`False`, blocked_by=`missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
+
 ## Status Report Remote Gate Summary
 
 ### closure_remote_stage_summary

@@ -783,6 +783,7 @@ def _status_report_payload(*, ready, invalid=False):
             "remote_training_allowed_now": bool(ready),
             "formal_result_material_allowed_now": False,
         },
+        "formal_gate_requirement_stage_summary": _status_report_requirement_stage_summary_payload(ready=ready),
         "closure_remote_stage_summary": {
             "approved_remote_preflight": {
                 "present": True,
@@ -838,4 +839,54 @@ def _status_report_payload(*, ready, invalid=False):
                 "blocked_by": remote_training_blockers,
             },
         },
+    }
+
+
+def _status_report_requirement_stage_summary_payload(*, ready):
+    requirements = {
+        "training_remote_ppo_checkpoint": _status_report_requirement_stage_row(
+            requirement_id="training_remote_ppo_checkpoint",
+            expected_stage_id="gate3_remote_training",
+            ready=ready,
+        ),
+        "evaluation_gate3_episode_outputs": _status_report_requirement_stage_row(
+            requirement_id="evaluation_gate3_episode_outputs",
+            expected_stage_id="gate3_remote_audit_pullback",
+            ready=ready,
+        ),
+        "acceptance_remote_pullback_and_audit": _status_report_requirement_stage_row(
+            requirement_id="acceptance_remote_pullback_and_audit",
+            expected_stage_id="gate3_remote_audit_pullback",
+            ready=ready,
+        ),
+        "h01_h02_formal_evaluation_acceptance": _status_report_requirement_stage_row(
+            requirement_id="h01_h02_formal_evaluation_acceptance",
+            expected_stage_id="regenerate_h01_h02_formal_artifacts",
+            ready=ready,
+        ),
+    }
+    return {
+        "present_requirement_count": len(requirements),
+        "mapped_requirement_count": len(requirements),
+        "unmapped_requirement_count": 0,
+        "mismatched_requirement_count": 0,
+        "blocked_stage_count": 0 if ready else len(requirements),
+        "unmapped_requirement_ids": [],
+        "mismatched_requirement_ids": [],
+        "requirements": requirements,
+    }
+
+
+def _status_report_requirement_stage_row(*, requirement_id, expected_stage_id, ready):
+    return {
+        "requirement_id": requirement_id,
+        "present": True,
+        "status": "satisfied" if ready else "blocked_missing_outputs",
+        "expected_stage_id": expected_stage_id,
+        "responsible_stage_id": expected_stage_id,
+        "responsible_stage_status": "ready" if ready else "blocked",
+        "responsible_stage_allowed_now": bool(ready),
+        "responsible_stage_blocked_by": [] if ready else ["remote_packet_not_ready"],
+        "mapping_present": True,
+        "mapping_matches_expected": True,
     }
