@@ -1092,6 +1092,8 @@ def _status_report_remaining_deliverables_proof_command_plan_blockers(status_rep
             continue
         if row["proof_command_count"] <= 0:
             _append_unique(blockers, f"status_report_remaining_deliverables_acceptance_{safe_matrix_id}_missing_proof_commands")
+        if not plan_row or not plan_row["present"]:
+            continue
         if plan_row["proof_command_count"] != row["proof_command_count"]:
             _append_unique(blockers, f"status_report_remaining_deliverables_proof_command_plan_{safe_matrix_id}_count_mismatch")
         if plan_row["proof_command_ids"] != row["proof_command_ids"]:
