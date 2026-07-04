@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "artifact_name": "module2_manuscript_claim_audit",
+  "status": "maintex_module2_claim_audit_passed",
+  "created_at_utc": "2026-07-04T09:33:51.323974+00:00",
+  "source_head": "4f9c89dd056f45e932bc0813a244976af27f3dd3+dirty",
+  "local_training_allowed": false,
+  "remote_training_resource": "gpu3070ti-relay",
+  "inputs": {
+    "main_tex": "3_paper/main.tex",
+    "claim_safety": "0_trials/module2_claim_safety/module2_claim_safety.json",
+    "paper_readiness": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
+    "section_seed": "3_paper/module2_section_seed/module2_paper_section_seed.json"
+  },
+  "expanded_manuscript": {
+    "sha256": "8b6f31bbb3dcb815f3c9c3fb4519d415795ae13a6e630cb1a4bf67ad1d032877",
+    "expanded_input_files": [
+      "/Users/sun/tongbu/study/phdproject/ForestNav/3_paper/main.tex",
+      "/Users/sun/tongbu/study/phdproject/ForestNav/3_paper/module2_section_seed/module2_paper_section_seed.tex"
+    ],
+    "comment_stripped_char_count": 31499
+  },
+  "claim_safety_status": {
+    "status": "blocked_formal_performance_claims",
+    "formal_performance_claim_allowed": false,
+    "allowed_claim_ids": [
+      "method_is_ha_star_analytic_operator",
+      "no_warm_gate3_formal_failure"
+    ]
+  },
+  "prohibited_claim_audit": {
+    "status": "clean",
+    "violations": []
+  },
+  "readiness_checks": {
+    "paper_readiness_status": "partial_methods_ready_results_blocked",
+    "formal_results_status": "blocked",
+    "formal_results_blockers": [
+      "paper_tables_not_formal",
+      "h02_verdict_not_formal",
+      "h02_formal_acceptance_not_accepted",
+      "h01_manifest_not_ready",
+      "f02_6_warm_start_decision_pending",
+      "missing_module2_rl_rs_checkpoint",
+      "remote_execution_packet_not_ready",
+      "requires_dr_sun_approval",
+      "missing_gate3_formal_audit",
+      "h02_scale_below_h01_manifest",
+      "missing_ppo_result_rows",
+      "missing_remote_pullback_artifacts",
+      "f02_6_formal_chain_pending",
+      "claim_safety_blocks_formal_performance",
+      "f02_6_pending"
+    ],
+    "warm_start_effect_status": "blocked",
+    "warm_start_effect_blockers": [
+      "f02_6_not_approved",
+      "requires_dr_sun_approval",
+      "f02_6_warm_start_decision_pending",
+      "missing_module2_rl_rs_checkpoint"
+    ]
+  },
+  "section_seed_checks": {
+    "section_seed_status": "method_sections_ready_results_blocked",
+    "latex_output": "3_paper/module2_section_seed/module2_paper_section_seed.tex",
+    "method_section_status": "draft_ready",
+    "no_warm_section_status": "draft_ready_with_scope_limit",
+    "formal_results_status": "blocked",
+    "warm_start_effect_status": "blocked"
+  },
+  "module2_input_checks": {
+    "module2_seed_input_present": true,
+    "module2_label_present": true,
+    "method_boundary_present": true,
+    "no_warm_scope_present": true,
+    "formal_blocked_sentence_present": true,
+    "formal_results_blocked_comment_present": true,
+    "warm_start_blocked_comment_present": true
+  },
+  "blocking_reasons": [],
+  "claim_boundaries": [
+    "This audit expands LaTeX inputs before scanning Module2 claims.",
+    "LaTeX comments are ignored for prohibited-claim matching so BLOCKED comments can document missing evidence without becoming claims.",
+    "Formal Module2 results and warm-start effect remain blocked until paper readiness, H02 acceptance, and claim safety are formal-ready.",
+    "No local training is allowed; formal PPO training remains gated on F02.6 and gpu3070ti-relay."
+  ]
+}
