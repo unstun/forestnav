@@ -701,6 +701,12 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- input_safety_issue_count: `{manifest['status_report_summary']['input_safety_issue_count']}`",
             f"- next_blocked_lane_id: `{manifest['status_report_summary']['next_blocked_lane_id']}`",
             "",
+            "### Status Report Handoff Summary",
+            "",
+            f"- status: `{manifest['status_report_summary']['formal_gate_handoff_summary'].get('status')}`",
+            f"- remote_training_allowed_now: `{manifest['status_report_summary']['formal_gate_handoff_summary'].get('remote_training_allowed_now')}`",
+            f"- safety_issue_count: `{manifest['status_report_summary']['formal_gate_handoff_summary'].get('safety_issue_count')}`",
+            "",
             "### Status Report Remote Execution Steps",
             "",
         ]

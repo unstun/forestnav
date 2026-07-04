@@ -46,6 +46,12 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - input_safety_issue_count: `0`
 - next_blocked_lane_id: `decision`
 
+### Status Report Handoff Summary
+
+- status: `blocked_until_f02_6_decision`
+- remote_training_allowed_now: `False`
+- safety_issue_count: `0`
+
 ### Status Report Remote Execution Steps
 
 - `sync_to_remote`: allowed_now=`False`, runs_training=`False`, blocked_by=`requires_dr_sun_approval`
