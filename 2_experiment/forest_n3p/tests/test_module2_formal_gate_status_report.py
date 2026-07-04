@@ -54,6 +54,11 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["current_state"]["formal_gate_execution_veto_all_rows_consistent"] is True
     assert manifest["current_state"]["formal_gate_execution_veto_remote_training_allowed_now"] is False
     assert manifest["current_state"]["formal_gate_execution_veto_formal_claim_allowed_now"] is False
+    assert manifest["current_state"]["remaining_deliverables_status"] == "formal_gate_deliverables_blocked"
+    assert manifest["current_state"]["remaining_deliverables_missing_deliverable_count"] == 10
+    assert manifest["current_state"]["remaining_deliverables_acceptance_matrix_count"] == 10
+    assert manifest["current_state"]["remaining_deliverables_acceptance_missing_row_count"] == 10
+    assert manifest["current_state"]["remaining_deliverables_acceptance_blocked_category_count"] == 4
     assert manifest["missing_counts_by_category"]["training"] == 3
     assert len(manifest["training_artifacts_required"]) == 3
     assert len(manifest["evaluation_artifacts_required"]) == 2
@@ -143,6 +148,14 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert veto["all_rows_consistent"] is True
     assert veto["row_consensus"]["remote_training"] is False
     assert veto["row_consensus"]["formal_claim"] is False
+    remaining = manifest["remaining_deliverables_acceptance_summary"]
+    assert remaining["present"] is True
+    assert remaining["matrix_row_count"] == 10
+    assert remaining["missing_row_count"] == 10
+    assert remaining["blocked_category_count"] == 4
+    assert remaining["rows"]["training:train_final_model_zip"]["responsible_stage_id"] == "gate3_remote_training"
+    assert remaining["rows"]["training:train_final_model_zip"]["acceptance_predicate_count"] > 0
+    assert remaining["rows"]["training:train_final_model_zip"]["invalid_substitute_count"] > 0
 
     lanes = {lane["lane_id"]: lane for lane in manifest["formal_gate_lanes"]}
     assert lanes["gate3_remote_training"]["runs_training"] is True
@@ -179,6 +192,8 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     assert manifest["remote_preflight_requirement_summary"]["status_counts"] == {"satisfied": 4}
     assert manifest["post_run_acceptance_requirement_summary"]["status_counts"] == {"satisfied": 4}
     assert manifest["h02_formal_acceptance_requirement_summary"]["status_counts"] == {"satisfied": 4}
+    assert manifest["remaining_deliverables_acceptance_summary"]["matrix_row_count"] == 10
+    assert manifest["remaining_deliverables_acceptance_summary"]["missing_row_count"] == 0
 
 
 def test_formal_gate_status_report_catches_status_input_drift(tmp_path):
@@ -293,6 +308,25 @@ def test_formal_gate_status_report_requires_h02_acceptance_requirement_matrix(tm
     assert manifest["h02_formal_acceptance_requirement_summary"]["missing_requirement_ids"] == [
         "ppo_rows_and_checkpoint_hash_present"
     ]
+
+
+def test_formal_gate_status_report_requires_remaining_deliverables_acceptance_matrix(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    remaining = json.loads(config.remaining_deliverables_path.read_text(encoding="utf-8"))
+    remaining["deliverable_acceptance_matrix"][0].pop("acceptance_predicates")
+    remaining["deliverable_acceptance_matrix"][1]["responsible_stage_allowed_now"] = True
+    remaining["deliverable_acceptance_matrix"] = remaining["deliverable_acceptance_matrix"][:-1]
+    config.remaining_deliverables_path.write_text(json.dumps(remaining), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert "remaining_deliverables_acceptance_matrix_count_mismatch" in issue_ids
+    assert "remaining_deliverables_training_train_final_model_zip_missing_acceptance_predicates" in issue_ids
+    assert "remaining_deliverables_training_train_summary_json_stage_allowed_while_blocked" in issue_ids
+    assert "remaining_deliverables_acceptance_missing_formal_acceptance:h02_formal_output_acceptance" in issue_ids
+    assert manifest["remaining_deliverables_acceptance_summary"]["matrix_row_count"] == 9
 
 
 def test_formal_gate_status_report_consumes_handoff_bundle_safety(tmp_path):
@@ -431,6 +465,10 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
             str(config.paper_readiness_path),
             "--handoff-bundle",
             str(config.handoff_bundle_path),
+            "--remaining-deliverables",
+            str(config.remaining_deliverables_path),
+            "--decision-intake",
+            str(config.decision_intake_path),
         ]
     )
 
@@ -450,6 +488,8 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
     assert "Missing-Artifacts Handoff Index" in markdown
     assert "record_f02_6_decision" in markdown
     assert "Formal Gate Execution Veto Matrix" in markdown
+    assert "Remaining Deliverables Acceptance Matrix" in markdown
+    assert "training:train_final_model_zip" in markdown
     assert "does not execute commands" in markdown
 
 
@@ -468,6 +508,11 @@ def _config(tmp_path, *, complete, drift=False):
         claim_safety_path=_json(tmp_path, "claim_safety.json", _claim_safety(complete=complete, drift=drift)),
         paper_readiness_path=_json(tmp_path, "paper_readiness.json", _paper_readiness(complete=complete)),
         handoff_bundle_path=_json(tmp_path, "handoff_bundle.json", _handoff_bundle(complete=complete, drift=drift)),
+        remaining_deliverables_path=_json(
+            tmp_path,
+            "remaining_deliverables.json",
+            _remaining_deliverables(complete=complete),
+        ),
     )
 
 
