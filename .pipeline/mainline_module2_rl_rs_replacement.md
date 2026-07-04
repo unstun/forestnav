@@ -640,9 +640,14 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 验证: `KMP_DUPLICATE_LIB_OK=TRUE PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q` -> `54 passed in 7.17s`; `train_rl_rs_ppo --smoke` 通过。
   - warm-start 接线: `--bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt` smoke 通过, 产物在 `0_trials/module2_ppo_smoke/f03_warm_start_entry_smoke/`, manifest 记录 `warm_start_status=applied_obstacle_summary_bc`。
   - warm-start 验证: PPO deterministic action 与 F02 obstacle-summary BC normalized action 一致; `KMP_DUPLICATE_LIB_OK=TRUE PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q` -> `55 passed in 6.97s`。
+  - Gate evaluator: 新增 `eval_rl_rs_gate3.py`, 加载 SB3 model 后跑 deterministic eval episodes, 输出 `gate3_eval_episodes.csv` 与 `gate3_summary.json`。
+  - checkpoint reload 修复: warm-start model 现在使用可序列化 `RlRsMultiInputPolicy` + `TanhLinearActionHead`, 并持久化 feature normalization; save/load roundtrip 已测试。
+  - eval smoke 产物: `0_trials/module2_ppo_smoke/f03_gate3_eval_entry_smoke/`; open-connector 4 episodes eval smoke 输出 `terminal_rs_success_rate=1.0`。
+  - evaluator 验证: `KMP_DUPLICATE_LIB_OK=TRUE PYTHONPATH=2_experiment pytest 2_experiment/forest_n3p/tests -q` -> `56 passed in 7.28s`。
   - 边界: 两个 smoke 都是 open-connector 极小训练; 无 warm-start smoke 写明 `not_applied_f02_6_pending`, warm-start smoke 写明 `applied_obstacle_summary_bc`; F03.5 Gate 结果仍未判定。
   - 记录: `.pipeline/experiments/20260704_module2_f03_ppo_training_entry.md`。
   - warm-start 记录: `.pipeline/experiments/20260704_module2_f03_obstacle_summary_warm_start.md`。
+  - evaluator 记录: `.pipeline/experiments/20260704_module2_f03_gate3_evaluator.md`。
 
 ### Phase G: Planner 集成
 
