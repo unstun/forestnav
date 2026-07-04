@@ -61,10 +61,12 @@ def test_f02_6_decision_record_approval_requires_dr_sun_and_only_unlocks_remote_
             remote_warm_preflight_path=_pending_warm_preflight(tmp_path),
             decision="approve_obstacle_summary_warm_start",
             decider="Dr Sun",
+            decision_note="Approve obstacle-summary warm-start for source-fresh regeneration.",
         )
     )
 
     assert record["status"] == "approved"
+    assert record["decision_note"] == "Approve obstacle-summary warm-start for source-fresh regeneration."
     assert record["effective_warm_start_decision"] == "approved_obstacle_summary"
     assert record["remote_training_allowed"] is True
     assert record["remote_preflight_allowed_now"] is False
@@ -93,6 +95,22 @@ def test_f02_6_decision_record_rejects_non_dr_sun_decider(tmp_path):
                 remote_warm_preflight_path=_pending_warm_preflight(tmp_path),
                 decision="approve_obstacle_summary_warm_start",
                 decider="Assistant",
+                decision_note="Assistant cannot decide F02.6.",
+            )
+        )
+
+
+def test_f02_6_decision_record_requires_note_for_non_pending_decision(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_f02_6_decision_record")
+
+    with pytest.raises(ValueError, match="non-empty --decision-note"):
+        builder.build_record(
+            builder.F026DecisionRecordConfig(
+                output_dir=tmp_path,
+                packet_path=_decision_packet(tmp_path),
+                remote_warm_preflight_path=_pending_warm_preflight(tmp_path),
+                decision="approve_obstacle_summary_warm_start",
+                decider="Dr Sun",
             )
         )
 
