@@ -110,6 +110,16 @@
 - matrix_row_count=`10`
 - missing_row_count=`10`
 - blocked_category_count=`4`
+- `training:train_final_model_zip`: proof_command_count=`2`, proof_command_ids=`train_final_model_zip_exists_nonempty, train_final_model_zip_valid_zip`
+- `training:train_summary_json`: proof_command_count=`2`, proof_command_ids=`train_summary_json_exists_nonempty, train_summary_json_formal_warm_start_metadata`
+- `training:train_training_manifest_json`: proof_command_count=`2`, proof_command_ids=`train_training_manifest_json_exists_nonempty, train_training_manifest_json_provenance`
+- `evaluation:eval_gate3_eval_episodes_csv`: proof_command_count=`2`, proof_command_ids=`eval_gate3_eval_episodes_csv_exists_nonempty, eval_gate3_eval_episodes_csv_schema`
+- `evaluation:eval_gate3_summary_json`: proof_command_count=`2`, proof_command_ids=`eval_gate3_summary_json_exists_nonempty, eval_gate3_summary_json_formal_scope`
+- `acceptance:gate3_trial_manifest_json`: proof_command_count=`2`, proof_command_ids=`gate3_trial_manifest_json_exists_nonempty, gate3_trial_manifest_json_formal_warm_start_scope`
+- `acceptance:gate3_formal_audit_json`: proof_command_count=`2`, proof_command_ids=`gate3_formal_audit_json_exists_nonempty, gate3_formal_audit_json_accepts_formal_scope`
+- `acceptance:pulled_back_checkpoint_hash_record`: proof_command_count=`2`, proof_command_ids=`pulled_back_checkpoint_hash_record_exists_nonempty, pulled_back_checkpoint_hash_record_matches_model`
+- `formal_acceptance:h01_ready_for_formal_run`: proof_command_count=`2`, proof_command_ids=`h01_ready_for_formal_run_exists_nonempty, h01_ready_for_formal_run_status`
+- `formal_acceptance:h02_formal_output_acceptance`: proof_command_count=`2`, proof_command_ids=`h02_formal_output_acceptance_exists_nonempty, h02_formal_output_acceptance_status`
 
 ## Status Report Remaining Deliverables Gap Summary
 
@@ -117,10 +127,30 @@
 - summary_id=`module2_formal_gate_missing_training_eval_acceptance_summary`
 - total_missing_deliverables=`10`
 - open_category_count=`4`
-- `training`: missing_count=`3`, stage=`gate3_remote_training`, stage_allowed_now=`False`, missing_artifacts=`training:train_final_model_zip, training:train_summary_json, training:train_training_manifest_json`
-- `evaluation`: missing_count=`2`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`evaluation:eval_gate3_eval_episodes_csv, evaluation:eval_gate3_summary_json`
-- `acceptance`: missing_count=`3`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`acceptance:gate3_trial_manifest_json, acceptance:gate3_formal_audit_json, acceptance:pulled_back_checkpoint_hash_record`
-- `formal_acceptance`: missing_count=`2`, stage=`regenerate_h01_h02_formal_artifacts`, stage_allowed_now=`False`, missing_artifacts=`formal_acceptance:h01_ready_for_formal_run, formal_acceptance:h02_formal_output_acceptance`
+- `training`: missing_count=`3`, stage=`gate3_remote_training`, stage_allowed_now=`False`, missing_artifacts=`training:train_final_model_zip, training:train_summary_json, training:train_training_manifest_json`, proof_commands=`train_final_model_zip_exists_nonempty, train_final_model_zip_valid_zip, train_summary_json_exists_nonempty, train_summary_json_formal_warm_start_metadata, train_training_manifest_json_exists_nonempty, train_training_manifest_json_provenance`
+- `evaluation`: missing_count=`2`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`evaluation:eval_gate3_eval_episodes_csv, evaluation:eval_gate3_summary_json`, proof_commands=`eval_gate3_eval_episodes_csv_exists_nonempty, eval_gate3_eval_episodes_csv_schema, eval_gate3_summary_json_exists_nonempty, eval_gate3_summary_json_formal_scope`
+- `acceptance`: missing_count=`3`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`acceptance:gate3_trial_manifest_json, acceptance:gate3_formal_audit_json, acceptance:pulled_back_checkpoint_hash_record`, proof_commands=`gate3_trial_manifest_json_exists_nonempty, gate3_trial_manifest_json_formal_warm_start_scope, gate3_formal_audit_json_exists_nonempty, gate3_formal_audit_json_accepts_formal_scope, pulled_back_checkpoint_hash_record_exists_nonempty, pulled_back_checkpoint_hash_record_matches_model`
+- `formal_acceptance`: missing_count=`2`, stage=`regenerate_h01_h02_formal_artifacts`, stage_allowed_now=`False`, missing_artifacts=`formal_acceptance:h01_ready_for_formal_run, formal_acceptance:h02_formal_output_acceptance`, proof_commands=`h01_ready_for_formal_run_exists_nonempty, h01_ready_for_formal_run_status, h02_formal_output_acceptance_exists_nonempty, h02_formal_output_acceptance_status`
+
+## Status Report Remaining Deliverables Proof Command Plan
+
+- present=`True`
+- plan_id=`module2_formal_gate_local_read_only_proof_commands`
+- execution_boundary=`local_read_only_after_formal_remote_pullback`
+- total_matrix_rows=`10`
+- total_proof_command_count=`20`
+- runs_training=`False`
+- runs_remote_preflight=`False`
+- `training:train_final_model_zip`: present=`True`, proof_command_count=`2`, proof_command_ids=`train_final_model_zip_exists_nonempty, train_final_model_zip_valid_zip`
+- `training:train_summary_json`: present=`True`, proof_command_count=`2`, proof_command_ids=`train_summary_json_exists_nonempty, train_summary_json_formal_warm_start_metadata`
+- `training:train_training_manifest_json`: present=`True`, proof_command_count=`2`, proof_command_ids=`train_training_manifest_json_exists_nonempty, train_training_manifest_json_provenance`
+- `evaluation:eval_gate3_eval_episodes_csv`: present=`True`, proof_command_count=`2`, proof_command_ids=`eval_gate3_eval_episodes_csv_exists_nonempty, eval_gate3_eval_episodes_csv_schema`
+- `evaluation:eval_gate3_summary_json`: present=`True`, proof_command_count=`2`, proof_command_ids=`eval_gate3_summary_json_exists_nonempty, eval_gate3_summary_json_formal_scope`
+- `acceptance:gate3_trial_manifest_json`: present=`True`, proof_command_count=`2`, proof_command_ids=`gate3_trial_manifest_json_exists_nonempty, gate3_trial_manifest_json_formal_warm_start_scope`
+- `acceptance:gate3_formal_audit_json`: present=`True`, proof_command_count=`2`, proof_command_ids=`gate3_formal_audit_json_exists_nonempty, gate3_formal_audit_json_accepts_formal_scope`
+- `acceptance:pulled_back_checkpoint_hash_record`: present=`True`, proof_command_count=`2`, proof_command_ids=`pulled_back_checkpoint_hash_record_exists_nonempty, pulled_back_checkpoint_hash_record_matches_model`
+- `formal_acceptance:h01_ready_for_formal_run`: present=`True`, proof_command_count=`2`, proof_command_ids=`h01_ready_for_formal_run_exists_nonempty, h01_ready_for_formal_run_status`
+- `formal_acceptance:h02_formal_output_acceptance`: present=`True`, proof_command_count=`2`, proof_command_ids=`h02_formal_output_acceptance_exists_nonempty, h02_formal_output_acceptance_status`
 
 ## Status Report Formal Gate Gap Audit Remaining Deliverables Gap Summary
 

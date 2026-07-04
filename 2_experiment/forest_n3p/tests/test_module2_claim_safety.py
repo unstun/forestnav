@@ -1022,7 +1022,7 @@ def test_claim_safety_rejects_status_report_remaining_deliverables_acceptance_dr
     assert manifest["status_report_remaining_deliverables_acceptance_summary"]["matrix_row_count"] == 9
     assert manifest["status_report_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 1
     assert manifest["status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 2
-    assert manifest["status_report_remaining_deliverables_proof_command_plan"]["total_matrix_rows"] == 9
+    assert manifest["status_report_remaining_deliverables_proof_command_plan"]["total_matrix_rows"] == 8
 
 
 def test_claim_safety_rejects_status_report_decision_intake_contract_drift(tmp_path):
