@@ -7,6 +7,7 @@ import pytest
 from forest_n3p.evaluation import (
     EvaluationRecord,
     evaluate_run,
+    paired_wilcoxon_expansions,
     planner_run_from_path_stats,
     planner_run_from_result,
     summarize_by_method_bucket,
@@ -236,6 +237,22 @@ def test_summary_exposes_timeout_failure_rate_for_contract_metric():
     assert summary.timeout_failure_rate == pytest.approx(1.0 / 3.0)
 
 
+def test_paired_wilcoxon_expansions_uses_paired_query_total_expansions():
+    rows = [
+        _record("q0", method="ha_dang_multi_rs", success=True, feasible=True, failure_reason=None, total_expansions=100),
+        _record("q0", method="ha_rl_rs_ppo", success=True, feasible=True, failure_reason=None, total_expansions=40),
+        _record("q1", method="ha_dang_multi_rs", success=True, feasible=True, failure_reason=None, total_expansions=80),
+        _record("q1", method="ha_rl_rs_ppo", success=True, feasible=True, failure_reason=None, total_expansions=50),
+    ]
+
+    result = paired_wilcoxon_expansions(rows, "ha_rl_rs_ppo", "ha_dang_multi_rs")
+
+    assert result.method_a == "ha_rl_rs_ppo"
+    assert result.method_b == "ha_dang_multi_rs"
+    assert result.paired_query_count == 2
+    assert result.median_delta_a_minus_b_expansions == pytest.approx(-45.0)
+
+
 def _record(
     query_id: str,
     *,
@@ -243,6 +260,7 @@ def _record(
     success: bool,
     feasible: bool,
     failure_reason: str | None,
+    total_expansions: int = 10,
 ) -> EvaluationRecord:
     return EvaluationRecord(
         query_id=query_id,
@@ -252,7 +270,7 @@ def _record(
         success=success,
         feasible=feasible,
         total_time_s=1.0,
-        total_expansions=10,
+        total_expansions=total_expansions,
         path_length_m=None,
         reference_path_length_m=None,
         path_inflation_ratio=None,
