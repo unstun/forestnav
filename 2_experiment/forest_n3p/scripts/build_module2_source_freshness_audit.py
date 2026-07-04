@@ -118,6 +118,12 @@ DEFAULT_ARTIFACTS = (
         "formal_claim_gate",
     ),
     ArtifactTarget(
+        "formal_gate_remaining_deliverables",
+        "formal_gate",
+        Path("0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json"),
+        "formal_claim_gate",
+    ),
+    ArtifactTarget(
         "formal_gate_handoff_bundle",
         "formal_gate",
         Path("0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json"),
