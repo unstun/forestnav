@@ -14,6 +14,7 @@ from typing import Any, Sequence
 
 DEFAULT_EVALUATION_DIR = Path("0_trials/module2_h02_local_smoke/h02_1_available_subset")
 DEFAULT_VERDICT = DEFAULT_EVALUATION_DIR / "verdict.json"
+DEFAULT_H02_FORMAL_ACCEPTANCE = Path("0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json")
 DEFAULT_H01_MANIFEST = Path("0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json")
 DEFAULT_METRIC_PROTOCOL = Path("0_trials/module2_metric_protocol/module2_metric_protocol.json")
 DEFAULT_OUTPUT_DIR = Path("0_trials/module2_paper_tables")
@@ -51,6 +52,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         repo_root=repo_root,
         evaluation_dir=args.evaluation_dir,
         verdict_path=args.verdict,
+        h02_formal_acceptance_path=args.h02_formal_acceptance,
         h01_manifest_path=args.h01_manifest,
         metric_protocol_path=args.metric_protocol,
     )
@@ -78,6 +80,7 @@ def build_manifest(
     repo_root: Path,
     evaluation_dir: Path,
     verdict_path: Path,
+    h02_formal_acceptance_path: Path,
     h01_manifest_path: Path,
     metric_protocol_path: Path,
 ) -> dict[str, Any]:
@@ -86,12 +89,14 @@ def build_manifest(
     records_path = evaluation_dir / "records.csv"
     summary = _read_json(summary_path) if summary_path.is_file() else {}
     verdict = _read_json(verdict_path) if Path(verdict_path).is_file() else {}
+    h02_formal_acceptance = _read_json(h02_formal_acceptance_path) if Path(h02_formal_acceptance_path).is_file() else {}
     h01_manifest = _read_json(h01_manifest_path) if Path(h01_manifest_path).is_file() else {}
     metric_protocol = _read_json(metric_protocol_path) if Path(metric_protocol_path).is_file() else {}
     records = _read_records(records_path) if records_path.is_file() else []
 
     blockers = _blockers(
         verdict=verdict,
+        h02_formal_acceptance=h02_formal_acceptance,
         h01_manifest=h01_manifest,
         metric_protocol=metric_protocol,
         records=records,
@@ -113,6 +118,7 @@ def build_manifest(
             "records_csv": str(records_path),
             "summary_json": str(summary_path),
             "verdict_json": str(verdict_path),
+            "h02_formal_acceptance": str(h02_formal_acceptance_path),
             "h01_manifest": str(h01_manifest_path),
             "metric_protocol": str(metric_protocol_path),
         },
@@ -121,6 +127,9 @@ def build_manifest(
             "summary_record_count": summary.get("record_count"),
             "h02_verdict_status": verdict.get("status"),
             "h02_formal_acceptance": verdict.get("formal_acceptance"),
+            "h02_formal_acceptance_status": h02_formal_acceptance.get("status"),
+            "h02_formal_output_accepted": h02_formal_acceptance.get("formal_output_accepted"),
+            "h02_paper_result_input_allowed": h02_formal_acceptance.get("paper_result_input_allowed"),
             "h01_manifest_status": h01_manifest.get("status"),
             "metric_protocol_status": metric_protocol.get("status"),
         },
@@ -171,7 +180,7 @@ def build_manifest(
         "code_anchors": _code_anchors(repo_root),
         "claim_boundaries": [
             "Do not use preview_not_formal rows as paper results.",
-            "Main paper claims require H02 formal_acceptance=true, H01 formal-ready status, frozen metric protocol, and no missing PPO checkpoint blocker.",
+            "Main paper claims require H02 formal_acceptance=true, H02 formal acceptance paper_result_input_allowed=true, H01 formal-ready status, frozen metric protocol, and no missing PPO checkpoint blocker.",
             "Use records.csv.total_time_s for timing claims; planner_time_s is diagnostic only.",
             "Use paired Wilcoxon for total_time_s and total_expansions and bootstrap CI for success/failure/timeout-rate differences.",
             "PPO formal training and checkpoint production must run on gpu3070ti-relay or another explicitly approved remote GPU, not locally.",
@@ -183,6 +192,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build Module2 paper table protocol/preview without running training.")
     parser.add_argument("--evaluation-dir", type=Path, default=DEFAULT_EVALUATION_DIR)
     parser.add_argument("--verdict", type=Path, default=DEFAULT_VERDICT)
+    parser.add_argument("--h02-formal-acceptance", type=Path, default=DEFAULT_H02_FORMAL_ACCEPTANCE)
     parser.add_argument("--h01-manifest", type=Path, default=DEFAULT_H01_MANIFEST)
     parser.add_argument("--metric-protocol", type=Path, default=DEFAULT_METRIC_PROTOCOL)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
@@ -194,6 +204,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
 def _blockers(
     *,
     verdict: dict[str, Any],
+    h02_formal_acceptance: dict[str, Any],
     h01_manifest: dict[str, Any],
     metric_protocol: dict[str, Any],
     records: Sequence[dict[str, str]],
@@ -206,6 +217,12 @@ def _blockers(
         blockers.append("missing_summary_json")
     if verdict.get("formal_acceptance") is not True:
         blockers.append("h02_verdict_not_formal")
+    if h02_formal_acceptance.get("formal_output_accepted") is not True or h02_formal_acceptance.get("paper_result_input_allowed") is not True:
+        blockers.append("h02_formal_acceptance_not_accepted")
+    for blocker in h02_formal_acceptance.get("blockers") or ():
+        blocker_text = str(blocker)
+        if blocker_text not in blockers:
+            blockers.append(blocker_text)
     if str(h01_manifest.get("status")) not in READY_H01_STATUSES:
         blockers.append("h01_manifest_not_ready")
     for blocker in h01_manifest.get("blockers") or ():
