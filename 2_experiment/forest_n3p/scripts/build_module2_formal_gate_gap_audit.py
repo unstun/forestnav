@@ -805,6 +805,7 @@ def _current_gate_state(
     claim_safety: dict[str, Any],
     source_freshness: dict[str, Any],
     missing_artifacts: dict[str, Any],
+    closure_checklist: dict[str, Any],
 ) -> dict[str, Any]:
     method_checks = h02.get("method_checks") if isinstance(h02.get("method_checks"), dict) else {}
     return {
@@ -823,6 +824,8 @@ def _current_gate_state(
         "source_freshness_regeneration_required": bool(source_freshness.get("regeneration_required_before_remote_formal_execution")),
         "formal_gate_missing_artifacts_status": missing_artifacts.get("status"),
         "formal_gate_missing_artifacts_open": missing_artifacts.get("all_required_evidence_present") is not True,
+        "formal_gate_closure_checklist_status": closure_checklist.get("status"),
+        "formal_gate_closure_checklist_open": closure_checklist.get("status") != "formal_gate_closure_ready_for_result_audit",
     }
 
 
@@ -874,6 +877,22 @@ def _missing_artifacts_record(path: Path, missing_artifacts: dict[str, Any]) -> 
         "missing_counts_by_category": missing_artifacts.get("missing_counts_by_category")
         if isinstance(missing_artifacts.get("missing_counts_by_category"), dict)
         else {},
+    }
+
+
+def _closure_checklist_record(path: Path, closure_checklist: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "path": str(path),
+        "exists": Path(path).is_file(),
+        "status": closure_checklist.get("status"),
+        "executes_commands": closure_checklist.get("executes_commands"),
+        "runs_training": closure_checklist.get("runs_training"),
+        "runs_remote_preflight": closure_checklist.get("runs_remote_preflight"),
+        "local_training_allowed": closure_checklist.get("local_training_allowed"),
+        "formal_claim_allowed": closure_checklist.get("formal_claim_allowed"),
+        "closure_item_count": closure_checklist.get("closure_item_count"),
+        "open_item_count": closure_checklist.get("open_item_count"),
+        "input_safety_issue_count": closure_checklist.get("input_safety_issue_count"),
     }
 
 
