@@ -88,6 +88,7 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
         deliverable_groups=deliverable_groups,
         deliverable_acceptance_matrix=deliverable_acceptance_matrix,
     )
+    proof_command_plan = _proof_command_plan(deliverable_acceptance_matrix)
     category_counts = _category_counts(deliverable_groups)
     permissions_now = _permissions(status_report=status_report, remote_packet=remote_packet)
     current_gate_summary = {
@@ -138,6 +139,7 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
         "permissions_now": permissions_now,
         "category_counts": category_counts,
         "deliverable_gap_summary": deliverable_gap_summary,
+        "proof_command_plan": proof_command_plan,
         "plain_formal_gate_closure_checklist": _plain_formal_gate_closure_checklist(
             current_gate_summary=current_gate_summary,
             permissions_now=permissions_now,
@@ -228,6 +230,11 @@ def _deliverable_acceptance_matrix(deliverable_groups: Sequence[dict[str, Any]])
         category = str(group["category"])
         for item in group["items"]:
             artifact_id = str(item.get("artifact_id"))
+            proof_commands = _acceptance_proof_commands(
+                category=category,
+                artifact_id=artifact_id,
+                expected_path=str(item.get("path") or ""),
+            )
             rows.append(
                 {
                     "matrix_id": f"{category}:{artifact_id}",
@@ -243,6 +250,8 @@ def _deliverable_acceptance_matrix(deliverable_groups: Sequence[dict[str, Any]])
                     "responsible_stage_allowed_now": group.get("responsible_stage_allowed_now"),
                     "responsible_stage_blocked_by": list(group.get("responsible_stage_blocked_by", [])),
                     "acceptance_predicates": _acceptance_predicates(category=category, artifact_id=artifact_id),
+                    "proof_commands": proof_commands,
+                    "proof_command_count": len(proof_commands),
                     "acceptable_evidence": list(group.get("acceptable_evidence", [])),
                     "invalid_substitutes": list(group.get("invalid_substitutes", [])),
                     "execution_boundary": "read_only_no_execution",
