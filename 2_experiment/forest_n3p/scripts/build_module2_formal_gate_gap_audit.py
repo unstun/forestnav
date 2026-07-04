@@ -1763,6 +1763,35 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- next_blocked_lane_id: `{manifest['formal_gate_status_report']['next_blocked_lane_id']}`",
             f"- input_safety_issue_count: `{manifest['formal_gate_status_report']['input_safety_issue_count']}`",
             "",
+            "## Remaining Deliverables Ledger",
+            "",
+            f"- path: `{manifest['remaining_deliverables_ledger']['path']}`",
+            f"- status: `{manifest['remaining_deliverables_ledger']['status']}`",
+            f"- executes_commands: `{manifest['remaining_deliverables_ledger']['executes_commands']}`",
+            f"- runs_training: `{manifest['remaining_deliverables_ledger']['runs_training']}`",
+            f"- runs_remote_preflight: `{manifest['remaining_deliverables_ledger']['runs_remote_preflight']}`",
+            f"- formal_claim_allowed: `{manifest['remaining_deliverables_ledger']['formal_claim_allowed']}`",
+            f"- gap_total_missing_deliverables: `{manifest['remaining_deliverables_ledger']['gap_total_missing_deliverables']}`",
+            f"- gap_open_category_count: `{manifest['remaining_deliverables_ledger']['gap_open_category_count']}`",
+            "",
+            "## Remaining Deliverables Gap Summary",
+            "",
+            f"- total_missing_deliverables: `{manifest['remaining_deliverables_gap_summary']['total_missing_deliverables']}`",
+            f"- open_category_count: `{manifest['remaining_deliverables_gap_summary']['open_category_count']}`",
+            f"- status_report_total_missing: `{manifest['status_report_remaining_deliverables_gap_summary']['total_missing_deliverables']}`",
+            f"- closure_total_missing: `{manifest['closure_checklist_remaining_deliverables_gap_summary']['total_missing_deliverables']}`",
+            "",
+        ]
+    )
+    for category in manifest["remaining_deliverables_gap_summary"]["category_order"]:
+        item = manifest["remaining_deliverables_gap_summary"]["categories"].get(category, {})
+        lines.append(
+            f"- `{category}`: missing=`{item.get('missing_count')}`, "
+            f"responsible_stage=`{item.get('responsible_stage_id')}`"
+        )
+    lines.extend(
+        [
+            "",
             "## Formal Gate Handoff",
             "",
             f"- path: `{manifest['formal_gate_handoff']['path']}`",
