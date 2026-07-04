@@ -158,6 +158,50 @@ def test_module2_manifest_unblocks_realmap_gap_when_query_protocol_is_frozen(tmp
     assert manifest["run_command"]["formal_main_evaluation"] is not None
 
 
+def test_module2_manifest_cannot_bypass_pending_f02_6_packet_with_cli_decision(tmp_path):
+    checkpoint = tmp_path / "final_model.zip"
+    checkpoint.write_bytes(b"not a real model; manifest preflight only checks presence")
+    bc_checkpoint = tmp_path / "bc_model.pt"
+    bc_checkpoint.write_bytes(b"not a real model; manifest preflight only checks presence")
+    decision_packet = tmp_path / "f02_6_packet.json"
+    decision_packet.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "packet_name": "module2_f02_6_warm_start_decision_packet",
+                "status": "pending_human_decision",
+                "blockers": ["requires_dr_sun_approval"],
+                "recommendation": {"decision": "approve_obstacle_summary_warm_start"},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    manifest = build_manifest(
+        Module2EvaluationManifestConfig(
+            output_dir=tmp_path,
+            contract_path=_frontmatter(tmp_path, "contract.md", status="approved"),
+            cutpoint_supplement_path=_frontmatter(tmp_path, "cutpoints.md", reviewed="true"),
+            warm_start_decision="approved_obstacle_summary",
+            warm_start_decision_packet_path=decision_packet,
+            realmap_query_protocol_path=_realmap_protocol(tmp_path),
+            bc_checkpoint=bc_checkpoint,
+            rl_rs_checkpoint=checkpoint,
+            queries_per_bucket=100,
+            seed_count=5,
+        )
+    )
+    methods = {entry["method_id"]: entry for entry in manifest["methods"]}
+
+    assert manifest["f02_6_decision_packet"]["status"] == "pending_human_decision"
+    assert manifest["f02_6_decision_packet"]["effective_warm_start_decision"] == "pending"
+    assert manifest["status"] == "blocked_pending_decisions"
+    assert "f02_6_decision_packet_pending" in manifest["blockers"]
+    assert "f02_6_decision_packet_pending" in methods["ppo_analytic_operator"]["blockers"]
+    assert "f02_6_decision_packet_pending" in methods["ppo_rs_funnel"]["blockers"]
+    assert manifest["run_command"]["formal_main_evaluation"] is None
+
+
 def _frontmatter(tmp_path: Path, name: str, **fields) -> Path:
     path = tmp_path / name
     body = "---\n" + "".join(f"{key}: {value}\n" for key, value in fields.items()) + "---\n"
