@@ -216,6 +216,8 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert "# Module2 Claim Safety" in markdown
     assert "not allowed" in markdown
     assert "no-warm" in markdown
+    assert "decision_owner_required" in markdown
+    assert "decision_note_required" in markdown
 
 
 def test_claim_safety_refuses_formal_claim_when_h02_acceptance_is_blocked_even_if_tables_are_formal(tmp_path):

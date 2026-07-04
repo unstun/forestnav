@@ -40,7 +40,7 @@
 
 ## F02.6 Decision Intake Summary
 
-- present=`True`, status=`f02_6_decision_intake_pending_clean`, record_status=`pending_human_decision`, record_decider=`None`, next_blocked_lane=`decision`, audit_issue_count=`0`, remote_training_allowed_now=`False`, formal_claim_allowed_now=`False`
+- present=`True`, status=`f02_6_decision_intake_pending_clean`, record_status=`pending_human_decision`, record_decider=`None`, next_blocked_lane=`decision`, audit_issue_count=`0`, decision_owner_required=`Dr Sun`, valid_decision_count=`2`, required_record_field_count=`3`, decision_note_required=`True`, invalid_input_count=`5`, post_decision_non_authorization_count=`4`, remote_training_allowed_now=`False`, formal_claim_allowed_now=`False`
 
 ## Status Report Missing-Artifacts Handoff Index
 

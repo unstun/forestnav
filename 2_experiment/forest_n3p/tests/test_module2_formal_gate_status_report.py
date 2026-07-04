@@ -527,6 +527,8 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
     assert "Formal Gate Execution Veto Matrix" in markdown
     assert "Remaining Deliverables Acceptance Matrix" in markdown
     assert "training:train_final_model_zip" in markdown
+    assert "decision_owner_required" in markdown
+    assert "decision_note_required" in markdown
     assert "does not execute commands" in markdown
 
 

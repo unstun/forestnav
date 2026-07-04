@@ -138,6 +138,8 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert "Claim Safety F02.6 Decision Intake" in markdown
     assert "claim_safety_decision_intake_status" in markdown
     assert "f02_6_decision_intake_pending_clean" in markdown
+    assert "claim_safety_decision_intake_decision_owner_required" in markdown
+    assert "claim_safety_decision_intake_decision_note_required" in markdown
     assert "Claim Safety Remaining Deliverables Acceptance Matrix" in markdown
     assert "claim_safety_remaining_deliverables_acceptance_matrix_row_count" in markdown
 

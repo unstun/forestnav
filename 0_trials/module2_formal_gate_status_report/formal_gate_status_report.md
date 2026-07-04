@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `db3d29d116fc2c8c4159ddd8d3244ca2355cda09+dirty`
+- source_head: `fec5993d12ab38c61315e4feb695bce429aabe89+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -84,6 +84,12 @@ This file is a read-only formal-gate status report. It does not execute commands
 - effective_warm_start_decision: `pending`
 - next_blocked_lane: `decision`
 - audit_issue_count: `0`
+- decision_owner_required: `Dr Sun`
+- valid_decision_count: `2`
+- required_record_field_count: `3`
+- decision_note_required: `True`
+- invalid_input_count: `5`
+- post_decision_non_authorization_count: `4`
 - missing_deliverable_count: `10`
 - remote_preflight_allowed_now: `False`
 - remote_training_allowed_now: `False`

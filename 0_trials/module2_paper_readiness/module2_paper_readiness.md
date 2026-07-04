@@ -73,6 +73,12 @@
 - claim_safety_decision_intake_status: `f02_6_decision_intake_pending_clean`
 - claim_safety_decision_intake_record_status: `pending_human_decision`
 - claim_safety_decision_intake_audit_issue_count: `0`
+- claim_safety_decision_intake_decision_owner_required: `Dr Sun`
+- claim_safety_decision_intake_valid_decision_count: `2`
+- claim_safety_decision_intake_required_record_field_count: `3`
+- claim_safety_decision_intake_decision_note_required: `True`
+- claim_safety_decision_intake_invalid_input_count: `5`
+- claim_safety_decision_intake_post_decision_non_authorization_count: `4`
 - claim_safety_decision_intake_next_blocked_lane: `decision`
 - claim_safety_decision_intake_remote_preflight_allowed_now: `False`
 - claim_safety_decision_intake_remote_training_allowed_now: `False`
