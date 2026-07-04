@@ -19,6 +19,7 @@ DEFAULT_CLAIM_SAFETY = Path("0_trials/module2_claim_safety/module2_claim_safety.
 DEFAULT_READINESS = Path("0_trials/module2_paper_readiness/module2_paper_readiness.json")
 DEFAULT_REMOTE_READINESS = Path("0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json")
 DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_freshness_audit.json")
+DEFAULT_MISSING_ARTIFACTS = Path("0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json")
 
 
 @dataclass(frozen=True)
@@ -35,6 +36,7 @@ class FormalGateGapAuditConfig:
     readiness_path: Path = DEFAULT_READINESS
     remote_readiness_path: Path = DEFAULT_REMOTE_READINESS
     source_freshness_path: Path = DEFAULT_SOURCE_FRESHNESS
+    missing_artifacts_path: Path = DEFAULT_MISSING_ARTIFACTS
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -52,6 +54,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         readiness_path=args.readiness,
         remote_readiness_path=args.remote_readiness_refresh,
         source_freshness_path=args.source_freshness_audit,
+        missing_artifacts_path=args.missing_artifacts_audit,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -82,6 +85,7 @@ def build_manifest(config: FormalGateGapAuditConfig) -> dict[str, Any]:
     readiness = _read_json(config.readiness_path)
     remote_readiness = _read_json(config.remote_readiness_path)
     source_freshness = _read_json(config.source_freshness_path)
+    missing_artifacts = _read_json(config.missing_artifacts_path)
 
     decision_gaps = _decision_gaps(decision=decision, h01=h01, remote=remote)
     source_freshness_gaps = _source_freshness_gaps(source_freshness=source_freshness, source_freshness_path=config.source_freshness_path)
@@ -89,6 +93,10 @@ def build_manifest(config: FormalGateGapAuditConfig) -> dict[str, Any]:
     training_gaps = _unique_gaps(training_gaps + source_freshness_gaps)
     evaluation_gaps = _evaluation_gaps(h01=h01, h02=h02)
     acceptance_gaps = _acceptance_gaps(h02=h02, claim_safety=claim_safety, readiness=readiness)
+    acceptance_gaps = _unique_gaps(
+        acceptance_gaps
+        + _missing_artifacts_gaps(missing_artifacts=missing_artifacts, missing_artifacts_path=config.missing_artifacts_path)
+    )
     all_gaps = decision_gaps + training_gaps + evaluation_gaps + acceptance_gaps
     status = "formal_gate_ready_for_result_audit" if not all_gaps else "blocked_formal_gate_gaps_open"
 
@@ -110,6 +118,7 @@ def build_manifest(config: FormalGateGapAuditConfig) -> dict[str, Any]:
         },
         "remote_readiness": _remote_readiness_record(config.remote_readiness_path, remote_readiness),
         "source_freshness": _source_freshness_record(config.source_freshness_path, source_freshness),
+        "missing_artifacts_inventory": _missing_artifacts_record(config.missing_artifacts_path, missing_artifacts),
         "current_gate_state": _current_gate_state(
             decision=decision,
             h01=h01,
@@ -117,6 +126,7 @@ def build_manifest(config: FormalGateGapAuditConfig) -> dict[str, Any]:
             h02=h02,
             claim_safety=claim_safety,
             source_freshness=source_freshness,
+            missing_artifacts=missing_artifacts,
         ),
         "missing_decision_items": decision_gaps,
         "missing_training_artifacts": training_gaps,
@@ -148,6 +158,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--readiness", type=Path, default=DEFAULT_READINESS)
     parser.add_argument("--remote-readiness-refresh", type=Path, default=DEFAULT_REMOTE_READINESS)
     parser.add_argument("--source-freshness-audit", type=Path, default=DEFAULT_SOURCE_FRESHNESS)
+    parser.add_argument("--missing-artifacts-audit", type=Path, default=DEFAULT_MISSING_ARTIFACTS)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
