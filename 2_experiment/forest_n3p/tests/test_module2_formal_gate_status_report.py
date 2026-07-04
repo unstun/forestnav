@@ -195,6 +195,15 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
         "training:train_summary_json",
         "training:train_training_manifest_json",
     ]
+    command_index = manifest["remote_packet_safety_claim_gate_command_index_summary"]
+    assert command_index["present"] is True
+    assert command_index["index_row_count"] == 18
+    assert command_index["source_target_count"] == 18
+    assert command_index["missing_target_ids"] == []
+    assert command_index["claim_gate_rows"]["claim_safety"]["stage_id"] == "regenerate_claim_gate_artifacts"
+    assert command_index["claim_gate_rows"]["paper_readiness"]["required_before"] == "formal_claim_gate"
+    assert manifest["current_state"]["remote_packet_safety_command_index_present"] is True
+    assert manifest["current_state"]["remote_packet_safety_command_index_row_count"] == 18
 
     lanes = {lane["lane_id"]: lane for lane in manifest["formal_gate_lanes"]}
     assert lanes["gate3_remote_training"]["runs_training"] is True
@@ -239,6 +248,7 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 0
     assert manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 0
     assert manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]["open_category_count"] == 0
+    assert manifest["remote_packet_safety_claim_gate_command_index_summary"]["index_row_count"] == 18
     assert all(
         category["missing_artifact_matrix_ids"] == []
         for category in manifest["remaining_deliverables_gap_summary"]["categories"].values()
