@@ -83,6 +83,20 @@ class EvaluationRecord:
     subgoal_reachable_count: int | None
     subgoal_attempt_count: int | None
     subgoal_reachability_rate: float | None
+    analytic_operator: str | None
+    analytic_attempts: int | None
+    analytic_successes: int | None
+    analytic_failure_count: int | None
+    rl_rollout_steps: int | None
+    rl_rollout_collision_checks: int | None
+    rl_rollout_sample_time_s: float | None
+    rl_rollout_collision_time_s: float | None
+    terminal_rs_time_s: float | None
+    terminal_rs_success_count: int | None
+    terminal_rs_used_count: int | None
+    terminal_rs_action_count: int | None
+    rl_rs_checkpoint: str | None
+    rl_rs_checkpoint_sha256: str | None
     failure_reason: str | None
     metadata: dict[str, Any] = field(default_factory=dict)
 
@@ -222,6 +236,7 @@ def planner_run_from_path_stats(
         "analytic_operator",
         "analytic_attempts",
         "analytic_successes",
+        "analytic_failure_count",
         "analytic_candidate_radius_count",
         "analytic_candidate_success_count",
         "analytic_candidate_failure_count",
@@ -237,6 +252,7 @@ def planner_run_from_path_stats(
             run_metadata.setdefault(key, stats[key])
     if "remediations" in stats:
         run_metadata.setdefault("planner_remediations", stats["remediations"])
+    _update_rl_rs_telemetry_summary(run_metadata, stats.get("analytic_telemetry_records") or ())
     run_metadata["total_planner_time_s"] = planner_time
     run_metadata["timing_protocol"] = _timing_protocol(
         adapter="planner_run_from_path_stats",
@@ -333,9 +349,60 @@ def evaluate_run(
         subgoal_reachable_count=run.subgoal_reachable_count,
         subgoal_attempt_count=run.subgoal_attempt_count,
         subgoal_reachability_rate=subgoal_rate,
+        analytic_operator=_metadata_str(run.metadata, "analytic_operator"),
+        analytic_attempts=_metadata_int(run.metadata, "analytic_attempts"),
+        analytic_successes=_metadata_int(run.metadata, "analytic_successes"),
+        analytic_failure_count=_metadata_int(run.metadata, "analytic_failure_count"),
+        rl_rollout_steps=_metadata_int(run.metadata, "rl_rollout_steps"),
+        rl_rollout_collision_checks=_metadata_int(run.metadata, "rl_rollout_collision_checks"),
+        rl_rollout_sample_time_s=_metadata_float(run.metadata, "rl_rollout_sample_time_s"),
+        rl_rollout_collision_time_s=_metadata_float(run.metadata, "rl_rollout_collision_time_s"),
+        terminal_rs_time_s=_metadata_float(run.metadata, "terminal_rs_time_s"),
+        terminal_rs_success_count=_metadata_int(run.metadata, "terminal_rs_success_count"),
+        terminal_rs_used_count=_metadata_int(run.metadata, "terminal_rs_used_count"),
+        terminal_rs_action_count=_metadata_int(run.metadata, "terminal_rs_action_count"),
+        rl_rs_checkpoint=_metadata_str(run.metadata, "rl_rs_checkpoint"),
+        rl_rs_checkpoint_sha256=_metadata_str(run.metadata, "rl_rs_checkpoint_sha256"),
         failure_reason=run.failure_reason,
         metadata=dict(run.metadata),
     )
+
+
+def _update_rl_rs_telemetry_summary(metadata: dict[str, Any], records: Sequence[Any]) -> None:
+    clean = [record for record in records if isinstance(record, dict) and _has_rl_rs_telemetry(record)]
+    if not clean:
+        return
+    for key in ("rl_rollout_steps", "rl_rollout_collision_checks", "terminal_rs_action_count"):
+        metadata.setdefault(key, sum(int(record.get(key, 0) or 0) for record in clean))
+    for key in ("rl_rollout_sample_time_s", "rl_rollout_collision_time_s", "terminal_rs_time_s"):
+        metadata.setdefault(key, sum(float(record.get(key, 0.0) or 0.0) for record in clean))
+    metadata.setdefault("terminal_rs_success_count", sum(1 for record in clean if bool(record.get("terminal_rs_success"))))
+    metadata.setdefault("terminal_rs_used_count", sum(1 for record in clean if bool(record.get("terminal_rs_used"))))
+
+
+def _has_rl_rs_telemetry(record: dict[str, Any]) -> bool:
+    return any(str(key).startswith("rl_rollout_") for key in record) or "terminal_rs_used" in record
+
+
+def _metadata_str(metadata: dict[str, Any], key: str) -> str | None:
+    value = metadata.get(key)
+    if value is None:
+        return None
+    return str(value)
+
+
+def _metadata_int(metadata: dict[str, Any], key: str) -> int | None:
+    value = metadata.get(key)
+    if value is None:
+        return None
+    return int(value)
+
+
+def _metadata_float(metadata: dict[str, Any], key: str) -> float | None:
+    value = metadata.get(key)
+    if value is None:
+        return None
+    return float(value)
 
 
 def summarize_by_method_bucket(records: Iterable[EvaluationRecord]) -> tuple[GroupSummary, ...]:
