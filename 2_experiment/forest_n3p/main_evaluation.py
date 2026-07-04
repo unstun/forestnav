@@ -63,6 +63,7 @@ DQN10_EXTRA_METHODS = tuple(method for method in DQN10_BASELINE_METHODS if metho
 DQN10_COMPAT_ALIAS_METHODS = tuple(DQN10_BASELINE_ALIASES)
 EXTERNAL_BASELINE_METHODS = ("idb_rrt_dynoplan",)
 ANALYTIC_OPERATOR_BASELINE_METHODS = ("ha_no_analytic", "ha_single_rs", "ha_dang_multi_rs")
+BC_OPERATOR_METHODS = ("bc_analytic_operator",)
 RL_RS_OPERATOR_METHODS = ("ha_rl_rs_ppo",)
 
 IMPLEMENTED_METHODS = frozenset(
@@ -73,6 +74,7 @@ IMPLEMENTED_METHODS = frozenset(
         *DQN10_COMPAT_ALIAS_METHODS,
         *EXTERNAL_BASELINE_METHODS,
         *ANALYTIC_OPERATOR_BASELINE_METHODS,
+        *BC_OPERATOR_METHODS,
         *RL_RS_OPERATOR_METHODS,
     )
 )
@@ -131,6 +133,8 @@ class MainEvaluationConfig:
     idb_rrt_dynoplan_root: Path | None = None
     idb_rrt_motion_file: Path | None = None
     idb_rrt_timeout_s: float | None = None
+    module2_bc_checkpoint: Path | None = None
+    module2_bc_device: str = "cpu"
     module2_rl_rs_checkpoint: Path | None = None
     module2_rl_rs_device: str = "cpu"
     module2_rl_rs_obs_patch_size_m: float = 6.4
@@ -310,6 +314,12 @@ def preflight_main_evaluation(config: MainEvaluationConfig) -> PreflightReport:
                 idb_availability.reason or "unknown Dynoplan iDb-RRT adapter availability failure"
             )
             issues.append(f"idb_rrt_dynoplan unavailable: {unavailable['idb_rrt_dynoplan']}")
+
+    if any(method in config.methods for method in BC_OPERATOR_METHODS):
+        if config.module2_bc_checkpoint is None:
+            issues.append("module2_bc_checkpoint is required for bc_analytic_operator")
+        elif not Path(config.module2_bc_checkpoint).is_file():
+            issues.append(f"BC checkpoint does not exist: {config.module2_bc_checkpoint}")
 
     if any(method in config.methods for method in RL_RS_OPERATOR_METHODS):
         if config.module2_rl_rs_checkpoint is None:
@@ -633,7 +643,7 @@ def _run_method(
             },
         )
 
-    if method in ANALYTIC_OPERATOR_BASELINE_METHODS or method in RL_RS_OPERATOR_METHODS:
+    if method in ANALYTIC_OPERATOR_BASELINE_METHODS or method in BC_OPERATOR_METHODS or method in RL_RS_OPERATOR_METHODS:
         return _run_hybrid_a_operator(
             method,
             query,
@@ -742,7 +752,10 @@ def _run_hybrid_a_operator(
         "ha_dang_multi_rs": "dang_multi_rs",
     }
     analytic_expansion_operator = None
-    if method == "ha_rl_rs_ppo":
+    if method == "bc_analytic_operator":
+        analytic_operator = "rl_rs_funnel_bc"
+        analytic_expansion_operator = _load_module2_bc_operator(cfg)
+    elif method == "ha_rl_rs_ppo":
         analytic_operator = "rl_rs_funnel_ppo"
         analytic_expansion_operator = _load_module2_rl_rs_operator(cfg)
     else:
@@ -773,7 +786,7 @@ def _run_hybrid_a_operator(
             "map_seed": query.map_seed,
             "query_seed": query.query_seed,
             "analytic_operator": analytic_operator,
-            **_rl_rs_operator_metadata(analytic_expansion_operator, cfg),
+            **_learned_operator_metadata(method, analytic_expansion_operator, cfg),
         },
     )
 
@@ -856,8 +869,30 @@ def _load_module2_rl_rs_operator(cfg: MainEvaluationConfig):
     )
 
 
+def _load_module2_bc_operator(cfg: MainEvaluationConfig):
+    if cfg.module2_bc_checkpoint is None:
+        raise ValueError("module2_bc_checkpoint is required for bc_analytic_operator")
+    return load_bc_funnel_operator_from_checkpoint(
+        cfg.module2_bc_checkpoint,
+        device=str(cfg.module2_bc_device),
+        observation_config=_module2_rl_rs_observation_config(cfg),
+        max_steps=int(cfg.module2_rl_rs_max_steps),
+        action_step_m=float(cfg.module2_rl_rs_action_step_m),
+        collision_sample_step_m=float(cfg.module2_rl_rs_collision_sample_step_m),
+        terminal_check_every=int(cfg.module2_rl_rs_terminal_check_every),
+        no_progress_patience=int(cfg.module2_rl_rs_no_progress_patience),
+        name="rl_rs_funnel_bc",
+    )
+
+
 def load_rl_rs_funnel_operator_from_checkpoint(*args, **kwargs):
     from forest_n3p.rl_rs.checkpoint_operator import load_rl_rs_funnel_operator_from_checkpoint as _load
+
+    return _load(*args, **kwargs)
+
+
+def load_bc_funnel_operator_from_checkpoint(*args, **kwargs):
+    from forest_n3p.rl_rs.checkpoint_operator import load_bc_funnel_operator_from_checkpoint as _load
 
     return _load(*args, **kwargs)
 
@@ -873,9 +908,14 @@ def _module2_rl_rs_observation_config(cfg: MainEvaluationConfig):
     )
 
 
-def _rl_rs_operator_metadata(operator, cfg: MainEvaluationConfig) -> dict[str, Any]:
+def _learned_operator_metadata(method: str, operator, cfg: MainEvaluationConfig) -> dict[str, Any]:
     if operator is None:
         return {}
+    if method == "bc_analytic_operator":
+        return {
+            "bc_checkpoint": None if cfg.module2_bc_checkpoint is None else str(cfg.module2_bc_checkpoint),
+            "bc_checkpoint_sha256": getattr(operator, "checkpoint_sha256", None),
+        }
     return {
         "rl_rs_checkpoint": None if cfg.module2_rl_rs_checkpoint is None else str(cfg.module2_rl_rs_checkpoint),
         "rl_rs_checkpoint_sha256": getattr(operator, "checkpoint_sha256", None),
