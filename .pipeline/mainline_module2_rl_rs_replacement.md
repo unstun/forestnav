@@ -804,6 +804,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - F02.6 packet/record guard: H01 manifest 现在可读取 `0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json` 和 `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json`; 当前 record status=`pending_human_decision`, effective decision=`pending`, 因此即使 CLI 误传 `approved_obstacle_summary`, manifest 仍保持 blocked。
   - 当前 global blockers: `f02_6_warm_start_decision_pending`, `missing_module2_rl_rs_checkpoint`。
   - 当前 method-level blockers: `requires_dr_sun_approval`, `f02_6_decision_record_pending`, `missing_module2_rl_rs_checkpoint`。
+  - A02.3 后 schema guard: H01 manifest 新增 `required_output_schema`, formal output 必须包含 records/summary 中的 RL/RS attempts、NN forward time、primitive fallback count、rollout protocol、collision checker 和统计检验/CI sections。
   - 边界: H01.1 已有可审计 manifest, BC operator、PPO without-terminal-RS operator method 和 realmap query protocol 已解除工程实现 blocker, 但还不是 formal-ready evaluation protocol, 因此标为 `[>]`。PPO checkpoint 必须在 `gpu3070ti-relay` 等远端 GPU 上训练/导出, 禁止本地训练。
   - 记录: `.pipeline/experiments/20260704_module2_h01_evaluation_manifest.md`。
   - 更新记录: `.pipeline/experiments/20260704_module2_h01_bc_operator_main_eval.md`。
@@ -811,6 +812,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 更新记录: `.pipeline/experiments/20260704_module2_h01_ppo_analytic_operator_manifest.md`。
   - 更新记录: `.pipeline/experiments/20260704_module2_h01_f02_6_decision_packet_guard.md`。
   - 更新记录: `.pipeline/experiments/20260704_module2_f02_6_decision_record_protocol.md`。
+  - schema guard 记录: `.pipeline/experiments/20260704_module2_h01_output_schema_guard.md`。
 - [x] H01.2 指标冻结。
   - Contract 主指标: expansions, total wall-clock, timeout failure rate, path quality。
   - 诊断指标: analytic success, terminal RS success, collision checks, fallback count, clearance。
@@ -962,6 +964,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 39. [>] I03 claim safety guard 已生成: 允许方法结构 claim 和 no-warm Gate #3 formal failure claim; formal performance improvement 继续 blocked; 全局最优/完备性增强/RL替代HA*/泛化所有森林等 claim 已 hard-block。
 40. [x] A02.3 P0 telemetry implementation 已完成: runtime NN forward timing、RL/RS canonical attempt columns、primitive fallback count 和 rollout/collision protocol metadata 已进入 evaluation outputs。
 41. [x] H02/I02 telemetry refresh 已完成: H02 available-subset 重跑后输出新 telemetry schema, I02 paper table artifact 新增 telemetry diagnostic table; 仍为 non-formal preview。
+42. [x] H01 output schema guard 已完成: formal manifest 已冻结 records/summary/summary.json 必需输出 schema, 包含 A02.3 telemetry columns。
 
 ## 7. 完成记录
 
@@ -1018,3 +1021,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 完成 A00.2 项目状态记忆刷新。bigmemory 热区已从 2026-07-02 的 “Contract 未起草/未写实验代码” 旧状态更新为当前真实边界: Contract approved, no-warm Gate #3 formal fail, F02.6 pending, 缺 PPO checkpoint, H01/H02 formal blocked, PPO formal training 只能走 `gpu3070ti-relay` 且禁止本地训练。记录见 `bigmemory/冷区/改动记录/2026-07-04.md`。
 - 2026-07-04: 完成 A02.3 P0 telemetry implementation。RL-RS operator/evaluation records 现在输出 `rl_attempts`, `rl_successes`, `rs_attempts`, `nn_forward_time_s`, `fallback_to_primitives_count`, `rollout_protocol`, `collision_checker`; summary 输出 NN forward 聚合与 attempts totals。I01 code-anchored method/system diagram 已按 timed policy call 更新锚点并再生成。验证: full `2_experiment/forest_n3p/tests` 112 passed。记录见 `.pipeline/experiments/20260704_module2_a02_3_telemetry_implementation.md`。
 - 2026-07-04: 完成 H02/I02 telemetry refresh。重跑 H02.1 available subset 后 records/summary 均含 A02.3 新 telemetry columns; I02 paper table artifact 新增 `telemetry_diagnostic_table`。BC analytic 3-query smoke 暴露 `rl_attempts_total=126`, `rl_successes_total=3`, `fallback_to_primitives_total=123`; 这是 schema/diagnostic preview, 非 formal result。记录见 `.pipeline/experiments/20260704_module2_h02_i02_telemetry_refresh.md`。
+- 2026-07-04: 完成 H01 output schema guard。`module2_v1_evaluation_manifest.json` 新增 `required_output_schema`, 要求 formal records/summary 输出包含 A02.3 telemetry columns 与统计检验/CI sections; manifest 仍因 F02.6 pending 和缺 PPO checkpoint 保持 `blocked_pending_decisions`。记录见 `.pipeline/experiments/20260704_module2_h01_output_schema_guard.md`。
