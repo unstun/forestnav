@@ -151,6 +151,9 @@ def build_manifest(
     status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary = (
         _status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary(status_report)
     )
+    status_report_remaining_deliverables_proof_command_plan = (
+        _status_report_remaining_deliverables_proof_command_plan(status_report)
+    )
     status_report_remote_packet_safety_claim_gate_command_index_summary = (
         _status_report_remote_packet_safety_claim_gate_command_index_summary(status_report)
     )
@@ -332,6 +335,15 @@ def build_manifest(
             "status_report_formal_gate_gap_audit_remaining_deliverables_gap_open_category_count": status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary[
                 "open_category_count"
             ],
+            "status_report_remaining_deliverables_proof_plan_present": status_report_remaining_deliverables_proof_command_plan[
+                "present"
+            ],
+            "status_report_remaining_deliverables_proof_plan_matrix_row_count": status_report_remaining_deliverables_proof_command_plan[
+                "total_matrix_rows"
+            ],
+            "status_report_remaining_deliverables_proof_plan_command_count": status_report_remaining_deliverables_proof_command_plan[
+                "total_proof_command_count"
+            ],
             "status_report_remote_packet_safety_command_index_present": status_report_remote_packet_safety_claim_gate_command_index_summary[
                 "present"
             ],
@@ -354,6 +366,9 @@ def build_manifest(
         "status_report_remaining_deliverables_gap_summary": status_report_remaining_deliverables_gap_summary,
         "status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary": (
             status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary
+        ),
+        "status_report_remaining_deliverables_proof_command_plan": (
+            status_report_remaining_deliverables_proof_command_plan
         ),
         "status_report_remote_packet_safety_claim_gate_command_index_summary": (
             status_report_remote_packet_safety_claim_gate_command_index_summary
@@ -460,6 +475,7 @@ def _formal_performance_blockers(
     blockers.extend(_status_report_remaining_deliverables_acceptance_blockers(status_report))
     blockers.extend(_status_report_remaining_deliverables_gap_blockers(status_report))
     blockers.extend(_status_report_formal_gate_gap_audit_remaining_deliverables_gap_blockers(status_report))
+    blockers.extend(_status_report_remaining_deliverables_proof_command_plan_blockers(status_report))
     blockers.extend(_status_report_remote_packet_safety_claim_gate_command_index_blockers(status_report))
     blockers.extend(_status_report_decision_intake_blockers(status_report))
     blockers.extend(_status_report_remote_summary_blockers(status_report))
