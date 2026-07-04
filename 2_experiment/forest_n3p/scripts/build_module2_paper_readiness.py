@@ -967,6 +967,97 @@ def _claim_safety_gap_blockers(*, summary: dict[str, Any], prefix: str, missing_
     return blockers
 
 
+def _claim_safety_remaining_deliverables_proof_command_plan(claim_safety: dict[str, Any]) -> dict[str, Any]:
+    summary = claim_safety.get("status_report_remaining_deliverables_proof_command_plan")
+    summary = summary if isinstance(summary, dict) else {}
+    raw_rows = summary.get("rows") if isinstance(summary.get("rows"), dict) else {}
+    rows: dict[str, dict[str, Any]] = {}
+    for matrix_id, expected_command_ids in CLAIM_SAFETY_REMAINING_DELIVERABLE_PROOF_COMMAND_IDS.items():
+        raw = raw_rows.get(matrix_id) if isinstance(raw_rows.get(matrix_id), dict) else {}
+        command_ids = [str(value) for value in raw.get("proof_command_ids", []) if value] if isinstance(
+            raw.get("proof_command_ids"), list
+        ) else []
+        rows[matrix_id] = {
+            "present": bool(raw.get("present")),
+            "proof_command_count": int(raw.get("proof_command_count") or 0),
+            "expected_proof_command_count": len(expected_command_ids),
+            "proof_command_ids": command_ids,
+            "missing_proof_command_ids": [
+                command_id for command_id in expected_command_ids if command_id not in command_ids
+            ],
+            "unexpected_proof_command_ids": [
+                command_id for command_id in command_ids if command_id not in expected_command_ids
+            ],
+        }
+    expected_total_proof_command_count = sum(
+        len(command_ids) for command_ids in CLAIM_SAFETY_REMAINING_DELIVERABLE_PROOF_COMMAND_IDS.values()
+    )
+    return {
+        "present": bool(summary.get("present")),
+        "plan_id": summary.get("plan_id"),
+        "execution_boundary": summary.get("execution_boundary"),
+        "not_paper_result_material": summary.get("not_paper_result_material")
+        if isinstance(summary.get("not_paper_result_material"), bool)
+        else None,
+        "runs_training": summary.get("runs_training") if isinstance(summary.get("runs_training"), bool) else None,
+        "runs_remote_preflight": summary.get("runs_remote_preflight")
+        if isinstance(summary.get("runs_remote_preflight"), bool)
+        else None,
+        "total_matrix_rows": int(summary.get("total_matrix_rows") or 0),
+        "expected_matrix_rows": len(CLAIM_SAFETY_REMAINING_DELIVERABLE_PROOF_COMMAND_IDS),
+        "total_proof_command_count": int(summary.get("total_proof_command_count") or 0),
+        "expected_proof_command_count": expected_total_proof_command_count,
+        "rows": rows,
+    }
+
+
+def _claim_safety_remaining_deliverables_proof_command_plan_blockers(
+    claim_safety: dict[str, Any],
+) -> list[str]:
+    plan = _claim_safety_remaining_deliverables_proof_command_plan(claim_safety)
+    blockers: list[str] = []
+    if not plan["present"]:
+        blockers.append("claim_safety_missing_remaining_deliverables_proof_command_plan")
+        return blockers
+    if plan["plan_id"] != CLAIM_SAFETY_REMAINING_DELIVERABLE_PROOF_PLAN_ID:
+        blockers.append("claim_safety_remaining_deliverables_proof_command_plan_wrong_plan_id")
+    if plan["execution_boundary"] != CLAIM_SAFETY_REMAINING_DELIVERABLE_PROOF_EXECUTION_BOUNDARY:
+        blockers.append("claim_safety_remaining_deliverables_proof_command_plan_wrong_execution_boundary")
+    if plan["not_paper_result_material"] is not True:
+        blockers.append("claim_safety_remaining_deliverables_proof_command_plan_result_material")
+    if plan["runs_training"] is not False:
+        blockers.append("claim_safety_remaining_deliverables_proof_command_plan_runs_training")
+    if plan["runs_remote_preflight"] is not False:
+        blockers.append("claim_safety_remaining_deliverables_proof_command_plan_runs_remote_preflight")
+    if plan["total_matrix_rows"] != plan["expected_matrix_rows"]:
+        blockers.append("claim_safety_remaining_deliverables_proof_command_plan_row_count_mismatch")
+    if plan["total_proof_command_count"] != plan["expected_proof_command_count"]:
+        blockers.append("claim_safety_remaining_deliverables_proof_command_plan_command_count_mismatch")
+    for matrix_id, row in plan["rows"].items():
+        safe_matrix_id = matrix_id.replace(":", "_")
+        if not row["present"]:
+            _append_unique(blockers, f"claim_safety_remaining_deliverables_proof_command_plan_missing_{safe_matrix_id}")
+            continue
+        if row["proof_command_count"] != row["expected_proof_command_count"] or row["proof_command_count"] != len(
+            row["proof_command_ids"]
+        ):
+            _append_unique(
+                blockers,
+                f"claim_safety_remaining_deliverables_proof_command_plan_{safe_matrix_id}_command_count_mismatch",
+            )
+        for command_id in row["missing_proof_command_ids"]:
+            _append_unique(
+                blockers,
+                f"claim_safety_remaining_deliverables_proof_command_plan_{safe_matrix_id}_missing_{command_id}",
+            )
+        if row["unexpected_proof_command_ids"]:
+            _append_unique(
+                blockers,
+                f"claim_safety_remaining_deliverables_proof_command_plan_{safe_matrix_id}_unexpected_commands",
+            )
+    return blockers
+
+
 def _claim_safety_remote_packet_safety_claim_gate_command_index_summary(
     claim_safety: dict[str, Any],
 ) -> dict[str, Any]:
