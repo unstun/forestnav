@@ -36,6 +36,8 @@ def test_f02_6_decision_record_defaults_to_pending_and_blocks_training(tmp_path)
     assert manifest["status"] == "pending_human_decision"
     assert manifest["effective_warm_start_decision"] == "pending"
     assert manifest["remote_training_allowed"] is False
+    assert manifest["remote_preflight_allowed_now"] is False
+    assert manifest["remote_training_allowed_now"] is False
     assert manifest["local_training_allowed"] is False
     assert manifest["formal_claim_allowed"] is False
     assert manifest["next_remote_preflight_status"] == "blocked_until_decision"
@@ -43,6 +45,8 @@ def test_f02_6_decision_record_defaults_to_pending_and_blocks_training(tmp_path)
     assert manifest["packet"]["recommendation"] == "approve_obstacle_summary_warm_start"
     assert manifest["remote_preflight_observed"]["blocker_codes"] == ["warm_start_decision_pending"]
     assert manifest["downstream_consumption"]["record_is_sufficient_to_claim_performance"] is False
+    assert manifest["downstream_consumption"]["record_is_sufficient_to_run_remote_preflight_now"] is False
+    assert manifest["downstream_consumption"]["record_is_sufficient_to_run_remote_training_now"] is False
     assert "gpu3070ti-relay" in markdown
     assert "blocked_until_decision" in markdown
 
@@ -63,6 +67,8 @@ def test_f02_6_decision_record_approval_requires_dr_sun_and_only_unlocks_remote_
     assert record["status"] == "approved"
     assert record["effective_warm_start_decision"] == "approved_obstacle_summary"
     assert record["remote_training_allowed"] is True
+    assert record["remote_preflight_allowed_now"] is False
+    assert record["remote_training_allowed_now"] is False
     assert record["local_training_allowed"] is False
     assert record["formal_claim_allowed"] is False
     assert record["blockers"] == []
@@ -108,6 +114,8 @@ def test_f02_6_decision_record_rejection_keeps_warm_start_blocked(tmp_path):
     assert record["status"] == "rejected"
     assert record["effective_warm_start_decision"] == "no_warm_only"
     assert record["remote_training_allowed"] is False
+    assert record["remote_preflight_allowed_now"] is False
+    assert record["remote_training_allowed_now"] is False
     assert record["formal_claim_allowed"] is False
     assert "obstacle_summary_warm_start_rejected" in record["blockers"]
     assert record["downstream_consumption"]["preflight_warm_start_decision_value"] == "not_used"
