@@ -505,6 +505,28 @@ def _markdown(manifest: dict[str, Any]) -> str:
     ]
     for key, value in manifest["current_gate_summary"].items():
         lines.append(f"- {key}: `{value}`")
+    gap_summary = manifest["deliverable_gap_summary"]
+    lines.extend(["", "## Formal Gate Gap Summary", ""])
+    lines.append(f"- summary_id: `{gap_summary['summary_id']}`")
+    lines.append(f"- total_missing_deliverables: `{gap_summary['total_missing_deliverables']}`")
+    lines.append(f"- open_category_count: `{gap_summary['open_category_count']}`")
+    lines.append(f"- execution_boundary: `{gap_summary['execution_boundary']}`")
+    for category in gap_summary["categories"]:
+        lines.append(f"### gap:{category['category']}")
+        lines.append(f"- missing_count: `{category['missing_count']}`")
+        lines.append(f"- responsible_stage_id: `{category['responsible_stage_id']}`")
+        lines.append(f"- responsible_stage_allowed_now: `{category['responsible_stage_allowed_now']}`")
+        blocked_by = ", ".join(category["responsible_stage_blocked_by"]) if category["responsible_stage_blocked_by"] else "none"
+        lines.append(f"- responsible_stage_blocked_by: `{blocked_by}`")
+        lines.append("- missing_artifacts:")
+        if category["missing_artifacts"]:
+            for item in category["missing_artifacts"]:
+                lines.append(
+                    f"  - `{item['matrix_id']}`: state=`{item['current_state']}`, "
+                    f"path=`{item['expected_path']}`, acceptance_predicate_count=`{item['acceptance_predicate_count']}`"
+                )
+        else:
+            lines.append("  - none")
     lines.extend(["", "## Deliverable Groups", ""])
     for group in manifest["deliverable_groups"]:
         lines.append(f"### {group['category']}")
