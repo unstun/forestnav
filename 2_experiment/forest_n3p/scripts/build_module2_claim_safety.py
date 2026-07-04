@@ -144,8 +144,12 @@ def build_manifest(
             ),
             "status_report_input_safety_issue_count": status_report.get("input_safety_issue_count"),
             "status_report_next_blocked_lane_id": _next_blocked_lane_id(status_report),
-            "status_report_closure_remote_training_allowed_now": status_report_remote_gate_summary["closure_remote_stage_summary"]["gate3_remote_training"]["allowed_now"],
-            "status_report_remote_packet_training_allowed_now": status_report_remote_gate_summary["remote_execution_step_summary"]["run_remote_training"]["allowed_now"],
+            "status_report_closure_remote_training_allowed_now": status_report_remote_gate_summary[
+                "closure_remote_stage_summary"
+            ]["gate3_remote_training"]["allowed_now"],
+            "status_report_remote_packet_training_allowed_now": status_report_remote_gate_summary[
+                "remote_execution_step_summary"
+            ]["run_remote_training"]["allowed_now"],
         },
         "status_report_remote_gate_summary": status_report_remote_gate_summary,
         "allowed_claims": allowed,
@@ -246,8 +250,14 @@ def _formal_performance_blockers(
 
 def _status_report_remote_gate_summary(status_report: dict[str, Any]) -> dict[str, dict[str, dict[str, Any]]]:
     return {
-        "closure_remote_stage_summary": _summary_items(status_report.get("closure_remote_stage_summary"), STATUS_REPORT_CLOSURE_STAGE_IDS),
-        "remote_execution_step_summary": _summary_items(status_report.get("remote_execution_step_summary"), STATUS_REPORT_REMOTE_STEP_IDS),
+        "closure_remote_stage_summary": _summary_items(
+            status_report.get("closure_remote_stage_summary"),
+            STATUS_REPORT_CLOSURE_STAGE_IDS,
+        ),
+        "remote_execution_step_summary": _summary_items(
+            status_report.get("remote_execution_step_summary"),
+            STATUS_REPORT_REMOTE_STEP_IDS,
+        ),
     }
 
 
