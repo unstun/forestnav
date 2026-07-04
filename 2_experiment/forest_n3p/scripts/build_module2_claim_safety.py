@@ -1084,15 +1084,14 @@ def _status_report_remaining_deliverables_proof_command_plan_blockers(status_rep
     if plan["total_proof_command_count"] != expected_total:
         blockers.append("status_report_remaining_deliverables_proof_command_plan_command_count_mismatch")
     for matrix_id, row in acceptance["rows"].items():
-        if not row["present"]:
-            continue
         safe_matrix_id = matrix_id.replace(":", "_")
-        if row["proof_command_count"] <= 0:
-            _append_unique(blockers, f"status_report_remaining_deliverables_acceptance_{safe_matrix_id}_missing_proof_commands")
         plan_row = plan["rows"].get(matrix_id)
         if not plan_row or not plan_row["present"]:
             _append_unique(blockers, f"status_report_remaining_deliverables_proof_command_plan_missing_{safe_matrix_id}")
+        if not row["present"]:
             continue
+        if row["proof_command_count"] <= 0:
+            _append_unique(blockers, f"status_report_remaining_deliverables_acceptance_{safe_matrix_id}_missing_proof_commands")
         if plan_row["proof_command_count"] != row["proof_command_count"]:
             _append_unique(blockers, f"status_report_remaining_deliverables_proof_command_plan_{safe_matrix_id}_count_mismatch")
         if plan_row["proof_command_ids"] != row["proof_command_ids"]:
