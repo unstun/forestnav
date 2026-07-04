@@ -752,10 +752,12 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - queries: 每桶 >=100。
   - 已完成子项: 新增 `build_module2_evaluation_manifest.py`, 生成机器可读 JSON + Markdown manifest。
   - 当前产物: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`, status=`blocked_pending_decisions`; 已传入 BC formal-v2 checkpoint, `bc_analytic_operator=ready`。
-  - 当前 blockers: `f02_6_warm_start_decision_pending`, `missing_required_method_implementation`(来自 `ppo_analytic_operator` without terminal RS), `realmap_query_generation_not_frozen`。
-  - 边界: H01.1 已有可审计 manifest, BC operator 已解除, 但还不是 formal-ready evaluation protocol, 因此标为 `[>]`。
+  - RealMap protocol: 新增 `0_trials/module2_realmap_query_protocol/module2_realmap_query_protocol.json`; status=`frozen`, 两张真实地图各 5 queries, endpoint collision audit 0/0, CSV hash=`36f80e9e69cd41d3658d4d9858b04aee874c93933c85188254c7731565764b59`。
+  - 当前 blockers: `f02_6_warm_start_decision_pending`, `missing_required_method_implementation`(来自 `ppo_analytic_operator` without terminal RS)。
+  - 边界: H01.1 已有可审计 manifest, BC operator 和 realmap query protocol 已解除, 但还不是 formal-ready evaluation protocol, 因此标为 `[>]`。
   - 记录: `.pipeline/experiments/20260704_module2_h01_evaluation_manifest.md`。
   - 更新记录: `.pipeline/experiments/20260704_module2_h01_bc_operator_main_eval.md`。
+  - 更新记录: `.pipeline/experiments/20260704_module2_h01_realmap_query_protocol.md`。
 - [ ] H01.2 指标冻结。
   - Contract 主指标: expansions, total wall-clock, timeout failure rate, path quality。
   - 诊断指标: analytic success, terminal RS success, collision checks, fallback count, clearance。
@@ -843,8 +845,9 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 27. [x] G02.1 无模型 stub operator planner integration/fallback 测试。
 28. [x] G02.2 checkpoint-backed RL-RS operator loader hard-fail 测试。
 29. [x] G02.3 evaluation flat telemetry export 测试。
-30. [>] H01.1 module2 v1 evaluation manifest 已生成 blocked/preflight 版本; BC operator 已解除, formal-ready 仍受 F02.6、pure PPO analytic operator、realmap protocol 阻塞。
+30. [>] H01.1 module2 v1 evaluation manifest 已生成 blocked/preflight 版本; BC operator 和 realmap query protocol 已解除, formal-ready 仍受 F02.6、pure PPO analytic operator 阻塞。
 31. [x] G02.4/H01.1a BC checkpoint-backed analytic operator 已接入 main evaluation, 并完成不训练 3-query smoke。
+32. [x] H01.1b RealMap query generation protocol 已冻结, 10 queries / 2 maps, endpoint audit pass。
 
 ## 7. 完成记录
 
@@ -885,3 +888,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 完成 G01.4/G02.2/G02.3 checkpoint-backed RL-RS operator CLI 与 telemetry 闭环。`ha_rl_rs_ppo` 已成为 main evaluation 显式方法; `--module2-rl-rs-checkpoint` 缺失/不存在会 hard-fail; checkpoint loader 可加载 SB3 smoke model; `records.csv` 直接导出 analytic/RL-RS telemetry flat columns。Tiny smoke artifact 在 `0_trials/module2_operator_integration_smoke/g02_checkpoint_operator_smoke/`, `record_count=3`, `status=candidate_or_smoke`, `formal_acceptance=false`。F02.6 warm-start 决策仍 pending, 本 smoke 不作性能 claim。记录见 `.pipeline/experiments/20260704_module2_g02_checkpoint_operator_cli_telemetry.md`。
 - 2026-07-04: 推进 H01.1 module2 v1 evaluation manifest。新增 `build_module2_evaluation_manifest.py`, 产出 `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json` 和 `.md`; status=`blocked_pending_decisions`, scale=`100` queries/bucket、`5` seeds, methods 覆盖 HA* no analytic/single RS/Dang multi-RS、F-N3P KNN/MLP、BC analytic、PPO analytic、PPO+RS funnel。当前 blockers 为 F02.6 pending、BC/PPO analytic operator 未实现、realmap query protocol 未冻结; 因此 H01.1 仍标 `[>]`, 不能 claim formal-ready。记录见 `.pipeline/experiments/20260704_module2_h01_evaluation_manifest.md`。
 - 2026-07-04: 完成 BC checkpoint-backed analytic operator main evaluation 接入。`bc_analytic_operator` 已成为显式方法名; `--module2-bc-checkpoint` 缺失/不存在会 hard-fail; formal-v2 obstacle-summary BC checkpoint 可加载成 `rl_rs_funnel_bc`; `records.csv` flat columns 导出 `bc_checkpoint` 和 `bc_checkpoint_sha256`。不训练 smoke 在 `0_trials/module2_operator_integration_smoke/bc_operator_smoke/`, `record_count=3`, `status=candidate_or_smoke`, `formal_acceptance=false`, 3/3 rows 含 checkpoint hash。H01 manifest 已更新为 `bc_analytic_operator=ready`; formal-ready 仍受 F02.6、pure PPO analytic operator、realmap protocol 阻塞。记录见 `.pipeline/experiments/20260704_module2_h01_bc_operator_main_eval.md`。
+- 2026-07-04: 完成 RealMap query generation protocol 冻结。新增 `build_module2_realmap_query_protocol.py`, 产出 `0_trials/module2_realmap_query_protocol/module2_realmap_query_protocol.json`、`module2_realmap_queries.csv` 和 `.md`; 两张真实地图各 5 queries, 每图第 0 个为 manifest canonical start/goal, endpoint collision audit 0/0, CSV SHA-256 为 `36f80e9e69cd41d3658d4d9858b04aee874c93933c85188254c7731565764b59`。H01 manifest 已引用该 frozen protocol, `realmap_query_generation_not_frozen` blocker 已移除; formal-ready 仍受 F02.6 和 pure PPO analytic operator 阻塞。记录见 `.pipeline/experiments/20260704_module2_h01_realmap_query_protocol.md`。
