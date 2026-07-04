@@ -19,7 +19,18 @@ This file is a formal-gate closure checklist. It does not execute commands, trai
 - missing_counts_by_category: `{'decision': 1, 'decision_gate': 0, 'regeneration': 16, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 5}`
 - formal_ordered_next_step_count: `6`
 - post_plan_blocked_stage_ids: `['regenerate_preflight_gate_artifacts', 'approved_remote_preflight', 'regenerate_remote_execution_packet', 'gate3_remote_training', 'gate3_remote_audit_pullback', 'regenerate_h01_h02_formal_artifacts', 'regenerate_claim_gate_artifacts']`
-- source_regeneration_target_count: `16`
+- source_regeneration_target_count: `17`
+- remaining_deliverables_gap_total_missing: `10`
+- remaining_deliverables_gap_open_category_count: `4`
+
+## Remaining Deliverables Gap Summary
+
+- total_missing_deliverables: `10`
+- open_category_count: `4`
+- `training`: missing=`3`, responsible_stage=`gate3_remote_training`
+- `evaluation`: missing=`2`, responsible_stage=`gate3_remote_audit_pullback`
+- `acceptance`: missing=`3`, responsible_stage=`gate3_remote_audit_pullback`
+- `formal_acceptance`: missing=`2`, responsible_stage=`regenerate_h01_h02_formal_artifacts`
 
 ## Closure Checklist
 

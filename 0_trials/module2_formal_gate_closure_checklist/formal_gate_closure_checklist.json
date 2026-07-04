@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_closure_checklist",
   "status": "formal_gate_closure_blocked",
-  "created_at_utc": "2026-07-04T16:42:57.331985+00:00",
-  "source_head": "59caee5cc01ed95e6e8d5d82384dafdb09292d45+dirty",
+  "created_at_utc": "2026-07-04T21:00:54.067070+00:00",
+  "source_head": "187a77f01dac318750e60976103bd4b32de34275+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -14,7 +14,8 @@
     "missing_artifacts": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
     "formal_gate_gap_audit": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
     "post_f02_6_regeneration_plan": "0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json",
-    "source_freshness_audit": "0_trials/module2_source_freshness_audit/source_freshness_audit.json"
+    "source_freshness_audit": "0_trials/module2_source_freshness_audit/source_freshness_audit.json",
+    "formal_gate_remaining_deliverables": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json"
   },
   "current_gate_summary": {
     "formal_gate_status": "blocked_formal_gate_gaps_open",
@@ -42,7 +43,9 @@
       "regenerate_h01_h02_formal_artifacts",
       "regenerate_claim_gate_artifacts"
     ],
-    "source_regeneration_target_count": 16
+    "source_regeneration_target_count": 17,
+    "remaining_deliverables_gap_total_missing": 10,
+    "remaining_deliverables_gap_open_category_count": 4
   },
   "closure_item_count": 8,
   "open_item_count": 8,
@@ -163,7 +166,7 @@
       "artifact_id": "paper_readiness",
       "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
       "exists": true,
-      "state": "current_dirty",
+      "state": "historical_dirty",
       "missing": true,
       "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
     },
@@ -214,6 +217,114 @@
         "source_fresh_preflight_targets_open",
         "remote_packet_not_ready"
       ]
+    }
+  },
+  "remaining_deliverables_gap_summary": {
+    "present": true,
+    "summary_id": "module2_formal_gate_missing_training_eval_acceptance_summary",
+    "execution_boundary": "read_only_no_execution",
+    "not_paper_result_material": true,
+    "total_missing_deliverables": 10,
+    "open_category_count": 4,
+    "category_order": [
+      "training",
+      "evaluation",
+      "acceptance",
+      "formal_acceptance"
+    ],
+    "categories": {
+      "training": {
+        "missing_count": 3,
+        "responsible_stage_id": "gate3_remote_training",
+        "responsible_stage_allowed_now": false,
+        "missing_artifact_matrix_ids": [
+          "training:train_final_model_zip",
+          "training:train_summary_json",
+          "training:train_training_manifest_json"
+        ]
+      },
+      "evaluation": {
+        "missing_count": 2,
+        "responsible_stage_id": "gate3_remote_audit_pullback",
+        "responsible_stage_allowed_now": false,
+        "missing_artifact_matrix_ids": [
+          "evaluation:eval_gate3_eval_episodes_csv",
+          "evaluation:eval_gate3_summary_json"
+        ]
+      },
+      "acceptance": {
+        "missing_count": 3,
+        "responsible_stage_id": "gate3_remote_audit_pullback",
+        "responsible_stage_allowed_now": false,
+        "missing_artifact_matrix_ids": [
+          "acceptance:gate3_trial_manifest_json",
+          "acceptance:gate3_formal_audit_json",
+          "acceptance:pulled_back_checkpoint_hash_record"
+        ]
+      },
+      "formal_acceptance": {
+        "missing_count": 2,
+        "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
+        "responsible_stage_allowed_now": false,
+        "missing_artifact_matrix_ids": [
+          "formal_acceptance:h01_ready_for_formal_run",
+          "formal_acceptance:h02_formal_output_acceptance"
+        ]
+      }
+    }
+  },
+  "post_plan_remaining_deliverables_gap_summary": {
+    "present": true,
+    "summary_id": "module2_formal_gate_missing_training_eval_acceptance_summary",
+    "execution_boundary": "read_only_no_execution",
+    "not_paper_result_material": true,
+    "total_missing_deliverables": 10,
+    "open_category_count": 4,
+    "category_order": [
+      "training",
+      "evaluation",
+      "acceptance",
+      "formal_acceptance"
+    ],
+    "categories": {
+      "training": {
+        "missing_count": 3,
+        "responsible_stage_id": "gate3_remote_training",
+        "responsible_stage_allowed_now": false,
+        "missing_artifact_matrix_ids": [
+          "training:train_final_model_zip",
+          "training:train_summary_json",
+          "training:train_training_manifest_json"
+        ]
+      },
+      "evaluation": {
+        "missing_count": 2,
+        "responsible_stage_id": "gate3_remote_audit_pullback",
+        "responsible_stage_allowed_now": false,
+        "missing_artifact_matrix_ids": [
+          "evaluation:eval_gate3_eval_episodes_csv",
+          "evaluation:eval_gate3_summary_json"
+        ]
+      },
+      "acceptance": {
+        "missing_count": 3,
+        "responsible_stage_id": "gate3_remote_audit_pullback",
+        "responsible_stage_allowed_now": false,
+        "missing_artifact_matrix_ids": [
+          "acceptance:gate3_trial_manifest_json",
+          "acceptance:gate3_formal_audit_json",
+          "acceptance:pulled_back_checkpoint_hash_record"
+        ]
+      },
+      "formal_acceptance": {
+        "missing_count": 2,
+        "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
+        "responsible_stage_allowed_now": false,
+        "missing_artifact_matrix_ids": [
+          "formal_acceptance:h01_ready_for_formal_run",
+          "formal_acceptance:h02_formal_output_acceptance"
+        ]
+      }
     }
   },
   "closure_checklist": [
@@ -388,7 +499,7 @@
           "artifact_id": "paper_readiness",
           "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
           "exists": true,
-          "state": "current_dirty",
+          "state": "historical_dirty",
           "missing": true,
           "reason": "source freshness audit requires regeneration before the corresponding formal gate"
         }
@@ -763,7 +874,7 @@
           "artifact_id": "paper_readiness",
           "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
           "exists": true,
-          "state": "current_dirty",
+          "state": "historical_dirty",
           "missing": true,
           "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
         },

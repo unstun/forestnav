@@ -21,6 +21,10 @@ def test_formal_gate_closure_checklist_blocks_pending_chain(tmp_path):
     assert manifest["local_training_allowed"] is False
     assert manifest["formal_claim_allowed"] is False
     assert manifest["open_item_count"] == 8
+    assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
+    assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 4
+    assert manifest["remaining_deliverables_gap_summary"]["categories"]["training"]["missing_count"] == 3
+    assert manifest["post_plan_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
     assert len(manifest["training_artifacts_required"]) == 3
     assert len(manifest["evaluation_artifacts_required"]) == 2
     assert len(manifest["acceptance_artifacts_required"]) == 3
@@ -49,6 +53,8 @@ def test_formal_gate_closure_checklist_accepts_synthetic_complete_chain(tmp_path
     assert manifest["status"] == "formal_gate_closure_ready_for_result_audit"
     assert manifest["open_item_count"] == 0
     assert manifest["input_safety_issue_count"] == 0
+    assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 0
+    assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 0
     assert all(item["complete"] for item in manifest["closure_checklist"])
     assert all(stage["allowed_now"] is True for stage in manifest["post_plan_remote_stage_summary"].values())
     assert all(stage["blocked_by"] == [] for stage in manifest["post_plan_remote_stage_summary"].values())
@@ -84,6 +90,20 @@ def test_formal_gate_closure_checklist_requires_remote_stage_blockers(tmp_path):
     assert "post_plan_gate3_remote_training_missing_blocked_by" in issue_ids
 
 
+def test_formal_gate_closure_checklist_rejects_gap_summary_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_closure_checklist")
+    config = _config(tmp_path, complete=False)
+    post_plan = json.loads(config.post_plan_path.read_text(encoding="utf-8"))
+    post_plan["remaining_deliverables_gap_summary"]["categories"]["training"]["missing_count"] = 2
+    config.post_plan_path.write_text(json.dumps(post_plan), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert manifest["status"] == "formal_gate_closure_blocked"
+    assert "post_plan_remaining_deliverables_gap_summary_mismatch" in issue_ids
+
+
 def test_formal_gate_closure_checklist_cli_writes_json_and_markdown(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_closure_checklist")
     config = _config(tmp_path, complete=False)
@@ -106,6 +126,8 @@ def test_formal_gate_closure_checklist_cli_writes_json_and_markdown(tmp_path):
             str(config.post_plan_path),
             "--source-freshness-audit",
             str(config.source_freshness_path),
+            "--remaining-deliverables",
+            str(config.remaining_deliverables_path),
         ]
     )
 
@@ -116,6 +138,7 @@ def test_formal_gate_closure_checklist_cli_writes_json_and_markdown(tmp_path):
     assert "Module2 Formal Gate Closure Checklist" in markdown
     assert "gate3_remote_training_outputs" in markdown
     assert "Post-Plan Remote Stages" in markdown
+    assert "Remaining Deliverables Gap Summary" in markdown
     assert "does not execute commands" in markdown
 
 
@@ -125,12 +148,14 @@ def _config(tmp_path, *, complete, drift=False):
     formal_gate = _formal_gate(complete=complete)
     post_plan = _post_plan(complete=complete, drift=drift)
     source_freshness = _source_freshness(complete=complete, drift=drift)
+    remaining_deliverables = _remaining_deliverables(complete=complete)
     return builder.FormalGateClosureChecklistConfig(
         output_dir=tmp_path,
         missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", missing_artifacts),
         formal_gate_path=_json(tmp_path, "formal_gate.json", formal_gate),
         post_plan_path=_json(tmp_path, "post_plan.json", post_plan),
         source_freshness_path=_json(tmp_path, "source_freshness.json", source_freshness),
+        remaining_deliverables_path=_json(tmp_path, "remaining_deliverables.json", remaining_deliverables),
     )
 
 
@@ -256,6 +281,7 @@ def _post_plan(*, complete, drift=False):
         "blocking_summary": {
             "blocked_stage_ids": [] if complete else ["gate3_remote_training"],
         },
+        "remaining_deliverables_gap_summary": _gap_summary(open_gaps=not complete),
         "ordered_stages": [
             {"stage_id": "f02_6_decision_record", "status": "complete" if complete else "ready", "blocked_by": []},
             {
@@ -291,6 +317,49 @@ def _post_plan(*, complete, drift=False):
     if drift:
         payload["runs_remote_preflight"] = True
     return payload
+
+
+def _remaining_deliverables(*, complete):
+    return {
+        "status": "formal_gate_deliverables_complete" if complete else "formal_gate_deliverables_blocked",
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+        "deliverable_gap_summary": _gap_summary(open_gaps=not complete),
+    }
+
+
+def _gap_summary(*, open_gaps):
+    return {
+        "summary_id": "module2_formal_gate_missing_training_eval_acceptance_summary",
+        "execution_boundary": "read_only_no_execution",
+        "not_paper_result_material": True,
+        "total_missing_deliverables": 10 if open_gaps else 0,
+        "open_category_count": 4 if open_gaps else 0,
+        "category_order": ["training", "evaluation", "acceptance", "formal_acceptance"],
+        "categories": {
+            "training": _gap_category("training", 3 if open_gaps else 0, "gate3_remote_training", open_gaps=open_gaps),
+            "evaluation": _gap_category("evaluation", 2 if open_gaps else 0, "gate3_remote_audit_pullback", open_gaps=open_gaps),
+            "acceptance": _gap_category("acceptance", 3 if open_gaps else 0, "gate3_remote_audit_pullback", open_gaps=open_gaps),
+            "formal_acceptance": _gap_category(
+                "formal_acceptance",
+                2 if open_gaps else 0,
+                "regenerate_h01_h02_formal_artifacts",
+                open_gaps=open_gaps,
+            ),
+        },
+    }
+
+
+def _gap_category(category, missing_count, stage_id, *, open_gaps):
+    return {
+        "missing_count": missing_count,
+        "responsible_stage_id": stage_id,
+        "responsible_stage_allowed_now": not open_gaps,
+        "missing_artifact_matrix_ids": [f"{category}:artifact_{index}" for index in range(missing_count)],
+    }
 
 
 def _source_freshness(*, complete, drift=False):
