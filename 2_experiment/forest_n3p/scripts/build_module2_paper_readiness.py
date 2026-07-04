@@ -43,6 +43,15 @@ CLAIM_SAFETY_H02_FORMAL_ACCEPTANCE_REQUIREMENT_IDS = (
     "gate3_audit_and_pullback_acceptance",
     "ppo_rows_and_checkpoint_hash_present",
 )
+CLAIM_SAFETY_DECISION_INTAKE_CLEAN_STATUSES = (
+    "f02_6_decision_intake_pending_clean",
+    "f02_6_decision_intake_closed_clean",
+)
+CLAIM_SAFETY_DECISION_INTAKE_RECORD_STATUSES = (
+    "pending_human_decision",
+    "approved",
+    "rejected",
+)
 
 
 @dataclass(frozen=True)
@@ -122,6 +131,7 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
     claim_requirement_stage_summary = _claim_safety_requirement_stage_summary(claim_safety)
     claim_remote_requirement_summary = _claim_safety_remote_requirement_summary(claim_safety)
     claim_h02_acceptance_requirement_summary = _claim_safety_h02_acceptance_requirement_summary(claim_safety)
+    claim_decision_intake_summary = _claim_safety_decision_intake_summary(claim_safety)
     input_status = {
         "method_algorithms_status": method_algorithms.get("status"),
         "system_diagram_status": system_diagram.get("status"),
@@ -176,6 +186,20 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_h02_formal_acceptance_requirement_blocked_count": claim_h02_acceptance_requirement_summary[
             "blocked_requirement_count"
         ],
+        "claim_safety_decision_intake_present": claim_decision_intake_summary["present"],
+        "claim_safety_decision_intake_status": claim_decision_intake_summary["status"],
+        "claim_safety_decision_intake_record_status": claim_decision_intake_summary["record_status"],
+        "claim_safety_decision_intake_audit_issue_count": claim_decision_intake_summary["audit_issue_count"],
+        "claim_safety_decision_intake_next_blocked_lane": claim_decision_intake_summary["next_blocked_lane"],
+        "claim_safety_decision_intake_remote_preflight_allowed_now": claim_decision_intake_summary[
+            "remote_preflight_allowed_now"
+        ],
+        "claim_safety_decision_intake_remote_training_allowed_now": claim_decision_intake_summary[
+            "remote_training_allowed_now"
+        ],
+        "claim_safety_decision_intake_formal_claim_allowed_now": claim_decision_intake_summary[
+            "formal_claim_allowed_now"
+        ],
         "h02_formal_acceptance_status": h02_acceptance.get("status"),
         "h02_formal_output_accepted": h02_acceptance.get("formal_output_accepted"),
         "h02_paper_result_input_allowed": h02_acceptance.get("paper_result_input_allowed"),
@@ -227,6 +251,7 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_requirement_stage_summary": claim_requirement_stage_summary,
         "claim_safety_remote_requirement_summary": claim_remote_requirement_summary,
         "claim_safety_h02_acceptance_requirement_summary": claim_h02_acceptance_requirement_summary,
+        "claim_safety_decision_intake_summary": claim_decision_intake_summary,
         "global_blockers": global_blockers,
         "allowed_claim_ids": allowed_claim_ids,
         "conditional_claim_ids": conditional_claim_ids,
@@ -282,6 +307,7 @@ def _global_blockers(
     _extend_unique(blockers, _claim_safety_requirement_stage_blockers(claim_safety))
     _extend_unique(blockers, _claim_safety_remote_requirement_blockers(claim_safety))
     _extend_unique(blockers, _claim_safety_h02_acceptance_requirement_blockers(claim_safety))
+    _extend_unique(blockers, _claim_safety_decision_intake_blockers(claim_safety))
     _extend_unique(blockers, h01_manifest.get("blockers", []))
     if str(decision_record.get("status")) == "pending_human_decision":
         _append_unique(blockers, "f02_6_pending")
@@ -562,6 +588,57 @@ def _claim_safety_h02_acceptance_requirement_blockers(claim_safety: dict[str, An
     return blockers
 
 
+def _claim_safety_decision_intake_summary(claim_safety: dict[str, Any]) -> dict[str, Any]:
+    summary = claim_safety.get("status_report_decision_intake_summary")
+    if not isinstance(summary, dict):
+        summary = {}
+    return {
+        "present": bool(summary),
+        "status": summary.get("status"),
+        "audit_issue_count": int(summary.get("audit_issue_count") or 0),
+        "record_status": summary.get("record_status"),
+        "record_decider": summary.get("record_decider"),
+        "next_blocked_lane": summary.get("next_blocked_lane"),
+        "remote_preflight_allowed_now": summary.get("remote_preflight_allowed_now")
+        if isinstance(summary.get("remote_preflight_allowed_now"), bool)
+        else None,
+        "remote_training_allowed_now": summary.get("remote_training_allowed_now")
+        if isinstance(summary.get("remote_training_allowed_now"), bool)
+        else None,
+        "formal_claim_allowed_now": summary.get("formal_claim_allowed_now")
+        if isinstance(summary.get("formal_claim_allowed_now"), bool)
+        else None,
+    }
+
+
+def _claim_safety_decision_intake_blockers(claim_safety: dict[str, Any]) -> list[str]:
+    summary = _claim_safety_decision_intake_summary(claim_safety)
+    blockers: list[str] = []
+    if not summary["present"]:
+        blockers.append("claim_safety_missing_f02_6_decision_intake_summary")
+        return blockers
+    if summary["status"] not in CLAIM_SAFETY_DECISION_INTAKE_CLEAN_STATUSES:
+        blockers.append("claim_safety_f02_6_decision_intake_not_clean")
+    if summary["audit_issue_count"] > 0:
+        blockers.append("claim_safety_f02_6_decision_intake_audit_issues_open")
+    if summary["record_status"] == "pending_human_decision":
+        blockers.append("claim_safety_f02_6_decision_intake_pending")
+        if summary["next_blocked_lane"] != "decision":
+            blockers.append("claim_safety_pending_f02_6_intake_next_lane_not_decision")
+        if summary["remote_preflight_allowed_now"] is not False:
+            blockers.append("claim_safety_pending_f02_6_intake_allows_remote_preflight")
+        if summary["remote_training_allowed_now"] is not False:
+            blockers.append("claim_safety_pending_f02_6_intake_allows_remote_training")
+        if summary["formal_claim_allowed_now"] is not False:
+            blockers.append("claim_safety_pending_f02_6_intake_allows_formal_claim")
+    elif summary["record_status"] in {"approved", "rejected"}:
+        if summary["record_decider"] != "Dr Sun":
+            blockers.append("claim_safety_closed_f02_6_intake_decider_not_dr_sun")
+    elif summary["record_status"] not in CLAIM_SAFETY_DECISION_INTAKE_RECORD_STATUSES:
+        blockers.append("claim_safety_f02_6_decision_intake_unknown_record_status")
+    return blockers
+
+
 def _claim_safety_remote_requirement_group_blockers(
     *,
     summary: dict[str, Any],
@@ -670,6 +747,17 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- claim_safety_h02_formal_acceptance_requirement_present: `{input_status.get('claim_safety_h02_formal_acceptance_requirement_present')}`",
             f"- claim_safety_h02_formal_acceptance_requirement_satisfied_count: `{input_status.get('claim_safety_h02_formal_acceptance_requirement_satisfied_count')}`",
             f"- claim_safety_h02_formal_acceptance_requirement_blocked_count: `{input_status.get('claim_safety_h02_formal_acceptance_requirement_blocked_count')}`",
+            "",
+            "## Claim Safety F02.6 Decision Intake",
+            "",
+            f"- claim_safety_decision_intake_present: `{input_status.get('claim_safety_decision_intake_present')}`",
+            f"- claim_safety_decision_intake_status: `{input_status.get('claim_safety_decision_intake_status')}`",
+            f"- claim_safety_decision_intake_record_status: `{input_status.get('claim_safety_decision_intake_record_status')}`",
+            f"- claim_safety_decision_intake_audit_issue_count: `{input_status.get('claim_safety_decision_intake_audit_issue_count')}`",
+            f"- claim_safety_decision_intake_next_blocked_lane: `{input_status.get('claim_safety_decision_intake_next_blocked_lane')}`",
+            f"- claim_safety_decision_intake_remote_preflight_allowed_now: `{input_status.get('claim_safety_decision_intake_remote_preflight_allowed_now')}`",
+            f"- claim_safety_decision_intake_remote_training_allowed_now: `{input_status.get('claim_safety_decision_intake_remote_training_allowed_now')}`",
+            f"- claim_safety_decision_intake_formal_claim_allowed_now: `{input_status.get('claim_safety_decision_intake_formal_claim_allowed_now')}`",
         ]
     )
     lines.extend(["", "## Section Readiness", ""])
