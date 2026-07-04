@@ -36,6 +36,8 @@ def test_formal_gate_gap_audit_blocks_current_pending_gate_and_lists_missing_art
             str(_remote_readiness(tmp_path, good=True)),
             "--source-freshness-audit",
             str(_source_freshness(tmp_path, clean=True)),
+            "--missing-artifacts-audit",
+            str(_missing_artifacts(tmp_path, complete=True)),
         ]
     )
 
@@ -96,6 +98,7 @@ def test_formal_gate_gap_audit_can_be_clean_only_after_remote_artifacts_and_acce
             readiness_path=_readiness(tmp_path, ready=True),
             remote_readiness_path=_remote_readiness(tmp_path, good=True),
             source_freshness_path=_source_freshness(tmp_path, clean=True),
+            missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
         )
     )
 
@@ -123,6 +126,7 @@ def test_formal_gate_gap_audit_does_not_treat_expected_training_outputs_as_train
             readiness_path=_readiness(tmp_path, ready=False),
             remote_readiness_path=_remote_readiness(tmp_path, good=True),
             source_freshness_path=_source_freshness(tmp_path, clean=True),
+            missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
         )
     )
 
@@ -153,6 +157,7 @@ def test_formal_gate_gap_audit_blocks_remote_execution_when_readiness_inputs_do_
             readiness_path=_readiness(tmp_path, ready=False),
             remote_readiness_path=_remote_readiness(tmp_path, good=False),
             source_freshness_path=_source_freshness(tmp_path, clean=True),
+            missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
         )
     )
 
@@ -180,6 +185,7 @@ def test_formal_gate_gap_audit_blocks_remote_execution_when_source_freshness_req
             readiness_path=_readiness(tmp_path, ready=False),
             remote_readiness_path=_remote_readiness(tmp_path, good=True),
             source_freshness_path=_source_freshness(tmp_path, clean=False),
+            missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
         )
     )
 
@@ -208,6 +214,7 @@ def test_formal_gate_gap_audit_rejects_source_freshness_audit_that_runs_or_claim
             readiness_path=_readiness(tmp_path, ready=False),
             remote_readiness_path=_remote_readiness(tmp_path, good=True),
             source_freshness_path=_source_freshness(tmp_path, clean=True, invalid=True),
+            missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
         )
     )
 
@@ -233,6 +240,7 @@ def test_formal_gate_gap_audit_does_not_allow_local_training_even_when_remote_is
             readiness_path=_readiness(tmp_path, ready=True),
             remote_readiness_path=_remote_readiness(tmp_path, good=True),
             source_freshness_path=_source_freshness(tmp_path, clean=True),
+            missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
         )
     )
 
