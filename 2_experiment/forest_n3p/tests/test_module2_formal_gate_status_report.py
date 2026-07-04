@@ -265,6 +265,18 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert command_index["claim_gate_rows"]["paper_readiness"]["required_before"] == "formal_claim_gate"
     assert manifest["current_state"]["remote_packet_safety_command_index_present"] is True
     assert manifest["current_state"]["remote_packet_safety_command_index_row_count"] == 18
+    assert manifest["current_state"]["next_action_guard_status"] == "next_action_guard_passed"
+    next_guard = manifest["next_action_guard_summary"]
+    assert next_guard["present"] is True
+    assert next_guard["status"] == "next_action_guard_passed"
+    assert next_guard["next_blocked_lane_id"] == "decision"
+    assert next_guard["expected_next_action_id"] == "record_f02_6_decision"
+    assert next_guard["handoff_next_action_id"] == "record_f02_6_decision"
+    assert next_guard["decision_intake_next_blocked_lane"] == "decision"
+    assert next_guard["all_execution_disabled_now"] is True
+    assert next_guard["execution_leak_count"] == 0
+    assert next_guard["remote_execution_allowed_count"] == 0
+    assert next_guard["remote_stage_allowed_count"] == 0
 
     lanes = {lane["lane_id"]: lane for lane in manifest["formal_gate_lanes"]}
     assert lanes["gate3_remote_training"]["runs_training"] is True
@@ -608,6 +620,23 @@ def test_formal_gate_status_report_consumes_handoff_bundle_safety(tmp_path):
     issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
     assert manifest["status"] == "formal_gate_status_blocked"
     assert "handoff_bundle_pending_allows_run_remote_training" in issue_ids
+    assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+
+
+def test_formal_gate_status_report_next_action_guard_rejects_execution_handoff(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    handoff = json.loads(config.handoff_bundle_path.read_text(encoding="utf-8"))
+    handoff["next_handoff_action"]["action_id"] = "run_remote_training"
+    handoff["next_handoff_action"]["requires_dr_sun"] = False
+    config.handoff_bundle_path.write_text(json.dumps(handoff), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert manifest["next_action_guard_summary"]["status"] == "next_action_guard_failed"
+    assert "next_action_guard_unexpected_handoff_action" in issue_ids
+    assert "next_action_guard_handoff_action_not_dr_sun_gated" in issue_ids
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
 
 
