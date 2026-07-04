@@ -1,0 +1,43 @@
+{
+  "status": "complete",
+  "created_at_utc": "2026-07-04T01:00:14.372371+00:00",
+  "execution_host": "MacBook-Pro.local",
+  "source_head": "80ae2f6ad3b6b29d703671850759c4047369331f",
+  "command": "python -m forest_n3p.scripts.extract_oracle_demonstrations --buckets Extreme --filter-best-oracle oracle_a --oracle-types best --max-records 512 --progress-every 25 --source-head 80ae2f6ad3b6b29d703671850759c4047369331f --output 2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v1_extreme_a512.parquet",
+  "input": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+  "output": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v1_extreme_a512.parquet",
+  "input_row_count": 7860,
+  "selected_rows": 512,
+  "replay_success_rows": 512,
+  "demo_rows": 42209,
+  "skipped_not_connectable": 0,
+  "skipped_oracle_replay_failed": 0,
+  "skipped_terminal_rs_ready": 15364,
+  "skipped_collision": 0,
+  "skipped_reverse": 204,
+  "skipped_short": 0,
+  "config": {
+    "density_profile_buckets": "validation_t06",
+    "buckets": "Extreme",
+    "oracle_types": "best",
+    "filter_best_oracle": "oracle_a",
+    "oracle_b_candidate_sources": null,
+    "exclude_oracle_b_candidate_sources": null,
+    "max_records": 512,
+    "row_offset": 0,
+    "progress_every": 25,
+    "stop_at_terminal_rs": true,
+    "min_step_length_m": 0.0001,
+    "turning_radius_m": 1.0,
+    "wheelbase_m": 0.6,
+    "theta_bins": 72,
+    "rs_sample_step_m": 0.05,
+    "obs_config": {
+      "patch_storage": "reconstructable_from_map_seed_pose_goal_not_inlined",
+      "patch_size_m": 6.4,
+      "patch_cells": 64,
+      "include_edt": true,
+      "edt_clip_m": 3.0
+    }
+  }
+}

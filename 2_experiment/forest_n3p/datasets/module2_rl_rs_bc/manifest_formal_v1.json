@@ -1,0 +1,108 @@
+{
+  "dataset_id": "module2_rl_rs_bc_formal_v1",
+  "dataset_status": "formal_v1_trainable_not_paper_final",
+  "created_at_utc": "2026-07-04T01:07:42.347360+00:00",
+  "source_contract": ".pipeline/contracts/module2-ppo-funnel-expansion.md",
+  "source_input": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+  "source_input_head": "1f4f96f82bca68f06cc6e9a08adb9ea9aaf993a5",
+  "extractor_source_head": "80ae2f6ad3b6b29d703671850759c4047369331f",
+  "merge_source_head": "80ae2f6ad3b6b29d703671850759c4047369331f",
+  "source_extractor": "2_experiment/forest_n3p/scripts/extract_oracle_demonstrations.py",
+  "source_merger": "2_experiment/forest_n3p/scripts/merge_demonstration_shards.py",
+  "selection_policy": {
+    "oracle_a": {
+      "complex_source_rows": 512,
+      "extreme_source_rows": 512,
+      "filter_best_oracle": "oracle_a"
+    },
+    "oracle_b": {
+      "candidate_source": "goal_annulus",
+      "selected_source_rows": 58,
+      "replay_success_source_rows": 11,
+      "replay_failed_source_rows": 47,
+      "filter_best_oracle": "oracle_b"
+    },
+    "excluded_b_only": "voronoi_skeleton rows are excluded until audited"
+  },
+  "current_collision_audit_for_58_goal_annulus_b_rows": {
+    "clean_rows": 11,
+    "goal_collision_rows": 47,
+    "start_collision_rows": 2,
+    "candidate_collision_rows": 4,
+    "note": "counts can overlap; the 11 clean rows match the replay-success source rows"
+  },
+  "merged_dataset": {
+    "path": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v1.parquet",
+    "sha256": "e39a11828f9eb45d3397d0264e366364664ecaadc9cdca64e49a95c527e62de1",
+    "summary_path": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v1_summary.json",
+    "summary_sha256": "b1b606df4902bae6254c56d82a81b1cdbb13460c302759ca80b012c220285db5",
+    "row_count": 85514,
+    "source_row_count": 1035,
+    "oracle_type_counts": {
+      "oracle_a": 84502,
+      "oracle_b": 1012
+    },
+    "difficulty_bucket_counts": {
+      "Complex": 42429,
+      "Extreme": 43085
+    },
+    "source_row_counts_by_oracle": {
+      "oracle_a": 1024,
+      "oracle_b": 11
+    }
+  },
+  "shards": [
+    {
+      "name": "complex_a512",
+      "path": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v1_complex_a512.parquet",
+      "sha256": "3e1f214098b7dd7859525fc839959e43f443d4f1499568268c79c7aed663b7cc",
+      "summary_path": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v1_complex_a512_summary.json",
+      "summary_sha256": "aea8eb2b4899b3140c3e0e7cf72d4d65b7ef21a9714e6fc5a499307d8d0b273d",
+      "selected_rows": 512,
+      "replay_success_rows": 512,
+      "demo_rows": 42293
+    },
+    {
+      "name": "extreme_a512",
+      "path": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v1_extreme_a512.parquet",
+      "sha256": "32329566e03243a61cd6c69d767c8209acbb6121a90538995b9a7ad0e5f01054",
+      "summary_path": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v1_extreme_a512_summary.json",
+      "summary_sha256": "39ddd7ccc1ee530d9f2b9928ba718870ece63a7638b5b37a733ab5ec365e7766",
+      "selected_rows": 512,
+      "replay_success_rows": 512,
+      "demo_rows": 42209
+    },
+    {
+      "name": "b_goal_annulus_default_budget",
+      "path": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v1_b_goal_annulus.parquet",
+      "sha256": "77db15e6a5474c17a89fe62809d80194984ed942e5f362556ee591649ad1c4e6",
+      "summary_path": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v1_b_goal_annulus_summary.json",
+      "summary_sha256": "6326e5a5894676a0d3a21946a158b107901f5ae097e6929d0192757106b1b1b7",
+      "selected_rows": 58,
+      "replay_success_rows": 11,
+      "demo_rows": 1012,
+      "skipped_oracle_replay_failed": 47
+    }
+  ],
+  "diagnostic_artifacts": [
+    {
+      "name": "b_goal_annulus_timeout12",
+      "path": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v1_b_goal_annulus_timeout12.parquet",
+      "sha256": "77db15e6a5474c17a89fe62809d80194984ed942e5f362556ee591649ad1c4e6",
+      "summary_path": "2_experiment/forest_n3p/datasets/module2_rl_rs_bc/demonstrations_formal_v1_b_goal_annulus_timeout12_summary.json",
+      "summary_sha256": "2bdb47326ea8573a88ede3d778cde4ce55bab8148d4e22b712df168b12bf9b8b",
+      "result": "same replay_success_rows=11 as default budget; wider budget did not recover the failed 47 rows"
+    }
+  ],
+  "allowed_conclusions": [
+    "formal_v1 is trainable and source-bound",
+    "formal_v1 balances Complex and Extreme oracle-A shards at 512 source rows each",
+    "formal_v1 includes only current-code-replayable goal_annulus oracle-B rows"
+  ],
+  "disallowed_conclusions": [
+    "do not claim all 58 historical goal_annulus B-only rows are currently reproducible",
+    "do not claim voronoi_skeleton B-only rows are valid training evidence",
+    "do not claim this is a paper-final full corpus",
+    "do not claim PPO training or planner integration exists"
+  ]
+}
