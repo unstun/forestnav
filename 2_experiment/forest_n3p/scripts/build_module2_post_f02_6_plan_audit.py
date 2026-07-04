@@ -297,6 +297,45 @@ def _missing_artifacts_issues(
     return issues
 
 
+def _closure_checklist_issues(
+    *,
+    plan: dict[str, Any],
+    closure_checklist: dict[str, Any],
+    closure_checklist_path: Path,
+) -> list[dict[str, Any]]:
+    if not Path(closure_checklist_path).is_file():
+        return [
+            _issue(
+                "closure_checklist_absent",
+                "Post-F02.6 plan audit requires the closure checklist for final gate cross-check.",
+                observed=str(closure_checklist_path),
+            )
+        ]
+    issues: list[dict[str, Any]] = []
+    if closure_checklist.get("executes_commands") is not False:
+        issues.append(_issue("closure_checklist_executes_commands", "Closure checklist must be read-only."))
+    if closure_checklist.get("runs_training") is not False:
+        issues.append(_issue("closure_checklist_runs_training", "Closure checklist must not run training."))
+    if closure_checklist.get("runs_remote_preflight") is not False:
+        issues.append(_issue("closure_checklist_runs_preflight", "Closure checklist must not run remote preflight."))
+    if closure_checklist.get("local_training_allowed") is not False:
+        issues.append(_issue("closure_checklist_allows_local_training", "Closure checklist must preserve local-training prohibition."))
+    if closure_checklist.get("formal_claim_allowed") is not False:
+        issues.append(_issue("closure_checklist_allows_claim", "Closure checklist must not allow formal claims."))
+    if int(closure_checklist.get("input_safety_issue_count") or 0) > 0:
+        issues.append(_issue("closure_checklist_has_input_safety_issues", "Closure checklist reports open input safety issues."))
+    claim_stage = _stage_by_id(plan, "regenerate_claim_gate_artifacts")
+    if closure_checklist.get("status") != "formal_gate_closure_ready_for_result_audit" and claim_stage.get("allowed_now") is True:
+        issues.append(
+            _issue(
+                "claim_gate_ready_with_open_closure_checklist",
+                "Claim gate regeneration must not be ready while the closure checklist is open.",
+                observed={"status": closure_checklist.get("status"), "open_item_count": closure_checklist.get("open_item_count")},
+            )
+        )
+    return issues
+
+
 def _target_counts_by_gate(plan: dict[str, Any]) -> dict[str, int]:
     groups = plan.get("source_regeneration_targets_by_gate") if isinstance(plan.get("source_regeneration_targets_by_gate"), dict) else {}
     return {str(key): len(value) for key, value in sorted(groups.items()) if isinstance(value, list)}
@@ -340,6 +379,22 @@ def _missing_artifacts_summary(path: Path, missing_artifacts: dict[str, Any]) ->
         "all_required_evidence_present": missing_artifacts.get("all_required_evidence_present"),
         "audit_issue_count": missing_artifacts.get("audit_issue_count"),
         "missing_counts_by_category": counts if isinstance(counts, dict) else {},
+    }
+
+
+def _closure_checklist_summary(path: Path, closure_checklist: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "path": str(path),
+        "exists": Path(path).is_file(),
+        "status": closure_checklist.get("status"),
+        "executes_commands": closure_checklist.get("executes_commands"),
+        "runs_training": closure_checklist.get("runs_training"),
+        "runs_remote_preflight": closure_checklist.get("runs_remote_preflight"),
+        "local_training_allowed": closure_checklist.get("local_training_allowed"),
+        "formal_claim_allowed": closure_checklist.get("formal_claim_allowed"),
+        "closure_item_count": closure_checklist.get("closure_item_count"),
+        "open_item_count": closure_checklist.get("open_item_count"),
+        "input_safety_issue_count": closure_checklist.get("input_safety_issue_count"),
     }
 
 
