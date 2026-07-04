@@ -848,3 +848,76 @@ def _status_report(tmp_path, *, ready, invalid=False):
         encoding="utf-8",
     )
     return path
+
+
+def _handoff_bundle(tmp_path, *, ready, pending, mismatch=False):
+    path = tmp_path / f"handoff_{ready}_{pending}_{mismatch}.json"
+    steps = _remote_steps(ready=ready)
+    if mismatch:
+        steps["run_remote_training"] = {
+            **steps["run_remote_training"],
+            "allowed_now": not ready,
+            "blocked_by": ["stale_handoff_training_permission"],
+        }
+    path.write_text(
+        json.dumps(
+            {
+                "status": "blocked_until_f02_6_decision" if pending else "ready_for_manual_remote_execution_review",
+                "executes_commands": False,
+                "runs_training": False,
+                "runs_remote_preflight": False,
+                "local_training_allowed": False,
+                "formal_claim_allowed": False,
+                "current_state": {
+                    "decision_status": "pending_human_decision" if pending else "approved",
+                },
+                "permissions_now": {
+                    "local_training_allowed_now": False,
+                    "remote_preflight_allowed_now": ready and not pending,
+                    "remote_training_allowed_now": ready and not pending and not mismatch,
+                    "formal_claim_allowed_now": ready and not pending,
+                },
+                "remote_execution_steps": steps,
+                "next_handoff_action": {
+                    "action_id": "record_f02_6_decision" if pending else "manual_execution_review",
+                },
+                "safety_issue_count": 0,
+                "safety_issues": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    return path
+
+
+def _remote_packet_safety(tmp_path, *, ready, stale=False):
+    path = tmp_path / f"remote_packet_safety_{ready}_{stale}.json"
+    safety_ready = False if stale else ready
+    steps = _remote_steps(ready=safety_ready)
+    path.write_text(
+        json.dumps(
+            {
+                "status": "remote_packet_safety_audit_passed",
+                "executes_commands": False,
+                "runs_training": False,
+                "runs_remote_preflight": False,
+                "local_training_allowed": False,
+                "formal_claim_allowed": False,
+                "audit_issue_count": 0,
+                "audit_issues": [],
+                "packet_summary": {
+                    "status": "blocked_until_f02_6_decision" if stale or not ready else "ready_for_gpu3070ti_remote_training",
+                    "sync_allowed_now": steps["sync_to_remote"]["allowed_now"],
+                    "remote_preflight_allowed_now": steps["run_remote_preflight"]["allowed_now"],
+                    "remote_training_allowed_now": steps["run_remote_training"]["allowed_now"],
+                    "remote_audit_allowed_now": steps["run_remote_audit"]["allowed_now"],
+                    "sync_blocked_by": steps["sync_to_remote"]["blocked_by"],
+                    "remote_preflight_blocked_by": steps["run_remote_preflight"]["blocked_by"],
+                    "remote_training_blocked_by": steps["run_remote_training"]["blocked_by"],
+                    "remote_audit_blocked_by": steps["run_remote_audit"]["blocked_by"],
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    return path
