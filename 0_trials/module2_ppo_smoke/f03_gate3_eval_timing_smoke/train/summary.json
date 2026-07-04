@@ -1,0 +1,65 @@
+{
+  "status": "complete",
+  "created_at_utc": "2026-07-04T04:17:26.604294+00:00",
+  "execution_host": "MacBook-Pro.local",
+  "source_head": "540779cde3d00b568b920a7685fdfe9501470876+dirty",
+  "output_dir": "0_trials/module2_ppo_smoke/f03_gate3_eval_timing_smoke/train",
+  "manifest": "0_trials/module2_ppo_smoke/f03_gate3_eval_timing_smoke/train/training_manifest.json",
+  "final_model": "final_model.zip",
+  "checkpoint_count": 1,
+  "warm_start_status": "not_applied_f02_6_pending",
+  "config": {
+    "command": "python -m forest_n3p.scripts.train_rl_rs_ppo --output-dir 0_trials/module2_ppo_smoke/f03_gate3_eval_timing_smoke/train --seed 20260704 --device auto --curriculum-preset open --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260704 --n-envs 1 --total-timesteps 16 --n-steps 8 --batch-size 8 --n-epochs 1 --learning-rate 0.0003 --gamma 0.99 --gae-lambda 0.95 --clip-range 0.2 --ent-coef 0.0 --vf-coef 0.5 --max-grad-norm 0.5 --policy-net-arch 128,128,64 --value-net-arch 128,128,64 --checkpoint-freq 0 --verbose 0 --obs-patch-size-m 0.4 --obs-patch-cells 5 --obs-edt-clip-m 2.0 --max-steps 4 --action-step-m 0.3 --collision-sample-step-m 0.1 --terminal-check-every 1 --theta-bins 72 --allow-duplicate-openmp --smoke",
+    "smoke": true,
+    "seed": 20260704,
+    "policy": "MultiInputPolicy",
+    "features_extractor": "RlRsObstacleSummaryExtractor",
+    "warm_start_status": "not_applied_f02_6_pending",
+    "bc_checkpoint": null,
+    "curriculum_preset": "open",
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "heldout_seed": 20260704,
+    "n_envs": 1,
+    "total_timesteps": 16,
+    "n_steps": 8,
+    "batch_size": 8,
+    "n_epochs": 1,
+    "learning_rate": 0.0003,
+    "gamma": 0.99,
+    "gae_lambda": 0.95,
+    "clip_range": 0.2,
+    "ent_coef": 0.0,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.5,
+    "policy_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "value_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "tensorboard_log": null,
+    "checkpoint_freq": 0,
+    "device": "auto",
+    "allow_duplicate_openmp": true,
+    "observation_config": {
+      "patch_size_m": 0.4,
+      "patch_cells": 5,
+      "include_edt": true,
+      "edt_clip_m": 2.0
+    },
+    "env_config": {
+      "max_steps": 4,
+      "action_step_m": 0.3,
+      "collision_sample_step_m": 0.1,
+      "terminal_check_every": 1,
+      "theta_bins": 72
+    },
+    "warm_start": {
+      "status": "not_applied_f02_6_pending"
+    }
+  }
+}

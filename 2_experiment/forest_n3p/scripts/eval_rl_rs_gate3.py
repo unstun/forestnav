@@ -7,10 +7,10 @@ import os
 import socket
 import subprocess
 import sys
-from time import perf_counter
 from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
+from time import perf_counter
 from typing import Any
 
 from forest_n3p.rl_rs.curriculum import (
