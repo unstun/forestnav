@@ -42,8 +42,12 @@ def test_remote_formal_execution_packet_blocks_pending_decision_and_freezes_pull
     assert packet["execution_environment"]["gpu_alias"] == "gpu3070ti-relay"
     assert packet["execution_environment"]["remote_workdir"] == "~/ForestNav"
     assert packet["execution_steps"]["sync_to_remote"]["allowed_now"] is False
+    assert "requires_dr_sun_approval" in packet["execution_steps"]["sync_to_remote"]["blocked_by"]
+    assert "requires_dr_sun_approval" in packet["execution_steps"]["run_remote_preflight"]["blocked_by"]
     assert "--delete" not in packet["execution_steps"]["sync_to_remote"]["command"]
     assert packet["execution_steps"]["run_remote_training"]["allowed_now"] is False
+    assert "remote_packet_not_ready" in packet["execution_steps"]["run_remote_training"]["blocked_by"]
+    assert "remote_packet_not_ready" in packet["execution_steps"]["run_remote_audit"]["blocked_by"]
     assert "ssh gpu3070ti-relay" in packet["execution_steps"]["run_remote_training"]["command"]
     assert "--device cuda" in packet["execution_steps"]["run_remote_training"]["command"]
     assert packet["post_run_pullback"]["required_before_local_claim"] is True
@@ -71,7 +75,9 @@ def test_remote_formal_execution_packet_allows_only_approved_ready_remote_traini
     assert packet["local_training_allowed"] is False
     assert packet["blockers"] == []
     assert packet["execution_steps"]["sync_to_remote"]["allowed_now"] is True
+    assert packet["execution_steps"]["sync_to_remote"]["blocked_by"] == []
     assert packet["execution_steps"]["run_remote_training"]["allowed_now"] is True
+    assert packet["execution_steps"]["run_remote_training"]["blocked_by"] == []
     runner_command = packet["execution_steps"]["run_remote_training"]["command"]
     assert runner_command.startswith("ssh gpu3070ti-relay")
     assert "run_rl_rs_gate3_trial" in runner_command
