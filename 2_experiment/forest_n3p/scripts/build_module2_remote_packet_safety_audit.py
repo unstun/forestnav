@@ -387,12 +387,26 @@ def _cross_gate_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any],
     status_step_summary = status_summary.get("remote_execution_step_summary") if isinstance(status_summary.get("remote_execution_step_summary"), dict) else {}
     handoff_summary = status_summary.get("formal_gate_handoff_summary") if isinstance(status_summary.get("formal_gate_handoff_summary"), dict) else {}
     execution_veto = status_summary.get("formal_gate_execution_veto_summary") if isinstance(status_summary.get("formal_gate_execution_veto_summary"), dict) else {}
+    plan_gap = _normalize_gap_summary(plan_audit.get("remaining_deliverables_gap_summary"))
+    status_gap = _normalize_gap_summary(status_summary.get("remaining_deliverables_gap_summary"))
     if plan_audit and status_summary and not status_step_summary:
         issues.append(_issue("post_plan_missing_status_report_remote_step_summary", "Post-F02.6 plan audit must forward status report remote execution step summary."))
     if plan_audit and status_summary and not handoff_summary:
         issues.append(_issue("post_plan_missing_status_report_handoff_summary", "Post-F02.6 plan audit must forward status report handoff summary."))
     if plan_audit and status_summary and not execution_veto:
         issues.append(_issue("post_plan_missing_status_report_execution_veto_summary", "Post-F02.6 plan audit must forward status report execution veto summary."))
+    if plan_audit and not plan_gap["present"]:
+        issues.append(_issue("post_plan_missing_remaining_deliverables_gap_summary", "Post-F02.6 plan audit must expose remaining_deliverables_gap_summary."))
+    if plan_audit and status_summary and not status_gap["present"]:
+        issues.append(_issue("post_plan_missing_status_report_remaining_deliverables_gap_summary", "Status report summary must forward remaining_deliverables_gap_summary."))
+    if plan_gap["present"] and status_gap["present"] and _gap_signature(plan_gap) != _gap_signature(status_gap):
+        issues.append(
+            _issue(
+                "post_plan_status_report_remaining_deliverables_gap_summary_mismatch",
+                "Post-plan and status-report gap summaries must agree before remote packet safety can pass.",
+                observed={"post_plan": _gap_signature(plan_gap), "status_report": _gap_signature(status_gap)},
+            )
+        )
     if status_step_summary:
         packet_summary = _packet_summary(packet)
         for step_id, (allowed_key, blocked_key) in REMOTE_STATUS_STEP_MAP.items():
@@ -454,6 +468,8 @@ def _cross_gate_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any],
                     )
     if status_summary.get("local_training_allowed_now") is not False:
         issues.append(_issue("status_report_allows_local_training_now", "Remote packet safety requires status report to preserve local-training prohibition."))
+    if _gap_open(plan_gap) and status_summary.get("formal_claim_allowed_now") is True:
+        issues.append(_issue("status_report_allows_formal_claim_with_remaining_gap_open", "Formal claim must remain blocked while remaining-deliverables gaps are open."))
     if execution_veto:
         issues.extend(_status_report_execution_veto_issues(packet=packet, status_summary=status_summary, execution_veto=execution_veto))
     if status_summary.get("status") != "formal_gate_status_ready_for_claim_audit":
@@ -585,6 +601,8 @@ def _cross_gate_summary(*, decision_gate: dict[str, Any], plan_audit: dict[str, 
     remote_steps = status_summary.get("remote_execution_step_summary") if isinstance(status_summary.get("remote_execution_step_summary"), dict) else {}
     handoff_summary = status_summary.get("formal_gate_handoff_summary") if isinstance(status_summary.get("formal_gate_handoff_summary"), dict) else {}
     execution_veto = status_summary.get("formal_gate_execution_veto_summary") if isinstance(status_summary.get("formal_gate_execution_veto_summary"), dict) else {}
+    plan_gap = _normalize_gap_summary(plan_audit.get("remaining_deliverables_gap_summary"))
+    status_gap = _normalize_gap_summary(status_summary.get("remaining_deliverables_gap_summary"))
     return {
         "decision_gate_status": decision_gate.get("status"),
         "f02_6_record_status": decision.get("record_status"),
@@ -599,7 +617,70 @@ def _cross_gate_summary(*, decision_gate: dict[str, Any], plan_audit: dict[str, 
         "post_plan_status_report_remote_execution_step_summary": remote_steps,
         "post_plan_status_report_handoff_summary": handoff_summary,
         "post_plan_status_report_execution_veto_summary": execution_veto,
+        "post_plan_remaining_deliverables_gap_summary": plan_gap,
+        "post_plan_status_report_remaining_deliverables_gap_summary": status_gap,
     }
+
+
+def _normalize_gap_summary(raw: Any) -> dict[str, Any]:
+    summary = raw if isinstance(raw, dict) else {}
+    categories = _normalize_gap_categories(summary.get("categories"))
+    return {
+        "present": bool(summary),
+        "summary_id": summary.get("summary_id"),
+        "total_missing_deliverables": int(summary.get("total_missing_deliverables") or 0),
+        "open_category_count": int(summary.get("open_category_count") or 0),
+        "category_order": [str(item) for item in summary.get("category_order", []) if item]
+        if isinstance(summary.get("category_order"), list)
+        else list(categories),
+        "categories": categories,
+    }
+
+
+def _normalize_gap_categories(raw_categories: Any) -> dict[str, dict[str, Any]]:
+    if isinstance(raw_categories, dict):
+        items = raw_categories.items()
+    elif isinstance(raw_categories, list):
+        items = ((item.get("category"), item) for item in raw_categories if isinstance(item, dict))
+    else:
+        items = ()
+    out: dict[str, dict[str, Any]] = {}
+    for category, raw in items:
+        if not category or not isinstance(raw, dict):
+            continue
+        matrix_ids = raw.get("missing_artifact_matrix_ids")
+        if not isinstance(matrix_ids, list):
+            missing_artifacts = raw.get("missing_artifacts") if isinstance(raw.get("missing_artifacts"), list) else []
+            matrix_ids = [item.get("matrix_id") for item in missing_artifacts if isinstance(item, dict)]
+        out[str(category)] = {
+            "missing_count": int(raw.get("missing_count") or 0),
+            "responsible_stage_id": raw.get("responsible_stage_id"),
+            "responsible_stage_allowed_now": raw.get("responsible_stage_allowed_now"),
+            "missing_artifact_matrix_ids": [str(item) for item in matrix_ids if item],
+        }
+    return out
+
+
+def _gap_signature(summary: dict[str, Any]) -> dict[str, Any]:
+    categories = summary.get("categories") if isinstance(summary.get("categories"), dict) else {}
+    return {
+        "summary_id": summary.get("summary_id"),
+        "total_missing_deliverables": summary.get("total_missing_deliverables"),
+        "open_category_count": summary.get("open_category_count"),
+        "categories": {
+            key: {
+                "missing_count": value.get("missing_count"),
+                "responsible_stage_id": value.get("responsible_stage_id"),
+                "missing_artifact_matrix_ids": value.get("missing_artifact_matrix_ids", []),
+            }
+            for key, value in sorted(categories.items())
+            if isinstance(value, dict)
+        },
+    }
+
+
+def _gap_open(summary: dict[str, Any]) -> bool:
+    return int(summary.get("total_missing_deliverables") or 0) > 0 or int(summary.get("open_category_count") or 0) > 0
 
 
 def _step(steps: Any, name: str) -> dict[str, Any]:
