@@ -143,6 +143,16 @@ class PairedWilcoxonResult:
 
 
 @dataclass(frozen=True)
+class PairedWilcoxonExpansionsResult:
+    method_a: str
+    method_b: str
+    paired_query_count: int
+    statistic: float | None
+    p_value: float | None
+    median_delta_a_minus_b_expansions: float | None
+
+
+@dataclass(frozen=True)
 class BootstrapCIResult:
     method_a: str
     method_b: str
@@ -489,6 +499,40 @@ def paired_wilcoxon_time(
     )
 
 
+def paired_wilcoxon_expansions(
+    records: Iterable[EvaluationRecord],
+    method_a: str,
+    method_b: str,
+    *,
+    success_only: bool = False,
+) -> PairedWilcoxonExpansionsResult:
+    pairs = _paired_records(records, method_a, method_b)
+    x: list[float] = []
+    y: list[float] = []
+    for a, b in pairs:
+        if success_only and not (a.success and b.success):
+            continue
+        x.append(float(a.total_expansions))
+        y.append(float(b.total_expansions))
+    if not x:
+        return PairedWilcoxonExpansionsResult(method_a, method_b, 0, None, None, None)
+    diffs = np.asarray(x, dtype=np.float64) - np.asarray(y, dtype=np.float64)
+    median_delta = float(np.median(diffs))
+    if np.allclose(diffs, 0.0):
+        return PairedWilcoxonExpansionsResult(method_a, method_b, len(x), 0.0, 1.0, median_delta)
+    from scipy.stats import wilcoxon
+
+    result = wilcoxon(np.asarray(x, dtype=np.float64), np.asarray(y, dtype=np.float64), zero_method="wilcox")
+    return PairedWilcoxonExpansionsResult(
+        method_a=method_a,
+        method_b=method_b,
+        paired_query_count=len(x),
+        statistic=float(result.statistic),
+        p_value=float(result.pvalue),
+        median_delta_a_minus_b_expansions=median_delta,
+    )
+
+
 def bootstrap_success_rate_difference(
     records: Iterable[EvaluationRecord],
     method_a: str,
@@ -544,6 +588,7 @@ def write_evaluation_outputs(
     output_dir: str | Path,
     *,
     paired_time_tests: Sequence[PairedWilcoxonResult] = (),
+    paired_expansion_tests: Sequence[PairedWilcoxonExpansionsResult] = (),
     success_rate_cis: Sequence[BootstrapCIResult] = (),
 ) -> dict[str, Path]:
     rows = tuple(records)
@@ -559,6 +604,7 @@ def write_evaluation_outputs(
         "record_count": len(rows),
         "summary_by_method_bucket": [asdict(item) for item in summaries],
         "paired_time_tests": [asdict(item) for item in paired_time_tests],
+        "paired_expansion_tests": [asdict(item) for item in paired_expansion_tests],
         "success_rate_bootstrap_ci": [asdict(item) for item in success_rate_cis],
     }
     summary_json.write_text(json.dumps(_json_safe(payload), indent=2, ensure_ascii=False), encoding="utf-8")
