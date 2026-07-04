@@ -909,6 +909,113 @@ def _handoff_bundle_summary(handoff_bundle: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _next_action_guard_summary(
+    *,
+    decision: dict[str, Any],
+    decision_intake_summary: dict[str, Any],
+    handoff_summary: dict[str, Any],
+    missing_artifacts_handoff_summary: dict[str, Any],
+    remote_packet: dict[str, Any],
+    remote_execution_steps: dict[str, dict[str, Any]],
+    closure_remote_stages: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    pending = decision.get("status") == "pending_human_decision" or decision_intake_summary["record_status"] == "pending_human_decision"
+    expected_action = "record_f02_6_decision" if pending else None
+    execution_surfaces: list[dict[str, Any]] = []
+
+    def add_surface(surface_id: str, allowed: Any) -> None:
+        execution_surfaces.append({"surface_id": surface_id, "allowed_now": allowed if isinstance(allowed, bool) else None})
+
+    add_surface("decision_remote_preflight_allowed_now", decision.get("remote_preflight_allowed_now"))
+    add_surface("decision_remote_training_allowed_now", decision.get("remote_training_allowed_now"))
+    add_surface("decision_intake_remote_preflight_allowed_now", decision_intake_summary["remote_preflight_allowed_now"])
+    add_surface("decision_intake_remote_training_allowed_now", decision_intake_summary["remote_training_allowed_now"])
+    add_surface("decision_intake_formal_claim_allowed_now", decision_intake_summary["formal_claim_allowed_now"])
+    add_surface("handoff_remote_preflight_allowed_now", handoff_summary["remote_preflight_allowed_now"])
+    add_surface("handoff_remote_training_allowed_now", handoff_summary["remote_training_allowed_now"])
+    add_surface("handoff_formal_claim_allowed_now", handoff_summary["formal_claim_allowed_now"])
+    add_surface("missing_artifacts_remote_training_allowed_now", missing_artifacts_handoff_summary["remote_training_allowed_now"])
+    add_surface(
+        "missing_artifacts_formal_result_material_allowed_now",
+        missing_artifacts_handoff_summary["formal_result_material_allowed_now"],
+    )
+    add_surface("remote_packet_ready_to_run_remote_training", remote_packet.get("ready_to_run_remote_training"))
+    for step_id, step in remote_execution_steps.items():
+        add_surface(f"remote_execution_step:{step_id}", step["allowed_now"])
+    for stage_id, stage in closure_remote_stages.items():
+        add_surface(f"closure_remote_stage:{stage_id}", stage["allowed_now"])
+
+    execution_leaks = [surface for surface in execution_surfaces if surface["allowed_now"] is True]
+    remote_execution_allowed_count = sum(
+        1 for step in remote_execution_steps.values() if step["allowed_now"] is True
+    )
+    remote_stage_allowed_count = sum(1 for stage in closure_remote_stages.values() if stage["allowed_now"] is True)
+    violations: list[dict[str, str]] = []
+    if pending and handoff_summary["next_handoff_action_id"] != expected_action:
+        violations.append(
+            _issue(
+                "next_action_guard_unexpected_handoff_action",
+                "Pending F02.6 must hand off only to record_f02_6_decision.",
+            )
+        )
+    if pending and handoff_summary["next_action_requires_dr_sun"] is not True:
+        violations.append(
+            _issue(
+                "next_action_guard_handoff_action_not_dr_sun_gated",
+                "Pending F02.6 handoff must remain gated by Dr Sun.",
+            )
+        )
+    if pending and missing_artifacts_handoff_summary["next_action_id"] != expected_action:
+        violations.append(
+            _issue(
+                "next_action_guard_unexpected_missing_artifacts_action",
+                "Missing-artifacts handoff must point to record_f02_6_decision while F02.6 is pending.",
+            )
+        )
+    if pending and decision_intake_summary["next_blocked_lane"] != "decision":
+        violations.append(
+            _issue(
+                "next_action_guard_decision_intake_lane_not_decision",
+                "Decision intake must keep next_blocked_lane=decision while F02.6 is pending.",
+            )
+        )
+    if pending and execution_leaks:
+        violations.append(
+            _issue(
+                "next_action_guard_execution_leak",
+                "Pending F02.6 must not allow preflight, training, audit, evaluation, pullback, or formal claims.",
+            )
+        )
+    status = "next_action_guard_failed" if violations else "next_action_guard_passed"
+    if not pending:
+        status = "next_action_guard_not_applicable"
+    return {
+        "present": True,
+        "status": status,
+        "pending_f02_6_decision": pending,
+        "next_blocked_lane_id": decision_intake_summary["next_blocked_lane"],
+        "expected_next_action_id": expected_action,
+        "handoff_next_action_id": handoff_summary["next_handoff_action_id"],
+        "handoff_next_action_requires_dr_sun": handoff_summary["next_action_requires_dr_sun"],
+        "missing_artifacts_next_action_id": missing_artifacts_handoff_summary["next_action_id"],
+        "decision_intake_next_blocked_lane": decision_intake_summary["next_blocked_lane"],
+        "all_execution_disabled_now": not execution_leaks,
+        "execution_leak_count": len(execution_leaks),
+        "remote_execution_allowed_count": remote_execution_allowed_count,
+        "remote_stage_allowed_count": remote_stage_allowed_count,
+        "execution_leak_surface_ids": [surface["surface_id"] for surface in execution_leaks],
+        "execution_surfaces": execution_surfaces,
+        "violation_count": len(violations),
+        "violations": violations,
+    }
+
+
+def _next_action_guard_issues(summary: dict[str, Any]) -> list[dict[str, str]]:
+    if summary["status"] != "next_action_guard_failed":
+        return []
+    return list(summary["violations"])
+
+
 def _handoff_bundle_safety_issues(handoff_bundle: dict[str, Any]) -> list[dict[str, str]]:
     if not handoff_bundle:
         return [_issue("handoff_bundle_missing", "formal gate status report must consume the handoff bundle.")]
@@ -2490,6 +2597,23 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.append(f"- remote_preflight_allowed_now: `{intake['remote_preflight_allowed_now']}`")
     lines.append(f"- remote_training_allowed_now: `{intake['remote_training_allowed_now']}`")
     lines.append(f"- formal_claim_allowed_now: `{intake['formal_claim_allowed_now']}`")
+    next_guard = manifest["next_action_guard_summary"]
+    lines.extend(["", "## Next Action Guard", ""])
+    lines.append(f"- present: `{next_guard['present']}`")
+    lines.append(f"- status: `{next_guard['status']}`")
+    lines.append(f"- pending_f02_6_decision: `{next_guard['pending_f02_6_decision']}`")
+    lines.append(f"- expected_next_action_id: `{next_guard['expected_next_action_id']}`")
+    lines.append(f"- handoff_next_action_id: `{next_guard['handoff_next_action_id']}`")
+    lines.append(f"- missing_artifacts_next_action_id: `{next_guard['missing_artifacts_next_action_id']}`")
+    lines.append(f"- all_execution_disabled_now: `{next_guard['all_execution_disabled_now']}`")
+    lines.append(f"- execution_leak_count: `{next_guard['execution_leak_count']}`")
+    lines.append(f"- remote_execution_allowed_count: `{next_guard['remote_execution_allowed_count']}`")
+    lines.append(f"- remote_stage_allowed_count: `{next_guard['remote_stage_allowed_count']}`")
+    if next_guard["violations"]:
+        for violation in next_guard["violations"]:
+            lines.append(f"- violation `{violation['issue_id']}`: {violation['message']}")
+    else:
+        lines.append("- violations: `none`")
     lines.extend(["", "## Formal Gate Lanes", ""])
     for lane in manifest["formal_gate_lanes"]:
         host = f", host=`{lane['host']}`" if lane.get("host") else ""

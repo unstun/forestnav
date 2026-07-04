@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `d8eb4dc7caa783e235306f1b905dee1bf7b74387+dirty`
+- source_head: `e646cb5f20e237acfe36783ac20e423ce5fe98cc+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -87,6 +87,7 @@ This file is a read-only formal-gate status report. It does not execute commands
 - remote_packet_safety_command_index_row_count: `18`
 - remote_packet_safety_command_index_source_target_count: `18`
 - remote_packet_safety_command_index_missing_target_count: `0`
+- next_action_guard_status: `next_action_guard_passed`
 
 ## Next Blocked Lane
 
@@ -114,6 +115,20 @@ This file is a read-only formal-gate status report. It does not execute commands
 - remote_preflight_allowed_now: `False`
 - remote_training_allowed_now: `False`
 - formal_claim_allowed_now: `False`
+
+## Next Action Guard
+
+- present: `True`
+- status: `next_action_guard_passed`
+- pending_f02_6_decision: `True`
+- expected_next_action_id: `record_f02_6_decision`
+- handoff_next_action_id: `record_f02_6_decision`
+- missing_artifacts_next_action_id: `record_f02_6_decision`
+- all_execution_disabled_now: `True`
+- execution_leak_count: `0`
+- remote_execution_allowed_count: `0`
+- remote_stage_allowed_count: `0`
+- violations: `none`
 
 ## Formal Gate Lanes
 

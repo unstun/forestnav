@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-04T23:18:01.995385+00:00",
-  "source_head": "d8eb4dc7caa783e235306f1b905dee1bf7b74387+dirty",
+  "created_at_utc": "2026-07-04T23:23:38.651226+00:00",
+  "source_head": "e646cb5f20e237acfe36783ac20e423ce5fe98cc+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -100,7 +100,8 @@
     "remote_packet_safety_command_index_present": true,
     "remote_packet_safety_command_index_row_count": 18,
     "remote_packet_safety_command_index_source_target_count": 18,
-    "remote_packet_safety_command_index_missing_target_count": 0
+    "remote_packet_safety_command_index_missing_target_count": 0,
+    "next_action_guard_status": "next_action_guard_passed"
   },
   "permissions_now": {
     "f02_6_decision_closed": false,
@@ -1863,6 +1864,98 @@
         ]
       }
     }
+  },
+  "next_action_guard_summary": {
+    "present": true,
+    "status": "next_action_guard_passed",
+    "pending_f02_6_decision": true,
+    "next_blocked_lane_id": "decision",
+    "expected_next_action_id": "record_f02_6_decision",
+    "handoff_next_action_id": "record_f02_6_decision",
+    "handoff_next_action_requires_dr_sun": true,
+    "missing_artifacts_next_action_id": "record_f02_6_decision",
+    "decision_intake_next_blocked_lane": "decision",
+    "all_execution_disabled_now": true,
+    "execution_leak_count": 0,
+    "remote_execution_allowed_count": 0,
+    "remote_stage_allowed_count": 0,
+    "execution_leak_surface_ids": [],
+    "execution_surfaces": [
+      {
+        "surface_id": "decision_remote_preflight_allowed_now",
+        "allowed_now": false
+      },
+      {
+        "surface_id": "decision_remote_training_allowed_now",
+        "allowed_now": false
+      },
+      {
+        "surface_id": "decision_intake_remote_preflight_allowed_now",
+        "allowed_now": false
+      },
+      {
+        "surface_id": "decision_intake_remote_training_allowed_now",
+        "allowed_now": false
+      },
+      {
+        "surface_id": "decision_intake_formal_claim_allowed_now",
+        "allowed_now": false
+      },
+      {
+        "surface_id": "handoff_remote_preflight_allowed_now",
+        "allowed_now": false
+      },
+      {
+        "surface_id": "handoff_remote_training_allowed_now",
+        "allowed_now": false
+      },
+      {
+        "surface_id": "handoff_formal_claim_allowed_now",
+        "allowed_now": false
+      },
+      {
+        "surface_id": "missing_artifacts_remote_training_allowed_now",
+        "allowed_now": false
+      },
+      {
+        "surface_id": "missing_artifacts_formal_result_material_allowed_now",
+        "allowed_now": false
+      },
+      {
+        "surface_id": "remote_packet_ready_to_run_remote_training",
+        "allowed_now": false
+      },
+      {
+        "surface_id": "remote_execution_step:sync_to_remote",
+        "allowed_now": false
+      },
+      {
+        "surface_id": "remote_execution_step:run_remote_preflight",
+        "allowed_now": false
+      },
+      {
+        "surface_id": "remote_execution_step:run_remote_training",
+        "allowed_now": false
+      },
+      {
+        "surface_id": "remote_execution_step:run_remote_audit",
+        "allowed_now": false
+      },
+      {
+        "surface_id": "closure_remote_stage:approved_remote_preflight",
+        "allowed_now": false
+      },
+      {
+        "surface_id": "closure_remote_stage:gate3_remote_training",
+        "allowed_now": false
+      },
+      {
+        "surface_id": "closure_remote_stage:gate3_remote_audit_pullback",
+        "allowed_now": false
+      }
+    ],
+    "violation_count": 0,
+    "violations": []
   },
   "formal_gate_gap_audit_remaining_deliverables_gap_summary": {
     "present": true,
