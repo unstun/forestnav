@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `348be3bfe6614d9a191faa086b19614b92445600+dirty`
+- source_head: `d8eb4dc7caa783e235306f1b905dee1bf7b74387+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -70,6 +70,8 @@ This file is a read-only formal-gate status report. It does not execute commands
 - formal_gate_proof_audit_passed_count: `2`
 - formal_gate_proof_audit_failed_count: `2`
 - formal_gate_proof_audit_blocked_count: `16`
+- formal_gate_proof_audit_missing_artifact_count: `8`
+- formal_gate_proof_audit_failed_acceptance_artifact_count: `2`
 - handoff_bundle_next_action: `record_f02_6_decision`
 - handoff_bundle_safety_issue_count: `0`
 - handoff_bundle_remote_training_allowed_now: `False`
@@ -230,6 +232,17 @@ This file is a read-only formal-gate status report. It does not execute commands
 - `acceptance:pulled_back_checkpoint_hash_record`: proof_command_count=`2`, command_ids=`pulled_back_checkpoint_hash_record_exists_nonempty, pulled_back_checkpoint_hash_record_matches_model`
 - `formal_acceptance:h01_ready_for_formal_run`: proof_command_count=`2`, command_ids=`h01_ready_for_formal_run_exists_nonempty, h01_ready_for_formal_run_status`
 - `formal_acceptance:h02_formal_output_acceptance`: proof_command_count=`2`, command_ids=`h02_formal_output_acceptance_exists_nonempty, h02_formal_output_acceptance_status`
+
+## Formal Gate Proof Audit Gap Summary
+
+- present: `True`
+- status: `formal_gate_proof_audit_blocked`
+- missing_artifact_count=`8`
+- failed_acceptance_artifact_count=`2`
+- `training`: missing_artifact_count=`3`, failed_acceptance_artifact_count=`0`, blocked_proof_command_count=`6`, failed_proof_command_count=`0`, missing_artifacts=`train_final_model_zip, train_summary_json, train_training_manifest_json`, failed_artifacts=`none`, blocked_commands=`train_final_model_zip_exists_nonempty, train_final_model_zip_valid_zip, train_summary_json_exists_nonempty, train_summary_json_formal_warm_start_metadata, train_training_manifest_json_exists_nonempty, train_training_manifest_json_provenance`, failed_commands=`none`
+- `evaluation`: missing_artifact_count=`2`, failed_acceptance_artifact_count=`0`, blocked_proof_command_count=`4`, failed_proof_command_count=`0`, missing_artifacts=`eval_gate3_eval_episodes_csv, eval_gate3_summary_json`, failed_artifacts=`none`, blocked_commands=`eval_gate3_eval_episodes_csv_exists_nonempty, eval_gate3_eval_episodes_csv_schema, eval_gate3_summary_json_exists_nonempty, eval_gate3_summary_json_formal_scope`, failed_commands=`none`
+- `acceptance`: missing_artifact_count=`3`, failed_acceptance_artifact_count=`0`, blocked_proof_command_count=`6`, failed_proof_command_count=`0`, missing_artifacts=`gate3_trial_manifest_json, gate3_formal_audit_json, pulled_back_checkpoint_hash_record`, failed_artifacts=`none`, blocked_commands=`gate3_trial_manifest_json_exists_nonempty, gate3_trial_manifest_json_formal_warm_start_scope, gate3_formal_audit_json_exists_nonempty, gate3_formal_audit_json_accepts_formal_scope, pulled_back_checkpoint_hash_record_exists_nonempty, pulled_back_checkpoint_hash_record_matches_model`, failed_commands=`none`
+- `formal_acceptance`: missing_artifact_count=`0`, failed_acceptance_artifact_count=`2`, blocked_proof_command_count=`0`, failed_proof_command_count=`2`, missing_artifacts=`none`, failed_artifacts=`h01_ready_for_formal_run, h02_formal_output_acceptance`, blocked_commands=`none`, failed_commands=`h01_ready_for_formal_run_status, h02_formal_output_acceptance_status`
 
 ## Formal Gate Proof Audit
 

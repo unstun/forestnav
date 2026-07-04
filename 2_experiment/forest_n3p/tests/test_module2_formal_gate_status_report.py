@@ -244,7 +244,7 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
         "h02_formal_output_acceptance",
     ]
     assert proof_gap["categories"]["formal_acceptance"]["failed_proof_command_ids"] == [
-        "h01_ready_for_formal_run_status",
+        "h01_ready_for_formal_run_schema",
         "h02_formal_output_acceptance_schema",
     ]
     formal_gate_gap = manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]

@@ -2572,6 +2572,29 @@ def _markdown(manifest: dict[str, Any]) -> str:
     for matrix_id, row in proof_plan["rows"].items():
         command_ids = ", ".join(row["proof_command_ids"]) if row["proof_command_ids"] else "none"
         lines.append(f"- `{matrix_id}`: proof_command_count=`{row['proof_command_count']}`, command_ids=`{command_ids}`")
+    proof_gap = manifest["formal_gate_proof_audit_gap_summary"]
+    lines.extend(["", "## Formal Gate Proof Audit Gap Summary", ""])
+    lines.append(f"- present: `{proof_gap['present']}`")
+    lines.append(f"- status: `{proof_gap['status']}`")
+    lines.append(f"- missing_artifact_count=`{proof_gap['missing_artifact_count']}`")
+    lines.append(f"- failed_acceptance_artifact_count=`{proof_gap['failed_acceptance_artifact_count']}`")
+    for category, payload in proof_gap["categories"].items():
+        missing_ids = ", ".join(payload["missing_artifact_ids"]) if payload["missing_artifact_ids"] else "none"
+        failed_ids = ", ".join(payload["failed_artifact_ids"]) if payload["failed_artifact_ids"] else "none"
+        blocked_commands = (
+            ", ".join(payload["blocked_proof_command_ids"]) if payload["blocked_proof_command_ids"] else "none"
+        )
+        failed_commands = (
+            ", ".join(payload["failed_proof_command_ids"]) if payload["failed_proof_command_ids"] else "none"
+        )
+        lines.append(
+            f"- `{category}`: missing_artifact_count=`{payload['missing_artifact_count']}`, "
+            f"failed_acceptance_artifact_count=`{payload['failed_acceptance_artifact_count']}`, "
+            f"blocked_proof_command_count=`{payload['blocked_proof_command_count']}`, "
+            f"failed_proof_command_count=`{payload['failed_proof_command_count']}`, "
+            f"missing_artifacts=`{missing_ids}`, failed_artifacts=`{failed_ids}`, "
+            f"blocked_commands=`{blocked_commands}`, failed_commands=`{failed_commands}`"
+        )
     proof_audit = manifest["formal_gate_proof_audit_summary"]
     lines.extend(["", "## Formal Gate Proof Audit", ""])
     lines.append(f"- present: `{proof_audit['present']}`")

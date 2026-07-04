@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-04T23:11:20.686013+00:00",
-  "source_head": "348be3bfe6614d9a191faa086b19614b92445600+dirty",
+  "created_at_utc": "2026-07-04T23:18:01.995385+00:00",
+  "source_head": "d8eb4dc7caa783e235306f1b905dee1bf7b74387+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -84,6 +84,8 @@
     "formal_gate_proof_audit_passed_count": 2,
     "formal_gate_proof_audit_failed_count": 2,
     "formal_gate_proof_audit_blocked_count": 16,
+    "formal_gate_proof_audit_missing_artifact_count": 8,
+    "formal_gate_proof_audit_failed_acceptance_artifact_count": 2,
     "handoff_bundle_next_action": "record_f02_6_decision",
     "handoff_bundle_safety_issue_count": 0,
     "handoff_bundle_remote_training_allowed_now": false,
@@ -1747,6 +1749,118 @@
         "expected_path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
         "command_was_executed": false,
         "diagnostic": "h02_formal_output_acceptance_status failed: ; expected formal_output_accepted=true and paper_result_input_allowed=true"
+      }
+    }
+  },
+  "formal_gate_proof_audit_gap_summary": {
+    "present": true,
+    "status": "formal_gate_proof_audit_blocked",
+    "total_proof_command_count": 20,
+    "passed_proof_command_count": 2,
+    "failed_proof_command_count": 2,
+    "blocked_proof_command_count": 16,
+    "missing_artifact_count": 8,
+    "failed_acceptance_artifact_count": 2,
+    "category_order": [
+      "training",
+      "evaluation",
+      "acceptance",
+      "formal_acceptance"
+    ],
+    "categories": {
+      "training": {
+        "missing_artifact_count": 3,
+        "failed_acceptance_artifact_count": 0,
+        "blocked_proof_command_count": 6,
+        "failed_proof_command_count": 0,
+        "missing_artifact_ids": [
+          "train_final_model_zip",
+          "train_summary_json",
+          "train_training_manifest_json"
+        ],
+        "failed_artifact_ids": [],
+        "blocked_proof_command_ids": [
+          "train_final_model_zip_exists_nonempty",
+          "train_final_model_zip_valid_zip",
+          "train_summary_json_exists_nonempty",
+          "train_summary_json_formal_warm_start_metadata",
+          "train_training_manifest_json_exists_nonempty",
+          "train_training_manifest_json_provenance"
+        ],
+        "failed_proof_command_ids": [],
+        "expected_paths": [
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json"
+        ]
+      },
+      "evaluation": {
+        "missing_artifact_count": 2,
+        "failed_acceptance_artifact_count": 0,
+        "blocked_proof_command_count": 4,
+        "failed_proof_command_count": 0,
+        "missing_artifact_ids": [
+          "eval_gate3_eval_episodes_csv",
+          "eval_gate3_summary_json"
+        ],
+        "failed_artifact_ids": [],
+        "blocked_proof_command_ids": [
+          "eval_gate3_eval_episodes_csv_exists_nonempty",
+          "eval_gate3_eval_episodes_csv_schema",
+          "eval_gate3_summary_json_exists_nonempty",
+          "eval_gate3_summary_json_formal_scope"
+        ],
+        "failed_proof_command_ids": [],
+        "expected_paths": [
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json"
+        ]
+      },
+      "acceptance": {
+        "missing_artifact_count": 3,
+        "failed_acceptance_artifact_count": 0,
+        "blocked_proof_command_count": 6,
+        "failed_proof_command_count": 0,
+        "missing_artifact_ids": [
+          "gate3_trial_manifest_json",
+          "gate3_formal_audit_json",
+          "pulled_back_checkpoint_hash_record"
+        ],
+        "failed_artifact_ids": [],
+        "blocked_proof_command_ids": [
+          "gate3_trial_manifest_json_exists_nonempty",
+          "gate3_trial_manifest_json_formal_warm_start_scope",
+          "gate3_formal_audit_json_exists_nonempty",
+          "gate3_formal_audit_json_accepts_formal_scope",
+          "pulled_back_checkpoint_hash_record_exists_nonempty",
+          "pulled_back_checkpoint_hash_record_matches_model"
+        ],
+        "failed_proof_command_ids": [],
+        "expected_paths": [
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json",
+          "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json"
+        ]
+      },
+      "formal_acceptance": {
+        "missing_artifact_count": 0,
+        "failed_acceptance_artifact_count": 2,
+        "blocked_proof_command_count": 0,
+        "failed_proof_command_count": 2,
+        "missing_artifact_ids": [],
+        "failed_artifact_ids": [
+          "h01_ready_for_formal_run",
+          "h02_formal_output_acceptance"
+        ],
+        "blocked_proof_command_ids": [],
+        "failed_proof_command_ids": [
+          "h01_ready_for_formal_run_status",
+          "h02_formal_output_acceptance_status"
+        ],
+        "expected_paths": [
+          "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
+          "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
+        ]
       }
     }
   },
