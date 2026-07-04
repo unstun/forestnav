@@ -1,0 +1,122 @@
+import json
+from importlib import import_module
+
+
+def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path):
+    try:
+        builder = import_module("forest_n3p.scripts.build_module2_claim_safety")
+    except ModuleNotFoundError as exc:
+        raise AssertionError(f"missing Module2 claim safety builder: {exc}") from exc
+
+    paper_tables = tmp_path / "paper_tables.json"
+    paper_tables.write_text(
+        json.dumps(
+            {
+                "status": "blocked_no_formal_h02_data",
+                "formal_claim_allowed": False,
+                "blockers": ["h02_verdict_not_formal", "missing_module2_rl_rs_checkpoint"],
+            }
+        ),
+        encoding="utf-8",
+    )
+    h01_manifest = tmp_path / "h01.json"
+    h01_manifest.write_text(
+        json.dumps(
+            {
+                "status": "blocked_pending_decisions",
+                "blockers": ["f02_6_decision_packet_pending", "missing_module2_rl_rs_checkpoint"],
+            }
+        ),
+        encoding="utf-8",
+    )
+    f02_6_packet = tmp_path / "f02_6.json"
+    f02_6_packet.write_text(
+        json.dumps(
+            {
+                "status": "pending_human_decision",
+                "recommendation": {"decision": "approve_obstacle_summary_warm_start"},
+                "blockers": ["requires_dr_sun_approval"],
+            }
+        ),
+        encoding="utf-8",
+    )
+    gate3_audit = tmp_path / "gate3_audit.json"
+    gate3_audit.write_text(
+        json.dumps(
+            {
+                "formal_decision": "fail",
+                "formal_claim_allowed": True,
+                "formal_blockers": [],
+                "terminal_rs_success_rate": 0.453125,
+                "episodes": 64,
+                "success_threshold": 0.8,
+                "warm_start_status": "not_applied_f02_6_pending",
+            }
+        ),
+        encoding="utf-8",
+    )
+    method_algorithms = tmp_path / "method_algorithms.json"
+    method_algorithms.write_text(json.dumps({"status": "code_anchored"}), encoding="utf-8")
+    system_diagram = tmp_path / "system_diagram.json"
+    system_diagram.write_text(json.dumps({"status": "code_anchored_drawio"}), encoding="utf-8")
+    draft = tmp_path / "draft.md"
+    draft.write_text(
+        "Our method is globally optimal. RL replaces Hybrid A*. No-warm Gate #3 formal failed.",
+        encoding="utf-8",
+    )
+    manifest_path = tmp_path / "claim_safety.json"
+    markdown_path = tmp_path / "claim_safety.md"
+
+    rc = builder.main(
+        [
+            "--paper-tables",
+            str(paper_tables),
+            "--h01-manifest",
+            str(h01_manifest),
+            "--f02-6-packet",
+            str(f02_6_packet),
+            "--gate3-audit",
+            str(gate3_audit),
+            "--method-algorithms",
+            str(method_algorithms),
+            "--system-diagram",
+            str(system_diagram),
+            "--draft-text",
+            str(draft),
+            "--output-dir",
+            str(tmp_path),
+            "--manifest-out",
+            str(manifest_path),
+            "--markdown-out",
+            str(markdown_path),
+        ]
+    )
+
+    assert rc == 0
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    markdown = markdown_path.read_text(encoding="utf-8")
+
+    assert manifest["schema_version"] == 1
+    assert manifest["artifact_name"] == "module2_claim_safety"
+    assert manifest["status"] == "blocked_formal_performance_claims"
+    assert manifest["formal_performance_claim_allowed"] is False
+    assert "missing_module2_rl_rs_checkpoint" in manifest["formal_performance_blockers"]
+    assert "f02_6_pending" in manifest["formal_performance_blockers"]
+
+    allowed_ids = {item["claim_id"] for item in manifest["allowed_claims"]}
+    assert "method_is_ha_star_analytic_operator" in allowed_ids
+    assert "no_warm_gate3_formal_failure" in allowed_ids
+    no_warm = next(item for item in manifest["allowed_claims"] if item["claim_id"] == "no_warm_gate3_formal_failure")
+    assert no_warm["scope"] == "no_warm_only"
+    assert "0.453125" in no_warm["claim_text"]
+
+    prohibited_ids = {item["claim_id"] for item in manifest["prohibited_claims"]}
+    assert {"global_optimality", "completeness_enhancement", "rl_replaces_hybrid_astar", "universal_generalization"} <= prohibited_ids
+
+    violations = manifest["draft_audit"]["violations"]
+    assert {item["claim_id"] for item in violations} >= {"global_optimality", "rl_replaces_hybrid_astar"}
+    assert manifest["draft_audit"]["status"] == "violations_found"
+
+    assert "# Module2 Claim Safety" in markdown
+    assert "not allowed" in markdown
+    assert "no-warm" in markdown
