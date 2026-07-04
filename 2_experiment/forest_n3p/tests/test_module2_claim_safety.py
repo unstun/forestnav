@@ -577,6 +577,7 @@ def test_claim_safety_rejects_blocked_status_report_that_allows_remote_training(
     status_payload = _status_report_payload(ready=False)
     status_payload["closure_remote_stage_summary"]["gate3_remote_training"]["allowed_now"] = True
     status_payload["remote_execution_step_summary"]["run_remote_training"]["allowed_now"] = True
+    status_payload["missing_artifacts_handoff_index_summary"]["remote_training_allowed_now"] = True
     status_report = tmp_path / "status_report.json"
     status_report.write_text(json.dumps(status_payload), encoding="utf-8")
 
@@ -597,6 +598,7 @@ def test_claim_safety_rejects_blocked_status_report_that_allows_remote_training(
     assert "formal_gate_status_report_blocked" in blockers
     assert "status_report_blocked_but_gate3_remote_training_allowed" in blockers
     assert "status_report_blocked_but_run_remote_training_allowed" in blockers
+    assert "status_report_blocked_but_missing_artifacts_handoff_remote_training_allowed" in blockers
 
 
 def test_claim_safety_rejects_status_report_that_runs_or_claims(tmp_path):
