@@ -95,6 +95,8 @@ class EvaluationRecord:
     terminal_rs_success_count: int | None
     terminal_rs_used_count: int | None
     terminal_rs_action_count: int | None
+    bc_checkpoint: str | None
+    bc_checkpoint_sha256: str | None
     rl_rs_checkpoint: str | None
     rl_rs_checkpoint_sha256: str | None
     failure_reason: str | None
@@ -361,6 +363,8 @@ def evaluate_run(
         terminal_rs_success_count=_metadata_int(run.metadata, "terminal_rs_success_count"),
         terminal_rs_used_count=_metadata_int(run.metadata, "terminal_rs_used_count"),
         terminal_rs_action_count=_metadata_int(run.metadata, "terminal_rs_action_count"),
+        bc_checkpoint=_metadata_str(run.metadata, "bc_checkpoint"),
+        bc_checkpoint_sha256=_metadata_str(run.metadata, "bc_checkpoint_sha256"),
         rl_rs_checkpoint=_metadata_str(run.metadata, "rl_rs_checkpoint"),
         rl_rs_checkpoint_sha256=_metadata_str(run.metadata, "rl_rs_checkpoint_sha256"),
         failure_reason=run.failure_reason,
