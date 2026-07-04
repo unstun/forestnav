@@ -781,8 +781,13 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 
 #### H02. 正式评测
 
-- [ ] H02.1 本地 targeted smoke。
+- [>] H02.1 本地 targeted smoke。
   - 每方法 3 query, 检查输出格式和无碰撞。
+  - preflight: 新增 `build_module2_h02_smoke_preflight.py`, 产出 `0_trials/module2_h02_local_smoke/h02_local_smoke_preflight.json` 和 `.md`; status=`blocked_full_smoke_missing_required_methods`。
+  - full-smoke blockers: `ppo_analytic_operator` 和 `ppo_rs_funnel` 均缺 `missing_module2_rl_rs_checkpoint`, 且 F02.6 decision packet 仍 pending。
+  - available subset smoke: 已本地跑 `ha_no_analytic,ha_single_rs,ha_dang_multi_rs,mlp,bc_analytic_operator` x 3 queries, 产出 `0_trials/module2_h02_local_smoke/h02_1_available_subset/`; record_count=15, query_count=3, status=`candidate_or_smoke`, formal_acceptance=false, collision_violation_total=0, method_exception_total=0。
+  - 边界: 这不是 all-method H02.1 完成, 不能填补 PPO 缺 checkpoint, 不能作为 formal 结果; full smoke 仍等待 F02.6 决策和远端 PPO checkpoint。
+  - 记录: `.pipeline/experiments/20260704_module2_h02_local_smoke_preflight.md`。
 - [ ] H02.2 远端完整运行。
   - 必须同步回本地: stdout/stderr, CSV, manifest, config, checkpoints, source hash。
 - [ ] H02.3 统计检验。
@@ -866,6 +871,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 31. [x] G02.4/H01.1a BC checkpoint-backed analytic operator 已接入 main evaluation, 并完成不训练 3-query smoke。
 32. [x] H01.1b RealMap query generation protocol 已冻结, 10 queries / 2 maps, endpoint audit pass。
 33. [x] H01.2 指标冻结: metric protocol status=`frozen`, timeout failure rate 已显式输出, expansions/time paired Wilcoxon 统计函数已具备。
+34. [>] H02.1 local targeted smoke: available subset 5 methods x 3 queries 已跑通; full all-method smoke 仍受 F02.6 pending 和缺 PPO checkpoint 阻塞。
 
 ## 7. 完成记录
 
@@ -912,3 +918,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 完成 F02.6 warm-start 决策包生成器与证据包。新增 `build_module2_f02_6_warm_start_decision_packet.py`, 输出 JSON/Markdown 决策包, 推荐 obstacle-summary warm-start 但状态保持 `pending_human_decision`; 下一步若 Dr Sun 批准, 正式训练必须走 `gpu3070ti-relay`, 不在本地训练。记录见 `.pipeline/experiments/20260704_module2_f02_6_warm_start_decision_packet.md`。
 - 2026-07-04: 完成 H01 manifest 的 F02.6 decision-packet guard。`build_module2_evaluation_manifest.py` 新增 `--warm-start-decision-packet`, 读取 packet 后计算 effective warm-start decision; 当前 pending packet 会把 H01 manifest 维持在 `blocked_pending_decisions`, 并加入 `f02_6_decision_packet_pending` blocker, 防止用 CLI 字符串绕过 Dr Sun 审批门。记录见 `.pipeline/experiments/20260704_module2_h01_f02_6_decision_packet_guard.md`。
 - 2026-07-04: 完成 H01.2 metric protocol。新增 `build_module2_metric_protocol.py`, 冻结 Contract 主指标与诊断指标; `GroupSummary` 新增 `timeout_failure_count/timeout_failure_rate`; `paired_wilcoxon_expansions()` 与现有 `paired_wilcoxon_time()` 分别支撑 expansions/time 的配对检验; H01.2 artifact status=`frozen` 且 blockers=[]。记录见 `.pipeline/experiments/20260704_module2_h01_metric_protocol.md`。
+- 2026-07-04: 推进 H02.1 local targeted smoke。新增 H02.1 preflight artifact, 明确 full all-method smoke 因缺 PPO checkpoint/F02.6 pending 阻塞; 同时实际跑通 available subset 5 methods x 3 queries, `record_count=15`, `collision_violation_total=0`, `method_exception_total=0`, status=`candidate_or_smoke`。记录见 `.pipeline/experiments/20260704_module2_h02_local_smoke_preflight.md`。

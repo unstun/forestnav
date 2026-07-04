@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "preflight_name": "module2_h02_local_smoke_preflight",
+  "status": "blocked_full_smoke_missing_required_methods",
+  "created_at_utc": "2026-07-04T06:17:07.835584+00:00",
+  "source_head": "684cce8c103dc534e790cab1cc80e96f4fafbe31+dirty",
+  "h01_manifest": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
+  "metric_protocol": "0_trials/module2_metric_protocol/module2_metric_protocol.json",
+  "formal_claim_allowed": false,
+  "local_training_allowed": false,
+  "full_method_smoke_ready": false,
+  "required_methods": [
+    {
+      "method_id": "ha_no_analytic",
+      "main_evaluation_method": "ha_no_analytic",
+      "status": "ready",
+      "blockers": [],
+      "checkpoint": null
+    },
+    {
+      "method_id": "ha_single_rs",
+      "main_evaluation_method": "ha_single_rs",
+      "status": "ready",
+      "blockers": [],
+      "checkpoint": null
+    },
+    {
+      "method_id": "ha_dang_multi_rs",
+      "main_evaluation_method": "ha_dang_multi_rs",
+      "status": "ready",
+      "blockers": [],
+      "checkpoint": null
+    },
+    {
+      "method_id": "mlp",
+      "main_evaluation_method": "mlp",
+      "status": "ready",
+      "blockers": [],
+      "checkpoint": null
+    },
+    {
+      "method_id": "bc_analytic_operator",
+      "main_evaluation_method": "bc_analytic_operator",
+      "status": "ready",
+      "blockers": [],
+      "checkpoint": "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt"
+    },
+    {
+      "method_id": "ppo_analytic_operator",
+      "main_evaluation_method": "ppo_analytic_operator",
+      "status": "blocked",
+      "blockers": [
+        "missing_module2_rl_rs_checkpoint",
+        "f02_6_warm_start_decision_pending",
+        "f02_6_decision_packet_pending"
+      ],
+      "checkpoint": null
+    },
+    {
+      "method_id": "ppo_rs_funnel",
+      "main_evaluation_method": "ha_rl_rs_ppo",
+      "status": "blocked",
+      "blockers": [
+        "missing_module2_rl_rs_checkpoint",
+        "f02_6_warm_start_decision_pending",
+        "f02_6_decision_packet_pending"
+      ],
+      "checkpoint": null
+    }
+  ],
+  "blocked_methods": [
+    {
+      "method_id": "ppo_analytic_operator",
+      "main_evaluation_method": "ppo_analytic_operator",
+      "status": "blocked",
+      "blockers": [
+        "missing_module2_rl_rs_checkpoint",
+        "f02_6_warm_start_decision_pending",
+        "f02_6_decision_packet_pending"
+      ],
+      "checkpoint": null
+    },
+    {
+      "method_id": "ppo_rs_funnel",
+      "main_evaluation_method": "ha_rl_rs_ppo",
+      "status": "blocked",
+      "blockers": [
+        "missing_module2_rl_rs_checkpoint",
+        "f02_6_warm_start_decision_pending",
+        "f02_6_decision_packet_pending"
+      ],
+      "checkpoint": null
+    }
+  ],
+  "blockers": [
+    "missing_required_methods_for_full_h02_1_smoke"
+  ],
+  "available_subset": {
+    "status": "ready",
+    "methods": [
+      "ha_no_analytic",
+      "ha_single_rs",
+      "ha_dang_multi_rs",
+      "mlp",
+      "bc_analytic_operator"
+    ],
+    "run_output_dir": "0_trials/module2_h02_local_smoke/h02_1_available_subset",
+    "run_command": "python -m forest_n3p.scripts.run_main_evaluation --output-dir 0_trials/module2_h02_local_smoke/h02_1_available_subset --methods ha_no_analytic,ha_single_rs,ha_dang_multi_rs,mlp,bc_analytic_operator --queries-per-bucket 1 --seed-count 1 --queries-per-map 1 --density-profile-buckets validation_t06 --contract-path .pipeline/contracts/module2-ppo-funnel-expansion.md --cutpoint-supplement-path .pipeline/contracts/v9-forest-n3p-t06-calibration-supplement.md --allow-unresolved-human-review --no-enforce-t14-scale --module2-bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt"
+  },
+  "claim_boundaries": [
+    "This is a local smoke protocol/preflight artifact, not a formal evaluation result.",
+    "It must not run local PPO training.",
+    "Full H02.1 remains blocked until ppo_analytic_operator and ppo_rs_funnel have a real RL-RS checkpoint.",
+    "Available-subset smoke cannot be relabeled as all-method smoke."
+  ]
+}
