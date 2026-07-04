@@ -705,6 +705,19 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"runs_training=`{stage['runs_training']}`, runs_remote_preflight=`{stage['runs_remote_preflight']}`, "
             f"host=`{stage['host']}`, blocked_by=`{blocked_by}`"
         )
+    lines.extend(["", "## Formal Gate Handoff Bundle", ""])
+    handoff = manifest["formal_gate_handoff_summary"]
+    lines.append(f"- present: `{handoff['present']}`")
+    lines.append(f"- status: `{handoff['status']}`")
+    lines.append(f"- next_handoff_action: `{handoff['next_handoff_action_id']}`")
+    lines.append(f"- safety_issue_count: `{handoff['safety_issue_count']}`")
+    lines.append(f"- remote_training_allowed_now: `{handoff['remote_training_allowed_now']}`")
+    for step_id, step in handoff["remote_execution_steps"].items():
+        blocked_by = ", ".join(step["blocked_by"]) if step["blocked_by"] else "none"
+        lines.append(
+            f"- `{step_id}`: present=`{step['present']}`, allowed_now=`{step['allowed_now']}`, "
+            f"runs_training=`{step['runs_training']}`, blocked_by=`{blocked_by}`"
+        )
     lines.extend(["", "## Required Training Artifacts", ""])
     _append_artifacts(lines, manifest["training_artifacts_required"])
     lines.extend(["", "## Required Evaluation Artifacts", ""])
