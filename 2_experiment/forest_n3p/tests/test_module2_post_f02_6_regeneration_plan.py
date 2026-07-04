@@ -66,6 +66,7 @@ def test_post_f02_6_regeneration_plan_allows_only_regeneration_after_approval_wh
     assert "build_module2_formal_gate_gap_audit" in joined_commands
     assert "build_module2_remote_formal_execution_packet" in joined_commands
     assert "build_module2_remote_packet_safety_audit" in joined_commands
+    assert "build_module2_formal_gate_handoff_bundle" in joined_commands
     assert "manual read-only gpu3070ti readiness refresh" in joined_commands
     assert stages["approved_remote_preflight"]["allowed_now"] is False
     assert stages["approved_remote_preflight"]["runs_remote_preflight"] is True
@@ -231,6 +232,12 @@ def _source_freshness(tmp_path, *, required):
         {
             "artifact_id": "remote_packet_safety_audit",
             "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
+            "freshness_state": "historical_dirty",
+            "required_before": "approved_remote_preflight",
+        },
+        {
+            "artifact_id": "formal_gate_handoff_bundle",
+            "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
             "freshness_state": "historical_dirty",
             "required_before": "approved_remote_preflight",
         },

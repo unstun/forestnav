@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_gap_audit",
   "status": "blocked_formal_gate_gaps_open",
-  "created_at_utc": "2026-07-04T15:00:03.425766+00:00",
-  "source_head": "5c4bf4a43c55f74b14f893e8f64dec84eb9d66ad+dirty",
+  "created_at_utc": "2026-07-04T15:10:06.264284+00:00",
+  "source_head": "a75f74e3e639328a71d189ed8df34c46018b5ccd+dirty",
   "not_paper_result_material": true,
   "local_training_allowed": false,
   "remote_training_resource": "gpu3070ti-relay",
@@ -36,11 +36,10 @@
     "formal_claim_allowed": false,
     "regeneration_required_before_remote_formal_execution": true,
     "risk_counts": {
-      "historical_dirty": 10,
-      "current_dirty": 2,
-      "historical_clean": 2
+      "historical_dirty": 12,
+      "historical_clean": 3
     },
-    "ordered_regeneration_target_count": 14,
+    "ordered_regeneration_target_count": 15,
     "ordered_regeneration_targets": [
       {
         "artifact_id": "f02_6_decision_gate_audit",
@@ -64,6 +63,12 @@
         "artifact_id": "formal_gate_gap_audit",
         "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
         "freshness_state": "historical_dirty",
+        "required_before": "approved_remote_preflight"
+      },
+      {
+        "artifact_id": "formal_gate_handoff_bundle",
+        "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
+        "freshness_state": "historical_clean",
         "required_before": "approved_remote_preflight"
       },
       {
@@ -99,7 +104,7 @@
       {
         "artifact_id": "h02_formal_acceptance",
         "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
-        "freshness_state": "current_dirty",
+        "freshness_state": "historical_dirty",
         "required_before": "formal_h01_h02"
       },
       {
@@ -111,7 +116,7 @@
       {
         "artifact_id": "formal_gate_missing_artifacts",
         "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
-        "freshness_state": "current_dirty",
+        "freshness_state": "historical_dirty",
         "required_before": "formal_claim_gate"
       },
       {

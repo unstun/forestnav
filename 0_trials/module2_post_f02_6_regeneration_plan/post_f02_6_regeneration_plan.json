@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_regeneration_plan",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-04T14:59:55.919000+00:00",
-  "source_head": "5c4bf4a43c55f74b14f893e8f64dec84eb9d66ad+dirty",
+  "created_at_utc": "2026-07-04T15:10:06.103810+00:00",
+  "source_head": "a75f74e3e639328a71d189ed8df34c46018b5ccd+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -47,6 +47,11 @@
         "freshness_state": "historical_dirty"
       },
       {
+        "artifact_id": "formal_gate_handoff_bundle",
+        "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
+        "freshness_state": "historical_clean"
+      },
+      {
         "artifact_id": "gpu3070ti_readiness_refresh",
         "path": "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
         "freshness_state": "historical_clean"
@@ -76,7 +81,7 @@
       {
         "artifact_id": "h02_formal_acceptance",
         "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
-        "freshness_state": "current_dirty"
+        "freshness_state": "historical_dirty"
       }
     ],
     "formal_claim_gate": [
@@ -88,7 +93,7 @@
       {
         "artifact_id": "formal_gate_missing_artifacts",
         "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
-        "freshness_state": "current_dirty"
+        "freshness_state": "historical_dirty"
       },
       {
         "artifact_id": "formal_gate_status_report",
@@ -139,6 +144,7 @@
         "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
         "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
         "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
+        "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
         "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
         "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
         "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json",
@@ -149,6 +155,7 @@
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_closure_checklist",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_gap_audit",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_handoff_bundle",
         "manual read-only gpu3070ti readiness refresh; no local training, no approved preflight",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_plan_audit",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_formal_execution_packet",

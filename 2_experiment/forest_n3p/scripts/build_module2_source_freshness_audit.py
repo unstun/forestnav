@@ -105,6 +105,12 @@ DEFAULT_ARTIFACTS = (
         Path("0_trials/module2_formal_gate_status_report/formal_gate_status_report.json"),
         "formal_claim_gate",
     ),
+    ArtifactTarget(
+        "formal_gate_handoff_bundle",
+        "formal_gate",
+        Path("0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json"),
+        "approved_remote_preflight",
+    ),
 )
 
 
