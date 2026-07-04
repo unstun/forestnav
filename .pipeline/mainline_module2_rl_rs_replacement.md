@@ -268,7 +268,12 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
   - 必含: analytic_attempts, rs_attempts, rl_attempts, rl_successes, terminal_rs_successes, nn_forward_time_s, rollout_collision_checks, rollout_steps, fallback_to_primitives_count。
   - 已完成: 新增 `0_trials/module2_rl_rs_evidence/evaluation_telemetry_gap.md`, 核验 `EvaluationRecord`、`planner_run_from_path_stats()`、`evaluate_run()`、`_update_rl_rs_telemetry_summary()`、planner stats、RL-RS telemetry/operator 和 H01 metric protocol。
   - 判定: 当前 records 已有 `analytic_attempts/successes/failure_count`, `rl_rollout_steps`, `rl_rollout_collision_checks`, `terminal_rs_success_count/used_count`, checkpoint path/hash; 缺 `rs_attempts`, `rl_attempts`, `rl_successes`, runtime `nn_forward_time_s`, `fallback_to_primitives_count`, checker/rollout protocol manifest。
+  - 后续实现: A02.3 P0 telemetry 已接入 runtime/evaluation 输出; `records.csv` 现在直接暴露 `rl_attempts`, `rl_successes`, `rs_attempts`, `nn_forward_time_s`, `fallback_to_primitives_count`, `rollout_protocol`, `collision_checker`。
+  - summary: `summary_by_method_bucket.csv` 现在包含 `mean_nn_forward_time_s`, `p95_nn_forward_time_s`, `rl_attempts_total`, `rl_successes_total`, `rs_attempts_total`, `fallback_to_primitives_total`。
+  - 语义边界: `fallback_to_primitives_count` 以 planner-level `analytic_failure_count` 为准, 因为 primitive fallback 是 analytic attempt 失败后的 planner 行为。
+  - 验证: targeted telemetry/operator tests 14 passed; full `2_experiment/forest_n3p/tests` 112 passed。
   - 记录: `.pipeline/experiments/20260704_module2_a02_3_evaluation_telemetry_gap.md`。
+  - 实现记录: `.pipeline/experiments/20260704_module2_a02_3_telemetry_implementation.md`。
 
 ### Phase B: 诚实计时和基线可比性
 
@@ -951,6 +956,7 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 37. [x] I01.1 code-anchored Draw.io system diagram 已生成: 图中显式覆盖 HA* loop、analytic trigger、RL rollout、terminal RS certificate 和 fallback primitives, 并标注 F02.6 pending / PPO checkpoint missing / gpu3070ti-relay 训练边界。
 38. [>] I02 paper table protocol/preview 已生成: 可从 H02 evaluation outputs 生成主表、消融计划和失败分析 preview; 当前因 H02 非 formal、H01 blocked 和缺 PPO checkpoint 正确阻塞 formal claim。
 39. [>] I03 claim safety guard 已生成: 允许方法结构 claim 和 no-warm Gate #3 formal failure claim; formal performance improvement 继续 blocked; 全局最优/完备性增强/RL替代HA*/泛化所有森林等 claim 已 hard-block。
+40. [x] A02.3 P0 telemetry implementation 已完成: runtime NN forward timing、RL/RS canonical attempt columns、primitive fallback count 和 rollout/collision protocol metadata 已进入 evaluation outputs。
 
 ## 7. 完成记录
 
@@ -1005,3 +1011,4 @@ HOPE 论文/仓库声称 RL 与 RS 结合, 并与 Hybrid A*、naive PPO/SAC 比�
 - 2026-07-04: 推进 I02 paper table protocol/preview。新增 `build_module2_paper_tables.py`, 从 H02 evaluation outputs 生成 I02.1 主表 preview、I02.2 消融计划和 I02.3 failure-analysis preview; 当前 artifact status=`blocked_no_formal_h02_data`, 明确阻塞项为 H02 非 formal、H01 未 ready、F02.6 pending、缺 PPO checkpoint/rows, 因此不能作为论文结果表。记录见 `.pipeline/experiments/20260704_module2_i02_paper_table_protocol.md`。
 - 2026-07-04: 推进 I03 claim safety。新增 `build_module2_claim_safety.py`, 汇总 I01/I02/H01/F02.6/Gate3 audit 生成 allowed/conditional/prohibited claim guard; 当前 formal performance claim blocked, no-warm Gate #3 failure claim allowed only in no-warm scope, 全局最优/完备性增强/RL替代HA*/泛化所有森林/warm-start approved 均 hard-block。记录见 `.pipeline/experiments/20260704_module2_i03_claim_safety.md`。
 - 2026-07-04: 完成 A00.2 项目状态记忆刷新。bigmemory 热区已从 2026-07-02 的 “Contract 未起草/未写实验代码” 旧状态更新为当前真实边界: Contract approved, no-warm Gate #3 formal fail, F02.6 pending, 缺 PPO checkpoint, H01/H02 formal blocked, PPO formal training 只能走 `gpu3070ti-relay` 且禁止本地训练。记录见 `bigmemory/冷区/改动记录/2026-07-04.md`。
+- 2026-07-04: 完成 A02.3 P0 telemetry implementation。RL-RS operator/evaluation records 现在输出 `rl_attempts`, `rl_successes`, `rs_attempts`, `nn_forward_time_s`, `fallback_to_primitives_count`, `rollout_protocol`, `collision_checker`; summary 输出 NN forward 聚合与 attempts totals。I01 code-anchored method/system diagram 已按 timed policy call 更新锚点并再生成。验证: full `2_experiment/forest_n3p/tests` 112 passed。记录见 `.pipeline/experiments/20260704_module2_a02_3_telemetry_implementation.md`。
