@@ -1218,6 +1218,16 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- `{requirement_id}`: status=`{row['status']}`, complete=`{row['complete']}`, "
             f"remote_training_ready_now=`{row['remote_training_ready_now']}`"
         )
+    lines.extend(["", "## H02 Formal Acceptance Requirement Matrix", ""])
+    h02_requirements = manifest["h02_formal_acceptance_requirement_summary"]
+    lines.append(f"- present: `{h02_requirements['present']}`")
+    lines.append(f"- status_counts: `{h02_requirements['status_counts']}`")
+    lines.append(f"- blocked_requirement_count: `{h02_requirements['blocked_requirement_count']}`")
+    for requirement_id, row in h02_requirements["requirements"].items():
+        lines.append(
+            f"- `{requirement_id}`: status=`{row['status']}`, complete=`{row['complete']}`, "
+            f"paper_result_input_allowed_now=`{row['paper_result_input_allowed_now']}`"
+        )
     lines.extend(["", "## Closure Remote Stages", ""])
     for stage_id, stage in manifest["closure_remote_stage_summary"].items():
         blocked_by = ", ".join(stage["blocked_by"]) if stage["blocked_by"] else "none"
