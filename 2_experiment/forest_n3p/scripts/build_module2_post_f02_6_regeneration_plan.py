@@ -14,6 +14,9 @@ DEFAULT_DECISION_RECORD = Path("0_trials/module2_f02_6_decision_record/f02_6_dec
 DEFAULT_FORMAL_GATE = Path("0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json")
 DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_freshness_audit.json")
 DEFAULT_REMOTE_PACKET = Path("0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json")
+DEFAULT_REMAINING_DELIVERABLES = Path(
+    "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json"
+)
 
 
 @dataclass(frozen=True)
@@ -25,6 +28,7 @@ class PostF026RegenerationPlanConfig:
     formal_gate_path: Path = DEFAULT_FORMAL_GATE
     source_freshness_path: Path = DEFAULT_SOURCE_FRESHNESS
     remote_packet_path: Path = DEFAULT_REMOTE_PACKET
+    remaining_deliverables_path: Path = DEFAULT_REMAINING_DELIVERABLES
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -37,6 +41,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         formal_gate_path=args.formal_gate,
         source_freshness_path=args.source_freshness_audit,
         remote_packet_path=args.remote_packet,
+        remaining_deliverables_path=args.remaining_deliverables,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -56,6 +61,7 @@ def build_manifest(config: PostF026RegenerationPlanConfig) -> dict[str, Any]:
     formal_gate = _read_json(config.formal_gate_path)
     source_freshness = _read_json(config.source_freshness_path)
     remote_packet = _read_json(config.remote_packet_path)
+    remaining_deliverables = _read_json(config.remaining_deliverables_path)
 
     decision_status = str(decision.get("status") or formal_gate.get("current_gate_state", {}).get("f02_6_decision_status") or "unknown")
     source_targets = _source_targets(source_freshness)
@@ -83,6 +89,7 @@ def build_manifest(config: PostF026RegenerationPlanConfig) -> dict[str, Any]:
             "formal_gate_gap_audit": str(config.formal_gate_path),
             "source_freshness_audit": str(config.source_freshness_path),
             "remote_formal_execution_packet": str(config.remote_packet_path),
+            "formal_gate_remaining_deliverables": str(config.remaining_deliverables_path),
         },
         "current_gate_summary": {
             "f02_6_decision_status": decision_status,
@@ -92,6 +99,7 @@ def build_manifest(config: PostF026RegenerationPlanConfig) -> dict[str, Any]:
             "remote_packet_status": remote_packet.get("status"),
             "ready_to_run_remote_training": bool(remote_packet.get("ready_to_run_remote_training")),
         },
+        "remaining_deliverables_gap_summary": _remaining_deliverables_gap_summary(remaining_deliverables),
         "source_regeneration_targets_by_gate": _targets_by_gate(source_targets),
         "source_regeneration_command_index": _source_regeneration_command_index(source_targets),
         "ordered_stages": stages,
@@ -115,6 +123,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--formal-gate", type=Path, default=DEFAULT_FORMAL_GATE)
     parser.add_argument("--source-freshness-audit", type=Path, default=DEFAULT_SOURCE_FRESHNESS)
     parser.add_argument("--remote-packet", type=Path, default=DEFAULT_REMOTE_PACKET)
+    parser.add_argument("--remaining-deliverables", type=Path, default=DEFAULT_REMAINING_DELIVERABLES)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
@@ -456,6 +465,55 @@ def _blocking_summary(stages: Sequence[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _remaining_deliverables_gap_summary(remaining_deliverables: dict[str, Any]) -> dict[str, Any]:
+    raw = remaining_deliverables.get("deliverable_gap_summary")
+    summary = raw if isinstance(raw, dict) else {}
+    categories = _gap_categories(summary.get("categories"))
+    return {
+        "present": bool(summary),
+        "summary_id": summary.get("summary_id"),
+        "execution_boundary": summary.get("execution_boundary"),
+        "not_paper_result_material": summary.get("not_paper_result_material"),
+        "total_missing_deliverables": int(summary.get("total_missing_deliverables") or 0),
+        "open_category_count": int(summary.get("open_category_count") or 0),
+        "category_order": [str(item) for item in summary.get("category_order", []) if item]
+        if isinstance(summary.get("category_order"), list)
+        else list(categories),
+        "categories": categories,
+    }
+
+
+def _gap_categories(raw_categories: Any) -> dict[str, dict[str, Any]]:
+    if isinstance(raw_categories, dict):
+        items = raw_categories.items()
+    elif isinstance(raw_categories, list):
+        items = ((item.get("category"), item) for item in raw_categories if isinstance(item, dict))
+    else:
+        items = ()
+    out: dict[str, dict[str, Any]] = {}
+    for category, raw in items:
+        if not category or not isinstance(raw, dict):
+            continue
+        missing_artifacts = raw.get("missing_artifacts") if isinstance(raw.get("missing_artifacts"), list) else []
+        out[str(category)] = {
+            "present": True,
+            "status": raw.get("status"),
+            "missing_count": int(raw.get("missing_count") or 0),
+            "present_count": int(raw.get("present_count") or 0),
+            "responsible_stage_id": raw.get("responsible_stage_id"),
+            "responsible_stage_allowed_now": raw.get("responsible_stage_allowed_now"),
+            "responsible_stage_blocked_by": [str(item) for item in raw.get("responsible_stage_blocked_by", []) if item]
+            if isinstance(raw.get("responsible_stage_blocked_by"), list)
+            else [],
+            "missing_artifact_matrix_ids": [
+                str(item.get("matrix_id"))
+                for item in missing_artifacts
+                if isinstance(item, dict) and item.get("matrix_id")
+            ],
+        }
+    return out
+
+
 def _markdown(manifest: dict[str, Any]) -> str:
     lines = [
         "# Module2 Post-F02.6 Regeneration Plan",
@@ -474,6 +532,24 @@ def _markdown(manifest: dict[str, Any]) -> str:
     ]
     for key, value in manifest["current_gate_summary"].items():
         lines.append(f"- {key}: `{value}`")
+    gap = manifest["remaining_deliverables_gap_summary"]
+    lines.extend(
+        [
+            "",
+            "## Remaining Deliverables Gap Summary",
+            "",
+            f"- present: `{gap['present']}`",
+            f"- total_missing_deliverables: `{gap['total_missing_deliverables']}`",
+            f"- open_category_count: `{gap['open_category_count']}`",
+        ]
+    )
+    for category in gap["category_order"]:
+        item = gap["categories"].get(category, {})
+        lines.append(
+            f"- `{category}`: missing=`{item.get('missing_count')}`, "
+            f"responsible_stage=`{item.get('responsible_stage_id')}`, "
+            f"allowed_now=`{item.get('responsible_stage_allowed_now')}`"
+        )
     lines.extend(["", "## Ordered Stages", ""])
     for stage in manifest["ordered_stages"]:
         host = f", host=`{stage['host']}`" if stage.get("host") else ""
