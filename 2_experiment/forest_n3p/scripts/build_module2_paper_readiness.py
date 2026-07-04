@@ -1024,6 +1024,12 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- claim_safety_remaining_deliverables_gap_present: `{input_status.get('claim_safety_remaining_deliverables_gap_present')}`",
             f"- claim_safety_remaining_deliverables_gap_total_missing_deliverables: `{input_status.get('claim_safety_remaining_deliverables_gap_total_missing_deliverables')}`",
             f"- claim_safety_remaining_deliverables_gap_open_category_count: `{input_status.get('claim_safety_remaining_deliverables_gap_open_category_count')}`",
+            "",
+            "## Claim Safety Formal Gate Gap Audit Remaining Deliverables Gap Summary",
+            "",
+            f"- claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_present: `{input_status.get('claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_present')}`",
+            f"- claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_total_missing_deliverables: `{input_status.get('claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_total_missing_deliverables')}`",
+            f"- claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_open_category_count: `{input_status.get('claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_open_category_count')}`",
         ]
     )
     lines.extend(["", "## Section Readiness", ""])
