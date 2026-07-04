@@ -41,6 +41,9 @@ def test_remote_packet_safety_audit_passes_current_blocked_packet(tmp_path):
     assert manifest["cross_gate_summary"]["post_plan_status_report_next_blocked_lane_id"] == "decision"
     assert manifest["cross_gate_summary"]["post_plan_status_report_handoff_summary"]["status"] == "blocked_until_f02_6_decision"
     assert manifest["cross_gate_summary"]["post_plan_status_report_handoff_summary"]["remote_training_allowed_now"] is False
+    assert manifest["cross_gate_summary"]["post_plan_status_report_execution_veto_summary"]["all_rows_consistent"] is True
+    assert manifest["cross_gate_summary"]["post_plan_status_report_execution_veto_summary"]["row_consensus"]["remote_training"] is False
+    assert manifest["cross_gate_summary"]["post_plan_status_report_execution_veto_summary"]["row_consensus"]["formal_claim"] is False
     status_steps = manifest["cross_gate_summary"]["post_plan_status_report_remote_execution_step_summary"]
     assert status_steps["sync_to_remote"]["blocked_by"] == ["requires_dr_sun_approval"]
     assert status_steps["run_remote_training"]["blocked_by"] == ["requires_dr_sun_approval", "remote_packet_not_ready"]
@@ -290,6 +293,52 @@ def test_remote_packet_safety_audit_requires_post_plan_status_report_handoff_sum
     assert "post_plan_missing_status_report_handoff_summary" in issue_ids
 
 
+def test_remote_packet_safety_audit_requires_post_plan_status_report_execution_veto_summary(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
+    plan_audit = _plan_audit_payload()
+    plan_audit["status_report_summary"].pop("formal_gate_execution_veto_summary")
+
+    manifest = auditor.build_manifest(
+        auditor.RemotePacketSafetyAuditConfig(
+            output_dir=tmp_path,
+            remote_packet_path=_json(tmp_path, "packet.json", _packet_payload()),
+            decision_gate_audit_path=_json(tmp_path, "decision_gate.json", _decision_gate_payload()),
+            post_plan_audit_path=_json(tmp_path, "plan_audit.json", plan_audit),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "remote_packet_safety_audit_failed"
+    assert "post_plan_missing_status_report_execution_veto_summary" in issue_ids
+
+
+def test_remote_packet_safety_audit_catches_status_report_execution_veto_drift(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
+    plan_audit = _plan_audit_payload()
+    veto = plan_audit["status_report_summary"]["formal_gate_execution_veto_summary"]
+    veto["all_rows_consistent"] = False
+    veto["mismatch_rows"] = ["remote_training"]
+    veto["row_consensus"]["remote_training"] = True
+    veto["rows"]["remote_training"]["consistent"] = False
+    veto["rows"]["remote_training"]["consensus_allowed_now"] = True
+
+    manifest = auditor.build_manifest(
+        auditor.RemotePacketSafetyAuditConfig(
+            output_dir=tmp_path,
+            remote_packet_path=_json(tmp_path, "packet.json", _packet_payload()),
+            decision_gate_audit_path=_json(tmp_path, "decision_gate.json", _decision_gate_payload()),
+            post_plan_audit_path=_json(tmp_path, "plan_audit.json", plan_audit),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "remote_packet_safety_audit_failed"
+    assert "post_plan_execution_veto_rows_inconsistent" in issue_ids
+    assert "post_plan_execution_veto_mismatch_rows_open" in issue_ids
+    assert "blocked_status_report_execution_veto_allows_remote_training" in issue_ids
+    assert "post_plan_execution_veto_remote_training_packet_mismatch" in issue_ids
+
+
 def test_remote_packet_safety_audit_catches_status_report_remote_step_mismatch(tmp_path):
     auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
     plan_audit = _plan_audit_payload()
@@ -448,6 +497,7 @@ def test_remote_packet_safety_audit_cli_writes_json_and_markdown(tmp_path):
     markdown = markdown_path.read_text(encoding="utf-8")
     assert manifest["status"] == "remote_packet_safety_audit_passed"
     assert "Module2 Remote Packet Safety Audit" in markdown
+    assert "post_plan_execution_veto_remote_training_allowed_now" in markdown
     assert "does not execute any command" in markdown
 
 
