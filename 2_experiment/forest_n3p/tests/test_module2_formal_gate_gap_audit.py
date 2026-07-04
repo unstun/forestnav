@@ -290,6 +290,65 @@ def test_formal_gate_gap_audit_rejects_missing_artifacts_inventory_that_runs_or_
     assert "formal_missing_artifacts_allows_claim" in acceptance_gap_ids
 
 
+def test_formal_gate_gap_audit_consumes_closure_checklist(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_gap_audit")
+
+    manifest = builder.build_manifest(
+        builder.FormalGateGapAuditConfig(
+            output_dir=tmp_path,
+            contract_path=_contract(tmp_path),
+            decision_record_path=_decision_record(tmp_path, pending=False),
+            h01_manifest_path=_h01_manifest(tmp_path, ready=True),
+            remote_packet_path=_remote_packet(tmp_path, ready=True, artifacts_present=True),
+            h02_acceptance_path=_h02_acceptance(tmp_path, accepted=True),
+            claim_safety_path=_claim_safety(tmp_path, allowed=True),
+            readiness_path=_readiness(tmp_path, ready=True),
+            remote_readiness_path=_remote_readiness(tmp_path, good=True),
+            source_freshness_path=_source_freshness(tmp_path, clean=True),
+            missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
+            closure_checklist_path=_closure_checklist(tmp_path, complete=False),
+        )
+    )
+
+    assert manifest["status"] == "blocked_formal_gate_gaps_open"
+    assert manifest["closure_checklist"]["status"] == "formal_gate_closure_blocked"
+    acceptance_gap_ids = {gap["gap_id"] for gap in manifest["missing_acceptance_artifacts"]}
+    assert "formal_gate_closure_checklist_open" in acceptance_gap_ids
+    steps = {step["step_id"]: step for step in manifest["ordered_next_steps"]}
+    assert steps["gate3_remote_training"]["status"] == "pending_execution"
+    assert steps["claim_safety_final_gate"]["status"] == "blocked"
+    assert "formal_gate_closure_checklist_open" in steps["claim_safety_final_gate"]["blocked_by"]
+
+
+def test_formal_gate_gap_audit_rejects_closure_checklist_that_runs_or_claims(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_gap_audit")
+
+    manifest = builder.build_manifest(
+        builder.FormalGateGapAuditConfig(
+            output_dir=tmp_path,
+            contract_path=_contract(tmp_path),
+            decision_record_path=_decision_record(tmp_path, pending=False),
+            h01_manifest_path=_h01_manifest(tmp_path, ready=True),
+            remote_packet_path=_remote_packet(tmp_path, ready=True, artifacts_present=True),
+            h02_acceptance_path=_h02_acceptance(tmp_path, accepted=True),
+            claim_safety_path=_claim_safety(tmp_path, allowed=True),
+            readiness_path=_readiness(tmp_path, ready=True),
+            remote_readiness_path=_remote_readiness(tmp_path, good=True),
+            source_freshness_path=_source_freshness(tmp_path, clean=True),
+            missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
+            closure_checklist_path=_closure_checklist(tmp_path, complete=True, invalid=True),
+        )
+    )
+
+    acceptance_gap_ids = {gap["gap_id"] for gap in manifest["missing_acceptance_artifacts"]}
+    assert "formal_closure_checklist_executes_commands" in acceptance_gap_ids
+    assert "formal_closure_checklist_runs_training" in acceptance_gap_ids
+    assert "formal_closure_checklist_runs_preflight" in acceptance_gap_ids
+    assert "formal_closure_checklist_allows_local_training" in acceptance_gap_ids
+    assert "formal_closure_checklist_allows_claim" in acceptance_gap_ids
+    assert "formal_closure_checklist_safety_issues_open" in acceptance_gap_ids
+
+
 def test_formal_gate_gap_audit_does_not_allow_local_training_even_when_remote_is_ready(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_gap_audit")
 
