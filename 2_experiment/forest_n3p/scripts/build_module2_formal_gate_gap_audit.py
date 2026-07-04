@@ -18,6 +18,7 @@ DEFAULT_H02_ACCEPTANCE = Path("0_trials/module2_h02_formal_acceptance/h02_formal
 DEFAULT_CLAIM_SAFETY = Path("0_trials/module2_claim_safety/module2_claim_safety.json")
 DEFAULT_READINESS = Path("0_trials/module2_paper_readiness/module2_paper_readiness.json")
 DEFAULT_REMOTE_READINESS = Path("0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json")
+DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_freshness_audit.json")
 
 
 @dataclass(frozen=True)
@@ -33,6 +34,7 @@ class FormalGateGapAuditConfig:
     claim_safety_path: Path = DEFAULT_CLAIM_SAFETY
     readiness_path: Path = DEFAULT_READINESS
     remote_readiness_path: Path = DEFAULT_REMOTE_READINESS
+    source_freshness_path: Path = DEFAULT_SOURCE_FRESHNESS
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -49,6 +51,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         claim_safety_path=args.claim_safety,
         readiness_path=args.readiness,
         remote_readiness_path=args.remote_readiness_refresh,
+        source_freshness_path=args.source_freshness_audit,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -78,9 +81,12 @@ def build_manifest(config: FormalGateGapAuditConfig) -> dict[str, Any]:
     claim_safety = _read_json(config.claim_safety_path)
     readiness = _read_json(config.readiness_path)
     remote_readiness = _read_json(config.remote_readiness_path)
+    source_freshness = _read_json(config.source_freshness_path)
 
     decision_gaps = _decision_gaps(decision=decision, h01=h01, remote=remote)
+    source_freshness_gaps = _source_freshness_gaps(source_freshness=source_freshness, source_freshness_path=config.source_freshness_path)
     training_gaps = _training_gaps(remote=remote, h02=h02, remote_readiness=remote_readiness, remote_readiness_path=config.remote_readiness_path)
+    training_gaps = _unique_gaps(training_gaps + source_freshness_gaps)
     evaluation_gaps = _evaluation_gaps(h01=h01, h02=h02)
     acceptance_gaps = _acceptance_gaps(h02=h02, claim_safety=claim_safety, readiness=readiness)
     all_gaps = decision_gaps + training_gaps + evaluation_gaps + acceptance_gaps
@@ -103,7 +109,15 @@ def build_manifest(config: FormalGateGapAuditConfig) -> dict[str, Any]:
             "approved_date": contract.get("approved_date"),
         },
         "remote_readiness": _remote_readiness_record(config.remote_readiness_path, remote_readiness),
-        "current_gate_state": _current_gate_state(decision=decision, h01=h01, remote=remote, h02=h02, claim_safety=claim_safety),
+        "source_freshness": _source_freshness_record(config.source_freshness_path, source_freshness),
+        "current_gate_state": _current_gate_state(
+            decision=decision,
+            h01=h01,
+            remote=remote,
+            h02=h02,
+            claim_safety=claim_safety,
+            source_freshness=source_freshness,
+        ),
         "missing_decision_items": decision_gaps,
         "missing_training_artifacts": training_gaps,
         "missing_evaluation_artifacts": evaluation_gaps,
@@ -114,6 +128,7 @@ def build_manifest(config: FormalGateGapAuditConfig) -> dict[str, Any]:
             "Do not write performance-improvement or warm-start-effect claims from this artifact.",
             "No PPO/RL-RS formal training is allowed on the local Mac.",
             "Formal PPO checkpoint production must run on gpu3070ti-relay after F02.6 closes.",
+            "Source freshness risks are regeneration blockers, not formal algorithm failures.",
             "Remote completion is insufficient until audit artifacts, checkpoint hashes, H01/H02 regeneration, and claim safety all pass.",
         ],
     }
@@ -132,6 +147,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--claim-safety", type=Path, default=DEFAULT_CLAIM_SAFETY)
     parser.add_argument("--readiness", type=Path, default=DEFAULT_READINESS)
     parser.add_argument("--remote-readiness-refresh", type=Path, default=DEFAULT_REMOTE_READINESS)
+    parser.add_argument("--source-freshness-audit", type=Path, default=DEFAULT_SOURCE_FRESHNESS)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
