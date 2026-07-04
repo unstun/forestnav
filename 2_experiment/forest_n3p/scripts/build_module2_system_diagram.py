@@ -151,7 +151,7 @@ def _nodes(repo_root: Path) -> tuple[DiagramNode, ...]:
         DiagramNode(
             node_id="rl_rs_funnel_operator",
             title="RL-RS funnel operator",
-            subtitle="Checkpoint policy rolls out steering from current HA* node",
+            subtitle="Checkpoint policy rolls out timed steering from current HA* node",
             x=810,
             y=140,
             width=210,
@@ -160,7 +160,7 @@ def _nodes(repo_root: Path) -> tuple[DiagramNode, ...]:
             code_anchors=(
                 _anchor(repo_root, operator, "class RlRsFunnelOperator", "RlRsFunnelOperator"),
                 _anchor(repo_root, operator, "def try_connect(", "RlRsFunnelOperator.try_connect"),
-                _anchor(repo_root, operator, "step = env.step(self.action_policy(observation))", "RlRsFunnelOperator.try_connect"),
+                _anchor(repo_root, operator, "step = env.step(action, nn_forward_time_s=policy_elapsed)", "RlRsFunnelOperator.try_connect"),
             ),
         ),
         DiagramNode(

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_method_algorithms",
   "status": "code_anchored",
-  "created_at_utc": "2026-07-04T06:32:54.345449+00:00",
-  "source_head": "c4745347b1a379b04072eba9c9a1f4078971017b",
+  "created_at_utc": "2026-07-04T08:23:00.108763+00:00",
+  "source_head": "c71851c7dd3520d153ae91e781e36dc758ce6878",
   "formal_claim_allowed": false,
   "local_training_allowed": false,
   "remote_training_resource": "gpu3070ti-relay",
@@ -86,19 +86,19 @@
           "code_anchors": [
             {
               "path": "2_experiment/forest_n3p/rl_rs/operator.py",
-              "line": 62,
+              "line": 81,
               "symbol": "RlRsFunnelOperator.try_connect",
               "pattern": "def try_connect("
             },
             {
               "path": "2_experiment/forest_n3p/rl_rs/operator.py",
-              "line": 68,
+              "line": 87,
               "symbol": "RlRsFunnelOperator.try_connect",
               "pattern": "env_context = self._env_context"
             },
             {
               "path": "2_experiment/forest_n3p/rl_rs/operator.py",
-              "line": 70,
+              "line": 89,
               "symbol": "RlRsFunnelOperator.try_connect",
               "pattern": "observation = env.reset(env_context)"
             },
@@ -112,17 +112,23 @@
         },
         {
           "step_id": "A1.5",
-          "action": "Iteratively query the RL action policy, apply one constant-steer primitive, update observation, and stop only on terminal/truncated signals.",
+          "action": "Iteratively time the RL action-policy forward pass, apply one constant-steer primitive with that timing attached to telemetry, update observation, and stop only on terminal/truncated signals.",
           "code_anchors": [
             {
               "path": "2_experiment/forest_n3p/rl_rs/operator.py",
-              "line": 77,
+              "line": 97,
               "symbol": "RlRsFunnelOperator.try_connect",
-              "pattern": "step = env.step(self.action_policy(observation))"
+              "pattern": "action = self.action_policy(observation)"
             },
             {
               "path": "2_experiment/forest_n3p/rl_rs/operator.py",
-              "line": 78,
+              "line": 99,
+              "symbol": "RlRsFunnelOperator.try_connect",
+              "pattern": "step = env.step(action, nn_forward_time_s=policy_elapsed)"
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+              "line": 100,
               "symbol": "RlRsFunnelOperator.try_connect",
               "pattern": "rollout_states.append(step.next_state)"
             },
@@ -134,7 +140,7 @@
             },
             {
               "path": "2_experiment/forest_n3p/rl_rs/env.py",
-              "line": 191,
+              "line": 194,
               "symbol": "AnalyticExpansionEnv.step",
               "pattern": "rollout = rollout_constant_steer_step("
             }
@@ -146,7 +152,7 @@
           "code_anchors": [
             {
               "path": "2_experiment/forest_n3p/rl_rs/env.py",
-              "line": 211,
+              "line": 215,
               "symbol": "AnalyticExpansionEnv.step",
               "pattern": "check_terminal_rs_connectable("
             },
@@ -158,13 +164,13 @@
             },
             {
               "path": "2_experiment/forest_n3p/rl_rs/operator.py",
-              "line": 102,
+              "line": 126,
               "symbol": "RlRsFunnelOperator.try_connect",
               "pattern": "if step.terminal_rs.success:"
             },
             {
               "path": "2_experiment/forest_n3p/rl_rs/operator.py",
-              "line": 129,
+              "line": 157,
               "symbol": "RlRsFunnelOperator.try_connect",
               "pattern": "terminal_rs_used=True"
             }
@@ -176,7 +182,7 @@
           "code_anchors": [
             {
               "path": "2_experiment/forest_n3p/rl_rs/operator.py",
-              "line": 99,
+              "line": 123,
               "symbol": "RlRsFunnelOperator.try_connect",
               "pattern": "return None"
             },
@@ -322,19 +328,19 @@
           "code_anchors": [
             {
               "path": "2_experiment/forest_n3p/rl_rs/env.py",
-              "line": 191,
+              "line": 194,
               "symbol": "AnalyticExpansionEnv.step",
               "pattern": "rollout = rollout_constant_steer_step("
             },
             {
               "path": "2_experiment/forest_n3p/rl_rs/env.py",
-              "line": 242,
+              "line": 246,
               "symbol": "AnalyticExpansionEnv.step",
               "pattern": "no_progress = ("
             },
             {
               "path": "2_experiment/forest_n3p/rl_rs/env.py",
-              "line": 251,
+              "line": 255,
               "symbol": "AnalyticExpansionEnv.step",
               "pattern": "oscillation = _detect_oscillation("
             },
@@ -352,7 +358,7 @@
           "code_anchors": [
             {
               "path": "2_experiment/forest_n3p/rl_rs/env.py",
-              "line": 314,
+              "line": 320,
               "symbol": "AnalyticExpansionEnv.step",
               "pattern": "reward=compute_decomposed_reward("
             },

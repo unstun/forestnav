@@ -109,9 +109,10 @@ def _rl_rs_funnel_algorithm(repo_root: Path) -> dict[str, Any]:
             },
             {
                 "step_id": "A1.5",
-                "action": "Iteratively query the RL action policy, apply one constant-steer primitive, update observation, and stop only on terminal/truncated signals.",
+                "action": "Iteratively time the RL action-policy forward pass, apply one constant-steer primitive with that timing attached to telemetry, update observation, and stop only on terminal/truncated signals.",
                 "code_anchors": [
-                    _anchor(repo_root, operator, "step = env.step(self.action_policy(observation))", "RlRsFunnelOperator.try_connect"),
+                    _anchor(repo_root, operator, "action = self.action_policy(observation)", "RlRsFunnelOperator.try_connect"),
+                    _anchor(repo_root, operator, "step = env.step(action, nn_forward_time_s=policy_elapsed)", "RlRsFunnelOperator.try_connect"),
                     _anchor(repo_root, operator, "rollout_states.append(step.next_state)", "RlRsFunnelOperator.try_connect"),
                     _anchor(repo_root, env, "def step(", "AnalyticExpansionEnv.step"),
                     _anchor(repo_root, env, "rollout = rollout_constant_steer_step(", "AnalyticExpansionEnv.step"),
