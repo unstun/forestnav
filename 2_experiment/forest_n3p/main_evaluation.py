@@ -1124,6 +1124,10 @@ def _stat_pairs(methods: Sequence[str]) -> tuple[tuple[str, str], ...]:
     for other in comparison_order:
         if "f_n3p_knn" in methods and other in methods and other != "f_n3p_knn":
             pairs.append(("f_n3p_knn", other))
+    if "ha_dang_multi_rs" in methods:
+        for candidate in ("bc_analytic_operator", "ppo_analytic_operator", "ha_rl_rs_ppo"):
+            if candidate in methods:
+                pairs.append((candidate, "ha_dang_multi_rs"))
     return tuple(pairs)
 
 
