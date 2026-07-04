@@ -82,6 +82,12 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert manifest["input_status"]["claim_safety_decision_intake_status"] == "f02_6_decision_intake_pending_clean"
     assert manifest["input_status"]["claim_safety_decision_intake_record_status"] == "pending_human_decision"
     assert manifest["input_status"]["claim_safety_decision_intake_audit_issue_count"] == 0
+    assert manifest["input_status"]["claim_safety_decision_intake_decision_owner_required"] == "Dr Sun"
+    assert manifest["input_status"]["claim_safety_decision_intake_valid_decision_count"] == 2
+    assert manifest["input_status"]["claim_safety_decision_intake_required_record_field_count"] == 3
+    assert manifest["input_status"]["claim_safety_decision_intake_decision_note_required"] is True
+    assert manifest["input_status"]["claim_safety_decision_intake_invalid_input_count"] == 2
+    assert manifest["input_status"]["claim_safety_decision_intake_post_decision_non_authorization_count"] == 2
     assert manifest["input_status"]["claim_safety_decision_intake_next_blocked_lane"] == "decision"
     assert manifest["input_status"]["claim_safety_decision_intake_remote_preflight_allowed_now"] is False
     assert manifest["input_status"]["claim_safety_decision_intake_remote_training_allowed_now"] is False
@@ -169,6 +175,8 @@ def test_paper_readiness_accepts_synthetic_complete_evidence(tmp_path):
     assert manifest["input_status"]["claim_safety_h02_formal_acceptance_requirement_satisfied_count"] == 4
     assert manifest["input_status"]["claim_safety_decision_intake_status"] == "f02_6_decision_intake_closed_clean"
     assert manifest["input_status"]["claim_safety_decision_intake_record_status"] == "approved"
+    assert manifest["input_status"]["claim_safety_decision_intake_decision_owner_required"] == "Dr Sun"
+    assert manifest["input_status"]["claim_safety_decision_intake_decision_note_required"] is True
     assert manifest["input_status"]["claim_safety_decision_intake_remote_training_allowed_now"] is True
     assert manifest["input_status"]["claim_safety_remaining_deliverables_acceptance_matrix_row_count"] == 10
     assert manifest["input_status"]["claim_safety_remaining_deliverables_acceptance_missing_row_count"] == 0
@@ -296,6 +304,14 @@ def test_paper_readiness_rejects_claim_safety_without_clean_decision_intake_summ
     claim_safety_payload["status_report_decision_intake_summary"]["status"] = "f02_6_decision_intake_failed"
     claim_safety_payload["status_report_decision_intake_summary"]["audit_issue_count"] = 1
     claim_safety_payload["status_report_decision_intake_summary"]["record_decider"] = "Assistant"
+    claim_safety_payload["status_report_decision_intake_summary"]["decision_owner_required"] = "Assistant"
+    claim_safety_payload["status_report_decision_intake_summary"]["valid_decisions"] = [
+        "approve_obstacle_summary_warm_start"
+    ]
+    claim_safety_payload["status_report_decision_intake_summary"]["required_record_fields"] = ["decision", "decider"]
+    claim_safety_payload["status_report_decision_intake_summary"]["decision_note_required"] = False
+    claim_safety_payload["status_report_decision_intake_summary"]["invalid_input_count"] = 0
+    claim_safety_payload["status_report_decision_intake_summary"]["post_decision_non_authorization_count"] = 0
     paths["claim_safety"].write_text(json.dumps(claim_safety_payload), encoding="utf-8")
 
     manifest = builder.build_manifest(
@@ -318,6 +334,12 @@ def test_paper_readiness_rejects_claim_safety_without_clean_decision_intake_summ
     assert "claim_safety_f02_6_decision_intake_not_clean" in manifest["global_blockers"]
     assert "claim_safety_f02_6_decision_intake_audit_issues_open" in manifest["global_blockers"]
     assert "claim_safety_closed_f02_6_intake_decider_not_dr_sun" in manifest["global_blockers"]
+    assert "claim_safety_f02_6_decision_intake_decision_owner_not_dr_sun" in manifest["global_blockers"]
+    assert "claim_safety_f02_6_decision_intake_valid_decisions_incomplete" in manifest["global_blockers"]
+    assert "claim_safety_f02_6_decision_intake_required_fields_incomplete" in manifest["global_blockers"]
+    assert "claim_safety_f02_6_decision_intake_decision_note_not_required" in manifest["global_blockers"]
+    assert "claim_safety_f02_6_decision_intake_invalid_inputs_missing" in manifest["global_blockers"]
+    assert "claim_safety_f02_6_decision_intake_non_authorizations_missing" in manifest["global_blockers"]
     assert manifest["input_status"]["claim_safety_decision_intake_status"] == "f02_6_decision_intake_failed"
 
 
@@ -419,6 +441,17 @@ def _write_inputs(tmp_path, *, formal):
                 "record_status": "approved" if formal else "pending_human_decision",
                 "record_decider": "Dr Sun" if formal else None,
                 "next_blocked_lane": None if formal else "decision",
+                "decision_owner_required": "Dr Sun",
+                "valid_decisions": [
+                    "approve_obstacle_summary_warm_start",
+                    "reject_obstacle_summary_warm_start",
+                ],
+                "valid_decision_count": 2,
+                "required_record_fields": ["decision", "decider", "decision_note"],
+                "required_record_field_count": 3,
+                "decision_note_required": True,
+                "invalid_input_count": 2,
+                "post_decision_non_authorization_count": 2,
                 "remote_preflight_allowed_now": formal,
                 "remote_training_allowed_now": formal,
                 "formal_claim_allowed_now": formal,
