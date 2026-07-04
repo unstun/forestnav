@@ -29,6 +29,8 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
             str(paths["decision_record"]),
             "--remote-execution-packet",
             str(paths["remote_packet"]),
+            "--status-report",
+            str(paths["status_report"]),
             "--output-dir",
             str(tmp_path),
             "--manifest-out",
@@ -51,6 +53,8 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert "h02_formal_acceptance_not_accepted" in manifest["global_blockers"]
     assert "missing_module2_rl_rs_checkpoint" in manifest["global_blockers"]
     assert "f02_6_pending" in manifest["global_blockers"]
+    assert "formal_gate_status_report_blocked" in manifest["global_blockers"]
+    assert manifest["input_status"]["status_report_status"] == "formal_gate_status_blocked"
 
     sections = {item["section_id"]: item for item in manifest["section_readiness"]}
     assert sections["method_algorithm"]["status"] == "ready_to_write"
@@ -79,6 +83,7 @@ def test_paper_readiness_accepts_synthetic_complete_evidence(tmp_path):
             h01_manifest_path=paths["h01_manifest"],
             f02_6_decision_record_path=paths["decision_record"],
             remote_execution_packet_path=paths["remote_packet"],
+            status_report_path=paths["status_report"],
         )
     )
 
@@ -87,6 +92,36 @@ def test_paper_readiness_accepts_synthetic_complete_evidence(tmp_path):
     assert manifest["global_blockers"] == []
     assert all(item["status"] != "blocked" for item in manifest["section_readiness"])
     assert "formal_performance_improvement" in manifest["conditional_claim_ids"]
+
+
+def test_paper_readiness_directly_blocks_on_status_report_even_if_claim_safety_is_ready(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_paper_readiness")
+    paths = _write_inputs(tmp_path, formal=True)
+    paths["status_report"] = _write_json(
+        tmp_path / "status_report_blocked.json",
+        _status_report_payload(ready=False),
+    )
+
+    manifest = builder.build_manifest(
+        builder.PaperReadinessConfig(
+            output_dir=tmp_path,
+            method_algorithms_path=paths["method_algorithms"],
+            system_diagram_path=paths["system_diagram"],
+            paper_tables_path=paths["paper_tables"],
+            claim_safety_path=paths["claim_safety"],
+            h02_formal_acceptance_path=paths["h02_acceptance"],
+            h01_manifest_path=paths["h01_manifest"],
+            f02_6_decision_record_path=paths["decision_record"],
+            remote_execution_packet_path=paths["remote_packet"],
+            status_report_path=paths["status_report"],
+        )
+    )
+
+    assert manifest["status"] == "partial_methods_ready_results_blocked"
+    assert manifest["formal_results_ready"] is False
+    assert "formal_gate_status_report_blocked" in manifest["global_blockers"]
+    sections = {item["section_id"]: item for item in manifest["section_readiness"]}
+    assert "formal_gate_status_report_blocked" in sections["formal_results"]["blockers"]
 
 
 def _write_inputs(tmp_path, *, formal):
@@ -163,7 +198,32 @@ def _write_inputs(tmp_path, *, formal):
             "blockers": [] if formal else ["missing_module2_rl_rs_checkpoint"],
         },
     )
+    paths["status_report"] = _write_json(
+        tmp_path / "status_report.json",
+        _status_report_payload(ready=formal),
+    )
     return paths
+
+
+def _status_report_payload(*, ready, invalid=False):
+    return {
+        "status": "formal_gate_status_ready_for_claim_audit" if ready else "formal_gate_status_blocked",
+        "executes_commands": bool(invalid),
+        "runs_training": bool(invalid),
+        "runs_remote_preflight": bool(invalid),
+        "local_training_allowed": bool(invalid),
+        "formal_claim_allowed": bool(invalid),
+        "input_safety_issue_count": 1 if invalid else 0,
+        "permissions_now": {
+            "local_training_allowed_now": bool(invalid),
+            "remote_preflight_allowed_now": False,
+            "remote_training_allowed_now": False,
+            "formal_h01_evaluation_allowed_now": bool(ready),
+            "formal_h02_acceptance_allowed_now": bool(ready),
+            "formal_claim_allowed_now": bool(ready),
+        },
+        "next_blocked_lane": None if ready else {"lane_id": "decision"},
+    }
 
 
 def _write_json(path, payload):
