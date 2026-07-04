@@ -913,6 +913,120 @@ def _remote_requirement_matrix_safety_issues(remote_packet: dict[str, Any]) -> l
     return issues
 
 
+def _h02_formal_acceptance_requirement_summary(h02_acceptance: dict[str, Any]) -> dict[str, Any]:
+    requirements = h02_acceptance.get("formal_acceptance_requirements")
+    raw_requirements = requirements if isinstance(requirements, list) else []
+    by_id = {str(item.get("requirement_id")): item for item in raw_requirements if isinstance(item, dict)}
+    rows: dict[str, dict[str, Any]] = {}
+    for requirement_id in H02_FORMAL_ACCEPTANCE_REQUIREMENT_IDS:
+        row = by_id.get(requirement_id, {})
+        rows[requirement_id] = {
+            "present": bool(row),
+            "status": row.get("status"),
+            "phase": row.get("phase"),
+            "complete": row.get("complete") if isinstance(row.get("complete"), bool) else None,
+            "paper_result_input_allowed_now": row.get("paper_result_input_allowed_now")
+            if isinstance(row.get("paper_result_input_allowed_now"), bool)
+            else None,
+            "required_before": row.get("required_before"),
+            "missing_artifact_ids": _strings(row.get("missing_artifact_ids")),
+            "acceptable_evidence_count": len(_strings(row.get("acceptable_evidence"))),
+            "invalid_substitute_count": len(_strings(row.get("invalid_substitutes"))),
+        }
+    status_counts = (
+        h02_acceptance.get("formal_acceptance_requirement_counts")
+        if isinstance(h02_acceptance.get("formal_acceptance_requirement_counts"), dict)
+        else _requirement_status_counts(rows)
+    )
+    return {
+        "present": isinstance(requirements, list),
+        "required_requirement_count": len(H02_FORMAL_ACCEPTANCE_REQUIREMENT_IDS),
+        "present_requirement_count": sum(1 for row in rows.values() if row["present"]),
+        "blocked_requirement_count": sum(
+            1 for row in rows.values() if row["present"] and row["status"] not in {None, "satisfied"}
+        ),
+        "status_counts": status_counts,
+        "missing_requirement_ids": [requirement_id for requirement_id, row in rows.items() if not row["present"]],
+        "requirements": rows,
+    }
+
+
+def _h02_formal_acceptance_requirement_safety_issues(h02_acceptance: dict[str, Any]) -> list[dict[str, str]]:
+    summary = _h02_formal_acceptance_requirement_summary(h02_acceptance)
+    if not summary["present"]:
+        return [
+            _issue(
+                "h02_formal_acceptance_requirement_matrix_missing",
+                "H02 acceptance must expose formal_acceptance_requirements for status reporting.",
+            )
+        ]
+    issues: list[dict[str, str]] = []
+    if not isinstance(h02_acceptance.get("formal_acceptance_requirement_counts"), dict):
+        issues.append(
+            _issue(
+                "h02_formal_acceptance_requirement_counts_missing",
+                "H02 acceptance must expose formal_acceptance_requirement_counts.",
+            )
+        )
+    for requirement_id in summary["missing_requirement_ids"]:
+        issues.append(
+            _issue(
+                f"h02_formal_acceptance_requirement_missing_{requirement_id}",
+                f"H02 acceptance missing requirement {requirement_id}.",
+            )
+        )
+    h02_accepted = (
+        h02_acceptance.get("formal_output_accepted") is True
+        and h02_acceptance.get("paper_result_input_allowed") is True
+    )
+    if h02_accepted and summary["blocked_requirement_count"] > 0:
+        issues.append(
+            _issue(
+                "h02_formal_acceptance_requirements_blocked_while_accepted",
+                "H02 cannot accept paper result input while acceptance requirements remain blocked.",
+            )
+        )
+    for requirement_id, row in summary["requirements"].items():
+        if not row["present"]:
+            continue
+        if row["acceptable_evidence_count"] <= 0:
+            issues.append(
+                _issue(
+                    f"h02_formal_acceptance_requirement_{requirement_id}_missing_acceptable_evidence",
+                    f"{requirement_id} must list acceptable evidence.",
+                )
+            )
+        if row["invalid_substitute_count"] <= 0:
+            issues.append(
+                _issue(
+                    f"h02_formal_acceptance_requirement_{requirement_id}_missing_invalid_substitutes",
+                    f"{requirement_id} must list invalid substitutes.",
+                )
+            )
+        if not h02_accepted and row["paper_result_input_allowed_now"] is True:
+            issues.append(
+                _issue(
+                    f"h02_formal_acceptance_requirement_{requirement_id}_allows_paper_result_while_h02_blocked",
+                    f"{requirement_id} must not allow paper result input while H02 is blocked.",
+                )
+            )
+        if row["complete"] is True and row["status"] != "satisfied":
+            issues.append(
+                _issue(
+                    f"h02_formal_acceptance_requirement_{requirement_id}_complete_not_satisfied",
+                    f"{requirement_id} complete=true must use status=satisfied.",
+                )
+            )
+        if row["status"] == "satisfied" and row["missing_artifact_ids"]:
+            issues.append(
+                _issue(
+                    f"h02_formal_acceptance_requirement_{requirement_id}_satisfied_with_missing_artifacts",
+                    f"{requirement_id} satisfied rows must not list missing artifacts.",
+                )
+            )
+    return issues
+
+
 def _remote_requirement_matrix_group_issues(
     *,
     remote_packet: dict[str, Any],
