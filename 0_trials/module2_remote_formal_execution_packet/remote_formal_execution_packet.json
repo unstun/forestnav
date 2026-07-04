@@ -2,8 +2,8 @@
   "schema_version": 1,
   "packet_name": "module2_remote_formal_execution_packet",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-04T08:47:01.477033+00:00",
-  "source_head": "bca5a976bff4950e62e419ebd0b87ba2acfb0bae+dirty",
+  "created_at_utc": "2026-07-04T13:33:41.483937+00:00",
+  "source_head": "4729e3e371124e04bb6c88d1a323a511bec0780f+dirty",
   "ready_to_run_remote_training": false,
   "local_training_allowed": false,
   "formal_claim_allowed_before_audit": false,
@@ -60,7 +60,7 @@
   "execution_steps": {
     "trial_dir": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1",
     "sync_to_remote": {
-      "allowed_now": true,
+      "allowed_now": false,
       "runs_training": false,
       "command": "rsync -az --exclude .git --exclude '.venv*' --exclude __pycache__ --exclude .pytest_cache --exclude 1_survey /Users/sun/tongbu/study/phdproject/ForestNav/ 'gpu3070ti-relay:~/ForestNav/'",
       "note": "No --delete: preserve remote virtualenvs and prior artifacts unless manually reviewed."

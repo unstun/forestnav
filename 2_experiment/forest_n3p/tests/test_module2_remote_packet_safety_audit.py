@@ -38,6 +38,7 @@ def test_remote_packet_safety_audit_catches_pending_packet_that_allows_training(
     auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
     packet = _packet_payload()
     packet["ready_to_run_remote_training"] = True
+    packet["execution_steps"]["sync_to_remote"]["allowed_now"] = True
     packet["execution_steps"]["run_remote_training"]["allowed_now"] = True
 
     manifest = auditor.build_manifest(
@@ -52,10 +53,12 @@ def test_remote_packet_safety_audit_catches_pending_packet_that_allows_training(
     issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
     assert manifest["status"] == "remote_packet_safety_audit_failed"
     assert "pending_packet_ready_to_train" in issue_ids
+    assert "pending_decision_packet_allows_sync" in issue_ids
     assert "pending_packet_training_step_allowed" in issue_ids
     assert "decision_gate_blocks_but_packet_allows_training" in issue_ids
     assert "post_plan_blocks_but_packet_allows_training" in issue_ids
     assert "blocked_status_report_packet_ready" in issue_ids
+    assert "blocked_status_report_allows_remote_sync" in issue_ids
     assert "blocked_status_report_allows_remote_training" in issue_ids
 
 
@@ -85,6 +88,7 @@ def test_remote_packet_safety_audit_blocks_remote_actions_when_status_report_blo
     packet = _packet_payload()
     packet["status"] = "ready_for_gpu3070ti_remote_training"
     packet["ready_to_run_remote_training"] = True
+    packet["execution_steps"]["sync_to_remote"]["allowed_now"] = True
     packet["execution_steps"]["run_remote_preflight"]["allowed_now"] = True
     packet["execution_steps"]["run_remote_training"]["allowed_now"] = True
     packet["execution_steps"]["run_remote_audit"]["allowed_now"] = True
@@ -101,7 +105,9 @@ def test_remote_packet_safety_audit_blocks_remote_actions_when_status_report_blo
     issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
     assert manifest["status"] == "remote_packet_safety_audit_failed"
     assert "pending_decision_packet_not_blocked" in issue_ids
+    assert "pending_decision_packet_allows_sync" in issue_ids
     assert "blocked_status_report_packet_ready" in issue_ids
+    assert "blocked_status_report_allows_remote_sync" in issue_ids
     assert "blocked_status_report_allows_remote_preflight" in issue_ids
     assert "blocked_status_report_allows_remote_training" in issue_ids
     assert "blocked_status_report_allows_remote_audit" in issue_ids
@@ -209,7 +215,7 @@ def _packet_payload():
         },
         "execution_steps": {
             "sync_to_remote": {
-                "allowed_now": True,
+                "allowed_now": False,
                 "runs_training": False,
                 "command": "rsync -az --exclude .git --exclude '.venv*' --exclude __pycache__ --exclude .pytest_cache --exclude 1_survey /local/ForestNav/ 'gpu3070ti-relay:~/ForestNav/'",
             },
