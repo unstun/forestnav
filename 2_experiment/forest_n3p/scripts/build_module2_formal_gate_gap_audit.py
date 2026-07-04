@@ -483,6 +483,92 @@ def _acceptance_gaps(*, h02: dict[str, Any], claim_safety: dict[str, Any], readi
     return _unique_gaps(gaps)
 
 
+def _missing_artifacts_gaps(*, missing_artifacts: dict[str, Any], missing_artifacts_path: Path) -> list[dict[str, Any]]:
+    if not Path(missing_artifacts_path).is_file():
+        return [
+            _gap(
+                "acceptance",
+                "formal_gate_missing_artifacts_audit_missing",
+                "No formal gate missing-artifacts inventory is available for the final gate cross-check.",
+                str(missing_artifacts_path),
+                "Regenerate the missing-artifacts audit before treating the formal gate as complete.",
+            )
+        ]
+    gaps: list[dict[str, Any]] = []
+    if missing_artifacts.get("executes_commands") is not False:
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_missing_artifacts_audit_executes_commands",
+                "Missing-artifacts audit must be read-only and must not execute commands.",
+                str(missing_artifacts_path),
+                "Regenerate the inventory with executes_commands=false.",
+            )
+        )
+    if missing_artifacts.get("runs_training") is not False:
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_missing_artifacts_audit_runs_training",
+                "Missing-artifacts audit claims it ran training; the inventory must remain non-executing.",
+                str(missing_artifacts_path),
+                "Replace it with a read-only inventory before using it as formal gate evidence.",
+            )
+        )
+    if missing_artifacts.get("runs_remote_preflight") is not False:
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_missing_artifacts_audit_runs_preflight",
+                "Missing-artifacts audit claims it ran remote preflight; the inventory must remain non-executing.",
+                str(missing_artifacts_path),
+                "Replace it with a read-only inventory before using it as formal gate evidence.",
+            )
+        )
+    if missing_artifacts.get("local_training_allowed") is not False:
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_missing_artifacts_allows_local_training",
+                "Missing-artifacts audit does not preserve the local-training prohibition.",
+                str(missing_artifacts_path),
+                "Regenerate the inventory with local_training_allowed=false.",
+            )
+        )
+    if missing_artifacts.get("formal_claim_allowed") is not False:
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_missing_artifacts_allows_claim",
+                "Missing-artifacts audit incorrectly allows formal claims.",
+                str(missing_artifacts_path),
+                "Regenerate the inventory as non-result gate evidence.",
+            )
+        )
+    if int(missing_artifacts.get("audit_issue_count") or 0) > 0:
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_missing_artifacts_audit_issues_open",
+                f"Missing-artifacts audit reports {missing_artifacts.get('audit_issue_count')} audit issues.",
+                str(missing_artifacts_path),
+                "Resolve the inventory audit issues before treating the formal gate as complete.",
+            )
+        )
+    if missing_artifacts.get("all_required_evidence_present") is not True:
+        counts = missing_artifacts.get("missing_counts_by_category") if isinstance(missing_artifacts.get("missing_counts_by_category"), dict) else {}
+        gaps.append(
+            _gap(
+                "acceptance",
+                "formal_gate_missing_artifacts_open",
+                f"Formal gate inventory still reports missing evidence counts: {counts}.",
+                str(missing_artifacts_path),
+                "Close every missing-artifacts group before final H02/claim readiness can pass.",
+            )
+        )
+    return _unique_gaps(gaps)
+
+
 def _ordered_next_steps(
     decision_gaps: Sequence[dict[str, Any]],
     training_gaps: Sequence[dict[str, Any]],
@@ -624,6 +710,7 @@ def _current_gate_state(
     h02: dict[str, Any],
     claim_safety: dict[str, Any],
     source_freshness: dict[str, Any],
+    missing_artifacts: dict[str, Any],
 ) -> dict[str, Any]:
     method_checks = h02.get("method_checks") if isinstance(h02.get("method_checks"), dict) else {}
     return {
@@ -640,6 +727,8 @@ def _current_gate_state(
         "formal_performance_claim_allowed": bool(claim_safety.get("formal_performance_claim_allowed")),
         "source_freshness_status": source_freshness.get("status"),
         "source_freshness_regeneration_required": bool(source_freshness.get("regeneration_required_before_remote_formal_execution")),
+        "formal_gate_missing_artifacts_status": missing_artifacts.get("status"),
+        "formal_gate_missing_artifacts_open": missing_artifacts.get("all_required_evidence_present") is not True,
     }
 
 
@@ -673,6 +762,24 @@ def _source_freshness_record(path: Path, source_freshness: dict[str, Any]) -> di
         "risk_counts": source_freshness.get("risk_counts") if isinstance(source_freshness.get("risk_counts"), dict) else {},
         "ordered_regeneration_target_count": len(ordered_targets),
         "ordered_regeneration_targets": ordered_targets,
+    }
+
+
+def _missing_artifacts_record(path: Path, missing_artifacts: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "path": str(path),
+        "exists": Path(path).is_file(),
+        "status": missing_artifacts.get("status"),
+        "executes_commands": missing_artifacts.get("executes_commands"),
+        "runs_training": missing_artifacts.get("runs_training"),
+        "runs_remote_preflight": missing_artifacts.get("runs_remote_preflight"),
+        "local_training_allowed": missing_artifacts.get("local_training_allowed"),
+        "formal_claim_allowed": missing_artifacts.get("formal_claim_allowed"),
+        "all_required_evidence_present": missing_artifacts.get("all_required_evidence_present"),
+        "audit_issue_count": missing_artifacts.get("audit_issue_count"),
+        "missing_counts_by_category": missing_artifacts.get("missing_counts_by_category")
+        if isinstance(missing_artifacts.get("missing_counts_by_category"), dict)
+        else {},
     }
 
 
