@@ -66,6 +66,11 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["current_state"]["remaining_deliverables_proof_plan_present"] is True
     assert manifest["current_state"]["remaining_deliverables_proof_plan_matrix_row_count"] == 10
     assert manifest["current_state"]["remaining_deliverables_proof_plan_command_count"] == 20
+    assert manifest["current_state"]["formal_gate_proof_audit_status"] == "formal_gate_proof_audit_blocked"
+    assert manifest["current_state"]["formal_gate_proof_audit_command_count"] == 20
+    assert manifest["current_state"]["formal_gate_proof_audit_passed_count"] == 2
+    assert manifest["current_state"]["formal_gate_proof_audit_failed_count"] == 2
+    assert manifest["current_state"]["formal_gate_proof_audit_blocked_count"] == 16
     assert manifest["missing_counts_by_category"]["training"] == 3
     assert len(manifest["training_artifacts_required"]) == 3
     assert len(manifest["evaluation_artifacts_required"]) == 2
@@ -202,6 +207,16 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert proof_plan["total_matrix_rows"] == 10
     assert proof_plan["total_proof_command_count"] == 20
     assert proof_plan["rows"]["training:train_final_model_zip"]["proof_command_count"] == 2
+    proof_audit = manifest["formal_gate_proof_audit_summary"]
+    assert proof_audit["present"] is True
+    assert proof_audit["status"] == "formal_gate_proof_audit_blocked"
+    assert proof_audit["total_proof_command_count"] == 20
+    assert proof_audit["passed_proof_command_count"] == 2
+    assert proof_audit["failed_proof_command_count"] == 2
+    assert proof_audit["blocked_proof_command_count"] == 16
+    assert proof_audit["category_status_counts"]["training"]["blocked_missing_artifact"] == 6
+    assert proof_audit["category_status_counts"]["formal_acceptance"]["failed"] == 2
+    assert proof_audit["results_by_id"]["h02_formal_output_acceptance_status"]["status"] == "failed"
     formal_gate_gap = manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]
     assert formal_gate_gap["present"] is True
     assert formal_gate_gap["total_missing_deliverables"] == 10
@@ -262,6 +277,9 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     assert manifest["remaining_deliverables_acceptance_summary"]["missing_row_count"] == 0
     assert manifest["remaining_deliverables_proof_command_plan"]["total_matrix_rows"] == 10
     assert manifest["remaining_deliverables_proof_command_plan"]["total_proof_command_count"] == 20
+    assert manifest["formal_gate_proof_audit_summary"]["status"] == "formal_gate_proof_audit_passed"
+    assert manifest["formal_gate_proof_audit_summary"]["passed_proof_command_count"] == 20
+    assert manifest["formal_gate_proof_audit_summary"]["blocked_proof_command_count"] == 0
     assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 0
     assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 0
     assert manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 0
