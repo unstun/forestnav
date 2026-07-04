@@ -1,0 +1,425 @@
+{
+  "schema_version": 1,
+  "artifact_name": "module2_method_algorithms",
+  "status": "code_anchored",
+  "created_at_utc": "2026-07-04T06:32:54.345449+00:00",
+  "source_head": "c4745347b1a379b04072eba9c9a1f4078971017b",
+  "formal_claim_allowed": false,
+  "local_training_allowed": false,
+  "remote_training_resource": "gpu3070ti-relay",
+  "algorithms": [
+    {
+      "algorithm_id": "rl_rs_funnel_analytic_expansion",
+      "title": "Algorithm 1: RL-RS funnel analytic expansion inside Hybrid A*",
+      "intent": "Replace the hand-crafted analytic RS expansion attempt with a learned steering rollout, then certify the rollout end with terminal RS before accepting the shortcut.",
+      "paper_claim": "The learned component is an analytic-expansion operator, not a standalone global planner.",
+      "steps": [
+        {
+          "step_id": "A1.1",
+          "action": "Instantiate HybridAStarPlanner with a custom analytic_expansion_operator; the planner records the operator name and routes analytic expansion attempts through the custom hook.",
+          "code_anchors": [
+            {
+              "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+              "line": 129,
+              "symbol": "HybridAStarPlanner.__init__",
+              "pattern": "analytic_expansion_operator=None"
+            },
+            {
+              "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+              "line": 175,
+              "symbol": "HybridAStarPlanner.__init__",
+              "pattern": "self.analytic_expansion_operator = analytic_expansion_operator"
+            },
+            {
+              "path": "2_experiment/forest_n3p/main_evaluation.py",
+              "line": 70,
+              "symbol": "main_evaluation.RL_RS_OPERATOR_METHODS",
+              "pattern": "RL_RS_OPERATOR_METHODS = ("
+            }
+          ]
+        },
+        {
+          "step_id": "A1.2",
+          "action": "During analytic expansion, dispatch to HybridAStarPlanner._try_custom_analytic_expansion when a custom operator exists.",
+          "code_anchors": [
+            {
+              "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+              "line": 296,
+              "symbol": "HybridAStarPlanner._try_analytic_expansion",
+              "pattern": "return self._try_custom_analytic_expansion(state, goal)"
+            },
+            {
+              "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+              "line": 301,
+              "symbol": "HybridAStarPlanner._try_custom_analytic_expansion",
+              "pattern": "result = self.analytic_expansion_operator.try_connect"
+            }
+          ]
+        },
+        {
+          "step_id": "A1.3",
+          "action": "Load a checkpoint-backed policy into RlRsFunnelOperator; the checkpoint SHA256 is captured as method provenance.",
+          "code_anchors": [
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/checkpoint_operator.py",
+              "line": 55,
+              "symbol": "load_rl_rs_funnel_operator_from_checkpoint",
+              "pattern": "def load_rl_rs_funnel_operator_from_checkpoint"
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/checkpoint_operator.py",
+              "line": 77,
+              "symbol": "load_rl_rs_funnel_operator_from_checkpoint",
+              "pattern": "sha256 = file_sha256(path)"
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/checkpoint_operator.py",
+              "line": 85,
+              "symbol": "load_rl_rs_funnel_operator_from_checkpoint",
+              "pattern": "return RlRsFunnelOperator("
+            }
+          ]
+        },
+        {
+          "step_id": "A1.4",
+          "action": "Convert the current Hybrid A* node and goal into AnalyticExpansionContext, reset AnalyticExpansionEnv, and start the rollout from the planner state.",
+          "code_anchors": [
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+              "line": 62,
+              "symbol": "RlRsFunnelOperator.try_connect",
+              "pattern": "def try_connect("
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+              "line": 68,
+              "symbol": "RlRsFunnelOperator.try_connect",
+              "pattern": "env_context = self._env_context"
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+              "line": 70,
+              "symbol": "RlRsFunnelOperator.try_connect",
+              "pattern": "observation = env.reset(env_context)"
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/env.py",
+              "line": 156,
+              "symbol": "AnalyticExpansionEnv.reset",
+              "pattern": "def reset("
+            }
+          ]
+        },
+        {
+          "step_id": "A1.5",
+          "action": "Iteratively query the RL action policy, apply one constant-steer primitive, update observation, and stop only on terminal/truncated signals.",
+          "code_anchors": [
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+              "line": 77,
+              "symbol": "RlRsFunnelOperator.try_connect",
+              "pattern": "step = env.step(self.action_policy(observation))"
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+              "line": 78,
+              "symbol": "RlRsFunnelOperator.try_connect",
+              "pattern": "rollout_states.append(step.next_state)"
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/env.py",
+              "line": 179,
+              "symbol": "AnalyticExpansionEnv.step",
+              "pattern": "def step("
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/env.py",
+              "line": 191,
+              "symbol": "AnalyticExpansionEnv.step",
+              "pattern": "rollout = rollout_constant_steer_step("
+            }
+          ]
+        },
+        {
+          "step_id": "A1.6",
+          "action": "Use terminal RS as the acceptance certificate for the learned rollout when append_terminal_rs is enabled.",
+          "code_anchors": [
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/env.py",
+              "line": 211,
+              "symbol": "AnalyticExpansionEnv.step",
+              "pattern": "check_terminal_rs_connectable("
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/terminal.py",
+              "line": 21,
+              "symbol": "check_terminal_rs_connectable",
+              "pattern": "def check_terminal_rs_connectable"
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+              "line": 102,
+              "symbol": "RlRsFunnelOperator.try_connect",
+              "pattern": "if step.terminal_rs.success:"
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+              "line": 129,
+              "symbol": "RlRsFunnelOperator.try_connect",
+              "pattern": "terminal_rs_used=True"
+            }
+          ]
+        },
+        {
+          "step_id": "A1.7",
+          "action": "Record fallback_to_builtin_search_on_none: if the learned/terminal-RS operator cannot certify a shortcut, it returns None and Hybrid A* continues normal search instead of accepting an unsafe path.",
+          "code_anchors": [
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/operator.py",
+              "line": 99,
+              "symbol": "RlRsFunnelOperator.try_connect",
+              "pattern": "return None"
+            },
+            {
+              "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+              "line": 302,
+              "symbol": "HybridAStarPlanner._try_custom_analytic_expansion",
+              "pattern": "if result is None:"
+            },
+            {
+              "path": "2_experiment/forest_n3p/third_party/pathplan/hybrid_a_star/planner.py",
+              "line": 304,
+              "symbol": "HybridAStarPlanner._try_custom_analytic_expansion",
+              "pattern": "return None"
+            }
+          ]
+        },
+        {
+          "step_id": "A1.8",
+          "action": "Expose two formal method variants: ppo_rs_funnel keeps terminal RS appended, while ppo_analytic_operator disables terminal RS append and evaluates the learned operator alone.",
+          "code_anchors": [
+            {
+              "path": "2_experiment/forest_n3p/main_evaluation.py",
+              "line": 772,
+              "symbol": "_run_hybrid_a_operator",
+              "pattern": "elif method == \"ha_rl_rs_ppo\":"
+            },
+            {
+              "path": "2_experiment/forest_n3p/main_evaluation.py",
+              "line": 885,
+              "symbol": "_load_module2_rl_rs_operator",
+              "pattern": "append_terminal_rs=True"
+            },
+            {
+              "path": "2_experiment/forest_n3p/main_evaluation.py",
+              "line": 775,
+              "symbol": "_run_hybrid_a_operator",
+              "pattern": "elif method == \"ppo_analytic_operator\":"
+            },
+            {
+              "path": "2_experiment/forest_n3p/main_evaluation.py",
+              "line": 902,
+              "symbol": "_load_module2_ppo_analytic_operator",
+              "pattern": "append_terminal_rs=False"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "algorithm_id": "analytic_expansion_training_environment",
+      "title": "Algorithm 2: PPO training environment for analytic expansion",
+      "intent": "Train a continuous steering policy on the same planner-side analytic expansion surface used at evaluation time.",
+      "paper_claim": "The environment optimizes a local analytic-expansion policy with terminal-RS-aware reward shaping; it is not a separate end-to-end navigation policy.",
+      "steps": [
+        {
+          "step_id": "A2.1",
+          "action": "Create a GymAnalyticExpansionEnv around a context sampler; reset samples an AnalyticExpansionContext and forwards it to the planner-side environment.",
+          "code_anchors": [
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/gym_env.py",
+              "line": 26,
+              "symbol": "GymAnalyticExpansionEnv",
+              "pattern": "class GymAnalyticExpansionEnv"
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/gym_env.py",
+              "line": 70,
+              "symbol": "GymAnalyticExpansionEnv.reset",
+              "pattern": "context = _context_from_options(options) or self.context_sampler"
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/gym_env.py",
+              "line": 73,
+              "symbol": "GymAnalyticExpansionEnv.reset",
+              "pattern": "observation = self._planner_env.reset(context)"
+            }
+          ]
+        },
+        {
+          "step_id": "A2.2",
+          "action": "Represent observations as scalar geometry plus an egocentric occupancy/EDT patch.",
+          "code_anchors": [
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/obs.py",
+              "line": 14,
+              "symbol": "ObservationConfig",
+              "pattern": "class ObservationConfig"
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/obs.py",
+              "line": 37,
+              "symbol": "build_scalar_observation",
+              "pattern": "def build_scalar_observation"
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/obs.py",
+              "line": 85,
+              "symbol": "build_patch_observation",
+              "pattern": "def build_patch_observation"
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/obs.py",
+              "line": 100,
+              "symbol": "build_observation",
+              "pattern": "def build_observation"
+            }
+          ]
+        },
+        {
+          "step_id": "A2.3",
+          "action": "Define a single continuous normalized steering action and apply it through the same AnalyticExpansionEnv.step used by Algorithm 1.",
+          "code_anchors": [
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/gym_env.py",
+              "line": 40,
+              "symbol": "GymAnalyticExpansionEnv.__init__",
+              "pattern": "self.action_space = spaces.Box"
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/gym_env.py",
+              "line": 81,
+              "symbol": "GymAnalyticExpansionEnv.step",
+              "pattern": "normalized_steering = _single_action_value(action)"
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/gym_env.py",
+              "line": 82,
+              "symbol": "GymAnalyticExpansionEnv.step",
+              "pattern": "step = self._planner_env.step"
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/env.py",
+              "line": 179,
+              "symbol": "AnalyticExpansionEnv.step",
+              "pattern": "def step("
+            }
+          ]
+        },
+        {
+          "step_id": "A2.4",
+          "action": "Evaluate each rollout primitive with collision checks, no-progress/oscillation truncation, and terminal RS reachability.",
+          "code_anchors": [
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/env.py",
+              "line": 191,
+              "symbol": "AnalyticExpansionEnv.step",
+              "pattern": "rollout = rollout_constant_steer_step("
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/env.py",
+              "line": 242,
+              "symbol": "AnalyticExpansionEnv.step",
+              "pattern": "no_progress = ("
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/env.py",
+              "line": 251,
+              "symbol": "AnalyticExpansionEnv.step",
+              "pattern": "oscillation = _detect_oscillation("
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/terminal.py",
+              "line": 21,
+              "symbol": "check_terminal_rs_connectable",
+              "pattern": "def check_terminal_rs_connectable"
+            }
+          ]
+        },
+        {
+          "step_id": "A2.5",
+          "action": "Compute decomposed reward terms for success, terminal failure, collision, goal progress, RS-distance progress, clearance, curvature change, path length, and step cost.",
+          "code_anchors": [
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/env.py",
+              "line": 314,
+              "symbol": "AnalyticExpansionEnv.step",
+              "pattern": "reward=compute_decomposed_reward("
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/reward.py",
+              "line": 129,
+              "symbol": "compute_decomposed_reward",
+              "pattern": "def compute_decomposed_reward"
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/reward.py",
+              "line": 152,
+              "symbol": "compute_decomposed_reward",
+              "pattern": "total = success + terminal + collision + progress + rs_progress + clearance + curvature + path_length + step"
+            }
+          ]
+        },
+        {
+          "step_id": "A2.6",
+          "action": "Return Gymnasium observation, scalar reward, terminated/truncated flags, and telemetry info for PPO training logs.",
+          "code_anchors": [
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/gym_env.py",
+              "line": 84,
+              "symbol": "GymAnalyticExpansionEnv.step",
+              "pattern": "reward = float(step.reward.total)"
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/gym_env.py",
+              "line": 85,
+              "symbol": "GymAnalyticExpansionEnv.step",
+              "pattern": "terminated = bool(step.terminated)"
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/gym_env.py",
+              "line": 88,
+              "symbol": "GymAnalyticExpansionEnv.step",
+              "pattern": "return observation, reward, terminated, truncated, info"
+            }
+          ]
+        },
+        {
+          "step_id": "A2.7",
+          "action": "Enforce local_training_disallowed for this artifact: it documents the code contract only; PPO execution belongs on gpu3070ti-relay after F02.6 approval.",
+          "code_anchors": [
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/gym_env.py",
+              "line": 26,
+              "symbol": "GymAnalyticExpansionEnv",
+              "pattern": "class GymAnalyticExpansionEnv"
+            },
+            {
+              "path": "2_experiment/forest_n3p/rl_rs/reward.py",
+              "line": 129,
+              "symbol": "compute_decomposed_reward",
+              "pattern": "def compute_decomposed_reward"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "claim_boundaries": [
+    "This artifact is a code-anchored method description, not a formal result.",
+    "F02.6 warm-start decision remains pending; formal PPO runs must not be claimed until that decision is approved and logged.",
+    "Local PPO training is disallowed; formal training must run on gpu3070ti-relay or another explicitly approved remote GPU.",
+    "The ppo_analytic_operator and ppo_rs_funnel paper claims remain blocked until a real RL-RS checkpoint is available.",
+    "Algorithm 1 includes fallback semantics: returning None from the custom operator does not mean planner failure; it hands control back to normal Hybrid A* expansion."
+  ]
+}
