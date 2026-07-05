@@ -2,8 +2,8 @@
 
 This file checks that the long-term Module2 mainline task book mirrors the current formal-gate state. It is not a training run, remote preflight, formal evaluation, or paper result.
 
-- status: `mainline_formal_gate_state_consistent_blocked`
-- audit_issue_count: `0`
+- status: `mainline_formal_gate_state_audit_failed`
+- audit_issue_count: `1`
 - expected_next_action_id: `None`
 - expected_next_action_mentioned: `False`
 - total_missing_deliverables: `1`
@@ -20,7 +20,7 @@ This file checks that the long-term Module2 mainline task book mirrors the curre
 
 ## Audit Issues
 
-- none
+- `status_report_next_action_guard_execution_leak`: Status report exposes an execution leak while the mainline is mirroring a gated state.
 
 ## Missing Formal Deliverables
 

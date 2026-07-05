@@ -460,13 +460,11 @@ def _status_report_issues(
                 "observed_next_action_id": next_action_guard["expected_next_action_id"],
             }
         )
-    if pending_f02_6 and (
-        next_action_guard["execution_leak_count"] > 0 or not next_action_guard["all_execution_disabled_now"]
-    ):
+    if next_action_guard["execution_leak_count"] > 0 or not next_action_guard["all_execution_disabled_now"]:
         issues.append(
             {
                 "issue_id": "status_report_next_action_guard_execution_leak",
-                "message": "Status report exposes an execution leak while F02.6 is pending.",
+                "message": "Status report exposes an execution leak while the mainline is mirroring a gated state.",
                 "execution_leak_count": next_action_guard["execution_leak_count"],
                 "all_execution_disabled_now": next_action_guard["all_execution_disabled_now"],
             }
