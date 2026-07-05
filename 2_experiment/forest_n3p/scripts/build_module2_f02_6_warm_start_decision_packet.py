@@ -32,6 +32,8 @@ class F026DecisionPacketConfig:
         "0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_pending_remote_v1/gate3_preflight_manifest.json"
     )
     remote_warm_smoke_audit: Path = Path("0_trials/module2_remote_smoke/gate3_warm_start_cuda_smoke/gate3_formal_audit.json")
+    decision_record: Path = Path("0_trials/module2_f02_6_decision_record/f02_6_decision_record.json")
+    decision_intake: Path = Path("0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json")
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -50,6 +52,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         remote_no_warm_preflight=args.remote_no_warm_preflight,
         remote_warm_pending_preflight=args.remote_warm_pending_preflight,
         remote_warm_smoke_audit=args.remote_warm_smoke_audit,
+        decision_record=args.decision_record,
+        decision_intake=args.decision_intake,
     )
     packet = build_packet(cfg)
     output_dir = Path(cfg.output_dir)
@@ -75,6 +79,8 @@ def build_packet(config: F026DecisionPacketConfig) -> dict[str, Any]:
     remote_no_warm = _read_json(config.remote_no_warm_preflight)
     remote_warm = _read_json(config.remote_warm_pending_preflight)
     remote_smoke = _read_json(config.remote_warm_smoke_audit)
+    decision_record = _read_json(config.decision_record)
+    decision_intake = _read_json(config.decision_intake)
     sources = _sources(config)
 
     candidates = [
@@ -137,6 +143,10 @@ def build_packet(config: F026DecisionPacketConfig) -> dict[str, Any]:
             verdict="reference_only",
         ),
         "remote_readiness": _remote_readiness(remote_no_warm=remote_no_warm, remote_warm=remote_warm, remote_smoke=remote_smoke),
+        "current_authorization": _current_authorization(
+            decision_record=decision_record,
+            decision_intake=decision_intake,
+        ),
         "next_actions": _next_actions(),
         "sources": sources,
         "source_integrity_summary": _source_integrity_summary(sources),
@@ -166,6 +176,8 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--remote-no-warm-preflight", type=Path, default=F026DecisionPacketConfig.remote_no_warm_preflight)
     parser.add_argument("--remote-warm-pending-preflight", type=Path, default=F026DecisionPacketConfig.remote_warm_pending_preflight)
     parser.add_argument("--remote-warm-smoke-audit", type=Path, default=F026DecisionPacketConfig.remote_warm_smoke_audit)
+    parser.add_argument("--decision-record", type=Path, default=F026DecisionPacketConfig.decision_record)
+    parser.add_argument("--decision-intake", type=Path, default=F026DecisionPacketConfig.decision_intake)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
