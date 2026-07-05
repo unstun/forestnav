@@ -19,6 +19,7 @@ DEFAULT_REMOTE_PACKET = Path("0_trials/module2_remote_formal_execution_packet/re
 DEFAULT_H01_MANIFEST = Path("0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json")
 DEFAULT_H02_ACCEPTANCE = Path("0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json")
 DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_freshness_audit.json")
+DEFAULT_POST_F02_6_PLAN = Path("0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json")
 
 DELIVERABLE_CATEGORIES = (
     ("training", "training_artifacts_required"),
@@ -68,6 +69,24 @@ UNLOCK_SEQUENCE_BY_CATEGORY = {
         "h01_h02_formal_acceptance_audit",
     ),
 }
+REMOTE_GENERATION_STAGE_BY_ARTIFACT = {
+    "train_final_model_zip": "gate3_remote_training",
+    "train_summary_json": "gate3_remote_training",
+    "train_training_manifest_json": "gate3_remote_training",
+    "eval_gate3_eval_episodes_csv": "gate3_remote_training",
+    "eval_gate3_summary_json": "gate3_remote_training",
+    "gate3_trial_manifest_json": "gate3_remote_training",
+    "gate3_formal_audit_json": "gate3_remote_audit_pullback",
+    "pulled_back_checkpoint_hash_record": "gate3_remote_audit_pullback",
+    "h01_ready_for_formal_run": "regenerate_h01_h02_formal_artifacts",
+    "h02_formal_output_acceptance": "regenerate_h01_h02_formal_artifacts",
+}
+LOCAL_MATERIALIZATION_STAGE_BY_CATEGORY = {
+    "training": "gate3_remote_audit_pullback",
+    "evaluation": "gate3_remote_audit_pullback",
+    "acceptance": "gate3_remote_audit_pullback",
+    "formal_acceptance": "regenerate_h01_h02_formal_artifacts",
+}
 
 
 @dataclass(frozen=True)
@@ -82,6 +101,7 @@ class FormalGateRemainingDeliverablesConfig:
     h01_manifest_path: Path = DEFAULT_H01_MANIFEST
     h02_acceptance_path: Path = DEFAULT_H02_ACCEPTANCE
     source_freshness_path: Path = DEFAULT_SOURCE_FRESHNESS
+    post_f02_6_plan_path: Path = DEFAULT_POST_F02_6_PLAN
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -97,6 +117,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         h01_manifest_path=args.h01_manifest,
         h02_acceptance_path=args.h02_acceptance,
         source_freshness_path=args.source_freshness,
+        post_f02_6_plan_path=args.post_f02_6_plan,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -241,6 +262,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--h01-manifest", type=Path, default=DEFAULT_H01_MANIFEST)
     parser.add_argument("--h02-acceptance", type=Path, default=DEFAULT_H02_ACCEPTANCE)
     parser.add_argument("--source-freshness", type=Path, default=DEFAULT_SOURCE_FRESHNESS)
+    parser.add_argument("--post-f02-6-plan", type=Path, default=DEFAULT_POST_F02_6_PLAN)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
