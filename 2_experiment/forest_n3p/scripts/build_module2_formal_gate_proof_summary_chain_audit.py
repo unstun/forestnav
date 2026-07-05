@@ -1046,6 +1046,10 @@ def _strings(value: Any) -> list[str]:
     return [str(item) for item in value if item]
 
 
+def _optional_bool(value: Any) -> bool | None:
+    return value if isinstance(value, bool) else None
+
+
 def _unique_issues(issues: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
     seen: set[str] = set()
     out: list[dict[str, Any]] = []
