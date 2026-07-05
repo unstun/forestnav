@@ -24,6 +24,7 @@ DEFAULT_HANDOFF_BUNDLE = Path("0_trials/module2_formal_gate_handoff_bundle/forma
 DEFAULT_REMAINING_DELIVERABLES = Path(
     "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json"
 )
+DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_freshness_audit.json")
 DEFAULT_FORMAL_GATE_PROOF_AUDIT = Path("0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json")
 REMOTE_EXECUTION_STEP_IDS = (
     "sync_to_remote",
@@ -103,6 +104,7 @@ class FormalGateStatusReportConfig:
     paper_readiness_path: Path = DEFAULT_PAPER_READINESS
     handoff_bundle_path: Path = DEFAULT_HANDOFF_BUNDLE
     remaining_deliverables_path: Path = DEFAULT_REMAINING_DELIVERABLES
+    source_freshness_path: Path = DEFAULT_SOURCE_FRESHNESS
     formal_gate_proof_audit_path: Path = DEFAULT_FORMAL_GATE_PROOF_AUDIT
 
 
@@ -124,6 +126,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         paper_readiness_path=args.paper_readiness,
         handoff_bundle_path=args.handoff_bundle,
         remaining_deliverables_path=args.remaining_deliverables,
+        source_freshness_path=args.source_freshness,
         formal_gate_proof_audit_path=args.formal_gate_proof_audit,
     )
     manifest = build_manifest(config)
@@ -152,6 +155,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     paper_readiness = _read_json(config.paper_readiness_path)
     handoff_bundle = _read_json(config.handoff_bundle_path)
     remaining_deliverables = _read_json(config.remaining_deliverables_path)
+    source_freshness = _read_json(config.source_freshness_path)
     formal_gate_proof_audit = _read_json(config.formal_gate_proof_audit_path)
     remote_execution_steps = _remote_execution_step_summary(remote_packet)
     remote_preflight_requirements = _remote_requirement_matrix_summary(
@@ -193,6 +197,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     remote_packet_safety_claim_gate_command_index_summary = (
         _formal_gate_remote_packet_safety_claim_gate_command_index_summary(formal_gate)
     )
+    source_freshness_summary = _source_freshness_summary(source_freshness)
 
     input_safety_issues = _input_safety_issues(
         {
@@ -208,6 +213,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "paper_readiness": paper_readiness,
             "handoff_bundle": handoff_bundle,
             "remaining_deliverables": remaining_deliverables,
+            "source_freshness": source_freshness,
             "formal_gate_proof_audit": formal_gate_proof_audit,
         }
     )
@@ -245,6 +251,11 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         + _formal_gate_remote_packet_safety_claim_gate_command_index_issues(
             remote_packet_safety_claim_gate_command_index_summary
         )
+        + _source_freshness_execution_issues(
+            source_freshness=source_freshness,
+            remote_packet=remote_packet,
+            closure_checklist=closure_checklist,
+        )
         + _next_action_guard_issues(next_action_guard_summary)
     )
     lanes = _lanes(
@@ -267,6 +278,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         h02=h02,
         claim_safety=claim_safety,
         paper_readiness=paper_readiness,
+        source_freshness=source_freshness,
         input_safety_issues=input_safety_issues,
     )
     ready = all(lane["status"] == "complete" for lane in lanes) and not input_safety_issues and permissions["formal_claim_allowed_now"]
@@ -295,6 +307,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "paper_readiness": str(config.paper_readiness_path),
             "formal_gate_handoff_bundle": str(config.handoff_bundle_path),
             "formal_gate_remaining_deliverables": str(config.remaining_deliverables_path),
+            "source_freshness_audit": str(config.source_freshness_path),
             "formal_gate_proof_audit": str(config.formal_gate_proof_audit_path),
         },
         "current_state": {
@@ -405,6 +418,16 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "formal_gate_gap_audit_remaining_open_category_count": formal_gate_gap_audit_remaining_deliverables_gap_summary[
                 "open_category_count"
             ],
+            "source_freshness_status": source_freshness_summary["status"],
+            "source_freshness_regeneration_required": source_freshness_summary[
+                "regeneration_required_before_remote_formal_execution"
+            ],
+            "source_freshness_non_self_changed_records": source_freshness_summary[
+                "records_with_non_self_changed_paths_since_source"
+            ],
+            "source_freshness_self_artifact_only_lag_records": source_freshness_summary[
+                "records_with_self_artifact_only_lag"
+            ],
             "remote_packet_safety_command_index_present": remote_packet_safety_claim_gate_command_index_summary[
                 "present"
             ],
@@ -485,6 +508,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--paper-readiness", type=Path, default=DEFAULT_PAPER_READINESS)
     parser.add_argument("--handoff-bundle", type=Path, default=DEFAULT_HANDOFF_BUNDLE)
     parser.add_argument("--remaining-deliverables", type=Path, default=DEFAULT_REMAINING_DELIVERABLES)
+    parser.add_argument("--source-freshness", type=Path, default=DEFAULT_SOURCE_FRESHNESS)
     parser.add_argument("--formal-gate-proof-audit", type=Path, default=DEFAULT_FORMAL_GATE_PROOF_AUDIT)
     return parser.parse_args(list(argv) if argv is not None else None)
 
@@ -499,6 +523,7 @@ def _permissions(
     h02: dict[str, Any],
     claim_safety: dict[str, Any],
     paper_readiness: dict[str, Any],
+    source_freshness: dict[str, Any],
     input_safety_issues: Sequence[dict[str, str]],
 ) -> dict[str, bool]:
     decision_closed = decision.get("status") in {"approved", "rejected"} and decision.get("decider") == "Dr Sun"
@@ -513,16 +538,26 @@ def _permissions(
     readiness_ready = paper_readiness.get("formal_results_ready") is True
     closure_ready = closure_checklist.get("status") == "formal_gate_closure_ready_for_result_audit"
     formal_gate_ready = formal_gate.get("status") == "formal_gate_ready_for_result_audit"
+    source_fresh_ready = _source_freshness_ready_for_remote_preflight(source_freshness)
     safe = not input_safety_issues
     return {
         "f02_6_decision_closed": decision_closed,
         "warm_start_formal_chain_approved": approved,
-        "remote_preflight_allowed_now": approved and remote_preflight_ready and safe,
-        "remote_training_allowed_now": approved and remote_ready and remote_training_ready and safe,
+        "remote_preflight_allowed_now": approved and source_fresh_ready and remote_preflight_ready and safe,
+        "remote_training_allowed_now": approved and source_fresh_ready and remote_ready and remote_training_ready and safe,
         "formal_h01_evaluation_allowed_now": h01_ready and remote_ready and safe,
         "formal_h02_acceptance_allowed_now": h01_ready and h02_accepted and safe,
-        "formal_claim_allowed_now": formal_gate_ready and closure_ready and h02_accepted and claim_ready and readiness_ready and safe,
+        "formal_claim_allowed_now": (
+            source_fresh_ready
+            and formal_gate_ready
+            and closure_ready
+            and h02_accepted
+            and claim_ready
+            and readiness_ready
+            and safe
+        ),
         "local_training_allowed_now": False,
+        "source_freshness_ready_for_remote_preflight": source_fresh_ready,
     }
 
 
