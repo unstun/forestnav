@@ -80,6 +80,26 @@ def test_mainline_formal_gate_state_audit_fails_handoff_single_next_action_chain
     assert "proof_summary_chain_handoff_single_next_action_inconsistent" in issue_ids
 
 
+def test_mainline_formal_gate_state_audit_fails_proof_audit_input_safety_open(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit")
+    paths = _write_inputs(tmp_path)
+    proof = json.loads(paths["proof"].read_text(encoding="utf-8"))
+    proof["proof_audit_input_safety_issue_count"] = 1
+    proof["proof_audit_blockers"] = ["proof_audit_input_safety_issues_open"]
+    paths["proof"].write_text(json.dumps(proof), encoding="utf-8")
+
+    manifest = builder.build_manifest(_config(builder, tmp_path, paths))
+
+    assert manifest["status"] == "mainline_formal_gate_state_audit_failed"
+    assert manifest["proof_summary_chain_proof_audit_input_safety_issue_count"] == 1
+    assert manifest["proof_summary_chain_proof_audit_blockers"] == [
+        "proof_audit_input_safety_issues_open"
+    ]
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "proof_summary_chain_proof_audit_input_safety_issues_open" in issue_ids
+    assert "proof_summary_chain_proof_audit_input_safety_blocker_open" in issue_ids
+
+
 def test_mainline_formal_gate_state_audit_cli_writes_json_and_markdown(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit")
     paths = _write_inputs(tmp_path)
