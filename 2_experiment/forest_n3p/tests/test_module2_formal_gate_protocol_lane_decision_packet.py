@@ -101,6 +101,29 @@ def test_protocol_lane_decision_packet_blocks_training_permissions(tmp_path):
     assert "claim_or_paper_result_allowed" in issue_ids
 
 
+def test_protocol_lane_decision_packet_blocks_lanes_without_full_evidence_contract(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_packet")
+    config = _config(tmp_path)
+    lane_matrix = json.loads(config.lane_matrix_path.read_text(encoding="utf-8"))
+    lane = lane_matrix["protocol_lane_evidence_matrix"][0]
+    lane["required_contract_deltas"] = []
+    lane["required_training_evidence"] = []
+    lane["required_evaluation_evidence"] = []
+    lane["required_acceptance_evidence"] = []
+    lane["invalid_substitutes"] = []
+    config.lane_matrix_path.write_text(json.dumps(lane_matrix), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "formal_gate_protocol_lane_decision_packet_blocked"
+    assert "stronger_obstacle_summary_warm_start_missing_contract_deltas" in issue_ids
+    assert "stronger_obstacle_summary_warm_start_missing_training_evidence" in issue_ids
+    assert "stronger_obstacle_summary_warm_start_missing_evaluation_evidence" in issue_ids
+    assert "stronger_obstacle_summary_warm_start_missing_acceptance_evidence" in issue_ids
+    assert "stronger_obstacle_summary_warm_start_missing_invalid_substitutes" in issue_ids
+
+
 def test_protocol_lane_decision_packet_cli_writes_json_and_markdown(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_packet")
     config = _config(tmp_path)
