@@ -752,6 +752,9 @@ def _markdown(manifest: dict[str, Any]) -> str:
     for field in manifest["decision_intake_contract"]["required_record_fields_for_non_pending_decision"]:
         rule = manifest["decision_intake_contract"]["field_rules"][field]
         lines.append(f"- `{field}`: {rule}")
+    lines.append(
+        f"- decision_note_guidance: `{', '.join(manifest['decision_intake_contract']['decision_note_guidance'])}`"
+    )
     lines.extend(["", "## Command Templates", ""])
     for template in manifest["decision_intake_contract"]["record_command_templates"]:
         lines.extend([f"### {template['decision']}", "```bash", template["command"], "```", ""])
