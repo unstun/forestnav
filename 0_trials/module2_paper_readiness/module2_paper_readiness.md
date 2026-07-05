@@ -87,6 +87,10 @@
 - claim_safety_decision_intake_decision_note_required: `True`
 - claim_safety_decision_intake_invalid_input_count: `5`
 - claim_safety_decision_intake_post_decision_non_authorization_count: `4`
+- claim_safety_decision_intake_post_decision_route_count: `2`
+- claim_safety_decision_intake_approved_route_next_lane: `source_fresh_regeneration`
+- claim_safety_decision_intake_approved_route_allows_remote_training_now: `False`
+- claim_safety_decision_intake_rejected_route_requires_new_protocol_contract: `True`
 - claim_safety_decision_intake_next_blocked_lane: `decision`
 - claim_safety_decision_intake_remote_preflight_allowed_now: `False`
 - claim_safety_decision_intake_remote_training_allowed_now: `False`
