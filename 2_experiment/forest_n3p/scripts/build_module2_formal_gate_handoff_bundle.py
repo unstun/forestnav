@@ -334,6 +334,32 @@ def _f02_6_route_handoff_summary(status_report: dict[str, Any]) -> dict[str, Any
         "approved_route_allows_remote_training_now": summary.get("approved_route_allows_remote_training_now"),
         "rejected_route_next_lane": summary.get("rejected_route_next_lane"),
         "rejected_route_requires_new_protocol_contract": summary.get("rejected_route_requires_new_protocol_contract"),
+        "decision_impact_present": summary.get("decision_impact_present"),
+        "decision_record_is_not_training_authorization": summary.get(
+            "decision_record_is_not_training_authorization"
+        ),
+        "decision_record_is_not_paper_result_material": summary.get(
+            "decision_record_is_not_paper_result_material"
+        ),
+        "decision_impact_remote_preflight_allowed_now": summary.get(
+            "decision_impact_remote_preflight_allowed_now"
+        ),
+        "decision_impact_remote_training_allowed_now": summary.get(
+            "decision_impact_remote_training_allowed_now"
+        ),
+        "decision_impact_formal_claim_allowed_now": summary.get(
+            "decision_impact_formal_claim_allowed_now"
+        ),
+        "decision_impact_paper_result_material_allowed_now": summary.get(
+            "decision_impact_paper_result_material_allowed_now"
+        ),
+        "decision_impact_formal_training_still_requires": [
+            str(item)
+            for item in summary.get("decision_impact_formal_training_still_requires", [])
+            if item
+        ]
+        if isinstance(summary.get("decision_impact_formal_training_still_requires"), list)
+        else [],
     }
 
 
@@ -354,6 +380,34 @@ def _f02_6_route_handoff_issues(route_summary: dict[str, Any]) -> list[dict[str,
         issues.append(_issue("f02_6_rejected_route_next_lane_invalid", "rejection must route to protocol redesign"))
     if route_summary["rejected_route_requires_new_protocol_contract"] is not True:
         issues.append(_issue("f02_6_rejected_route_missing_protocol_contract", "rejection route must require a new or revised protocol contract"))
+    if route_summary["decision_impact_present"] is not True:
+        issues.append(_issue("f02_6_decision_impact_missing", "handoff bundle must consume F02.6 decision-impact summary"))
+    if route_summary["decision_record_is_not_training_authorization"] is not True:
+        issues.append(_issue("f02_6_decision_record_may_authorize_training", "F02.6 decision record must not be training authorization"))
+    if route_summary["decision_record_is_not_paper_result_material"] is not True:
+        issues.append(_issue("f02_6_decision_record_may_be_paper_result_material", "F02.6 decision record must not be paper result material"))
+    for field, issue_id in (
+        ("decision_impact_remote_preflight_allowed_now", "f02_6_decision_impact_allows_remote_preflight"),
+        ("decision_impact_remote_training_allowed_now", "f02_6_decision_impact_allows_remote_training"),
+        ("decision_impact_formal_claim_allowed_now", "f02_6_decision_impact_allows_formal_claim"),
+        ("decision_impact_paper_result_material_allowed_now", "f02_6_decision_impact_allows_paper_result_material"),
+    ):
+        if route_summary[field] is not False:
+            issues.append(_issue(issue_id, "F02.6 decision-impact summary must not authorize execution or result material"))
+    for required in (
+        "source_freshness_audit",
+        "post_f02_6_regeneration_plan",
+        "post_f02_6_plan_audit",
+        "remote_formal_execution_packet_ready",
+        "approved_remote_preflight",
+    ):
+        if required not in route_summary["decision_impact_formal_training_still_requires"]:
+            issues.append(
+                _issue(
+                    f"f02_6_decision_impact_missing_required_{required}",
+                    "decision-impact summary must list every pre-training gate still required",
+                )
+            )
     return issues
 
 
@@ -674,6 +728,27 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.append(f"- rejected_route_next_lane: `{route['rejected_route_next_lane']}`")
     lines.append(
         f"- rejected_route_requires_new_protocol_contract: `{route['rejected_route_requires_new_protocol_contract']}`"
+    )
+    lines.append(f"- decision_impact_present: `{route['decision_impact_present']}`")
+    lines.append(
+        f"- decision_record_is_not_training_authorization: `{route['decision_record_is_not_training_authorization']}`"
+    )
+    lines.append(
+        f"- decision_record_is_not_paper_result_material: `{route['decision_record_is_not_paper_result_material']}`"
+    )
+    lines.append(
+        f"- decision_impact_remote_training_allowed_now: `{route['decision_impact_remote_training_allowed_now']}`"
+    )
+    lines.append(
+        f"- decision_impact_formal_claim_allowed_now: `{route['decision_impact_formal_claim_allowed_now']}`"
+    )
+    lines.append(
+        "- decision_impact_paper_result_material_allowed_now: "
+        f"`{route['decision_impact_paper_result_material_allowed_now']}`"
+    )
+    lines.append(
+        "- decision_impact_formal_training_still_requires: "
+        f"`{', '.join(route['decision_impact_formal_training_still_requires'])}`"
     )
     lines.extend(["", "## Source Freshness Gate", ""])
     current_state = manifest["current_state"]
