@@ -10,6 +10,7 @@ from typing import Any, Sequence
 
 
 DEFAULT_OUTPUT_DIR = Path("0_trials/module2_source_freshness_audit")
+CHANGED_PATH_SAMPLE_LIMIT = 12
 
 
 @dataclass(frozen=True)
@@ -176,6 +177,7 @@ def build_manifest(config: SourceFreshnessAuditConfig) -> dict[str, Any]:
     current_head = _current_head()
     records = [_artifact_record(target, current_head=current_head) for target in config.artifacts]
     risk_counts = _risk_counts(records)
+    commit_lag_summary = _commit_lag_summary(records)
     freshness_risks = [record for record in records if record["freshness_state"] != "current_clean"]
     status = "source_freshness_clean_current" if not freshness_risks else "source_freshness_risks_recorded_gate_still_blocked"
     return {
@@ -192,6 +194,7 @@ def build_manifest(config: SourceFreshnessAuditConfig) -> dict[str, Any]:
         "current_head": current_head,
         "artifact_count": len(records),
         "risk_counts": risk_counts,
+        "commit_lag_summary": commit_lag_summary,
         "regeneration_required_before_remote_formal_execution": bool(freshness_risks),
         "artifact_records": records,
         "ordered_regeneration_targets": _ordered_regeneration_targets(records),
@@ -216,6 +219,7 @@ def _artifact_record(target: ArtifactTarget, *, current_head: str) -> dict[str, 
     payload = _read_json(target.path)
     source_head = payload.get("source_head")
     source_info = _source_info(source_head, current_head=current_head)
+    lag_info = _source_lag_info(source_info, artifact_path=target.path, current_head=current_head)
     return {
         "artifact_id": target.artifact_id,
         "category": target.category,
@@ -229,6 +233,10 @@ def _artifact_record(target: ArtifactTarget, *, current_head: str) -> dict[str, 
         "source_commit_exists": source_info["source_commit_exists"],
         "matches_current_head": source_info["matches_current_head"],
         "freshness_state": source_info["freshness_state"],
+        "commits_since_source": lag_info["commits_since_source"],
+        "changed_path_count_since_source": lag_info["changed_path_count_since_source"],
+        "artifact_path_changed_since_source": lag_info["artifact_path_changed_since_source"],
+        "changed_paths_since_source_sample": lag_info["changed_paths_since_source_sample"],
         "required_before": target.required_before,
         "regenerate_before_formal_execution": source_info["freshness_state"] != "current_clean",
     }
@@ -267,12 +275,68 @@ def _source_info(source_head: Any, *, current_head: str) -> dict[str, Any]:
     }
 
 
+def _source_lag_info(source_info: dict[str, Any], *, artifact_path: Path, current_head: str) -> dict[str, Any]:
+    source_commit = source_info["source_commit"]
+    if not source_commit or not source_info["source_commit_exists"]:
+        return _unknown_lag_info()
+    if source_commit == current_head:
+        return {
+            "commits_since_source": 0,
+            "changed_path_count_since_source": 0,
+            "artifact_path_changed_since_source": False,
+            "changed_paths_since_source_sample": [],
+        }
+
+    commits_since_source = _commits_since_source(str(source_commit), current_head)
+    changed_paths = _changed_paths_since_source(str(source_commit), current_head)
+    if commits_since_source is None or changed_paths is None:
+        return _unknown_lag_info()
+
+    normalized_artifact_path = artifact_path.as_posix()
+    changed_path_set = set(changed_paths)
+    return {
+        "commits_since_source": commits_since_source,
+        "changed_path_count_since_source": len(changed_paths),
+        "artifact_path_changed_since_source": normalized_artifact_path in changed_path_set,
+        "changed_paths_since_source_sample": changed_paths[:CHANGED_PATH_SAMPLE_LIMIT],
+    }
+
+
+def _unknown_lag_info() -> dict[str, Any]:
+    return {
+        "commits_since_source": None,
+        "changed_path_count_since_source": None,
+        "artifact_path_changed_since_source": None,
+        "changed_paths_since_source_sample": [],
+    }
+
+
 def _risk_counts(records: Sequence[dict[str, Any]]) -> dict[str, int]:
     counts: dict[str, int] = {}
     for record in records:
         state = str(record["freshness_state"])
         counts[state] = counts.get(state, 0) + 1
     return counts
+
+
+def _commit_lag_summary(records: Sequence[dict[str, Any]]) -> dict[str, Any]:
+    known_commit_lags = [record["commits_since_source"] for record in records if record["commits_since_source"] is not None]
+    return {
+        "records_with_commit_lag": sum(1 for record in records if _positive_int(record["commits_since_source"])),
+        "records_with_unknown_commit_lag": sum(1 for record in records if record["commits_since_source"] is None),
+        "records_with_changed_paths_since_source": sum(
+            1 for record in records if _positive_int(record["changed_path_count_since_source"])
+        ),
+        "records_with_artifact_path_changed_since_source": sum(
+            1 for record in records if record["artifact_path_changed_since_source"] is True
+        ),
+        "max_commits_since_source": max(known_commit_lags) if known_commit_lags else None,
+        "changed_path_sample_limit": CHANGED_PATH_SAMPLE_LIMIT,
+    }
+
+
+def _positive_int(value: Any) -> bool:
+    return isinstance(value, int) and value > 0
 
 
 def _ordered_regeneration_targets(records: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -288,6 +352,9 @@ def _ordered_regeneration_targets(records: Sequence[dict[str, Any]]) -> list[dic
             "source_commit_exists": record["source_commit_exists"],
             "matches_current_head": record["matches_current_head"],
             "current_head": record["current_head"],
+            "commits_since_source": record["commits_since_source"],
+            "changed_path_count_since_source": record["changed_path_count_since_source"],
+            "artifact_path_changed_since_source": record["artifact_path_changed_since_source"],
             "required_before": record["required_before"],
         }
         for record in records
@@ -314,6 +381,9 @@ def _markdown(manifest: dict[str, Any]) -> str:
     ]
     for key, value in sorted(manifest["risk_counts"].items()):
         lines.append(f"- `{key}`: `{value}`")
+    lines.extend(["", "## Commit Lag Diagnostics", ""])
+    for key, value in manifest["commit_lag_summary"].items():
+        lines.append(f"- `{key}`: `{value}`")
     lines.extend(["", "## Regeneration Targets", ""])
     if manifest["ordered_regeneration_targets"]:
         for target in manifest["ordered_regeneration_targets"]:
@@ -321,6 +391,9 @@ def _markdown(manifest: dict[str, Any]) -> str:
                 f"- `{target['artifact_id']}`: `{target['freshness_state']}`, "
                 f"source_head=`{target['source_head']}`, current_head=`{target['current_head']}`, "
                 f"dirty=`{target['source_head_dirty']}`, commit_exists=`{target['source_commit_exists']}`, "
+                f"commits_since_source=`{target['commits_since_source']}`, "
+                f"changed_paths_since_source=`{target['changed_path_count_since_source']}`, "
+                f"artifact_path_changed=`{target['artifact_path_changed_since_source']}`, "
                 f"required before `{target['required_before']}`, path `{target['path']}`"
             )
     else:
@@ -364,6 +437,25 @@ def _commit_exists(commit: str) -> bool:
         return False
     result = subprocess.run(["git", "cat-file", "-e", f"{commit}^{{commit}}"], check=False)
     return result.returncode == 0
+
+
+def _commits_since_source(source_commit: str, current_head: str) -> int | None:
+    try:
+        raw = subprocess.check_output(["git", "rev-list", "--count", f"{source_commit}..{current_head}"], text=True)
+    except Exception:
+        return None
+    try:
+        return int(raw.strip())
+    except ValueError:
+        return None
+
+
+def _changed_paths_since_source(source_commit: str, current_head: str) -> list[str] | None:
+    try:
+        raw = subprocess.check_output(["git", "diff", "--name-only", f"{source_commit}..{current_head}"], text=True)
+    except Exception:
+        return None
+    return [line.strip() for line in raw.splitlines() if line.strip()]
 
 
 if __name__ == "__main__":
