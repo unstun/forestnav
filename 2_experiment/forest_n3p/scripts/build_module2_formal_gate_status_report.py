@@ -394,6 +394,33 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "decision_intake_next_request_all_execution_disabled_now": decision_intake_summary[
             "next_request_all_execution_disabled_now"
         ],
+        "decision_intake_decision_impact_present": decision_intake_summary[
+            "decision_impact_present"
+        ],
+        "decision_intake_decision_impact_current_blocker": decision_intake_summary[
+            "decision_impact_current_blocker"
+        ],
+        "decision_intake_decision_impact_missing_deliverable_count": decision_intake_summary[
+            "decision_impact_missing_deliverable_count"
+        ],
+        "decision_intake_decision_record_is_not_training_authorization": decision_intake_summary[
+            "decision_record_is_not_training_authorization"
+        ],
+        "decision_intake_decision_record_is_not_paper_result_material": decision_intake_summary[
+            "decision_record_is_not_paper_result_material"
+        ],
+        "decision_intake_decision_impact_remote_preflight_allowed_now": decision_intake_summary[
+            "decision_impact_remote_preflight_allowed_now"
+        ],
+        "decision_intake_decision_impact_remote_training_allowed_now": decision_intake_summary[
+            "decision_impact_remote_training_allowed_now"
+        ],
+        "decision_intake_decision_impact_formal_claim_allowed_now": decision_intake_summary[
+            "decision_impact_formal_claim_allowed_now"
+        ],
+        "decision_intake_decision_impact_paper_result_material_allowed_now": decision_intake_summary[
+            "decision_impact_paper_result_material_allowed_now"
+        ],
             "formal_gate_status": formal_gate.get("status"),
             "missing_artifacts_status": missing_artifacts.get("status"),
             "missing_artifacts_handoff_index_status": missing_artifacts_handoff_summary["status"],
