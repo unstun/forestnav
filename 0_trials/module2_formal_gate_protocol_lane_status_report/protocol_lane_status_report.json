@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "artifact_name": "module2_formal_gate_protocol_lane_status_report",
+  "status": "protocol_lane_status_blocked_pending_lane_decision",
+  "created_at_utc": "2026-07-05T20:47:52.451202+00:00",
+  "source_head": "b4d79173e9f42db1eb2e9ffd4c7c39a0026a1ac3",
+  "not_paper_result_material": true,
+  "executes_commands": false,
+  "runs_training": false,
+  "runs_remote_preflight": false,
+  "runs_remote_audit": false,
+  "local_training_allowed": false,
+  "remote_training_allowed_now": false,
+  "formal_claim_allowed": false,
+  "paper_result_material_allowed": false,
+  "inputs": {
+    "decision_packet": "0_trials/module2_formal_gate_protocol_lane_decision_packet/formal_gate_protocol_lane_decision_packet.json",
+    "decision_record": "0_trials/module2_formal_gate_protocol_lane_decision_record/protocol_lane_decision_record.json",
+    "decision_gate_audit": "0_trials/module2_formal_gate_protocol_lane_decision_gate_audit/protocol_lane_decision_gate_audit.json",
+    "contract_authoring_gate_audit": "0_trials/module2_formal_gate_contract_authoring_gate_audit/contract_authoring_gate_audit.json",
+    "lane_matrix": "0_trials/module2_formal_gate_protocol_lane_matrix/formal_gate_protocol_lane_matrix.json",
+    "next_round_requirements": "0_trials/module2_formal_gate_next_round_requirements/formal_gate_next_round_requirements.json"
+  },
+  "current_status": {
+    "next_blocked_lane": "protocol_lane_decision",
+    "decision_packet_status": "formal_gate_protocol_lane_decision_packet_ready_for_dr_sun",
+    "decision_packet_audit_issue_count": 0,
+    "decision_record_status": "pending_protocol_lane_decision",
+    "decision_record_audit_issue_count": 0,
+    "decision_gate_status": "protocol_lane_decision_gate_pending_clean",
+    "decision_gate_audit_issue_count": 0,
+    "contract_authoring_gate_status": "contract_authoring_gate_blocked_pending_lane_decision",
+    "contract_authoring_gate_audit_issue_count": 0,
+    "lane_matrix_status": "formal_gate_protocol_lane_matrix_ready",
+    "lane_count": 4,
+    "next_round_requirements_status": "formal_gate_next_round_requirements_ready",
+    "selected_lane_id": null,
+    "contract_action": "none",
+    "contract_drafting_allowed_now": false,
+    "contract_approval_allowed_now": false,
+    "draft_contract_allows_training": false,
+    "allowed_next_action_ids": [
+      "record_protocol_lane_decision"
+    ],
+    "blocked_action_ids": [
+      "local_training",
+      "remote_success_training",
+      "remote_preflight_for_new_success_attempt",
+      "formal_claim",
+      "paper_result_material"
+    ],
+    "local_training_allowed_now": false,
+    "remote_training_allowed_now": false,
+    "formal_claim_allowed_now": false,
+    "paper_result_material_allowed_now": false,
+    "new_success_training_allowed_now": false
+  },
+  "audit_issue_count": 0,
+  "audit_issues": [],
+  "claim_boundaries": [
+    "This report summarizes protocol-lane gates; it does not record a lane decision.",
+    "The old remote execution packet may remain ready, but it is not authorization for a new success attempt.",
+    "Current allowed actions do not include local training, remote training, formal claims, or paper result material.",
+    "New success training still requires a recorded protocol lane decision and an approved/frozen new or revised contract."
+  ]
+}
