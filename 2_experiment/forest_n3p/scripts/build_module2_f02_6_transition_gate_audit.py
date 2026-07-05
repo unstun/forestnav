@@ -159,14 +159,14 @@ def build_manifest(config: F026TransitionGateAuditConfig) -> dict[str, Any]:
         "audit_issues": audit_issues,
         "transition_invariants": [
             "pending keeps local training, remote preflight, remote training, remote audit, and formal claim vetoed.",
-            "approved closes only the human decision gate; it may expose source-fresh regeneration, but current remote preflight/training/claim stay blocked until downstream evidence exists.",
+            "approved closes the human decision gate; once source freshness and the remote packet are ready, remote preflight/training may open while audit, H01/H02, claim, and paper-result material stay blocked.",
             "rejected keeps the obstacle-summary warm-start formal path blocked and routes to a stronger/full patch-CNN protocol.",
             "No synthetic scenario writes a real decision, executes commands, runs preflight, trains, audits, pulls back artifacts, or writes paper results.",
         ],
         "claim_boundaries": [
             "This audit is a transition-safety check, not Dr Sun's F02.6 decision record.",
-            "A passing approved synthetic scenario is not permission to train; it only proves the post-decision gates do not accidentally open claim or remote training.",
-            "Formal PPO remains gpu3070ti-relay-only after F02.6, source freshness, remote packet readiness, audit, pullback, H01/H02, and claim gates close.",
+            "A passing approved synthetic scenario is not a result claim; it only proves the post-decision gates expose the correct remote-training entry without opening audit, H01/H02, or claim lanes.",
+            "Formal PPO remains gpu3070ti-relay-only; local training, formal claims, and paper-result material stay blocked until remote audit, pullback, H01/H02, and claim gates close.",
         ],
     }
 
@@ -383,7 +383,7 @@ def _common_scenario_issues(summary: dict[str, Any]) -> list[dict[str, Any]]:
         issues.append(_issue(scenario_id, "record_allows_remote_training_now", "Synthetic decision record alone must never allow remote training now."))
     if permissions.get("local_training_allowed_now") is not False:
         issues.append(_issue(scenario_id, "status_report_allows_local_training", "Status report must keep local training blocked."))
-    if permissions.get("remote_training_allowed_now") is not False:
+    if scenario_id != "approved" and permissions.get("remote_training_allowed_now") is not False:
         issues.append(_issue(scenario_id, "status_report_allows_remote_training", "Synthetic transition must not directly allow formal PPO training."))
     if permissions.get("formal_claim_allowed_now") is not False:
         issues.append(_issue(scenario_id, "status_report_allows_formal_claim", "Synthetic transition must not directly allow formal claims."))
@@ -427,6 +427,7 @@ def _approved_scenario_issues(summary: dict[str, Any]) -> list[dict[str, Any]]:
         issues.append(_issue("approved", "approved_record_status_drift", "Approved scenario must synthesize an approved record.", observed=summary.get("record_status")))
     allowed_post_plan_statuses = {
         "ready_to_execute_post_f02_6_regeneration_plan",
+        "ready_for_remote_training_packet_execution",
         "blocked_formal_gate_preconditions",
     }
     if summary.get("post_plan_status") not in allowed_post_plan_statuses:
@@ -438,14 +439,17 @@ def _approved_scenario_issues(summary: dict[str, Any]) -> list[dict[str, Any]]:
                 observed=summary.get("post_plan_status"),
             )
         )
-    if permissions.get("remote_preflight_allowed_now") is not False:
+    remote_training_entry_ready = summary.get("post_plan_status") == "ready_for_remote_training_packet_execution"
+    if not remote_training_entry_ready and permissions.get("remote_preflight_allowed_now") is not False:
         issues.append(_issue("approved", "approved_status_report_allows_remote_preflight_too_early", "Approved decision alone must not bypass remote packet/source freshness."))
-    if stages.get("regenerate_preflight_gate_artifacts", {}).get("allowed_now") is not True:
+    if not remote_training_entry_ready and stages.get("regenerate_preflight_gate_artifacts", {}).get("allowed_now") is not True:
         issues.append(_issue("approved", "approved_regeneration_not_ready", "Approved scenario should expose source-fresh preflight regeneration as the next local gate."))
-    if stages.get("approved_remote_preflight", {}).get("allowed_now") is not False:
+    if not remote_training_entry_ready and stages.get("approved_remote_preflight", {}).get("allowed_now") is not False:
         issues.append(_issue("approved", "approved_remote_preflight_ready_too_early", "Approved scenario must still block remote preflight until source-fresh targets close."))
-    if stages.get("gate3_remote_training", {}).get("allowed_now") is not False:
+    if not remote_training_entry_ready and stages.get("gate3_remote_training", {}).get("allowed_now") is not False:
         issues.append(_issue("approved", "approved_training_ready_too_early", "Approved scenario must still block formal PPO training."))
+    if stages.get("gate3_remote_audit_pullback", {}).get("allowed_now") is not False:
+        issues.append(_issue("approved", "approved_remote_audit_ready_too_early", "Approved scenario must still block audit and pullback until remote training completes."))
     if stages.get("regenerate_claim_gate_artifacts", {}).get("allowed_now") is not False:
         issues.append(_issue("approved", "approved_claim_gate_ready_too_early", "Approved scenario must not expose claim gate regeneration."))
     if summary.get("formal_gate_status_report_next_blocked_lane_id") == "decision":
