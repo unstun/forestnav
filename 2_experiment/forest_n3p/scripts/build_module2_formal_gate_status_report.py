@@ -1714,6 +1714,8 @@ def _missing_artifacts_handoff_index_issues(missing_artifacts: dict[str, Any]) -
     inventory_open = missing_artifacts.get("status") != "formal_gate_artifacts_complete"
     if summary["local_training_allowed_now"]:
         issues.append(_issue("missing_artifacts_handoff_allows_local_training", "missing-artifacts handoff index must never allow local training."))
+    if inventory_open and summary["remote_training_allowed_now"]:
+        issues.append(_issue("missing_artifacts_handoff_allows_remote_training_while_open", "missing-artifacts handoff index must not allow remote training while the inventory is open."))
     if summary["formal_result_material_allowed_now"]:
         issues.append(_issue("missing_artifacts_handoff_allows_result_material", "missing-artifacts handoff index must not allow formal result material."))
     if inventory_open and not summary["next_action_id"]:
