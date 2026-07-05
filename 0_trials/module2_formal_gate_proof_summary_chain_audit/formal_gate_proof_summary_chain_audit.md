@@ -13,6 +13,8 @@ This file checks that formal-gate proof-deliverables summaries remain consistent
 - next_action_guard_consistent_row_count: `3`
 - next_required_deliverables_row_count: `3`
 - next_required_deliverables_consistent_row_count: `3`
+- handoff_single_next_action_row_count: `3`
+- handoff_single_next_action_consistent_row_count: `3`
 - executes_commands: `False`
 - runs_training: `False`
 - runs_remote_preflight: `False`
@@ -60,10 +62,17 @@ This file checks that formal-gate proof-deliverables summaries remain consistent
 - `claim_safety_status_report_next_required_formal_deliverables`: present=`True`, matches=`True`, total_missing_deliverables=`10`, row_count=`10`, runs_training=`False`, path=`0_trials/module2_claim_safety/module2_claim_safety.json`, key=`status_report_next_required_formal_deliverables`
 - `paper_readiness_claim_safety_next_required_formal_deliverables`: present=`True`, matches=`True`, total_missing_deliverables=`10`, row_count=`10`, runs_training=`False`, path=`0_trials/module2_paper_readiness/module2_paper_readiness.json`, key=`claim_safety_next_required_formal_deliverables`
 
+## Handoff Single Next-Action Chain Rows
+
+- `handoff_bundle_single_next_action_index`: present=`True`, matches=`True`, next_action_id=`record_f02_6_decision`, decision_owner_required=`Dr Sun`, all_execution_disabled_now=`True`, remote_training_allowed_now=`False`, path=`0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`, key=`single_next_action_index`
+- `claim_safety_handoff_single_next_action_index`: present=`True`, matches=`True`, next_action_id=`record_f02_6_decision`, decision_owner_required=`Dr Sun`, all_execution_disabled_now=`True`, remote_training_allowed_now=`False`, path=`0_trials/module2_claim_safety/module2_claim_safety.json`, key=`handoff_single_next_action_index_summary`
+- `paper_readiness_claim_safety_handoff_single_next_action_index`: present=`True`, matches=`True`, next_action_id=`record_f02_6_decision`, decision_owner_required=`Dr Sun`, all_execution_disabled_now=`True`, remote_training_allowed_now=`False`, path=`0_trials/module2_paper_readiness/module2_paper_readiness.json`, key=`claim_safety_handoff_single_next_action_index_summary`
+
 ## Claim Boundaries
 
 - This audit is a local read-only consistency check over existing formal-gate summary fields.
 - It does not execute proof commands, run training, run remote preflight, evaluate PPO, pull back artifacts, or write paper results.
 - A consistent blocked chain only proves the downstream artifacts agree that the formal gate is still blocked.
 - Next-action and next-required-deliverable consistency does not authorize the next action; it only checks that the artifacts agree on the current blocked lane.
+- Single-next-action consistency only proves the handoff pointer is mirrored; it is still not Dr Sun's F02.6 decision record.
 - Formal PPO-vs-RS performance claims still require the missing training, evaluation, acceptance, and H01/H02 artifacts to be produced and audited.

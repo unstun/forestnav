@@ -9,6 +9,7 @@ This file checks that the long-term Module2 mainline task book mirrors the curre
 - total_missing_deliverables: `10`
 - mainline_missing_deliverable_mention_count: `0`
 - proof_summary_chain_status: `formal_gate_proof_summary_chain_consistent_blocked`
+- proof_summary_handoff_single_next_action_consistency: `{'row_count': 3, 'consistent_row_count': 3}`
 - executes_commands: `False`
 - runs_training: `False`
 - runs_remote_preflight: `False`
