@@ -858,6 +858,7 @@ def _audit_issues(
     source_freshness: dict[str, Any],
     deliverable_groups: Sequence[dict[str, Any]],
     deliverable_acceptance_matrix: Sequence[dict[str, Any]],
+    deliverable_unlock_chain: dict[str, Any],
 ) -> list[dict[str, str]]:
     issues: list[dict[str, str]] = []
     for name, payload in (
@@ -901,7 +902,57 @@ def _audit_issues(
         if group["missing_count"] > 0 and not group["invalid_substitutes"]:
             issues.append(_issue(f"{category}_missing_invalid_substitutes", f"{category} group must list invalid substitutes while blocked."))
     issues.extend(_proof_command_safety_issues(deliverable_acceptance_matrix))
+    issues.extend(_unlock_chain_safety_issues(deliverable_unlock_chain))
     return _unique_issues(issues)
+
+
+def _unlock_chain_safety_issues(deliverable_unlock_chain: dict[str, Any]) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    if deliverable_unlock_chain.get("execution_boundary") != "read_only_no_execution":
+        issues.append(
+            _issue(
+                "deliverable_unlock_chain_wrong_boundary",
+                "Deliverable unlock chain must remain a local read-only audit.",
+            )
+        )
+    rows = deliverable_unlock_chain.get("rows")
+    rows = rows if isinstance(rows, list) else []
+    for row in rows:
+        if not isinstance(row, dict):
+            issues.append(_issue("deliverable_unlock_chain_malformed_row", "Unlock-chain rows must be objects."))
+            continue
+        matrix_id = str(row.get("matrix_id") or "unknown_matrix")
+        safe_matrix_id = _safe_issue_id(matrix_id)
+        if row.get("missing") is True and row.get("responsible_stage_allowed_now") is True:
+            issues.append(
+                _issue(
+                    f"unlock_chain_{safe_matrix_id}_allowed_while_missing",
+                    f"{matrix_id} cannot have its responsible stage allowed while the formal deliverable is missing.",
+                )
+            )
+        if row.get("missing") is True and row.get("missing_required_current_blockers"):
+            issues.append(
+                _issue(
+                    f"unlock_chain_{safe_matrix_id}_missing_current_blockers",
+                    f"{matrix_id} is missing required current blockers for its formal-gate category.",
+                )
+            )
+        if row.get("missing") is True and row.get("execution_boundary") != "read_only_no_execution":
+            issues.append(
+                _issue(
+                    f"unlock_chain_{safe_matrix_id}_wrong_boundary",
+                    f"{matrix_id} must remain read-only while missing.",
+                )
+            )
+        sequence = row.get("unlock_sequence_before_stage_allowed")
+        if row.get("missing") is True and not sequence:
+            issues.append(
+                _issue(
+                    f"unlock_chain_{safe_matrix_id}_missing_unlock_sequence",
+                    f"{matrix_id} must declare the ordered prerequisites before the stage can be allowed.",
+                )
+            )
+    return issues
 
 
 def _proof_command_safety_issues(deliverable_acceptance_matrix: Sequence[dict[str, Any]]) -> list[dict[str, str]]:
