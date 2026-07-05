@@ -2372,6 +2372,36 @@ def _formal_gate_proof_audit(*, complete):
         "proof_command_results": results,
         "proof_command_results_by_id": {result["command_id"]: result for result in results},
         "formal_gate_missing_evidence_summary": _formal_gate_missing_evidence_summary(results),
+}
+
+
+def _mainline_formal_gate_state_audit(*, complete):
+    return {
+        "artifact_name": "module2_mainline_formal_gate_state_audit",
+        "status": "mainline_formal_gate_state_ready_for_claim_audit"
+        if complete
+        else "mainline_formal_gate_state_consistent_blocked",
+        "not_paper_result_material": True,
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+        "proof_summary_chain_status": "formal_gate_proof_summary_chain_ready_for_claim_audit"
+        if complete
+        else "formal_gate_proof_summary_chain_consistent_blocked",
+        "proof_summary_chain_audit_issue_count": 0,
+        "proof_summary_chain_proof_audit_input_safety_issue_count": 0,
+        "proof_summary_chain_proof_audit_blockers": []
+        if complete
+        else [
+            "missing_formal_training_artifacts",
+            "missing_formal_evaluation_artifacts",
+            "missing_formal_acceptance_artifacts",
+            "failed_formal_h01_h02_acceptance_artifacts",
+        ],
+        "audit_issue_count": 0,
+        "audit_issues": [],
     }
 
 
