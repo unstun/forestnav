@@ -1009,13 +1009,33 @@ def _decision_intake_summary(decision_intake: dict[str, Any]) -> dict[str, Any]:
         if isinstance(decision_intake.get("post_decision_route_matrix"), list)
         else []
     )
+    impact = (
+        decision_intake.get("formal_gate_decision_impact_summary")
+        if isinstance(decision_intake.get("formal_gate_decision_impact_summary"), dict)
+        else {}
+    )
+    impact_invariants = (
+        impact.get("invariants_after_any_decision_record")
+        if isinstance(impact.get("invariants_after_any_decision_record"), dict)
+        else {}
+    )
+    impact_routes = (
+        impact.get("decision_routes") if isinstance(impact.get("decision_routes"), list) else []
+    )
     routes = {
         str(item.get("decision")): item
         for item in route_matrix
         if isinstance(item, dict) and item.get("decision")
     }
+    impact_route_by_decision = {
+        str(item.get("decision")): item
+        for item in impact_routes
+        if isinstance(item, dict) and item.get("decision")
+    }
     approved_route = routes.get("approve_obstacle_summary_warm_start", {})
     rejected_route = routes.get("reject_obstacle_summary_warm_start", {})
+    approved_impact = impact_route_by_decision.get("approve_obstacle_summary_warm_start", {})
+    rejected_impact = impact_route_by_decision.get("reject_obstacle_summary_warm_start", {})
     return {
         "present": bool(decision_intake),
         "status": decision_intake.get("status"),
@@ -1088,6 +1108,41 @@ def _decision_intake_summary(decision_intake: dict[str, Any]) -> dict[str, Any]:
         "rejected_route_next_lane": rejected_route.get("next_lane_after_record"),
         "rejected_route_allows_remote_training_now": rejected_route.get("allows_remote_training_now"),
         "rejected_route_requires_new_protocol_contract": rejected_route.get("requires_new_protocol_contract"),
+        "decision_impact_present": bool(impact),
+        "decision_impact_summary_id": impact.get("summary_id"),
+        "decision_impact_not_paper_result_material": impact.get("not_paper_result_material"),
+        "decision_impact_current_blocker": impact.get("current_blocker"),
+        "decision_impact_current_record_status": impact.get("current_record_status"),
+        "decision_impact_missing_deliverable_count": impact.get("missing_deliverable_count"),
+        "decision_impact_current_allowed_action_ids": _string_list(impact.get("current_allowed_action_ids")),
+        "decision_impact_current_blocked_action_ids": _string_list(impact.get("current_blocked_action_ids")),
+        "decision_impact_route_decisions": sorted(impact_route_by_decision),
+        "decision_impact_approved_route_next_lane": approved_impact.get("next_lane_after_record"),
+        "decision_impact_approved_route_allows_remote_training_now": approved_impact.get(
+            "allows_remote_training_now"
+        ),
+        "decision_impact_rejected_route_next_lane": rejected_impact.get("next_lane_after_record"),
+        "decision_impact_rejected_route_requires_new_protocol_contract": rejected_impact.get(
+            "requires_new_protocol_contract"
+        ),
+        "decision_record_is_not_training_authorization": impact_invariants.get(
+            "decision_record_is_not_training_authorization"
+        ),
+        "decision_record_is_not_paper_result_material": impact_invariants.get(
+            "decision_record_is_not_paper_result_material"
+        ),
+        "decision_impact_local_training_allowed_now": impact_invariants.get("local_training_allowed_now"),
+        "decision_impact_remote_preflight_allowed_now": impact_invariants.get(
+            "remote_preflight_allowed_now"
+        ),
+        "decision_impact_remote_training_allowed_now": impact_invariants.get("remote_training_allowed_now"),
+        "decision_impact_formal_claim_allowed_now": impact_invariants.get("formal_claim_allowed_now"),
+        "decision_impact_paper_result_material_allowed_now": impact_invariants.get(
+            "paper_result_material_allowed_now"
+        ),
+        "decision_impact_formal_training_still_requires": _string_list(
+            impact_invariants.get("formal_training_still_requires")
+        ),
     }
 
 
@@ -1132,6 +1187,88 @@ def _decision_intake_safety_issues(decision_intake: dict[str, Any]) -> list[dict
         issues.append(_issue("decision_intake_rejected_route_missing_protocol_contract", "Rejection route must require a new or revised protocol contract."))
     if summary["rejected_route_allows_remote_training_now"] is not False:
         issues.append(_issue("decision_intake_rejected_route_allows_remote_training", "Rejection route must keep remote training blocked."))
+    if not summary["decision_impact_present"]:
+        issues.append(
+            _issue(
+                "decision_intake_impact_summary_missing",
+                "F02.6 intake must expose formal_gate_decision_impact_summary.",
+            )
+        )
+    if summary["decision_impact_not_paper_result_material"] is not True:
+        issues.append(
+            _issue(
+                "decision_intake_impact_is_paper_result_material",
+                "F02.6 decision impact summary must not be paper result material.",
+            )
+        )
+    if summary["decision_impact_current_allowed_action_ids"] not in (["record_f02_6_decision"], []):
+        issues.append(
+            _issue(
+                "decision_intake_impact_allowed_actions_unexpected",
+                "F02.6 decision impact summary must not allow execution actions.",
+            )
+        )
+    for field in (
+        "decision_record_is_not_training_authorization",
+        "decision_record_is_not_paper_result_material",
+    ):
+        if summary[field] is not True:
+            issues.append(
+                _issue(
+                    f"decision_intake_impact_{field}_not_true",
+                    "F02.6 decision impact summary must state that a decision record is not execution or result evidence.",
+                )
+            )
+    for field in (
+        "decision_impact_local_training_allowed_now",
+        "decision_impact_remote_preflight_allowed_now",
+        "decision_impact_remote_training_allowed_now",
+        "decision_impact_formal_claim_allowed_now",
+        "decision_impact_paper_result_material_allowed_now",
+        "decision_impact_approved_route_allows_remote_training_now",
+    ):
+        if summary[field] is not False:
+            issues.append(
+                _issue(
+                    f"decision_intake_impact_{field}_not_false",
+                    "F02.6 decision impact summary must not authorize execution or result material.",
+                )
+            )
+    if summary["decision_impact_approved_route_next_lane"] != "source_fresh_regeneration":
+        issues.append(
+            _issue(
+                "decision_intake_impact_approved_route_next_lane_invalid",
+                "F02.6 approval impact must route first to source-fresh regeneration.",
+            )
+        )
+    if summary["decision_impact_rejected_route_next_lane"] != "protocol_redesign":
+        issues.append(
+            _issue(
+                "decision_intake_impact_rejected_route_next_lane_invalid",
+                "F02.6 rejection impact must route to protocol redesign.",
+            )
+        )
+    if summary["decision_impact_rejected_route_requires_new_protocol_contract"] is not True:
+        issues.append(
+            _issue(
+                "decision_intake_impact_rejected_route_missing_protocol_contract",
+                "F02.6 rejection impact must require a new or revised protocol contract.",
+            )
+        )
+    for required in (
+        "source_freshness_audit",
+        "post_f02_6_regeneration_plan",
+        "post_f02_6_plan_audit",
+        "remote_formal_execution_packet_ready",
+        "approved_remote_preflight",
+    ):
+        if required not in summary["decision_impact_formal_training_still_requires"]:
+            issues.append(
+                _issue(
+                    f"decision_intake_impact_missing_required_{required}",
+                    "F02.6 decision impact summary must list every pre-training gate still required.",
+                )
+            )
     record_status = summary["record_status"]
     if record_status == "pending_human_decision":
         if summary["next_blocked_lane"] != "decision":
