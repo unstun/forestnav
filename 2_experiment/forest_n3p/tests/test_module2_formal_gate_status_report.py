@@ -727,6 +727,24 @@ def test_formal_gate_status_report_requires_decision_intake_contract(tmp_path):
     assert summary["decision_note_required"] is False
 
 
+def test_formal_gate_status_report_requires_decision_intake_impact_summary(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    intake = json.loads(config.decision_intake_path.read_text(encoding="utf-8"))
+    intake.pop("formal_gate_decision_impact_summary")
+    config.decision_intake_path.write_text(json.dumps(intake), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert manifest["status"] == "formal_gate_status_blocked"
+    assert "decision_intake_impact_summary_missing" in issue_ids
+    assert "decision_intake_impact_decision_record_is_not_training_authorization_not_true" in issue_ids
+    assert manifest["f02_6_decision_intake_summary"]["decision_impact_present"] is False
+    assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+    assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
+
+
 def test_formal_gate_status_report_requires_missing_artifacts_handoff_index(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
     config = _config(tmp_path, complete=False)

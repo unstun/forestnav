@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `230d20df4d86b4eebcd32db7df5f604688aaa10b`
+- source_head: `c96a2659e6eddc7a8b8c168ffd34c06fd8fd84a5+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -41,6 +41,15 @@ This file is a read-only formal-gate status report. It does not execute commands
 - decision_intake_next_request_current_blocked_action_ids: `['remote_preflight', 'remote_training', 'local_training', 'formal_claim', 'paper_result_material']`
 - decision_intake_next_request_post_decision_routes_are_current_authorization: `False`
 - decision_intake_next_request_all_execution_disabled_now: `True`
+- decision_intake_decision_impact_present: `True`
+- decision_intake_decision_impact_current_blocker: `decision`
+- decision_intake_decision_impact_missing_deliverable_count: `10`
+- decision_intake_decision_record_is_not_training_authorization: `True`
+- decision_intake_decision_record_is_not_paper_result_material: `True`
+- decision_intake_decision_impact_remote_preflight_allowed_now: `False`
+- decision_intake_decision_impact_remote_training_allowed_now: `False`
+- decision_intake_decision_impact_formal_claim_allowed_now: `False`
+- decision_intake_decision_impact_paper_result_material_allowed_now: `False`
 - formal_gate_status: `blocked_formal_gate_gaps_open`
 - missing_artifacts_status: `formal_gate_missing_artifacts_open`
 - missing_artifacts_handoff_index_status: `blocked_until_f02_6_decision`
@@ -158,6 +167,17 @@ This file is a read-only formal-gate status report. It does not execute commands
 - remote_preflight_allowed_now: `False`
 - remote_training_allowed_now: `False`
 - formal_claim_allowed_now: `False`
+- decision_impact_present: `True`
+- decision_impact_summary_id: `module2_f02_6_formal_gate_decision_impact`
+- decision_impact_current_blocker: `decision`
+- decision_impact_missing_deliverable_count: `10`
+- decision_record_is_not_training_authorization: `True`
+- decision_record_is_not_paper_result_material: `True`
+- decision_impact_remote_preflight_allowed_now: `False`
+- decision_impact_remote_training_allowed_now: `False`
+- decision_impact_formal_claim_allowed_now: `False`
+- decision_impact_paper_result_material_allowed_now: `False`
+- decision_impact_formal_training_still_requires: `source_freshness_audit, post_f02_6_regeneration_plan, post_f02_6_plan_audit, remote_formal_execution_packet_ready, approved_remote_preflight`
 
 ## Next Action Guard
 

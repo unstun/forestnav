@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-05T08:44:05.861453+00:00",
-  "source_head": "230d20df4d86b4eebcd32db7df5f604688aaa10b",
+  "created_at_utc": "2026-07-05T09:26:39.217839+00:00",
+  "source_head": "c96a2659e6eddc7a8b8c168ffd34c06fd8fd84a5+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -72,6 +72,15 @@
     ],
     "decision_intake_next_request_post_decision_routes_are_current_authorization": false,
     "decision_intake_next_request_all_execution_disabled_now": true,
+    "decision_intake_decision_impact_present": true,
+    "decision_intake_decision_impact_current_blocker": "decision",
+    "decision_intake_decision_impact_missing_deliverable_count": 10,
+    "decision_intake_decision_record_is_not_training_authorization": true,
+    "decision_intake_decision_record_is_not_paper_result_material": true,
+    "decision_intake_decision_impact_remote_preflight_allowed_now": false,
+    "decision_intake_decision_impact_remote_training_allowed_now": false,
+    "decision_intake_decision_impact_formal_claim_allowed_now": false,
+    "decision_intake_decision_impact_paper_result_material_allowed_now": false,
     "formal_gate_status": "blocked_formal_gate_gaps_open",
     "missing_artifacts_status": "formal_gate_missing_artifacts_open",
     "missing_artifacts_handoff_index_status": "blocked_until_f02_6_decision",
@@ -707,7 +716,45 @@
     "approved_route_allows_formal_claim_now": false,
     "rejected_route_next_lane": "protocol_redesign",
     "rejected_route_allows_remote_training_now": false,
-    "rejected_route_requires_new_protocol_contract": true
+    "rejected_route_requires_new_protocol_contract": true,
+    "decision_impact_present": true,
+    "decision_impact_summary_id": "module2_f02_6_formal_gate_decision_impact",
+    "decision_impact_not_paper_result_material": true,
+    "decision_impact_current_blocker": "decision",
+    "decision_impact_current_record_status": "pending_human_decision",
+    "decision_impact_missing_deliverable_count": 10,
+    "decision_impact_current_allowed_action_ids": [
+      "record_f02_6_decision"
+    ],
+    "decision_impact_current_blocked_action_ids": [
+      "remote_preflight",
+      "remote_training",
+      "local_training",
+      "formal_claim",
+      "paper_result_material"
+    ],
+    "decision_impact_route_decisions": [
+      "approve_obstacle_summary_warm_start",
+      "reject_obstacle_summary_warm_start"
+    ],
+    "decision_impact_approved_route_next_lane": "source_fresh_regeneration",
+    "decision_impact_approved_route_allows_remote_training_now": false,
+    "decision_impact_rejected_route_next_lane": "protocol_redesign",
+    "decision_impact_rejected_route_requires_new_protocol_contract": true,
+    "decision_record_is_not_training_authorization": true,
+    "decision_record_is_not_paper_result_material": true,
+    "decision_impact_local_training_allowed_now": false,
+    "decision_impact_remote_preflight_allowed_now": false,
+    "decision_impact_remote_training_allowed_now": false,
+    "decision_impact_formal_claim_allowed_now": false,
+    "decision_impact_paper_result_material_allowed_now": false,
+    "decision_impact_formal_training_still_requires": [
+      "source_freshness_audit",
+      "post_f02_6_regeneration_plan",
+      "post_f02_6_plan_audit",
+      "remote_formal_execution_packet_ready",
+      "approved_remote_preflight"
+    ]
   },
   "formal_gate_handoff_summary": {
     "present": true,
