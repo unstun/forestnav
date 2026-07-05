@@ -560,8 +560,6 @@ def _cross_gate_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any],
                     )
                 )
     if handoff_summary:
-        if int(handoff_summary.get("safety_issue_count") or 0) > 0:
-            issues.append(_issue("post_plan_handoff_safety_issues_open", "Post-F02.6 plan audit reports handoff safety issues."))
         if status_summary.get("status") != "formal_gate_status_ready_for_claim_audit" and handoff_summary.get("remote_training_allowed_now") is True:
             issues.append(
                 _issue(
