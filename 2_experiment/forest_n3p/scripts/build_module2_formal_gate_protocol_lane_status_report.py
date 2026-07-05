@@ -194,6 +194,13 @@ def _audit_issues(current: dict[str, Any]) -> list[dict[str, Any]]:
         "formal_claim",
         "paper_result_material",
     }
+    forbidden_allowed_actions = {
+        "local_training",
+        "remote_success_training",
+        "remote_preflight_for_new_success_attempt",
+        "formal_claim",
+        "paper_result_material",
+    }
     if current["decision_packet_status"] != "formal_gate_protocol_lane_decision_packet_ready_for_dr_sun":
         issues.append(_issue("decision_packet_not_ready", "Decision packet must be ready for Dr Sun.", observed=current["decision_packet_status"]))
     if current["decision_record_status"] not in {"pending_protocol_lane_decision", "protocol_lane_decision_recorded"}:
@@ -215,6 +222,22 @@ def _audit_issues(current: dict[str, Any]) -> list[dict[str, Any]]:
             issues.append(_issue("contract_drafting_allowed_while_lane_pending", "Contract drafting must be blocked while lane decision is pending."))
         if current["allowed_next_action_ids"] != ["record_protocol_lane_decision"]:
             issues.append(_issue("pending_allowed_actions_drift", "Pending lane state should only allow record_protocol_lane_decision.", observed=current["allowed_next_action_ids"]))
+    elif current["allowed_next_action_ids"] != ["draft_new_or_revised_contract_after_lane_decision"]:
+        issues.append(
+            _issue(
+                "recorded_allowed_actions_not_contract_draft_only",
+                "Recorded lane state may only allow contract drafting before any new success attempt.",
+                observed=current["allowed_next_action_ids"],
+            )
+        )
+    if forbidden_allowed_actions.intersection(current["allowed_next_action_ids"]):
+        issues.append(
+            _issue(
+                "allowed_actions_include_blocked_execution_or_claim",
+                "Allowed actions must not include training, preflight, claim, or paper-result actions.",
+                observed=current["allowed_next_action_ids"],
+            )
+        )
     if not expected.issubset(set(current["blocked_action_ids"])):
         issues.append(_issue("blocked_actions_missing_safety_actions", "Training, preflight, claim, and paper actions must stay blocked.", observed=current["blocked_action_ids"]))
     for key in ("local_training_allowed_now", "remote_training_allowed_now", "formal_claim_allowed_now", "paper_result_material_allowed_now", "new_success_training_allowed_now"):
