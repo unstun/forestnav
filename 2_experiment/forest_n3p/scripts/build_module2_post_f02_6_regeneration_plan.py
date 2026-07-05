@@ -596,6 +596,17 @@ def _markdown(manifest: dict[str, Any]) -> str:
     ]
     for key, value in manifest["current_gate_summary"].items():
         lines.append(f"- {key}: `{value}`")
+    request = manifest["f02_6_human_decision_request_summary"]
+    lines.extend(["", "## F02.6 Human Decision Request", ""])
+    lines.append(f"- present: `{request['present']}`")
+    lines.append(f"- status: `{request['status']}`")
+    lines.append(f"- decision_owner_required: `{request['decision_owner_required']}`")
+    lines.append(f"- current_allowed_action_ids: `{', '.join(request['current_allowed_action_ids'])}`")
+    lines.append(f"- current_blocked_action_ids: `{', '.join(request['current_blocked_action_ids'])}`")
+    lines.append(
+        f"- post_decision_routes_are_current_authorization: `{request['post_decision_routes_are_current_authorization']}`"
+    )
+    lines.append(f"- all_execution_disabled_now: `{request['all_execution_disabled_now']}`")
     gap = manifest["remaining_deliverables_gap_summary"]
     lines.extend(
         [
