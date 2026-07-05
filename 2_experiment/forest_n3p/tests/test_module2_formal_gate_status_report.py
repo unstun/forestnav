@@ -67,6 +67,15 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     ]
     assert manifest["current_state"]["decision_intake_next_request_post_decision_routes_are_current_authorization"] is False
     assert manifest["current_state"]["decision_intake_next_request_all_execution_disabled_now"] is True
+    assert manifest["current_state"]["decision_intake_decision_impact_present"] is True
+    assert manifest["current_state"]["decision_intake_decision_impact_current_blocker"] == "decision"
+    assert manifest["current_state"]["decision_intake_decision_impact_missing_deliverable_count"] == 10
+    assert manifest["current_state"]["decision_intake_decision_record_is_not_training_authorization"] is True
+    assert manifest["current_state"]["decision_intake_decision_record_is_not_paper_result_material"] is True
+    assert manifest["current_state"]["decision_intake_decision_impact_remote_preflight_allowed_now"] is False
+    assert manifest["current_state"]["decision_intake_decision_impact_remote_training_allowed_now"] is False
+    assert manifest["current_state"]["decision_intake_decision_impact_formal_claim_allowed_now"] is False
+    assert manifest["current_state"]["decision_intake_decision_impact_paper_result_material_allowed_now"] is False
     assert manifest["current_state"]["missing_artifacts_handoff_index_status"] == "blocked_until_f02_6_decision"
     assert manifest["current_state"]["missing_artifacts_handoff_next_action"] == "record_f02_6_decision"
     assert manifest["current_state"]["missing_artifacts_handoff_open_requirement_count"] == 5
@@ -185,6 +194,36 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert intake["approved_route_next_lane"] == "source_fresh_regeneration"
     assert intake["approved_route_allows_remote_training_now"] is False
     assert intake["rejected_route_requires_new_protocol_contract"] is True
+    assert intake["decision_impact_present"] is True
+    assert intake["decision_impact_summary_id"] == "module2_f02_6_formal_gate_decision_impact"
+    assert intake["decision_impact_not_paper_result_material"] is True
+    assert intake["decision_impact_current_blocker"] == "decision"
+    assert intake["decision_impact_current_record_status"] == "pending_human_decision"
+    assert intake["decision_impact_missing_deliverable_count"] == 10
+    assert intake["decision_impact_current_allowed_action_ids"] == ["record_f02_6_decision"]
+    assert set(intake["decision_impact_current_blocked_action_ids"]) == {
+        "remote_preflight",
+        "remote_training",
+        "local_training",
+        "formal_claim",
+        "paper_result_material",
+    }
+    assert set(intake["decision_impact_route_decisions"]) == {
+        "approve_obstacle_summary_warm_start",
+        "reject_obstacle_summary_warm_start",
+    }
+    assert intake["decision_impact_approved_route_next_lane"] == "source_fresh_regeneration"
+    assert intake["decision_impact_approved_route_allows_remote_training_now"] is False
+    assert intake["decision_impact_rejected_route_next_lane"] == "protocol_redesign"
+    assert intake["decision_impact_rejected_route_requires_new_protocol_contract"] is True
+    assert intake["decision_record_is_not_training_authorization"] is True
+    assert intake["decision_record_is_not_paper_result_material"] is True
+    assert intake["decision_impact_local_training_allowed_now"] is False
+    assert intake["decision_impact_remote_preflight_allowed_now"] is False
+    assert intake["decision_impact_remote_training_allowed_now"] is False
+    assert intake["decision_impact_formal_claim_allowed_now"] is False
+    assert intake["decision_impact_paper_result_material_allowed_now"] is False
+    assert "approved_remote_preflight" in intake["decision_impact_formal_training_still_requires"]
     h02_requirements = manifest["h02_formal_acceptance_requirement_summary"]
     assert h02_requirements["present"] is True
     assert h02_requirements["required_requirement_count"] == 4
@@ -472,6 +511,9 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     assert manifest["current_state"]["decision_intake_record_command_template_count"] == 2
     assert manifest["current_state"]["decision_intake_post_decision_route_count"] == 2
     assert manifest["f02_6_decision_intake_summary"]["decision_note_required"] is True
+    assert manifest["f02_6_decision_intake_summary"]["decision_impact_present"] is True
+    assert manifest["f02_6_decision_intake_summary"]["decision_record_is_not_training_authorization"] is True
+    assert manifest["f02_6_decision_intake_summary"]["decision_impact_remote_training_allowed_now"] is False
     assert manifest["remote_preflight_requirement_summary"]["status_counts"] == {"satisfied": 4}
     assert manifest["post_run_acceptance_requirement_summary"]["status_counts"] == {"satisfied": 4}
     assert manifest["h02_formal_acceptance_requirement_summary"]["status_counts"] == {"satisfied": 4}
