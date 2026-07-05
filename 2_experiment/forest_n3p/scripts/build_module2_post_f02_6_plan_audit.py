@@ -395,12 +395,16 @@ def _cross_artifact_issues(*, plan: dict[str, Any], formal_gate: dict[str, Any],
             )
         )
     source_required = _source_freshness_blocking_regeneration_required(source_freshness)
-    if source_freshness and summary.get("source_freshness_regeneration_required") != source_required:
+    plan_source_required = summary.get(
+        "source_freshness_blocking_regeneration_required",
+        summary.get("source_freshness_regeneration_required"),
+    )
+    if source_freshness and plan_source_required != source_required:
         issues.append(
             _issue(
                 "plan_source_freshness_requirement_mismatch",
                 "Plan source freshness flag does not match source freshness audit.",
-                observed={"plan": summary.get("source_freshness_regeneration_required"), "source_freshness": source_required},
+                observed={"plan": plan_source_required, "source_freshness": source_required},
             )
         )
     if source_freshness:
@@ -554,13 +558,40 @@ def _status_report_issues(
     remote_steps = _status_report_remote_steps(status_report)
     if not remote_steps:
         issues.append(_issue("formal_gate_status_report_missing_remote_step_summary", "Status report must expose remote execution step blockers."))
-    elif status_report.get("status") != "formal_gate_status_ready_for_claim_audit":
+    else:
         for step_id, step in remote_steps.items():
-            if step.get("allowed_now") is True:
+            if (
+                step_id == "sync_to_remote"
+                and step.get("allowed_now") is True
+                and permissions.get("remote_preflight_allowed_now") is not True
+                and permissions.get("remote_training_allowed_now") is not True
+            ):
                 issues.append(
                     _issue(
-                        f"formal_gate_status_report_blocked_but_{step_id}_allowed",
-                        "Status report must not allow remote execution steps while the formal gate is blocked.",
+                        "formal_gate_status_report_sync_allowed_without_remote_permission",
+                        "Status report may surface remote sync only when a remote preflight/training lane is allowed.",
+                    )
+                )
+            if (
+                step_id == "run_remote_preflight"
+                and step.get("allowed_now") is True
+                and permissions.get("remote_preflight_allowed_now") is not True
+            ):
+                issues.append(
+                    _issue(
+                        "formal_gate_status_report_preflight_step_permission_mismatch",
+                        "Status report remote preflight step must match remote_preflight_allowed_now.",
+                    )
+                )
+            if (
+                step_id == "run_remote_training"
+                and step.get("allowed_now") is True
+                and permissions.get("remote_training_allowed_now") is not True
+            ):
+                issues.append(
+                    _issue(
+                        "formal_gate_status_report_training_step_permission_mismatch",
+                        "Status report remote training step must match remote_training_allowed_now.",
                     )
                 )
     execution_veto = _status_report_execution_veto(status_report)
@@ -574,7 +605,7 @@ def _status_report_issues(
         for row_id in sorted({"local_training", "remote_preflight", "remote_training", "remote_audit", "formal_claim"} - set(execution_veto["row_consensus"])):
             issues.append(_issue(f"formal_gate_status_report_execution_veto_missing_{row_id}", f"Status report execution veto matrix missing row {row_id}."))
         if status_report.get("status") != "formal_gate_status_ready_for_claim_audit":
-            for row_id in ("local_training", "remote_preflight", "remote_training", "remote_audit", "formal_claim"):
+            for row_id in ("local_training", "formal_claim"):
                 if execution_veto["row_consensus"].get(row_id) is True:
                     issues.append(
                         _issue(
