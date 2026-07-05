@@ -18,6 +18,22 @@
 - `missing_formal_acceptance_artifacts`
 - `failed_formal_h01_h02_acceptance_artifacts`
 
+## Current Gate State
+
+- remaining_deliverables_status: `formal_gate_deliverables_blocked`
+- remaining_missing_deliverable_count: `10`
+- remaining_open_category_count: `4`
+- source_freshness_ready_for_remote_preflight: `False`
+- source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
+- source_freshness_regeneration_required: `True`
+
+## Missing Evidence Summary
+
+- `training`: missing=`train_final_model_zip, train_summary_json, train_training_manifest_json`, failed=`none`
+- `evaluation`: missing=`eval_gate3_eval_episodes_csv, eval_gate3_summary_json`, failed=`none`
+- `acceptance`: missing=`gate3_trial_manifest_json, gate3_formal_audit_json, pulled_back_checkpoint_hash_record`, failed=`none`
+- `formal_acceptance`: missing=`none`, failed=`h01_ready_for_formal_run, h02_formal_output_acceptance`
+
 ## Proof Command Results
 
 ### train_final_model_zip_exists_nonempty
