@@ -636,6 +636,7 @@ def _global_blockers(
     _extend_unique(blockers, _claim_safety_next_action_guard_blockers(claim_safety))
     _extend_unique(blockers, _claim_safety_handoff_single_next_action_index_blockers(claim_safety))
     _extend_unique(blockers, _claim_safety_next_required_formal_deliverables_blockers(claim_safety))
+    _extend_unique(blockers, _claim_safety_mainline_formal_gate_state_audit_blockers(claim_safety))
     _extend_unique(blockers, h01_manifest.get("blockers", []))
     if str(decision_record.get("status")) == "pending_human_decision":
         _append_unique(blockers, "f02_6_pending")
