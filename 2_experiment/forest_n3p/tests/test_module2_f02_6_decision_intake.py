@@ -55,6 +55,23 @@ def test_f02_6_decision_intake_pending_clean_lists_required_human_fields(tmp_pat
     }
     assert state["status_report_remote_training_allowed_now"] is False
     assert state["remaining_remote_training_allowed_now"] is False
+    matrix = manifest["decision_evidence_matrix_summary"]
+    assert matrix["present"] is True
+    assert matrix["matrix_id"] == "module2_f02_6_decision_evidence_matrix"
+    assert matrix["status"] == "ready_for_dr_sun_decision_not_authorization"
+    assert matrix["route_count"] == 2
+    assert matrix["route_decisions"] == [
+        "approve_obstacle_summary_warm_start",
+        "reject_obstacle_summary_warm_start",
+    ]
+    assert matrix["required_evidence_count"] == 7
+    assert matrix["satisfied_required_evidence_count"] == 7
+    assert matrix["missing_required_evidence_count"] == 0
+    assert matrix["global_invalid_substitute_count"] == 2
+    assert matrix["current_authorization_allowed_now"] is False
+    assert matrix["remote_preflight_allowed_now"] is False
+    assert matrix["remote_training_allowed_now"] is False
+    assert matrix["formal_claim_allowed_now"] is False
     assert manifest["decision_intake_contract"]["decision_owner_required"] == "Dr Sun"
     assert "decision_note" in manifest["decision_intake_contract"]["required_record_fields_for_non_pending_decision"]
     assert manifest["decision_intake_contract"]["decision_note_guidance"] == [
