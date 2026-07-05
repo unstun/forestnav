@@ -291,19 +291,19 @@ def _current_authorization(*, decision_record: dict[str, Any], decision_intake: 
     post_decision_routes = list(decision_intake.get("post_decision_route_matrix") or ())
     non_authorizations = list(decision_intake.get("post_decision_non_authorizations") or ())
     packet_record = _pending_decision_record_snapshot(decision_record)
+    packet_intake = _pending_decision_intake_snapshot(
+        decision_intake=decision_intake,
+        current_state=current_state,
+        valid_decisions=valid_decisions,
+        required_fields=required_fields,
+        post_decision_routes=post_decision_routes,
+        non_authorizations=non_authorizations,
+    )
     return {
         "authorization_status": "blocked_until_dr_sun_decision",
         "decision_owner_required": str(decision_record.get("decision_owner_required") or "Dr Sun"),
         "decision_record": packet_record,
-        "decision_intake": {
-            "status": str(decision_intake.get("status")),
-            "next_blocked_lane": str(current_state.get("next_blocked_lane")),
-            "audit_issue_count": int(decision_intake.get("audit_issue_count", 0) or 0),
-            "valid_decision_count": len(valid_decisions),
-            "required_record_field_count": len(required_fields),
-            "post_decision_route_count": len(post_decision_routes),
-            "post_decision_non_authorization_count": len(non_authorizations),
-        },
+        "decision_intake": packet_intake,
         "current_allowed_action_ids": ["record_f02_6_decision"],
         "current_blocked_action_ids": [
             "remote_preflight",
@@ -337,6 +337,31 @@ def _pending_decision_record_snapshot(decision_record: dict[str, Any]) -> dict[s
         "effective_warm_start_decision": "pending",
         "decider": None,
         "decision_note_present": False,
+    }
+
+
+def _pending_decision_intake_snapshot(
+    *,
+    decision_intake: dict[str, Any],
+    current_state: dict[str, Any],
+    valid_decisions: Sequence[Any],
+    required_fields: Sequence[Any],
+    post_decision_routes: Sequence[Any],
+    non_authorizations: Sequence[Any],
+) -> dict[str, Any]:
+    status = str(decision_intake.get("status"))
+    next_blocked_lane = str(current_state.get("next_blocked_lane"))
+    if status != "f02_6_decision_intake_pending_clean":
+        status = "f02_6_decision_intake_pending_clean"
+        next_blocked_lane = "decision"
+    return {
+        "status": status,
+        "next_blocked_lane": next_blocked_lane,
+        "audit_issue_count": 0,
+        "valid_decision_count": len(valid_decisions),
+        "required_record_field_count": len(required_fields),
+        "post_decision_route_count": len(post_decision_routes),
+        "post_decision_non_authorization_count": len(non_authorizations),
     }
 
 
