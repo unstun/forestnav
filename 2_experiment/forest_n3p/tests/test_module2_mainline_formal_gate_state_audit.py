@@ -220,7 +220,7 @@ def _write_inputs(tmp_path, *, omit_artifact_id=None, extra_current_text="", omi
                 "并列出 invalid substitutes; matrix 不是训练、远端预检、claim 或论文结果授权。"
             )
         )
-        f"{extra_current_text}"
+        + f"{extra_current_text}"
     )
     paths["mainline"].write_text("# mainline\n\n" + current_line + "\n", encoding="utf-8")
     paths["status"].write_text(
