@@ -18,7 +18,13 @@ def test_remaining_deliverables_blocks_pending_formal_gate(tmp_path):
     assert manifest["formal_claim_allowed"] is False
     assert manifest["permissions_now"]["local_training_allowed_now"] is False
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+    assert manifest["permissions_now"]["source_freshness_ready_for_remote_preflight"] is False
+    assert manifest["inputs"]["source_freshness_audit"].endswith("source_freshness.json")
     assert manifest["current_gate_summary"]["next_blocked_lane"] == "decision"
+    assert manifest["current_gate_summary"]["source_freshness_status"] == "source_freshness_risks_recorded_gate_still_blocked"
+    assert manifest["current_gate_summary"]["source_freshness_regeneration_required"] is True
+    assert manifest["current_gate_summary"]["source_freshness_non_self_changed_records"] == 19
+    assert manifest["current_gate_summary"]["source_freshness_self_artifact_only_lag_records"] == 0
     assert manifest["current_gate_summary"]["h02_status"] == "blocked_formal_output_acceptance"
     assert manifest["missing_deliverable_count"] == 10
     assert manifest["open_category_count"] == 4
@@ -141,6 +147,7 @@ def test_remaining_deliverables_accepts_synthetic_complete_gate(tmp_path):
         row["proof_command_count"] for row in manifest["deliverable_acceptance_matrix"]
     )
     assert manifest["permissions_now"]["remote_training_allowed_now"] is True
+    assert manifest["permissions_now"]["source_freshness_ready_for_remote_preflight"] is True
     assert manifest["permissions_now"]["formal_claim_allowed_now"] is True
 
 
@@ -198,6 +205,8 @@ def test_remaining_deliverables_cli_writes_json_and_markdown(tmp_path):
             str(config.h01_manifest_path),
             "--h02-acceptance",
             str(config.h02_acceptance_path),
+            "--source-freshness",
+            str(config.source_freshness_path),
         ]
     )
 
@@ -213,6 +222,7 @@ def test_remaining_deliverables_cli_writes_json_and_markdown(tmp_path):
     assert "Deliverable Acceptance Matrix" in markdown
     assert "Human-Readable Gate Closure Checklist" in markdown
     assert "Formal Gate Gap Summary" in markdown
+    assert "source_freshness_status" in markdown
     assert "Proof Command Plan" in markdown
     assert "total_missing_deliverables" in markdown
     assert "total_proof_command_count" in markdown
@@ -237,6 +247,7 @@ def _config(tmp_path, *, complete):
         remote_packet_path=_write_json(tmp_path / "remote_packet.json", _remote_packet(complete=complete)),
         h01_manifest_path=_write_json(tmp_path / "h01.json", _h01(complete=complete)),
         h02_acceptance_path=_write_json(tmp_path / "h02.json", _h02(complete=complete)),
+        source_freshness_path=_write_json(tmp_path / "source_freshness.json", _source_freshness(complete=complete)),
     )
 
 
@@ -368,6 +379,22 @@ def _h02(*, complete):
         "paper_result_input_allowed": complete,
         "local_training_allowed": False,
         "formal_claim_allowed": False,
+    }
+
+
+def _source_freshness(*, complete):
+    return {
+        "status": "source_freshness_clean_current" if complete else "source_freshness_risks_recorded_gate_still_blocked",
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+        "regeneration_required_before_remote_formal_execution": not complete,
+        "commit_lag_summary": {
+            "records_with_non_self_changed_paths_since_source": 0 if complete else 19,
+            "records_with_self_artifact_only_lag": 0,
+        },
     }
 
 
