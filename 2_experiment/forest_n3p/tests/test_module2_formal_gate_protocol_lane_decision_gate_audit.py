@@ -138,6 +138,12 @@ def test_protocol_lane_decision_gate_audit_cli_writes_json_and_markdown(tmp_path
     assert "not paper result material" in markdown
     assert "record_protocol_lane_decision" in markdown
     assert "pending_protocol_lane_decision" in markdown
+    assert "Decision Note Audit" in markdown
+    assert "gate_review_status: `not_required_while_pending`" in markdown
+    assert "Post-Decision Gate Requirements" in markdown
+    assert "approved_or_frozen_contract" in markdown
+    assert "Claim Boundaries" in markdown
+    assert "A clean pending audit is not training authorization." in markdown
 
 
 def _json(tmp_path: Path, name: str, payload: dict):
