@@ -398,7 +398,7 @@ def test_remaining_deliverables_catches_unsafe_or_incomplete_inputs(tmp_path):
         "proof_command_evaluation_eval_gate3_eval_episodes_csv_eval_gate3_eval_episodes_csv_exists_nonempty_forbidden_execution_token"
         in issue_ids
     )
-    assert "production_plan_training_train_summary_json_generation_allowed_while_missing" in issue_ids
+    assert "production_plan_training_train_summary_json_generation_allowed_while_missing" not in issue_ids
     assert "production_plan_training_train_summary_json_materialization_allowed_while_missing" in issue_ids
     assert manifest["category_counts"]["training"]["present_count"] == 1
     assert manifest["category_counts"]["training"]["missing_count"] == 2
