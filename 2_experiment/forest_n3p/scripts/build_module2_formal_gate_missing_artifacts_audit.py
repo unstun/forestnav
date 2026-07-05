@@ -856,10 +856,17 @@ def _current_gate_summary(
     remote_packet_audit: dict[str, Any],
     h01_manifest: dict[str, Any],
     h02_acceptance: dict[str, Any],
+    protocol_lane_status: dict[str, Any],
 ) -> dict[str, Any]:
     post_summary = post_plan.get("blocking_summary") if isinstance(post_plan.get("blocking_summary"), dict) else {}
+    protocol_summary = _protocol_lane_status_summary(protocol_lane_status)
+    protocol_lane_pending = _protocol_lane_pending(protocol_summary)
+    ready_to_run_remote_training = remote_packet.get("ready_to_run_remote_training")
+    if protocol_lane_pending:
+        ready_to_run_remote_training = False
     return {
         "f02_6_decision_record_status": decision.get("status"),
+        **protocol_summary,
         "f02_6_decision_gate_status": decision_gate.get("status"),
         "f02_6_transition_gate_status": transition_gate.get("status"),
         "f02_6_transition_gate_audit_issue_count": transition_gate.get("audit_issue_count"),
@@ -870,13 +877,38 @@ def _current_gate_summary(
         "source_freshness_regeneration_required": source_freshness.get("regeneration_required_before_remote_formal_execution"),
         "source_freshness_blocking_regeneration_required": _source_freshness_blocking_regeneration_required(source_freshness),
         "remote_packet_status": remote_packet.get("status"),
-        "ready_to_run_remote_training": remote_packet.get("ready_to_run_remote_training"),
+        "ready_to_run_remote_training": ready_to_run_remote_training,
         "remote_packet_safety_audit_status": remote_packet_audit.get("status"),
         "h01_manifest_status": h01_manifest.get("status"),
         "h01_blockers": _strings(h01_manifest.get("blockers")),
         "h02_acceptance_status": h02_acceptance.get("status"),
         "h02_blockers": _strings(h02_acceptance.get("blockers")),
     }
+
+
+def _protocol_lane_status_summary(protocol_lane_status: dict[str, Any]) -> dict[str, Any]:
+    current_status = (
+        protocol_lane_status.get("current_status")
+        if isinstance(protocol_lane_status.get("current_status"), dict)
+        else {}
+    )
+    return {
+        "protocol_lane_status": protocol_lane_status.get("status"),
+        "protocol_lane_next_blocked_lane": current_status.get("next_blocked_lane"),
+        "protocol_lane_decision_record_status": current_status.get("decision_record_status"),
+        "protocol_lane_selected_lane_id": current_status.get("selected_lane_id"),
+        "protocol_lane_allowed_next_action_ids": _strings(current_status.get("allowed_next_action_ids")),
+        "protocol_lane_blocked_action_ids": _strings(current_status.get("blocked_action_ids")),
+        "protocol_lane_new_success_training_allowed_now": current_status.get("new_success_training_allowed_now"),
+    }
+
+
+def _protocol_lane_pending(summary: dict[str, Any]) -> bool:
+    return (
+        summary.get("protocol_lane_status") == "protocol_lane_status_blocked_pending_lane_decision"
+        or summary.get("protocol_lane_next_blocked_lane") == "protocol_lane_decision"
+        or summary.get("protocol_lane_decision_record_status") == "pending_protocol_lane_decision"
+    )
 
 
 def _source_freshness_blocking_regeneration_required(source_freshness: dict[str, Any]) -> bool:
