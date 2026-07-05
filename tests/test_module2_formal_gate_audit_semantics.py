@@ -1,13 +1,16 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from forest_n3p.scripts.build_module2_formal_gate_status_report import (
     _formal_gate_execution_veto_issues,
 )
 from forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit import (
+    FormalGateProofSummaryChainAuditConfig,
     _handoff_single_next_action_issues,
     _next_action_guard_issues,
+    _next_action_guard_rows,
 )
 from forest_n3p.scripts.build_module2_post_f02_6_plan_audit import (
     _cross_artifact_issues,
@@ -179,6 +182,53 @@ def test_post_approval_next_action_guard_is_not_a_pending_execution_leak() -> No
         }
     ]
 
+    assert _next_action_guard_issues(rows=rows) == []
+
+
+def test_next_action_guard_rows_preserve_pending_decision_state(tmp_path: Path) -> None:
+    summary = {
+        "present": True,
+        "status": "next_action_guard_not_applicable",
+        "pending_f02_6_decision": False,
+        "next_blocked_lane_id": "remote_packet_preflight",
+        "expected_next_action_id": None,
+        "handoff_next_action_id": "manual_handoff_stage_review",
+        "handoff_next_action_requires_dr_sun": False,
+        "missing_artifacts_next_action_id": "resolve_training_remote_ppo_checkpoint",
+        "decision_intake_next_blocked_lane": "remote_packet_preflight",
+        "all_execution_disabled_now": False,
+        "execution_leak_count": 2,
+        "remote_execution_allowed_count": 2,
+        "remote_stage_allowed_count": 0,
+        "violation_count": 0,
+        "execution_leak_surface_ids": [],
+    }
+    status_report = tmp_path / "status.json"
+    claim_safety = tmp_path / "claim.json"
+    paper_readiness = tmp_path / "paper.json"
+    status_report.write_text(
+        json.dumps({"next_action_guard_summary": summary}) + "\n",
+        encoding="utf-8",
+    )
+    claim_safety.write_text(
+        json.dumps({"status_report_next_action_guard_summary": summary}) + "\n",
+        encoding="utf-8",
+    )
+    paper_readiness.write_text(
+        json.dumps({"claim_safety_next_action_guard_summary": summary}) + "\n",
+        encoding="utf-8",
+    )
+
+    rows = _next_action_guard_rows(
+        FormalGateProofSummaryChainAuditConfig(
+            output_dir=tmp_path,
+            formal_gate_status_report_path=status_report,
+            claim_safety_path=claim_safety,
+            paper_readiness_path=paper_readiness,
+        )
+    )
+
+    assert {row["pending_f02_6_decision"] for row in rows} == {False}
     assert _next_action_guard_issues(rows=rows) == []
 
 
