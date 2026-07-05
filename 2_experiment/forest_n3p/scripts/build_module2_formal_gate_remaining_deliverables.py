@@ -1467,6 +1467,32 @@ def _read_only_payload_issues(name: str, payload: dict[str, Any]) -> list[dict[s
     return issues
 
 
+def _protocol_lane_status_summary(protocol_lane_status: dict[str, Any]) -> dict[str, Any]:
+    current_status = (
+        protocol_lane_status.get("current_status")
+        if isinstance(protocol_lane_status.get("current_status"), dict)
+        else {}
+    )
+    return {
+        "protocol_lane_status": protocol_lane_status.get("status"),
+        "protocol_lane_next_blocked_lane": current_status.get("next_blocked_lane"),
+        "protocol_lane_decision_record_status": current_status.get("decision_record_status"),
+        "protocol_lane_selected_lane_id": current_status.get("selected_lane_id"),
+        "protocol_lane_allowed_next_action_ids": _strings(current_status.get("allowed_next_action_ids")),
+        "protocol_lane_blocked_action_ids": _strings(current_status.get("blocked_action_ids")),
+        "protocol_lane_new_success_training_allowed_now": current_status.get("new_success_training_allowed_now"),
+    }
+
+
+def _protocol_lane_pending(protocol_lane_status: dict[str, Any]) -> bool:
+    summary = _protocol_lane_status_summary(protocol_lane_status)
+    return (
+        summary.get("protocol_lane_status") == "protocol_lane_status_blocked_pending_lane_decision"
+        or summary.get("protocol_lane_next_blocked_lane") == "protocol_lane_decision"
+        or summary.get("protocol_lane_decision_record_status") == "pending_protocol_lane_decision"
+    )
+
+
 def _source_freshness_summary(source_freshness: dict[str, Any]) -> dict[str, Any]:
     commit_lag_summary = (
         source_freshness.get("commit_lag_summary")
