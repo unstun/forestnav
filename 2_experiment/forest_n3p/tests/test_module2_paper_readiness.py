@@ -652,6 +652,12 @@ def test_paper_readiness_rejects_claim_safety_decision_intake_impact_drift(tmp_p
     intake["decision_impact_present"] = False
     intake["decision_record_is_not_training_authorization"] = False
     intake["decision_record_is_not_paper_result_material"] = False
+    intake["record_authorization_status"] = "remote_execution_authorized"
+    intake["record_authorization_current_blocked_action_ids"] = ["remote_training"]
+    intake["record_authorization_remote_training_allowed_now"] = True
+    intake["record_authorization_formal_claim_allowed_now"] = True
+    intake["record_post_decision_non_authorization_count"] = 0
+    intake["record_post_decision_formal_training_still_requires"] = []
     intake["decision_impact_remote_training_allowed_now"] = True
     intake["decision_impact_formal_claim_allowed_now"] = True
     intake["decision_impact_paper_result_material_allowed_now"] = True
@@ -678,6 +684,11 @@ def test_paper_readiness_rejects_claim_safety_decision_intake_impact_drift(tmp_p
     assert "claim_safety_f02_6_decision_intake_impact_missing" in manifest["global_blockers"]
     assert "claim_safety_f02_6_decision_record_may_authorize_training" in manifest["global_blockers"]
     assert "claim_safety_f02_6_decision_record_may_be_paper_result_material" in manifest["global_blockers"]
+    assert "claim_safety_f02_6_record_authorization_status_invalid" in manifest["global_blockers"]
+    assert "claim_safety_f02_6_record_authorization_missing_blocked_actions" in manifest["global_blockers"]
+    assert "claim_safety_f02_6_record_authorization_allows_remote_training" in manifest["global_blockers"]
+    assert "claim_safety_f02_6_record_authorization_allows_formal_claim" in manifest["global_blockers"]
+    assert "claim_safety_f02_6_record_non_authorizations_incomplete" in manifest["global_blockers"]
     assert "claim_safety_f02_6_decision_impact_allows_remote_training" in manifest["global_blockers"]
     assert "claim_safety_f02_6_decision_impact_allows_formal_claim" in manifest["global_blockers"]
     assert "claim_safety_f02_6_decision_impact_allows_paper_result_material" in manifest["global_blockers"]
