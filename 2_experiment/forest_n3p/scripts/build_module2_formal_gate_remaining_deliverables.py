@@ -298,6 +298,14 @@ def _deliverable_groups(
         requirement = requirement_by_phase.get(FORMAL_REQUIREMENT_PHASE_BY_CATEGORY[category], {})
         invalid_substitutes = _strings(requirement.get("invalid_substitutes"))
         acceptable_evidence = _strings(requirement.get("acceptable_evidence"))
+        responsible_stage_allowed_now = (
+            requirement.get("responsible_stage_allowed_now")
+            if isinstance(requirement.get("responsible_stage_allowed_now"), bool)
+            else None
+        )
+        responsible_stage_blocked_by = _strings(requirement.get("responsible_stage_blocked_by"))
+        if not responsible_stage_blocked_by and responsible_stage_allowed_now is False:
+            responsible_stage_blocked_by = list(CURRENT_BLOCKER_REQUIREMENTS_BY_CATEGORY.get(category, ()))
         groups.append(
             {
                 "category": category,
@@ -307,10 +315,8 @@ def _deliverable_groups(
                 "present_count": sum(1 for item in items if item["exists"] and not item["missing"]),
                 "responsible_stage_id": requirement.get("responsible_stage_id"),
                 "responsible_stage_status": requirement.get("responsible_stage_status"),
-                "responsible_stage_allowed_now": requirement.get("responsible_stage_allowed_now")
-                if isinstance(requirement.get("responsible_stage_allowed_now"), bool)
-                else None,
-                "responsible_stage_blocked_by": _strings(requirement.get("responsible_stage_blocked_by")),
+                "responsible_stage_allowed_now": responsible_stage_allowed_now,
+                "responsible_stage_blocked_by": responsible_stage_blocked_by,
                 "acceptable_evidence": acceptable_evidence,
                 "invalid_substitutes": invalid_substitutes,
                 "items": items,
