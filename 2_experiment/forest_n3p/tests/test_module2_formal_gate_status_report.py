@@ -250,6 +250,24 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     ]
     assert "train_final_model_zip_schema" in remaining_gap["categories"]["training"]["proof_command_ids"]
     assert remaining_gap["categories"]["formal_acceptance"]["missing_count"] == 2
+    next_deliverables = manifest["next_required_formal_deliverables"]
+    assert next_deliverables["status"] == "blocked_missing_formal_deliverables"
+    assert next_deliverables["execution_boundary"] == "read_only_no_execution"
+    assert next_deliverables["not_paper_result_material"] is True
+    assert next_deliverables["runs_training"] is False
+    assert next_deliverables["runs_remote_preflight"] is False
+    assert next_deliverables["total_missing_deliverables"] == 10
+    assert next_deliverables["blocked_category_count"] == 4
+    assert next_deliverables["blocked_categories"] == [
+        "training",
+        "evaluation",
+        "acceptance",
+        "formal_acceptance",
+    ]
+    assert next_deliverables["rows"][0]["matrix_id"] == "training:train_final_model_zip"
+    assert next_deliverables["rows"][0]["responsible_stage_id"] == "gate3_remote_training"
+    assert next_deliverables["rows"][0]["responsible_stage_allowed_now"] is False
+    assert "train_final_model_zip_schema" in next_deliverables["rows"][0]["proof_command_ids"]
     proof_plan = manifest["remaining_deliverables_proof_command_plan"]
     assert proof_plan["present"] is True
     assert proof_plan["plan_id"] == "module2_formal_gate_local_read_only_proof_commands"
