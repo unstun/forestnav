@@ -2169,6 +2169,20 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"all_execution_disabled_now=`{next_action['all_execution_disabled_now']}`, "
         f"execution_leak_count=`{next_action['execution_leak_count']}`"
     )
+    lines.extend(["", "## Handoff Single Next-Action Index", ""])
+    handoff_single = manifest["handoff_single_next_action_index_summary"]
+    lines.append(
+        f"- present=`{handoff_single['present']}`, status=`{handoff_single['status']}`, "
+        f"next_action_id=`{handoff_single['next_action_id']}`, "
+        f"decision_owner_required=`{handoff_single['decision_owner_required']}`, "
+        f"single_current_human_entry=`{handoff_single['single_current_human_entry']}`, "
+        f"all_execution_disabled_now=`{handoff_single['all_execution_disabled_now']}`, "
+        f"missing_deliverable_count=`{handoff_single['missing_deliverable_count']}`, "
+        f"source_freshness_status=`{handoff_single['source_freshness_status']}`, "
+        f"remote_training_allowed_now=`{handoff_single['remote_training_allowed_now']}`, "
+        f"formal_claim_allowed_now=`{handoff_single['formal_claim_allowed_now']}`, "
+        f"paper_result_material_allowed_now=`{handoff_single['paper_result_material_allowed_now']}`"
+    )
     lines.extend(["", "## Status Report Next Required Formal Deliverables", ""])
     next_deliverables = manifest["status_report_next_required_formal_deliverables"]
     lines.append(
