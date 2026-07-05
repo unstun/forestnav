@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "artifact_name": "module2_formal_gate_contract_authoring_gate_audit",
+  "status": "contract_authoring_gate_blocked_pending_lane_decision",
+  "created_at_utc": "2026-07-05T20:42:58.875959+00:00",
+  "source_head": "a0f0a030aee83e58d8ea6e6323967070724e229a",
+  "not_paper_result_material": true,
+  "executes_commands": false,
+  "runs_training": false,
+  "runs_remote_preflight": false,
+  "runs_remote_audit": false,
+  "local_training_allowed": false,
+  "remote_training_allowed_now": false,
+  "formal_claim_allowed": false,
+  "paper_result_material_allowed": false,
+  "inputs": {
+    "protocol_lane_decision_gate_audit": "0_trials/module2_formal_gate_protocol_lane_decision_gate_audit/protocol_lane_decision_gate_audit.json",
+    "protocol_lane_decision_record": "0_trials/module2_formal_gate_protocol_lane_decision_record/protocol_lane_decision_record.json",
+    "contract_intake": "0_trials/module2_formal_gate_contract_intake/formal_gate_contract_intake.json",
+    "next_round_requirements": "0_trials/module2_formal_gate_next_round_requirements/formal_gate_next_round_requirements.json",
+    "existing_contract": ".pipeline/contracts/module2-ppo-funnel-expansion.md"
+  },
+  "contract_gate": {
+    "decision_gate_status": "protocol_lane_decision_gate_pending_clean",
+    "decision_record_status": "pending_protocol_lane_decision",
+    "selected_lane_id": null,
+    "contract_action": "none",
+    "contract_intake_status": "formal_gate_contract_intake_ready_for_dr_sun",
+    "next_round_requirements_status": "formal_gate_next_round_requirements_ready",
+    "existing_contract_status": "approved",
+    "existing_contract_version": "v1",
+    "existing_contract_usable_for_new_success_attempt": false,
+    "contract_drafting_allowed_now": false,
+    "contract_approval_allowed_now": false,
+    "draft_contract_allows_training": false,
+    "new_or_revised_contract_required_before_training": true,
+    "allowed_next_action_ids": [
+      "record_protocol_lane_decision"
+    ],
+    "blocked_action_ids": [
+      "local_training",
+      "remote_success_training",
+      "remote_preflight_for_new_success_attempt",
+      "formal_claim",
+      "paper_result_material"
+    ]
+  },
+  "existing_contract_summary": {
+    "path": ".pipeline/contracts/module2-ppo-funnel-expansion.md",
+    "exists": true,
+    "status": "approved",
+    "version": "v1",
+    "approved_by": "Dr Sun",
+    "approved_date": "2026-07-02",
+    "origin": "ai+human",
+    "reviewed": false,
+    "usable_for_new_success_attempt": false,
+    "reason_not_sufficient": "v1 predates the failed warm-start Gate3 result and cannot encode the required protocol-lane decision"
+  },
+  "required_contract_sections": [
+    "hypothesis",
+    "success_signal",
+    "failure_signal",
+    "protocol_delta_from_failed_run",
+    "training_budget_and_seed_policy",
+    "evaluation_and_acceptance_plan",
+    "paper_claim_boundary"
+  ],
+  "audit_issue_count": 0,
+  "audit_issues": [],
+  "claim_boundaries": [
+    "This audit gates contract authoring after the protocol-lane decision; it does not draft or approve a contract.",
+    "The approved v1 contract is historical input only and cannot authorize a new success attempt after the failed warm-start Gate3 run.",
+    "A clean pending audit still blocks contract drafting, remote training, formal claims, and paper result material.",
+    "A recorded lane decision can only open contract drafting, not training; training still requires an approved/frozen new or revised contract plus later gates."
+  ]
+}
