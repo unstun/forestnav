@@ -54,8 +54,12 @@ def test_protocol_lane_decision_packet_requires_lane_choice_without_authorizing_
     schema = manifest["decision_record_schema"]
     assert schema["record_id"] == "module2_protocol_lane_decision"
     assert "selected_lane_id" in schema["required_fields"]
+    assert "rejected_lane_rationale" in schema["required_fields"]
+    assert "evidence_artifact_basis" in schema["required_fields"]
     assert schema["valid_selected_lane_ids"] == manifest["valid_lane_ids"]
     assert schema["training_authorization_must_be"] == "not_authorized_by_this_decision_packet"
+    assert "rejected_lanes" in schema["decision_note_must_cover"]
+    assert "evidence_artifact_basis" in schema["decision_note_must_cover"]
     assert "training_authorization that starts local or remote training directly" in schema["invalid_records"]
 
     assert manifest["current_allowed_actions"] == [
@@ -160,6 +164,10 @@ def test_protocol_lane_decision_packet_cli_writes_json_and_markdown(tmp_path):
     assert "required_evaluation_evidence" in markdown
     assert "required_acceptance_evidence" in markdown
     assert "invalid_substitutes" in markdown
+    assert "rejected_lane_rationale" in markdown
+    assert "evidence_artifact_basis" in markdown
+    assert "decision_note_must_cover" in markdown
+    assert "rejected_lanes" in markdown
     assert "training evidence" in markdown
     assert "acceptance evidence" in markdown
 
