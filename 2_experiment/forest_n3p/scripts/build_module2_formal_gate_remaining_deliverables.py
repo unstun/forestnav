@@ -293,6 +293,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--h02-acceptance", type=Path, default=DEFAULT_H02_ACCEPTANCE)
     parser.add_argument("--source-freshness", type=Path, default=DEFAULT_SOURCE_FRESHNESS)
     parser.add_argument("--post-f02-6-plan", type=Path, default=DEFAULT_POST_F02_6_PLAN)
+    parser.add_argument("--protocol-lane-status-report", type=Path, default=DEFAULT_PROTOCOL_LANE_STATUS_REPORT)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
