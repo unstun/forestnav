@@ -1194,6 +1194,7 @@ def _closure_checklist_payload(*, open_checklist, invalid=False):
 def _status_report_payload(*, ready, invalid=False):
     status = "ready" if ready else "blocked"
     training_blockers = [] if ready else ["f02_6_decision_not_approved", "source_fresh_preflight_targets_open", "remote_packet_not_ready"]
+    proof_summary = _status_report_remote_safety_proof_summary_payload(ready=ready)
     remote_training_blockers = (
         []
         if ready
@@ -1295,6 +1296,8 @@ def _status_report_payload(*, ready, invalid=False):
         "remaining_deliverables_proof_command_plan": _status_report_remaining_deliverables_proof_command_plan_payload(
             ready=ready
         ),
+        "remote_packet_safety_proof_deliverables_summary": proof_summary,
+        "remote_packet_safety_status_report_proof_deliverables_summary": json.loads(json.dumps(proof_summary)),
         "remote_packet_safety_claim_gate_command_index_summary": _status_report_command_index_summary(),
         "closure_remote_stage_summary": {
             "approved_remote_preflight": {
