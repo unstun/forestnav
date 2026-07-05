@@ -109,6 +109,9 @@ def build_manifest(config: PostF026RegenerationPlanConfig) -> dict[str, Any]:
         },
         "f02_6_human_decision_request_summary": _f02_6_human_decision_request_summary(status_report),
         "remaining_deliverables_gap_summary": _remaining_deliverables_gap_summary(remaining_deliverables),
+        "remaining_deliverables_unlock_chain_summary": _remaining_deliverables_unlock_chain_summary(
+            remaining_deliverables
+        ),
         "source_regeneration_targets_by_gate": _targets_by_gate(source_targets),
         "source_regeneration_command_index": _source_regeneration_command_index(source_targets),
         "ordered_stages": stages,
@@ -556,6 +559,67 @@ def _remaining_deliverables_gap_summary(remaining_deliverables: dict[str, Any]) 
         else list(categories),
         "categories": categories,
     }
+
+
+def _remaining_deliverables_unlock_chain_summary(remaining_deliverables: dict[str, Any]) -> dict[str, Any]:
+    raw = remaining_deliverables.get("deliverable_unlock_chain")
+    chain = raw if isinstance(raw, dict) else {}
+    rows = _unlock_chain_rows(chain.get("rows"))
+    return {
+        "present": bool(chain),
+        "chain_id": chain.get("chain_id"),
+        "status": chain.get("status"),
+        "execution_boundary": chain.get("execution_boundary"),
+        "not_paper_result_material": chain.get("not_paper_result_material"),
+        "row_count": int(chain.get("row_count") or len(rows)),
+        "blocked_row_count": int(chain.get("blocked_row_count") or 0),
+        "rows_with_missing_required_blockers": int(chain.get("rows_with_missing_required_blockers") or 0),
+        "rows_allowed_while_missing": int(chain.get("rows_allowed_while_missing") or 0),
+        "categories": _unlock_chain_categories(rows),
+    }
+
+
+def _unlock_chain_rows(raw_rows: Any) -> list[dict[str, Any]]:
+    if not isinstance(raw_rows, list):
+        return []
+    return [row for row in raw_rows if isinstance(row, dict)]
+
+
+def _unlock_chain_categories(rows: Sequence[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    out: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        category = str(row.get("category") or "unknown")
+        entry = out.setdefault(
+            category,
+            {
+                "row_count": 0,
+                "blocked_row_count": 0,
+                "rows_with_missing_required_blockers": 0,
+                "rows_allowed_while_missing": 0,
+                "required_current_blockers": [],
+                "unlock_sequence_before_stage_allowed": [],
+            },
+        )
+        entry["row_count"] += 1
+        if row.get("missing") is True:
+            entry["blocked_row_count"] += 1
+        if row.get("missing_required_current_blockers"):
+            entry["rows_with_missing_required_blockers"] += 1
+        if row.get("missing") is True and row.get("responsible_stage_allowed_now") is True:
+            entry["rows_allowed_while_missing"] += 1
+        entry["required_current_blockers"] = _unique(
+            [
+                *entry["required_current_blockers"],
+                *_strings(row.get("required_current_blockers")),
+            ]
+        )
+        entry["unlock_sequence_before_stage_allowed"] = _unique(
+            [
+                *entry["unlock_sequence_before_stage_allowed"],
+                *_strings(row.get("unlock_sequence_before_stage_allowed")),
+            ]
+        )
+    return out
 
 
 def _gap_categories(raw_categories: Any) -> dict[str, dict[str, Any]]:
