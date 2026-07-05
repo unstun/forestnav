@@ -95,6 +95,12 @@
 - claim_safety_decision_intake_remote_preflight_allowed_now: `False`
 - claim_safety_decision_intake_remote_training_allowed_now: `False`
 - claim_safety_decision_intake_formal_claim_allowed_now: `False`
+- claim_safety_decision_intake_impact_present: `True`
+- claim_safety_decision_record_is_not_training_authorization: `True`
+- claim_safety_decision_record_is_not_paper_result_material: `True`
+- claim_safety_decision_impact_remote_training_allowed_now: `False`
+- claim_safety_decision_impact_formal_claim_allowed_now: `False`
+- claim_safety_decision_impact_paper_result_material_allowed_now: `False`
 
 ## Claim Safety Remaining Deliverables Acceptance Matrix
 

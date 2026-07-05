@@ -1068,6 +1068,21 @@ def _write_inputs(tmp_path, *, formal):
                 "remote_preflight_allowed_now": formal,
                 "remote_training_allowed_now": formal,
                 "formal_claim_allowed_now": formal,
+                "decision_impact_present": True,
+                "decision_impact_not_paper_result_material": True,
+                "decision_record_is_not_training_authorization": True,
+                "decision_record_is_not_paper_result_material": True,
+                "decision_impact_remote_preflight_allowed_now": False,
+                "decision_impact_remote_training_allowed_now": False,
+                "decision_impact_formal_claim_allowed_now": False,
+                "decision_impact_paper_result_material_allowed_now": False,
+                "decision_impact_formal_training_still_requires": [
+                    "source_freshness_audit",
+                    "post_f02_6_regeneration_plan",
+                    "post_f02_6_plan_audit",
+                    "remote_formal_execution_packet_ready",
+                    "approved_remote_preflight",
+                ],
             },
             "status_report_remaining_deliverables_acceptance_summary": _claim_safety_remaining_deliverables_acceptance_summary_payload(
                 formal=formal
