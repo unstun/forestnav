@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_remote_packet_safety_audit",
   "status": "remote_packet_safety_audit_passed",
-  "created_at_utc": "2026-07-04T21:54:36.508940+00:00",
-  "source_head": "cec3317d5977577bfe1014aaecdf4bcd8b501aae+dirty",
+  "created_at_utc": "2026-07-05T00:18:23.067914+00:00",
+  "source_head": "4ca06623749ce1942ec92a671b5c71693cee6fdc",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -224,8 +224,8 @@
     },
     "post_plan_source_regeneration_command_index_summary": {
       "present": true,
-      "index_row_count": 18,
-      "source_target_count": 18,
+      "index_row_count": 19,
+      "source_target_count": 19,
       "missing_target_ids": [],
       "unknown_manual_count": 0,
       "unknown_manual_ids": [],
@@ -321,6 +321,12 @@
           "required_before": "formal_claim_gate",
           "command_kind": "known_builder",
           "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_missing_artifacts_audit"
+        },
+        "formal_gate_proof_audit": {
+          "stage_id": "regenerate_claim_gate_artifacts",
+          "required_before": "formal_claim_gate",
+          "command_kind": "known_builder",
+          "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_audit"
         },
         "formal_gate_remaining_deliverables": {
           "stage_id": "regenerate_claim_gate_artifacts",
