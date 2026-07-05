@@ -91,6 +91,7 @@ def build_record(config: FormalGateProtocolLaneDecisionRecordConfig) -> dict[str
         "decision_note": config.decision_note,
         "decision_note_audit": _decision_note_audit(
             selected_lane=selected_lane,
+            valid_lanes=valid_lanes,
             decision_note=config.decision_note,
         ),
         "contract_action": effective_contract_action,
@@ -149,22 +150,58 @@ def _validate_non_pending_decision(*, config: FormalGateProtocolLaneDecisionReco
         raise ValueError(f"unsupported contract action {config.contract_action!r}; expected one of {sorted(allowed_contract_actions)}")
 
 
-def _decision_note_audit(*, selected_lane: str, decision_note: str | None) -> dict[str, Any]:
+def _decision_note_audit(*, selected_lane: str, valid_lanes: Sequence[str], decision_note: str | None) -> dict[str, Any]:
     note = decision_note.strip() if isinstance(decision_note, str) else ""
     normalized = note.lower()
+    rejected_lane_ids = [lane for lane in valid_lanes if lane != selected_lane]
     return {
         "required_for_non_pending_decision": selected_lane != PENDING,
         "present": bool(note),
         "character_count": len(note),
         "word_count": len(note.split()),
+        "rejected_lane_ids_required": [] if selected_lane == PENDING else rejected_lane_ids,
         "mentions_selected_lane": selected_lane == PENDING or selected_lane.replace("_", "-") in normalized or selected_lane in normalized,
         "mentions_failed_gate3": selected_lane == PENDING or "failed" in normalized or "0.53125" in normalized or "gate3" in normalized,
         "mentions_contract_action": selected_lane == PENDING or "contract" in normalized,
-        "quality_warning": _quality_warning(selected_lane=selected_lane, note=note, normalized=normalized),
+        "mentions_rejected_lanes": _mentions_rejected_lanes(
+            selected_lane=selected_lane,
+            rejected_lane_ids=rejected_lane_ids,
+            normalized=normalized,
+        ),
+        "mentions_evidence_artifacts": _mentions_evidence_artifacts(selected_lane=selected_lane, normalized=normalized),
+        "quality_warning": _quality_warning(
+            selected_lane=selected_lane,
+            rejected_lane_ids=rejected_lane_ids,
+            note=note,
+            normalized=normalized,
+        ),
     }
 
 
-def _quality_warning(*, selected_lane: str, note: str, normalized: str) -> str | None:
+def _mentions_rejected_lanes(*, selected_lane: str, rejected_lane_ids: Sequence[str], normalized: str) -> bool:
+    if selected_lane == PENDING:
+        return True
+    has_rejection_signal = any(token in normalized for token in ("reject", "rejected", "not select", "not choose", "unselected"))
+    mentions_all_other_lanes = all(lane in normalized or lane.replace("_", "-") in normalized for lane in rejected_lane_ids)
+    return has_rejection_signal and mentions_all_other_lanes
+
+
+def _mentions_evidence_artifacts(*, selected_lane: str, normalized: str) -> bool:
+    if selected_lane == PENDING:
+        return True
+    artifact_markers = (
+        "artifact",
+        "protocol_lane_matrix",
+        "formal_gate_protocol_lane_matrix",
+        "gate3_formal_audit",
+        "formal_gate_next_round_requirements",
+        "next_round_requirements",
+        "h02_formal_acceptance",
+    )
+    return any(marker in normalized for marker in artifact_markers)
+
+
+def _quality_warning(*, selected_lane: str, rejected_lane_ids: Sequence[str], note: str, normalized: str) -> str | None:
     if selected_lane == PENDING:
         return None
     missing: list[str] = []
@@ -176,6 +213,14 @@ def _quality_warning(*, selected_lane: str, note: str, normalized: str) -> str |
         missing.append("failed_gate3_basis")
     if "contract" not in normalized:
         missing.append("contract_action")
+    if not _mentions_rejected_lanes(
+        selected_lane=selected_lane,
+        rejected_lane_ids=rejected_lane_ids,
+        normalized=normalized,
+    ):
+        missing.append("rejected_lanes")
+    if not _mentions_evidence_artifacts(selected_lane=selected_lane, normalized=normalized):
+        missing.append("evidence_artifacts")
     if missing:
         return "decision_note_should_mention_" + "_".join(missing)
     return None
@@ -260,7 +305,7 @@ def _record_command_templates(valid_lanes: Sequence[str]) -> list[dict[str, Any]
                 "PYTHONPATH=2_experiment python -m "
                 "forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record "
                 f"--selected-lane {lane} --decider 'Dr Sun' --contract-action <action> "
-                "--decision-note '<Dr Sun rationale>'"
+                "--decision-note '<Dr Sun rationale: selected lane, failed Gate3 basis, rejected lanes, evidence artifacts, contract action>'"
             ),
         }
         for lane in valid_lanes
