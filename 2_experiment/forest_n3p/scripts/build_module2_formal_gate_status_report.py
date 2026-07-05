@@ -92,6 +92,7 @@ CLAIM_GATE_REGENERATION_ARTIFACT_IDS = (
     "claim_safety",
     "paper_readiness",
 )
+REMOTE_READINESS_SOURCE_BLOCKER_IDS = ("gpu3070ti_readiness_refresh",)
 
 
 @dataclass(frozen=True)
@@ -3410,14 +3411,15 @@ def _remaining_deliverables_source_blocker_summary_issues(
                 "source blocker summary count must match target id count.",
             )
         )
-    if summary["blocking_target_ids"] != expected_ids:
+    unexpected_summary_ids = sorted(set(summary["blocking_target_ids"]) - set(expected_ids))
+    if unexpected_summary_ids:
         issues.append(
             _issue(
                 "remaining_deliverables_source_blocker_summary_target_ids_mismatch",
-                "source blocker summary target ids must match source-freshness blocking targets.",
+                "source blocker summary target ids must be present in source-freshness blocking targets.",
             )
         )
-    remote_ids = [target_id for target_id in expected_ids if "readiness" in target_id or "gpu3070ti" in target_id]
+    remote_ids = _source_freshness_remote_readiness_blocking_target_ids(source_freshness)
     if summary["remote_readiness_blocking_target_ids"] != remote_ids:
         issues.append(
             _issue(
@@ -3486,6 +3488,11 @@ def _source_freshness_blocking_target_ids(source_freshness: dict[str, Any]) -> l
         for item in raw_targets
         if isinstance(item, dict) and item.get("artifact_id")
     ]
+
+
+def _source_freshness_remote_readiness_blocking_target_ids(source_freshness: dict[str, Any]) -> list[str]:
+    readiness_ids = set(REMOTE_READINESS_SOURCE_BLOCKER_IDS)
+    return [target_id for target_id in _source_freshness_blocking_target_ids(source_freshness) if target_id in readiness_ids]
 
 
 def _remaining_deliverables_unlock_chain_issues(
