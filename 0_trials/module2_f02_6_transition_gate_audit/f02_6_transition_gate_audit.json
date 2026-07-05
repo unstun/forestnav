@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_f02_6_transition_gate_audit",
-  "status": "f02_6_transition_gate_audit_failed",
-  "created_at_utc": "2026-07-05T19:16:51.244337+00:00",
-  "source_head": "134eaa53d15d640ce22395693ee08f67e1f0641c",
+  "status": "f02_6_transition_gate_audit_passed",
+  "created_at_utc": "2026-07-05T19:18:22.963403+00:00",
+  "source_head": "c4ed43a51c8553ded144ce3946ac4917c1fd8aa6",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -429,81 +429,8 @@
       "closure_open_item_count": 6
     }
   ],
-  "audit_issue_count": 12,
-  "audit_issues": [
-    {
-      "scenario_id": "pending",
-      "issue_id": "post_plan_audit_issue_count",
-      "message": "post_plan_audit_issue_count must be zero.",
-      "observed": 9
-    },
-    {
-      "scenario_id": "pending",
-      "issue_id": "remote_packet_safety_issue_count",
-      "message": "remote_packet_safety_issue_count must be zero.",
-      "observed": 17
-    },
-    {
-      "scenario_id": "pending",
-      "issue_id": "post_plan_audit_not_passed",
-      "message": "Post-plan audit must remain internally safe.",
-      "observed": "post_f02_6_plan_audit_failed"
-    },
-    {
-      "scenario_id": "pending",
-      "issue_id": "remote_packet_safety_not_passed",
-      "message": "Remote packet safety must remain internally safe.",
-      "observed": "remote_packet_safety_audit_failed"
-    },
-    {
-      "scenario_id": "approved",
-      "issue_id": "post_plan_audit_issue_count",
-      "message": "post_plan_audit_issue_count must be zero.",
-      "observed": 2
-    },
-    {
-      "scenario_id": "approved",
-      "issue_id": "remote_packet_safety_issue_count",
-      "message": "remote_packet_safety_issue_count must be zero.",
-      "observed": 2
-    },
-    {
-      "scenario_id": "approved",
-      "issue_id": "post_plan_audit_not_passed",
-      "message": "Post-plan audit must remain internally safe.",
-      "observed": "post_f02_6_plan_audit_failed"
-    },
-    {
-      "scenario_id": "approved",
-      "issue_id": "remote_packet_safety_not_passed",
-      "message": "Remote packet safety must remain internally safe.",
-      "observed": "remote_packet_safety_audit_failed"
-    },
-    {
-      "scenario_id": "rejected",
-      "issue_id": "post_plan_audit_issue_count",
-      "message": "post_plan_audit_issue_count must be zero.",
-      "observed": 3
-    },
-    {
-      "scenario_id": "rejected",
-      "issue_id": "remote_packet_safety_issue_count",
-      "message": "remote_packet_safety_issue_count must be zero.",
-      "observed": 4
-    },
-    {
-      "scenario_id": "rejected",
-      "issue_id": "post_plan_audit_not_passed",
-      "message": "Post-plan audit must remain internally safe.",
-      "observed": "post_f02_6_plan_audit_failed"
-    },
-    {
-      "scenario_id": "rejected",
-      "issue_id": "remote_packet_safety_not_passed",
-      "message": "Remote packet safety must remain internally safe.",
-      "observed": "remote_packet_safety_audit_failed"
-    }
-  ],
+  "audit_issue_count": 0,
+  "audit_issues": [],
   "transition_invariants": [
     "pending keeps local training, remote preflight, remote training, remote audit, and formal claim vetoed.",
     "approved closes the human decision gate; once source freshness and the remote packet are ready, remote preflight/training may open while audit, H01/H02, claim, and paper-result material stay blocked.",

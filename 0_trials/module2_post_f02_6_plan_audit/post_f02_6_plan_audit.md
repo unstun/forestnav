@@ -67,7 +67,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - runs_remote_preflight: `False`
 - formal_claim_allowed_now: `False`
 - local_training_allowed_now: `False`
-- input_safety_issue_count: `4`
+- input_safety_issue_count: `3`
 - next_blocked_lane_id: `decision`
 
 ### Remaining Deliverables Gap Summary
@@ -100,9 +100,9 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
 ### Status Report Handoff Summary
 
-- status: `blocked_handoff_input_safety_issues`
+- status: `ready_for_manual_remote_execution_review`
 - remote_training_allowed_now: `True`
-- safety_issue_count: `2`
+- safety_issue_count: `0`
 
 ### Status Report Execution Veto Matrix
 

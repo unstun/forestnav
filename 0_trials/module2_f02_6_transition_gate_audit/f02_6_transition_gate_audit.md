@@ -2,8 +2,8 @@
 
 This file audits synthetic pending/approved/rejected F02.6 gate transitions. It does not record a decision, run preflight, train, audit, pull back artifacts, or write paper results.
 
-- status: `f02_6_transition_gate_audit_failed`
-- audit_issue_count: `12`
+- status: `f02_6_transition_gate_audit_passed`
+- audit_issue_count: `0`
 - scenario_count: `3`
 - synthetic_inputs_persisted: `False`
 
@@ -59,18 +59,7 @@ This file audits synthetic pending/approved/rejected F02.6 gate transitions. It 
 
 ## Audit Issues
 
-- `pending.post_plan_audit_issue_count`: post_plan_audit_issue_count must be zero.
-- `pending.remote_packet_safety_issue_count`: remote_packet_safety_issue_count must be zero.
-- `pending.post_plan_audit_not_passed`: Post-plan audit must remain internally safe.
-- `pending.remote_packet_safety_not_passed`: Remote packet safety must remain internally safe.
-- `approved.post_plan_audit_issue_count`: post_plan_audit_issue_count must be zero.
-- `approved.remote_packet_safety_issue_count`: remote_packet_safety_issue_count must be zero.
-- `approved.post_plan_audit_not_passed`: Post-plan audit must remain internally safe.
-- `approved.remote_packet_safety_not_passed`: Remote packet safety must remain internally safe.
-- `rejected.post_plan_audit_issue_count`: post_plan_audit_issue_count must be zero.
-- `rejected.remote_packet_safety_issue_count`: remote_packet_safety_issue_count must be zero.
-- `rejected.post_plan_audit_not_passed`: Post-plan audit must remain internally safe.
-- `rejected.remote_packet_safety_not_passed`: Remote packet safety must remain internally safe.
+- none
 
 ## Claim Boundaries
 

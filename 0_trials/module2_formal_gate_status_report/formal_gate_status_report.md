@@ -3,8 +3,8 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `134eaa53d15d640ce22395693ee08f67e1f0641c`
-- input_safety_issue_count: `4`
+- source_head: `c4ed43a51c8553ded144ce3946ac4917c1fd8aa6`
+- input_safety_issue_count: `3`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `True`
 - remote_training_allowed_now: `True`
@@ -94,7 +94,7 @@ This file is a read-only formal-gate status report. It does not execute commands
 - claim_safety_formal_performance_claim_allowed: `False`
 - paper_readiness_status: `partial_methods_ready_results_blocked`
 - paper_readiness_formal_results_ready: `False`
-- handoff_bundle_status: `blocked_handoff_input_safety_issues`
+- handoff_bundle_status: `ready_for_manual_remote_execution_review`
 - remaining_deliverables_status: `formal_gate_deliverables_blocked`
 - remaining_deliverables_missing_deliverable_count: `10`
 - remaining_deliverables_acceptance_matrix_count: `10`
@@ -135,7 +135,7 @@ This file is a read-only formal-gate status report. It does not execute commands
 - mainline_formal_gate_state_audit_proof_summary_chain_issue_count: `10`
 - mainline_formal_gate_state_audit_proof_audit_input_safety_issue_count: `0`
 - handoff_bundle_next_action: `resolve_decision`
-- handoff_bundle_safety_issue_count: `2`
+- handoff_bundle_safety_issue_count: `0`
 - handoff_bundle_remote_training_allowed_now: `True`
 - handoff_requirement_stage_mapped_count: `4`
 - handoff_requirement_stage_unmapped_count: `0`
@@ -508,9 +508,9 @@ This file is a read-only formal-gate status report. It does not execute commands
 ## Formal Gate Handoff Bundle
 
 - present: `True`
-- status: `blocked_handoff_input_safety_issues`
+- status: `ready_for_manual_remote_execution_review`
 - next_handoff_action: `resolve_decision`
-- safety_issue_count: `2`
+- safety_issue_count: `0`
 - remote_training_allowed_now: `True`
 - `sync_to_remote`: present=`True`, allowed_now=`True`, runs_training=`False`, blocked_by=`none`
 - `run_remote_preflight`: present=`True`, allowed_now=`True`, runs_training=`False`, blocked_by=`none`
@@ -557,7 +557,6 @@ This file is a read-only formal-gate status report. It does not execute commands
 
 ## Input Safety Issues
 
-- `handoff_bundle_safety_issues_open`: handoff bundle reports open safety issues.
 - `mainline_formal_gate_state_audit_failed`: mainline formal gate state audit must not be failed.
 - `mainline_formal_gate_state_audit_issues_open`: mainline formal gate state audit issues must be resolved before status reporting.
 - `mainline_formal_gate_state_audit_proof_summary_issues_open`: mainline audit must not inherit open proof-summary audit issues.

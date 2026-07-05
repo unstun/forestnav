@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-05T19:16:51.703934+00:00",
-  "source_head": "134eaa53d15d640ce22395693ee08f67e1f0641c",
+  "created_at_utc": "2026-07-05T19:18:23.760749+00:00",
+  "source_head": "c4ed43a51c8553ded144ce3946ac4917c1fd8aa6",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -132,7 +132,7 @@
     "claim_safety_formal_performance_claim_allowed": false,
     "paper_readiness_status": "partial_methods_ready_results_blocked",
     "paper_readiness_formal_results_ready": false,
-    "handoff_bundle_status": "blocked_handoff_input_safety_issues",
+    "handoff_bundle_status": "ready_for_manual_remote_execution_review",
     "remaining_deliverables_status": "formal_gate_deliverables_blocked",
     "remaining_deliverables_missing_deliverable_count": 10,
     "remaining_deliverables_acceptance_matrix_count": 10,
@@ -173,7 +173,7 @@
     "mainline_formal_gate_state_audit_proof_summary_chain_issue_count": 10,
     "mainline_formal_gate_state_audit_proof_audit_input_safety_issue_count": 0,
     "handoff_bundle_next_action": "resolve_decision",
-    "handoff_bundle_safety_issue_count": 2,
+    "handoff_bundle_safety_issue_count": 0,
     "handoff_bundle_remote_training_allowed_now": true,
     "handoff_requirement_stage_mapped_count": 4,
     "handoff_requirement_stage_unmapped_count": 0,
@@ -877,12 +877,12 @@
   },
   "formal_gate_handoff_summary": {
     "present": true,
-    "status": "blocked_handoff_input_safety_issues",
-    "transition_gate_status": "f02_6_transition_gate_audit_failed",
-    "transition_gate_audit_issue_count": 17,
+    "status": "ready_for_manual_remote_execution_review",
+    "transition_gate_status": "f02_6_transition_gate_audit_passed",
+    "transition_gate_audit_issue_count": 0,
     "next_handoff_action_id": "resolve_decision",
     "next_action_requires_dr_sun": false,
-    "safety_issue_count": 2,
+    "safety_issue_count": 0,
     "remote_training_allowed_now": true,
     "remote_preflight_allowed_now": true,
     "formal_claim_allowed_now": false,
@@ -3377,12 +3377,8 @@
       "current_decision_status_approved"
     ]
   },
-  "input_safety_issue_count": 4,
+  "input_safety_issue_count": 3,
   "input_safety_issues": [
-    {
-      "issue_id": "handoff_bundle_safety_issues_open",
-      "message": "handoff bundle reports open safety issues."
-    },
     {
       "issue_id": "mainline_formal_gate_state_audit_failed",
       "message": "mainline formal gate state audit must not be failed."
