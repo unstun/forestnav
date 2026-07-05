@@ -671,6 +671,8 @@ def test_formal_gate_status_report_accepts_stale_source_when_execution_veto_bloc
     assert "source_freshness_blocks_remote_execution" not in issue_ids
     assert manifest["formal_gate_execution_veto_summary"]["row_consensus"]["remote_training"] is False
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+    assert manifest["permissions_now"]["formal_h01_evaluation_allowed_now"] is False
+    assert manifest["permissions_now"]["formal_h02_acceptance_allowed_now"] is False
 
 
 def test_formal_gate_status_report_accepts_source_freshness_self_lag_only(tmp_path):
