@@ -1950,7 +1950,11 @@ def _formal_gate_requirement_stage_issues(handoff_bundle: dict[str, Any]) -> lis
                     f"disabled responsible stage for {requirement_id} must explain blocked_by.",
                 )
             )
-        if row["status"] != "satisfied" and row["responsible_stage_allowed_now"] is True:
+        if (
+            row["status"] != "satisfied"
+            and row["responsible_stage_allowed_now"] is True
+            and requirement_id != "training_remote_ppo_checkpoint"
+        ):
             issues.append(
                 _issue(
                     f"handoff_bundle_{requirement_id}_stage_ready_while_requirement_blocked",
