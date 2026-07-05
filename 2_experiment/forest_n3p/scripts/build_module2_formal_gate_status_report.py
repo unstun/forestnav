@@ -486,6 +486,9 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "remaining_deliverables_gap_summary": remaining_deliverables_gap_summary,
         "remaining_deliverables_proof_command_plan": remaining_deliverables_proof_command_plan,
         "formal_gate_proof_audit_summary": formal_gate_proof_audit_summary,
+        "formal_gate_proof_audit_remaining_deliverables_top_level_summary": (
+            formal_gate_proof_audit_summary["remaining_deliverables_top_level_summary"]
+        ),
         "formal_gate_proof_audit_gap_summary": formal_gate_proof_audit_gap_summary,
         "formal_gate_proof_audit_missing_evidence_summary": formal_gate_proof_audit_missing_evidence_summary,
         "next_action_guard_summary": next_action_guard_summary,
@@ -1676,10 +1679,37 @@ def _formal_gate_proof_audit_summary(proof_audit: dict[str, Any]) -> dict[str, A
         "blockers": _strings(proof_audit.get("blockers")),
         "input_safety_issue_count": int(proof_audit.get("input_safety_issue_count") or 0),
         "results_by_id": results_by_id,
+        "remaining_deliverables_top_level_summary": _proof_audit_remaining_deliverables_top_level_summary(
+            proof_audit
+        ),
         "missing_evidence_summary": _formal_gate_proof_audit_missing_evidence_summary(
             proof_audit=proof_audit,
             results_by_id=results_by_id,
         ),
+    }
+
+
+def _proof_audit_remaining_deliverables_top_level_summary(proof_audit: dict[str, Any]) -> dict[str, Any]:
+    raw = proof_audit.get("remaining_deliverables_top_level_summary")
+    raw = raw if isinstance(raw, dict) else {}
+    raw_counts = raw.get("missing_counts_by_formal_category")
+    raw_counts = raw_counts if isinstance(raw_counts, dict) else {}
+    raw_matrix_ids = raw.get("missing_matrix_ids_by_formal_category")
+    raw_matrix_ids = raw_matrix_ids if isinstance(raw_matrix_ids, dict) else {}
+    return {
+        "present": raw.get("present") is True or bool(raw_counts or raw_matrix_ids),
+        "missing_counts_by_formal_category": {
+            str(category): int(count) for category, count in raw_counts.items()
+        },
+        "missing_matrix_ids_by_formal_category": {
+            str(category): [str(item) for item in items] if isinstance(items, list) else []
+            for category, items in raw_matrix_ids.items()
+        },
+        "next_blocked_lane": raw.get("next_blocked_lane"),
+        "h01_status": raw.get("h01_status"),
+        "h02_status": raw.get("h02_status"),
+        "h02_formal_output_accepted": raw.get("h02_formal_output_accepted"),
+        "h02_paper_result_input_allowed": raw.get("h02_paper_result_input_allowed"),
     }
 
 
@@ -2956,6 +2986,17 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.append(f"- passed_proof_command_count: `{proof_audit['passed_proof_command_count']}`")
     lines.append(f"- failed_proof_command_count: `{proof_audit['failed_proof_command_count']}`")
     lines.append(f"- blocked_proof_command_count: `{proof_audit['blocked_proof_command_count']}`")
+    proof_deliverables = manifest["formal_gate_proof_audit_remaining_deliverables_top_level_summary"]
+    lines.append(f"- remaining_deliverables_summary_present: `{proof_deliverables['present']}`")
+    lines.append(
+        f"- remaining_missing_counts_by_formal_category: `{proof_deliverables['missing_counts_by_formal_category']}`"
+    )
+    lines.append(f"- remaining_next_blocked_lane: `{proof_deliverables['next_blocked_lane']}`")
+    lines.append(f"- remaining_h01_status: `{proof_deliverables['h01_status']}`")
+    lines.append(f"- remaining_h02_status: `{proof_deliverables['h02_status']}`")
+    for category, matrix_ids in proof_deliverables["missing_matrix_ids_by_formal_category"].items():
+        joined = ", ".join(matrix_ids) if matrix_ids else "none"
+        lines.append(f"- remaining_{category}_missing_matrix_ids: `{joined}`")
     for command_id, result in proof_audit["results_by_id"].items():
         lines.append(f"- `{command_id}`: status=`{result['status']}`, matrix_id=`{result['matrix_id']}`")
     formal_gate_gap = manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]
