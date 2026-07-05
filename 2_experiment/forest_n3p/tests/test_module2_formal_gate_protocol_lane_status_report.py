@@ -70,6 +70,21 @@ def test_protocol_lane_status_report_catches_pending_state_that_allows_training(
     assert "blocked_actions_missing_safety_actions" in issue_ids
 
 
+def test_protocol_lane_status_report_catches_recorded_lane_that_skips_contract_draft(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_protocol_lane_status_report")
+    config = _config(tmp_path, recorded=True)
+    contract_gate = json.loads(config.contract_authoring_gate_audit_path.read_text(encoding="utf-8"))
+    contract_gate["contract_gate"]["allowed_next_action_ids"] = ["remote_success_training"]
+    config.contract_authoring_gate_audit_path.write_text(json.dumps(contract_gate), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "protocol_lane_status_report_audit_failed"
+    assert "recorded_allowed_actions_not_contract_draft_only" in issue_ids
+    assert "allowed_actions_include_blocked_execution_or_claim" in issue_ids
+
+
 def test_protocol_lane_status_report_cli_writes_json_and_markdown(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_protocol_lane_status_report")
     config = _config(tmp_path, recorded=False)
