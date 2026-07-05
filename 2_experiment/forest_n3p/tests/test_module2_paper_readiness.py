@@ -1296,6 +1296,28 @@ def _status_report_payload(*, ready, invalid=False):
     }
 
 
+def _claim_safety_mainline_formal_gate_state_audit_summary_payload(*, formal):
+    return {
+        "present": True,
+        "status": "mainline_formal_gate_state_consistent_ready"
+        if formal
+        else "mainline_formal_gate_state_consistent_blocked",
+        "not_paper_result_material": True,
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+        "audit_issue_count": 0,
+        "proof_summary_chain_status": "formal_gate_proof_summary_chain_consistent_ready"
+        if formal
+        else "formal_gate_proof_summary_chain_consistent_blocked",
+        "proof_summary_chain_audit_issue_count": 0,
+        "proof_summary_chain_proof_audit_input_safety_issue_count": 0,
+        "proof_summary_chain_proof_audit_blockers": [],
+    }
+
+
 def _claim_safety_requirement_stage_summary_payload(*, formal):
     requirements = {
         "training_remote_ppo_checkpoint": _claim_safety_requirement_stage_row(
