@@ -1682,7 +1682,26 @@ def _formal_gate_proof_audit(*, complete):
         "input_safety_issues": [],
         "proof_command_results": results,
         "proof_command_results_by_id": {result["command_id"]: result for result in results},
+        "formal_gate_missing_evidence_summary": _formal_gate_missing_evidence_summary(results),
     }
+
+
+def _formal_gate_missing_evidence_summary(results):
+    summary = {
+        "training": {"missing_artifact_ids": [], "failed_artifact_ids": []},
+        "evaluation": {"missing_artifact_ids": [], "failed_artifact_ids": []},
+        "acceptance": {"missing_artifact_ids": [], "failed_artifact_ids": []},
+        "formal_acceptance": {"missing_artifact_ids": [], "failed_artifact_ids": []},
+    }
+    for result in results:
+        payload = summary[result["category"]]
+        if result["status"] == "blocked_missing_artifact":
+            if result["artifact_id"] not in payload["missing_artifact_ids"]:
+                payload["missing_artifact_ids"].append(result["artifact_id"])
+        elif result["status"] == "failed":
+            if result["artifact_id"] not in payload["failed_artifact_ids"]:
+                payload["failed_artifact_ids"].append(result["artifact_id"])
+    return summary
 
 
 def _remaining_deliverable_gap_summary(*, category_artifacts, matrix, complete):
