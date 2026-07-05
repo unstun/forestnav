@@ -229,6 +229,7 @@ def build_manifest(config: FormalGateGapAuditConfig) -> dict[str, Any]:
             status_report=status_report,
             handoff_bundle=handoff_bundle,
             remote_packet_safety=remote_packet_safety,
+            protocol_lane_status=protocol_lane_status,
         ),
         "ordered_next_steps": _ordered_next_steps(decision_gaps, training_gaps, evaluation_gaps, acceptance_gaps, remote),
         "claim_boundaries": [
