@@ -304,8 +304,10 @@ def _deliverable_groups(
             else None
         )
         responsible_stage_blocked_by = _strings(requirement.get("responsible_stage_blocked_by"))
-        if not responsible_stage_blocked_by and responsible_stage_allowed_now is not True:
-            responsible_stage_blocked_by = list(CURRENT_BLOCKER_REQUIREMENTS_BY_CATEGORY.get(category, ()))
+        if responsible_stage_allowed_now is not True:
+            for blocker in CURRENT_BLOCKER_REQUIREMENTS_BY_CATEGORY.get(category, ()):
+                if blocker not in responsible_stage_blocked_by:
+                    responsible_stage_blocked_by.append(blocker)
         groups.append(
             {
                 "category": category,
