@@ -23,6 +23,10 @@
 - f02_6_pending
 - formal_gate_closure_checklist_open
 - formal_gate_status_report_blocked
+- status_report_input_safety_issues_open
+- status_report_transition_gate_not_passed
+- status_report_transition_gate_issues_open
+- status_report_handoff_safety_issues_open
 - status_report_remaining_deliverables_gap_rows_missing
 - status_report_remaining_deliverables_gap_categories_blocked
 - status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing
@@ -46,7 +50,7 @@
 
 ## Status Report Handoff Summary
 
-- present=`True`, status=`blocked_until_f02_6_decision`, transition_gate_status=`f02_6_transition_gate_audit_passed`, transition_gate_audit_issue_count=`0`, safety_issue_count=`0`, remote_training_allowed_now=`False`
+- present=`True`, status=`blocked_handoff_input_safety_issues`, transition_gate_status=`f02_6_transition_gate_audit_failed`, transition_gate_audit_issue_count=`12`, safety_issue_count=`2`, remote_training_allowed_now=`False`
 
 ## F02.6 Decision Intake Summary
 

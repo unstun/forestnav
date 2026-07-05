@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_remote_packet_safety_audit",
-  "status": "remote_packet_safety_audit_passed",
-  "created_at_utc": "2026-07-05T13:43:53.752683+00:00",
-  "source_head": "49411b43e0a72351ffc1a00ed02482aef3511181",
+  "status": "remote_packet_safety_audit_failed",
+  "created_at_utc": "2026-07-05T14:00:16.280448+00:00",
+  "source_head": "ea359304a58185dab0e1d846a67f481f11428ff2",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -63,7 +63,7 @@
     "decision_gate_status": "f02_6_decision_gate_pending_clean",
     "f02_6_record_status": "pending_human_decision",
     "decision_training_allowed_now": false,
-    "post_plan_audit_status": "post_f02_6_plan_audit_passed",
+    "post_plan_audit_status": "post_f02_6_plan_audit_failed",
     "post_plan_training_allowed_now": false,
     "post_plan_remote_preflight_allowed_now": false,
     "post_plan_status_report_status": "formal_gate_status_blocked",
@@ -116,12 +116,12 @@
     },
     "post_plan_status_report_handoff_summary": {
       "present": true,
-      "status": "blocked_until_f02_6_decision",
-      "transition_gate_status": "f02_6_transition_gate_audit_passed",
-      "transition_gate_audit_issue_count": 0,
+      "status": "blocked_handoff_input_safety_issues",
+      "transition_gate_status": "f02_6_transition_gate_audit_failed",
+      "transition_gate_audit_issue_count": 12,
       "next_handoff_action_id": "record_f02_6_decision",
       "next_action_requires_dr_sun": true,
-      "safety_issue_count": 0,
+      "safety_issue_count": 2,
       "remote_training_allowed_now": false,
       "remote_preflight_allowed_now": false,
       "formal_claim_allowed_now": false,
@@ -425,8 +425,13 @@
       "h02_paper_result_input_allowed": false
     }
   },
-  "audit_issue_count": 0,
-  "audit_issues": [],
+  "audit_issue_count": 1,
+  "audit_issues": [
+    {
+      "issue_id": "post_plan_handoff_safety_issues_open",
+      "message": "Post-F02.6 plan audit reports handoff safety issues."
+    }
+  ],
   "expected_pullback_suffixes": [
     "train/final_model.zip",
     "train/summary.json",

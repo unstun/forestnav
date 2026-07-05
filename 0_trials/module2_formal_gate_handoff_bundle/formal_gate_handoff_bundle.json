@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_handoff_bundle",
-  "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-05T13:43:53.868936+00:00",
-  "source_head": "49411b43e0a72351ffc1a00ed02482aef3511181",
+  "status": "blocked_handoff_input_safety_issues",
+  "created_at_utc": "2026-07-05T14:00:16.386376+00:00",
+  "source_head": "ea359304a58185dab0e1d846a67f481f11428ff2",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -24,8 +24,8 @@
   "current_state": {
     "decision_status": "pending_human_decision",
     "decision_decider": null,
-    "transition_gate_status": "f02_6_transition_gate_audit_passed",
-    "transition_gate_audit_issue_count": 0,
+    "transition_gate_status": "f02_6_transition_gate_audit_failed",
+    "transition_gate_audit_issue_count": 12,
     "post_plan_status": "blocked_until_f02_6_decision",
     "status_report_status": "formal_gate_status_blocked",
     "remote_packet_status": "blocked_until_f02_6_decision",
@@ -793,8 +793,17 @@
     "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json",
     "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json"
   ],
-  "safety_issue_count": 0,
-  "safety_issues": [],
+  "safety_issue_count": 2,
+  "safety_issues": [
+    {
+      "issue_id": "transition_gate_audit_not_passed",
+      "detail": "F02.6 transition gate audit must pass before handoff is safe"
+    },
+    {
+      "issue_id": "transition_gate_audit_issues_open",
+      "detail": "F02.6 transition gate audit has open issues"
+    }
+  ],
   "claim_boundaries": [
     "This handoff bundle is read-only and does not execute shell, ssh, rsync, preflight, training, audit, or pullback.",
     "Pending F02.6 means all remote execution steps must remain disabled.",

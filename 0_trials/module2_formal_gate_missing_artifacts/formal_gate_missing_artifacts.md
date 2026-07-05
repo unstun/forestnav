@@ -4,7 +4,7 @@ This file inventories missing formal-gate evidence. It does not execute commands
 
 - status: `formal_gate_missing_artifacts_open`
 - all_required_evidence_present: `False`
-- audit_issue_count: `0`
+- audit_issue_count: `3`
 - local_training_allowed: `False`
 - formal_claim_allowed: `False`
 
@@ -12,8 +12,8 @@ This file inventories missing formal-gate evidence. It does not execute commands
 
 - f02_6_decision_record_status: `pending_human_decision`
 - f02_6_decision_gate_status: `f02_6_decision_gate_pending_clean`
-- f02_6_transition_gate_status: `f02_6_transition_gate_audit_passed`
-- f02_6_transition_gate_audit_issue_count: `0`
+- f02_6_transition_gate_status: `f02_6_transition_gate_audit_failed`
+- f02_6_transition_gate_audit_issue_count: `12`
 - post_f02_6_plan_status: `blocked_until_f02_6_decision`
 - post_plan_training_allowed_now: `False`
 - post_plan_remote_preflight_allowed_now: `False`
@@ -22,7 +22,7 @@ This file inventories missing formal-gate evidence. It does not execute commands
 - source_freshness_blocking_regeneration_required: `False`
 - remote_packet_status: `blocked_until_f02_6_decision`
 - ready_to_run_remote_training: `False`
-- remote_packet_safety_audit_status: `remote_packet_safety_audit_passed`
+- remote_packet_safety_audit_status: `remote_packet_safety_audit_failed`
 - h01_manifest_status: `blocked_pending_decisions`
 - h01_blockers: `['f02_6_warm_start_decision_pending', 'missing_module2_bc_checkpoint', 'missing_module2_rl_rs_checkpoint', 'realmap_query_generation_not_frozen']`
 - h02_acceptance_status: `blocked_formal_output_acceptance`
@@ -81,7 +81,7 @@ This file inventories missing formal-gate evidence. It does not execute commands
 - acceptance: `3`
 - claim_gate: `1`
 - decision: `1`
-- decision_gate: `0`
+- decision_gate: `1`
 - evaluation: `2`
 - evaluation_acceptance: `2`
 - gate_sequence: `7`
@@ -123,7 +123,8 @@ This file inventories missing formal-gate evidence. It does not execute commands
 
 - `f02_6_decision_record` (decision): complete=`False`, blocked_by=`f02_6_decision_not_approved`
   - missing `f02_6_decision_record`: `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json` (requires Dr Sun approval record before warm-start formal chain)
-- `f02_6_transition_gate_audit` (decision_gate): complete=`True`, blocked_by=``
+- `f02_6_transition_gate_audit` (decision_gate): complete=`False`, blocked_by=`f02_6_transition_gate_audit_not_passed, f02_6_transition_gate_audit_issues_open`
+  - missing `f02_6_transition_gate_audit`: `0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json` (transition audit must pass before the missing-artifacts inventory can represent the formal gate chain)
 - `source_fresh_regeneration_targets` (regeneration): complete=`True`, blocked_by=``
 - `post_f02_6_ordered_stages` (gate_sequence): complete=`False`, blocked_by=`regenerate_preflight_gate_artifacts, approved_remote_preflight, regenerate_remote_execution_packet, gate3_remote_training, gate3_remote_audit_pullback, regenerate_h01_h02_formal_artifacts, regenerate_claim_gate_artifacts`
   - missing `regenerate_preflight_gate_artifacts`: `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json` (f02_6_decision_not_approved)
@@ -152,7 +153,9 @@ This file inventories missing formal-gate evidence. It does not execute commands
 
 ## Audit Issues
 
-- none
+- `transition_gate_audit_not_passed`: F02.6 transition gate audit must pass before listing downstream formal artifacts as executable.
+- `transition_gate_audit_issues_open`: F02.6 transition gate audit reports open issues.
+- `remote_packet_safety_audit_not_passed`: Remote packet safety audit must pass before formal execution.
 
 ## Claim Boundaries
 
