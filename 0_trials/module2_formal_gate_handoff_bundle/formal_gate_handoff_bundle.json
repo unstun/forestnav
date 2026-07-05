@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_handoff_bundle",
   "status": "blocked_until_protocol_lane_decision",
-  "created_at_utc": "2026-07-05T23:52:25.842224+00:00",
-  "source_head": "445a706946f58790a92e2bf959032688b529b140",
+  "created_at_utc": "2026-07-05T23:56:25.475210+00:00",
+  "source_head": "488cada04d7bb64474dd98033b8e16f000f9c777",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -42,7 +42,7 @@
     "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
     "source_freshness_regeneration_required": true,
     "source_freshness_blocking_regeneration_required": true,
-    "source_freshness_non_self_changed_records": 22,
+    "source_freshness_non_self_changed_records": 23,
     "source_freshness_self_artifact_only_lag_records": 0
   },
   "permissions_now": {
