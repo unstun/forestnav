@@ -2325,6 +2325,13 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"decision_impact_formal_claim_allowed_now=`{intake['decision_impact_formal_claim_allowed_now']}`, "
         f"decision_impact_paper_result_material_allowed_now=`{intake['decision_impact_paper_result_material_allowed_now']}`"
     )
+    lines.append(
+        f"- decision_evidence_matrix_status=`{intake['decision_evidence_matrix_status']}`, "
+        f"route_count=`{intake['decision_evidence_matrix_route_count']}`, "
+        f"required_evidence_count=`{intake['decision_evidence_matrix_required_evidence_count']}`, "
+        f"missing_required_evidence_count=`{intake['decision_evidence_matrix_missing_required_evidence_count']}`, "
+        f"remote_training_allowed_now=`{intake['decision_evidence_matrix_remote_training_allowed_now']}`"
+    )
     lines.extend(["", "## Status Report Next-Action Guard", ""])
     next_action = manifest["status_report_next_action_guard_summary"]
     lines.append(
