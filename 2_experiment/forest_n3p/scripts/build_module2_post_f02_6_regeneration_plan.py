@@ -450,8 +450,8 @@ def _regeneration_command_entry(target: dict[str, Any]) -> dict[str, Any]:
     elif artifact_id == "paper_readiness":
         command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_paper_readiness"
     elif artifact_id == "gpu3070ti_readiness_refresh":
-        command_kind = "manual_read_only"
-        command_template = "manual read-only gpu3070ti readiness refresh; no local training, no approved preflight"
+        command_kind = "read_only_remote_resource_check"
+        command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_gpu3070ti_readiness_refresh"
     else:
         command_kind = "unknown_manual"
         command_template = f"manual regeneration required for {artifact_id}: {target.get('path')}"
