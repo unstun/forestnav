@@ -648,6 +648,42 @@ def _f02_6_route_handoff_summary(status_report: dict[str, Any]) -> dict[str, Any
         "decision_record_is_not_paper_result_material": summary.get(
             "decision_record_is_not_paper_result_material"
         ),
+        "record_authorization_status": summary.get("record_authorization_status"),
+        "record_authorization_current_blocked_action_ids": [
+            str(item)
+            for item in summary.get("record_authorization_current_blocked_action_ids", [])
+            if item
+        ]
+        if isinstance(summary.get("record_authorization_current_blocked_action_ids"), list)
+        else [],
+        "record_authorization_post_decision_routes_are_current_authorization": summary.get(
+            "record_authorization_post_decision_routes_are_current_authorization"
+        ),
+        "record_authorization_remote_preflight_allowed_now": summary.get(
+            "record_authorization_remote_preflight_allowed_now"
+        ),
+        "record_authorization_remote_training_allowed_now": summary.get(
+            "record_authorization_remote_training_allowed_now"
+        ),
+        "record_authorization_local_training_allowed_now": summary.get(
+            "record_authorization_local_training_allowed_now"
+        ),
+        "record_authorization_formal_claim_allowed_now": summary.get(
+            "record_authorization_formal_claim_allowed_now"
+        ),
+        "record_authorization_paper_result_material_allowed_now": summary.get(
+            "record_authorization_paper_result_material_allowed_now"
+        ),
+        "record_post_decision_non_authorization_count": int(
+            summary.get("record_post_decision_non_authorization_count") or 0
+        ),
+        "record_post_decision_formal_training_still_requires": [
+            str(item)
+            for item in summary.get("record_post_decision_formal_training_still_requires", [])
+            if item
+        ]
+        if isinstance(summary.get("record_post_decision_formal_training_still_requires"), list)
+        else [],
         "decision_impact_remote_preflight_allowed_now": summary.get(
             "decision_impact_remote_preflight_allowed_now"
         ),
@@ -693,6 +729,33 @@ def _f02_6_route_handoff_issues(route_summary: dict[str, Any]) -> list[dict[str,
         issues.append(_issue("f02_6_decision_record_may_authorize_training", "F02.6 decision record must not be training authorization"))
     if route_summary["decision_record_is_not_paper_result_material"] is not True:
         issues.append(_issue("f02_6_decision_record_may_be_paper_result_material", "F02.6 decision record must not be paper result material"))
+    if route_summary["record_authorization_status"] not in {
+        "blocked_until_dr_sun_decision",
+        "decision_recorded_not_execution_authorization",
+    }:
+        issues.append(_issue("f02_6_record_authorization_status_invalid", "F02.6 decision record current_authorization must be a non-execution boundary"))
+    required_blocked_actions = {
+        "remote_preflight",
+        "remote_training",
+        "local_training",
+        "formal_claim",
+        "paper_result_material",
+    }
+    if required_blocked_actions.difference(route_summary["record_authorization_current_blocked_action_ids"]):
+        issues.append(_issue("f02_6_record_authorization_missing_blocked_actions", "F02.6 decision record must block every execution and result-material path"))
+    if route_summary["record_authorization_post_decision_routes_are_current_authorization"] is not False:
+        issues.append(_issue("f02_6_record_authorization_treats_routes_as_current_authorization", "F02.6 decision record must not treat post-decision routes as current authorization"))
+    for field, issue_id in (
+        ("record_authorization_remote_preflight_allowed_now", "f02_6_record_authorization_allows_remote_preflight"),
+        ("record_authorization_remote_training_allowed_now", "f02_6_record_authorization_allows_remote_training"),
+        ("record_authorization_local_training_allowed_now", "f02_6_record_authorization_allows_local_training"),
+        ("record_authorization_formal_claim_allowed_now", "f02_6_record_authorization_allows_formal_claim"),
+        ("record_authorization_paper_result_material_allowed_now", "f02_6_record_authorization_allows_paper_result_material"),
+    ):
+        if route_summary[field] is not False:
+            issues.append(_issue(issue_id, "F02.6 decision record current_authorization must not authorize execution or result material"))
+    if route_summary["record_post_decision_non_authorization_count"] < 4:
+        issues.append(_issue("f02_6_record_non_authorizations_incomplete", "F02.6 decision record must carry post-decision non-authorization invariants"))
     for field, issue_id in (
         ("decision_impact_remote_preflight_allowed_now", "f02_6_decision_impact_allows_remote_preflight"),
         ("decision_impact_remote_training_allowed_now", "f02_6_decision_impact_allows_remote_training"),
@@ -708,6 +771,13 @@ def _f02_6_route_handoff_issues(route_summary: dict[str, Any]) -> list[dict[str,
         "remote_formal_execution_packet_ready",
         "approved_remote_preflight",
     ):
+        if required not in route_summary["record_post_decision_formal_training_still_requires"]:
+            issues.append(
+                _issue(
+                    f"f02_6_record_non_authorization_missing_required_{required}",
+                    "decision record non-authorization invariants must list every pre-training gate still required",
+                )
+            )
         if required not in route_summary["decision_impact_formal_training_still_requires"]:
             issues.append(
                 _issue(
