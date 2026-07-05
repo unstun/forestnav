@@ -208,6 +208,12 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
     claim_remaining_deliverables_proof_command_plan = _claim_safety_remaining_deliverables_proof_command_plan(
         claim_safety
     )
+    claim_remote_packet_safety_proof_deliverables_summary = (
+        _claim_safety_remote_packet_safety_proof_deliverables_summary(claim_safety)
+    )
+    claim_remote_packet_safety_status_report_proof_deliverables_summary = (
+        _claim_safety_remote_packet_safety_status_report_proof_deliverables_summary(claim_safety)
+    )
     claim_remote_packet_safety_claim_gate_command_index_summary = (
         _claim_safety_remote_packet_safety_claim_gate_command_index_summary(claim_safety)
     )
@@ -346,6 +352,38 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_remaining_deliverables_proof_command_plan_command_count": claim_remaining_deliverables_proof_command_plan[
             "total_proof_command_count"
         ],
+        "claim_safety_remote_packet_safety_proof_summary_present": claim_remote_packet_safety_proof_deliverables_summary[
+            "present"
+        ],
+        "claim_safety_remote_packet_safety_proof_training_missing_count": claim_remote_packet_safety_proof_deliverables_summary[
+            "missing_counts_by_formal_category"
+        ].get(
+            "training", 0
+        ),
+        "claim_safety_remote_packet_safety_proof_evaluation_missing_count": claim_remote_packet_safety_proof_deliverables_summary[
+            "missing_counts_by_formal_category"
+        ].get(
+            "evaluation", 0
+        ),
+        "claim_safety_remote_packet_safety_proof_acceptance_missing_count": claim_remote_packet_safety_proof_deliverables_summary[
+            "missing_counts_by_formal_category"
+        ].get(
+            "acceptance", 0
+        ),
+        "claim_safety_remote_packet_safety_proof_formal_acceptance_missing_count": claim_remote_packet_safety_proof_deliverables_summary[
+            "missing_counts_by_formal_category"
+        ].get(
+            "formal_acceptance", 0
+        ),
+        "claim_safety_remote_packet_safety_proof_next_blocked_lane": claim_remote_packet_safety_proof_deliverables_summary[
+            "next_blocked_lane"
+        ],
+        "claim_safety_remote_packet_safety_proof_h02_paper_result_input_allowed": claim_remote_packet_safety_proof_deliverables_summary[
+            "h02_paper_result_input_allowed"
+        ],
+        "claim_safety_remote_packet_safety_status_report_proof_summary_present": claim_remote_packet_safety_status_report_proof_deliverables_summary[
+            "present"
+        ],
         "claim_safety_remote_packet_safety_command_index_present": claim_remote_packet_safety_claim_gate_command_index_summary[
             "present"
         ],
@@ -414,6 +452,12 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_remaining_deliverables_gap_summary": claim_remaining_deliverables_gap_summary,
         "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_summary": claim_formal_gate_gap_audit_remaining_deliverables_gap_summary,
         "claim_safety_remaining_deliverables_proof_command_plan": claim_remaining_deliverables_proof_command_plan,
+        "claim_safety_remote_packet_safety_proof_deliverables_summary": (
+            claim_remote_packet_safety_proof_deliverables_summary
+        ),
+        "claim_safety_remote_packet_safety_status_report_proof_deliverables_summary": (
+            claim_remote_packet_safety_status_report_proof_deliverables_summary
+        ),
         "claim_safety_remote_packet_safety_claim_gate_command_index_summary": (
             claim_remote_packet_safety_claim_gate_command_index_summary
         ),
