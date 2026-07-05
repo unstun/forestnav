@@ -408,6 +408,18 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     assert manifest["remaining_deliverables_acceptance_summary"]["matrix_row_count"] == 10
     assert manifest["remaining_deliverables_acceptance_summary"]["missing_row_count"] == 0
     assert manifest["remaining_deliverables_proof_command_plan"]["total_matrix_rows"] == 10
+    assert manifest["remote_packet_safety_proof_deliverables_summary"]["present"] is True
+    assert manifest["remote_packet_safety_proof_deliverables_summary"][
+        "missing_counts_by_formal_category"
+    ] == {
+        "training": 0,
+        "evaluation": 0,
+        "acceptance": 0,
+        "formal_acceptance": 0,
+    }
+    assert manifest["remote_packet_safety_status_report_proof_deliverables_summary"] == manifest[
+        "remote_packet_safety_proof_deliverables_summary"
+    ]
     assert manifest["remaining_deliverables_proof_command_plan"]["total_proof_command_count"] == 20
     assert manifest["formal_gate_proof_audit_summary"]["status"] == "formal_gate_proof_audit_passed"
     assert manifest["formal_gate_proof_audit_summary"]["passed_proof_command_count"] == 20
@@ -968,6 +980,10 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
     assert "formal_gate_proof_audit_blocked" in markdown
     assert "remaining_missing_counts_by_formal_category" in markdown
     assert "remaining_formal_acceptance_missing_matrix_ids" in markdown
+    assert "Remote Packet Safety Proof Deliverables Summary" in markdown
+    assert "proof_missing_counts_by_formal_category" in markdown
+    assert "proof_h02_paper_result_input_allowed" in markdown
+    assert "remote_proof_matches_proof_audit" in markdown
     assert "training:train_final_model_zip" in markdown
     assert "decision_owner_required" in markdown
     assert "decision_note_required" in markdown
