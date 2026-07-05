@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-05T17:27:47.548610+00:00",
-  "source_head": "5b739b2f672c3bf66ed2e32efe06058494ed3848",
+  "created_at_utc": "2026-07-05T17:29:44.180693+00:00",
+  "source_head": "500ac8a9a0c59a811a8e89c744be80793eaff10e",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -2398,8 +2398,8 @@
     "execution_boundary": "read_only_no_execution",
     "not_paper_result_material": true,
     "status": "source_freshness_risks_recorded_gate_still_blocked",
-    "source_head": "5b739b2f672c3bf66ed2e32efe06058494ed3848",
-    "current_head": "5b739b2f672c3bf66ed2e32efe06058494ed3848",
+    "source_head": "500ac8a9a0c59a811a8e89c744be80793eaff10e",
+    "current_head": "500ac8a9a0c59a811a8e89c744be80793eaff10e",
     "blocking_regeneration_required_before_remote_formal_execution": true,
     "blocking_target_count": 18,
     "blocking_target_ids": [
@@ -2438,8 +2438,8 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 19,
-        "blocking_changed_path_count_since_source": 7
+        "commits_since_source": 21,
+        "blocking_changed_path_count_since_source": 8
       },
       {
         "artifact_id": "f02_6_decision_intake",
@@ -2447,8 +2447,8 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 19,
-        "blocking_changed_path_count_since_source": 7
+        "commits_since_source": 21,
+        "blocking_changed_path_count_since_source": 8
       },
       {
         "artifact_id": "f02_6_decision_record",
@@ -2456,8 +2456,8 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 19,
-        "blocking_changed_path_count_since_source": 7
+        "commits_since_source": 21,
+        "blocking_changed_path_count_since_source": 8
       },
       {
         "artifact_id": "f02_6_transition_gate_audit",
@@ -2465,8 +2465,8 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 19,
-        "blocking_changed_path_count_since_source": 7
+        "commits_since_source": 21,
+        "blocking_changed_path_count_since_source": 8
       },
       {
         "artifact_id": "f02_6_warm_start_decision_packet",
@@ -2474,8 +2474,8 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 19,
-        "blocking_changed_path_count_since_source": 7
+        "commits_since_source": 21,
+        "blocking_changed_path_count_since_source": 8
       },
       {
         "artifact_id": "formal_gate_closure_checklist",
@@ -2483,8 +2483,8 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 19,
-        "blocking_changed_path_count_since_source": 7
+        "commits_since_source": 21,
+        "blocking_changed_path_count_since_source": 8
       },
       {
         "artifact_id": "formal_gate_gap_audit",
@@ -2492,8 +2492,8 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 19,
-        "blocking_changed_path_count_since_source": 7
+        "commits_since_source": 21,
+        "blocking_changed_path_count_since_source": 8
       },
       {
         "artifact_id": "gpu3070ti_readiness_refresh",
@@ -2501,8 +2501,8 @@
         "freshness_state": "historical_clean",
         "source_head": "181860fa90c7f5f35dfb9bc224ca84c849a60d8a",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 126,
-        "blocking_changed_path_count_since_source": 38
+        "commits_since_source": 128,
+        "blocking_changed_path_count_since_source": 39
       },
       {
         "artifact_id": "post_f02_6_plan_audit",
@@ -2510,8 +2510,8 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 19,
-        "blocking_changed_path_count_since_source": 7
+        "commits_since_source": 21,
+        "blocking_changed_path_count_since_source": 8
       },
       {
         "artifact_id": "post_f02_6_regeneration_plan",
@@ -2519,8 +2519,8 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 19,
-        "blocking_changed_path_count_since_source": 7
+        "commits_since_source": 21,
+        "blocking_changed_path_count_since_source": 8
       },
       {
         "artifact_id": "remote_formal_execution_packet",
@@ -2528,8 +2528,8 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 19,
-        "blocking_changed_path_count_since_source": 7
+        "commits_since_source": 21,
+        "blocking_changed_path_count_since_source": 8
       },
       {
         "artifact_id": "remote_packet_safety_audit",
@@ -2537,8 +2537,8 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 19,
-        "blocking_changed_path_count_since_source": 7
+        "commits_since_source": 21,
+        "blocking_changed_path_count_since_source": 8
       },
       {
         "artifact_id": "h01_evaluation_manifest",
@@ -2546,8 +2546,8 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "formal_h01_h02",
-        "commits_since_source": 19,
-        "blocking_changed_path_count_since_source": 7
+        "commits_since_source": 21,
+        "blocking_changed_path_count_since_source": 8
       },
       {
         "artifact_id": "h02_formal_acceptance",
@@ -2555,8 +2555,8 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "formal_h01_h02",
-        "commits_since_source": 19,
-        "blocking_changed_path_count_since_source": 7
+        "commits_since_source": 21,
+        "blocking_changed_path_count_since_source": 8
       },
       {
         "artifact_id": "formal_gate_missing_artifacts",
@@ -2564,8 +2564,8 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "formal_claim_gate",
-        "commits_since_source": 19,
-        "blocking_changed_path_count_since_source": 7
+        "commits_since_source": 21,
+        "blocking_changed_path_count_since_source": 8
       },
       {
         "artifact_id": "formal_gate_proof_audit",
@@ -2573,8 +2573,8 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "formal_claim_gate",
-        "commits_since_source": 19,
-        "blocking_changed_path_count_since_source": 7
+        "commits_since_source": 21,
+        "blocking_changed_path_count_since_source": 8
       },
       {
         "artifact_id": "formal_gate_proof_summary_chain_audit",
@@ -2582,8 +2582,8 @@
         "freshness_state": "historical_dirty",
         "source_head": "12d53f28954095cf8f45f4586752845f2f6cbc35+dirty",
         "required_before": "formal_claim_gate",
-        "commits_since_source": 6,
-        "blocking_changed_path_count_since_source": 4
+        "commits_since_source": 8,
+        "blocking_changed_path_count_since_source": 5
       },
       {
         "artifact_id": "mainline_formal_gate_state_audit",
@@ -2591,8 +2591,8 @@
         "freshness_state": "historical_dirty",
         "source_head": "12d53f28954095cf8f45f4586752845f2f6cbc35+dirty",
         "required_before": "formal_claim_gate",
-        "commits_since_source": 6,
-        "blocking_changed_path_count_since_source": 4
+        "commits_since_source": 8,
+        "blocking_changed_path_count_since_source": 5
       }
     ]
   },
