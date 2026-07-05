@@ -37,6 +37,34 @@ def test_formal_gate_proof_audit_blocks_missing_current_deliverables(tmp_path):
     assert manifest["passed_proof_command_count"] == 0
     assert manifest["failed_proof_command_count"] == 0
     assert manifest["blocked_proof_command_count"] == 20
+    assert manifest["proof_command_summary"] == {
+        "total_matrix_rows": 10,
+        "total_proof_command_count": 20,
+        "passed_proof_command_count": 0,
+        "failed_proof_command_count": 0,
+        "blocked_proof_command_count": 20,
+    }
+    assert manifest["formal_gate_missing_evidence_summary"]["training"] == {
+        "missing_artifact_ids": [
+            "train_final_model_zip",
+            "train_summary_json",
+            "train_training_manifest_json",
+        ],
+        "failed_artifact_ids": [],
+    }
+    assert manifest["formal_gate_missing_evidence_summary"]["evaluation"]["missing_artifact_ids"] == [
+        "eval_gate3_eval_episodes_csv",
+        "eval_gate3_summary_json",
+    ]
+    assert manifest["formal_gate_missing_evidence_summary"]["acceptance"]["missing_artifact_ids"] == [
+        "gate3_trial_manifest_json",
+        "gate3_formal_audit_json",
+        "pulled_back_checkpoint_hash_record",
+    ]
+    assert manifest["current_state"]["remaining_deliverables_status"] == "formal_gate_deliverables_blocked"
+    assert manifest["current_state"]["remaining_missing_deliverable_count"] == 10
+    assert manifest["current_state"]["remaining_open_category_count"] == 4
+    assert manifest["current_state"]["source_freshness_ready_for_remote_preflight"] is False
     assert manifest["category_status_counts"]["training"] == {
         "passed": 0,
         "failed": 0,
@@ -72,6 +100,10 @@ def test_formal_gate_proof_audit_accepts_synthetic_complete_pullback(tmp_path):
     assert manifest["blocked_proof_command_count"] == 0
     assert manifest["failed_proof_command_count"] == 0
     assert manifest["blockers"] == []
+    assert all(
+        not item["missing_artifact_ids"] and not item["failed_artifact_ids"]
+        for item in manifest["formal_gate_missing_evidence_summary"].values()
+    )
     assert manifest["proof_command_results_by_id"]["train_final_model_zip_valid_zip"]["status"] == "passed"
     assert manifest["proof_command_results_by_id"]["eval_gate3_eval_episodes_csv_schema"]["status"] == "passed"
     assert (
@@ -149,6 +181,12 @@ def _remaining_deliverables(root: Path):
         "runs_remote_preflight": False,
         "local_training_allowed": False,
         "formal_claim_allowed": False,
+        "missing_deliverable_count": 10,
+        "open_category_count": 4,
+        "current_gate_summary": {
+            "source_freshness_ready_for_remote_preflight": False,
+            "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
+        },
         "proof_command_plan": {
             "plan_id": "module2_formal_gate_local_read_only_proof_commands",
             "execution_boundary": "local_read_only_after_formal_remote_pullback",
