@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "gate_name": "module2_f03_gate3",
+  "contract": ".pipeline/contracts/module2-ppo-funnel-expansion.md",
+  "decision": "fail",
+  "decision_rule": "pass iff episodes >= min_episodes and terminal_rs_success_rate >= success_threshold",
+  "success_threshold": 0.8,
+  "min_episodes": 64,
+  "episodes": 64,
+  "terminal_rs_success": 34,
+  "terminal_rs_success_rate": 0.53125,
+  "collision": 22,
+  "collision_rate": 0.34375,
+  "truncated": 8,
+  "truncation_rate": 0.125,
+  "nn_forward_time_s": 0.28151167556643486,
+  "mean_nn_forward_time_s": 0.004398619930725545,
+  "model": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
+  "model_sha256": "57349a6270a118c9e1095179d7284f80768f894c6200d3b631d0bf67e86267a8",
+  "episodes_csv": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv",
+  "created_at_utc": "2026-07-05T19:30:18.466913+00:00",
+  "execution_host": "ubuntu-OMEN-by-HP-Laptop-17-ck1xxx",
+  "source_head": "unknown",
+  "config": {
+    "command": "python -m forest_n3p.scripts.eval_rl_rs_gate3 --model 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip --output-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval --seed 20260704 --device cuda --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260704 --episodes 64 --min-episodes 64 --success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --obs-edt-clip-m 2.0 --max-steps 32 --action-step-m 0.3 --collision-sample-step-m 0.1 --terminal-check-every 1 --theta-bins 72 --allow-duplicate-openmp",
+    "seed": 20260704,
+    "device": "cuda",
+    "curriculum_preset": "f03",
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "heldout_seed": 20260704,
+    "episodes": 64,
+    "observation_config": {
+      "patch_size_m": 6.4,
+      "patch_cells": 64,
+      "include_edt": true,
+      "edt_clip_m": 2.0
+    },
+    "env_config": {
+      "max_steps": 32,
+      "action_step_m": 0.3,
+      "collision_sample_step_m": 0.1,
+      "terminal_check_every": 1,
+      "theta_bins": 72
+    }
+  }
+}
