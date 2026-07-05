@@ -140,6 +140,7 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
     h01_manifest = _read_json(config.h01_manifest_path)
     h02_acceptance = _read_json(config.h02_acceptance_path)
     source_freshness = _read_json(config.source_freshness_path)
+    post_f02_6_plan = _read_json(config.post_f02_6_plan_path)
 
     deliverable_groups = _deliverable_groups(
         status_report=status_report,
@@ -152,6 +153,11 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
         deliverable_acceptance_matrix=deliverable_acceptance_matrix,
     )
     proof_command_plan = _proof_command_plan(deliverable_acceptance_matrix)
+    deliverable_production_plan = _deliverable_production_plan(
+        deliverable_acceptance_matrix=deliverable_acceptance_matrix,
+        post_f02_6_plan=post_f02_6_plan,
+        remote_packet=remote_packet,
+    )
     deliverable_unlock_chain = _deliverable_unlock_chain(deliverable_acceptance_matrix)
     category_counts = _category_counts(deliverable_groups)
     missing_counts_by_formal_category = {
@@ -181,8 +187,10 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
         h01_manifest=h01_manifest,
         h02_acceptance=h02_acceptance,
         source_freshness=source_freshness,
+        post_f02_6_plan=post_f02_6_plan,
         deliverable_groups=deliverable_groups,
         deliverable_acceptance_matrix=deliverable_acceptance_matrix,
+        deliverable_production_plan=deliverable_production_plan,
         deliverable_unlock_chain=deliverable_unlock_chain,
     )
     missing_count = sum(group["missing_count"] for group in deliverable_groups)
@@ -215,6 +223,7 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
             "h01_manifest": str(config.h01_manifest_path),
             "h02_formal_acceptance": str(config.h02_acceptance_path),
             "source_freshness_audit": str(config.source_freshness_path),
+            "post_f02_6_regeneration_plan": str(config.post_f02_6_plan_path),
         },
         "current_gate_summary": current_gate_summary,
         "permissions_now": permissions_now,
@@ -228,6 +237,7 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
         "h02_paper_result_input_allowed": current_gate_summary["h02_paper_result_input_allowed"],
         "deliverable_gap_summary": deliverable_gap_summary,
         "proof_command_plan": proof_command_plan,
+        "deliverable_production_plan": deliverable_production_plan,
         "deliverable_unlock_chain": deliverable_unlock_chain,
         "plain_formal_gate_closure_checklist": _plain_formal_gate_closure_checklist(
             current_gate_summary=current_gate_summary,
