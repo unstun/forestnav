@@ -79,6 +79,15 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["current_state"]["decision_intake_decision_impact_remote_training_allowed_now"] is False
     assert manifest["current_state"]["decision_intake_decision_impact_formal_claim_allowed_now"] is False
     assert manifest["current_state"]["decision_intake_decision_impact_paper_result_material_allowed_now"] is False
+    assert manifest["current_state"]["decision_intake_evidence_matrix_status"] == "ready_for_dr_sun_decision_not_authorization"
+    assert manifest["current_state"]["decision_intake_evidence_matrix_route_count"] == 2
+    assert manifest["current_state"]["decision_intake_evidence_matrix_required_evidence_count"] == 7
+    assert manifest["current_state"]["decision_intake_evidence_matrix_missing_required_evidence_count"] == 0
+    assert manifest["current_state"]["decision_intake_evidence_matrix_remote_training_allowed_now"] is False
+    evidence_matrix = manifest["f02_6_decision_evidence_matrix_summary"]
+    assert evidence_matrix["status"] == "ready_for_dr_sun_decision_not_authorization"
+    assert evidence_matrix["missing_required_evidence_count"] == 0
+    assert evidence_matrix["remote_training_allowed_now"] is False
     assert manifest["current_state"]["missing_artifacts_handoff_index_status"] == "blocked_until_f02_6_decision"
     assert manifest["current_state"]["missing_artifacts_handoff_next_action"] == "record_f02_6_decision"
     assert manifest["current_state"]["missing_artifacts_handoff_open_requirement_count"] == 5
