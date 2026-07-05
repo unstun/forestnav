@@ -7,6 +7,13 @@ from forest_n3p.scripts.build_module2_formal_gate_status_report import (
     _formal_gate_execution_veto_issues,
     _remaining_deliverables_acceptance_issues,
 )
+from forest_n3p.scripts.build_module2_f02_6_transition_gate_audit import (
+    _approved_scenario_issues,
+    _common_scenario_issues,
+)
+from forest_n3p.scripts.build_module2_formal_gate_gap_audit import (
+    _execution_veto_matrix,
+)
 from forest_n3p.scripts.build_module2_formal_gate_remaining_deliverables import (
     _production_plan_safety_issues,
     _unlock_chain_safety_issues,
@@ -277,6 +284,101 @@ def test_remote_packet_ready_stage_does_not_allow_audit_before_training(tmp_path
     assert steps["run_remote_training"]["allowed_now"] is True
     assert steps["run_remote_audit"]["allowed_now"] is False
     assert steps["run_remote_audit"]["blocked_by"] == ["remote_training_not_completed"]
+
+
+def test_execution_veto_uses_authoritative_training_sources_not_downstream_audits() -> None:
+    matrix = _execution_veto_matrix(
+        decision={
+            "status": "approved",
+            "remote_training_allowed": True,
+        },
+        remote={
+            "local_training_allowed": False,
+            "execution_steps": {
+                "run_remote_preflight": {"allowed_now": True},
+                "run_remote_training": {"allowed_now": True},
+                "run_remote_audit": {"allowed_now": False},
+            },
+        },
+        status_report={
+            "permissions_now": {
+                "local_training_allowed_now": False,
+                "remote_preflight_allowed_now": True,
+                "remote_training_allowed_now": True,
+                "formal_claim_allowed_now": False,
+            }
+        },
+        handoff_bundle={
+            "permissions_now": {
+                "local_training_allowed_now": False,
+                "remote_preflight_allowed_now": False,
+                "remote_training_allowed_now": False,
+                "formal_claim_allowed_now": False,
+            },
+            "remote_execution_steps": {
+                "run_remote_audit": {"allowed_now": False},
+            },
+        },
+        remote_packet_safety={
+            "packet_summary": {
+                "remote_preflight_allowed_now": False,
+                "remote_training_allowed_now": False,
+                "remote_audit_allowed_now": False,
+            }
+        },
+    )
+
+    rows = {row["row_id"]: row for row in matrix["rows"]}
+    assert rows["remote_preflight"]["consistent"] is True
+    assert rows["remote_preflight"]["consensus_allowed_now"] is True
+    assert rows["remote_training"]["consistent"] is True
+    assert rows["remote_training"]["consensus_allowed_now"] is True
+    assert "handoff_bundle" not in rows["remote_training"]["allowed_now_by_source"]
+    assert "remote_packet_safety" not in rows["remote_training"]["allowed_now_by_source"]
+    assert rows["remote_audit"]["consensus_allowed_now"] is False
+
+
+def test_f02_6_approved_transition_allows_remote_training_entry_not_claim() -> None:
+    summary = {
+        "scenario_id": "approved",
+        "record_status": "approved",
+        "record_local_training_allowed": False,
+        "record_formal_claim_allowed": False,
+        "record_remote_preflight_allowed_now": False,
+        "record_remote_training_allowed_now": False,
+        "decision_gate_audit_issue_count": 0,
+        "post_plan_audit_issue_count": 0,
+        "remote_packet_safety_issue_count": 0,
+        "decision_gate_status": "f02_6_decision_gate_audit_passed",
+        "post_plan_audit_status": "post_f02_6_plan_audit_passed",
+        "remote_packet_safety_status": "remote_packet_safety_audit_passed",
+        "post_plan_status": "ready_for_remote_training_packet_execution",
+        "formal_gate_status_report_next_blocked_lane_id": "gate3_remote_audit_pullback",
+        "formal_gate_status_report_permissions_now": {
+            "local_training_allowed_now": False,
+            "remote_preflight_allowed_now": True,
+            "remote_training_allowed_now": True,
+            "formal_claim_allowed_now": False,
+        },
+        "post_plan_stage_summary": {
+            "regenerate_preflight_gate_artifacts": {"allowed_now": False},
+            "approved_remote_preflight": {"allowed_now": True},
+            "gate3_remote_training": {"allowed_now": True},
+            "gate3_remote_audit_pullback": {"allowed_now": False},
+            "regenerate_claim_gate_artifacts": {"allowed_now": False},
+        },
+    }
+
+    issue_ids = {
+        issue["issue_id"]
+        for issue in _common_scenario_issues(summary) + _approved_scenario_issues(summary)
+    }
+
+    assert "status_report_allows_remote_training" not in issue_ids
+    assert "approved_post_plan_wrong_status" not in issue_ids
+    assert "approved_status_report_allows_remote_preflight_too_early" not in issue_ids
+    assert "approved_remote_preflight_ready_too_early" not in issue_ids
+    assert "approved_training_ready_too_early" not in issue_ids
 
 
 def test_remaining_deliverables_allow_training_generation_while_missing() -> None:
