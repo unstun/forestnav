@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_paper_readiness",
   "status": "partial_methods_ready_results_blocked",
-  "created_at_utc": "2026-07-05T04:58:45.008406+00:00",
-  "source_head": "d660065ee07319f803425e6948d91d9bd7901a27+dirty",
+  "created_at_utc": "2026-07-05T05:05:07.191822+00:00",
+  "source_head": "fe2a7c0ca69c8bab823a36ebddd9efb7bcc43728+dirty",
   "manuscript_ready": false,
   "formal_results_ready": false,
   "local_training_allowed": false,
@@ -101,7 +101,7 @@
     "remote_execution_ready": false,
     "status_report_status": "formal_gate_status_blocked",
     "status_report_formal_claim_allowed_now": false,
-    "status_report_input_safety_issue_count": 0
+    "status_report_input_safety_issue_count": 1
   },
   "claim_safety_requirement_stage_summary": {
     "present": true,
@@ -717,11 +717,11 @@
         "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit"
       },
       "claim_safety": {
-        "present": true,
-        "stage_id": "regenerate_claim_gate_artifacts",
-        "required_before": "formal_claim_gate",
-        "command_kind": "known_builder",
-        "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety"
+        "present": false,
+        "stage_id": null,
+        "required_before": null,
+        "command_kind": null,
+        "command_template": null
       },
       "paper_readiness": {
         "present": true,
@@ -750,17 +750,20 @@
     "f02_6_pending",
     "formal_gate_closure_checklist_open",
     "formal_gate_status_report_blocked",
+    "status_report_input_safety_issues_open",
     "status_report_remaining_deliverables_gap_rows_missing",
     "status_report_remaining_deliverables_gap_categories_blocked",
     "status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing",
     "status_report_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked",
+    "status_report_remote_packet_safety_command_index_missing_claim_safety",
     "claim_safety_f02_6_decision_intake_pending",
     "claim_safety_remaining_deliverables_acceptance_rows_missing",
     "claim_safety_remaining_deliverables_acceptance_categories_blocked",
     "claim_safety_remaining_deliverables_gap_rows_missing",
     "claim_safety_remaining_deliverables_gap_categories_blocked",
     "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing",
-    "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked"
+    "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked",
+    "claim_safety_remote_packet_safety_command_index_missing_claim_safety"
   ],
   "allowed_claim_ids": [
     "method_is_ha_star_analytic_operator",
@@ -849,17 +852,20 @@
         "f02_6_pending",
         "formal_gate_closure_checklist_open",
         "formal_gate_status_report_blocked",
+        "status_report_input_safety_issues_open",
         "status_report_remaining_deliverables_gap_rows_missing",
         "status_report_remaining_deliverables_gap_categories_blocked",
         "status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing",
         "status_report_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked",
+        "status_report_remote_packet_safety_command_index_missing_claim_safety",
         "claim_safety_f02_6_decision_intake_pending",
         "claim_safety_remaining_deliverables_acceptance_rows_missing",
         "claim_safety_remaining_deliverables_acceptance_categories_blocked",
         "claim_safety_remaining_deliverables_gap_rows_missing",
         "claim_safety_remaining_deliverables_gap_categories_blocked",
         "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing",
-        "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked"
+        "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked",
+        "claim_safety_remote_packet_safety_command_index_missing_claim_safety"
       ]
     },
     {

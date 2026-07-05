@@ -28,10 +28,11 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 
 ### Source Freshness Regeneration Targets
 
-- `f02_6_decision_intake`: `current_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json`
+- `f02_6_decision_gate_audit`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json`
+- `f02_6_decision_intake`: `historical_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json`
 - `f02_6_decision_record`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json`
 - `f02_6_transition_gate_audit`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json`
-- `f02_6_warm_start_decision_packet`: `current_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json`
+- `f02_6_warm_start_decision_packet`: `historical_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json`
 - `formal_gate_closure_checklist`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json`
 - `formal_gate_gap_audit`: `historical_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json`
 - `formal_gate_handoff_bundle`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`
@@ -42,13 +43,12 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - `remote_packet_safety_audit`: `historical_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
 - `h01_evaluation_manifest`: `historical_clean`, required before `formal_h01_h02`, path `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`
 - `h02_formal_acceptance`: `historical_clean`, required before `formal_h01_h02`, path `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
-- `claim_safety`: `historical_clean`, required before `formal_claim_gate`, path `0_trials/module2_claim_safety/module2_claim_safety.json`
 - `formal_gate_missing_artifacts`: `historical_dirty`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json`
 - `formal_gate_proof_audit`: `historical_dirty`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json`
-- `formal_gate_proof_summary_chain_audit`: `historical_dirty`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json`
+- `formal_gate_proof_summary_chain_audit`: `current_dirty`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json`
 - `formal_gate_remaining_deliverables`: `historical_dirty`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json`
-- `formal_gate_status_report`: `historical_dirty`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`
-- `paper_readiness`: `historical_dirty`, required before `formal_claim_gate`, path `0_trials/module2_paper_readiness/module2_paper_readiness.json`
+- `formal_gate_status_report`: `current_dirty`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`
+- `paper_readiness`: `current_dirty`, required before `formal_claim_gate`, path `0_trials/module2_paper_readiness/module2_paper_readiness.json`
 
 ## Missing Artifacts Inventory
 
@@ -121,13 +121,13 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 ## Remote Packet Safety
 
 - path: `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
-- status: `remote_packet_safety_audit_passed`
+- status: `remote_packet_safety_audit_failed`
 - executes_commands: `False`
 - runs_training: `False`
 - runs_remote_preflight: `False`
 - packet_status: `blocked_until_f02_6_decision`
 - remote_training_allowed_now: `False`
-- audit_issue_count: `0`
+- audit_issue_count: `1`
 - command_index_present: `True`
 - command_index_row_count: `21`
 - command_index_missing_target_ids: `[]`
@@ -202,6 +202,18 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
   - evidence: `0_trials/module2_source_freshness_audit/source_freshness_audit.json`
   - why: Source freshness audit reports stale or dirty gate artifacts that must be regenerated before formal execution.
   - needed: After F02.6 closes, regenerate the listed targets before approved remote preflight, H01/H02, and formal claim gates.
+- `remote_packet_safety_audit_failed`
+  - evidence: `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
+  - why: Remote packet safety audit status is remote_packet_safety_audit_failed.
+  - needed: Fix the remote execution packet or post-plan/status cross-gates before approved remote execution.
+- `remote_packet_safety_audit_issues_open`
+  - evidence: `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
+  - why: Remote packet safety audit reports 1 issues.
+  - needed: Resolve every remote packet safety issue before approved remote execution.
+- `remote_packet_safety_command_index_missing_claim_safety`
+  - evidence: `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
+  - why: Remote packet safety command index does not include claim_safety.
+  - needed: Regenerate post-F02.6 plan and safety audit so claim-gate artifacts stay source-fresh before formal claims.
 
 ## Evaluation Artifact Gaps
 

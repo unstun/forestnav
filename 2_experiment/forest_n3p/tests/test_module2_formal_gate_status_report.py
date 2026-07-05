@@ -41,6 +41,19 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["current_state"]["decision_intake_remote_preflight_allowed_now"] is False
     assert manifest["current_state"]["decision_intake_remote_training_allowed_now"] is False
     assert manifest["current_state"]["decision_intake_formal_claim_allowed_now"] is False
+    assert manifest["current_state"]["decision_intake_packet_authorization_status"] == "blocked_until_dr_sun_decision"
+    assert manifest["current_state"]["decision_intake_packet_current_allowed_action_ids"] == ["record_f02_6_decision"]
+    assert manifest["current_state"]["decision_intake_packet_current_blocked_action_ids"] == [
+        "remote_preflight",
+        "remote_training",
+        "local_training",
+        "formal_claim",
+        "paper_result_material",
+    ]
+    assert manifest["current_state"]["decision_intake_packet_post_decision_routes_are_current_authorization"] is False
+    assert manifest["current_state"]["decision_intake_packet_remote_preflight_allowed_now"] is False
+    assert manifest["current_state"]["decision_intake_packet_remote_training_allowed_now"] is False
+    assert manifest["current_state"]["decision_intake_packet_paper_result_material_allowed_now"] is False
     assert manifest["current_state"]["missing_artifacts_handoff_index_status"] == "blocked_until_f02_6_decision"
     assert manifest["current_state"]["missing_artifacts_handoff_next_action"] == "record_f02_6_decision"
     assert manifest["current_state"]["missing_artifacts_handoff_open_requirement_count"] == 5
@@ -130,6 +143,12 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert intake["remote_preflight_allowed_now"] is False
     assert intake["remote_training_allowed_now"] is False
     assert intake["formal_claim_allowed_now"] is False
+    assert intake["packet_authorization_status"] == "blocked_until_dr_sun_decision"
+    assert intake["packet_current_allowed_action_ids"] == ["record_f02_6_decision"]
+    assert intake["packet_post_decision_routes_are_current_authorization"] is False
+    assert intake["packet_remote_preflight_allowed_now"] is False
+    assert intake["packet_remote_training_allowed_now"] is False
+    assert intake["packet_paper_result_material_allowed_now"] is False
     assert intake["decision_owner_required"] == "Dr Sun"
     assert intake["valid_decision_count"] == 2
     assert set(intake["valid_decisions"]) == {
@@ -497,6 +516,18 @@ def test_formal_gate_status_report_requires_clean_decision_intake(tmp_path):
     intake["status"] = "f02_6_decision_intake_failed"
     intake["audit_issue_count"] = 1
     intake["current_state"]["status_report_remote_training_allowed_now"] = True
+    intake["current_state"]["packet_current_allowed_action_ids"] = [
+        "record_f02_6_decision",
+        "remote_preflight",
+    ]
+    intake["current_state"]["packet_current_blocked_action_ids"] = [
+        "remote_training",
+        "local_training",
+        "formal_claim",
+    ]
+    intake["current_state"]["packet_post_decision_routes_are_current_authorization"] = True
+    intake["current_state"]["packet_remote_preflight_allowed_now"] = True
+    intake["current_state"]["packet_paper_result_material_allowed_now"] = True
     config.decision_intake_path.write_text(json.dumps(intake), encoding="utf-8")
 
     manifest = builder.build_manifest(config)
@@ -506,6 +537,12 @@ def test_formal_gate_status_report_requires_clean_decision_intake(tmp_path):
     assert "decision_intake_not_clean" in issue_ids
     assert "decision_intake_audit_issues_open" in issue_ids
     assert "decision_intake_remote_training_allowed_now_not_false" in issue_ids
+    assert "decision_intake_packet_allowed_actions_not_decision_only" in issue_ids
+    assert "decision_intake_packet_missing_blocked_actions" in issue_ids
+    assert "decision_intake_packet_treats_routes_as_authorization" in issue_ids
+    assert "decision_intake_packet_remote_preflight_allowed_now_not_false" in issue_ids
+    assert "decision_intake_packet_paper_result_material_allowed_now_not_false" in issue_ids
+    assert "decision_intake_packet_status_report_remote_preflight_mismatch" in issue_ids
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
 
 
@@ -1407,6 +1444,23 @@ def _decision_intake(*, complete):
             "status_report_remote_preflight_allowed_now": complete,
             "status_report_remote_training_allowed_now": complete,
             "status_report_formal_claim_allowed_now": complete,
+            "packet_authorization_status": "closed_dr_sun_decision" if complete else "blocked_until_dr_sun_decision",
+            "packet_current_allowed_action_ids": [] if complete else ["record_f02_6_decision"],
+            "packet_current_blocked_action_ids": []
+            if complete
+            else [
+                "remote_preflight",
+                "remote_training",
+                "local_training",
+                "formal_claim",
+                "paper_result_material",
+            ],
+            "packet_post_decision_routes_are_current_authorization": False,
+            "packet_remote_preflight_allowed_now": complete,
+            "packet_remote_training_allowed_now": complete,
+            "packet_local_training_allowed_now": False,
+            "packet_formal_claim_allowed_now": complete,
+            "packet_paper_result_material_allowed_now": False,
         },
         "decision_intake_contract": {
             "decision_owner_required": "Dr Sun",

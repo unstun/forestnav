@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_regeneration_plan",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-05T04:58:17.278948+00:00",
-  "source_head": "d660065ee07319f803425e6948d91d9bd7901a27+dirty",
+  "created_at_utc": "2026-07-05T05:05:06.799321+00:00",
+  "source_head": "fe2a7c0ca69c8bab823a36ebddd9efb7bcc43728+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -113,9 +113,14 @@
   "source_regeneration_targets_by_gate": {
     "approved_remote_preflight": [
       {
+        "artifact_id": "f02_6_decision_gate_audit",
+        "path": "0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json",
+        "freshness_state": "historical_clean"
+      },
+      {
         "artifact_id": "f02_6_decision_intake",
         "path": "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
-        "freshness_state": "current_dirty"
+        "freshness_state": "historical_dirty"
       },
       {
         "artifact_id": "f02_6_decision_record",
@@ -130,7 +135,7 @@
       {
         "artifact_id": "f02_6_warm_start_decision_packet",
         "path": "0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json",
-        "freshness_state": "current_dirty"
+        "freshness_state": "historical_dirty"
       },
       {
         "artifact_id": "formal_gate_closure_checklist",
@@ -187,11 +192,6 @@
     ],
     "formal_claim_gate": [
       {
-        "artifact_id": "claim_safety",
-        "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
-        "freshness_state": "historical_clean"
-      },
-      {
         "artifact_id": "formal_gate_missing_artifacts",
         "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
         "freshness_state": "historical_dirty"
@@ -204,7 +204,7 @@
       {
         "artifact_id": "formal_gate_proof_summary_chain_audit",
         "path": "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
-        "freshness_state": "historical_dirty"
+        "freshness_state": "current_dirty"
       },
       {
         "artifact_id": "formal_gate_remaining_deliverables",
@@ -214,20 +214,29 @@
       {
         "artifact_id": "formal_gate_status_report",
         "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
-        "freshness_state": "historical_dirty"
+        "freshness_state": "current_dirty"
       },
       {
         "artifact_id": "paper_readiness",
         "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
-        "freshness_state": "historical_dirty"
+        "freshness_state": "current_dirty"
       }
     ]
   },
   "source_regeneration_command_index": [
     {
+      "artifact_id": "f02_6_decision_gate_audit",
+      "required_before": "approved_remote_preflight",
+      "freshness_state": "historical_clean",
+      "path": "0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json",
+      "stage_id": "regenerate_preflight_gate_artifacts",
+      "command_kind": "known_builder",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_gate_audit"
+    },
+    {
       "artifact_id": "f02_6_decision_intake",
       "required_before": "approved_remote_preflight",
-      "freshness_state": "current_dirty",
+      "freshness_state": "historical_dirty",
       "path": "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
       "stage_id": "regenerate_preflight_gate_artifacts",
       "command_kind": "known_builder",
@@ -254,7 +263,7 @@
     {
       "artifact_id": "f02_6_warm_start_decision_packet",
       "required_before": "approved_remote_preflight",
-      "freshness_state": "current_dirty",
+      "freshness_state": "historical_dirty",
       "path": "0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json",
       "stage_id": "regenerate_preflight_gate_artifacts",
       "command_kind": "known_builder",
@@ -351,15 +360,6 @@
       "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_h02_formal_acceptance"
     },
     {
-      "artifact_id": "claim_safety",
-      "required_before": "formal_claim_gate",
-      "freshness_state": "historical_clean",
-      "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
-      "stage_id": "regenerate_claim_gate_artifacts",
-      "command_kind": "known_builder",
-      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety"
-    },
-    {
       "artifact_id": "formal_gate_missing_artifacts",
       "required_before": "formal_claim_gate",
       "freshness_state": "historical_dirty",
@@ -380,7 +380,7 @@
     {
       "artifact_id": "formal_gate_proof_summary_chain_audit",
       "required_before": "formal_claim_gate",
-      "freshness_state": "historical_dirty",
+      "freshness_state": "current_dirty",
       "path": "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
       "stage_id": "regenerate_claim_gate_artifacts",
       "command_kind": "known_builder",
@@ -398,7 +398,7 @@
     {
       "artifact_id": "formal_gate_status_report",
       "required_before": "formal_claim_gate",
-      "freshness_state": "historical_dirty",
+      "freshness_state": "current_dirty",
       "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
       "stage_id": "regenerate_claim_gate_artifacts",
       "command_kind": "known_builder",
@@ -407,7 +407,7 @@
     {
       "artifact_id": "paper_readiness",
       "required_before": "formal_claim_gate",
-      "freshness_state": "historical_dirty",
+      "freshness_state": "current_dirty",
       "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
       "stage_id": "regenerate_claim_gate_artifacts",
       "command_kind": "known_builder",
@@ -447,6 +447,7 @@
       "requires_human_input": false,
       "action": "Regenerate source-stale artifacts required before approved remote preflight.",
       "evidence_paths": [
+        "0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json",
         "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
         "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
         "0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json",
@@ -461,6 +462,7 @@
         "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json"
       ],
       "command_templates": [
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_gate_audit",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_intake",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_transition_gate_audit",
@@ -625,7 +627,6 @@
       "requires_human_input": false,
       "action": "Regenerate claim safety and paper readiness only after H02 formal acceptance.",
       "evidence_paths": [
-        "0_trials/module2_claim_safety/module2_claim_safety.json",
         "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
         "0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json",
         "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-05T04:58:36.627643+00:00",
-  "source_head": "d660065ee07319f803425e6948d91d9bd7901a27+dirty",
+  "created_at_utc": "2026-07-05T05:05:07.084629+00:00",
+  "source_head": "fe2a7c0ca69c8bab823a36ebddd9efb7bcc43728+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -44,6 +44,21 @@
     "decision_intake_remote_preflight_allowed_now": false,
     "decision_intake_remote_training_allowed_now": false,
     "decision_intake_formal_claim_allowed_now": false,
+    "decision_intake_packet_authorization_status": "blocked_until_dr_sun_decision",
+    "decision_intake_packet_current_allowed_action_ids": [
+      "record_f02_6_decision"
+    ],
+    "decision_intake_packet_current_blocked_action_ids": [
+      "remote_preflight",
+      "remote_training",
+      "local_training",
+      "formal_claim",
+      "paper_result_material"
+    ],
+    "decision_intake_packet_post_decision_routes_are_current_authorization": false,
+    "decision_intake_packet_remote_preflight_allowed_now": false,
+    "decision_intake_packet_remote_training_allowed_now": false,
+    "decision_intake_packet_paper_result_material_allowed_now": false,
     "formal_gate_status": "blocked_formal_gate_gaps_open",
     "missing_artifacts_status": "formal_gate_missing_artifacts_open",
     "missing_artifacts_handoff_index_status": "blocked_until_f02_6_decision",
@@ -118,7 +133,7 @@
     "remote_packet_safety_status_report_proof_summary_present": true,
     "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
     "source_freshness_regeneration_required": true,
-    "source_freshness_non_self_changed_records": 19,
+    "source_freshness_non_self_changed_records": 18,
     "source_freshness_self_artifact_only_lag_records": 0,
     "remote_packet_safety_command_index_present": true,
     "remote_packet_safety_command_index_row_count": 21,
@@ -607,6 +622,23 @@
     "remote_training_allowed_now": false,
     "formal_claim_allowed_now": false,
     "local_training_allowed_now": false,
+    "packet_authorization_status": "blocked_until_dr_sun_decision",
+    "packet_current_allowed_action_ids": [
+      "record_f02_6_decision"
+    ],
+    "packet_current_blocked_action_ids": [
+      "remote_preflight",
+      "remote_training",
+      "local_training",
+      "formal_claim",
+      "paper_result_material"
+    ],
+    "packet_post_decision_routes_are_current_authorization": false,
+    "packet_remote_preflight_allowed_now": false,
+    "packet_remote_training_allowed_now": false,
+    "packet_local_training_allowed_now": false,
+    "packet_formal_claim_allowed_now": false,
+    "packet_paper_result_material_allowed_now": false,
     "decision_owner_required": "Dr Sun",
     "valid_decisions": [
       "approve_obstacle_summary_warm_start",
@@ -2311,11 +2343,11 @@
         "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit"
       },
       "claim_safety": {
-        "present": true,
-        "stage_id": "regenerate_claim_gate_artifacts",
-        "required_before": "formal_claim_gate",
-        "command_kind": "known_builder",
-        "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety"
+        "present": false,
+        "stage_id": null,
+        "required_before": null,
+        "command_kind": null,
+        "command_template": null
       },
       "paper_readiness": {
         "present": true,
@@ -2362,6 +2394,9 @@
         "source_freshness_regeneration_required",
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
+        "remote_packet_safety_audit_failed",
+        "remote_packet_safety_audit_issues_open",
+        "remote_packet_safety_command_index_missing_claim_safety",
         "f02_6_decision_not_approved"
       ],
       "missing_item_count": 21,
@@ -2514,6 +2549,9 @@
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
         "source_freshness_regeneration_required",
+        "remote_packet_safety_audit_failed",
+        "remote_packet_safety_audit_issues_open",
+        "remote_packet_safety_command_index_missing_claim_safety",
         "f02_6_decision_not_approved",
         "source_fresh_preflight_targets_open"
       ],
@@ -2579,6 +2617,9 @@
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
         "source_freshness_regeneration_required",
+        "remote_packet_safety_audit_failed",
+        "remote_packet_safety_audit_issues_open",
+        "remote_packet_safety_command_index_missing_claim_safety",
         "remote_training_packet_not_ready",
         "f02_6_decision_not_approved",
         "source_fresh_preflight_targets_open",
@@ -2624,6 +2665,9 @@
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
         "source_freshness_regeneration_required",
+        "remote_packet_safety_audit_failed",
+        "remote_packet_safety_audit_issues_open",
+        "remote_packet_safety_command_index_missing_claim_safety",
         "remote_training_packet_not_ready",
         "missing_remote_pullback_artifact",
         "missing_ppo_result_rows",
@@ -2681,6 +2725,9 @@
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
         "source_freshness_regeneration_required",
+        "remote_packet_safety_audit_failed",
+        "remote_packet_safety_audit_issues_open",
+        "remote_packet_safety_command_index_missing_claim_safety",
         "remote_training_packet_not_ready",
         "missing_remote_pullback_artifact",
         "missing_ppo_result_rows",
@@ -2731,6 +2778,9 @@
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
         "source_freshness_regeneration_required",
+        "remote_packet_safety_audit_failed",
+        "remote_packet_safety_audit_issues_open",
+        "remote_packet_safety_command_index_missing_claim_safety",
         "remote_training_packet_not_ready",
         "missing_remote_pullback_artifact",
         "missing_ppo_result_rows",
@@ -2817,8 +2867,13 @@
       "requires_dr_sun_approval"
     ]
   },
-  "input_safety_issue_count": 0,
-  "input_safety_issues": [],
+  "input_safety_issue_count": 1,
+  "input_safety_issues": [
+    {
+      "issue_id": "formal_gate_remote_packet_safety_command_index_missing_claim_safety",
+      "message": "remote packet safety command index must include claim_safety."
+    }
+  ],
   "safe_work_without_f02_6_decision": [
     "Maintain or harden read-only gate artifacts.",
     "Add tests for gate ordering, artifact inventory, and claim blocking.",

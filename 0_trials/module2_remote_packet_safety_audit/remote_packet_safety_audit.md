@@ -2,8 +2,8 @@
 
 This file audits the remote formal execution packet. It does not execute any command.
 
-- status: `remote_packet_safety_audit_passed`
-- audit_issue_count: `0`
+- status: `remote_packet_safety_audit_failed`
+- audit_issue_count: `1`
 - packet_status: `blocked_until_f02_6_decision`
 - remote_training_allowed_now: `False`
 - pullback_artifact_count: `7`
@@ -28,7 +28,7 @@ This file audits the remote formal execution packet. It does not execute any com
 
 ## Audit Issues
 
-- none
+- `post_plan_source_regeneration_command_index_missing_claim_safety`: Post-plan command index must include claim_safety before remote packet safety can pass.
 
 ## Claim Boundaries
 

@@ -21,10 +21,12 @@
 - f02_6_pending
 - formal_gate_closure_checklist_open
 - formal_gate_status_report_blocked
+- status_report_input_safety_issues_open
 - status_report_remaining_deliverables_gap_rows_missing
 - status_report_remaining_deliverables_gap_categories_blocked
 - status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing
 - status_report_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked
+- status_report_remote_packet_safety_command_index_missing_claim_safety
 
 ## Allowed Claims
 
@@ -185,7 +187,7 @@
 - unknown_manual_count=`0`
 - forbidden_command_count=`0`
 - `formal_gate_proof_summary_chain_audit`: present=`True`, stage=`regenerate_claim_gate_artifacts`, required_before=`formal_claim_gate`, command_kind=`known_builder`
-- `claim_safety`: present=`True`, stage=`regenerate_claim_gate_artifacts`, required_before=`formal_claim_gate`, command_kind=`known_builder`
+- `claim_safety`: present=`False`, stage=`None`, required_before=`None`, command_kind=`None`
 - `paper_readiness`: present=`True`, stage=`regenerate_claim_gate_artifacts`, required_before=`formal_claim_gate`, command_kind=`known_builder`
 
 ## Prohibited Claims
