@@ -51,6 +51,25 @@ def test_post_f02_6_regeneration_plan_blocks_current_pending_decision_without_ex
     assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
     assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 4
     assert manifest["remaining_deliverables_gap_summary"]["categories"]["training"]["missing_count"] == 3
+    unlock = manifest["remaining_deliverables_unlock_chain_summary"]
+    assert unlock["present"] is True
+    assert unlock["chain_id"] == "module2_formal_gate_missing_deliverable_unlock_chain"
+    assert unlock["status"] == "blocked_missing_formal_deliverables"
+    assert unlock["row_count"] == 10
+    assert unlock["blocked_row_count"] == 10
+    assert unlock["rows_with_missing_required_blockers"] == 0
+    assert unlock["rows_allowed_while_missing"] == 0
+    assert unlock["categories"]["training"]["required_current_blockers"] == [
+        "f02_6_decision_not_approved",
+        "remote_packet_not_ready",
+    ]
+    assert unlock["categories"]["training"]["unlock_sequence_before_stage_allowed"] == [
+        "record_f02_6_decision",
+        "source_freshness_ready_for_remote_preflight",
+        "remote_formal_execution_packet_ready",
+        "approved_remote_preflight",
+        "gate3_remote_training",
+    ]
 
     stages = {stage["stage_id"]: stage for stage in manifest["ordered_stages"]}
     assert stages["f02_6_decision_record"]["requires_human_input"] is True
@@ -161,6 +180,8 @@ def test_post_f02_6_regeneration_plan_marks_remote_training_ready_only_from_read
     assert stages["gate3_remote_training"]["host"] == "gpu3070ti-relay"
     assert "ssh gpu3070ti-relay" in "\n".join(stages["gate3_remote_training"]["command_templates"])
     assert manifest["blocking_summary"]["training_allowed_now"] is True
+    assert manifest["remaining_deliverables_unlock_chain_summary"]["blocked_row_count"] == 0
+    assert manifest["remaining_deliverables_unlock_chain_summary"]["rows_allowed_while_missing"] == 0
 
 
 def test_post_f02_6_regeneration_plan_cli_writes_json_and_markdown(tmp_path):
@@ -201,6 +222,8 @@ def test_post_f02_6_regeneration_plan_cli_writes_json_and_markdown(tmp_path):
     assert "record_f02_6_decision" in markdown
     assert "Source Regeneration Command Index" in markdown
     assert "Remaining Deliverables Gap Summary" in markdown
+    assert "Remaining Deliverables Unlock Chain" in markdown
+    assert "module2_formal_gate_missing_deliverable_unlock_chain" in markdown
     assert "build_module2_f02_6_decision_intake" in markdown
     assert "does not execute commands" in markdown
 
@@ -290,6 +313,11 @@ def _remaining_deliverables(tmp_path, *, open_gaps):
     ]
     if not open_gaps:
         categories = [_gap_category(item["category"], 0, item["responsible_stage_id"], allowed=True) for item in categories]
+    unlock_rows = [
+        row
+        for category in categories
+        for row in _unlock_rows_for_category(category, open_gaps=open_gaps)
+    ]
     path.write_text(
         json.dumps(
             {
@@ -301,7 +329,18 @@ def _remaining_deliverables(tmp_path, *, open_gaps):
                     "open_category_count": 4 if open_gaps else 0,
                     "category_order": ["training", "evaluation", "acceptance", "formal_acceptance"],
                     "categories": categories,
-                }
+                },
+                "deliverable_unlock_chain": {
+                    "chain_id": "module2_formal_gate_missing_deliverable_unlock_chain",
+                    "status": "blocked_missing_formal_deliverables" if open_gaps else "ready_for_claim_audit",
+                    "not_paper_result_material": True,
+                    "execution_boundary": "read_only_no_execution",
+                    "row_count": 10,
+                    "blocked_row_count": 10 if open_gaps else 0,
+                    "rows_with_missing_required_blockers": 0,
+                    "rows_allowed_while_missing": 0,
+                    "rows": unlock_rows,
+                },
             }
         ),
         encoding="utf-8",
@@ -323,6 +362,63 @@ def _gap_category(category, missing_count, stage_id, *, allowed=False):
             for index in range(missing_count)
         ],
     }
+
+
+def _unlock_rows_for_category(category, *, open_gaps):
+    counts = {"training": 3, "evaluation": 2, "acceptance": 3, "formal_acceptance": 2}
+    blockers = {
+        "training": ["f02_6_decision_not_approved", "remote_packet_not_ready"],
+        "evaluation": ["f02_6_decision_not_approved", "remote_packet_not_ready"],
+        "acceptance": ["f02_6_decision_not_approved", "remote_packet_not_ready"],
+        "formal_acceptance": ["missing_remote_audit_pullback"],
+    }
+    sequences = {
+        "training": [
+            "record_f02_6_decision",
+            "source_freshness_ready_for_remote_preflight",
+            "remote_formal_execution_packet_ready",
+            "approved_remote_preflight",
+            "gate3_remote_training",
+        ],
+        "evaluation": [
+            "record_f02_6_decision",
+            "source_freshness_ready_for_remote_preflight",
+            "remote_formal_execution_packet_ready",
+            "approved_remote_preflight",
+            "gate3_remote_training_complete",
+            "gate3_remote_audit_pullback",
+        ],
+        "acceptance": [
+            "record_f02_6_decision",
+            "source_freshness_ready_for_remote_preflight",
+            "remote_formal_execution_packet_ready",
+            "approved_remote_preflight",
+            "gate3_remote_training_complete",
+            "gate3_remote_audit_pullback",
+        ],
+        "formal_acceptance": [
+            "gate3_remote_audit_pullback_complete",
+            "regenerate_h01_h02_formal_artifacts",
+            "h01_h02_formal_acceptance_audit",
+        ],
+    }
+    return [
+        {
+            "matrix_id": f"{category['category']}:artifact_{index}",
+            "category": category["category"],
+            "artifact_id": f"artifact_{index}",
+            "missing": open_gaps,
+            "current_state": "missing" if open_gaps else "present",
+            "responsible_stage_id": category["responsible_stage_id"],
+            "responsible_stage_allowed_now": category["responsible_stage_allowed_now"],
+            "responsible_stage_blocked_by": category["responsible_stage_blocked_by"],
+            "required_current_blockers": blockers[category["category"]],
+            "missing_required_current_blockers": [],
+            "unlock_sequence_before_stage_allowed": sequences[category["category"]],
+            "execution_boundary": "read_only_no_execution",
+        }
+        for index in range(counts[category["category"]])
+    ]
 
 
 def _formal_gate(tmp_path, *, decision_status):
