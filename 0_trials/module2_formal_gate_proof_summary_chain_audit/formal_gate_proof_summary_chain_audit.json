@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_proof_summary_chain_audit",
-  "status": "formal_gate_proof_summary_chain_audit_failed",
-  "created_at_utc": "2026-07-05T15:44:11.267313+00:00",
-  "source_head": "2a19340105406bae8ad54ba1eac679b95a41580f",
+  "status": "formal_gate_proof_summary_chain_consistent_blocked",
+  "created_at_utc": "2026-07-05T15:46:08.241782+00:00",
+  "source_head": "1e2ea8952061e7017a1372b8c7e045702d583c3a+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -108,24 +108,8 @@
     "missing_formal_acceptance_artifacts",
     "failed_formal_h01_h02_acceptance_artifacts"
   ],
-  "audit_issue_count": 3,
-  "audit_issues": [
-    {
-      "issue_id": "handoff_bundle_single_next_action_index_source_freshness_blocks",
-      "message": "Single-next-action handoff must not hide a blocking source-freshness regeneration requirement.",
-      "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json"
-    },
-    {
-      "issue_id": "claim_safety_handoff_single_next_action_index_source_freshness_blocks",
-      "message": "Single-next-action handoff must not hide a blocking source-freshness regeneration requirement.",
-      "path": "0_trials/module2_claim_safety/module2_claim_safety.json"
-    },
-    {
-      "issue_id": "paper_readiness_claim_safety_handoff_single_next_action_index_source_freshness_blocks",
-      "message": "Single-next-action handoff must not hide a blocking source-freshness regeneration requirement.",
-      "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json"
-    }
-  ],
+  "audit_issue_count": 0,
+  "audit_issues": [],
   "chain_rows": [
     {
       "row_id": "remaining_deliverables_top_level",

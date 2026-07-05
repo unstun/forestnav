@@ -268,11 +268,11 @@ def _config(builder, tmp_path, paths):
     )
 
 
-def _write_chain_inputs(tmp_path):
+def _write_chain_inputs(tmp_path, *, handoff_single_next_action=None):
     summary = _summary()
     next_action_guard = _next_action_guard_summary()
     next_required_deliverables = _next_required_deliverables_summary()
-    handoff_single_next_action = _handoff_single_next_action_summary()
+    handoff_single_next_action = handoff_single_next_action or _handoff_single_next_action_summary()
     paths = {
         "remaining": tmp_path / "remaining.json",
         "proof": tmp_path / "proof.json",
