@@ -279,6 +279,12 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert manifest["status_report_decision_intake_summary"]["decision_impact_present"] is True
     assert manifest["status_report_decision_intake_summary"]["decision_record_is_not_training_authorization"] is True
     assert manifest["status_report_decision_intake_summary"]["decision_record_is_not_paper_result_material"] is True
+    assert manifest["status_report_decision_intake_summary"]["record_authorization_status"] == (
+        "decision_recorded_not_execution_authorization"
+    )
+    assert manifest["status_report_decision_intake_summary"]["record_authorization_remote_training_allowed_now"] is False
+    assert manifest["status_report_decision_intake_summary"]["record_authorization_formal_claim_allowed_now"] is False
+    assert manifest["status_report_decision_intake_summary"]["record_post_decision_non_authorization_count"] == 4
     assert manifest["status_report_decision_intake_summary"]["decision_impact_remote_training_allowed_now"] is False
     assert manifest["status_report_decision_intake_summary"]["decision_impact_formal_claim_allowed_now"] is False
     assert manifest["status_report_decision_intake_summary"]["decision_impact_paper_result_material_allowed_now"] is False
@@ -1337,6 +1343,12 @@ def test_claim_safety_rejects_status_report_decision_intake_impact_drift(tmp_pat
     intake["decision_impact_present"] = False
     intake["decision_record_is_not_training_authorization"] = False
     intake["decision_record_is_not_paper_result_material"] = False
+    intake["record_authorization_status"] = "remote_execution_authorized"
+    intake["record_authorization_current_blocked_action_ids"] = ["remote_training"]
+    intake["record_authorization_remote_training_allowed_now"] = True
+    intake["record_authorization_formal_claim_allowed_now"] = True
+    intake["record_post_decision_non_authorization_count"] = 0
+    intake["record_post_decision_formal_training_still_requires"] = []
     intake["decision_impact_remote_training_allowed_now"] = True
     intake["decision_impact_formal_claim_allowed_now"] = True
     intake["decision_impact_paper_result_material_allowed_now"] = True
@@ -1356,6 +1368,12 @@ def test_claim_safety_rejects_status_report_decision_intake_impact_drift(tmp_pat
         closure_checklist_path=closure_checklist,
         status_report_path=status_report,
     )
+    blockers = set(manifest["formal_performance_blockers"])
+    assert "status_report_f02_6_record_authorization_status_invalid" in blockers
+    assert "status_report_f02_6_record_authorization_missing_blocked_actions" in blockers
+    assert "status_report_f02_6_record_authorization_allows_remote_training" in blockers
+    assert "status_report_f02_6_record_authorization_allows_formal_claim" in blockers
+    assert "status_report_f02_6_record_non_authorizations_incomplete" in blockers
 
     blockers = set(manifest["formal_performance_blockers"])
     assert "status_report_f02_6_decision_intake_impact_missing" in blockers
