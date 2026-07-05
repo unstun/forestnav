@@ -118,6 +118,11 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["current_state"]["remaining_deliverables_acceptance_matrix_count"] == 10
     assert manifest["current_state"]["remaining_deliverables_acceptance_missing_row_count"] == 10
     assert manifest["current_state"]["remaining_deliverables_acceptance_blocked_category_count"] == 4
+    assert manifest["current_state"]["remaining_deliverables_unlock_chain_present"] is True
+    assert manifest["current_state"]["remaining_deliverables_unlock_chain_row_count"] == 10
+    assert manifest["current_state"]["remaining_deliverables_unlock_chain_blocked_row_count"] == 10
+    assert manifest["current_state"]["remaining_deliverables_unlock_chain_rows_with_missing_required_blockers"] == 0
+    assert manifest["current_state"]["remaining_deliverables_unlock_chain_rows_allowed_while_missing"] == 0
     assert manifest["current_state"]["remaining_deliverables_proof_plan_present"] is True
     assert manifest["current_state"]["remaining_deliverables_proof_plan_matrix_row_count"] == 10
     assert manifest["current_state"]["remaining_deliverables_proof_plan_command_count"] == 20
@@ -306,6 +311,18 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     ]
     assert "train_final_model_zip_schema" in remaining_gap["categories"]["training"]["proof_command_ids"]
     assert remaining_gap["categories"]["formal_acceptance"]["missing_count"] == 2
+    unlock_chain = manifest["remaining_deliverables_unlock_chain_summary"]
+    assert unlock_chain["present"] is True
+    assert unlock_chain["chain_id"] == "module2_formal_gate_missing_deliverable_unlock_chain"
+    assert unlock_chain["row_count"] == 10
+    assert unlock_chain["blocked_row_count"] == 10
+    assert unlock_chain["rows_with_missing_required_blockers"] == 0
+    assert unlock_chain["rows_allowed_while_missing"] == 0
+    assert unlock_chain["categories"]["training"]["row_count"] == 3
+    assert unlock_chain["categories"]["training"]["required_current_blockers"] == [
+        "f02_6_decision_not_approved",
+        "remote_packet_not_ready",
+    ]
     next_deliverables = manifest["next_required_formal_deliverables"]
     assert next_deliverables["status"] == "blocked_missing_formal_deliverables"
     assert next_deliverables["execution_boundary"] == "read_only_no_execution"
@@ -871,6 +888,31 @@ def test_formal_gate_status_report_requires_remaining_deliverables_gap_summary(t
     assert "remaining_deliverables_gap_acceptance_wrong_responsible_stage" in issue_ids
     assert "remaining_deliverables_gap_formal_acceptance_h01_ready_for_formal_run_missing_predicates" in issue_ids
     assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 9
+
+
+def test_formal_gate_status_report_requires_remaining_deliverables_unlock_chain(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    remaining = json.loads(config.remaining_deliverables_path.read_text(encoding="utf-8"))
+    chain = remaining["deliverable_unlock_chain"]
+    chain["row_count"] = 9
+    chain["blocked_row_count"] = 9
+    chain["rows"][0]["missing_required_current_blockers"] = ["f02_6_decision_not_approved"]
+    chain["rows"][1]["responsible_stage_allowed_now"] = True
+    config.remaining_deliverables_path.write_text(json.dumps(remaining), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert manifest["status"] == "formal_gate_status_blocked"
+    assert "remaining_deliverables_unlock_chain_row_count_mismatch" in issue_ids
+    assert "remaining_deliverables_unlock_chain_blocked_row_count_mismatch" in issue_ids
+    assert "remaining_deliverables_unlock_chain_rows_missing_required_blockers" in issue_ids
+    assert "remaining_deliverables_unlock_chain_rows_allowed_while_missing" in issue_ids
+    assert manifest["remaining_deliverables_unlock_chain_summary"]["rows_with_missing_required_blockers"] == 1
+    assert manifest["remaining_deliverables_unlock_chain_summary"]["rows_allowed_while_missing"] == 1
+    assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+    assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
 
 
 def test_formal_gate_status_report_requires_remaining_deliverables_proof_command_plan(tmp_path):
@@ -2067,6 +2109,7 @@ def _remaining_deliverables(*, complete):
             matrix=matrix,
             complete=complete,
         ),
+        "deliverable_unlock_chain": _remaining_deliverable_unlock_chain(matrix, complete=complete),
         "proof_command_plan": _remaining_deliverable_proof_command_plan(matrix),
     }
 
