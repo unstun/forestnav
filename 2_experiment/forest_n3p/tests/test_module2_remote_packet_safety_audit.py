@@ -46,11 +46,12 @@ def test_remote_packet_safety_audit_passes_current_blocked_packet(tmp_path):
     assert manifest["cross_gate_summary"]["post_plan_status_report_execution_veto_summary"]["row_consensus"]["formal_claim"] is False
     command_index = manifest["cross_gate_summary"]["post_plan_source_regeneration_command_index_summary"]
     assert command_index["present"] is True
-    assert command_index["index_row_count"] == 18
-    assert command_index["source_target_count"] == 18
+    assert command_index["index_row_count"] == 20
+    assert command_index["source_target_count"] == 20
     assert command_index["missing_target_ids"] == []
     assert command_index["unknown_manual_count"] == 0
     assert command_index["forbidden_command_count"] == 0
+    assert command_index["rows"]["formal_gate_proof_summary_chain_audit"]["stage_id"] == "regenerate_claim_gate_artifacts"
     assert command_index["rows"]["claim_safety"]["stage_id"] == "regenerate_claim_gate_artifacts"
     assert command_index["rows"]["paper_readiness"]["stage_id"] == "regenerate_claim_gate_artifacts"
     assert manifest["cross_gate_summary"]["post_plan_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
@@ -963,6 +964,12 @@ def _plan_audit_payload(*, training_allowed=False, status_report_ready=False):
 
 def _source_regeneration_command_index_summary():
     rows = {
+        "formal_gate_proof_summary_chain_audit": {
+            "required_before": "formal_claim_gate",
+            "stage_id": "regenerate_claim_gate_artifacts",
+            "command_kind": "known_builder",
+            "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit",
+        },
         "claim_safety": {
             "required_before": "formal_claim_gate",
             "stage_id": "regenerate_claim_gate_artifacts",
@@ -978,8 +985,8 @@ def _source_regeneration_command_index_summary():
     }
     return {
         "present": True,
-        "index_row_count": 18,
-        "source_target_count": 18,
+        "index_row_count": 20,
+        "source_target_count": 20,
         "missing_target_ids": [],
         "unknown_manual_count": 0,
         "unknown_manual_ids": [],
