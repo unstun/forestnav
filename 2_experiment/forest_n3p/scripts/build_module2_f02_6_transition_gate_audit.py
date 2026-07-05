@@ -204,6 +204,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--paper-readiness", type=Path, default=DEFAULT_PAPER_READINESS)
     parser.add_argument("--handoff-bundle", type=Path, default=DEFAULT_HANDOFF_BUNDLE)
     parser.add_argument("--decision-intake", type=Path, default=DEFAULT_DECISION_INTAKE)
+    parser.add_argument("--formal-gate-proof-audit", type=Path, default=DEFAULT_FORMAL_GATE_PROOF_AUDIT)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
