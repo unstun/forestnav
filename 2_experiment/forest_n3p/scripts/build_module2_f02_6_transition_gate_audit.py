@@ -27,6 +27,9 @@ DEFAULT_FORMAL_GATE = Path("0_trials/module2_formal_gate_gap_audit/formal_gate_g
 DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_freshness_audit.json")
 DEFAULT_MISSING_ARTIFACTS = Path("0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json")
 DEFAULT_CLOSURE_CHECKLIST = Path("0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json")
+DEFAULT_REMAINING_DELIVERABLES = Path(
+    "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json"
+)
 DEFAULT_REMOTE_PACKET = Path("0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json")
 DEFAULT_H01_MANIFEST = Path("0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json")
 DEFAULT_H02_ACCEPTANCE = Path("0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json")
@@ -67,6 +70,7 @@ class F026TransitionGateAuditConfig:
     source_freshness_path: Path = DEFAULT_SOURCE_FRESHNESS
     missing_artifacts_path: Path = DEFAULT_MISSING_ARTIFACTS
     closure_checklist_path: Path = DEFAULT_CLOSURE_CHECKLIST
+    remaining_deliverables_path: Path = DEFAULT_REMAINING_DELIVERABLES
     remote_packet_path: Path = DEFAULT_REMOTE_PACKET
     h01_manifest_path: Path = DEFAULT_H01_MANIFEST
     h02_acceptance_path: Path = DEFAULT_H02_ACCEPTANCE
@@ -87,6 +91,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         source_freshness_path=args.source_freshness_audit,
         missing_artifacts_path=args.missing_artifacts,
         closure_checklist_path=args.closure_checklist,
+        remaining_deliverables_path=args.remaining_deliverables,
         remote_packet_path=args.remote_packet,
         h01_manifest_path=args.h01_manifest,
         h02_acceptance_path=args.h02_acceptance,
@@ -138,6 +143,7 @@ def build_manifest(config: F026TransitionGateAuditConfig) -> dict[str, Any]:
             "source_freshness_audit": str(config.source_freshness_path),
             "formal_gate_missing_artifacts": str(config.missing_artifacts_path),
             "formal_gate_closure_checklist": str(config.closure_checklist_path),
+            "formal_gate_remaining_deliverables": str(config.remaining_deliverables_path),
             "remote_formal_execution_packet": str(config.remote_packet_path),
             "h01_manifest": str(config.h01_manifest_path),
             "h02_formal_acceptance": str(config.h02_acceptance_path),
@@ -175,6 +181,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--source-freshness-audit", type=Path, default=DEFAULT_SOURCE_FRESHNESS)
     parser.add_argument("--missing-artifacts", type=Path, default=DEFAULT_MISSING_ARTIFACTS)
     parser.add_argument("--closure-checklist", type=Path, default=DEFAULT_CLOSURE_CHECKLIST)
+    parser.add_argument("--remaining-deliverables", type=Path, default=DEFAULT_REMAINING_DELIVERABLES)
     parser.add_argument("--remote-packet", type=Path, default=DEFAULT_REMOTE_PACKET)
     parser.add_argument("--h01-manifest", type=Path, default=DEFAULT_H01_MANIFEST)
     parser.add_argument("--h02-acceptance", type=Path, default=DEFAULT_H02_ACCEPTANCE)
@@ -212,6 +219,7 @@ def _run_scenario(*, config: F026TransitionGateAuditConfig, scenario_id: str, wo
             formal_gate_path=formal_gate_path,
             source_freshness_path=config.source_freshness_path,
             remote_packet_path=config.remote_packet_path,
+            remaining_deliverables_path=config.remaining_deliverables_path,
         )
     )
     plan_path = _write_json(work_root / "post_f02_6_regeneration_plan.json", plan)
@@ -252,6 +260,7 @@ def _run_scenario(*, config: F026TransitionGateAuditConfig, scenario_id: str, wo
             missing_artifacts_path=missing_artifacts_path,
             closure_checklist_path=closure_checklist_path,
             status_report_path=status_report_path,
+            remaining_deliverables_path=config.remaining_deliverables_path,
         )
     )
     post_plan_audit_path = _write_json(work_root / "post_f02_6_plan_audit.json", post_plan_audit)
