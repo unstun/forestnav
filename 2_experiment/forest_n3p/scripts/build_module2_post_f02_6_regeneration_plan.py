@@ -626,7 +626,7 @@ def _unlock_chain_categories(rows: Sequence[dict[str, Any]]) -> dict[str, dict[s
             },
         )
         entry["row_count"] += 1
-        if row.get("missing") is True:
+        if row.get("missing") is True and row.get("responsible_stage_allowed_now") is not True:
             entry["blocked_row_count"] += 1
         if row.get("missing_required_current_blockers"):
             entry["rows_with_missing_required_blockers"] += 1
