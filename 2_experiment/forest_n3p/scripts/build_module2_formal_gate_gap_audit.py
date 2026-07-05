@@ -1795,7 +1795,9 @@ def _execution_veto_matrix(
             "remote_preflight",
             {
                 "status_report": status_permissions.get("remote_preflight_allowed_now"),
+                "handoff_bundle": _step(handoff_bundle.get("remote_execution_steps"), "run_remote_preflight").get("allowed_now"),
                 "remote_packet": _remote_packet_step(remote, "run_remote_preflight").get("allowed_now"),
+                "remote_packet_safety": safety_summary.get("remote_preflight_allowed_now"),
             },
         ),
         _veto_row(
@@ -1803,7 +1805,9 @@ def _execution_veto_matrix(
             {
                 "decision_record": decision.get("remote_training_allowed"),
                 "status_report": status_permissions.get("remote_training_allowed_now"),
+                "handoff_bundle": _step(handoff_bundle.get("remote_execution_steps"), "run_remote_training").get("allowed_now"),
                 "remote_packet": _remote_packet_step(remote, "run_remote_training").get("allowed_now"),
+                "remote_packet_safety": safety_summary.get("remote_training_allowed_now"),
             },
         ),
         _veto_row(
