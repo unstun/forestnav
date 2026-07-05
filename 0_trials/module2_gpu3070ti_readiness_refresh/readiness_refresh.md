@@ -5,6 +5,7 @@ This is a read-only formal-gate readiness refresh. It is not a training run, not
 ## Status
 
 - status: `remote_readiness_refreshed_f02_6_still_blocked`
+- source_head: `b6a95c84f9f5fd89825763c2e8cd6107d870deb5`
 - runs_training: `False`
 - runs_remote_preflight: `False`
 - local_training_allowed: `False`
@@ -17,10 +18,10 @@ This is a read-only formal-gate readiness refresh. It is not a training run, not
 - Jump host listener for `127.0.0.1:23070` is present.
 - Remote host is `ubuntu-OMEN-by-HP-Laptop-17-ck1xxx`.
 - Remote GPU is `NVIDIA GeForce RTX 3070 Ti Laptop GPU`, 8192 MiB total, 7812 MiB free.
-- Remote Python stack is present: Python `3.12.3`, torch `2.12.1+cu130`, CUDA available, SB3 `2.9.0`, pyarrow `24.0.0`, gymnasium `1.3.0`.
+- Remote Python stack is present: Python `3.12.3`, torch `2.12.1+cu130`, CUDA available `True`, SB3 `2.9.0`, pyarrow `24.0.0`, gymnasium `1.3.0`.
 - Remote scripts exist: `preflight_rl_rs_gate3_formal_trial.py`, `run_rl_rs_gate3_trial.py`, `audit_rl_rs_gate3_trial.py`.
-- Oracle connector parquet exists both locally and remotely with 7860 rows and matching SHA-256.
-- Obstacle-summary BC checkpoint exists both locally and remotely with matching SHA-256.
+- Oracle connector parquet exists both locally and remotely with 7860 rows and matching SHA-256 `True`.
+- Obstacle-summary BC checkpoint exists both locally and remotely with matching SHA-256 `True`.
 
 ## Critical Hashes
 

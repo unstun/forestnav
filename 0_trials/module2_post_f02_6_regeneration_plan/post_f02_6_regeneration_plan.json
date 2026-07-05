@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_regeneration_plan",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-05T09:55:16.324905+00:00",
-  "source_head": "1eb92599a626fce903d7902b74562f74eaf24b52",
+  "created_at_utc": "2026-07-05T10:04:22.352047+00:00",
+  "source_head": "b6a95c84f9f5fd89825763c2e8cd6107d870deb5",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -158,7 +158,7 @@
       {
         "artifact_id": "f02_6_warm_start_decision_packet",
         "path": "0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json",
-        "freshness_state": "historical_dirty"
+        "freshness_state": "historical_clean"
       },
       {
         "artifact_id": "formal_gate_closure_checklist",
@@ -296,7 +296,7 @@
     {
       "artifact_id": "f02_6_warm_start_decision_packet",
       "required_before": "approved_remote_preflight",
-      "freshness_state": "historical_dirty",
+      "freshness_state": "historical_clean",
       "path": "0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json",
       "stage_id": "regenerate_preflight_gate_artifacts",
       "command_kind": "known_builder",
@@ -335,8 +335,8 @@
       "freshness_state": "historical_clean",
       "path": "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
       "stage_id": "regenerate_preflight_gate_artifacts",
-      "command_kind": "manual_read_only",
-      "command_template": "manual read-only gpu3070ti readiness refresh; no local training, no approved preflight"
+      "command_kind": "read_only_remote_resource_check",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_gpu3070ti_readiness_refresh"
     },
     {
       "artifact_id": "post_f02_6_plan_audit",
@@ -521,7 +521,7 @@
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_closure_checklist",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_gap_audit",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_handoff_bundle",
-        "manual read-only gpu3070ti readiness refresh; no local training, no approved preflight",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_gpu3070ti_readiness_refresh",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_plan_audit",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_regeneration_plan",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_formal_execution_packet",

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_plan_audit",
   "status": "post_f02_6_plan_audit_passed",
-  "created_at_utc": "2026-07-05T09:55:16.435160+00:00",
-  "source_head": "1eb92599a626fce903d7902b74562f74eaf24b52",
+  "created_at_utc": "2026-07-05T10:04:22.464055+00:00",
+  "source_head": "b6a95c84f9f5fd89825763c2e8cd6107d870deb5",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -81,7 +81,7 @@
       "f02_6_warm_start_decision_packet": {
         "artifact_id": "f02_6_warm_start_decision_packet",
         "required_before": "approved_remote_preflight",
-        "freshness_state": "historical_dirty",
+        "freshness_state": "historical_clean",
         "path": "0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json",
         "stage_id": "regenerate_preflight_gate_artifacts",
         "command_kind": "known_builder",
@@ -120,8 +120,8 @@
         "freshness_state": "historical_clean",
         "path": "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
         "stage_id": "regenerate_preflight_gate_artifacts",
-        "command_kind": "manual_read_only",
-        "command_template": "manual read-only gpu3070ti readiness refresh; no local training, no approved preflight"
+        "command_kind": "read_only_remote_resource_check",
+        "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_gpu3070ti_readiness_refresh"
       },
       "post_f02_6_plan_audit": {
         "artifact_id": "post_f02_6_plan_audit",

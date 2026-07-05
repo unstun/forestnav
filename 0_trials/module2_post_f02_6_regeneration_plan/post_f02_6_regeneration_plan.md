@@ -83,8 +83,8 @@ This file is an ordered plan. It does not execute commands, train, preflight, au
   - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_gap_audit`
 - `formal_gate_handoff_bundle` -> `regenerate_preflight_gate_artifacts` kind=`known_builder`, required_before=`approved_remote_preflight`
   - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_handoff_bundle`
-- `gpu3070ti_readiness_refresh` -> `regenerate_preflight_gate_artifacts` kind=`manual_read_only`, required_before=`approved_remote_preflight`
-  - command: `manual read-only gpu3070ti readiness refresh; no local training, no approved preflight`
+- `gpu3070ti_readiness_refresh` -> `regenerate_preflight_gate_artifacts` kind=`read_only_remote_resource_check`, required_before=`approved_remote_preflight`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_gpu3070ti_readiness_refresh`
 - `post_f02_6_plan_audit` -> `regenerate_preflight_gate_artifacts` kind=`known_builder`, required_before=`approved_remote_preflight`
   - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_plan_audit`
 - `post_f02_6_regeneration_plan` -> `regenerate_preflight_gate_artifacts` kind=`known_builder`, required_before=`approved_remote_preflight`

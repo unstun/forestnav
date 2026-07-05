@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_gpu3070ti_readiness_refresh",
   "status": "remote_readiness_refreshed_f02_6_still_blocked",
-  "created_at_utc": "2026-07-04T10:40:16Z",
-  "source_head": "033356f27e5255c60d64a78753054b86ef2a0428",
+  "created_at_utc": "2026-07-05T10:03:46Z",
+  "source_head": "b6a95c84f9f5fd89825763c2e8cd6107d870deb5",
   "runs_training": false,
   "runs_remote_preflight": false,
   "local_training_allowed": false,
@@ -20,8 +20,8 @@
     "user": "ubuntu",
     "hostname": "127.0.0.1",
     "port": "23070",
-    "proxyjump": "ubuntu-obgx",
     "hostkeyalias": "gpu3070ti-relay",
+    "proxyjump": "ubuntu-obgx",
     "jump_listener": "127.0.0.1:23070 LISTEN"
   },
   "remote_host": {
@@ -49,11 +49,11 @@
       "remote_exists": true,
       "local_bytes": 1116417,
       "remote_bytes": 1116417,
-      "local_rows": 7860,
-      "remote_rows": 7860,
       "local_sha256": "1614d12de3c3436fdd2bc8088df0843f402c8425e40ca500ee0c71c70715b527",
       "remote_sha256": "1614d12de3c3436fdd2bc8088df0843f402c8425e40ca500ee0c71c70715b527",
-      "local_remote_match": true
+      "local_remote_match": true,
+      "local_rows": 7860,
+      "remote_rows": 7860
     },
     "obstacle_summary_bc_checkpoint": {
       "path": "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt",
@@ -80,30 +80,44 @@
       "bytes": 10165
     }
   },
+  "readiness_checks": {
+    "ssh_alias_resolves_to_expected_relay": true,
+    "jump_listener_present": true,
+    "cuda_available": true,
+    "critical_inputs_match": true,
+    "remote_scripts_present": true,
+    "f02_6_still_pending": true,
+    "remote_packet_still_blocked": true
+  },
   "commands_executed": [
     {
       "command": "ssh -G gpu3070ti-relay",
       "runs_training": false,
+      "runs_remote_preflight": false,
       "purpose": "Verify SSH alias resolution."
     },
     {
       "command": "ssh ubuntu-obgx 'ss -ltnp | grep -E \"127\\\\.0\\\\.0\\\\.1:23070\" || true'",
       "runs_training": false,
+      "runs_remote_preflight": false,
       "purpose": "Verify reverse relay listener."
     },
     {
-      "command": "ssh gpu3070ti-relay 'hostname; whoami; uname -srmo; nvidia-smi --query-gpu=name,memory.total,memory.free,driver_version --format=csv,noheader'",
+      "command": "ssh gpu3070ti-relay 'hostname; whoami; uname -srmo; nvidia-smi --query-gpu=name,memory.total,memory.free,driver_version --format=csv,noheader,nounits'",
       "runs_training": false,
+      "runs_remote_preflight": false,
       "purpose": "Verify host identity and GPU state."
     },
     {
       "command": "ssh gpu3070ti-relay 'cd ~/ForestNav && .venv/bin/python - <<PY ...'",
       "runs_training": false,
+      "runs_remote_preflight": false,
       "purpose": "Verify Python stack, CUDA availability, critical file hashes, and script presence."
     },
     {
-      "command": "python - <<PY ...",
+      "command": "local Python file hash and parquet row checks",
       "runs_training": false,
+      "runs_remote_preflight": false,
       "purpose": "Verify local critical file hashes for local/remote comparison."
     }
   ],
