@@ -131,6 +131,8 @@ def test_post_f02_6_plan_audit_uses_artifact_records_for_full_command_index(tmp_
             }
         ]
     }
+    plan["current_gate_summary"]["source_freshness_status"] = "source_freshness_tracked_artifact_lag_only_gate_ready"
+    plan["current_gate_summary"]["source_freshness_regeneration_required"] = False
 
     manifest = auditor.build_manifest(
         auditor.PostF026PlanAuditConfig(
