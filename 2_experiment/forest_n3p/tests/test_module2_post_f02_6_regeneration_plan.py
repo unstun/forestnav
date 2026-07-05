@@ -156,6 +156,57 @@ def test_post_f02_6_regeneration_plan_allows_only_regeneration_after_approval_wh
     assert "source_fresh_preflight_targets_open" in stages["gate3_remote_training"]["blocked_by"]
 
 
+def test_post_f02_6_regeneration_plan_keeps_full_command_index_from_artifact_records(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_post_f02_6_regeneration_plan")
+    source_path = _source_freshness(tmp_path, required=True)
+    source_freshness = json.loads(source_path.read_text(encoding="utf-8"))
+    artifact_records = source_freshness["ordered_regeneration_targets"]
+    source_freshness["status"] = "source_freshness_tracked_artifact_lag_only_gate_ready"
+    source_freshness["regeneration_required_before_remote_formal_execution"] = False
+    source_freshness["blocking_regeneration_required_before_remote_formal_execution"] = False
+    source_freshness["artifact_records"] = artifact_records
+    source_freshness["ordered_regeneration_targets"] = [
+        row for row in artifact_records if row["artifact_id"] == "formal_gate_handoff_bundle"
+    ]
+    source_path.write_text(json.dumps(source_freshness), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        builder.PostF026RegenerationPlanConfig(
+            output_dir=tmp_path,
+            decision_record_path=_decision_record(tmp_path, status="pending_human_decision"),
+            formal_gate_path=_formal_gate(tmp_path, decision_status="pending_human_decision"),
+            status_report_path=_status_report(tmp_path, pending=True),
+            source_freshness_path=source_path,
+            remote_packet_path=_remote_packet(tmp_path, ready=False),
+            remaining_deliverables_path=_remaining_deliverables(tmp_path, open_gaps=True),
+        )
+    )
+
+    assert len(manifest["source_regeneration_command_index"]) == len(artifact_records)
+    assert manifest["source_regeneration_targets_by_gate"] == {
+        "approved_remote_preflight": [
+            {
+                "artifact_id": "formal_gate_handoff_bundle",
+                "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
+                "freshness_state": "historical_dirty",
+            }
+        ]
+    }
+    command_index = {entry["artifact_id"]: entry for entry in manifest["source_regeneration_command_index"]}
+    assert command_index["formal_gate_proof_summary_chain_audit"]["stage_id"] == "regenerate_claim_gate_artifacts"
+    assert command_index["mainline_formal_gate_state_audit"]["stage_id"] == "regenerate_claim_gate_artifacts"
+    assert command_index["claim_safety"]["stage_id"] == "regenerate_claim_gate_artifacts"
+    assert command_index["paper_readiness"]["stage_id"] == "regenerate_claim_gate_artifacts"
+    claim_stage = {
+        stage["stage_id"]: stage for stage in manifest["ordered_stages"]
+    }["regenerate_claim_gate_artifacts"]
+    joined_commands = "\n".join(claim_stage["command_templates"])
+    assert "build_module2_formal_gate_proof_summary_chain_audit" in joined_commands
+    assert "build_module2_mainline_formal_gate_state_audit" in joined_commands
+    assert "build_module2_claim_safety" in joined_commands
+    assert "build_module2_paper_readiness" in joined_commands
+
+
 def test_post_f02_6_regeneration_plan_marks_remote_training_ready_only_from_ready_packet_and_clean_sources(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_post_f02_6_regeneration_plan")
 
