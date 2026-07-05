@@ -226,11 +226,10 @@ def _blockers(*, decision: dict[str, Any], h01: dict[str, Any], preflight: dict[
         blockers.append("h01_required_output_schema_missing")
     elif h01["schema_checks"]["schema_status"] != "frozen_for_module2_v1":
         blockers.append("h01_required_output_schema_not_frozen")
-    blockers.extend(
-        blocker
-        for blocker in h01["blockers"]
-        if blocker not in H01_DOWNSTREAM_OUTPUT_BLOCKERS
-    )
+    h01_blockers = h01["blockers"] if decision["status"] == "pending_human_decision" else [
+        blocker for blocker in h01["blockers"] if blocker not in H01_DOWNSTREAM_OUTPUT_BLOCKERS
+    ]
+    blockers.extend(h01_blockers)
     if decision["status"] == "approved" and not preflight["formal_trial_ready"]:
         blockers.append("remote_formal_preflight_not_ready")
         blockers.extend(preflight["blocker_codes"])
