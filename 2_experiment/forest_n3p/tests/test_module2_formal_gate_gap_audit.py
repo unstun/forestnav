@@ -48,6 +48,8 @@ def test_formal_gate_gap_audit_blocks_current_pending_gate_and_lists_missing_art
             str(_handoff_bundle(tmp_path, ready=False, pending=True)),
             "--remote-packet-safety-audit",
             str(_remote_packet_safety(tmp_path, ready=False)),
+            "--protocol-lane-status-report",
+            str(_protocol_lane_status_report(tmp_path, pending=False)),
         ]
     )
 
