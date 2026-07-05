@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_regeneration_plan",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-05T17:34:08.765557+00:00",
-  "source_head": "7ceb9bb2c2097cff0f06046dca9cd3ef579f1d61",
+  "created_at_utc": "2026-07-05T17:55:52.342662+00:00",
+  "source_head": "1bfb7a6193a15157f1b13197119aaab9e2967ff4",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -252,7 +252,7 @@
       {
         "artifact_id": "formal_gate_handoff_bundle",
         "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
-        "freshness_state": "current_clean"
+        "freshness_state": "historical_clean"
       },
       {
         "artifact_id": "gpu3070ti_readiness_refresh",
@@ -294,6 +294,11 @@
     ],
     "formal_claim_gate": [
       {
+        "artifact_id": "claim_safety",
+        "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
+        "freshness_state": "historical_clean"
+      },
+      {
         "artifact_id": "formal_gate_missing_artifacts",
         "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
         "freshness_state": "historical_clean"
@@ -306,12 +311,27 @@
       {
         "artifact_id": "formal_gate_proof_summary_chain_audit",
         "path": "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
-        "freshness_state": "historical_dirty"
+        "freshness_state": "historical_clean"
+      },
+      {
+        "artifact_id": "formal_gate_remaining_deliverables",
+        "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
+        "freshness_state": "historical_clean"
+      },
+      {
+        "artifact_id": "formal_gate_status_report",
+        "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
+        "freshness_state": "historical_clean"
       },
       {
         "artifact_id": "mainline_formal_gate_state_audit",
         "path": "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json",
-        "freshness_state": "historical_dirty"
+        "freshness_state": "historical_clean"
+      },
+      {
+        "artifact_id": "paper_readiness",
+        "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
+        "freshness_state": "historical_clean"
       }
     ]
   },
@@ -391,7 +411,7 @@
     {
       "artifact_id": "claim_safety",
       "required_before": "formal_claim_gate",
-      "freshness_state": "current_clean",
+      "freshness_state": "historical_clean",
       "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
       "stage_id": "regenerate_claim_gate_artifacts",
       "command_kind": "known_builder",
@@ -400,7 +420,7 @@
     {
       "artifact_id": "paper_readiness",
       "required_before": "formal_claim_gate",
-      "freshness_state": "current_clean",
+      "freshness_state": "historical_clean",
       "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
       "stage_id": "regenerate_claim_gate_artifacts",
       "command_kind": "known_builder",
@@ -472,7 +492,7 @@
     {
       "artifact_id": "formal_gate_status_report",
       "required_before": "formal_claim_gate",
-      "freshness_state": "current_clean",
+      "freshness_state": "historical_clean",
       "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
       "stage_id": "regenerate_claim_gate_artifacts",
       "command_kind": "known_builder",
@@ -481,7 +501,7 @@
     {
       "artifact_id": "formal_gate_remaining_deliverables",
       "required_before": "formal_claim_gate",
-      "freshness_state": "current_clean",
+      "freshness_state": "historical_clean",
       "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
       "stage_id": "regenerate_claim_gate_artifacts",
       "command_kind": "known_builder",
@@ -499,7 +519,7 @@
     {
       "artifact_id": "formal_gate_proof_summary_chain_audit",
       "required_before": "formal_claim_gate",
-      "freshness_state": "historical_dirty",
+      "freshness_state": "historical_clean",
       "path": "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
       "stage_id": "regenerate_claim_gate_artifacts",
       "command_kind": "known_builder",
@@ -508,7 +528,7 @@
     {
       "artifact_id": "mainline_formal_gate_state_audit",
       "required_before": "formal_claim_gate",
-      "freshness_state": "historical_dirty",
+      "freshness_state": "historical_clean",
       "path": "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json",
       "stage_id": "regenerate_claim_gate_artifacts",
       "command_kind": "known_builder",
@@ -517,7 +537,7 @@
     {
       "artifact_id": "formal_gate_handoff_bundle",
       "required_before": "approved_remote_preflight",
-      "freshness_state": "current_clean",
+      "freshness_state": "historical_clean",
       "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
       "stage_id": "regenerate_preflight_gate_artifacts",
       "command_kind": "known_builder",
@@ -737,10 +757,14 @@
       "requires_human_input": false,
       "action": "Regenerate claim safety and paper readiness only after H02 formal acceptance.",
       "evidence_paths": [
+        "0_trials/module2_claim_safety/module2_claim_safety.json",
         "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
         "0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json",
         "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
-        "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json"
+        "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
+        "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
+        "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json",
+        "0_trials/module2_paper_readiness/module2_paper_readiness.json"
       ],
       "command_templates": [
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety",
