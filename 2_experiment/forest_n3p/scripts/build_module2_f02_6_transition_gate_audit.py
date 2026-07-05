@@ -534,7 +534,19 @@ def _scenario_formal_gate(base: dict[str, Any], scenario_id: str, record: dict[s
 
 def _scenario_missing_artifacts(base: dict[str, Any], scenario_id: str, record: dict[str, Any]) -> dict[str, Any]:
     out = copy.deepcopy(base)
+    _block_missing_artifacts_handoff(out, scenario_id)
     if scenario_id == "pending":
+        for group in out.get("missing_evidence_groups", []):
+            if not isinstance(group, dict) or group.get("group_id") != "f02_6_decision_record":
+                continue
+            group["complete"] = False
+            group["blocked_by"] = ["requires_dr_sun_approval"]
+            for item in group.get("items", []):
+                if isinstance(item, dict):
+                    item["state"] = record.get("status")
+                    item["missing"] = True
+                    item["reason"] = "requires_dr_sun_approval"
+        out["missing_counts_by_category"] = _missing_counts(out.get("missing_evidence_groups", []))
         return out
     rejected = scenario_id == "rejected"
     for group in out.get("missing_evidence_groups", []):
@@ -808,6 +820,90 @@ def _scenario_blockers(blockers: Sequence[str], *, rejected: bool) -> list[str]:
     if rejected and "f02_6_decision_rejected" not in filtered:
         filtered.insert(0, "f02_6_decision_rejected")
     return _unique_strings(filtered)
+
+
+def _scenario_execution_blockers(scenario_id: str, *, for_training: bool) -> list[str]:
+    if scenario_id == "pending":
+        blockers = ["requires_dr_sun_approval"]
+    elif scenario_id == "rejected":
+        blockers = ["f02_6_decision_rejected"]
+    else:
+        blockers = ["source_fresh_preflight_targets_open"]
+    if for_training and "remote_packet_not_ready" not in blockers:
+        blockers.append("remote_packet_not_ready")
+    return blockers
+
+
+def _block_remote_step(steps: dict[str, Any], step_id: str, blockers: Sequence[str]) -> None:
+    step = steps.setdefault(step_id, {})
+    step["allowed_now"] = False
+    step["blocked_by"] = _unique_strings([str(item) for item in blockers if item])
+
+
+def _remote_step_projection(remote_packet: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    steps = remote_packet.get("execution_steps") if isinstance(remote_packet.get("execution_steps"), dict) else {}
+    out: dict[str, dict[str, Any]] = {}
+    for step_id in REMOTE_STEP_IDS:
+        step = steps.get(step_id) if isinstance(steps.get(step_id), dict) else {}
+        out[step_id] = {
+            "allowed_now": step.get("allowed_now"),
+            "runs_training": step.get("runs_training"),
+            "blocked_by": _strings(step.get("blocked_by")),
+        }
+    return out
+
+
+def _block_remote_stage_summary(payload: dict[str, Any], blockers: Sequence[str]) -> None:
+    stages = payload.setdefault("post_plan_remote_stage_summary", {})
+    defaults = {
+        "approved_remote_preflight": {"runs_training": False, "runs_remote_preflight": True},
+        "gate3_remote_training": {"runs_training": True, "runs_remote_preflight": False},
+        "gate3_remote_audit_pullback": {"runs_training": False, "runs_remote_preflight": False},
+    }
+    for stage_id, fields in defaults.items():
+        stage = stages.setdefault(stage_id, {})
+        stage["status"] = "blocked"
+        stage["allowed_now"] = False
+        stage["host"] = "gpu3070ti-relay"
+        stage["blocked_by"] = _unique_strings(_strings(stage.get("blocked_by")) + list(blockers))
+        stage["runs_training"] = fields["runs_training"]
+        stage["runs_remote_preflight"] = fields["runs_remote_preflight"]
+
+
+def _block_missing_artifacts_handoff(payload: dict[str, Any], scenario_id: str) -> None:
+    handoff = payload.setdefault("formal_gate_handoff_index", {})
+    next_action = handoff.setdefault("next_action", {})
+    next_action["action_id"] = (
+        "record_f02_6_decision"
+        if scenario_id == "pending"
+        else "revise_protocol_contract"
+        if scenario_id == "rejected"
+        else "resolve_source_fresh_preflight"
+    )
+    next_action["requires_dr_sun"] = scenario_id == "pending"
+    next_action["allowed_for_agent_now"] = False
+    handoff["local_training_allowed_now"] = False
+    handoff["remote_training_allowed_now"] = False
+    handoff["formal_result_material_allowed_now"] = False
+    for requirement in handoff.get("requirements", []):
+        if not isinstance(requirement, dict):
+            continue
+        requirement["execution_allowed_now"] = False
+        requirement["responsible_stage_allowed_now"] = False
+        blockers = _strings(requirement.get("responsible_stage_blocked_by"))
+        if not blockers:
+            requirement["responsible_stage_blocked_by"] = _scenario_execution_blockers(scenario_id, for_training=True)
+
+
+def _refresh_requirement_counts(payload: dict[str, Any], list_key: str, count_key: str) -> None:
+    requirements = payload.get(list_key) if isinstance(payload.get(list_key), list) else []
+    counts: dict[str, int] = {}
+    for requirement in requirements:
+        if not isinstance(requirement, dict):
+            continue
+        status = str(requirement.get("status") or "unknown")
+        counts[status] = counts.get(status, 0) + 1
+    payload[count_key] = counts
 
 
 def _scenario_reason(reason: str, *, rejected: bool) -> str:
