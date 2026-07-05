@@ -127,6 +127,7 @@ def build_manifest(config: PostF026PlanAuditConfig) -> dict[str, Any]:
         "missing_artifacts_summary": _missing_artifacts_summary(config.missing_artifacts_path, missing_artifacts),
         "closure_checklist_summary": _closure_checklist_summary(config.closure_checklist_path, closure_checklist),
         "status_report_summary": _status_report_summary(config.status_report_path, status_report),
+        "status_report_proof_audit_deliverables_summary": _status_report_proof_audit_deliverables_summary(status_report),
         "remaining_deliverables_gap_summary": _remaining_deliverables_gap_summary(
             config.remaining_deliverables_path,
             remaining_deliverables,
@@ -186,6 +187,13 @@ def _audit_issues(
     issues.extend(
         _remaining_deliverables_gap_issues(
             plan=plan,
+            status_report=status_report,
+            remaining_deliverables=remaining_deliverables,
+            remaining_deliverables_path=remaining_deliverables_path,
+        )
+    )
+    issues.extend(
+        _proof_audit_deliverables_summary_issues(
             status_report=status_report,
             remaining_deliverables=remaining_deliverables,
             remaining_deliverables_path=remaining_deliverables_path,
@@ -561,6 +569,58 @@ def _remaining_deliverables_gap_issues(
     return issues
 
 
+def _proof_audit_deliverables_summary_issues(
+    *,
+    status_report: dict[str, Any],
+    remaining_deliverables: dict[str, Any],
+    remaining_deliverables_path: Path | None,
+) -> list[dict[str, Any]]:
+    if remaining_deliverables_path is None:
+        return []
+    if not Path(remaining_deliverables_path).is_file():
+        return []
+    issues: list[dict[str, Any]] = []
+    ledger_summary = _remaining_deliverables_top_level_summary(remaining_deliverables)
+    status_summary = _status_report_proof_audit_deliverables_summary(status_report)
+
+    if not ledger_summary["present"]:
+        issues.append(
+            _issue(
+                "remaining_deliverables_top_level_summary_missing",
+                "Remaining-deliverables ledger must expose the top-level 3/2/3/2 formal deliverable summary.",
+            )
+        )
+    if not status_summary["present"]:
+        issues.append(
+            _issue(
+                "status_report_missing_proof_audit_deliverables_summary",
+                "Status report must forward proof-audit remaining-deliverables top-level summary.",
+            )
+        )
+
+    ledger_signature = _deliverables_top_level_signature(ledger_summary)
+    status_signature = _deliverables_top_level_signature(status_summary)
+    if ledger_summary["present"] and status_summary["present"] and ledger_signature != status_signature:
+        issues.append(
+            _issue(
+                "status_report_proof_audit_deliverables_summary_mismatch",
+                "Status-report proof-audit deliverable summary must match the remaining-deliverables ledger.",
+                observed={"status_report": status_signature, "remaining_deliverables": ledger_signature},
+            )
+        )
+
+    missing_total = sum(int(count) for count in ledger_summary["missing_counts_by_formal_category"].values())
+    if missing_total > 0 and status_report.get("status") == "formal_gate_status_ready_for_claim_audit":
+        issues.append(
+            _issue(
+                "status_report_ready_with_proof_deliverables_missing",
+                "Status report must not be ready for claim audit while proof-audit deliverable summary still has missing formal artifacts.",
+                observed=ledger_signature,
+            )
+        )
+    return issues
+
+
 def _handoff_coverage_issues(
     *,
     plan: dict[str, Any],
@@ -897,6 +957,7 @@ def _status_report_summary(path: Path, status_report: dict[str, Any]) -> dict[st
         if isinstance(status_report.get("formal_gate_handoff_summary"), dict)
         else {},
         "remaining_deliverables_gap_summary": _normalize_gap_summary(status_report.get("remaining_deliverables_gap_summary")),
+        "proof_audit_deliverables_summary": _status_report_proof_audit_deliverables_summary(status_report),
         "formal_gate_execution_veto_summary": execution_veto,
     }
 
@@ -906,6 +967,74 @@ def _remaining_deliverables_gap_summary(path: Path | None, remaining_deliverable
     summary["path"] = str(path) if path else None
     summary["exists"] = Path(path).is_file() if path else False
     return summary
+
+
+def _remaining_deliverables_top_level_summary(remaining_deliverables: dict[str, Any]) -> dict[str, Any]:
+    raw = {
+        "missing_counts_by_formal_category": remaining_deliverables.get("missing_counts_by_formal_category"),
+        "missing_matrix_ids_by_formal_category": remaining_deliverables.get("missing_matrix_ids_by_formal_category"),
+        "next_blocked_lane": remaining_deliverables.get("next_blocked_lane"),
+        "h01_status": remaining_deliverables.get("h01_status"),
+        "h02_status": remaining_deliverables.get("h02_status"),
+        "h02_formal_output_accepted": remaining_deliverables.get("h02_formal_output_accepted"),
+        "h02_paper_result_input_allowed": remaining_deliverables.get("h02_paper_result_input_allowed"),
+    }
+    return _normalize_deliverables_top_level_summary(raw)
+
+
+def _status_report_proof_audit_deliverables_summary(status_report: dict[str, Any]) -> dict[str, Any]:
+    raw = status_report.get("formal_gate_proof_audit_remaining_deliverables_top_level_summary")
+    return _normalize_deliverables_top_level_summary(raw)
+
+
+def _normalize_deliverables_top_level_summary(raw: Any) -> dict[str, Any]:
+    summary = raw if isinstance(raw, dict) else {}
+    counts = summary.get("missing_counts_by_formal_category")
+    ids_by_category = summary.get("missing_matrix_ids_by_formal_category")
+    return {
+        "present": bool(summary),
+        "missing_counts_by_formal_category": {
+            str(category): int(count or 0)
+            for category, count in counts.items()
+            if category
+        }
+        if isinstance(counts, dict)
+        else {},
+        "missing_matrix_ids_by_formal_category": {
+            str(category): [str(item) for item in ids if item]
+            for category, ids in ids_by_category.items()
+            if category and isinstance(ids, list)
+        }
+        if isinstance(ids_by_category, dict)
+        else {},
+        "next_blocked_lane": summary.get("next_blocked_lane"),
+        "h01_status": summary.get("h01_status"),
+        "h02_status": summary.get("h02_status"),
+        "h02_formal_output_accepted": summary.get("h02_formal_output_accepted")
+        if isinstance(summary.get("h02_formal_output_accepted"), bool)
+        else None,
+        "h02_paper_result_input_allowed": summary.get("h02_paper_result_input_allowed")
+        if isinstance(summary.get("h02_paper_result_input_allowed"), bool)
+        else None,
+    }
+
+
+def _deliverables_top_level_signature(summary: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "missing_counts_by_formal_category": {
+            key: summary["missing_counts_by_formal_category"].get(key)
+            for key in sorted(summary.get("missing_counts_by_formal_category", {}))
+        },
+        "missing_matrix_ids_by_formal_category": {
+            key: summary["missing_matrix_ids_by_formal_category"].get(key, [])
+            for key in sorted(summary.get("missing_matrix_ids_by_formal_category", {}))
+        },
+        "next_blocked_lane": summary.get("next_blocked_lane"),
+        "h01_status": summary.get("h01_status"),
+        "h02_status": summary.get("h02_status"),
+        "h02_formal_output_accepted": summary.get("h02_formal_output_accepted"),
+        "h02_paper_result_input_allowed": summary.get("h02_paper_result_input_allowed"),
+    }
 
 
 def _normalize_gap_summary(raw: Any) -> dict[str, Any]:
@@ -1130,6 +1259,15 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- ledger_open_category_count: `{manifest['remaining_deliverables_gap_summary']['open_category_count']}`",
             f"- status_report_total_missing_deliverables: `{manifest['status_report_summary']['remaining_deliverables_gap_summary']['total_missing_deliverables']}`",
             f"- status_report_open_category_count: `{manifest['status_report_summary']['remaining_deliverables_gap_summary']['open_category_count']}`",
+            "",
+            "### Status Report Proof-Audit Deliverables Summary",
+            "",
+            f"- present: `{manifest['status_report_proof_audit_deliverables_summary']['present']}`",
+            f"- missing_counts_by_formal_category: `{manifest['status_report_proof_audit_deliverables_summary']['missing_counts_by_formal_category']}`",
+            f"- next_blocked_lane: `{manifest['status_report_proof_audit_deliverables_summary']['next_blocked_lane']}`",
+            f"- h01_status: `{manifest['status_report_proof_audit_deliverables_summary']['h01_status']}`",
+            f"- h02_status: `{manifest['status_report_proof_audit_deliverables_summary']['h02_status']}`",
+            f"- h02_paper_result_input_allowed: `{manifest['status_report_proof_audit_deliverables_summary']['h02_paper_result_input_allowed']}`",
             "",
             "### Status Report Handoff Summary",
             "",
