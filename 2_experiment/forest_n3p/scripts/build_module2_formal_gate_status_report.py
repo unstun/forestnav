@@ -197,6 +197,12 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     formal_gate_gap_audit_remaining_deliverables_gap_summary = (
         _formal_gate_gap_audit_remaining_deliverables_gap_summary(formal_gate)
     )
+    remote_packet_safety_proof_deliverables_summary = (
+        _formal_gate_remote_packet_safety_proof_deliverables_summary(formal_gate)
+    )
+    remote_packet_safety_status_report_proof_deliverables_summary = (
+        _formal_gate_remote_packet_safety_status_report_proof_deliverables_summary(formal_gate)
+    )
     remote_packet_safety_claim_gate_command_index_summary = (
         _formal_gate_remote_packet_safety_claim_gate_command_index_summary(formal_gate)
     )
@@ -250,6 +256,14 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             formal_gate=formal_gate,
             formal_gate_gap_summary=formal_gate_gap_audit_remaining_deliverables_gap_summary,
             ledger_gap_summary=remaining_deliverables_gap_summary,
+        )
+        + _formal_gate_remote_packet_safety_proof_deliverables_summary_issues(
+            formal_gate=formal_gate,
+            proof_summary=remote_packet_safety_proof_deliverables_summary,
+            status_report_summary=remote_packet_safety_status_report_proof_deliverables_summary,
+            proof_audit_summary=formal_gate_proof_audit_summary[
+                "remaining_deliverables_top_level_summary"
+            ],
         )
         + _formal_gate_remote_packet_safety_claim_gate_command_index_issues(
             remote_packet_safety_claim_gate_command_index_summary
@@ -441,6 +455,38 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "formal_gate_gap_audit_remaining_open_category_count": formal_gate_gap_audit_remaining_deliverables_gap_summary[
                 "open_category_count"
             ],
+            "remote_packet_safety_proof_summary_present": remote_packet_safety_proof_deliverables_summary[
+                "present"
+            ],
+            "remote_packet_safety_proof_training_missing_count": remote_packet_safety_proof_deliverables_summary[
+                "missing_counts_by_formal_category"
+            ].get(
+                "training", 0
+            ),
+            "remote_packet_safety_proof_evaluation_missing_count": remote_packet_safety_proof_deliverables_summary[
+                "missing_counts_by_formal_category"
+            ].get(
+                "evaluation", 0
+            ),
+            "remote_packet_safety_proof_acceptance_missing_count": remote_packet_safety_proof_deliverables_summary[
+                "missing_counts_by_formal_category"
+            ].get(
+                "acceptance", 0
+            ),
+            "remote_packet_safety_proof_formal_acceptance_missing_count": remote_packet_safety_proof_deliverables_summary[
+                "missing_counts_by_formal_category"
+            ].get(
+                "formal_acceptance", 0
+            ),
+            "remote_packet_safety_proof_next_blocked_lane": remote_packet_safety_proof_deliverables_summary[
+                "next_blocked_lane"
+            ],
+            "remote_packet_safety_proof_h02_paper_result_input_allowed": remote_packet_safety_proof_deliverables_summary[
+                "h02_paper_result_input_allowed"
+            ],
+            "remote_packet_safety_status_report_proof_summary_present": remote_packet_safety_status_report_proof_deliverables_summary[
+                "present"
+            ],
             "source_freshness_status": source_freshness_summary["status"],
             "source_freshness_regeneration_required": source_freshness_summary[
                 "regeneration_required_before_remote_formal_execution"
@@ -494,6 +540,10 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "next_action_guard_summary": next_action_guard_summary,
         "formal_gate_gap_audit_remaining_deliverables_gap_summary": (
             formal_gate_gap_audit_remaining_deliverables_gap_summary
+        ),
+        "remote_packet_safety_proof_deliverables_summary": remote_packet_safety_proof_deliverables_summary,
+        "remote_packet_safety_status_report_proof_deliverables_summary": (
+            remote_packet_safety_status_report_proof_deliverables_summary
         ),
         "remote_packet_safety_claim_gate_command_index_summary": (
             remote_packet_safety_claim_gate_command_index_summary
