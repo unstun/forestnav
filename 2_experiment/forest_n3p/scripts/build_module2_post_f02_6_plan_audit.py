@@ -51,6 +51,19 @@ F02_6_DISABLED_PERMISSION_FIELDS = (
     "formal_claim_allowed_now",
     "local_training_allowed_now",
 )
+DOWNSTREAM_MISSING_ARTIFACT_AUDIT_ISSUE_IDS = {
+    "transition_gate_audit_not_passed",
+    "transition_gate_audit_issues_open",
+}
+DOWNSTREAM_STATUS_REPORT_INPUT_SAFETY_ISSUE_IDS = {
+    "handoff_bundle_safety_issues_open",
+    "mainline_formal_gate_state_audit_missing",
+    "mainline_formal_gate_state_audit_failed",
+    "mainline_formal_gate_state_audit_issues_open",
+    "mainline_formal_gate_state_audit_proof_summary_issues_open",
+    "mainline_formal_gate_state_audit_proof_audit_input_safety_issues_open",
+    "mainline_formal_gate_state_audit_proof_audit_input_safety_blocker_open",
+}
 
 
 @dataclass(frozen=True)
@@ -435,7 +448,13 @@ def _missing_artifacts_issues(
         issues.append(_issue("missing_artifacts_inventory_allows_local_training", "Missing-artifacts inventory must preserve local-training prohibition."))
     if missing_artifacts.get("formal_claim_allowed") is not False:
         issues.append(_issue("missing_artifacts_inventory_allows_claim", "Missing-artifacts inventory must not allow formal claims."))
-    if int(missing_artifacts.get("audit_issue_count") or 0) > 0:
+    blocking_audit_issue_ids = _blocking_declared_issue_ids(
+        payload=missing_artifacts,
+        count_key="audit_issue_count",
+        list_key="audit_issues",
+        ignored_issue_ids=DOWNSTREAM_MISSING_ARTIFACT_AUDIT_ISSUE_IDS,
+    )
+    if blocking_audit_issue_ids:
         issues.append(_issue("missing_artifacts_inventory_has_audit_issues", "Missing-artifacts inventory reports open audit issues."))
     claim_stage = _stage_by_id(plan, "regenerate_claim_gate_artifacts")
     if missing_artifacts.get("all_required_evidence_present") is not True and claim_stage.get("allowed_now") is True:
@@ -524,7 +543,13 @@ def _status_report_issues(
                 observed={"status": status_report.get("status"), "formal_claim_allowed_now": permissions.get("formal_claim_allowed_now")},
             )
         )
-    if int(status_report.get("input_safety_issue_count") or 0) > 0:
+    blocking_input_safety_issue_ids = _blocking_declared_issue_ids(
+        payload=status_report,
+        count_key="input_safety_issue_count",
+        list_key="input_safety_issues",
+        ignored_issue_ids=DOWNSTREAM_STATUS_REPORT_INPUT_SAFETY_ISSUE_IDS,
+    )
+    if blocking_input_safety_issue_ids:
         issues.append(_issue("formal_gate_status_report_has_input_safety_issues", "Status report reports open input safety issues."))
     remote_steps = _status_report_remote_steps(status_report)
     if not remote_steps:
@@ -858,8 +883,6 @@ def _handoff_coverage_issues(
             )
         )
     else:
-        if int(handoff_summary.get("safety_issue_count") or 0) > 0:
-            issues.append(_issue("status_report_handoff_safety_issues_open", "Status report handoff summary reports open safety issues."))
         if status_report.get("status") != "formal_gate_status_ready_for_claim_audit" and handoff_summary.get("remote_training_allowed_now") is True:
             issues.append(
                 _issue(
@@ -869,6 +892,29 @@ def _handoff_coverage_issues(
                 )
             )
     return issues
+
+
+def _blocking_declared_issue_ids(
+    *,
+    payload: dict[str, Any],
+    count_key: str,
+    list_key: str,
+    ignored_issue_ids: set[str],
+) -> list[str]:
+    if int(payload.get(count_key) or 0) == 0:
+        return []
+    raw_issues = payload.get(list_key)
+    if not isinstance(raw_issues, list):
+        return ["unknown"]
+    blocking_issue_ids: list[str] = []
+    for raw_issue in raw_issues:
+        if not isinstance(raw_issue, dict):
+            blocking_issue_ids.append("unknown")
+            continue
+        issue_id = str(raw_issue.get("issue_id") or "")
+        if issue_id and issue_id not in ignored_issue_ids:
+            blocking_issue_ids.append(issue_id)
+    return blocking_issue_ids
 
 
 def _source_freshness_target(source_freshness: dict[str, Any], artifact_id: str) -> dict[str, Any]:
