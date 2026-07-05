@@ -217,6 +217,8 @@ def test_remaining_deliverables_catches_unsafe_or_incomplete_inputs(tmp_path):
     status_report["runs_training"] = True
     status_report["training_artifacts_required"][0]["missing"] = False
     status_report["training_artifacts_required"][0]["exists"] = True
+    status_report["training_artifacts_required"][0]["path"] = "train/final_model.zip or train/alternate_model.zip"
+    status_report["evaluation_artifacts_required"][0]["path"] = "ssh remote-host:/tmp/gate3_eval_episodes.csv"
     status_report_path = config.status_report_path
     status_report_path.write_text(json.dumps(status_report), encoding="utf-8")
     missing_artifacts = json.loads(config.missing_artifacts_path.read_text(encoding="utf-8"))
@@ -234,6 +236,18 @@ def test_remaining_deliverables_catches_unsafe_or_incomplete_inputs(tmp_path):
     assert "missing_artifacts_allows_formal_claim" in issue_ids
     assert "training_allowed_while_status_report_blocked" in issue_ids
     assert "training_missing_invalid_substitutes" in issue_ids
+    assert (
+        "proof_command_training_train_final_model_zip_train_final_model_zip_exists_nonempty_raw_or_path"
+        in issue_ids
+    )
+    assert (
+        "proof_command_training_train_final_model_zip_train_final_model_zip_valid_zip_raw_or_path"
+        in issue_ids
+    )
+    assert (
+        "proof_command_evaluation_eval_gate3_eval_episodes_csv_eval_gate3_eval_episodes_csv_exists_nonempty_forbidden_execution_token"
+        in issue_ids
+    )
     assert manifest["category_counts"]["training"]["present_count"] == 1
     assert manifest["category_counts"]["training"]["missing_count"] == 2
 

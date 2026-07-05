@@ -122,6 +122,7 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
         h02_acceptance=h02_acceptance,
         source_freshness=source_freshness,
         deliverable_groups=deliverable_groups,
+        deliverable_acceptance_matrix=deliverable_acceptance_matrix,
     )
     missing_count = sum(group["missing_count"] for group in deliverable_groups)
     ready = missing_count == 0 and not audit_issues and status_report.get("status") == "formal_gate_status_ready_for_claim_audit"
@@ -762,6 +763,7 @@ def _audit_issues(
     h02_acceptance: dict[str, Any],
     source_freshness: dict[str, Any],
     deliverable_groups: Sequence[dict[str, Any]],
+    deliverable_acceptance_matrix: Sequence[dict[str, Any]],
 ) -> list[dict[str, str]]:
     issues: list[dict[str, str]] = []
     for name, payload in (
@@ -804,7 +806,68 @@ def _audit_issues(
             issues.append(_issue("formal_acceptance_wrong_responsible_stage", "formal acceptance must be owned by regenerate_h01_h02_formal_artifacts."))
         if group["missing_count"] > 0 and not group["invalid_substitutes"]:
             issues.append(_issue(f"{category}_missing_invalid_substitutes", f"{category} group must list invalid substitutes while blocked."))
+    issues.extend(_proof_command_safety_issues(deliverable_acceptance_matrix))
     return _unique_issues(issues)
+
+
+def _proof_command_safety_issues(deliverable_acceptance_matrix: Sequence[dict[str, Any]]) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    forbidden_tokens = (
+        "ssh ",
+        "rsync ",
+        "scp ",
+        "preflight_rl_rs_gate3_formal_trial",
+        "run_rl_rs_gate3_trial",
+        "audit_rl_rs_gate3_trial",
+    )
+    for row in deliverable_acceptance_matrix:
+        matrix_id = str(row.get("matrix_id") or "unknown_matrix")
+        safe_matrix_id = _safe_issue_id(matrix_id)
+        proof_commands = row.get("proof_commands")
+        proof_commands = proof_commands if isinstance(proof_commands, list) else []
+        if not proof_commands:
+            issues.append(_issue(f"proof_command_{safe_matrix_id}_missing", f"{matrix_id} must define proof commands."))
+            continue
+        if int(row.get("proof_command_count") or 0) != len(proof_commands):
+            issues.append(_issue(f"proof_command_{safe_matrix_id}_count_mismatch", f"{matrix_id} proof command count must match commands."))
+        for command in proof_commands:
+            if not isinstance(command, dict):
+                issues.append(_issue(f"proof_command_{safe_matrix_id}_malformed", f"{matrix_id} proof command row must be an object."))
+                continue
+            command_id = str(command.get("command_id") or "unknown_command")
+            safe_command_id = _safe_issue_id(command_id)
+            command_text = str(command.get("command") or "")
+            if command_id == "unknown_command":
+                issues.append(_issue(f"proof_command_{safe_matrix_id}_missing_id", f"{matrix_id} proof command is missing command_id."))
+            if command.get("execution_boundary") != "local_read_only_after_formal_remote_pullback":
+                issues.append(
+                    _issue(
+                        f"proof_command_{safe_matrix_id}_{safe_command_id}_wrong_boundary",
+                        f"{matrix_id}:{command_id} must remain local read-only after formal remote pullback.",
+                    )
+                )
+            if not command_text.startswith("python -c "):
+                issues.append(
+                    _issue(
+                        f"proof_command_{safe_matrix_id}_{safe_command_id}_not_python_c",
+                        f"{matrix_id}:{command_id} must be a local python -c proof command.",
+                    )
+                )
+            if " or " in command_text:
+                issues.append(
+                    _issue(
+                        f"proof_command_{safe_matrix_id}_{safe_command_id}_raw_or_path",
+                        f"{matrix_id}:{command_id} must normalize alternative paths instead of embedding a raw 'or' path.",
+                    )
+                )
+            if any(token in command_text for token in forbidden_tokens):
+                issues.append(
+                    _issue(
+                        f"proof_command_{safe_matrix_id}_{safe_command_id}_forbidden_execution_token",
+                        f"{matrix_id}:{command_id} must not contain remote, training, or audit execution commands.",
+                    )
+                )
+    return issues
 
 
 def _read_only_payload_issues(name: str, payload: dict[str, Any]) -> list[dict[str, str]]:
@@ -858,6 +921,10 @@ def _strings(value: Any) -> list[str]:
     if not isinstance(value, list):
         return []
     return [str(item) for item in value if item]
+
+
+def _safe_issue_id(value: str) -> str:
+    return "".join(ch if ch.isalnum() else "_" for ch in value).strip("_")
 
 
 def _unique_strings(values: Any) -> list[str]:
