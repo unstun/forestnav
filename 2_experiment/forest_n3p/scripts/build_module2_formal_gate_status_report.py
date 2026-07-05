@@ -3084,7 +3084,6 @@ def _remaining_deliverables_acceptance_issues(
         if (
             blocked_status
             and row["responsible_stage_allowed_now"] is True
-            and row["responsible_stage_id"] != "gate3_remote_training"
         ):
             issues.append(
                 _issue(
@@ -3192,7 +3191,6 @@ def _remaining_deliverables_gap_summary_issues(
         if (
             blocked_status
             and summary_category["responsible_stage_allowed_now"] is True
-            and summary_category["responsible_stage_id"] != "gate3_remote_training"
         ):
             issues.append(
                 _issue(
