@@ -163,8 +163,8 @@
 ## Status Report Remote-Safety Claim-Gate Command Index
 
 - present=`True`
-- index_row_count=`18`
-- source_target_count=`18`
+- index_row_count=`19`
+- source_target_count=`19`
 - missing_target_ids=`[]`
 - unknown_manual_count=`0`
 - forbidden_command_count=`0`
