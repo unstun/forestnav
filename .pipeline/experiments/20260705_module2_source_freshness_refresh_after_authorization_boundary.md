@@ -47,17 +47,17 @@ Refreshed the local read-only ledger chain:
 reports:
 
 - status: `source_freshness_risks_recorded_gate_still_blocked`
-- source head: `61febc573c3ae68cd0e21a42f9d52470dff5c945`
-- current head: `61febc573c3ae68cd0e21a42f9d52470dff5c945`
-- risk counts: `historical_dirty=5`, `historical_clean=18`
-- blocking regeneration target count: `16`
-- tracked-artifact-only lag target count: `7`
+- exact source head, current head, risk counts, and regeneration-target counts
+  are recorded in the JSON manifest and must be read from that file after each
+  local bookkeeping commit.
+- the gate remains blocked because source-freshness risk is still open; the
+  refresh does not override F02.6, training, evaluation, acceptance, or claim
+  gates.
 
 `0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json`
 still reports:
 
 - status: `formal_gate_deliverables_blocked`
-- source head: `61febc573c3ae68cd0e21a42f9d52470dff5c945`
 - missing training/evaluation/acceptance/formal-acceptance counts: `3/2/3/2`
 - local training, remote preflight, remote training, H01/H02 formal evaluation,
   formal claim, and paper-result material remain disallowed.
