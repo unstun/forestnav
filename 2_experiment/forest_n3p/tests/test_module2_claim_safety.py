@@ -221,6 +221,18 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
         "train_final_model_zip_exists",
         "train_final_model_zip_schema",
     ]
+    remote_proof = manifest["status_report_remote_packet_safety_proof_deliverables_summary"]
+    assert remote_proof["present"] is True
+    assert remote_proof["missing_counts_by_formal_category"] == {
+        "training": 0,
+        "evaluation": 0,
+        "acceptance": 0,
+        "formal_acceptance": 0,
+    }
+    assert remote_proof["h02_paper_result_input_allowed"] is True
+    assert manifest["status_report_remote_packet_safety_status_report_proof_deliverables_summary"] == remote_proof
+    assert manifest["input_status"]["status_report_remote_packet_safety_proof_summary_present"] is True
+    assert manifest["input_status"]["status_report_remote_packet_safety_proof_training_missing_count"] == 0
     command_index = manifest["status_report_remote_packet_safety_claim_gate_command_index_summary"]
     assert command_index["present"] is True
     assert command_index["index_row_count"] == 18
@@ -258,6 +270,8 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert "no-warm" in markdown
     assert "decision_owner_required" in markdown
     assert "decision_note_required" in markdown
+    assert "Status Report Remote-Safety Proof Deliverables Summary" in markdown
+    assert "proof_h02_paper_result_input_allowed" in markdown
 
 
 def test_claim_safety_refuses_formal_claim_when_h02_acceptance_is_blocked_even_if_tables_are_formal(tmp_path):
