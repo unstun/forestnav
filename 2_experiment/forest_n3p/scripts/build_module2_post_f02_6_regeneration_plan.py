@@ -71,11 +71,13 @@ def build_manifest(config: PostF026RegenerationPlanConfig) -> dict[str, Any]:
 
     decision_status = str(decision.get("status") or formal_gate.get("current_gate_state", {}).get("f02_6_decision_status") or "unknown")
     source_targets = _source_targets(source_freshness)
+    command_index_targets = _source_command_index_targets(source_freshness)
     stages = _ordered_stages(
         decision=decision,
         decision_status=decision_status,
         formal_gate=formal_gate,
         source_targets=source_targets,
+        command_index_targets=command_index_targets,
         remote_packet=remote_packet,
     )
     return {
@@ -113,7 +115,7 @@ def build_manifest(config: PostF026RegenerationPlanConfig) -> dict[str, Any]:
             remaining_deliverables
         ),
         "source_regeneration_targets_by_gate": _targets_by_gate(source_targets),
-        "source_regeneration_command_index": _source_regeneration_command_index(source_targets),
+        "source_regeneration_command_index": _source_regeneration_command_index(command_index_targets),
         "ordered_stages": stages,
         "blocking_summary": _blocking_summary(stages),
         "claim_boundaries": [
@@ -146,12 +148,16 @@ def _ordered_stages(
     decision_status: str,
     formal_gate: dict[str, Any],
     source_targets: Sequence[dict[str, Any]],
+    command_index_targets: Sequence[dict[str, Any]],
     remote_packet: dict[str, Any],
 ) -> list[dict[str, Any]]:
     approved = decision_status == "approved"
     preflight_targets = _targets_required_before(source_targets, "approved_remote_preflight")
     h01_h02_targets = _targets_required_before(source_targets, "formal_h01_h02")
     claim_targets = _targets_required_before(source_targets, "formal_claim_gate")
+    preflight_command_targets = _targets_required_before(command_index_targets, "approved_remote_preflight")
+    h01_h02_command_targets = _targets_required_before(command_index_targets, "formal_h01_h02")
+    claim_command_targets = _targets_required_before(command_index_targets, "formal_claim_gate")
     preflight_command = _approved_action(decision, "preflight_command")
     packet_steps = remote_packet.get("execution_steps") if isinstance(remote_packet.get("execution_steps"), dict) else {}
     preflight_blockers = _preflight_blockers(approved=approved, preflight_targets=preflight_targets)
@@ -177,7 +183,7 @@ def _ordered_stages(
             allowed_now=approved,
             blocked_by=[] if approved else ["f02_6_decision_not_approved"],
             evidence_paths=[str(item.get("path")) for item in preflight_targets],
-            command_templates=_regeneration_commands(preflight_targets),
+            command_templates=_regeneration_commands(preflight_command_targets),
         ),
         _stage(
             "approved_remote_preflight",
@@ -238,7 +244,7 @@ def _ordered_stages(
                 "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_evaluation_manifest --module2-rl-rs-checkpoint <pulled-back-final_model.zip>",
                 "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_h02_formal_acceptance",
                 ]
-                + _regeneration_commands(h01_h02_targets)
+                + _regeneration_commands(h01_h02_command_targets)
             ),
         ),
         _stage(
@@ -253,7 +259,7 @@ def _ordered_stages(
                 "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety",
                 "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_paper_readiness",
                 ]
-                + _regeneration_commands(claim_targets)
+                + _regeneration_commands(claim_command_targets)
             ),
         ),
     ]
@@ -366,6 +372,13 @@ def _source_targets(source_freshness: dict[str, Any]) -> list[dict[str, Any]]:
     if not isinstance(targets, list):
         return []
     return [target for target in targets if isinstance(target, dict)]
+
+
+def _source_command_index_targets(source_freshness: dict[str, Any]) -> list[dict[str, Any]]:
+    records = source_freshness.get("artifact_records")
+    if isinstance(records, list) and records:
+        return [record for record in records if isinstance(record, dict)]
+    return _source_targets(source_freshness)
 
 
 def _targets_required_before(targets: Sequence[dict[str, Any]], gate: str) -> list[dict[str, Any]]:
