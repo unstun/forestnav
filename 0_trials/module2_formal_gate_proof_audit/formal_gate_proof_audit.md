@@ -18,6 +18,10 @@
 - `missing_formal_acceptance_artifacts`
 - `failed_formal_h01_h02_acceptance_artifacts`
 
+## Input Safety Issues
+
+- none
+
 ## Current Gate State
 
 - remaining_deliverables_status: `formal_gate_deliverables_blocked`
