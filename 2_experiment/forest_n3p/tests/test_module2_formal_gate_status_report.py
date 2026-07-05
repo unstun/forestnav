@@ -533,6 +533,28 @@ def test_formal_gate_status_report_blocks_remote_when_source_freshness_is_stale(
     assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
 
 
+def test_formal_gate_status_report_accepts_source_freshness_self_lag_only(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=True)
+    source_freshness = _source_freshness(complete=True)
+    source_freshness["status"] = "source_freshness_tracked_artifact_lag_only_gate_ready"
+    source_freshness["regeneration_required_before_remote_formal_execution"] = True
+    source_freshness["blocking_regeneration_required_before_remote_formal_execution"] = False
+    source_freshness["blocking_regeneration_target_count"] = 0
+    source_freshness["commit_lag_summary"]["records_with_self_artifact_only_lag"] = 1
+    config.source_freshness_path.write_text(json.dumps(source_freshness), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    assert manifest["current_state"]["source_freshness_regeneration_required"] is True
+    assert manifest["current_state"]["source_freshness_blocking_regeneration_required"] is False
+    assert manifest["current_state"]["source_freshness_self_artifact_only_lag_records"] == 1
+    assert manifest["permissions_now"]["source_freshness_ready_for_remote_preflight"] is True
+    assert manifest["permissions_now"]["remote_preflight_allowed_now"] is True
+    assert manifest["permissions_now"]["remote_training_allowed_now"] is True
+    assert manifest["permissions_now"]["formal_claim_allowed_now"] is True
+
+
 def test_formal_gate_status_report_catches_status_input_drift(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
 
@@ -1946,6 +1968,7 @@ def _source_freshness(*, complete):
         "local_training_allowed": False,
         "formal_claim_allowed": False,
         "regeneration_required_before_remote_formal_execution": not complete,
+        "blocking_regeneration_required_before_remote_formal_execution": not complete,
         "commit_lag_summary": {
             "records_with_non_self_changed_paths_since_source": 0 if complete else 19,
             "records_with_self_artifact_only_lag": 0,

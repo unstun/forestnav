@@ -368,7 +368,7 @@ def _cross_artifact_issues(*, plan: dict[str, Any], formal_gate: dict[str, Any],
                 observed={"plan": summary.get("f02_6_decision_status"), "formal_gate": formal_state.get("f02_6_decision_status")},
             )
         )
-    source_required = source_freshness.get("regeneration_required_before_remote_formal_execution")
+    source_required = _source_freshness_blocking_regeneration_required(source_freshness)
     if source_freshness and summary.get("source_freshness_regeneration_required") != source_required:
         issues.append(
             _issue(
@@ -389,6 +389,12 @@ def _cross_artifact_issues(*, plan: dict[str, Any], formal_gate: dict[str, Any],
                 )
             )
     return issues
+
+
+def _source_freshness_blocking_regeneration_required(source_freshness: dict[str, Any]) -> bool:
+    if "blocking_regeneration_required_before_remote_formal_execution" in source_freshness:
+        return source_freshness.get("blocking_regeneration_required_before_remote_formal_execution") is True
+    return source_freshness.get("regeneration_required_before_remote_formal_execution") is True
 
 
 def _missing_artifacts_issues(

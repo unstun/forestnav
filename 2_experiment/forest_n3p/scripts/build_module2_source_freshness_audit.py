@@ -199,11 +199,25 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 def build_manifest(config: SourceFreshnessAuditConfig) -> dict[str, Any]:
     current_head = _current_head()
-    records = [_artifact_record(target, current_head=current_head) for target in config.artifacts]
+    tracked_artifact_paths = _tracked_artifact_paths(config)
+    records = [
+        _artifact_record(
+            target,
+            current_head=current_head,
+            tracked_artifact_paths=tracked_artifact_paths,
+        )
+        for target in config.artifacts
+    ]
     risk_counts = _risk_counts(records)
     commit_lag_summary = _commit_lag_summary(records)
     freshness_risks = [record for record in records if record["freshness_state"] != "current_clean"]
-    status = "source_freshness_clean_current" if not freshness_risks else "source_freshness_risks_recorded_gate_still_blocked"
+    blocking_regeneration_records = [record for record in records if _blocks_remote_formal_execution(record)]
+    if not freshness_risks:
+        status = "source_freshness_clean_current"
+    elif not blocking_regeneration_records:
+        status = "source_freshness_tracked_artifact_lag_only_gate_ready"
+    else:
+        status = "source_freshness_risks_recorded_gate_still_blocked"
     return {
         "schema_version": 1,
         "artifact_name": "module2_source_freshness_audit",
@@ -221,8 +235,15 @@ def build_manifest(config: SourceFreshnessAuditConfig) -> dict[str, Any]:
         "commit_lag_summary": commit_lag_summary,
         "audit_self_reference_policy": _audit_self_reference_policy(config),
         "regeneration_required_before_remote_formal_execution": bool(freshness_risks),
+        "blocking_regeneration_required_before_remote_formal_execution": bool(blocking_regeneration_records),
+        "blocking_regeneration_target_count": len(blocking_regeneration_records),
+        "self_artifact_only_lag_target_count": sum(1 for record in records if record["self_artifact_only_lag"] is True),
+        "tracked_artifact_only_lag_target_count": sum(
+            1 for record in records if record["tracked_artifact_only_lag"] is True
+        ),
         "artifact_records": records,
         "ordered_regeneration_targets": _ordered_regeneration_targets(records),
+        "blocking_ordered_regeneration_targets": _blocking_regeneration_targets(records),
         "claim_boundaries": [
             "This audit records source-head freshness only; it is not a training run or paper result.",
             "Historical or dirty source_head values are regeneration risks, not formal experimental failures.",
@@ -241,11 +262,16 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
-def _artifact_record(target: ArtifactTarget, *, current_head: str) -> dict[str, Any]:
+def _artifact_record(target: ArtifactTarget, *, current_head: str, tracked_artifact_paths: set[str]) -> dict[str, Any]:
     payload = _read_json(target.path)
     source_head = payload.get("source_head")
     source_info = _source_info(source_head, current_head=current_head)
-    lag_info = _source_lag_info(source_info, artifact_path=target.path, current_head=current_head)
+    lag_info = _source_lag_info(
+        source_info,
+        artifact_path=target.path,
+        current_head=current_head,
+        tracked_artifact_paths=tracked_artifact_paths,
+    )
     return {
         "artifact_id": target.artifact_id,
         "category": target.category,
@@ -263,12 +289,22 @@ def _artifact_record(target: ArtifactTarget, *, current_head: str) -> dict[str, 
         "changed_path_count_since_source": lag_info["changed_path_count_since_source"],
         "artifact_path_changed_since_source": lag_info["artifact_path_changed_since_source"],
         "self_artifact_changed_path_count_since_source": lag_info["self_artifact_changed_path_count_since_source"],
+        "tracked_artifact_changed_path_count_since_source": lag_info[
+            "tracked_artifact_changed_path_count_since_source"
+        ],
         "non_self_changed_path_count_since_source": lag_info["non_self_changed_path_count_since_source"],
+        "blocking_changed_path_count_since_source": lag_info["blocking_changed_path_count_since_source"],
         "self_artifact_only_lag": lag_info["self_artifact_only_lag"],
+        "tracked_artifact_only_lag": lag_info["tracked_artifact_only_lag"],
         "changed_paths_since_source_sample": lag_info["changed_paths_since_source_sample"],
         "non_self_changed_paths_since_source_sample": lag_info["non_self_changed_paths_since_source_sample"],
+        "blocking_changed_paths_since_source_sample": lag_info["blocking_changed_paths_since_source_sample"],
         "required_before": target.required_before,
         "regenerate_before_formal_execution": source_info["freshness_state"] != "current_clean",
+        "blocking_regeneration_required_before_remote_formal_execution": _blocks_remote_formal_execution_from_parts(
+            source_info=source_info,
+            lag_info=lag_info,
+        ),
     }
 
 
@@ -305,7 +341,13 @@ def _source_info(source_head: Any, *, current_head: str) -> dict[str, Any]:
     }
 
 
-def _source_lag_info(source_info: dict[str, Any], *, artifact_path: Path, current_head: str) -> dict[str, Any]:
+def _source_lag_info(
+    source_info: dict[str, Any],
+    *,
+    artifact_path: Path,
+    current_head: str,
+    tracked_artifact_paths: set[str],
+) -> dict[str, Any]:
     source_commit = source_info["source_commit"]
     if not source_commit or not source_info["source_commit_exists"]:
         return _unknown_lag_info()
@@ -315,10 +357,14 @@ def _source_lag_info(source_info: dict[str, Any], *, artifact_path: Path, curren
             "changed_path_count_since_source": 0,
             "artifact_path_changed_since_source": False,
             "self_artifact_changed_path_count_since_source": 0,
+            "tracked_artifact_changed_path_count_since_source": 0,
             "non_self_changed_path_count_since_source": 0,
+            "blocking_changed_path_count_since_source": 0,
             "self_artifact_only_lag": False,
+            "tracked_artifact_only_lag": False,
             "changed_paths_since_source_sample": [],
             "non_self_changed_paths_since_source_sample": [],
+            "blocking_changed_paths_since_source_sample": [],
         }
 
     commits_since_source = _commits_since_source(str(source_commit), current_head)
@@ -329,16 +375,24 @@ def _source_lag_info(source_info: dict[str, Any], *, artifact_path: Path, curren
     self_artifact_paths = _self_artifact_paths(artifact_path)
     changed_path_set = set(changed_paths)
     self_changed_paths = [path for path in changed_paths if path in self_artifact_paths]
+    tracked_artifact_changed_paths = [path for path in changed_paths if path in tracked_artifact_paths]
     non_self_changed_paths = [path for path in changed_paths if path not in self_artifact_paths]
+    blocking_changed_paths = [path for path in changed_paths if path not in tracked_artifact_paths]
     return {
         "commits_since_source": commits_since_source,
         "changed_path_count_since_source": len(changed_paths),
         "artifact_path_changed_since_source": artifact_path.as_posix() in changed_path_set,
         "self_artifact_changed_path_count_since_source": len(self_changed_paths),
+        "tracked_artifact_changed_path_count_since_source": len(tracked_artifact_changed_paths),
         "non_self_changed_path_count_since_source": len(non_self_changed_paths),
+        "blocking_changed_path_count_since_source": len(blocking_changed_paths),
         "self_artifact_only_lag": commits_since_source > 0 and bool(self_changed_paths) and not non_self_changed_paths,
+        "tracked_artifact_only_lag": commits_since_source > 0
+        and bool(tracked_artifact_changed_paths)
+        and not blocking_changed_paths,
         "changed_paths_since_source_sample": changed_paths[:CHANGED_PATH_SAMPLE_LIMIT],
         "non_self_changed_paths_since_source_sample": non_self_changed_paths[:CHANGED_PATH_SAMPLE_LIMIT],
+        "blocking_changed_paths_since_source_sample": blocking_changed_paths[:CHANGED_PATH_SAMPLE_LIMIT],
     }
 
 
@@ -348,10 +402,14 @@ def _unknown_lag_info() -> dict[str, Any]:
         "changed_path_count_since_source": None,
         "artifact_path_changed_since_source": None,
         "self_artifact_changed_path_count_since_source": None,
+        "tracked_artifact_changed_path_count_since_source": None,
         "non_self_changed_path_count_since_source": None,
+        "blocking_changed_path_count_since_source": None,
         "self_artifact_only_lag": None,
+        "tracked_artifact_only_lag": None,
         "changed_paths_since_source_sample": [],
         "non_self_changed_paths_since_source_sample": [],
+        "blocking_changed_paths_since_source_sample": [],
     }
 
 
@@ -359,6 +417,17 @@ def _self_artifact_paths(artifact_path: Path) -> set[str]:
     paths = {artifact_path.as_posix()}
     if artifact_path.suffix == ".json":
         paths.add(artifact_path.with_suffix(".md").as_posix())
+    return paths
+
+
+def _tracked_artifact_paths(config: SourceFreshnessAuditConfig) -> set[str]:
+    paths: set[str] = set()
+    for target in config.artifacts:
+        paths.update(_self_artifact_paths(target.path))
+    manifest_path = config.manifest_out or Path(config.output_dir) / "source_freshness_audit.json"
+    markdown_path = config.markdown_out or Path(config.output_dir) / "source_freshness_audit.md"
+    paths.add(Path(manifest_path).as_posix())
+    paths.add(Path(markdown_path).as_posix())
     return paths
 
 
@@ -377,6 +446,11 @@ def _commit_lag_summary(records: Sequence[dict[str, Any]]) -> dict[str, Any]:
         for record in records
         if record["non_self_changed_path_count_since_source"] is not None
     ]
+    known_blocking_counts = [
+        record["blocking_changed_path_count_since_source"]
+        for record in records
+        if record["blocking_changed_path_count_since_source"] is not None
+    ]
     return {
         "records_with_commit_lag": sum(1 for record in records if _positive_int(record["commits_since_source"])),
         "records_with_unknown_commit_lag": sum(1 for record in records if record["commits_since_source"] is None),
@@ -389,9 +463,16 @@ def _commit_lag_summary(records: Sequence[dict[str, Any]]) -> dict[str, Any]:
         "records_with_non_self_changed_paths_since_source": sum(
             1 for record in records if _positive_int(record["non_self_changed_path_count_since_source"])
         ),
+        "records_with_blocking_changed_paths_since_source": sum(
+            1 for record in records if _positive_int(record["blocking_changed_path_count_since_source"])
+        ),
         "records_with_self_artifact_only_lag": sum(1 for record in records if record["self_artifact_only_lag"] is True),
+        "records_with_tracked_artifact_only_lag": sum(
+            1 for record in records if record["tracked_artifact_only_lag"] is True
+        ),
         "max_commits_since_source": max(known_commit_lags) if known_commit_lags else None,
         "max_non_self_changed_path_count_since_source": max(known_non_self_counts) if known_non_self_counts else None,
+        "max_blocking_changed_path_count_since_source": max(known_blocking_counts) if known_blocking_counts else None,
         "changed_path_sample_limit": CHANGED_PATH_SAMPLE_LIMIT,
     }
 
@@ -407,6 +488,38 @@ def _audit_self_reference_policy(config: SourceFreshnessAuditConfig) -> dict[str
         "manifest_path": str(manifest_path),
         "markdown_path": str(markdown_path),
     }
+
+
+def _blocks_remote_formal_execution(record: dict[str, Any]) -> bool:
+    return _blocks_remote_formal_execution_from_parts(
+        source_info={
+            "freshness_state": record.get("freshness_state"),
+            "source_head_dirty": record.get("source_head_dirty"),
+            "source_commit_exists": record.get("source_commit_exists"),
+        },
+        lag_info={
+            "self_artifact_only_lag": record.get("self_artifact_only_lag"),
+            "tracked_artifact_only_lag": record.get("tracked_artifact_only_lag"),
+            "non_self_changed_path_count_since_source": record.get("non_self_changed_path_count_since_source"),
+            "blocking_changed_path_count_since_source": record.get("blocking_changed_path_count_since_source"),
+        },
+    )
+
+
+def _blocks_remote_formal_execution_from_parts(*, source_info: dict[str, Any], lag_info: dict[str, Any]) -> bool:
+    state = source_info.get("freshness_state")
+    if state == "current_clean":
+        return False
+    if (
+        state == "historical_clean"
+        and (
+            lag_info.get("tracked_artifact_only_lag") is True
+            or lag_info.get("self_artifact_only_lag") is True
+        )
+        and not _positive_int(lag_info.get("blocking_changed_path_count_since_source"))
+    ):
+        return False
+    return True
 
 
 def _positive_int(value: Any) -> bool:
@@ -430,13 +543,22 @@ def _ordered_regeneration_targets(records: Sequence[dict[str, Any]]) -> list[dic
             "changed_path_count_since_source": record["changed_path_count_since_source"],
             "artifact_path_changed_since_source": record["artifact_path_changed_since_source"],
             "non_self_changed_path_count_since_source": record["non_self_changed_path_count_since_source"],
+            "blocking_changed_path_count_since_source": record["blocking_changed_path_count_since_source"],
             "self_artifact_only_lag": record["self_artifact_only_lag"],
+            "tracked_artifact_only_lag": record["tracked_artifact_only_lag"],
+            "blocking_regeneration_required_before_remote_formal_execution": record[
+                "blocking_regeneration_required_before_remote_formal_execution"
+            ],
             "required_before": record["required_before"],
         }
         for record in records
         if record["freshness_state"] != "current_clean" or record["artifact_id"] == "formal_gate_handoff_bundle"
     ]
     return sorted(targets, key=lambda item: (order.get(str(item["required_before"]), 99), str(item["artifact_id"])))
+
+
+def _blocking_regeneration_targets(records: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [target for target in _ordered_regeneration_targets(records) if target["blocking_regeneration_required_before_remote_formal_execution"] is True]
 
 
 def _markdown(manifest: dict[str, Any]) -> str:
@@ -451,6 +573,10 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- runs_remote_preflight: `{manifest['runs_remote_preflight']}`",
         f"- formal_claim_allowed: `{manifest['formal_claim_allowed']}`",
         f"- regeneration_required_before_remote_formal_execution: `{manifest['regeneration_required_before_remote_formal_execution']}`",
+        f"- blocking_regeneration_required_before_remote_formal_execution: `{manifest['blocking_regeneration_required_before_remote_formal_execution']}`",
+        f"- blocking_regeneration_target_count: `{manifest['blocking_regeneration_target_count']}`",
+        f"- self_artifact_only_lag_target_count: `{manifest['self_artifact_only_lag_target_count']}`",
+        f"- tracked_artifact_only_lag_target_count: `{manifest['tracked_artifact_only_lag_target_count']}`",
         "",
         "## Risk Counts",
         "",
@@ -473,7 +599,10 @@ def _markdown(manifest: dict[str, Any]) -> str:
                 f"commits_since_source=`{target['commits_since_source']}`, "
                 f"changed_paths_since_source=`{target['changed_path_count_since_source']}`, "
                 f"non_self_changed_paths_since_source=`{target['non_self_changed_path_count_since_source']}`, "
+                f"blocking_changed_paths_since_source=`{target['blocking_changed_path_count_since_source']}`, "
                 f"self_artifact_only_lag=`{target['self_artifact_only_lag']}`, "
+                f"tracked_artifact_only_lag=`{target['tracked_artifact_only_lag']}`, "
+                f"blocking_regeneration=`{target['blocking_regeneration_required_before_remote_formal_execution']}`, "
                 f"artifact_path_changed=`{target['artifact_path_changed_since_source']}`, "
                 f"required before `{target['required_before']}`, path `{target['path']}`"
             )

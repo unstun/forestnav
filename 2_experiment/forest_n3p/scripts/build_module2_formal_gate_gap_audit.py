@@ -472,7 +472,7 @@ def _source_freshness_gaps(*, source_freshness: dict[str, Any], source_freshness
                 "Regenerate source freshness as non-result evidence only.",
             )
         )
-    if source_freshness.get("regeneration_required_before_remote_formal_execution") is True:
+    if _source_freshness_blocking_regeneration_required(source_freshness):
         gaps.append(
             _gap(
                 "training",
@@ -1501,6 +1501,7 @@ def _current_gate_state(
         "formal_performance_claim_allowed": bool(claim_safety.get("formal_performance_claim_allowed")),
         "source_freshness_status": source_freshness.get("status"),
         "source_freshness_regeneration_required": bool(source_freshness.get("regeneration_required_before_remote_formal_execution")),
+        "source_freshness_blocking_regeneration_required": _source_freshness_blocking_regeneration_required(source_freshness),
         "formal_gate_missing_artifacts_status": missing_artifacts.get("status"),
         "formal_gate_missing_artifacts_open": missing_artifacts.get("all_required_evidence_present") is not True,
         "formal_gate_closure_checklist_status": closure_checklist.get("status"),
@@ -1545,10 +1546,17 @@ def _source_freshness_record(path: Path, source_freshness: dict[str, Any]) -> di
         "local_training_allowed": source_freshness.get("local_training_allowed"),
         "formal_claim_allowed": source_freshness.get("formal_claim_allowed"),
         "regeneration_required_before_remote_formal_execution": source_freshness.get("regeneration_required_before_remote_formal_execution"),
+        "blocking_regeneration_required_before_remote_formal_execution": _source_freshness_blocking_regeneration_required(source_freshness),
         "risk_counts": source_freshness.get("risk_counts") if isinstance(source_freshness.get("risk_counts"), dict) else {},
         "ordered_regeneration_target_count": len(ordered_targets),
         "ordered_regeneration_targets": ordered_targets,
     }
+
+
+def _source_freshness_blocking_regeneration_required(source_freshness: dict[str, Any]) -> bool:
+    if "blocking_regeneration_required_before_remote_formal_execution" in source_freshness:
+        return source_freshness.get("blocking_regeneration_required_before_remote_formal_execution") is True
+    return source_freshness.get("regeneration_required_before_remote_formal_execution") is True
 
 
 def _missing_artifacts_record(path: Path, missing_artifacts: dict[str, Any]) -> dict[str, Any]:

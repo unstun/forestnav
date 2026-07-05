@@ -550,6 +550,9 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "source_freshness_regeneration_required": source_freshness_summary[
                 "regeneration_required_before_remote_formal_execution"
             ],
+            "source_freshness_blocking_regeneration_required": source_freshness_summary[
+                "blocking_regeneration_required_before_remote_formal_execution"
+            ],
             "source_freshness_non_self_changed_records": source_freshness_summary[
                 "records_with_non_self_changed_paths_since_source"
             ],
@@ -886,6 +889,9 @@ def _source_freshness_summary(source_freshness: dict[str, Any]) -> dict[str, Any
         "regeneration_required_before_remote_formal_execution": source_freshness.get(
             "regeneration_required_before_remote_formal_execution"
         ),
+        "blocking_regeneration_required_before_remote_formal_execution": _source_freshness_blocking_regeneration_required(
+            source_freshness
+        ),
         "records_with_non_self_changed_paths_since_source": commit_lag_summary.get(
             "records_with_non_self_changed_paths_since_source"
         ),
@@ -895,9 +901,20 @@ def _source_freshness_summary(source_freshness: dict[str, Any]) -> dict[str, Any
 
 def _source_freshness_ready_for_remote_preflight(source_freshness: dict[str, Any]) -> bool:
     return (
-        source_freshness.get("status") == "source_freshness_clean_current"
-        and source_freshness.get("regeneration_required_before_remote_formal_execution") is False
+        source_freshness.get("status")
+        in {
+            "source_freshness_clean_current",
+            "source_freshness_self_artifact_lag_only_gate_ready",
+            "source_freshness_tracked_artifact_lag_only_gate_ready",
+        }
+        and _source_freshness_blocking_regeneration_required(source_freshness) is False
     )
+
+
+def _source_freshness_blocking_regeneration_required(source_freshness: dict[str, Any]) -> bool:
+    if "blocking_regeneration_required_before_remote_formal_execution" in source_freshness:
+        return source_freshness.get("blocking_regeneration_required_before_remote_formal_execution") is True
+    return source_freshness.get("regeneration_required_before_remote_formal_execution") is True
 
 
 def _source_freshness_execution_issues(

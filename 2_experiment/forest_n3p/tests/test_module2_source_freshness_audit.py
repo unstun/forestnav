@@ -31,6 +31,9 @@ def test_source_freshness_audit_records_stale_and_dirty_artifacts_as_regeneratio
     assert manifest["local_training_allowed"] is False
     assert manifest["formal_claim_allowed"] is False
     assert manifest["regeneration_required_before_remote_formal_execution"] is True
+    assert manifest["blocking_regeneration_required_before_remote_formal_execution"] is True
+    assert manifest["blocking_regeneration_target_count"] == 3
+    assert len(manifest["blocking_ordered_regeneration_targets"]) == 3
     assert manifest["risk_counts"]["current_dirty"] == 1
     assert manifest["risk_counts"]["unknown_or_missing_commit"] == 1
     assert manifest["risk_counts"]["missing_source_head"] == 1
@@ -69,6 +72,9 @@ def test_source_freshness_audit_is_clean_only_when_all_sources_match_current_hea
     assert manifest["risk_counts"] == {"current_clean": 2}
     assert manifest["ordered_regeneration_targets"] == []
     assert manifest["regeneration_required_before_remote_formal_execution"] is False
+    assert manifest["blocking_regeneration_required_before_remote_formal_execution"] is False
+    assert manifest["blocking_regeneration_target_count"] == 0
+    assert manifest["blocking_ordered_regeneration_targets"] == []
 
 
 def test_source_freshness_audit_records_commit_lag_diagnostics(tmp_path, monkeypatch):
@@ -102,9 +108,12 @@ def test_source_freshness_audit_records_commit_lag_diagnostics(tmp_path, monkeyp
         "records_with_changed_paths_since_source": 1,
         "records_with_artifact_path_changed_since_source": 1,
         "records_with_non_self_changed_paths_since_source": 1,
+        "records_with_blocking_changed_paths_since_source": 1,
         "records_with_self_artifact_only_lag": 0,
+        "records_with_tracked_artifact_only_lag": 0,
         "max_commits_since_source": 3,
         "max_non_self_changed_path_count_since_source": 1,
+        "max_blocking_changed_path_count_since_source": 1,
         "changed_path_sample_limit": 12,
     }
     record = manifest["artifact_records"][0]
@@ -113,16 +122,64 @@ def test_source_freshness_audit_records_commit_lag_diagnostics(tmp_path, monkeyp
     assert record["changed_path_count_since_source"] == 2
     assert record["artifact_path_changed_since_source"] is True
     assert record["self_artifact_changed_path_count_since_source"] == 1
+    assert record["tracked_artifact_changed_path_count_since_source"] == 1
     assert record["non_self_changed_path_count_since_source"] == 1
+    assert record["blocking_changed_path_count_since_source"] == 1
     assert record["self_artifact_only_lag"] is False
+    assert record["tracked_artifact_only_lag"] is False
     assert record["non_self_changed_paths_since_source_sample"] == ["2_experiment/forest_n3p/example.py"]
+    assert record["blocking_changed_paths_since_source_sample"] == ["2_experiment/forest_n3p/example.py"]
     assert record["changed_paths_since_source_sample"] == [str(stale_path), "2_experiment/forest_n3p/example.py"]
     target = manifest["ordered_regeneration_targets"][0]
     assert target["commits_since_source"] == 3
     assert target["changed_path_count_since_source"] == 2
     assert target["artifact_path_changed_since_source"] is True
     assert target["non_self_changed_path_count_since_source"] == 1
+    assert target["blocking_changed_path_count_since_source"] == 1
     assert target["self_artifact_only_lag"] is False
+    assert target["tracked_artifact_only_lag"] is False
+
+
+def test_source_freshness_audit_allows_tracked_artifact_batch_lag(tmp_path, monkeypatch):
+    builder = import_module("forest_n3p.scripts.build_module2_source_freshness_audit")
+    stale_head = "a" * 40
+    current_head = "b" * 40
+    artifact_a = _artifact(tmp_path, "a.json", status="blocked", source_head=stale_head)
+    artifact_b = _artifact(tmp_path, "b.json", status="blocked", source_head=stale_head)
+    artifact_a.with_suffix(".md").write_text("# a\n", encoding="utf-8")
+    artifact_b.with_suffix(".md").write_text("# b\n", encoding="utf-8")
+    changed_paths = [
+        str(artifact_a),
+        str(artifact_a.with_suffix(".md")),
+        str(artifact_b),
+        str(artifact_b.with_suffix(".md")),
+    ]
+
+    monkeypatch.setattr(builder, "_current_head", lambda: current_head)
+    monkeypatch.setattr(builder, "_commit_exists", lambda commit: commit in {stale_head, current_head})
+    monkeypatch.setattr(builder, "_commits_since_source", lambda source, current: 1, raising=False)
+    monkeypatch.setattr(builder, "_changed_paths_since_source", lambda source, current: changed_paths, raising=False)
+
+    manifest = builder.build_manifest(
+        builder.SourceFreshnessAuditConfig(
+            output_dir=tmp_path,
+            artifacts=[
+                builder.ArtifactTarget("artifact_a", "gate", artifact_a, "approved_remote_preflight"),
+                builder.ArtifactTarget("artifact_b", "gate", artifact_b, "approved_remote_preflight"),
+            ],
+        )
+    )
+
+    assert manifest["status"] == "source_freshness_tracked_artifact_lag_only_gate_ready"
+    assert manifest["regeneration_required_before_remote_formal_execution"] is True
+    assert manifest["blocking_regeneration_required_before_remote_formal_execution"] is False
+    assert manifest["blocking_regeneration_target_count"] == 0
+    assert manifest["tracked_artifact_only_lag_target_count"] == 2
+    assert manifest["blocking_ordered_regeneration_targets"] == []
+    for record in manifest["artifact_records"]:
+        assert record["tracked_artifact_only_lag"] is True
+        assert record["blocking_changed_path_count_since_source"] == 0
+        assert record["blocking_regeneration_required_before_remote_formal_execution"] is False
 
 
 def test_source_freshness_audit_separates_self_artifact_write_lag(tmp_path, monkeypatch):
@@ -151,9 +208,17 @@ def test_source_freshness_audit_separates_self_artifact_write_lag(tmp_path, monk
         )
     )
 
+    assert manifest["status"] == "source_freshness_tracked_artifact_lag_only_gate_ready"
+    assert manifest["regeneration_required_before_remote_formal_execution"] is True
+    assert manifest["blocking_regeneration_required_before_remote_formal_execution"] is False
+    assert manifest["blocking_regeneration_target_count"] == 0
+    assert manifest["blocking_ordered_regeneration_targets"] == []
     assert manifest["commit_lag_summary"]["records_with_self_artifact_only_lag"] == 1
     assert manifest["commit_lag_summary"]["records_with_non_self_changed_paths_since_source"] == 0
+    assert manifest["commit_lag_summary"]["records_with_blocking_changed_paths_since_source"] == 0
+    assert manifest["commit_lag_summary"]["records_with_tracked_artifact_only_lag"] == 1
     assert manifest["commit_lag_summary"]["max_non_self_changed_path_count_since_source"] == 0
+    assert manifest["commit_lag_summary"]["max_blocking_changed_path_count_since_source"] == 0
     record = manifest["artifact_records"][0]
     assert record["commits_since_source"] == 1
     assert record["changed_path_count_since_source"] == 2
@@ -161,7 +226,15 @@ def test_source_freshness_audit_separates_self_artifact_write_lag(tmp_path, monk
     assert record["self_artifact_changed_path_count_since_source"] == 2
     assert record["non_self_changed_path_count_since_source"] == 0
     assert record["self_artifact_only_lag"] is True
+    assert record["tracked_artifact_only_lag"] is True
+    assert record["blocking_changed_path_count_since_source"] == 0
+    assert record["blocking_regeneration_required_before_remote_formal_execution"] is False
     assert record["non_self_changed_paths_since_source_sample"] == []
+    assert record["blocking_changed_paths_since_source_sample"] == []
+    target = manifest["ordered_regeneration_targets"][0]
+    assert target["self_artifact_only_lag"] is True
+    assert target["tracked_artifact_only_lag"] is True
+    assert target["blocking_regeneration_required_before_remote_formal_execution"] is False
 
 
 def test_source_freshness_audit_documents_self_artifact_lag_policy(tmp_path, monkeypatch):
@@ -195,6 +268,7 @@ def test_source_freshness_audit_documents_self_artifact_lag_policy(tmp_path, mon
     }
     assert manifest["status"] == "source_freshness_clean_current"
     assert manifest["regeneration_required_before_remote_formal_execution"] is False
+    assert manifest["blocking_regeneration_required_before_remote_formal_execution"] is False
 
 
 def test_source_freshness_audit_cli_writes_json_and_markdown(tmp_path):

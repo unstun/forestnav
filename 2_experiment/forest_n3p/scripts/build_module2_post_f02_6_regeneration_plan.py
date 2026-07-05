@@ -101,6 +101,7 @@ def build_manifest(config: PostF026RegenerationPlanConfig) -> dict[str, Any]:
             "formal_gate_status": formal_gate.get("status"),
             "source_freshness_status": source_freshness.get("status"),
             "source_freshness_regeneration_required": bool(source_freshness.get("regeneration_required_before_remote_formal_execution")),
+            "source_freshness_blocking_regeneration_required": _source_freshness_blocking_regeneration_required(source_freshness),
             "remote_packet_status": remote_packet.get("status"),
             "ready_to_run_remote_training": bool(remote_packet.get("ready_to_run_remote_training")),
         },
@@ -293,11 +294,17 @@ def _status(*, decision_status: str, stages: Sequence[dict[str, Any]], source_fr
         return "blocked_until_f02_6_decision"
     if decision_status != "approved":
         return f"blocked_by_f02_6_{decision_status}"
-    if source_freshness.get("regeneration_required_before_remote_formal_execution") is True:
+    if _source_freshness_blocking_regeneration_required(source_freshness):
         return "ready_to_execute_post_f02_6_regeneration_plan"
     if any(stage["stage_id"] == "gate3_remote_training" and stage["allowed_now"] for stage in stages):
         return "ready_for_remote_training_packet_execution"
     return "blocked_formal_gate_preconditions"
+
+
+def _source_freshness_blocking_regeneration_required(source_freshness: dict[str, Any]) -> bool:
+    if "blocking_regeneration_required_before_remote_formal_execution" in source_freshness:
+        return source_freshness.get("blocking_regeneration_required_before_remote_formal_execution") is True
+    return source_freshness.get("regeneration_required_before_remote_formal_execution") is True
 
 
 def _f02_6_human_decision_request_summary(status_report: dict[str, Any]) -> dict[str, Any]:

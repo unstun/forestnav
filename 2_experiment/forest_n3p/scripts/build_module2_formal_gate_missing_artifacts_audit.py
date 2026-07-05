@@ -287,7 +287,7 @@ def _transition_gate_group(transition_gate: dict[str, Any]) -> dict[str, Any]:
 
 def _source_regeneration_group(source_freshness: dict[str, Any]) -> dict[str, Any]:
     targets = _source_targets(source_freshness)
-    required = bool(source_freshness.get("regeneration_required_before_remote_formal_execution"))
+    required = _source_freshness_blocking_regeneration_required(source_freshness)
     items = []
     for target in targets:
         items.append(
@@ -835,6 +835,7 @@ def _current_gate_summary(
         "post_plan_remote_preflight_allowed_now": post_summary.get("remote_preflight_allowed_now"),
         "source_freshness_status": source_freshness.get("status"),
         "source_freshness_regeneration_required": source_freshness.get("regeneration_required_before_remote_formal_execution"),
+        "source_freshness_blocking_regeneration_required": _source_freshness_blocking_regeneration_required(source_freshness),
         "remote_packet_status": remote_packet.get("status"),
         "ready_to_run_remote_training": remote_packet.get("ready_to_run_remote_training"),
         "remote_packet_safety_audit_status": remote_packet_audit.get("status"),
@@ -843,6 +844,12 @@ def _current_gate_summary(
         "h02_acceptance_status": h02_acceptance.get("status"),
         "h02_blockers": _strings(h02_acceptance.get("blockers")),
     }
+
+
+def _source_freshness_blocking_regeneration_required(source_freshness: dict[str, Any]) -> bool:
+    if "blocking_regeneration_required_before_remote_formal_execution" in source_freshness:
+        return source_freshness.get("blocking_regeneration_required_before_remote_formal_execution") is True
+    return source_freshness.get("regeneration_required_before_remote_formal_execution") is True
 
 
 def _missing_counts(groups: Sequence[dict[str, Any]]) -> dict[str, int]:
