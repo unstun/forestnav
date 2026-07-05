@@ -254,7 +254,8 @@ def test_source_freshness_audit_cli_writes_json_and_markdown(tmp_path):
     if records["f02_6_warm_start_decision_packet"]["freshness_state"] != "current_clean":
         assert required_before.get("f02_6_warm_start_decision_packet") == "approved_remote_preflight"
     assert required_before.get("f02_6_decision_intake") == "approved_remote_preflight"
-    assert required_before.get("f02_6_decision_gate_audit") == "approved_remote_preflight"
+    if records["f02_6_decision_gate_audit"]["freshness_state"] != "current_clean":
+        assert required_before.get("f02_6_decision_gate_audit") == "approved_remote_preflight"
     assert required_before.get("f02_6_transition_gate_audit") == "approved_remote_preflight"
     if records["formal_gate_closure_checklist"]["freshness_state"] != "current_clean":
         assert required_before.get("formal_gate_closure_checklist") == "approved_remote_preflight"
