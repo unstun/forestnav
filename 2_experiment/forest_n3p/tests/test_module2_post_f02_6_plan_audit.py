@@ -111,6 +111,56 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
     assert "remote_packet_not_ready" in steps["run_remote_training"]["blocked_by"]
 
 
+def test_post_f02_6_plan_audit_uses_artifact_records_for_full_command_index(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
+    plan = _plan_payload()
+    source_freshness = _source_freshness_payload()
+    artifact_records = source_freshness["ordered_regeneration_targets"]
+    source_freshness["status"] = "source_freshness_tracked_artifact_lag_only_gate_ready"
+    source_freshness["regeneration_required_before_remote_formal_execution"] = False
+    source_freshness["artifact_records"] = artifact_records
+    source_freshness["ordered_regeneration_targets"] = [
+        row for row in artifact_records if row["artifact_id"] == "formal_gate_handoff_bundle"
+    ]
+    plan["source_regeneration_targets_by_gate"] = {
+        "approved_remote_preflight": [
+            {
+                "artifact_id": "formal_gate_handoff_bundle",
+                "path": "handoff.json",
+                "freshness_state": "historical_clean",
+            }
+        ]
+    }
+
+    manifest = auditor.build_manifest(
+        auditor.PostF026PlanAuditConfig(
+            output_dir=tmp_path,
+            plan_path=_json(tmp_path, "plan.json", plan),
+            formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate_payload()),
+            source_freshness_path=_json(tmp_path, "source_freshness.json", source_freshness),
+            missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
+            closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
+            status_report_path=_json(tmp_path, "status_report.json", _status_report_payload(ready=False)),
+            remaining_deliverables_path=_json(
+                tmp_path,
+                "remaining_deliverables.json",
+                _remaining_deliverables_payload(open_gaps=True),
+            ),
+        )
+    )
+
+    summary = manifest["source_regeneration_command_index_summary"]
+    assert manifest["audit_issue_count"] == 0
+    assert summary["index_row_count"] == len(artifact_records)
+    assert summary["source_target_count"] == len(artifact_records)
+    assert summary["missing_target_ids"] == []
+    assert summary["extra_index_ids"] == []
+    assert summary["rows"]["formal_gate_proof_summary_chain_audit"]["stage_id"] == "regenerate_claim_gate_artifacts"
+    assert summary["rows"]["mainline_formal_gate_state_audit"]["stage_id"] == "regenerate_claim_gate_artifacts"
+    assert summary["rows"]["claim_safety"]["stage_id"] == "regenerate_claim_gate_artifacts"
+    assert summary["rows"]["paper_readiness"]["stage_id"] == "regenerate_claim_gate_artifacts"
+
+
 def test_post_f02_6_plan_audit_catches_training_allowed_while_f02_6_pending(tmp_path):
     auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
     plan = _plan_payload()
