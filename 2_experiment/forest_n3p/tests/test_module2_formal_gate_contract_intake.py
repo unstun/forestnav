@@ -134,6 +134,11 @@ def test_contract_intake_cli_writes_json_and_markdown(tmp_path):
     assert "failure_signal" in markdown
     assert "hybrid_ppo_analytic_fallback" in markdown
     assert "local_training_allowed_now: `False`" in markdown
+    assert "Contract Output Requirements" in markdown
+    assert "allowed_status_before_training: `approved, frozen`" in markdown
+    assert "draft_status_allows_training: `False`" in markdown
+    assert "`protocol_delta_from_failed_run`" in markdown
+    assert "remote-only training checkpoint bundle" in markdown
 
 
 def _config(tmp_path):
