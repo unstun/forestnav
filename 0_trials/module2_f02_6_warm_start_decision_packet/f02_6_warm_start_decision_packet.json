@@ -2,9 +2,9 @@
   "schema_version": 1,
   "packet_name": "module2_f02_6_warm_start_decision_packet",
   "status": "pending_human_decision",
-  "created_at_utc": "2026-07-05T10:15:18.622645+00:00",
+  "created_at_utc": "2026-07-05T10:27:38.230185+00:00",
   "execution_host": "MacBook-Pro.local",
-  "source_head": "395cec04286378aea97855878b174c99dafa5ba9",
+  "source_head": "d91a5dae78017e0c5e8b462e65202d9e85874300",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -225,9 +225,22 @@
   },
   "next_actions": {
     "if_approved_obstacle_summary": {
+      "command_kind": "post_approval_remote_training_candidate",
+      "host": "gpu3070ti-relay",
+      "remote_cwd": "~/ForestNav",
       "runner_command": "python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 --seed 20260704 --device cuda --train-curriculum-preset f03 --eval-curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260704 --train-total-timesteps 100000 --train-n-envs 1 --train-n-steps 128 --train-batch-size 64 --train-n-epochs 4 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --allow-duplicate-openmp --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt",
       "audit_command": "python -m forest_n3p.scripts.audit_rl_rs_gate3_trial --trial-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 --min-formal-episodes 64 --required-success-threshold 0.8 --required-train-curriculum f03 --required-eval-curriculum f03 --warm-start-decision approved_obstacle_summary",
-      "host": "gpu3070ti-relay"
+      "remote_runner_command": "ssh gpu3070ti-relay 'cd ~/ForestNav && python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 --seed 20260704 --device cuda --train-curriculum-preset f03 --eval-curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260704 --train-total-timesteps 100000 --train-n-envs 1 --train-n-steps 128 --train-batch-size 64 --train-n-epochs 4 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --allow-duplicate-openmp --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt'",
+      "remote_audit_command": "ssh gpu3070ti-relay 'cd ~/ForestNav && python -m forest_n3p.scripts.audit_rl_rs_gate3_trial --trial-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 --min-formal-episodes 64 --required-success-threshold 0.8 --required-train-curriculum f03 --required-eval-curriculum f03 --warm-start-decision approved_obstacle_summary'",
+      "current_authorization_allowed_now": false,
+      "local_execution_allowed": false,
+      "remote_preflight_allowed_now": false,
+      "remote_training_allowed_now": false,
+      "formal_claim_allowed_now": false,
+      "requires_dr_sun_decision_record": true,
+      "requires_source_fresh_regeneration": true,
+      "requires_post_f02_6_plan_audit": true,
+      "requires_approved_remote_preflight": true
     },
     "if_rejected_obstacle_summary": {
       "next_protocol": "run a stronger/full patch-CNN warm-start protocol before any warm-start PPO formal trial"
@@ -287,12 +300,12 @@
     {
       "path": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
       "exists": true,
-      "sha256": "4068b92bdc2cc3c048186c39eb170cb7cce8102c4ade4c91e6af9e623de792e3"
+      "sha256": "ebe2ff16b0f36a48824db496f2b9c5ed3fe828ccc8ec8a275993b0afc6f5383a"
     },
     {
       "path": "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
       "exists": true,
-      "sha256": "c98a7b42e117715dd1135a483133387166ddad83bfcf7df7a41579595ad0f0dc"
+      "sha256": "40079ac34868bcadab46432730a6d414fb7774721241d74239ddf79c45b31a23"
     }
   ],
   "source_integrity_summary": {
@@ -311,6 +324,7 @@
     "It does not close F02.6; Dr Sun must explicitly approve or reject the recommendation.",
     "Remote smoke artifacts prove executable CUDA plumbing only; they are not Gate #3 evidence.",
     "The listed remote command is a post-approval route, not current authorization to preflight or train.",
+    "The listed command must not be run on the local Mac; approved execution is remote-only on gpu3070ti-relay after the formal gates reopen it.",
     "No-warm formal failure cannot be relabeled as obstacle-summary warm-start failure.",
     "The obstacle-summary checkpoint is a warm-start initializer candidate, not a finished planner checkpoint."
   ]

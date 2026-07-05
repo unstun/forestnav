@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_handoff_bundle",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-05T10:15:39.483581+00:00",
-  "source_head": "395cec04286378aea97855878b174c99dafa5ba9",
+  "created_at_utc": "2026-07-05T10:28:26.871226+00:00",
+  "source_head": "d91a5dae78017e0c5e8b462e65202d9e85874300",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -37,7 +37,7 @@
     "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
     "source_freshness_regeneration_required": true,
     "source_freshness_blocking_regeneration_required": true,
-    "source_freshness_non_self_changed_records": 13,
+    "source_freshness_non_self_changed_records": 12,
     "source_freshness_self_artifact_only_lag_records": 0
   },
   "permissions_now": {
@@ -352,9 +352,12 @@
       "responsible_stage_status": "blocked",
       "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
-        "missing_remote_audit_pullback"
+        "missing_remote_audit_pullback",
+        "source_fresh_h01_h02_targets_open"
       ],
       "responsible_stage_evidence_paths": [
+        "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
+        "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
         "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
       ],
       "acceptable_evidence": [
@@ -564,18 +567,32 @@
         "f02_6_decision_not_approved"
       ],
       "evidence_paths": [
+        "0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json",
+        "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
+        "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+        "0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json",
         "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
         "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
         "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
+        "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
         "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
-        "0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json"
+        "0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json",
+        "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json",
+        "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json"
       ],
       "command_templates": [
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_gate_audit",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_intake",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_transition_gate_audit",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_closure_checklist",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_gap_audit",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_handoff_bundle",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_gpu3070ti_readiness_refresh",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_plan_audit",
-        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_regeneration_plan"
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_regeneration_plan",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_formal_execution_packet",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_packet_safety_audit"
       ]
     },
     {
@@ -683,9 +700,12 @@
       "runs_remote_preflight": false,
       "host": null,
       "blocked_by": [
-        "missing_remote_audit_pullback"
+        "missing_remote_audit_pullback",
+        "source_fresh_h01_h02_targets_open"
       ],
       "evidence_paths": [
+        "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
+        "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
         "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
       ],
       "command_templates": [

@@ -33,10 +33,21 @@
 - all_sources_present: `True`
 - all_existing_sources_hashed: `True`
 
-## Next Command If Approved
+## Post-Approval Remote-Only Command Candidate
+
+- command_kind: `post_approval_remote_training_candidate`
+- current_authorization_allowed_now: `False`
+- execution_host_required: `gpu3070ti-relay`
+- local_execution_allowed: `False`
+- remote_preflight_allowed_now: `False`
+- remote_training_allowed_now: `False`
+- requires_dr_sun_decision_record: `True`
+- requires_source_fresh_regeneration: `True`
+- requires_post_f02_6_plan_audit: `True`
+- requires_approved_remote_preflight: `True`
 
 ```bash
-python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 --seed 20260704 --device cuda --train-curriculum-preset f03 --eval-curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260704 --train-total-timesteps 100000 --train-n-envs 1 --train-n-steps 128 --train-batch-size 64 --train-n-epochs 4 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --allow-duplicate-openmp --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt
+ssh gpu3070ti-relay 'cd ~/ForestNav && python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 --seed 20260704 --device cuda --train-curriculum-preset f03 --eval-curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260704 --train-total-timesteps 100000 --train-n-envs 1 --train-n-steps 128 --train-batch-size 64 --train-n-epochs 4 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --allow-duplicate-openmp --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt'
 ```
 
 ## Claim Boundaries
@@ -44,5 +55,6 @@ python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir 0_trials/module2
 - It does not close F02.6; Dr Sun must explicitly approve or reject the recommendation.
 - Remote smoke artifacts prove executable CUDA plumbing only; they are not Gate #3 evidence.
 - The listed remote command is a post-approval route, not current authorization to preflight or train.
+- The listed command must not be run on the local Mac; approved execution is remote-only on gpu3070ti-relay after the formal gates reopen it.
 - No-warm formal failure cannot be relabeled as obstacle-summary warm-start failure.
 - The obstacle-summary checkpoint is a warm-start initializer candidate, not a finished planner checkpoint.
