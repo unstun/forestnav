@@ -337,6 +337,7 @@ def _audit_issues(
 def _markdown(manifest: dict[str, Any]) -> str:
     failure = manifest["current_failed_run"]
     gate = manifest["current_gate"]
+    output = manifest["contract_output_requirements"]
     lines = [
         "# Module2 Formal Gate Contract Intake",
         "",
@@ -368,6 +369,22 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.extend(["", "## Candidate Protocol Lanes", "", "| lane | status | change |", "|---|---|---|"])
     for lane in manifest["candidate_protocol_lanes"]:
         lines.append(f"| `{lane['lane_id']}` | `{lane['status']}` | {lane['what_changes']} |")
+    lines.extend(
+        [
+            "",
+            "## Contract Output Requirements",
+            "",
+            f"- required_location_pattern: `{output['required_location_pattern']}`",
+            f"- allowed_status_before_training: `{', '.join(output['allowed_status_before_training'])}`",
+            f"- draft_status_allows_training: `{output['draft_status_allows_training']}`",
+            "- required_sections:",
+        ]
+    )
+    for section in output["required_sections"]:
+        lines.append(f"  - `{section}`")
+    lines.append("- post_contract_next_artifacts:")
+    for artifact in output["post_contract_next_artifacts"]:
+        lines.append(f"  - {artifact}")
     lines.extend(["", "## Invalid Shortcuts"])
     for shortcut in manifest["invalid_shortcuts"]:
         lines.append(f"- {shortcut}")
