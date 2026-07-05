@@ -96,7 +96,7 @@ def test_post_f02_6_regeneration_plan_allows_only_regeneration_after_approval_wh
     assert "build_module2_f02_6_decision_intake" in joined_commands
     assert "build_module2_post_f02_6_regeneration_plan" in joined_commands
     assert "build_module2_post_f02_6_plan_audit" in joined_commands
-    assert "manual read-only gpu3070ti readiness refresh" in joined_commands
+    assert "build_module2_gpu3070ti_readiness_refresh" in joined_commands
     command_index = {entry["artifact_id"]: entry for entry in manifest["source_regeneration_command_index"]}
     assert command_index["f02_6_warm_start_decision_packet"]["stage_id"] == "regenerate_preflight_gate_artifacts"
     assert (
@@ -127,6 +127,8 @@ def test_post_f02_6_regeneration_plan_allows_only_regeneration_after_approval_wh
     assert "build_module2_h02_formal_acceptance" in command_index["h02_formal_acceptance"]["command_template"]
     assert command_index["paper_readiness"]["stage_id"] == "regenerate_claim_gate_artifacts"
     assert "build_module2_paper_readiness" in command_index["paper_readiness"]["command_template"]
+    assert command_index["gpu3070ti_readiness_refresh"]["command_kind"] == "read_only_remote_resource_check"
+    assert "build_module2_gpu3070ti_readiness_refresh" in command_index["gpu3070ti_readiness_refresh"]["command_template"]
     assert all(entry["command_kind"] != "unknown_manual" for entry in command_index.values())
     assert stages["approved_remote_preflight"]["allowed_now"] is False
     assert stages["approved_remote_preflight"]["runs_remote_preflight"] is True
