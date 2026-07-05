@@ -316,6 +316,8 @@ def _current_authorization(*, decision_record: dict[str, Any], decision_intake: 
 
 def _next_actions() -> dict[str, Any]:
     output_dir = "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1"
+    host = "gpu3070ti-relay"
+    remote_cwd = "~/ForestNav"
     runner = [
         "python",
         "-m",
@@ -360,6 +362,8 @@ def _next_actions() -> dict[str, Any]:
         "--bc-checkpoint",
         str(OBSTACLE_BC_CHECKPOINT),
     ]
+    runner_command = _join_command(runner)
+    remote_runner_command = _join_command(["ssh", host, f"cd {remote_cwd} && {runner_command}"])
     audit = [
         "python",
         "-m",
@@ -377,11 +381,26 @@ def _next_actions() -> dict[str, Any]:
         "--warm-start-decision",
         "approved_obstacle_summary",
     ]
+    audit_command = _join_command(audit)
+    remote_audit_command = _join_command(["ssh", host, f"cd {remote_cwd} && {audit_command}"])
     return {
         "if_approved_obstacle_summary": {
-            "runner_command": _join_command(runner),
-            "audit_command": _join_command(audit),
-            "host": "gpu3070ti-relay",
+            "command_kind": "post_approval_remote_training_candidate",
+            "host": host,
+            "remote_cwd": remote_cwd,
+            "runner_command": runner_command,
+            "audit_command": audit_command,
+            "remote_runner_command": remote_runner_command,
+            "remote_audit_command": remote_audit_command,
+            "current_authorization_allowed_now": False,
+            "local_execution_allowed": False,
+            "remote_preflight_allowed_now": False,
+            "remote_training_allowed_now": False,
+            "formal_claim_allowed_now": False,
+            "requires_dr_sun_decision_record": True,
+            "requires_source_fresh_regeneration": True,
+            "requires_post_f02_6_plan_audit": True,
+            "requires_approved_remote_preflight": True,
         },
         "if_rejected_obstacle_summary": {
             "next_protocol": "run a stronger/full patch-CNN warm-start protocol before any warm-start PPO formal trial",
