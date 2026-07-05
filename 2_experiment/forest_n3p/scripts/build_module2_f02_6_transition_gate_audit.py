@@ -812,6 +812,31 @@ def _scenario_remaining_deliverables(base: dict[str, Any], scenario_id: str) -> 
     return out
 
 
+def _scenario_formal_gate_proof_audit(base: dict[str, Any], remaining_deliverables: dict[str, Any]) -> dict[str, Any]:
+    out = copy.deepcopy(base)
+    out["remaining_deliverables_top_level_summary"] = _remaining_deliverables_top_level_summary(
+        remaining_deliverables
+    )
+    return out
+
+
+def _remaining_deliverables_top_level_summary(remaining_deliverables: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "present": bool(remaining_deliverables),
+        "missing_counts_by_formal_category": remaining_deliverables.get("missing_counts_by_formal_category")
+        if isinstance(remaining_deliverables.get("missing_counts_by_formal_category"), dict)
+        else {},
+        "missing_matrix_ids_by_formal_category": remaining_deliverables.get("missing_matrix_ids_by_formal_category")
+        if isinstance(remaining_deliverables.get("missing_matrix_ids_by_formal_category"), dict)
+        else {},
+        "next_blocked_lane": remaining_deliverables.get("next_blocked_lane"),
+        "h01_status": remaining_deliverables.get("h01_status"),
+        "h02_status": remaining_deliverables.get("h02_status"),
+        "h02_formal_output_accepted": remaining_deliverables.get("h02_formal_output_accepted"),
+        "h02_paper_result_input_allowed": remaining_deliverables.get("h02_paper_result_input_allowed"),
+    }
+
+
 def _block_remaining_stage_rows(rows: Any, blockers_by_category: dict[str, list[str]]) -> None:
     if not isinstance(rows, list):
         return
