@@ -90,6 +90,25 @@ def test_remote_packet_safety_audit_passes_current_blocked_packet(tmp_path):
     assert status_steps["run_remote_training"]["blocked_by"] == ["requires_dr_sun_approval", "remote_packet_not_ready"]
 
 
+def test_remote_packet_safety_audit_ignores_downstream_handoff_safety_feedback(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
+    plan_audit = _plan_audit_payload()
+    plan_audit["status_report_summary"]["formal_gate_handoff_summary"]["safety_issue_count"] = 2
+
+    manifest = auditor.build_manifest(
+        auditor.RemotePacketSafetyAuditConfig(
+            output_dir=tmp_path,
+            remote_packet_path=_json(tmp_path, "packet.json", _packet_payload()),
+            decision_gate_audit_path=_json(tmp_path, "decision_gate.json", _decision_gate_payload()),
+            post_plan_audit_path=_json(tmp_path, "plan_audit.json", plan_audit),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "post_plan_handoff_safety_issues_open" not in issue_ids
+    assert manifest["status"] == "remote_packet_safety_audit_passed"
+
+
 def test_remote_packet_safety_audit_catches_pending_packet_that_allows_training(tmp_path):
     auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
     packet = _packet_payload()
