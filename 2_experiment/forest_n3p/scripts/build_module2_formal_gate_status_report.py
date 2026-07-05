@@ -4338,6 +4338,28 @@ def _markdown(manifest: dict[str, Any]) -> str:
     for matrix_id, row in proof_plan["rows"].items():
         command_ids = ", ".join(row["proof_command_ids"]) if row["proof_command_ids"] else "none"
         lines.append(f"- `{matrix_id}`: proof_command_count=`{row['proof_command_count']}`, command_ids=`{command_ids}`")
+    source_blockers = manifest["remaining_deliverables_source_blocker_summary"]
+    lines.extend(["", "## Remaining Deliverables Source Blocker Summary", ""])
+    lines.append(f"- present: `{source_blockers['present']}`")
+    lines.append(f"- summary_id: `{source_blockers['summary_id']}`")
+    lines.append(f"- blocking_target_count: `{source_blockers['blocking_target_count']}`")
+    lines.append(f"- blocking_target_ids: `{', '.join(source_blockers['blocking_target_ids']) or 'none'}`")
+    lines.append(
+        f"- remote_readiness_blocking_target_count: `{source_blockers['remote_readiness_blocking_target_count']}`"
+    )
+    lines.append(
+        f"- remote_readiness_refresh_requires_external_ssh: `{source_blockers['remote_readiness_refresh_requires_external_ssh']}`"
+    )
+    lines.append(f"- remote_readiness_refresh_allowed_now: `{source_blockers['remote_readiness_refresh_allowed_now']}`")
+    lines.append(f"- remote_preflight_allowed_now: `{source_blockers['remote_preflight_allowed_now']}`")
+    lines.append(f"- remote_training_allowed_now: `{source_blockers['remote_training_allowed_now']}`")
+    lines.append(f"- formal_claim_allowed_now: `{source_blockers['formal_claim_allowed_now']}`")
+    for row in source_blockers["rows"]:
+        lines.append(
+            f"- `{row['artifact_id']}`: path=`{row['path']}`, freshness_state=`{row['freshness_state']}`, "
+            f"required_before=`{row['required_before']}`, "
+            f"blocking_changed_path_count_since_source=`{row['blocking_changed_path_count_since_source']}`"
+        )
     proof_gap = manifest["formal_gate_proof_audit_gap_summary"]
     lines.extend(["", "## Formal Gate Proof Audit Gap Summary", ""])
     lines.append(f"- present: `{proof_gap['present']}`")
