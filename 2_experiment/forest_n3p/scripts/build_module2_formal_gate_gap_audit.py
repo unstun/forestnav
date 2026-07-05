@@ -72,7 +72,7 @@ class FormalGateGapAuditConfig:
     remaining_deliverables_path: Path = DEFAULT_REMAINING_DELIVERABLES
     handoff_bundle_path: Path = DEFAULT_HANDOFF_BUNDLE
     remote_packet_safety_path: Path = DEFAULT_REMOTE_PACKET_SAFETY
-    protocol_lane_status_report_path: Path = DEFAULT_PROTOCOL_LANE_STATUS_REPORT
+    protocol_lane_status_report_path: Path | None = None
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -133,7 +133,7 @@ def build_manifest(config: FormalGateGapAuditConfig) -> dict[str, Any]:
     remaining_deliverables = _read_json(config.remaining_deliverables_path)
     handoff_bundle = _read_json(config.handoff_bundle_path)
     remote_packet_safety = _read_json(config.remote_packet_safety_path)
-    protocol_lane_status = _read_json(config.protocol_lane_status_report_path)
+    protocol_lane_status = _read_json(config.protocol_lane_status_report_path) if config.protocol_lane_status_report_path else {}
 
     decision_gaps = _decision_gaps(decision=decision, h01=h01, remote=remote)
     source_freshness_gaps = _source_freshness_gaps(source_freshness=source_freshness, source_freshness_path=config.source_freshness_path)
