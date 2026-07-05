@@ -464,6 +464,42 @@ def test_post_f02_6_plan_audit_rejects_status_report_that_runs_or_claims(tmp_pat
     assert "formal_gate_status_report_has_input_safety_issues" in issue_ids
 
 
+def test_post_f02_6_plan_audit_ignores_downstream_feedback_loop_issues(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
+    missing_artifacts = _missing_artifacts_payload(open_inventory=True)
+    missing_artifacts["audit_issue_count"] = 2
+    missing_artifacts["audit_issues"] = [
+        {"issue_id": "transition_gate_audit_not_passed"},
+        {"issue_id": "transition_gate_audit_issues_open"},
+    ]
+    status_report = _status_report_payload(ready=False)
+    status_report["input_safety_issue_count"] = 1
+    status_report["input_safety_issues"] = [{"issue_id": "handoff_bundle_safety_issues_open"}]
+    status_report["formal_gate_handoff_summary"]["safety_issue_count"] = 2
+
+    manifest = auditor.build_manifest(
+        auditor.PostF026PlanAuditConfig(
+            output_dir=tmp_path,
+            plan_path=_json(tmp_path, "plan.json", _plan_payload()),
+            formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate_payload()),
+            source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
+            missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", missing_artifacts),
+            closure_checklist_path=_json(
+                tmp_path,
+                "closure_checklist.json",
+                _closure_checklist_payload(open_checklist=True),
+            ),
+            status_report_path=_json(tmp_path, "status_report.json", status_report),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "missing_artifacts_inventory_has_audit_issues" not in issue_ids
+    assert "formal_gate_status_report_has_input_safety_issues" not in issue_ids
+    assert "status_report_handoff_safety_issues_open" not in issue_ids
+    assert manifest["status"] == "post_f02_6_plan_audit_passed"
+
+
 def test_post_f02_6_plan_audit_requires_status_report_remote_step_summary(tmp_path):
     auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
     status_report = _status_report_payload(ready=False)
