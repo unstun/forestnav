@@ -30,6 +30,9 @@ from forest_n3p.scripts.build_module2_post_f02_6_plan_audit import (
     _handoff_coverage_issues,
     _status_report_issues,
 )
+from forest_n3p.scripts.build_module2_post_f02_6_regeneration_plan import (
+    _ordered_stages as _post_f02_6_ordered_stages,
+)
 from forest_n3p.scripts.build_module2_claim_safety import (
     _status_report_next_action_guard_blockers,
 )
@@ -523,6 +526,36 @@ def test_handoff_remote_training_generation_is_allowed_while_status_blocked() ->
     assert "status_report_handoff_training_allowed_while_blocked" not in {
         issue["issue_id"] for issue in issues
     }
+
+
+def test_post_f02_6_plan_ignores_nonblocking_source_freshness_lag_for_remote_entry() -> None:
+    stages = _post_f02_6_ordered_stages(
+        decision={"preflight_command": "python -m preflight"},
+        decision_status="approved",
+        formal_gate={},
+        source_targets=[
+            {
+                "artifact_id": "f02_6_transition_gate_audit",
+                "path": "0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json",
+                "required_before": "approved_remote_preflight",
+                "blocking_regeneration_required_before_remote_formal_execution": False,
+            }
+        ],
+        command_index_targets=[],
+        remote_packet={
+            "ready_to_run_remote_training": True,
+            "execution_steps": {
+                "run_remote_training": {"command": "train", "allowed_now": True, "blocked_by": []},
+                "run_remote_audit": {"command": "audit", "allowed_now": False, "blocked_by": ["remote_training_not_completed"]},
+            },
+        },
+    )
+
+    by_id = {stage["stage_id"]: stage for stage in stages}
+    assert by_id["approved_remote_preflight"]["allowed_now"] is True
+    assert by_id["approved_remote_preflight"]["blocked_by"] == []
+    assert by_id["gate3_remote_training"]["allowed_now"] is True
+    assert by_id["gate3_remote_training"]["blocked_by"] == []
 
 
 def test_remote_packet_safety_allows_handoff_training_generation_while_status_blocked() -> None:
