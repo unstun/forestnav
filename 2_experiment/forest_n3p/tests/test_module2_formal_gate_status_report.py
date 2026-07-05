@@ -563,6 +563,18 @@ def test_formal_gate_status_report_requires_clean_decision_intake(tmp_path):
     intake["current_state"]["packet_post_decision_routes_are_current_authorization"] = True
     intake["current_state"]["packet_remote_preflight_allowed_now"] = True
     intake["current_state"]["packet_paper_result_material_allowed_now"] = True
+    intake["next_human_decision_request"]["decision_owner_required"] = "Assistant"
+    intake["next_human_decision_request"]["current_allowed_action_ids"] = [
+        "record_f02_6_decision",
+        "remote_training",
+    ]
+    intake["next_human_decision_request"]["current_blocked_action_ids"] = [
+        "remote_preflight",
+        "local_training",
+        "formal_claim",
+    ]
+    intake["next_human_decision_request"]["post_decision_routes_are_current_authorization"] = True
+    intake["next_human_decision_request"]["all_execution_disabled_now"] = False
     config.decision_intake_path.write_text(json.dumps(intake), encoding="utf-8")
 
     manifest = builder.build_manifest(config)
@@ -574,6 +586,11 @@ def test_formal_gate_status_report_requires_clean_decision_intake(tmp_path):
     assert "decision_intake_remote_training_allowed_now_not_false" in issue_ids
     assert "decision_intake_packet_allowed_actions_not_decision_only" in issue_ids
     assert "decision_intake_packet_missing_blocked_actions" in issue_ids
+    assert "decision_intake_next_request_owner_not_dr_sun" in issue_ids
+    assert "decision_intake_next_request_allowed_actions_not_decision_only" in issue_ids
+    assert "decision_intake_next_request_missing_blocked_actions" in issue_ids
+    assert "decision_intake_next_request_treats_routes_as_authorization" in issue_ids
+    assert "decision_intake_next_request_execution_not_disabled" in issue_ids
     assert "decision_intake_packet_treats_routes_as_authorization" in issue_ids
     assert "decision_intake_packet_remote_preflight_allowed_now_not_false" in issue_ids
     assert "decision_intake_packet_paper_result_material_allowed_now_not_false" in issue_ids
