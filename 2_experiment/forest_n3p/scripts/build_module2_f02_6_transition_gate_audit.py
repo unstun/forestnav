@@ -561,13 +561,24 @@ def _scenario_missing_artifacts(base: dict[str, Any], scenario_id: str, record: 
 
 def _scenario_closure_checklist(base: dict[str, Any], scenario_id: str, record: dict[str, Any]) -> dict[str, Any]:
     out = copy.deepcopy(base)
-    if scenario_id == "pending":
-        return out
+    _block_remote_stage_summary(out, _scenario_execution_blockers(scenario_id, for_training=False))
     rejected = scenario_id == "rejected"
     for item in out.get("closure_checklist", []):
         if not isinstance(item, dict):
             continue
         if item.get("checklist_id") == "F02.6_decision":
+            if scenario_id == "pending":
+                item["status"] = "blocked"
+                item["complete"] = False
+                item["formal_step_status"] = "blocked"
+                item["blocked_by"] = ["requires_dr_sun_approval"]
+                item["missing_item_count"] = 1
+                for required in item.get("required_items", []):
+                    if isinstance(required, dict):
+                        required["state"] = record.get("status")
+                        required["missing"] = True
+                        required["reason"] = "requires_dr_sun_approval"
+                continue
             item["status"] = "complete"
             item["complete"] = True
             item["formal_step_status"] = "complete"
@@ -584,6 +595,140 @@ def _scenario_closure_checklist(base: dict[str, Any], scenario_id: str, record: 
             if isinstance(required, dict):
                 required["reason"] = _scenario_reason(str(required.get("reason") or ""), rejected=rejected)
     out["open_item_count"] = sum(1 for item in out.get("closure_checklist", []) if isinstance(item, dict) and item.get("complete") is not True)
+    return out
+
+
+def _scenario_source_freshness(base: dict[str, Any], scenario_id: str) -> dict[str, Any]:
+    out = copy.deepcopy(base)
+    out["status"] = "source_freshness_requires_regeneration_before_remote_formal_execution"
+    out["regeneration_required_before_remote_formal_execution"] = True
+    out["blocking_regeneration_required_before_remote_formal_execution"] = True
+    targets = out.get("ordered_regeneration_targets") if isinstance(out.get("ordered_regeneration_targets"), list) else []
+    if not any(isinstance(item, dict) and item.get("artifact_id") == "formal_gate_handoff_bundle" for item in targets):
+        targets.append(
+            {
+                "artifact_id": "formal_gate_handoff_bundle",
+                "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
+                "freshness_state": "synthetic_requires_regeneration",
+                "required_before": "approved_remote_preflight",
+            }
+        )
+    for target in targets:
+        if not isinstance(target, dict):
+            continue
+        if target.get("required_before") == "approved_remote_preflight":
+            target["freshness_state"] = "synthetic_requires_regeneration"
+            target["blocking_regeneration_required_before_remote_formal_execution"] = True
+    out["ordered_regeneration_targets"] = targets
+    out["artifact_records"] = copy.deepcopy(targets)
+    return out
+
+
+def _scenario_remote_packet(base: dict[str, Any], scenario_id: str) -> dict[str, Any]:
+    out = copy.deepcopy(base)
+    out["status"] = (
+        "blocked_until_f02_6_decision"
+        if scenario_id == "pending"
+        else "blocked_by_f02_6_rejected"
+        if scenario_id == "rejected"
+        else "blocked_until_source_fresh_regeneration"
+    )
+    out["ready_to_run_remote_training"] = False
+    preflight = out.setdefault("remote_preflight", {})
+    preflight["formal_trial_ready"] = False
+    preflight["preflight_status"] = "blocked"
+    preflight["warm_start_decision"] = "pending" if scenario_id == "pending" else scenario_id
+    preflight["blocker_codes"] = _unique_strings(
+        _strings(preflight.get("blocker_codes")) + _scenario_execution_blockers(scenario_id, for_training=False)
+    )
+
+    steps = out.setdefault("execution_steps", {})
+    _block_remote_step(steps, "sync_to_remote", _scenario_execution_blockers(scenario_id, for_training=False))
+    _block_remote_step(steps, "run_remote_preflight", _scenario_execution_blockers(scenario_id, for_training=False))
+    _block_remote_step(steps, "run_remote_training", _scenario_execution_blockers(scenario_id, for_training=True))
+    _block_remote_step(steps, "run_remote_audit", ["remote_training_not_completed", "remote_packet_not_ready"])
+
+    for requirement in out.get("remote_preflight_requirements", []):
+        if not isinstance(requirement, dict):
+            continue
+        requirement["execution_allowed_now"] = False
+        if scenario_id == "pending" or requirement.get("requirement_id") != "f02_6_decision_closed_for_preflight":
+            requirement["complete"] = False
+            requirement["status"] = "blocked"
+            requirement["missing_artifact_ids"] = _unique_strings(
+                _strings(requirement.get("missing_artifact_ids")) + [str(requirement.get("requirement_id"))]
+            )
+    for requirement in out.get("post_run_acceptance_requirements", []):
+        if not isinstance(requirement, dict):
+            continue
+        requirement["execution_allowed_now"] = False
+        requirement["complete"] = False
+        requirement["status"] = "blocked"
+    _refresh_requirement_counts(out, "remote_preflight_requirements", "remote_preflight_requirement_counts")
+    _refresh_requirement_counts(out, "post_run_acceptance_requirements", "post_run_acceptance_requirement_counts")
+    return out
+
+
+def _scenario_handoff_bundle(base: dict[str, Any], scenario_id: str, remote_packet: dict[str, Any]) -> dict[str, Any]:
+    out = copy.deepcopy(base)
+    current = out.setdefault("current_state", {})
+    current["decision_status"] = "pending_human_decision" if scenario_id == "pending" else scenario_id
+    current["ready_to_run_remote_training"] = False
+    current["remote_packet_status"] = remote_packet.get("status")
+    current["next_blocked_lane"] = (
+        "decision" if scenario_id == "pending" else "protocol_redesign" if scenario_id == "rejected" else "source_fresh_preflight"
+    )
+    permissions = out.setdefault("permissions_now", {})
+    for key in (
+        "remote_preflight_allowed_now",
+        "remote_training_allowed_now",
+        "formal_h01_evaluation_allowed_now",
+        "formal_h02_acceptance_allowed_now",
+        "formal_claim_allowed_now",
+        "local_training_allowed_now",
+        "source_freshness_ready_for_remote_preflight",
+    ):
+        permissions[key] = False
+    next_action = out.setdefault("next_handoff_action", {})
+    next_action["action_id"] = (
+        "record_f02_6_decision"
+        if scenario_id == "pending"
+        else "revise_protocol_contract"
+        if scenario_id == "rejected"
+        else "resolve_source_fresh_preflight"
+    )
+    next_action["requires_dr_sun"] = scenario_id == "pending"
+    next_action["allowed_for_agent_now"] = False
+
+    index = out.setdefault("single_next_action_index", {})
+    index["next_action_id"] = next_action["action_id"]
+    index["current_allowed_action_ids"] = ["record_f02_6_decision"] if scenario_id == "pending" else []
+    index["current_blocked_action_ids"] = list(REQUIRED_F02_6_BLOCKED_ACTION_IDS)
+    index["remote_preflight_allowed_now"] = False
+    index["remote_training_allowed_now"] = False
+    index["local_training_allowed_now"] = False
+    index["formal_claim_allowed_now"] = False
+    index["paper_result_material_allowed_now"] = False
+
+    out["remote_execution_steps"] = _remote_step_projection(remote_packet)
+    for requirement in out.get("formal_gate_requirements", []):
+        if not isinstance(requirement, dict):
+            continue
+        requirement["execution_allowed_now"] = False
+        requirement["responsible_stage_allowed_now"] = False
+        blockers = _strings(requirement.get("responsible_stage_blocked_by"))
+        if not blockers:
+            requirement["responsible_stage_blocked_by"] = _scenario_execution_blockers(scenario_id, for_training=True)
+    for stage in out.get("handoff_stages", []):
+        if not isinstance(stage, dict):
+            continue
+        stage["source_allowed_now"] = False
+        stage["allowed_now"] = False
+        stage["blocked_by"] = _unique_strings(
+            _strings(stage.get("blocked_by")) + _scenario_execution_blockers(scenario_id, for_training=stage.get("runs_training") is True)
+        )
+    out["safety_issue_count"] = 0
+    out["safety_issues"] = []
     return out
 
 
