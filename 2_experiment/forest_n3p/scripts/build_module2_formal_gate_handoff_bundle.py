@@ -1112,6 +1112,17 @@ def _markdown(manifest: dict[str, Any]) -> str:
         "- decision_impact_formal_training_still_requires: "
         f"`{', '.join(route['decision_impact_formal_training_still_requires'])}`"
     )
+    matrix = manifest["f02_6_decision_evidence_matrix_handoff_summary"]
+    lines.extend(["", "## F02.6 Decision Evidence Matrix", ""])
+    lines.append(f"- present: `{matrix['present']}`")
+    lines.append(f"- matrix_id: `{matrix['matrix_id']}`")
+    lines.append(f"- status: `{matrix['status']}`")
+    lines.append(f"- route_count: `{matrix['route_count']}`")
+    lines.append(f"- route_decisions: `{', '.join(matrix['route_decisions'])}`")
+    lines.append(f"- required_evidence_count: `{matrix['required_evidence_count']}`")
+    lines.append(f"- missing_required_evidence_count: `{matrix['missing_required_evidence_count']}`")
+    lines.append(f"- global_invalid_substitute_count: `{matrix['global_invalid_substitute_count']}`")
+    lines.append(f"- authorization_flags: `{matrix['authorization_flags']}`")
     lines.extend(["", "## Source Freshness Gate", ""])
     current_state = manifest["current_state"]
     for key in (
