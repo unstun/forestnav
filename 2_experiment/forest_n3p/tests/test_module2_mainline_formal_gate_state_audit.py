@@ -21,6 +21,10 @@ def test_mainline_formal_gate_state_audit_accepts_current_blocked_state(tmp_path
     assert manifest["total_missing_deliverables"] == 10
     assert manifest["mainline_missing_deliverable_mention_count"] == 0
     assert manifest["proof_summary_chain_status"] == "formal_gate_proof_summary_chain_consistent_blocked"
+    assert manifest["proof_summary_handoff_single_next_action_consistency"] == {
+        "row_count": 3,
+        "consistent_row_count": 3,
+    }
     assert manifest["audit_issue_count"] == 0
     assert manifest["deliverable_rows_by_matrix_id"]["training:train_final_model_zip"]["mentioned"] is True
 
@@ -62,6 +66,20 @@ def test_mainline_formal_gate_state_audit_fails_current_section_allowed_token(tm
     assert "mainline_current_section_forbidden_allowed_token_remote_training_allowed_true" in issue_ids
 
 
+def test_mainline_formal_gate_state_audit_fails_handoff_single_next_action_chain_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit")
+    paths = _write_inputs(tmp_path)
+    proof = json.loads(paths["proof"].read_text(encoding="utf-8"))
+    proof["handoff_single_next_action_consistent_row_count"] = 2
+    paths["proof"].write_text(json.dumps(proof), encoding="utf-8")
+
+    manifest = builder.build_manifest(_config(builder, tmp_path, paths))
+
+    assert manifest["status"] == "mainline_formal_gate_state_audit_failed"
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "proof_summary_chain_handoff_single_next_action_inconsistent" in issue_ids
+
+
 def test_mainline_formal_gate_state_audit_cli_writes_json_and_markdown(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit")
     paths = _write_inputs(tmp_path)
@@ -93,6 +111,7 @@ def test_mainline_formal_gate_state_audit_cli_writes_json_and_markdown(tmp_path)
     assert "not a training run" in markdown
     assert "training:train_final_model_zip" in markdown
     assert "record_f02_6_decision" in markdown
+    assert "proof_summary_handoff_single_next_action_consistency" in markdown
 
 
 def _config(builder, tmp_path, paths):
@@ -157,6 +176,8 @@ def _write_inputs(tmp_path, *, omit_artifact_id=None, extra_current_text=""):
                 "next_action_guard_consistent_row_count": 3,
                 "next_required_deliverables_row_count": 3,
                 "next_required_deliverables_consistent_row_count": 3,
+                "handoff_single_next_action_row_count": 3,
+                "handoff_single_next_action_consistent_row_count": 3,
                 "runs_training": False,
                 "runs_remote_preflight": False,
                 "formal_claim_allowed": False,
