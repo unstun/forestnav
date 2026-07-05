@@ -249,6 +249,21 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_missing_artifacts_formal_result_material_allowed_now": claim_missing_handoff.get(
             "formal_result_material_allowed_now"
         ),
+        "claim_safety_decision_evidence_matrix_status": claim_decision_intake_summary[
+            "decision_evidence_matrix_status"
+        ],
+        "claim_safety_decision_evidence_matrix_route_count": claim_decision_intake_summary[
+            "decision_evidence_matrix_route_count"
+        ],
+        "claim_safety_decision_evidence_matrix_required_evidence_count": claim_decision_intake_summary[
+            "decision_evidence_matrix_required_evidence_count"
+        ],
+        "claim_safety_decision_evidence_matrix_missing_required_evidence_count": claim_decision_intake_summary[
+            "decision_evidence_matrix_missing_required_evidence_count"
+        ],
+        "claim_safety_decision_evidence_matrix_remote_training_allowed_now": claim_decision_intake_summary[
+            "decision_evidence_matrix_remote_training_allowed_now"
+        ],
         "claim_safety_requirement_stage_present": claim_requirement_stage_summary["present"],
         "claim_safety_requirement_stage_mapped_count": claim_requirement_stage_summary["mapped_requirement_count"],
         "claim_safety_requirement_stage_unmapped_count": claim_requirement_stage_summary["unmapped_requirement_count"],
@@ -552,6 +567,9 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_remote_requirement_summary": claim_remote_requirement_summary,
         "claim_safety_h02_acceptance_requirement_summary": claim_h02_acceptance_requirement_summary,
         "claim_safety_decision_intake_summary": claim_decision_intake_summary,
+        "claim_safety_f02_6_decision_evidence_matrix_summary": claim_decision_intake_summary[
+            "decision_evidence_matrix_summary"
+        ],
         "claim_safety_remaining_deliverables_acceptance_summary": claim_remaining_deliverables_acceptance_summary,
         "claim_safety_remaining_deliverables_gap_summary": claim_remaining_deliverables_gap_summary,
         "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_summary": claim_formal_gate_gap_audit_remaining_deliverables_gap_summary,
