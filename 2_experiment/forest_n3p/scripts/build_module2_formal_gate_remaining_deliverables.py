@@ -302,8 +302,10 @@ def _deliverable_groups(
     status_report: dict[str, Any],
     closure_checklist: dict[str, Any],
     missing_artifacts: dict[str, Any],
+    protocol_lane_status: dict[str, Any],
 ) -> list[dict[str, Any]]:
     requirement_by_phase = _formal_requirement_by_phase(missing_artifacts)
+    protocol_lane_pending = _protocol_lane_pending(protocol_lane_status)
     groups: list[dict[str, Any]] = []
     for category, artifact_key in DELIVERABLE_CATEGORIES:
         raw_items = status_report.get(artifact_key)
@@ -320,6 +322,10 @@ def _deliverable_groups(
             else None
         )
         responsible_stage_blocked_by = _strings(requirement.get("responsible_stage_blocked_by"))
+        if protocol_lane_pending:
+            responsible_stage_allowed_now = False
+            if "protocol_lane_decision_pending" not in responsible_stage_blocked_by:
+                responsible_stage_blocked_by.insert(0, "protocol_lane_decision_pending")
         if responsible_stage_allowed_now is not True:
             for blocker in CURRENT_BLOCKER_REQUIREMENTS_BY_CATEGORY.get(category, ()):
                 if blocker not in responsible_stage_blocked_by:
@@ -1016,9 +1022,29 @@ def _plain_formal_gate_closure_checklist(
     }
 
 
-def _permissions(*, status_report: dict[str, Any], remote_packet: dict[str, Any], source_freshness: dict[str, Any]) -> dict[str, Any]:
+def _permissions(
+    *,
+    status_report: dict[str, Any],
+    remote_packet: dict[str, Any],
+    source_freshness: dict[str, Any],
+    protocol_lane_status: dict[str, Any],
+) -> dict[str, Any]:
     permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
     source_fresh = _source_freshness_ready_for_remote_preflight(source_freshness)
+    protocol_lane_pending = _protocol_lane_pending(protocol_lane_status)
+    if protocol_lane_pending:
+        return {
+            "local_training_allowed_now": False,
+            "remote_preflight_allowed_now": False,
+            "remote_training_allowed_now": False,
+            "formal_h01_evaluation_allowed_now": False,
+            "formal_h02_acceptance_allowed_now": False,
+            "formal_claim_allowed_now": False,
+            "remote_packet_ready_to_run_remote_training": remote_packet.get("ready_to_run_remote_training"),
+            "source_freshness_ready_for_remote_preflight": source_fresh,
+            "protocol_lane_status": protocol_lane_status.get("status"),
+            "protocol_lane_pending": True,
+        }
     return {
         "local_training_allowed_now": False,
         "remote_preflight_allowed_now": bool(permissions.get("remote_preflight_allowed_now")) and source_fresh,
@@ -1028,6 +1054,8 @@ def _permissions(*, status_report: dict[str, Any], remote_packet: dict[str, Any]
         "formal_claim_allowed_now": permissions.get("formal_claim_allowed_now"),
         "remote_packet_ready_to_run_remote_training": remote_packet.get("ready_to_run_remote_training"),
         "source_freshness_ready_for_remote_preflight": source_fresh,
+        "protocol_lane_status": protocol_lane_status.get("status"),
+        "protocol_lane_pending": False,
     }
 
 
