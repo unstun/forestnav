@@ -300,6 +300,55 @@ def _status(*, decision_status: str, stages: Sequence[dict[str, Any]], source_fr
     return "blocked_formal_gate_preconditions"
 
 
+def _f02_6_human_decision_request_summary(status_report: dict[str, Any]) -> dict[str, Any]:
+    current_state = (
+        status_report.get("current_state")
+        if isinstance(status_report.get("current_state"), dict)
+        else {}
+    )
+    intake_summary = (
+        status_report.get("f02_6_decision_intake_summary")
+        if isinstance(status_report.get("f02_6_decision_intake_summary"), dict)
+        else {}
+    )
+    permissions = (
+        status_report.get("permissions_now")
+        if isinstance(status_report.get("permissions_now"), dict)
+        else {}
+    )
+    return {
+        "present": bool(status_report),
+        "status": current_state.get("decision_intake_next_request_status")
+        or intake_summary.get("next_request_status"),
+        "decision_owner_required": intake_summary.get("next_request_decision_owner_required"),
+        "current_allowed_action_ids": _strings(
+            current_state.get("decision_intake_next_request_current_allowed_action_ids")
+            or intake_summary.get("next_request_current_allowed_action_ids")
+        ),
+        "current_blocked_action_ids": _strings(
+            current_state.get("decision_intake_next_request_current_blocked_action_ids")
+            or intake_summary.get("next_request_current_blocked_action_ids")
+        ),
+        "post_decision_routes_are_current_authorization": current_state.get(
+            "decision_intake_next_request_post_decision_routes_are_current_authorization"
+        )
+        if isinstance(
+            current_state.get("decision_intake_next_request_post_decision_routes_are_current_authorization"),
+            bool,
+        )
+        else intake_summary.get("next_request_post_decision_routes_are_current_authorization"),
+        "all_execution_disabled_now": current_state.get(
+            "decision_intake_next_request_all_execution_disabled_now"
+        )
+        if isinstance(current_state.get("decision_intake_next_request_all_execution_disabled_now"), bool)
+        else intake_summary.get("next_request_all_execution_disabled_now"),
+        "remote_preflight_allowed_now": permissions.get("remote_preflight_allowed_now"),
+        "remote_training_allowed_now": permissions.get("remote_training_allowed_now"),
+        "formal_claim_allowed_now": permissions.get("formal_claim_allowed_now"),
+        "local_training_allowed_now": permissions.get("local_training_allowed_now"),
+    }
+
+
 def _source_targets(source_freshness: dict[str, Any]) -> list[dict[str, Any]]:
     targets = source_freshness.get("ordered_regeneration_targets")
     if not isinstance(targets, list):
@@ -613,6 +662,12 @@ def _unique(items: Sequence[str]) -> list[str]:
         seen.add(item)
         out.append(item)
     return out
+
+
+def _strings(raw: Any) -> list[str]:
+    if not isinstance(raw, list):
+        return []
+    return [str(item) for item in raw if item]
 
 
 if __name__ == "__main__":
