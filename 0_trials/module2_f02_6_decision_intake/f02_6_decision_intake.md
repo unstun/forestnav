@@ -2,7 +2,7 @@
 
 This read-only artifact explains how F02.6 can be closed. It does not record a decision, run preflight, train, or write paper results.
 
-- status: `f02_6_decision_intake_failed`
+- status: `f02_6_decision_intake_closed_clean`
 - decision_owner_required: `Dr Sun`
 - record_status: `approved`
 - effective_warm_start_decision: `approved_obstacle_summary`
@@ -118,8 +118,7 @@ PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decisio
 
 ## Audit Issues
 
-- `decision_gate_has_issues`: F02.6 decision gate audit must be clean before using this intake.
-- `decision_gate_failed`: F02.6 decision gate audit currently failed.
+- none
 
 ## Claim Boundaries
 

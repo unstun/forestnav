@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_remote_packet_safety_audit",
   "status": "remote_packet_safety_audit_failed",
-  "created_at_utc": "2026-07-05T18:18:07.437229+00:00",
-  "source_head": "7b2b67c2c1344c0a1d1c456c9ec880640450df0e",
+  "created_at_utc": "2026-07-05T18:25:34.995168+00:00",
+  "source_head": "8ef61f3b4657309273fabf649e950ab7752d9e51",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -82,8 +82,6 @@
         "allowed_now": false,
         "runs_training": true,
         "blocked_by": [
-          "f02_6_warm_start_decision_pending",
-          "missing_module2_bc_checkpoint",
           "missing_module2_rl_rs_checkpoint",
           "realmap_query_generation_not_frozen",
           "remote_formal_preflight_not_ready",
@@ -96,8 +94,6 @@
         "allowed_now": false,
         "runs_training": false,
         "blocked_by": [
-          "f02_6_warm_start_decision_pending",
-          "missing_module2_bc_checkpoint",
           "missing_module2_rl_rs_checkpoint",
           "realmap_query_generation_not_frozen",
           "remote_formal_preflight_not_ready",
@@ -135,8 +131,6 @@
           "allowed_now": false,
           "runs_training": true,
           "blocked_by": [
-            "f02_6_warm_start_decision_pending",
-            "missing_module2_bc_checkpoint",
             "missing_module2_rl_rs_checkpoint",
             "realmap_query_generation_not_frozen",
             "remote_formal_preflight_not_ready",
@@ -149,8 +143,6 @@
           "allowed_now": false,
           "runs_training": false,
           "blocked_by": [
-            "f02_6_warm_start_decision_pending",
-            "missing_module2_bc_checkpoint",
             "missing_module2_rl_rs_checkpoint",
             "realmap_query_generation_not_frozen",
             "remote_formal_preflight_not_ready",
@@ -510,7 +502,7 @@
         ]
       },
       "next_blocked_lane": "decision",
-      "h01_status": "blocked_pending_decisions",
+      "h01_status": "blocked_protocol_gap",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
       "h02_paper_result_input_allowed": false
@@ -544,102 +536,14 @@
         ]
       },
       "next_blocked_lane": "decision",
-      "h01_status": "blocked_pending_decisions",
+      "h01_status": "blocked_protocol_gap",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
       "h02_paper_result_input_allowed": false
     }
   },
-  "audit_issue_count": 9,
+  "audit_issue_count": 3,
   "audit_issues": [
-    {
-      "issue_id": "post_plan_status_report_run_remote_training_blockers_mismatch",
-      "message": "Status report remote step blocked_by must match the remote packet.",
-      "observed": {
-        "status_report": [
-          "f02_6_warm_start_decision_pending",
-          "missing_module2_bc_checkpoint",
-          "missing_module2_rl_rs_checkpoint",
-          "realmap_query_generation_not_frozen",
-          "remote_formal_preflight_not_ready",
-          "warm_start_decision_pending",
-          "remote_packet_not_ready"
-        ],
-        "packet": [
-          "missing_module2_rl_rs_checkpoint",
-          "realmap_query_generation_not_frozen",
-          "remote_formal_preflight_not_ready",
-          "warm_start_decision_pending",
-          "remote_packet_not_ready"
-        ]
-      }
-    },
-    {
-      "issue_id": "post_plan_status_report_run_remote_audit_blockers_mismatch",
-      "message": "Status report remote step blocked_by must match the remote packet.",
-      "observed": {
-        "status_report": [
-          "f02_6_warm_start_decision_pending",
-          "missing_module2_bc_checkpoint",
-          "missing_module2_rl_rs_checkpoint",
-          "realmap_query_generation_not_frozen",
-          "remote_formal_preflight_not_ready",
-          "warm_start_decision_pending",
-          "remote_packet_not_ready"
-        ],
-        "packet": [
-          "missing_module2_rl_rs_checkpoint",
-          "realmap_query_generation_not_frozen",
-          "remote_formal_preflight_not_ready",
-          "warm_start_decision_pending",
-          "remote_packet_not_ready"
-        ]
-      }
-    },
-    {
-      "issue_id": "post_plan_handoff_run_remote_training_blockers_mismatch",
-      "message": "Handoff remote step blocked_by must match the remote packet.",
-      "observed": {
-        "handoff": [
-          "f02_6_warm_start_decision_pending",
-          "missing_module2_bc_checkpoint",
-          "missing_module2_rl_rs_checkpoint",
-          "realmap_query_generation_not_frozen",
-          "remote_formal_preflight_not_ready",
-          "warm_start_decision_pending",
-          "remote_packet_not_ready"
-        ],
-        "packet": [
-          "missing_module2_rl_rs_checkpoint",
-          "realmap_query_generation_not_frozen",
-          "remote_formal_preflight_not_ready",
-          "warm_start_decision_pending",
-          "remote_packet_not_ready"
-        ]
-      }
-    },
-    {
-      "issue_id": "post_plan_handoff_run_remote_audit_blockers_mismatch",
-      "message": "Handoff remote step blocked_by must match the remote packet.",
-      "observed": {
-        "handoff": [
-          "f02_6_warm_start_decision_pending",
-          "missing_module2_bc_checkpoint",
-          "missing_module2_rl_rs_checkpoint",
-          "realmap_query_generation_not_frozen",
-          "remote_formal_preflight_not_ready",
-          "warm_start_decision_pending",
-          "remote_packet_not_ready"
-        ],
-        "packet": [
-          "missing_module2_rl_rs_checkpoint",
-          "realmap_query_generation_not_frozen",
-          "remote_formal_preflight_not_ready",
-          "warm_start_decision_pending",
-          "remote_packet_not_ready"
-        ]
-      }
-    },
     {
       "issue_id": "post_plan_execution_veto_rows_inconsistent",
       "message": "Post-plan status report execution veto matrix must be consistent."
@@ -655,14 +559,6 @@
         "execution_veto": false,
         "packet": true
       }
-    },
-    {
-      "issue_id": "blocked_status_report_allows_remote_sync",
-      "message": "Remote sync must remain disallowed while the formal gate status report is blocked."
-    },
-    {
-      "issue_id": "blocked_status_report_allows_remote_preflight",
-      "message": "Remote preflight must remain disallowed while the formal gate status report is blocked."
     }
   ],
   "expected_pullback_suffixes": [

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_handoff_bundle",
   "status": "blocked_handoff_input_safety_issues",
-  "created_at_utc": "2026-07-05T18:20:35.299233+00:00",
-  "source_head": "f800cb68e7d2894e45543445d310681de5110fdf+dirty",
+  "created_at_utc": "2026-07-05T18:25:37.276711+00:00",
+  "source_head": "8ef61f3b4657309273fabf649e950ab7752d9e51",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -279,7 +279,7 @@
       ]
     },
     "next_blocked_lane": "decision",
-    "h01_status": "blocked_pending_decisions",
+    "h01_status": "blocked_protocol_gap",
     "h02_status": "blocked_formal_output_acceptance",
     "h02_formal_output_accepted": false,
     "h02_paper_result_input_allowed": false
@@ -517,8 +517,6 @@
         "h01_blocker_missing_module2_rl_rs_checkpoint",
         "h01_blocker_realmap_query_generation_not_frozen",
         "remote_execution_packet_ready",
-        "remote_packet_blocker_f02_6_warm_start_decision_pending",
-        "remote_packet_blocker_missing_module2_bc_checkpoint",
         "remote_packet_blocker_missing_module2_rl_rs_checkpoint",
         "remote_packet_blocker_realmap_query_generation_not_frozen",
         "remote_packet_blocker_remote_formal_preflight_not_ready",

@@ -26,7 +26,7 @@ This file inventories missing formal-gate evidence. It does not execute commands
 - h01_manifest_status: `blocked_protocol_gap`
 - h01_blockers: `['missing_module2_rl_rs_checkpoint', 'realmap_query_generation_not_frozen']`
 - h02_acceptance_status: `blocked_formal_output_acceptance`
-- h02_blockers: `['h02_verdict_not_formal', 'h01_manifest_not_ready', 'missing_module2_rl_rs_checkpoint', 'realmap_query_generation_not_frozen', 'remote_execution_packet_not_ready', 'f02_6_warm_start_decision_pending', 'missing_module2_bc_checkpoint', 'remote_formal_preflight_not_ready', 'warm_start_decision_pending', 'missing_gate3_formal_audit', 'h02_scale_below_h01_manifest', 'missing_ppo_result_rows', 'missing_remote_pullback_artifacts']`
+- h02_blockers: `['h02_verdict_not_formal', 'h01_manifest_not_ready', 'missing_module2_rl_rs_checkpoint', 'realmap_query_generation_not_frozen', 'remote_execution_packet_not_ready', 'remote_formal_preflight_not_ready', 'warm_start_decision_pending', 'missing_gate3_formal_audit', 'h02_scale_below_h01_manifest', 'missing_ppo_result_rows', 'missing_remote_pullback_artifacts']`
 
 ## Formal Gate Handoff Index
 
@@ -145,7 +145,7 @@ This file inventories missing formal-gate evidence. It does not execute commands
   - missing `pulled_back_checkpoint_hash_record`: `0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json` (remote packet requires checkpoint hash before any local formal claim)
 - `h01_h02_formal_evaluation_acceptance` (evaluation_acceptance): complete=`False`, blocked_by=`h01_ready_for_formal_run, h02_formal_output_acceptance`
   - missing `h01_ready_for_formal_run`: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json` (missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen)
-  - missing `h02_formal_output_acceptance`: `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json` (h02_verdict_not_formal, h01_manifest_not_ready, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_execution_packet_not_ready, f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, remote_formal_preflight_not_ready, warm_start_decision_pending, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts)
+  - missing `h02_formal_output_acceptance`: `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json` (h02_verdict_not_formal, h01_manifest_not_ready, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_execution_packet_not_ready, remote_formal_preflight_not_ready, warm_start_decision_pending, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts)
 - `claim_gate_regeneration` (claim_gate): complete=`False`, blocked_by=`h02_formal_acceptance_before_claim_gate`
   - missing `h02_formal_acceptance_before_claim_gate`: `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json` (claim gate cannot be regenerated from blocked H02 outputs)
 

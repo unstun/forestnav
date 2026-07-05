@@ -62,7 +62,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - local_training_allowed_now: `False`
 - formal_claim_allowed_now: `False`
 - next_blocked_lane_id: `decision`
-- input_safety_issue_count: `4`
+- input_safety_issue_count: `7`
 
 ## Remaining Deliverables Ledger
 
@@ -108,7 +108,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - runs_remote_preflight: `False`
 - packet_status: `blocked_remote_preflight_not_ready`
 - remote_training_allowed_now: `False`
-- audit_issue_count: `9`
+- audit_issue_count: `3`
 - command_index_present: `True`
 - command_index_row_count: `23`
 - command_index_missing_target_ids: `[]`
@@ -182,7 +182,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
   - needed: Fix the remote execution packet or post-plan/status cross-gates before approved remote execution.
 - `remote_packet_safety_audit_issues_open`
   - evidence: `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
-  - why: Remote packet safety audit reports 9 issues.
+  - why: Remote packet safety audit reports 3 issues.
   - needed: Resolve every remote packet safety issue before approved remote execution.
 
 ## Evaluation Artifact Gaps
@@ -244,7 +244,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
   - needed: Close every checklist item before final H02/claim readiness can pass.
 - `formal_status_report_safety_issues_open`
   - evidence: `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`
-  - why: Status report has 4 input safety issues.
+  - why: Status report has 7 input safety issues.
   - needed: Resolve status report input safety issues before treating the formal gate as complete.
 - `formal_gate_status_report_blocked`
   - evidence: `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_gap_audit",
   "status": "blocked_formal_gate_gaps_open",
-  "created_at_utc": "2026-07-05T18:20:35.417476+00:00",
-  "source_head": "f800cb68e7d2894e45543445d310681de5110fdf+dirty",
+  "created_at_utc": "2026-07-05T18:25:37.395246+00:00",
+  "source_head": "8ef61f3b4657309273fabf649e950ab7752d9e51",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -136,7 +136,7 @@
     "formal_claim_allowed_now": false,
     "local_training_allowed_now": false,
     "next_blocked_lane_id": "decision",
-    "input_safety_issue_count": 4
+    "input_safety_issue_count": 7
   },
   "remaining_deliverables_ledger": {
     "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
@@ -342,7 +342,7 @@
     "formal_gate_handoff_safety_issue_count": 2,
     "formal_gate_handoff_remote_training_allowed_now": false,
     "remote_packet_safety_status": "remote_packet_safety_audit_failed",
-    "remote_packet_safety_audit_issue_count": 9
+    "remote_packet_safety_audit_issue_count": 3
   },
   "missing_decision_items": [],
   "missing_training_artifacts": [
@@ -433,7 +433,7 @@
     {
       "category": "training",
       "gap_id": "remote_packet_safety_audit_issues_open",
-      "why_missing": "Remote packet safety audit reports 9 issues.",
+      "why_missing": "Remote packet safety audit reports 3 issues.",
       "evidence_path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
       "required_next_artifact": "Resolve every remote packet safety issue before approved remote execution."
     }
@@ -535,7 +535,7 @@
     {
       "category": "acceptance",
       "gap_id": "formal_status_report_safety_issues_open",
-      "why_missing": "Status report has 4 input safety issues.",
+      "why_missing": "Status report has 7 input safety issues.",
       "evidence_path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
       "required_next_artifact": "Resolve status report input safety issues before treating the formal gate as complete."
     },
@@ -616,7 +616,7 @@
     "runs_remote_preflight": false,
     "local_training_allowed": false,
     "formal_claim_allowed": false,
-    "audit_issue_count": 9,
+    "audit_issue_count": 3,
     "packet_status": "blocked_remote_preflight_not_ready",
     "remote_preflight_allowed_now": true,
     "remote_training_allowed_now": false,
@@ -690,7 +690,7 @@
         ]
       },
       "next_blocked_lane": "decision",
-      "h01_status": "blocked_pending_decisions",
+      "h01_status": "blocked_protocol_gap",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
       "h02_paper_result_input_allowed": false
@@ -724,7 +724,7 @@
         ]
       },
       "next_blocked_lane": "decision",
-      "h01_status": "blocked_pending_decisions",
+      "h01_status": "blocked_protocol_gap",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
       "h02_paper_result_input_allowed": false

@@ -3,7 +3,7 @@
 This ledger is read-only. It lists remaining formal training, evaluation, and acceptance deliverables; it does not execute commands or write paper results.
 
 - status: `formal_gate_deliverables_blocked`
-- source_head: `7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
+- source_head: `8ef61f3b4657309273fabf649e950ab7752d9e51`
 - missing_deliverable_count: `10`
 - open_category_count: `4`
 - missing_counts_by_formal_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
@@ -103,7 +103,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - responsible_stage_allowed_now: `False`
 - responsible_stage_blocked_by: `missing_remote_audit_pullback`
 - missing_artifacts:
-  - `formal_acceptance:h01_ready_for_formal_run`: state=`blocked_pending_decisions`, path=`0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`, acceptance_predicate_count=`5`, proof_command_count=`2`
+  - `formal_acceptance:h01_ready_for_formal_run`: state=`blocked_protocol_gap`, path=`0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`, acceptance_predicate_count=`5`, proof_command_count=`2`
   - `formal_acceptance:h02_formal_output_acceptance`: state=`blocked_formal_output_acceptance`, path=`0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`, acceptance_predicate_count=`5`, proof_command_count=`2`
 
 ## Proof Command Plan
@@ -225,7 +225,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - responsible_stage_allowed_now: `False`
 - responsible_stage_blocked_by: `missing_remote_audit_pullback`
 - items:
-  - `h01_ready_for_formal_run`: missing=`True`, exists=`True`, state=`blocked_pending_decisions`, path=`0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`
+  - `h01_ready_for_formal_run`: missing=`True`, exists=`True`, state=`blocked_protocol_gap`, path=`0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`
   - `h02_formal_output_acceptance`: missing=`True`, exists=`True`, state=`blocked_formal_output_acceptance`, path=`0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
 - acceptable_evidence:
   - H01 manifest status ready_for_formal_run or ready_for_formal_evaluation after F02.6 is closed
@@ -420,7 +420,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 ### formal_acceptance:h01_ready_for_formal_run
 - expected_path: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`
 - missing: `True`
-- current_state: `blocked_pending_decisions`
+- current_state: `blocked_protocol_gap`
 - responsible_stage_id: `regenerate_h01_h02_formal_artifacts`
 - responsible_stage_allowed_now: `False`
 - responsible_stage_blocked_by: `missing_remote_audit_pullback`

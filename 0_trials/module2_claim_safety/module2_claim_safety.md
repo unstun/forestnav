@@ -19,7 +19,6 @@
 - missing_remote_pullback_artifacts
 - f02_6_formal_chain_pending
 - realmap_query_generation_not_frozen
-- missing_module2_bc_checkpoint
 - remote_formal_preflight_not_ready
 - warm_start_decision_pending
 - f02_6_pending
@@ -37,8 +36,6 @@
 - status_report_remaining_deliverables_gap_categories_blocked
 - status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing
 - status_report_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked
-- status_report_f02_6_decision_intake_not_clean
-- status_report_f02_6_decision_intake_audit_issues_open
 - status_report_next_action_guard_not_passed
 - status_report_next_action_guard_not_pending_f02_6
 - status_report_next_action_guard_next_action_not_decision
@@ -72,7 +69,7 @@
 
 ## F02.6 Decision Intake Summary
 
-- present=`True`, status=`f02_6_decision_intake_failed`, record_status=`approved`, record_decider=`Dr Sun`, next_blocked_lane=`decision`, audit_issue_count=`2`, decision_owner_required=`Dr Sun`, valid_decision_count=`2`, required_record_field_count=`3`, decision_note_required=`True`, invalid_input_count=`5`, post_decision_non_authorization_count=`4`, post_decision_route_count=`2`, approved_route_next_lane=`source_fresh_regeneration`, approved_route_allows_remote_training_now=`False`, rejected_route_requires_new_protocol_contract=`True`, remote_training_allowed_now=`False`, formal_claim_allowed_now=`False`, decision_impact_present=`True`, decision_record_is_not_training_authorization=`True`, decision_record_is_not_paper_result_material=`True`, decision_impact_remote_training_allowed_now=`False`, decision_impact_formal_claim_allowed_now=`False`, decision_impact_paper_result_material_allowed_now=`False`
+- present=`True`, status=`f02_6_decision_intake_closed_clean`, record_status=`approved`, record_decider=`Dr Sun`, next_blocked_lane=`decision`, audit_issue_count=`0`, decision_owner_required=`Dr Sun`, valid_decision_count=`2`, required_record_field_count=`3`, decision_note_required=`True`, invalid_input_count=`5`, post_decision_non_authorization_count=`4`, post_decision_route_count=`2`, approved_route_next_lane=`source_fresh_regeneration`, approved_route_allows_remote_training_now=`False`, rejected_route_requires_new_protocol_contract=`True`, remote_training_allowed_now=`False`, formal_claim_allowed_now=`False`, decision_impact_present=`True`, decision_record_is_not_training_authorization=`True`, decision_record_is_not_paper_result_material=`True`, decision_impact_remote_training_allowed_now=`False`, decision_impact_formal_claim_allowed_now=`False`, decision_impact_paper_result_material_allowed_now=`False`
 - decision_evidence_matrix_status=`ready_for_dr_sun_decision_not_authorization`, route_count=`2`, required_evidence_count=`7`, missing_required_evidence_count=`0`, remote_training_allowed_now=`False`
 
 ## Status Report Next-Action Guard
@@ -81,7 +78,7 @@
 
 ## Status Report Mainline Formal Gate State Audit
 
-- present=`True`, status=`mainline_formal_gate_state_audit_failed`, audit_issue_count=`6`, proof_summary_chain_status=`formal_gate_proof_summary_chain_audit_failed`, proof_summary_chain_audit_issue_count=`32`, proof_summary_chain_proof_audit_input_safety_issue_count=`0`
+- present=`True`, status=`mainline_formal_gate_state_audit_failed`, audit_issue_count=`5`, proof_summary_chain_status=`formal_gate_proof_summary_chain_audit_failed`, proof_summary_chain_audit_issue_count=`18`, proof_summary_chain_proof_audit_input_safety_issue_count=`0`
 
 ## Handoff Single Next-Action Index
 
@@ -210,7 +207,7 @@
 - proof_summary_present=`True`
 - proof_missing_counts_by_formal_category=`{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
 - proof_next_blocked_lane=`decision`
-- proof_h01_status=`blocked_pending_decisions`
+- proof_h01_status=`blocked_protocol_gap`
 - proof_h02_status=`blocked_formal_output_acceptance`
 - proof_h02_paper_result_input_allowed=`False`
 - status_report_proof_summary_present=`True`

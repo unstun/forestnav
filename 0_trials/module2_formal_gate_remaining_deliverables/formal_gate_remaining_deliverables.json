@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_remaining_deliverables",
   "status": "formal_gate_deliverables_blocked",
-  "created_at_utc": "2026-07-05T18:18:09.261946+00:00",
-  "source_head": "7b2b67c2c1344c0a1d1c456c9ec880640450df0e",
+  "created_at_utc": "2026-07-05T18:25:36.821029+00:00",
+  "source_head": "8ef61f3b4657309273fabf649e950ab7752d9e51",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -354,8 +354,8 @@
             "matrix_id": "formal_acceptance:h01_ready_for_formal_run",
             "artifact_id": "h01_ready_for_formal_run",
             "expected_path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
-            "current_state": "blocked_pending_decisions",
-            "missing_reason": "f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen",
+            "current_state": "blocked_protocol_gap",
+            "missing_reason": "missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen",
             "acceptance_predicate_count": 5,
             "proof_command_count": 2,
             "proof_command_ids": [
@@ -373,7 +373,7 @@
             "artifact_id": "h02_formal_output_acceptance",
             "expected_path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
             "current_state": "blocked_formal_output_acceptance",
-            "missing_reason": "h02_verdict_not_formal, h01_manifest_not_ready, f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_execution_packet_not_ready, requires_dr_sun_approval, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts, f02_6_formal_chain_pending",
+            "missing_reason": "h02_verdict_not_formal, h01_manifest_not_ready, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_execution_packet_not_ready, remote_formal_preflight_not_ready, warm_start_decision_pending, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts",
             "acceptance_predicate_count": 5,
             "proof_command_count": 2,
             "proof_command_ids": [
@@ -1235,7 +1235,7 @@
         "category": "formal_acceptance",
         "artifact_id": "h01_ready_for_formal_run",
         "missing": true,
-        "current_state": "blocked_pending_decisions",
+        "current_state": "blocked_protocol_gap",
         "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
@@ -1583,9 +1583,9 @@
           "artifact_id": "h01_ready_for_formal_run",
           "path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
           "exists": true,
-          "state": "blocked_pending_decisions",
+          "state": "blocked_protocol_gap",
           "missing": true,
-          "reason": "f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen"
+          "reason": "missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen"
         },
         {
           "artifact_id": "h02_formal_output_acceptance",
@@ -1593,7 +1593,7 @@
           "exists": true,
           "state": "blocked_formal_output_acceptance",
           "missing": true,
-          "reason": "h02_verdict_not_formal, h01_manifest_not_ready, f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_execution_packet_not_ready, requires_dr_sun_approval, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts, f02_6_formal_chain_pending"
+          "reason": "h02_verdict_not_formal, h01_manifest_not_ready, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_execution_packet_not_ready, remote_formal_preflight_not_ready, warm_start_decision_pending, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts"
         }
       ]
     }
@@ -2022,9 +2022,9 @@
       "artifact_id": "h01_ready_for_formal_run",
       "expected_path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
       "current_exists": true,
-      "current_state": "blocked_pending_decisions",
+      "current_state": "blocked_protocol_gap",
       "missing": true,
-      "missing_reason": "f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen",
+      "missing_reason": "missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen",
       "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
       "responsible_stage_status": "blocked",
       "responsible_stage_allowed_now": false,
@@ -2075,7 +2075,7 @@
       "current_exists": true,
       "current_state": "blocked_formal_output_acceptance",
       "missing": true,
-      "missing_reason": "h02_verdict_not_formal, h01_manifest_not_ready, f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_execution_packet_not_ready, requires_dr_sun_approval, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts, f02_6_formal_chain_pending",
+      "missing_reason": "h02_verdict_not_formal, h01_manifest_not_ready, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_execution_packet_not_ready, remote_formal_preflight_not_ready, warm_start_decision_pending, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts",
       "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
       "responsible_stage_status": "blocked",
       "responsible_stage_allowed_now": false,

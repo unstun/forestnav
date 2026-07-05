@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_mainline_formal_gate_state_audit",
   "status": "mainline_formal_gate_state_audit_failed",
-  "created_at_utc": "2026-07-05T18:20:35.950844+00:00",
-  "source_head": "f800cb68e7d2894e45543445d310681de5110fdf+dirty",
+  "created_at_utc": "2026-07-05T18:25:37.167834+00:00",
+  "source_head": "8ef61f3b4657309273fabf649e950ab7752d9e51",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -273,7 +273,7 @@
     }
   },
   "proof_summary_chain_status": "formal_gate_proof_summary_chain_audit_failed",
-  "proof_summary_chain_audit_issue_count": 29,
+  "proof_summary_chain_audit_issue_count": 18,
   "proof_summary_chain_proof_audit_input_safety_issue_count": 0,
   "proof_summary_chain_proof_audit_blockers": [
     "missing_formal_training_artifacts",
@@ -371,7 +371,7 @@
     {
       "issue_id": "proof_summary_chain_has_audit_issues",
       "message": "Mainline task-book state should only mirror a clean proof-summary chain.",
-      "audit_issue_count": 29
+      "audit_issue_count": 18
     }
   ],
   "claim_boundaries": [

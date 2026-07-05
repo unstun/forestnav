@@ -2,35 +2,35 @@
 
 This file records gate artifact source-head freshness. It is not a training run, remote preflight, paper table, or result claim.
 
-- status: `source_freshness_tracked_artifact_lag_only_gate_ready`
-- current_head: `7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
+- status: `source_freshness_risks_recorded_gate_still_blocked`
+- current_head: `8ef61f3b4657309273fabf649e950ab7752d9e51`
 - runs_training: `False`
 - runs_remote_preflight: `False`
 - formal_claim_allowed: `False`
 - regeneration_required_before_remote_formal_execution: `True`
-- blocking_regeneration_required_before_remote_formal_execution: `False`
-- blocking_regeneration_target_count: `0`
+- blocking_regeneration_required_before_remote_formal_execution: `True`
+- blocking_regeneration_target_count: `2`
 - self_artifact_only_lag_target_count: `0`
-- tracked_artifact_only_lag_target_count: `1`
+- tracked_artifact_only_lag_target_count: `0`
 
 ## Risk Counts
 
-- `current_clean`: `22`
-- `historical_clean`: `1`
+- `current_clean`: `21`
+- `historical_clean`: `2`
 
 ## Commit Lag Diagnostics
 
-- `records_with_commit_lag`: `1`
+- `records_with_commit_lag`: `2`
 - `records_with_unknown_commit_lag`: `0`
-- `records_with_changed_paths_since_source`: `1`
-- `records_with_artifact_path_changed_since_source`: `1`
-- `records_with_non_self_changed_paths_since_source`: `1`
-- `records_with_blocking_changed_paths_since_source`: `0`
+- `records_with_changed_paths_since_source`: `2`
+- `records_with_artifact_path_changed_since_source`: `2`
+- `records_with_non_self_changed_paths_since_source`: `2`
+- `records_with_blocking_changed_paths_since_source`: `2`
 - `records_with_self_artifact_only_lag`: `0`
-- `records_with_tracked_artifact_only_lag`: `1`
-- `max_commits_since_source`: `2`
-- `max_non_self_changed_path_count_since_source`: `31`
-- `max_blocking_changed_path_count_since_source`: `0`
+- `records_with_tracked_artifact_only_lag`: `0`
+- `max_commits_since_source`: `5`
+- `max_non_self_changed_path_count_since_source`: `51`
+- `max_blocking_changed_path_count_since_source`: `6`
 - `changed_path_sample_limit`: `12`
 
 ## Audit Self-Reference Policy
@@ -44,34 +44,35 @@ This file records gate artifact source-head freshness. It is not a training run,
 
 ## Regeneration Targets
 
-- `f02_6_warm_start_decision_packet`: `historical_clean`, source_head=`60d474845aaaff64579d11f0ad8ee89a443c5bd2`, current_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`, dirty=`False`, commit_exists=`True`, commits_since_source=`2`, changed_paths_since_source=`32`, non_self_changed_paths_since_source=`31`, blocking_changed_paths_since_source=`0`, self_artifact_only_lag=`False`, tracked_artifact_only_lag=`True`, blocking_regeneration=`False`, artifact_path_changed=`True`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json`
-- `formal_gate_handoff_bundle`: `current_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`, current_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`, dirty=`False`, commit_exists=`True`, commits_since_source=`0`, changed_paths_since_source=`0`, non_self_changed_paths_since_source=`0`, blocking_changed_paths_since_source=`0`, self_artifact_only_lag=`False`, tracked_artifact_only_lag=`False`, blocking_regeneration=`False`, artifact_path_changed=`False`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`
+- `f02_6_decision_record`: `historical_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`, current_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`, dirty=`False`, commit_exists=`True`, commits_since_source=`5`, changed_paths_since_source=`53`, non_self_changed_paths_since_source=`51`, blocking_changed_paths_since_source=`6`, self_artifact_only_lag=`False`, tracked_artifact_only_lag=`False`, blocking_regeneration=`True`, artifact_path_changed=`True`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json`
+- `formal_gate_handoff_bundle`: `current_clean`, source_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`, current_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`, dirty=`False`, commit_exists=`True`, commits_since_source=`0`, changed_paths_since_source=`0`, non_self_changed_paths_since_source=`0`, blocking_changed_paths_since_source=`0`, self_artifact_only_lag=`False`, tracked_artifact_only_lag=`False`, blocking_regeneration=`False`, artifact_path_changed=`False`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`
+- `gpu3070ti_readiness_refresh`: `historical_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`, current_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`, dirty=`False`, commit_exists=`True`, commits_since_source=`5`, changed_paths_since_source=`53`, non_self_changed_paths_since_source=`51`, blocking_changed_paths_since_source=`6`, self_artifact_only_lag=`False`, tracked_artifact_only_lag=`False`, blocking_regeneration=`True`, artifact_path_changed=`True`, required before `approved_remote_preflight`, path `0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json`
 
 ## Artifact Records
 
-- `f02_6_warm_start_decision_packet`: status=`pending_human_decision`, freshness=`historical_clean`, source_head=`60d474845aaaff64579d11f0ad8ee89a443c5bd2`
-- `f02_6_decision_record`: status=`approved`, freshness=`current_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
-- `f02_6_decision_intake`: status=`f02_6_decision_intake_closed_clean`, freshness=`current_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
-- `f02_6_decision_gate_audit`: status=`f02_6_decision_gate_audit_failed`, freshness=`current_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
-- `f02_6_transition_gate_audit`: status=`f02_6_transition_gate_audit_failed`, freshness=`current_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
-- `remote_formal_execution_packet`: status=`blocked_remote_preflight_not_ready`, freshness=`current_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
-- `h01_evaluation_manifest`: status=`blocked_pending_decisions`, freshness=`current_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
-- `h02_formal_acceptance`: status=`blocked_formal_output_acceptance`, freshness=`current_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
-- `claim_safety`: status=`blocked_formal_performance_claims`, freshness=`current_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
-- `paper_readiness`: status=`partial_methods_ready_results_blocked`, freshness=`current_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
-- `formal_gate_gap_audit`: status=`blocked_formal_gate_gaps_open`, freshness=`current_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
-- `post_f02_6_regeneration_plan`: status=`ready_to_execute_post_f02_6_regeneration_plan`, freshness=`current_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
-- `post_f02_6_plan_audit`: status=`post_f02_6_plan_audit_failed`, freshness=`current_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
-- `remote_packet_safety_audit`: status=`remote_packet_safety_audit_failed`, freshness=`current_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
-- `formal_gate_closure_checklist`: status=`formal_gate_closure_blocked`, freshness=`current_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
-- `gpu3070ti_readiness_refresh`: status=`remote_readiness_refreshed_f02_6_still_blocked`, freshness=`current_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
-- `formal_gate_missing_artifacts`: status=`formal_gate_missing_artifacts_open`, freshness=`current_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
-- `formal_gate_status_report`: status=`formal_gate_status_blocked`, freshness=`current_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
-- `formal_gate_remaining_deliverables`: status=`formal_gate_deliverables_blocked`, freshness=`current_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
-- `formal_gate_proof_audit`: status=`formal_gate_proof_audit_blocked`, freshness=`current_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
-- `formal_gate_proof_summary_chain_audit`: status=`formal_gate_proof_summary_chain_consistent_blocked`, freshness=`current_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
-- `mainline_formal_gate_state_audit`: status=`mainline_formal_gate_state_consistent_blocked`, freshness=`current_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
-- `formal_gate_handoff_bundle`: status=`blocked_handoff_input_safety_issues`, freshness=`current_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
+- `f02_6_warm_start_decision_packet`: status=`pending_human_decision`, freshness=`current_clean`, source_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`
+- `f02_6_decision_record`: status=`approved`, freshness=`historical_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
+- `f02_6_decision_intake`: status=`f02_6_decision_intake_closed_clean`, freshness=`current_clean`, source_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`
+- `f02_6_decision_gate_audit`: status=`f02_6_decision_gate_audit_passed`, freshness=`current_clean`, source_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`
+- `f02_6_transition_gate_audit`: status=`f02_6_transition_gate_audit_failed`, freshness=`current_clean`, source_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`
+- `remote_formal_execution_packet`: status=`blocked_remote_preflight_not_ready`, freshness=`current_clean`, source_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`
+- `h01_evaluation_manifest`: status=`blocked_protocol_gap`, freshness=`current_clean`, source_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`
+- `h02_formal_acceptance`: status=`blocked_formal_output_acceptance`, freshness=`current_clean`, source_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`
+- `claim_safety`: status=`blocked_formal_performance_claims`, freshness=`current_clean`, source_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`
+- `paper_readiness`: status=`partial_methods_ready_results_blocked`, freshness=`current_clean`, source_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`
+- `formal_gate_gap_audit`: status=`blocked_formal_gate_gaps_open`, freshness=`current_clean`, source_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`
+- `post_f02_6_regeneration_plan`: status=`blocked_formal_gate_preconditions`, freshness=`current_clean`, source_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`
+- `post_f02_6_plan_audit`: status=`post_f02_6_plan_audit_failed`, freshness=`current_clean`, source_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`
+- `remote_packet_safety_audit`: status=`remote_packet_safety_audit_failed`, freshness=`current_clean`, source_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`
+- `formal_gate_closure_checklist`: status=`formal_gate_closure_blocked`, freshness=`current_clean`, source_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`
+- `gpu3070ti_readiness_refresh`: status=`remote_readiness_refreshed_f02_6_still_blocked`, freshness=`historical_clean`, source_head=`7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
+- `formal_gate_missing_artifacts`: status=`formal_gate_missing_artifacts_open`, freshness=`current_clean`, source_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`
+- `formal_gate_status_report`: status=`formal_gate_status_blocked`, freshness=`current_clean`, source_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`
+- `formal_gate_remaining_deliverables`: status=`formal_gate_deliverables_blocked`, freshness=`current_clean`, source_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`
+- `formal_gate_proof_audit`: status=`formal_gate_proof_audit_blocked`, freshness=`current_clean`, source_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`
+- `formal_gate_proof_summary_chain_audit`: status=`formal_gate_proof_summary_chain_audit_failed`, freshness=`current_clean`, source_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`
+- `mainline_formal_gate_state_audit`: status=`mainline_formal_gate_state_audit_failed`, freshness=`current_clean`, source_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`
+- `formal_gate_handoff_bundle`: status=`blocked_handoff_input_safety_issues`, freshness=`current_clean`, source_head=`8ef61f3b4657309273fabf649e950ab7752d9e51`
 
 ## Claim Boundaries
 

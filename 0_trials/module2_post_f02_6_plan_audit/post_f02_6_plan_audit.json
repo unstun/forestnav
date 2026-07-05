@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_plan_audit",
   "status": "post_f02_6_plan_audit_failed",
-  "created_at_utc": "2026-07-05T18:18:07.324998+00:00",
-  "source_head": "7b2b67c2c1344c0a1d1c456c9ec880640450df0e",
+  "created_at_utc": "2026-07-05T18:25:34.878053+00:00",
+  "source_head": "8ef61f3b4657309273fabf649e950ab7752d9e51",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -298,7 +298,7 @@
     "formal_claim_allowed": false,
     "formal_claim_allowed_now": false,
     "local_training_allowed_now": false,
-    "input_safety_issue_count": 4,
+    "input_safety_issue_count": 7,
     "next_blocked_lane_id": "decision",
     "remote_execution_step_summary": {
       "sync_to_remote": {
@@ -318,8 +318,6 @@
         "allowed_now": false,
         "runs_training": true,
         "blocked_by": [
-          "f02_6_warm_start_decision_pending",
-          "missing_module2_bc_checkpoint",
           "missing_module2_rl_rs_checkpoint",
           "realmap_query_generation_not_frozen",
           "remote_formal_preflight_not_ready",
@@ -332,8 +330,6 @@
         "allowed_now": false,
         "runs_training": false,
         "blocked_by": [
-          "f02_6_warm_start_decision_pending",
-          "missing_module2_bc_checkpoint",
           "missing_module2_rl_rs_checkpoint",
           "realmap_query_generation_not_frozen",
           "remote_formal_preflight_not_ready",
@@ -371,8 +367,6 @@
           "allowed_now": false,
           "runs_training": true,
           "blocked_by": [
-            "f02_6_warm_start_decision_pending",
-            "missing_module2_bc_checkpoint",
             "missing_module2_rl_rs_checkpoint",
             "realmap_query_generation_not_frozen",
             "remote_formal_preflight_not_ready",
@@ -385,8 +379,6 @@
           "allowed_now": false,
           "runs_training": false,
           "blocked_by": [
-            "f02_6_warm_start_decision_pending",
-            "missing_module2_bc_checkpoint",
             "missing_module2_rl_rs_checkpoint",
             "realmap_query_generation_not_frozen",
             "remote_formal_preflight_not_ready",
@@ -483,7 +475,7 @@
         ]
       },
       "next_blocked_lane": "decision",
-      "h01_status": "blocked_pending_decisions",
+      "h01_status": "blocked_protocol_gap",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
       "h02_paper_result_input_allowed": false
@@ -585,7 +577,7 @@
       ]
     },
     "next_blocked_lane": "decision",
-    "h01_status": "blocked_pending_decisions",
+    "h01_status": "blocked_protocol_gap",
     "h02_status": "blocked_formal_output_acceptance",
     "h02_formal_output_accepted": false,
     "h02_paper_result_input_allowed": false
@@ -753,16 +745,8 @@
     "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
     "exists": true
   },
-  "audit_issue_count": 9,
+  "audit_issue_count": 8,
   "audit_issues": [
-    {
-      "issue_id": "plan_source_freshness_requirement_mismatch",
-      "message": "Plan source freshness flag does not match source freshness audit.",
-      "observed": {
-        "plan": true,
-        "source_freshness": false
-      }
-    },
     {
       "issue_id": "missing_artifacts_inventory_has_audit_issues",
       "message": "Missing-artifacts inventory reports open audit issues."
@@ -772,12 +756,12 @@
       "message": "Status report reports open input safety issues."
     },
     {
-      "issue_id": "formal_gate_status_report_blocked_but_sync_to_remote_allowed",
-      "message": "Status report must not allow remote execution steps while the formal gate is blocked."
+      "issue_id": "formal_gate_status_report_sync_allowed_without_remote_permission",
+      "message": "Status report may surface remote sync only when a remote preflight/training lane is allowed."
     },
     {
-      "issue_id": "formal_gate_status_report_blocked_but_run_remote_preflight_allowed",
-      "message": "Status report must not allow remote execution steps while the formal gate is blocked."
+      "issue_id": "formal_gate_status_report_preflight_step_permission_mismatch",
+      "message": "Status report remote preflight step must match remote_preflight_allowed_now."
     },
     {
       "issue_id": "formal_gate_status_report_execution_veto_inconsistent",

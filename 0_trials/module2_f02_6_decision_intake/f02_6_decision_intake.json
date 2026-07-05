@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_f02_6_decision_intake",
-  "status": "f02_6_decision_intake_failed",
-  "created_at_utc": "2026-07-05T18:18:06.638154+00:00",
-  "source_head": "7b2b67c2c1344c0a1d1c456c9ec880640450df0e",
+  "status": "f02_6_decision_intake_closed_clean",
+  "created_at_utc": "2026-07-05T18:25:34.301548+00:00",
+  "source_head": "8ef61f3b4657309273fabf649e950ab7752d9e51",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -108,8 +108,8 @@
     "packet_local_training_allowed_now": false,
     "packet_formal_claim_allowed_now": false,
     "packet_paper_result_material_allowed_now": false,
-    "decision_gate_status": "f02_6_decision_gate_audit_failed",
-    "decision_gate_issue_count": 1,
+    "decision_gate_status": "f02_6_decision_gate_audit_passed",
+    "decision_gate_issue_count": 0,
     "status_report_status": "formal_gate_status_blocked",
     "next_blocked_lane": "decision",
     "status_report_local_training_allowed_now": false,
@@ -411,19 +411,8 @@
       "why_invalid": "F02.6 intake is not formal evaluation evidence."
     }
   ],
-  "audit_issue_count": 2,
-  "audit_issues": [
-    {
-      "issue_id": "decision_gate_has_issues",
-      "message": "F02.6 decision gate audit must be clean before using this intake.",
-      "observed": 1
-    },
-    {
-      "issue_id": "decision_gate_failed",
-      "message": "F02.6 decision gate audit currently failed.",
-      "observed": "f02_6_decision_gate_audit_failed"
-    }
-  ],
+  "audit_issue_count": 0,
+  "audit_issues": [],
   "claim_boundaries": [
     "This intake explains how to close F02.6; it does not close F02.6.",
     "It must not be cited as a PPO performance result or warm-start effect result.",

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_closure_checklist",
   "status": "formal_gate_closure_blocked",
-  "created_at_utc": "2026-07-05T18:18:09.153928+00:00",
-  "source_head": "7b2b67c2c1344c0a1d1c456c9ec880640450df0e",
+  "created_at_utc": "2026-07-05T18:25:36.709243+00:00",
+  "source_head": "8ef61f3b4657309273fabf649e950ab7752d9e51",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -134,7 +134,7 @@
       "exists": true,
       "state": "blocked_formal_output_acceptance",
       "missing": true,
-      "reason": "h02_verdict_not_formal, h01_manifest_not_ready, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_execution_packet_not_ready, f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, remote_formal_preflight_not_ready, warm_start_decision_pending, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts"
+      "reason": "h02_verdict_not_formal, h01_manifest_not_ready, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_execution_packet_not_ready, remote_formal_preflight_not_ready, warm_start_decision_pending, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts"
     }
   ],
   "claim_gate_artifacts_required": [
@@ -301,10 +301,9 @@
       "runs_training": false,
       "host": null,
       "group_id": "f02_6_decision_record",
-      "formal_step_status": "blocked",
+      "formal_step_status": "ready",
       "post_plan_stage_status": "blocked",
       "blocked_by": [
-        "f02_6_warm_start_decision_pending",
         "current_decision_status_approved"
       ],
       "missing_item_count": 0,
@@ -332,7 +331,6 @@
       "formal_step_status": "blocked",
       "post_plan_stage_status": "ready",
       "blocked_by": [
-        "f02_6_warm_start_decision_pending",
         "handoff_safety_issues_open",
         "remote_packet_safety_audit_failed",
         "remote_packet_safety_audit_issues_open"
@@ -377,7 +375,6 @@
         "gate3_remote_audit_pullback",
         "regenerate_h01_h02_formal_artifacts",
         "regenerate_claim_gate_artifacts",
-        "f02_6_warm_start_decision_pending",
         "handoff_safety_issues_open",
         "remote_packet_safety_audit_failed",
         "remote_packet_safety_audit_issues_open",
@@ -467,7 +464,6 @@
         "train_final_model_zip",
         "train_summary_json",
         "train_training_manifest_json",
-        "f02_6_warm_start_decision_pending",
         "handoff_safety_issues_open",
         "remote_packet_safety_audit_failed",
         "remote_packet_safety_audit_issues_open",
@@ -518,7 +514,6 @@
       "blocked_by": [
         "eval_gate3_eval_episodes_csv",
         "eval_gate3_summary_json",
-        "f02_6_warm_start_decision_pending",
         "handoff_safety_issues_open",
         "remote_packet_safety_audit_failed",
         "remote_packet_safety_audit_issues_open",
@@ -565,7 +560,6 @@
         "gate3_trial_manifest_json",
         "gate3_formal_audit_json",
         "pulled_back_checkpoint_hash_record",
-        "f02_6_warm_start_decision_pending",
         "handoff_safety_issues_open",
         "remote_packet_safety_audit_failed",
         "remote_packet_safety_audit_issues_open",
@@ -619,7 +613,6 @@
       "blocked_by": [
         "h01_ready_for_formal_run",
         "h02_formal_output_acceptance",
-        "f02_6_warm_start_decision_pending",
         "handoff_safety_issues_open",
         "remote_packet_safety_audit_failed",
         "remote_packet_safety_audit_issues_open",
@@ -651,7 +644,7 @@
           "exists": true,
           "state": "blocked_formal_output_acceptance",
           "missing": true,
-          "reason": "h02_verdict_not_formal, h01_manifest_not_ready, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_execution_packet_not_ready, f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, remote_formal_preflight_not_ready, warm_start_decision_pending, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts"
+          "reason": "h02_verdict_not_formal, h01_manifest_not_ready, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_execution_packet_not_ready, remote_formal_preflight_not_ready, warm_start_decision_pending, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts"
         }
       ],
       "completion_signal": "H01 exposes the formal run command and H02 accepts formal-scale PPO outputs.",
@@ -669,7 +662,6 @@
       "post_plan_stage_status": "blocked",
       "blocked_by": [
         "h02_formal_acceptance_before_claim_gate",
-        "f02_6_warm_start_decision_pending",
         "handoff_safety_issues_open",
         "remote_packet_safety_audit_failed",
         "remote_packet_safety_audit_issues_open",
