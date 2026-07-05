@@ -38,14 +38,14 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
     assert manifest["current_blocking_summary"]["remote_preflight_allowed_now"] is False
     command_index = manifest["source_regeneration_command_index_summary"]
     assert command_index["present"] is True
-    assert command_index["index_row_count"] == 6
-    assert command_index["source_target_count"] == 6
+    assert command_index["index_row_count"] == 7
+    assert command_index["source_target_count"] == 7
     assert command_index["unknown_manual_count"] == 0
     assert command_index["stage_mismatch_count"] == 0
     assert command_index["command_not_in_stage_count"] == 0
     assert command_index["forbidden_command_count"] == 0
     assert command_index["stage_counts"] == {
-        "regenerate_claim_gate_artifacts": 2,
+        "regenerate_claim_gate_artifacts": 3,
         "regenerate_h01_h02_formal_artifacts": 1,
         "regenerate_preflight_gate_artifacts": 3,
     }
@@ -680,6 +680,11 @@ def _plan_payload():
             "formal_claim_gate": [
                 {"artifact_id": "claim_safety", "path": "claim.json", "freshness_state": "historical_clean"},
                 {
+                    "artifact_id": "formal_gate_proof_summary_chain_audit",
+                    "path": "proof_summary_chain.json",
+                    "freshness_state": "historical_dirty",
+                },
+                {
                     "artifact_id": "paper_readiness",
                     "path": "paper_readiness.json",
                     "freshness_state": "historical_dirty",
@@ -721,6 +726,13 @@ def _plan_payload():
                 "claim.json",
                 "known_builder",
                 "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety",
+            ),
+            _command_index_row(
+                "formal_gate_proof_summary_chain_audit",
+                "formal_claim_gate",
+                "proof_summary_chain.json",
+                "known_builder",
+                "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit",
             ),
             _command_index_row(
                 "paper_readiness",
@@ -869,6 +881,11 @@ def _source_freshness_payload():
             },
             {"artifact_id": "h01_evaluation_manifest", "path": "h01.json", "required_before": "formal_h01_h02"},
             {"artifact_id": "claim_safety", "path": "claim.json", "required_before": "formal_claim_gate"},
+            {
+                "artifact_id": "formal_gate_proof_summary_chain_audit",
+                "path": "proof_summary_chain.json",
+                "required_before": "formal_claim_gate",
+            },
             {
                 "artifact_id": "paper_readiness",
                 "path": "paper_readiness.json",
