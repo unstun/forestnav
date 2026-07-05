@@ -46,8 +46,8 @@ def test_remote_packet_safety_audit_passes_current_blocked_packet(tmp_path):
     assert manifest["cross_gate_summary"]["post_plan_status_report_execution_veto_summary"]["row_consensus"]["formal_claim"] is False
     command_index = manifest["cross_gate_summary"]["post_plan_source_regeneration_command_index_summary"]
     assert command_index["present"] is True
-    assert command_index["index_row_count"] == 21
-    assert command_index["source_target_count"] == 21
+    assert command_index["index_row_count"] == 22
+    assert command_index["source_target_count"] == 22
     assert command_index["missing_target_ids"] == []
     assert command_index["unknown_manual_count"] == 0
     assert command_index["forbidden_command_count"] == 0
@@ -985,8 +985,8 @@ def _source_regeneration_command_index_summary():
     }
     return {
         "present": True,
-        "index_row_count": 21,
-        "source_target_count": 21,
+        "index_row_count": 22,
+        "source_target_count": 22,
         "missing_target_ids": [],
         "unknown_manual_count": 0,
         "unknown_manual_ids": [],

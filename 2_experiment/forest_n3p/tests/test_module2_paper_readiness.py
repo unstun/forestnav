@@ -157,8 +157,8 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
         "formal_acceptance": 2,
     }
     assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_present"] is True
-    assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_row_count"] == 21
-    assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_source_target_count"] == 21
+    assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_row_count"] == 22
+    assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_source_target_count"] == 22
     assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_missing_target_count"] == 0
     assert manifest["claim_safety_remote_packet_safety_claim_gate_command_index_summary"]["claim_gate_rows"][
         "formal_gate_proof_summary_chain_audit"
@@ -286,7 +286,7 @@ def test_paper_readiness_accepts_synthetic_complete_evidence(tmp_path):
     assert manifest["claim_safety_remote_packet_safety_status_report_proof_deliverables_summary"] == manifest[
         "claim_safety_remote_packet_safety_proof_deliverables_summary"
     ]
-    assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_row_count"] == 21
+    assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_row_count"] == 22
     assert all(item["status"] != "blocked" for item in manifest["section_readiness"])
     assert "formal_performance_improvement" in manifest["conditional_claim_ids"]
 
@@ -1342,8 +1342,8 @@ def _claim_safety_command_index_summary_payload():
     }
     return {
         "present": True,
-        "index_row_count": 21,
-        "source_target_count": 21,
+        "index_row_count": 22,
+        "source_target_count": 22,
         "missing_target_ids": [],
         "unknown_manual_count": 0,
         "unknown_manual_ids": [],

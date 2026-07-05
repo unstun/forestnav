@@ -38,8 +38,8 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
     assert manifest["current_blocking_summary"]["remote_preflight_allowed_now"] is False
     command_index = manifest["source_regeneration_command_index_summary"]
     assert command_index["present"] is True
-    assert command_index["index_row_count"] == 8
-    assert command_index["source_target_count"] == 8
+    assert command_index["index_row_count"] == 9
+    assert command_index["source_target_count"] == 9
     assert command_index["unknown_manual_count"] == 0
     assert command_index["stage_mismatch_count"] == 0
     assert command_index["command_not_in_stage_count"] == 0
@@ -47,7 +47,7 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
     assert command_index["stage_counts"] == {
         "regenerate_claim_gate_artifacts": 3,
         "regenerate_h01_h02_formal_artifacts": 1,
-        "regenerate_preflight_gate_artifacts": 4,
+        "regenerate_preflight_gate_artifacts": 5,
     }
     assert manifest["inputs"]["formal_gate_status_report"].endswith("status_report.json")
     assert manifest["status_report_summary"]["status"] == "formal_gate_status_blocked"
@@ -666,6 +666,11 @@ def _plan_payload():
         "remaining_deliverables_gap_summary": _gap_summary(open_gaps=True),
         "source_regeneration_targets_by_gate": {
             "approved_remote_preflight": [
+                {
+                    "artifact_id": "f02_6_warm_start_decision_packet",
+                    "path": "decision_packet.json",
+                    "freshness_state": "historical_dirty",
+                },
                 {"artifact_id": "f02_6_decision_record", "path": "a.json", "freshness_state": "historical_dirty"},
                 {"artifact_id": "formal_gate_gap_audit", "path": "b.json", "freshness_state": "historical_dirty"},
                 {
@@ -697,6 +702,13 @@ def _plan_payload():
             ],
         },
         "source_regeneration_command_index": [
+            _command_index_row(
+                "f02_6_warm_start_decision_packet",
+                "approved_remote_preflight",
+                "decision_packet.json",
+                "known_builder",
+                "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_warm_start_decision_packet",
+            ),
             _command_index_row(
                 "f02_6_decision_record",
                 "approved_remote_preflight",
@@ -775,6 +787,7 @@ def _plan_payload():
                 "regeneration",
                 blocked_by=["f02_6_decision_not_approved"],
                 commands=[
+                    "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_warm_start_decision_packet",
                     "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'",
                     "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_gap_audit",
                     "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_handoff_bundle",
@@ -886,6 +899,11 @@ def _source_freshness_payload():
         "status": "source_freshness_risks_recorded_gate_still_blocked",
         "regeneration_required_before_remote_formal_execution": True,
         "ordered_regeneration_targets": [
+            {
+                "artifact_id": "f02_6_warm_start_decision_packet",
+                "path": "decision_packet.json",
+                "required_before": "approved_remote_preflight",
+            },
             {"artifact_id": "f02_6_decision_record", "path": "a.json", "required_before": "approved_remote_preflight"},
             {"artifact_id": "formal_gate_gap_audit", "path": "b.json", "required_before": "approved_remote_preflight"},
             {

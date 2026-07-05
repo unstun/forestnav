@@ -73,7 +73,7 @@ def test_formal_gate_gap_audit_blocks_current_pending_gate_and_lists_missing_art
     assert manifest["remote_packet_safety"]["status"] == "remote_packet_safety_audit_passed"
     command_index = manifest["remote_packet_safety"]["claim_gate_command_index_summary"]
     assert command_index["present"] is True
-    assert command_index["index_row_count"] == 21
+    assert command_index["index_row_count"] == 22
     assert command_index["missing_target_ids"] == []
     assert command_index["claim_gate_rows"]["formal_gate_proof_summary_chain_audit"]["stage_id"] == "regenerate_claim_gate_artifacts"
     assert command_index["claim_gate_rows"]["claim_safety"]["stage_id"] == "regenerate_claim_gate_artifacts"
@@ -1331,8 +1331,8 @@ def _command_index_summary():
     }
     return {
         "present": True,
-        "index_row_count": 21,
-        "source_target_count": 21,
+        "index_row_count": 22,
+        "source_target_count": 22,
         "missing_target_ids": [],
         "unknown_manual_count": 0,
         "unknown_manual_ids": [],
