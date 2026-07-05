@@ -2155,6 +2155,69 @@ def _remaining_deliverable_proof_command_plan(matrix):
     }
 
 
+def _remaining_deliverable_unlock_chain(matrix, *, complete):
+    return {
+        "chain_id": "module2_formal_gate_missing_deliverable_unlock_chain",
+        "status": "formal_deliverables_complete" if complete else "blocked_missing_formal_deliverables",
+        "not_paper_result_material": True,
+        "execution_boundary": "read_only_no_execution",
+        "row_count": len(matrix),
+        "blocked_row_count": 0 if complete else len(matrix),
+        "rows_with_missing_required_blockers": 0,
+        "rows_allowed_while_missing": 0,
+        "rows": [_remaining_deliverable_unlock_row(row, complete=complete) for row in matrix],
+    }
+
+
+def _remaining_deliverable_unlock_row(row, *, complete):
+    category = row["category"]
+    return {
+        "matrix_id": row["matrix_id"],
+        "category": category,
+        "artifact_id": row["artifact_id"],
+        "current_state": row["current_state"],
+        "missing": row["missing"],
+        "responsible_stage_id": row["responsible_stage_id"],
+        "responsible_stage_allowed_now": row["responsible_stage_allowed_now"],
+        "responsible_stage_blocked_by": row["responsible_stage_blocked_by"],
+        "required_current_blockers": [] if complete else _required_current_blockers(category),
+        "missing_required_current_blockers": [],
+        "unlock_sequence_before_stage_allowed": [] if complete else _unlock_sequence(category),
+        "execution_boundary": "read_only_no_execution",
+    }
+
+
+def _required_current_blockers(category):
+    if category == "formal_acceptance":
+        return ["missing_remote_audit_pullback"]
+    return ["f02_6_decision_not_approved", "remote_packet_not_ready"]
+
+
+def _unlock_sequence(category):
+    if category == "training":
+        return [
+            "record_f02_6_decision",
+            "source_freshness_ready_for_remote_preflight",
+            "remote_formal_execution_packet_ready",
+            "approved_remote_preflight",
+            "gate3_remote_training",
+        ]
+    if category in {"evaluation", "acceptance"}:
+        return [
+            "record_f02_6_decision",
+            "source_freshness_ready_for_remote_preflight",
+            "remote_formal_execution_packet_ready",
+            "approved_remote_preflight",
+            "gate3_remote_training_complete",
+            "gate3_remote_audit_pullback",
+        ]
+    return [
+        "gate3_remote_audit_pullback_complete",
+        "regenerate_h01_h02_formal_artifacts",
+        "h01_h02_formal_acceptance_audit",
+    ]
+
+
 def _formal_gate_proof_audit(*, complete):
     matrix = _remaining_deliverables(complete=complete)["deliverable_acceptance_matrix"]
     remaining = _remaining_deliverables(complete=complete)
