@@ -29,6 +29,9 @@ DEFAULT_REMAINING_DELIVERABLES = Path(
 )
 DEFAULT_HANDOFF_BUNDLE = Path("0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json")
 DEFAULT_REMOTE_PACKET_SAFETY = Path("0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json")
+DEFAULT_PROTOCOL_LANE_STATUS_REPORT = Path(
+    "0_trials/module2_formal_gate_protocol_lane_status_report/protocol_lane_status_report.json"
+)
 REMOTE_EXECUTION_STEP_IDS = (
     "sync_to_remote",
     "run_remote_preflight",
@@ -69,6 +72,7 @@ class FormalGateGapAuditConfig:
     remaining_deliverables_path: Path = DEFAULT_REMAINING_DELIVERABLES
     handoff_bundle_path: Path = DEFAULT_HANDOFF_BUNDLE
     remote_packet_safety_path: Path = DEFAULT_REMOTE_PACKET_SAFETY
+    protocol_lane_status_report_path: Path = DEFAULT_PROTOCOL_LANE_STATUS_REPORT
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -92,6 +96,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         remaining_deliverables_path=args.remaining_deliverables,
         handoff_bundle_path=args.handoff_bundle,
         remote_packet_safety_path=args.remote_packet_safety_audit,
+        protocol_lane_status_report_path=args.protocol_lane_status_report,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -128,6 +133,7 @@ def build_manifest(config: FormalGateGapAuditConfig) -> dict[str, Any]:
     remaining_deliverables = _read_json(config.remaining_deliverables_path)
     handoff_bundle = _read_json(config.handoff_bundle_path)
     remote_packet_safety = _read_json(config.remote_packet_safety_path)
+    protocol_lane_status = _read_json(config.protocol_lane_status_report_path)
 
     decision_gaps = _decision_gaps(decision=decision, h01=h01, remote=remote)
     source_freshness_gaps = _source_freshness_gaps(source_freshness=source_freshness, source_freshness_path=config.source_freshness_path)
@@ -209,6 +215,7 @@ def build_manifest(config: FormalGateGapAuditConfig) -> dict[str, Any]:
             remaining_deliverables=remaining_deliverables,
             handoff_bundle=handoff_bundle,
             remote_packet_safety=remote_packet_safety,
+            protocol_lane_status=protocol_lane_status,
         ),
         "missing_decision_items": decision_gaps,
         "missing_training_artifacts": training_gaps,
