@@ -154,6 +154,12 @@ def build_manifest(
     status_report_remaining_deliverables_proof_command_plan = (
         _status_report_remaining_deliverables_proof_command_plan(status_report)
     )
+    status_report_remote_packet_safety_proof_deliverables_summary = (
+        _status_report_remote_packet_safety_proof_deliverables_summary(status_report)
+    )
+    status_report_remote_packet_safety_status_report_proof_deliverables_summary = (
+        _status_report_remote_packet_safety_status_report_proof_deliverables_summary(status_report)
+    )
     status_report_remote_packet_safety_claim_gate_command_index_summary = (
         _status_report_remote_packet_safety_claim_gate_command_index_summary(status_report)
     )
@@ -356,6 +362,38 @@ def build_manifest(
             "status_report_remaining_deliverables_proof_plan_command_count": status_report_remaining_deliverables_proof_command_plan[
                 "total_proof_command_count"
             ],
+            "status_report_remote_packet_safety_proof_summary_present": status_report_remote_packet_safety_proof_deliverables_summary[
+                "present"
+            ],
+            "status_report_remote_packet_safety_proof_training_missing_count": status_report_remote_packet_safety_proof_deliverables_summary[
+                "missing_counts_by_formal_category"
+            ].get(
+                "training", 0
+            ),
+            "status_report_remote_packet_safety_proof_evaluation_missing_count": status_report_remote_packet_safety_proof_deliverables_summary[
+                "missing_counts_by_formal_category"
+            ].get(
+                "evaluation", 0
+            ),
+            "status_report_remote_packet_safety_proof_acceptance_missing_count": status_report_remote_packet_safety_proof_deliverables_summary[
+                "missing_counts_by_formal_category"
+            ].get(
+                "acceptance", 0
+            ),
+            "status_report_remote_packet_safety_proof_formal_acceptance_missing_count": status_report_remote_packet_safety_proof_deliverables_summary[
+                "missing_counts_by_formal_category"
+            ].get(
+                "formal_acceptance", 0
+            ),
+            "status_report_remote_packet_safety_proof_next_blocked_lane": status_report_remote_packet_safety_proof_deliverables_summary[
+                "next_blocked_lane"
+            ],
+            "status_report_remote_packet_safety_proof_h02_paper_result_input_allowed": status_report_remote_packet_safety_proof_deliverables_summary[
+                "h02_paper_result_input_allowed"
+            ],
+            "status_report_remote_packet_safety_status_report_proof_summary_present": status_report_remote_packet_safety_status_report_proof_deliverables_summary[
+                "present"
+            ],
             "status_report_remote_packet_safety_command_index_present": status_report_remote_packet_safety_claim_gate_command_index_summary[
                 "present"
             ],
@@ -381,6 +419,12 @@ def build_manifest(
         ),
         "status_report_remaining_deliverables_proof_command_plan": (
             status_report_remaining_deliverables_proof_command_plan
+        ),
+        "status_report_remote_packet_safety_proof_deliverables_summary": (
+            status_report_remote_packet_safety_proof_deliverables_summary
+        ),
+        "status_report_remote_packet_safety_status_report_proof_deliverables_summary": (
+            status_report_remote_packet_safety_status_report_proof_deliverables_summary
         ),
         "status_report_remote_packet_safety_claim_gate_command_index_summary": (
             status_report_remote_packet_safety_claim_gate_command_index_summary
