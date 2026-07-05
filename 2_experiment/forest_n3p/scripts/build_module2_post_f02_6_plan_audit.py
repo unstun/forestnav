@@ -149,6 +149,10 @@ def build_manifest(config: PostF026PlanAuditConfig) -> dict[str, Any]:
             config.remaining_deliverables_path,
             remaining_deliverables,
         ),
+        "remaining_deliverables_unlock_chain_summary": _remaining_deliverables_unlock_chain_summary(
+            config.remaining_deliverables_path,
+            remaining_deliverables,
+        ),
         "audit_issue_count": len(issues),
         "audit_issues": issues,
         "required_stage_order": list(REQUIRED_STAGE_ORDER),
@@ -205,6 +209,13 @@ def _audit_issues(
         _remaining_deliverables_gap_issues(
             plan=plan,
             status_report=status_report,
+            remaining_deliverables=remaining_deliverables,
+            remaining_deliverables_path=remaining_deliverables_path,
+        )
+    )
+    issues.extend(
+        _remaining_deliverables_unlock_chain_issues(
+            plan=plan,
             remaining_deliverables=remaining_deliverables,
             remaining_deliverables_path=remaining_deliverables_path,
         )
@@ -655,6 +666,94 @@ def _remaining_deliverables_gap_issues(
     return issues
 
 
+def _remaining_deliverables_unlock_chain_issues(
+    *,
+    plan: dict[str, Any],
+    remaining_deliverables: dict[str, Any],
+    remaining_deliverables_path: Path | None,
+) -> list[dict[str, Any]]:
+    if remaining_deliverables_path is None:
+        return []
+    if not Path(remaining_deliverables_path).is_file():
+        return []
+
+    issues: list[dict[str, Any]] = []
+    ledger_chain = _normalize_unlock_chain_summary(remaining_deliverables.get("deliverable_unlock_chain"))
+    plan_chain = _normalize_unlock_chain_summary(plan.get("remaining_deliverables_unlock_chain_summary"))
+
+    if not ledger_chain["present"]:
+        issues.append(
+            _issue(
+                "remaining_deliverables_unlock_chain_missing",
+                "Remaining-deliverables ledger must expose deliverable_unlock_chain.",
+            )
+        )
+    else:
+        issues.extend(_unlock_chain_safety_issues("remaining_deliverables_unlock_chain", ledger_chain))
+
+    if not plan_chain["present"]:
+        issues.append(
+            _issue(
+                "plan_missing_remaining_deliverables_unlock_chain_summary",
+                "Post-F02.6 plan must carry remaining_deliverables_unlock_chain_summary.",
+            )
+        )
+    else:
+        issues.extend(_unlock_chain_safety_issues("plan_remaining_deliverables_unlock_chain", plan_chain))
+
+    ledger_signature = _unlock_chain_signature(ledger_chain)
+    plan_signature = _unlock_chain_signature(plan_chain)
+    if ledger_chain["present"] and plan_chain["present"] and plan_signature != ledger_signature:
+        issues.append(
+            _issue(
+                "plan_remaining_deliverables_unlock_chain_summary_mismatch",
+                "Plan unlock-chain summary must match the remaining-deliverables ledger.",
+                observed={"plan": plan_signature, "remaining_deliverables": ledger_signature},
+            )
+        )
+
+    claim_stage = _stage_by_id(plan, "regenerate_claim_gate_artifacts")
+    chain_open = (
+        ledger_chain["blocked_row_count"] > 0
+        or ledger_chain["rows_with_missing_required_blockers"] > 0
+        or ledger_chain["rows_allowed_while_missing"] > 0
+    )
+    if chain_open and claim_stage.get("allowed_now") is True:
+        issues.append(
+            _issue(
+                "claim_gate_ready_with_remaining_deliverables_unlock_chain_blocked",
+                "Claim gate regeneration must not be ready while the remaining-deliverables unlock chain is blocked.",
+                observed=ledger_signature,
+            )
+        )
+    return issues
+
+
+def _unlock_chain_safety_issues(prefix: str, chain: dict[str, Any]) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    if chain["execution_boundary"] != "read_only_no_execution":
+        issues.append(_issue(f"{prefix}_execution_boundary_invalid", "Unlock chain must be read-only."))
+    if chain["not_paper_result_material"] is not True:
+        issues.append(_issue(f"{prefix}_marked_as_paper_result", "Unlock chain must not be paper result material."))
+    if chain["rows_with_missing_required_blockers"] > 0:
+        issues.append(
+            _issue(
+                f"{prefix}_rows_missing_required_blockers",
+                "Unlock chain rows must include every required current blocker while formal deliverables are missing.",
+                observed=chain["rows_with_missing_required_blockers"],
+            )
+        )
+    if chain["rows_allowed_while_missing"] > 0:
+        issues.append(
+            _issue(
+                f"{prefix}_rows_allowed_while_missing",
+                "Unlock chain must not allow responsible stages while their formal deliverables are missing.",
+                observed=chain["rows_allowed_while_missing"],
+            )
+        )
+    return issues
+
+
 def _proof_audit_deliverables_summary_issues(
     *,
     status_report: dict[str, Any],
@@ -1075,6 +1174,13 @@ def _remaining_deliverables_gap_summary(path: Path | None, remaining_deliverable
     return summary
 
 
+def _remaining_deliverables_unlock_chain_summary(path: Path | None, remaining_deliverables: dict[str, Any]) -> dict[str, Any]:
+    summary = _normalize_unlock_chain_summary(remaining_deliverables.get("deliverable_unlock_chain"))
+    summary["path"] = str(path) if path else None
+    summary["exists"] = Path(path).is_file() if path else False
+    return summary
+
+
 def _remaining_deliverables_top_level_summary(remaining_deliverables: dict[str, Any]) -> dict[str, Any]:
     raw = {
         "missing_counts_by_formal_category": remaining_deliverables.get("missing_counts_by_formal_category"),
@@ -1201,6 +1307,147 @@ def _gap_signature(summary: dict[str, Any]) -> dict[str, Any]:
             if isinstance(value, dict)
         },
     }
+
+
+def _normalize_unlock_chain_summary(raw: Any) -> dict[str, Any]:
+    chain = raw if isinstance(raw, dict) else {}
+    rows = _normalize_unlock_chain_rows(chain.get("rows"))
+    categories = _normalize_unlock_chain_categories(chain.get("categories"))
+    if not categories and rows:
+        categories = _derive_unlock_chain_categories(rows)
+    derived_missing_blockers = sum(1 for row in rows if row["missing_required_current_blockers"])
+    derived_allowed_while_missing = sum(
+        1 for row in rows if row["missing"] is True and row["responsible_stage_allowed_now"] is True
+    )
+    derived_blocked_rows = sum(
+        1 for row in rows if row["missing"] is True and row["responsible_stage_allowed_now"] is not True
+    )
+    return {
+        "present": bool(chain),
+        "chain_id": chain.get("chain_id"),
+        "status": chain.get("status"),
+        "execution_boundary": chain.get("execution_boundary"),
+        "not_paper_result_material": chain.get("not_paper_result_material"),
+        "row_count": int(chain.get("row_count") or len(rows) or sum(category["row_count"] for category in categories.values())),
+        "blocked_row_count": int(chain.get("blocked_row_count") if chain.get("blocked_row_count") is not None else derived_blocked_rows),
+        "rows_with_missing_required_blockers": derived_missing_blockers
+        if rows
+        else int(chain.get("rows_with_missing_required_blockers") or 0),
+        "rows_allowed_while_missing": derived_allowed_while_missing
+        if rows
+        else int(chain.get("rows_allowed_while_missing") or 0),
+        "categories": categories,
+    }
+
+
+def _normalize_unlock_chain_rows(raw_rows: Any) -> list[dict[str, Any]]:
+    if not isinstance(raw_rows, list):
+        return []
+    rows: list[dict[str, Any]] = []
+    for raw in raw_rows:
+        if not isinstance(raw, dict):
+            continue
+        rows.append(
+            {
+                "category": str(raw.get("category") or "unknown"),
+                "missing": raw.get("missing") if isinstance(raw.get("missing"), bool) else raw.get("current_state") == "missing",
+                "responsible_stage_allowed_now": raw.get("responsible_stage_allowed_now")
+                if isinstance(raw.get("responsible_stage_allowed_now"), bool)
+                else None,
+                "required_current_blockers": _strings(raw.get("required_current_blockers")),
+                "missing_required_current_blockers": _strings(raw.get("missing_required_current_blockers")),
+                "unlock_sequence_before_stage_allowed": _strings(raw.get("unlock_sequence_before_stage_allowed")),
+            }
+        )
+    return rows
+
+
+def _normalize_unlock_chain_categories(raw_categories: Any) -> dict[str, dict[str, Any]]:
+    if not isinstance(raw_categories, dict):
+        return {}
+    categories: dict[str, dict[str, Any]] = {}
+    for category, raw in raw_categories.items():
+        if not category or not isinstance(raw, dict):
+            continue
+        categories[str(category)] = {
+            "row_count": int(raw.get("row_count") or 0),
+            "blocked_row_count": int(raw.get("blocked_row_count") or 0),
+            "rows_with_missing_required_blockers": int(raw.get("rows_with_missing_required_blockers") or 0),
+            "rows_allowed_while_missing": int(raw.get("rows_allowed_while_missing") or 0),
+            "required_current_blockers": _dedupe_strings(raw.get("required_current_blockers")),
+            "unlock_sequence_before_stage_allowed": _dedupe_strings(raw.get("unlock_sequence_before_stage_allowed")),
+        }
+    return categories
+
+
+def _derive_unlock_chain_categories(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    categories: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        category = str(row.get("category") or "unknown")
+        summary = categories.setdefault(
+            category,
+            {
+                "row_count": 0,
+                "blocked_row_count": 0,
+                "rows_with_missing_required_blockers": 0,
+                "rows_allowed_while_missing": 0,
+                "required_current_blockers": [],
+                "unlock_sequence_before_stage_allowed": [],
+            },
+        )
+        summary["row_count"] += 1
+        if row["missing"] is True and row["responsible_stage_allowed_now"] is not True:
+            summary["blocked_row_count"] += 1
+        if row["missing_required_current_blockers"]:
+            summary["rows_with_missing_required_blockers"] += 1
+        if row["missing"] is True and row["responsible_stage_allowed_now"] is True:
+            summary["rows_allowed_while_missing"] += 1
+        summary["required_current_blockers"] = _dedupe_strings(
+            [*summary["required_current_blockers"], *row["required_current_blockers"]]
+        )
+        summary["unlock_sequence_before_stage_allowed"] = _dedupe_strings(
+            [*summary["unlock_sequence_before_stage_allowed"], *row["unlock_sequence_before_stage_allowed"]]
+        )
+    return categories
+
+
+def _unlock_chain_signature(summary: dict[str, Any]) -> dict[str, Any]:
+    categories = summary.get("categories") if isinstance(summary.get("categories"), dict) else {}
+    return {
+        "chain_id": summary.get("chain_id"),
+        "status": summary.get("status"),
+        "execution_boundary": summary.get("execution_boundary"),
+        "not_paper_result_material": summary.get("not_paper_result_material"),
+        "row_count": summary.get("row_count"),
+        "blocked_row_count": summary.get("blocked_row_count"),
+        "rows_with_missing_required_blockers": summary.get("rows_with_missing_required_blockers"),
+        "rows_allowed_while_missing": summary.get("rows_allowed_while_missing"),
+        "categories": {
+            key: {
+                "row_count": value.get("row_count"),
+                "blocked_row_count": value.get("blocked_row_count"),
+                "rows_with_missing_required_blockers": value.get("rows_with_missing_required_blockers"),
+                "rows_allowed_while_missing": value.get("rows_allowed_while_missing"),
+                "required_current_blockers": value.get("required_current_blockers", []),
+                "unlock_sequence_before_stage_allowed": value.get("unlock_sequence_before_stage_allowed", []),
+            }
+            for key, value in sorted(categories.items())
+            if isinstance(value, dict)
+        },
+    }
+
+
+def _dedupe_strings(value: Any) -> list[str]:
+    items = value if isinstance(value, list) else []
+    out: list[str] = []
+    seen: set[str] = set()
+    for item in items:
+        text = str(item)
+        if not text or text in seen:
+            continue
+        seen.add(text)
+        out.append(text)
+    return out
 
 
 def _status_report_remote_steps(status_report: dict[str, Any]) -> dict[str, dict[str, Any]]:
