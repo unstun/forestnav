@@ -75,6 +75,7 @@ def build_packet(config: F026DecisionPacketConfig) -> dict[str, Any]:
     remote_no_warm = _read_json(config.remote_no_warm_preflight)
     remote_warm = _read_json(config.remote_warm_pending_preflight)
     remote_smoke = _read_json(config.remote_warm_smoke_audit)
+    sources = _sources(config)
 
     candidates = [
         _no_warm_candidate(config, no_warm_audit=no_warm_audit, no_warm_eval=no_warm_eval),
@@ -105,6 +106,12 @@ def build_packet(config: F026DecisionPacketConfig) -> dict[str, Any]:
         "created_at_utc": datetime.now(UTC).isoformat(),
         "execution_host": socket.gethostname(),
         "source_head": _source_head(),
+        "not_paper_result_material": True,
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
         "blockers": ["requires_dr_sun_approval"],
         "recommendation": {
             "decision": "approve_obstacle_summary_warm_start",
@@ -129,7 +136,8 @@ def build_packet(config: F026DecisionPacketConfig) -> dict[str, Any]:
         ),
         "remote_readiness": _remote_readiness(remote_no_warm=remote_no_warm, remote_warm=remote_warm, remote_smoke=remote_smoke),
         "next_actions": _next_actions(),
-        "sources": _sources(config),
+        "sources": sources,
+        "source_integrity_summary": _source_integrity_summary(sources),
         "claim_boundaries": [
             "This packet is decision support, not a formal experiment result.",
             "It does not close F02.6; Dr Sun must explicitly approve or reject the recommendation.",
@@ -335,6 +343,26 @@ def _sources(config: F026DecisionPacketConfig) -> list[dict[str, Any]]:
     return [{"path": str(path), "exists": path.exists(), "sha256": _sha256(path) if path.exists() else None} for path in paths]
 
 
+def _source_integrity_summary(sources: Sequence[dict[str, Any]]) -> dict[str, Any]:
+    missing_sources = [str(source.get("path")) for source in sources if source.get("exists") is not True]
+    unhashed_sources = [
+        str(source.get("path"))
+        for source in sources
+        if source.get("exists") is True and not source.get("sha256")
+    ]
+    return {
+        "source_count": len(sources),
+        "existing_source_count": len(sources) - len(missing_sources),
+        "missing_source_count": len(missing_sources),
+        "hash_record_count": len([source for source in sources if source.get("sha256")]),
+        "all_sources_present": not missing_sources,
+        "all_existing_sources_hashed": not unhashed_sources,
+        "source_issue_count": len(missing_sources) + len(unhashed_sources),
+        "missing_sources": missing_sources,
+        "unhashed_sources": unhashed_sources,
+    }
+
+
 def _packet_markdown(packet: dict[str, Any]) -> str:
     candidates = {candidate["candidate_id"]: candidate for candidate in packet["candidates"]}
     no_warm = candidates["no_warm_start"]["formal_gate3"]
@@ -359,6 +387,13 @@ def _packet_markdown(packet: dict[str, Any]) -> str:
         f"- warm-start formal preflight ready: `{packet['remote_readiness']['warm_start_formal_preflight']['formal_trial_ready']}`",
         f"- warm-start blockers: `{', '.join(packet['remote_readiness']['warm_start_formal_preflight']['blocker_codes'])}`",
         f"- CUDA smoke formal decision: `{packet['remote_readiness']['warm_start_cuda_smoke']['formal_decision']}`",
+        "",
+        "## Source Integrity",
+        "",
+        f"- source_count: `{packet['source_integrity_summary']['source_count']}`",
+        f"- missing_source_count: `{packet['source_integrity_summary']['missing_source_count']}`",
+        f"- all_sources_present: `{packet['source_integrity_summary']['all_sources_present']}`",
+        f"- all_existing_sources_hashed: `{packet['source_integrity_summary']['all_existing_sources_hashed']}`",
         "",
         "## Next Command If Approved",
         "",
