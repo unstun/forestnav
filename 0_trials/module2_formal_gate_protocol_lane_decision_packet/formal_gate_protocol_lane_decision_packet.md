@@ -22,6 +22,131 @@ This file is a formal-gate decision packet, not paper result material.
 | `hybrid_ppo_analytic_fallback` | `awaiting_dr_sun_selection` | `False` |
 | `stop_or_reframe_module2_claim` | `awaiting_dr_sun_selection` | `False` |
 
+## Lane Evidence Contracts
+
+### `stronger_obstacle_summary_warm_start`
+
+- claim_scope: direct PPO replacement attempt remains possible only if the new contract preserves the replacement claim boundary
+- requires_new_or_revised_contract: `True`
+- required_decision_justification:
+  - why this lane is justified after observing the failed warm-start Gate3 run
+  - which claim wording remains allowed if this lane is selected
+  - which prior failed artifacts are only negative evidence and cannot be reused as success evidence
+  - why direct PPO replacement is still plausible under compact obstacle-summary features
+- required_contract_deltas:
+  - warm-start dataset source and acceptance checks
+  - PPO stabilization changes
+  - curriculum and reward deltas
+  - budget and seed policy
+- required_training_evidence:
+  - new remote checkpoint bundle under a new attempt directory
+  - new train/summary.json with protocol label and terminal-RS training signals
+  - new training_manifest.json with source head, remote host, command, seed, and warm-start provenance
+- required_evaluation_evidence:
+  - new formal Gate3 eval CSV with at least 64 episodes
+  - new gate3_summary.json with terminal-RS success, collision, truncation, and timing fields
+- required_acceptance_evidence:
+  - formal_decision=pass in the new gate3_formal_audit.json
+  - checkpoint hash tied to the evaluated checkpoint
+  - H02 formal_output_accepted=true with PPO rows and checkpoint hash
+- invalid_substitutes:
+  - the failed warm-start checkpoint
+  - more prose explaining the failed result
+  - local PPO training output
+  - H02 smoke rows without formal PPO rows
+
+### `full_patch_cnn_policy`
+
+- claim_scope: direct PPO replacement claim changes substantially and must be re-registered as an observation/architecture delta
+- requires_new_or_revised_contract: `True`
+- required_decision_justification:
+  - why this lane is justified after observing the failed warm-start Gate3 run
+  - which claim wording remains allowed if this lane is selected
+  - which prior failed artifacts are only negative evidence and cannot be reused as success evidence
+  - why architecture/observation change is necessary and how it changes fairness against RS
+- required_contract_deltas:
+  - observation tensor definition
+  - CNN architecture and inference budget
+  - comparison fairness against RS/analytic baselines
+  - new H01/H02 schema fields if telemetry changes
+- required_training_evidence:
+  - remote training packet with CNN dependencies and deterministic config
+  - checkpoint bundle with architecture metadata
+  - training manifest recording observation schema version
+- required_evaluation_evidence:
+  - formal Gate3 eval using the same observation schema as training
+  - timing budget evidence for CNN inference
+  - per-episode records exposing failure modes beyond success rate
+- required_acceptance_evidence:
+  - audit proving formal pass under the CNN protocol
+  - H02 rows that identify the CNN PPO method and checkpoint hash
+  - claim boundary stating this is not the same protocol as the failed compact policy
+- invalid_substitutes:
+  - using compact-policy failure as CNN success evidence
+  - architecture change without revised contract
+  - timing-unchecked CNN results
+  - paper table without method/schema distinction
+
+### `hybrid_ppo_analytic_fallback`
+
+- claim_scope: claim likely changes from PPO replacing RS to PPO assisting/selecting/recovering around analytic planning
+- requires_new_or_revised_contract: `True`
+- required_decision_justification:
+  - why this lane is justified after observing the failed warm-start Gate3 run
+  - which claim wording remains allowed if this lane is selected
+  - which prior failed artifacts are only negative evidence and cannot be reused as success evidence
+  - whether the target claim changes from replacement to analytic-assisted hybrid control
+- required_contract_deltas:
+  - hybrid control handoff rule
+  - fallback usage metric
+  - success signal that separates PPO-only from analytic-assisted success
+  - paper claim boundary for hybrid assistance
+- required_training_evidence:
+  - remote checkpoint for the learned selector/recovery policy
+  - training manifest recording analytic fallback interface
+  - logs that expose fallback-trigger distribution
+- required_evaluation_evidence:
+  - formal eval with fallback usage columns
+  - paired PPO-only / hybrid / RS baseline comparison if claiming assistance
+  - collision and recovery metrics tied to fallback events
+- required_acceptance_evidence:
+  - formal audit using hybrid-specific success and failure signals
+  - H02 rows that expose fallback usage and checkpoint hash
+  - claim safety artifact that prevents wording as pure RS replacement unless proven
+- invalid_substitutes:
+  - calling hybrid success direct PPO replacement
+  - hiding RS/analytic fallback calls inside aggregate success
+  - using direct-replacement threshold without a hybrid contract
+  - paper prose that omits fallback usage
+
+### `stop_or_reframe_module2_claim`
+
+- claim_scope: no new success-attempt training; use failure as negative evidence or reframe the module2 contribution
+- requires_new_or_revised_contract: `True`
+- required_decision_justification:
+  - why this lane is justified after observing the failed warm-start Gate3 run
+  - which claim wording remains allowed if this lane is selected
+  - which prior failed artifacts are only negative evidence and cannot be reused as success evidence
+  - why no new success-attempt training is warranted and what negative-result claim remains
+- required_contract_deltas:
+  - stop criterion
+  - negative-result scope
+  - allowed paper claim after failure
+  - archival requirements for failed checkpoint and audit
+- required_training_evidence:
+  - no new training evidence required if the contract explicitly stops success attempts
+- required_evaluation_evidence:
+  - existing failed formal Gate3 audit retained as negative evidence
+  - failure-mode analysis from existing eval CSV/logs only
+- required_acceptance_evidence:
+  - claim safety audit blocks success wording
+  - H02 remains blocked for success results
+  - paper-readiness artifact, if later used, is scoped to negative evidence only
+- invalid_substitutes:
+  - quietly dropping failed PPO without recording the stop decision
+  - writing a positive replacement claim from failed evidence
+  - running new training while pretending the lane was stop/reframe
+
 ## Decision Record Schema
 
 - required_fields: `decider, decision_timestamp_utc, selected_lane_id, decision_summary, justification_against_failed_gate3, claim_scope_after_decision, contract_action, training_authorization`
