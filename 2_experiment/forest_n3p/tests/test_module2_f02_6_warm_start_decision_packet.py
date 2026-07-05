@@ -28,9 +28,24 @@ def test_f02_6_decision_packet_builds_evidence_bound_recommendation(tmp_path):
     assert manifest["schema_version"] == 1
     assert manifest["packet_name"] == "module2_f02_6_warm_start_decision_packet"
     assert manifest["status"] == "pending_human_decision"
+    assert manifest["not_paper_result_material"] is True
+    assert manifest["executes_commands"] is False
+    assert manifest["runs_training"] is False
+    assert manifest["runs_remote_preflight"] is False
+    assert manifest["local_training_allowed"] is False
+    assert manifest["formal_claim_allowed"] is False
     assert manifest["recommendation"]["decision"] == "approve_obstacle_summary_warm_start"
     assert manifest["recommendation"]["formal_claim_allowed"] is False
     assert "requires_dr_sun_approval" in manifest["blockers"]
+    assert manifest["source_integrity_summary"]["source_count"] == 10
+    assert manifest["source_integrity_summary"]["existing_source_count"] == 10
+    assert manifest["source_integrity_summary"]["missing_source_count"] == 0
+    assert manifest["source_integrity_summary"]["hash_record_count"] == 10
+    assert manifest["source_integrity_summary"]["all_sources_present"] is True
+    assert manifest["source_integrity_summary"]["all_existing_sources_hashed"] is True
+    assert manifest["source_integrity_summary"]["source_issue_count"] == 0
+    assert manifest["source_integrity_summary"]["missing_sources"] == []
+    assert manifest["source_integrity_summary"]["unhashed_sources"] == []
 
     candidates = {candidate["candidate_id"]: candidate for candidate in manifest["candidates"]}
     assert set(candidates) == {"no_warm_start", "obstacle_summary_bc", "patch_scalar_cnn_bounded"}
@@ -55,3 +70,4 @@ def test_f02_6_decision_packet_builds_evidence_bound_recommendation(tmp_path):
     assert "# Module2 F02.6 Warm-Start Decision Packet" in markdown
     assert "pending_human_decision" in markdown
     assert "approve_obstacle_summary_warm_start" in markdown
+    assert "Source Integrity" in markdown
