@@ -2249,6 +2249,16 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"all_execution_disabled_now=`{next_action['all_execution_disabled_now']}`, "
         f"execution_leak_count=`{next_action['execution_leak_count']}`"
     )
+    mainline_audit = manifest["status_report_mainline_formal_gate_state_audit_summary"]
+    lines.extend(["", "## Status Report Mainline Formal Gate State Audit", ""])
+    lines.append(
+        f"- present=`{mainline_audit['present']}`, status=`{mainline_audit['status']}`, "
+        f"audit_issue_count=`{mainline_audit['audit_issue_count']}`, "
+        f"proof_summary_chain_status=`{mainline_audit['proof_summary_chain_status']}`, "
+        f"proof_summary_chain_audit_issue_count=`{mainline_audit['proof_summary_chain_audit_issue_count']}`, "
+        "proof_summary_chain_proof_audit_input_safety_issue_count="
+        f"`{mainline_audit['proof_summary_chain_proof_audit_input_safety_issue_count']}`"
+    )
     lines.extend(["", "## Handoff Single Next-Action Index", ""])
     handoff_single = manifest["handoff_single_next_action_index_summary"]
     lines.append(
