@@ -20,6 +20,19 @@ def test_mainline_formal_gate_state_audit_accepts_current_blocked_state(tmp_path
     assert manifest["expected_next_action_mentioned"] is True
     assert manifest["total_missing_deliverables"] == 10
     assert manifest["mainline_missing_deliverable_mention_count"] == 0
+    matrix = manifest["f02_6_decision_evidence_matrix_summary"]
+    assert matrix["matrix_id"] == "module2_f02_6_decision_evidence_matrix"
+    assert matrix["status"] == "ready_for_dr_sun_decision_not_authorization"
+    assert matrix["route_count"] == 2
+    assert matrix["required_evidence_count"] == 7
+    assert matrix["missing_required_evidence_count"] == 0
+    assert matrix["authorization_flags"]["remote_training_allowed_now"] is False
+    assert manifest["f02_6_decision_evidence_matrix_mentioned"] is True
+    assert manifest["f02_6_decision_evidence_matrix_status_mentioned"] is True
+    assert manifest["f02_6_decision_evidence_matrix_route_mentions"] == [
+        {"route_decision": "approve_obstacle_summary_warm_start", "mentioned": True},
+        {"route_decision": "reject_obstacle_summary_warm_start", "mentioned": True},
+    ]
     assert manifest["proof_summary_chain_status"] == "formal_gate_proof_summary_chain_consistent_blocked"
     assert manifest["proof_summary_handoff_single_next_action_consistency"] == {
         "row_count": 3,
@@ -53,6 +66,42 @@ def test_mainline_formal_gate_state_audit_fails_execution_leak_in_status_report(
     assert manifest["status"] == "mainline_formal_gate_state_audit_failed"
     issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
     assert "status_report_next_action_guard_execution_leak" in issue_ids
+
+
+def test_mainline_formal_gate_state_audit_fails_decision_evidence_matrix_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit")
+    paths = _write_inputs(tmp_path)
+    status = json.loads(paths["status"].read_text(encoding="utf-8"))
+    matrix = status["f02_6_decision_evidence_matrix_summary"]
+    matrix["missing_required_evidence_count"] = 1
+    matrix["missing_required_evidence_ids"] = ["route_observed_fact_missing"]
+    matrix["remote_training_allowed_now"] = True
+    paths["status"].write_text(json.dumps(status), encoding="utf-8")
+
+    manifest = builder.build_manifest(_config(builder, tmp_path, paths))
+
+    assert manifest["status"] == "mainline_formal_gate_state_audit_failed"
+    assert manifest["f02_6_decision_evidence_matrix_summary"]["missing_required_evidence_count"] == 1
+    assert manifest["f02_6_decision_evidence_matrix_summary"]["authorization_flags"][
+        "remote_training_allowed_now"
+    ] is True
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "status_report_decision_evidence_matrix_missing_required_evidence" in issue_ids
+    assert "status_report_decision_evidence_matrix_authorization_leak" in issue_ids
+
+
+def test_mainline_formal_gate_state_audit_fails_missing_decision_matrix_mainline_boundary(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit")
+    paths = _write_inputs(tmp_path, omit_decision_matrix_boundary=True)
+
+    manifest = builder.build_manifest(_config(builder, tmp_path, paths))
+
+    assert manifest["status"] == "mainline_formal_gate_state_audit_failed"
+    assert manifest["f02_6_decision_evidence_matrix_mentioned"] is False
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "mainline_current_section_missing_decision_evidence_matrix" in issue_ids
+    assert "mainline_current_section_missing_decision_evidence_matrix_status" in issue_ids
+    assert "mainline_current_section_missing_invalid_substitutes_boundary" in issue_ids
 
 
 def test_mainline_formal_gate_state_audit_fails_current_section_allowed_token(tmp_path):
@@ -132,6 +181,9 @@ def test_mainline_formal_gate_state_audit_cli_writes_json_and_markdown(tmp_path)
     assert "training:train_final_model_zip" in markdown
     assert "record_f02_6_decision" in markdown
     assert "proof_summary_handoff_single_next_action_consistency" in markdown
+    assert "F02.6 Decision Evidence Matrix" in markdown
+    assert "module2_f02_6_decision_evidence_matrix" in markdown
+    assert "ready_for_dr_sun_decision_not_authorization" in markdown
 
 
 def _config(builder, tmp_path, paths):
@@ -143,7 +195,7 @@ def _config(builder, tmp_path, paths):
     )
 
 
-def _write_inputs(tmp_path, *, omit_artifact_id=None, extra_current_text=""):
+def _write_inputs(tmp_path, *, omit_artifact_id=None, extra_current_text="", omit_decision_matrix_boundary=False):
     paths = {
         "mainline": tmp_path / "mainline.md",
         "status": tmp_path / "status.json",
@@ -158,6 +210,16 @@ def _write_inputs(tmp_path, *, omit_artifact_id=None, extra_current_text=""):
         "当前禁止 local training、remote preflight、remote training、formal claim 和 paper-result material; "
         "`gpu3070ti-relay` 只是在 F02.6 关闭后的正式训练资源。"
         "`formal_gate_proof_summary_chain_consistent_blocked`。"
+        + (
+            ""
+            if omit_decision_matrix_boundary
+            else (
+                "F02.6 decision evidence matrix `module2_f02_6_decision_evidence_matrix` 当前为 "
+                "`ready_for_dr_sun_decision_not_authorization`, 覆盖 "
+                "`approve_obstacle_summary_warm_start` 与 `reject_obstacle_summary_warm_start` 两条路线, "
+                "并列出 invalid substitutes; matrix 不是训练、远端预检、claim 或论文结果授权。"
+            )
+        )
         f"{extra_current_text}"
     )
     paths["mainline"].write_text("# mainline\n\n" + current_line + "\n", encoding="utf-8")
@@ -181,6 +243,36 @@ def _write_inputs(tmp_path, *, omit_artifact_id=None, extra_current_text=""):
                     "total_missing_deliverables": 10,
                     "blocked_category_count": 4,
                     "rows": rows,
+                },
+                "f02_6_decision_evidence_matrix_summary": {
+                    "present": True,
+                    "matrix_id": "module2_f02_6_decision_evidence_matrix",
+                    "status": "ready_for_dr_sun_decision_not_authorization",
+                    "route_count": 2,
+                    "route_decisions": [
+                        "approve_obstacle_summary_warm_start",
+                        "reject_obstacle_summary_warm_start",
+                    ],
+                    "required_evidence_count": 7,
+                    "satisfied_required_evidence_count": 7,
+                    "missing_required_evidence_count": 0,
+                    "missing_required_evidence_ids": [],
+                    "current_authorization_allowed_now": False,
+                    "remote_preflight_allowed_now": False,
+                    "remote_training_allowed_now": False,
+                    "local_training_allowed_now": False,
+                    "formal_claim_allowed_now": False,
+                    "paper_result_material_allowed_now": False,
+                    "source_issue_count": 0,
+                    "global_invalid_substitute_count": 4,
+                    "evidence_counts_by_route": {
+                        "approve_obstacle_summary_warm_start": 4,
+                        "reject_obstacle_summary_warm_start": 3,
+                    },
+                    "invalid_substitute_counts_by_route": {
+                        "approve_obstacle_summary_warm_start": 4,
+                        "reject_obstacle_summary_warm_start": 4,
+                    },
                 },
             }
         ),
