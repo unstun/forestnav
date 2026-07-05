@@ -94,6 +94,9 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
     )
     proof_command_plan = _proof_command_plan(deliverable_acceptance_matrix)
     category_counts = _category_counts(deliverable_groups)
+    missing_counts_by_formal_category = {
+        category: counts["missing_count"] for category, counts in category_counts.items()
+    }
     permissions_now = _permissions(status_report=status_report, remote_packet=remote_packet, source_freshness=source_freshness)
     source_freshness_summary = _source_freshness_summary(source_freshness)
     current_gate_summary = {
@@ -146,6 +149,13 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
         "current_gate_summary": current_gate_summary,
         "permissions_now": permissions_now,
         "category_counts": category_counts,
+        "missing_counts_by_formal_category": missing_counts_by_formal_category,
+        "missing_matrix_ids_by_formal_category": _missing_matrix_ids_by_category(deliverable_gap_summary),
+        "next_blocked_lane": current_gate_summary["next_blocked_lane"],
+        "h01_status": current_gate_summary["h01_status"],
+        "h02_status": current_gate_summary["h02_status"],
+        "h02_formal_output_accepted": current_gate_summary["h02_formal_output_accepted"],
+        "h02_paper_result_input_allowed": current_gate_summary["h02_paper_result_input_allowed"],
         "deliverable_gap_summary": deliverable_gap_summary,
         "proof_command_plan": proof_command_plan,
         "plain_formal_gate_closure_checklist": _plain_formal_gate_closure_checklist(
@@ -559,6 +569,22 @@ def _category_counts(deliverable_groups: Sequence[dict[str, Any]]) -> dict[str, 
     }
 
 
+def _missing_matrix_ids_by_category(deliverable_gap_summary: dict[str, Any]) -> dict[str, list[str]]:
+    categories = deliverable_gap_summary.get("categories")
+    out: dict[str, list[str]] = {}
+    for category in categories if isinstance(categories, list) else []:
+        if not isinstance(category, dict) or not category.get("category"):
+            continue
+        missing_artifacts = category.get("missing_artifacts")
+        out[str(category["category"])] = [
+            str(item["matrix_id"])
+            for item in missing_artifacts if isinstance(missing_artifacts, list)
+            for item in missing_artifacts
+            if isinstance(item, dict) and item.get("matrix_id")
+        ]
+    return out
+
+
 def _deliverable_gap_summary(
     *,
     deliverable_groups: Sequence[dict[str, Any]],
@@ -852,6 +878,12 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- source_head: `{manifest['source_head']}`",
         f"- missing_deliverable_count: `{manifest['missing_deliverable_count']}`",
         f"- open_category_count: `{manifest['open_category_count']}`",
+        f"- missing_counts_by_formal_category: `{manifest['missing_counts_by_formal_category']}`",
+        f"- next_blocked_lane: `{manifest['next_blocked_lane']}`",
+        f"- h01_status: `{manifest['h01_status']}`",
+        f"- h02_status: `{manifest['h02_status']}`",
+        f"- h02_formal_output_accepted: `{manifest['h02_formal_output_accepted']}`",
+        f"- h02_paper_result_input_allowed: `{manifest['h02_paper_result_input_allowed']}`",
         f"- proof_command_count: `{manifest['proof_command_plan']['total_proof_command_count']}`",
         f"- audit_issue_count: `{manifest['audit_issue_count']}`",
         f"- local_training_allowed_now: `{manifest['permissions_now']['local_training_allowed_now']}`",
