@@ -30,6 +30,25 @@ This read-only artifact explains how F02.6 can be closed. It does not record a d
 - `approve_obstacle_summary_warm_start`: next_lane_after_record=`source_fresh_regeneration`, remote_preflight_now=`False`, remote_training_now=`False`, formal_claim_now=`False`
 - `reject_obstacle_summary_warm_start`: next_lane_after_record=`protocol_redesign`, remote_preflight_now=`False`, remote_training_now=`False`, formal_claim_now=`False`
 
+## Formal Gate Decision Impact
+
+- current_blocker: `decision`
+- current_record_status: `pending_human_decision`
+- missing_deliverable_count: `10`
+- missing_by_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
+- current_allowed_action_ids: `record_f02_6_decision`
+- current_blocked_action_ids: `remote_preflight, remote_training, local_training, formal_claim, paper_result_material`
+- `approve_obstacle_summary_warm_start`: next_lane_after_record=`source_fresh_regeneration`, requires_new_protocol_contract=`False`, remote_training_now=`False`, formal_claim_now=`False`
+- `reject_obstacle_summary_warm_start`: next_lane_after_record=`protocol_redesign`, requires_new_protocol_contract=`True`, remote_training_now=`False`, formal_claim_now=`False`
+- decision_record_is_not_training_authorization: `True`
+- decision_record_is_not_paper_result_material: `True`
+- local_training_allowed_now_after_record: `False`
+- remote_preflight_allowed_now_after_record: `False`
+- remote_training_allowed_now_after_record: `False`
+- formal_claim_allowed_now_after_record: `False`
+- paper_result_material_allowed_now_after_record: `False`
+- formal_training_still_requires: `source_freshness_audit, post_f02_6_regeneration_plan, post_f02_6_plan_audit, remote_formal_execution_packet_ready, approved_remote_preflight`
+
 ## Required Fields
 
 - `decision`: must be one of approve_obstacle_summary_warm_start or reject_obstacle_summary_warm_start

@@ -103,6 +103,35 @@ def test_f02_6_decision_intake_pending_clean_lists_required_human_fields(tmp_pat
     assert rejected_route["requires_new_protocol_contract"] is True
     assert rejected_route["allows_remote_training_now"] is False
 
+    impact = manifest["formal_gate_decision_impact_summary"]
+    assert impact["summary_id"] == "module2_f02_6_formal_gate_decision_impact"
+    assert impact["not_paper_result_material"] is True
+    assert impact["current_blocker"] == "decision"
+    assert impact["current_record_status"] == "pending_human_decision"
+    assert impact["missing_deliverable_count"] == 10
+    assert impact["missing_by_category"] == {
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 2,
+    }
+    assert impact["current_allowed_action_ids"] == ["record_f02_6_decision"]
+    route_impact = {item["decision"]: item for item in impact["decision_routes"]}
+    assert route_impact["approve_obstacle_summary_warm_start"]["next_lane_after_record"] == (
+        "source_fresh_regeneration"
+    )
+    assert route_impact["approve_obstacle_summary_warm_start"]["allows_remote_training_now"] is False
+    assert route_impact["reject_obstacle_summary_warm_start"]["requires_new_protocol_contract"] is True
+    invariants = impact["invariants_after_any_decision_record"]
+    assert invariants["decision_record_is_not_training_authorization"] is True
+    assert invariants["decision_record_is_not_paper_result_material"] is True
+    assert invariants["local_training_allowed_now"] is False
+    assert invariants["remote_preflight_allowed_now"] is False
+    assert invariants["remote_training_allowed_now"] is False
+    assert invariants["formal_claim_allowed_now"] is False
+    assert invariants["paper_result_material_allowed_now"] is False
+    assert "approved_remote_preflight" in invariants["formal_training_still_requires"]
+
 
 def test_f02_6_decision_intake_catches_pending_gate_permission_leak(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_f02_6_decision_intake")
@@ -226,9 +255,11 @@ def test_f02_6_decision_intake_cli_writes_json_and_markdown(tmp_path):
     assert "Module2 F02.6 Decision Intake" in markdown
     assert "does not record a decision" in markdown
     assert "Next Human Decision Request" in markdown
+    assert "Formal Gate Decision Impact" in markdown
     assert "all_execution_disabled_now" in markdown
     assert "packet_authorization_status" in markdown
     assert "decision_note" in markdown
+    assert "decision_record_is_not_training_authorization" in markdown
 
 
 def _json(tmp_path, name, payload):
