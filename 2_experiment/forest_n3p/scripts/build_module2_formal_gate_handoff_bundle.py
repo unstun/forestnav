@@ -281,9 +281,12 @@ def _status(
     permissions: dict[str, bool],
     remote_packet: dict[str, Any],
     safety_issues: Sequence[dict[str, str]],
+    protocol_lane_status: dict[str, Any],
 ) -> str:
     if safety_issues:
         return "blocked_handoff_input_safety_issues"
+    if _protocol_lane_pending(protocol_lane_status):
+        return "blocked_until_protocol_lane_decision"
     if decision.get("status") == "pending_human_decision":
         return "blocked_until_f02_6_decision"
     if permissions.get("remote_training_allowed_now") is True and remote_packet.get("ready_to_run_remote_training") is True:
@@ -348,8 +351,10 @@ def _safety_issues(
     route_summary: dict[str, Any],
     decision_matrix_summary: dict[str, Any],
     single_next_action_index: dict[str, Any],
+    protocol_lane_status: dict[str, Any],
 ) -> list[dict[str, str]]:
     issues: list[dict[str, str]] = []
+    issues.extend(_protocol_lane_status_issues(protocol_lane_status))
     issues.extend(_transition_gate_issues(transition_gate))
     issues.extend(_f02_6_route_handoff_issues(route_summary))
     issues.extend(_f02_6_decision_evidence_matrix_handoff_issues(decision_matrix_summary))
@@ -521,7 +526,63 @@ def _single_next_action_index(
     remaining_gap: dict[str, Any],
     route_summary: dict[str, Any],
     source_freshness_summary: dict[str, Any],
+    protocol_lane_status: dict[str, Any],
 ) -> dict[str, Any]:
+    if _protocol_lane_pending(protocol_lane_status):
+        missing_by_category = {
+            str(category): int(payload.get("missing_count") or 0)
+            for category, payload in remaining_gap.get("categories", {}).items()
+            if isinstance(payload, dict)
+        }
+        return {
+            "index_id": "module2_formal_gate_single_next_action_index",
+            "status": "awaiting_dr_sun_protocol_lane_decision",
+            "single_current_human_entry": True,
+            "next_action_id": EXPECTED_PROTOCOL_LANE_NEXT_ACTION,
+            "decision_owner_required": "Dr Sun",
+            "valid_decisions": list(EXPECTED_PROTOCOL_LANE_IDS),
+            "required_record_fields": [
+                "selected_lane_id",
+                "decision_note",
+                "failed_gate3_basis",
+                "contract_action",
+                "rejected_lane_rationales",
+                "evidence_artifact_basis",
+            ],
+            "current_allowed_action_ids": [EXPECTED_PROTOCOL_LANE_NEXT_ACTION],
+            "current_blocked_action_ids": list(EXPECTED_PROTOCOL_LANE_BLOCKED_ACTIONS),
+            "post_decision_routes_are_current_authorization": False,
+            "all_execution_disabled_now": True,
+            "record_command_templates": [],
+            "record_command_template_count": 0,
+            "local_training_allowed_now": False,
+            "remote_preflight_allowed_now": False,
+            "remote_training_allowed_now": False,
+            "formal_claim_allowed_now": False,
+            "paper_result_material_allowed_now": False,
+            "missing_deliverable_count": int(remaining_gap.get("total_missing_deliverables") or 0),
+            "open_category_count": int(remaining_gap.get("open_category_count") or 0),
+            "missing_by_category": missing_by_category,
+            "source_freshness_status": source_freshness_summary.get("source_freshness_status"),
+            "source_freshness_blocking_regeneration_required": source_freshness_summary.get(
+                "source_freshness_blocking_regeneration_required"
+            ),
+            "approved_route_next_lane": route_summary.get("approved_route_next_lane"),
+            "rejected_route_next_lane": route_summary.get("rejected_route_next_lane"),
+            "after_approval_still_requires": [
+                "record_protocol_lane_decision",
+                "approved_or_frozen_new_or_revised_contract",
+                "source_freshness_audit",
+                "remote_formal_execution_packet_ready",
+                "approved_remote_preflight",
+            ],
+            "claim_boundaries": [
+                "This index is a read-only handoff pointer, not a protocol-lane decision record.",
+                "record_protocol_lane_decision does not run preflight, training, audit, sync, pullback, or paper-result generation.",
+                "A protocol-lane decision only opens contract drafting; it does not authorize remote training.",
+                "Local PPO training remains prohibited.",
+            ],
+        }
     pending = decision.get("status") == "pending_human_decision"
     intake_contract = (
         decision_intake.get("decision_intake_contract")
@@ -612,6 +673,25 @@ def _single_next_action_index_issues(index: dict[str, Any]) -> list[dict[str, st
     if index.get("index_id") != "module2_formal_gate_single_next_action_index":
         issues.append(_issue("single_next_action_index_id_invalid", "single next-action index id is invalid"))
     pending = index.get("status") == "awaiting_dr_sun_f02_6_decision"
+    protocol_pending = index.get("status") == "awaiting_dr_sun_protocol_lane_decision"
+    if protocol_pending:
+        if index.get("single_current_human_entry") is not True:
+            issues.append(_issue("single_next_action_not_marked_protocol_human_entry", "pending protocol lane must be a single human-entry gate"))
+        if index.get("next_action_id") != EXPECTED_PROTOCOL_LANE_NEXT_ACTION:
+            issues.append(_issue("single_next_action_wrong_protocol_action", "pending protocol lane next action must be record_protocol_lane_decision"))
+        if index.get("decision_owner_required") != "Dr Sun":
+            issues.append(_issue("single_next_action_wrong_protocol_owner", "protocol-lane decision owner must be Dr Sun"))
+        if index.get("current_allowed_action_ids") != [EXPECTED_PROTOCOL_LANE_NEXT_ACTION]:
+            issues.append(_issue("single_next_action_protocol_allowed_actions_drift", "record_protocol_lane_decision must be the only allowed protocol lane"))
+        for blocked in EXPECTED_PROTOCOL_LANE_BLOCKED_ACTIONS:
+            if blocked not in index.get("current_blocked_action_ids", []):
+                issues.append(_issue(f"single_next_action_missing_protocol_blocked_{blocked}", f"{blocked} must remain blocked"))
+        if index.get("post_decision_routes_are_current_authorization") is not False:
+            issues.append(_issue("single_next_action_protocol_routes_authorize_execution", "protocol-lane routes are not current authorization"))
+        if index.get("all_execution_disabled_now") is not True:
+            issues.append(_issue("single_next_action_protocol_execution_not_disabled", "all execution must be disabled while protocol lane is pending"))
+        if int(index.get("record_command_template_count") or 0) != 0:
+            issues.append(_issue("single_next_action_protocol_command_template_count", "protocol-lane handoff should not expose executable command templates"))
     if pending:
         if index.get("single_current_human_entry") is not True:
             issues.append(_issue("single_next_action_not_marked_human_entry", "pending F02.6 must be a single human-entry gate"))
@@ -637,7 +717,7 @@ def _single_next_action_index_issues(index: dict[str, Any]) -> list[dict[str, st
         ("formal_claim_allowed_now", "single_next_action_allows_formal_claim"),
         ("paper_result_material_allowed_now", "single_next_action_allows_paper_result_material"),
     ):
-        if pending and index.get(field) is not False:
+        if (pending or protocol_pending) and index.get(field) is not False:
             issues.append(_issue(issue_id, "single next-action index must not authorize execution or result material"))
     forbidden_tokens = (
         "ssh ",
