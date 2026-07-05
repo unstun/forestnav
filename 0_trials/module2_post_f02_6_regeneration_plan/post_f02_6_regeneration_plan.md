@@ -27,7 +27,7 @@ This file is an ordered plan. It does not execute commands, train, preflight, au
 - current_allowed_action_ids: `record_f02_6_decision`
 - current_blocked_action_ids: `remote_preflight, remote_training, local_training, formal_claim, paper_result_material`
 - post_decision_routes_are_current_authorization: `False`
-- all_execution_disabled_now: `True`
+- all_execution_disabled_now: `False`
 
 ## Remaining Deliverables Gap Summary
 

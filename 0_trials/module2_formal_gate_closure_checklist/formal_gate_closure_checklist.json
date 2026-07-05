@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_closure_checklist",
   "status": "formal_gate_closure_blocked",
-  "created_at_utc": "2026-07-05T19:43:56.936404+00:00",
-  "source_head": "e7b6289d8b71421681c110f01542be8b2c334456",
+  "created_at_utc": "2026-07-05T19:50:54.197498+00:00",
+  "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -45,7 +45,7 @@
     "remaining_deliverables_gap_open_category_count": 1
   },
   "closure_item_count": 8,
-  "open_item_count": 5,
+  "open_item_count": 7,
   "training_artifacts_required": [
     {
       "artifact_id": "train_final_model_zip",
@@ -288,14 +288,16 @@
     {
       "checklist_id": "preflight_source_fresh_regeneration",
       "phase": "regeneration",
-      "status": "complete",
-      "complete": true,
+      "status": "blocked",
+      "complete": false,
       "runs_training": false,
       "host": null,
       "group_id": "source_fresh_regeneration_targets",
-      "formal_step_status": "pending_execution",
+      "formal_step_status": "blocked",
       "post_plan_stage_status": "ready",
-      "blocked_by": [],
+      "blocked_by": [
+        "source_freshness_regeneration_required"
+      ],
       "missing_item_count": 0,
       "required_items": [
         {
@@ -318,13 +320,14 @@
       "runs_training": false,
       "host": null,
       "group_id": "post_f02_6_ordered_stages",
-      "formal_step_status": "pending_execution",
+      "formal_step_status": "blocked",
       "post_plan_stage_status": "ready",
       "blocked_by": [
         "f02_6_decision_record",
         "gate3_remote_audit_pullback",
         "regenerate_h01_h02_formal_artifacts",
-        "regenerate_claim_gate_artifacts"
+        "regenerate_claim_gate_artifacts",
+        "source_freshness_regeneration_required"
       ],
       "missing_item_count": 4,
       "required_items": [
@@ -399,14 +402,16 @@
     {
       "checklist_id": "gate3_remote_training_outputs",
       "phase": "training",
-      "status": "complete",
-      "complete": true,
+      "status": "blocked",
+      "complete": false,
       "runs_training": true,
       "host": "gpu3070ti-relay",
       "group_id": "remote_training_outputs",
-      "formal_step_status": "pending_execution",
+      "formal_step_status": "blocked",
       "post_plan_stage_status": "ready",
-      "blocked_by": [],
+      "blocked_by": [
+        "source_freshness_regeneration_required"
+      ],
       "missing_item_count": 0,
       "required_items": [
         {
@@ -448,8 +453,8 @@
       "formal_step_status": "blocked",
       "post_plan_stage_status": "blocked",
       "blocked_by": [
-        "remote_packet_safety_audit_failed",
-        "remote_packet_safety_audit_issues_open",
+        "source_freshness_regeneration_required",
+        "handoff_safety_issues_open",
         "missing_ppo_result_rows",
         "missing_ppo_checkpoint_hash",
         "remote_training_not_completed"
@@ -487,8 +492,8 @@
       "formal_step_status": "blocked",
       "post_plan_stage_status": "blocked",
       "blocked_by": [
-        "remote_packet_safety_audit_failed",
-        "remote_packet_safety_audit_issues_open",
+        "source_freshness_regeneration_required",
+        "handoff_safety_issues_open",
         "missing_ppo_result_rows",
         "missing_ppo_checkpoint_hash",
         "remote_training_not_completed"
@@ -535,8 +540,8 @@
       "post_plan_stage_status": "blocked",
       "blocked_by": [
         "h02_formal_output_acceptance",
-        "remote_packet_safety_audit_failed",
-        "remote_packet_safety_audit_issues_open",
+        "source_freshness_regeneration_required",
+        "handoff_safety_issues_open",
         "missing_ppo_result_rows",
         "missing_ppo_checkpoint_hash",
         "h02_scale_below_h01_queries_per_bucket",
@@ -579,8 +584,8 @@
       "post_plan_stage_status": "blocked",
       "blocked_by": [
         "h02_formal_acceptance_before_claim_gate",
-        "remote_packet_safety_audit_failed",
-        "remote_packet_safety_audit_issues_open",
+        "source_freshness_regeneration_required",
+        "handoff_safety_issues_open",
         "missing_ppo_result_rows",
         "missing_ppo_checkpoint_hash",
         "h02_scale_below_h01_queries_per_bucket",
@@ -591,10 +596,8 @@
         "h02_formal_output_not_accepted",
         "claim_safety_blocks_formal_performance",
         "readiness_blocks_formal_results",
-        "formal_missing_artifacts_audit_issues_open",
         "formal_gate_missing_artifacts_open",
         "formal_gate_closure_checklist_open",
-        "formal_status_report_safety_issues_open",
         "formal_gate_status_report_blocked",
         "formal_gate_remaining_deliverables_open",
         "h02_formal_acceptance_not_ready"

@@ -3,7 +3,7 @@
 This ledger is read-only. It lists remaining formal training, evaluation, and acceptance deliverables; it does not execute commands or write paper results.
 
 - status: `formal_gate_deliverables_blocked`
-- source_head: `e7b6289d8b71421681c110f01542be8b2c334456`
+- source_head: `82cec025c50398dc56df7de4a1ea15b3c5e67287`
 - missing_deliverable_count: `1`
 - open_category_count: `1`
 - missing_counts_by_formal_category: `{'training': 0, 'evaluation': 0, 'acceptance': 0, 'formal_acceptance': 1}`
@@ -18,7 +18,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `True`
 - remote_training_allowed_now: `True`
-- formal_h01_evaluation_allowed_now: `True`
+- formal_h01_evaluation_allowed_now: `False`
 - formal_h02_acceptance_allowed_now: `False`
 - formal_claim_allowed_now: `False`
 - paper_result_material_allowed_now: `False`

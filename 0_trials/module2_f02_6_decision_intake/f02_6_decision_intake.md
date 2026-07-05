@@ -10,11 +10,11 @@ This read-only artifact explains how F02.6 can be closed. It does not record a d
 - packet_authorization_status: `blocked_until_dr_sun_decision`
 - packet_allowed_now: `record_f02_6_decision`
 - packet_blocked_now: `remote_preflight, remote_training, local_training, formal_claim, paper_result_material`
-- next_blocked_lane: `source_fresh_preflight`
+- next_blocked_lane: `remote_packet_preflight`
 - missing_deliverable_count: `1`
 - local_training_allowed_now: `False`
-- remote_preflight_allowed_now: `False`
-- remote_training_allowed_now: `False`
+- remote_preflight_allowed_now: `True`
+- remote_training_allowed_now: `True`
 - formal_claim_allowed_now: `False`
 
 ## Next Human Decision Request
@@ -26,7 +26,7 @@ This read-only artifact explains how F02.6 can be closed. It does not record a d
 - current_allowed_action_ids: `record_f02_6_decision`
 - current_blocked_action_ids: `remote_preflight, remote_training, local_training, formal_claim, paper_result_material`
 - post_decision_routes_are_current_authorization: `False`
-- all_execution_disabled_now: `True`
+- all_execution_disabled_now: `False`
 
 ## Decision Evidence Matrix
 
@@ -48,7 +48,7 @@ This read-only artifact explains how F02.6 can be closed. It does not record a d
 
 ## Formal Gate Decision Impact
 
-- current_blocker: `source_fresh_preflight`
+- current_blocker: `remote_packet_preflight`
 - current_record_status: `approved`
 - missing_deliverable_count: `1`
 - missing_by_category: `{'training': 0, 'evaluation': 0, 'acceptance': 0, 'formal_acceptance': 1}`

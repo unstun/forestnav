@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_gap_audit",
   "status": "blocked_formal_gate_gaps_open",
-  "created_at_utc": "2026-07-05T19:43:57.183296+00:00",
-  "source_head": "e7b6289d8b71421681c110f01542be8b2c334456",
+  "created_at_utc": "2026-07-05T19:51:50.843442+00:00",
+  "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -49,12 +49,12 @@
         "artifact_id": "formal_gate_handoff_bundle",
         "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
         "freshness_state": "current_clean",
-        "source_head": "e7b6289d8b71421681c110f01542be8b2c334456",
-        "source_commit": "e7b6289d8b71421681c110f01542be8b2c334456",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_commit": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
         "source_head_dirty": false,
         "source_commit_exists": true,
         "matches_current_head": true,
-        "current_head": "e7b6289d8b71421681c110f01542be8b2c334456",
+        "current_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
         "commits_since_source": 0,
         "changed_path_count_since_source": 0,
         "artifact_path_changed_since_source": false,
@@ -100,7 +100,7 @@
     "local_training_allowed": false,
     "formal_claim_allowed": false,
     "closure_item_count": 8,
-    "open_item_count": 5,
+    "open_item_count": 7,
     "input_safety_issue_count": 0
   },
   "formal_gate_status_report": {
@@ -115,7 +115,7 @@
     "formal_claim_allowed_now": false,
     "local_training_allowed_now": false,
     "next_blocked_lane_id": "source_fresh_preflight",
-    "input_safety_issue_count": 0
+    "input_safety_issue_count": 3
   },
   "remaining_deliverables_ledger": {
     "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
@@ -373,9 +373,16 @@
     {
       "category": "acceptance",
       "gap_id": "formal_gate_closure_checklist_open",
-      "why_missing": "Closure checklist status is formal_gate_closure_blocked; open_item_count=5.",
+      "why_missing": "Closure checklist status is formal_gate_closure_blocked; open_item_count=7.",
       "evidence_path": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
       "required_next_artifact": "Close every checklist item before final H02/claim readiness can pass."
+    },
+    {
+      "category": "acceptance",
+      "gap_id": "formal_status_report_safety_issues_open",
+      "why_missing": "Status report has 3 input safety issues.",
+      "evidence_path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
+      "required_next_artifact": "Resolve status report input safety issues before treating the formal gate as complete."
     },
     {
       "category": "acceptance",
@@ -667,6 +674,7 @@
         "readiness_blocks_formal_results",
         "formal_gate_missing_artifacts_open",
         "formal_gate_closure_checklist_open",
+        "formal_status_report_safety_issues_open",
         "formal_gate_status_report_blocked",
         "formal_gate_remaining_deliverables_open"
       ],

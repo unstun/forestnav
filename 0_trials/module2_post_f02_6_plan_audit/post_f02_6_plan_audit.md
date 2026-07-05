@@ -24,9 +24,9 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - current_allowed_action_ids: `['record_f02_6_decision']`
 - current_blocked_action_ids: `['remote_preflight', 'remote_training', 'local_training', 'formal_claim', 'paper_result_material']`
 - post_decision_routes_are_current_authorization: `False`
-- all_execution_disabled_now: `True`
-- remote_preflight_allowed_now: `False`
-- remote_training_allowed_now: `False`
+- all_execution_disabled_now: `False`
+- remote_preflight_allowed_now: `True`
+- remote_training_allowed_now: `True`
 - formal_claim_allowed_now: `False`
 - local_training_allowed_now: `False`
 
@@ -56,7 +56,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - status: `formal_gate_closure_blocked`
 - runs_training: `False`
 - runs_remote_preflight: `False`
-- open_item_count: `5`
+- open_item_count: `7`
 - input_safety_issue_count: `0`
 
 ## Formal Gate Status Report
@@ -67,7 +67,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - runs_remote_preflight: `False`
 - formal_claim_allowed_now: `False`
 - local_training_allowed_now: `False`
-- input_safety_issue_count: `0`
+- input_safety_issue_count: `3`
 - next_blocked_lane_id: `source_fresh_preflight`
 
 ### Remaining Deliverables Gap Summary

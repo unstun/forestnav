@@ -4,7 +4,7 @@ This file is a formal-gate closure checklist. It does not execute commands, trai
 
 - status: `formal_gate_closure_blocked`
 - closure_item_count: `8`
-- open_item_count: `5`
+- open_item_count: `7`
 - input_safety_issue_count: `0`
 - runs_training: `False`
 - runs_remote_preflight: `False`
@@ -37,30 +37,32 @@ This file is a formal-gate closure checklist. It does not execute commands, trai
 - `F02.6_decision` (decision): status=`complete`, missing=`0`, runs_training=`False`
   - completion_signal: Dr Sun approved/rejected decision record is present and source-fresh.
   - next_action: Close the F02.6 warm-start decision record before any approved preflight.
-- `preflight_source_fresh_regeneration` (regeneration): status=`complete`, missing=`0`, runs_training=`False`
+- `preflight_source_fresh_regeneration` (regeneration): status=`blocked`, missing=`0`, runs_training=`False`
+  - blocked_by: `source_freshness_regeneration_required`
   - completion_signal: All approved_remote_preflight source-fresh targets are regenerated from the current head.
   - next_action: Regenerate source freshness targets only after F02.6 is closed.
 - `approved_remote_preflight_and_packet` (remote_preflight): status=`blocked`, missing=`4`, runs_training=`False`
-  - blocked_by: `f02_6_decision_record, gate3_remote_audit_pullback, regenerate_h01_h02_formal_artifacts, regenerate_claim_gate_artifacts`
+  - blocked_by: `f02_6_decision_record, gate3_remote_audit_pullback, regenerate_h01_h02_formal_artifacts, regenerate_claim_gate_artifacts, source_freshness_regeneration_required`
   - completion_signal: Approved gpu3070ti preflight passes and the remote execution packet becomes ready.
   - next_action: Run only the approved remote preflight path; do not train locally.
-- `gate3_remote_training_outputs` (training): status=`complete`, missing=`0`, runs_training=`True`, host=`gpu3070ti-relay`
+- `gate3_remote_training_outputs` (training): status=`blocked`, missing=`0`, runs_training=`True`, host=`gpu3070ti-relay`
+  - blocked_by: `source_freshness_regeneration_required`
   - completion_signal: Remote formal Gate3 PPO training returns final_model.zip, summary.json, and training_manifest.json.
   - next_action: Run formal PPO only on gpu3070ti-relay after the packet reports ready.
 - `gate3_formal_eval_outputs` (evaluation): status=`blocked`, missing=`0`, runs_training=`False`
-  - blocked_by: `remote_packet_safety_audit_failed, remote_packet_safety_audit_issues_open, missing_ppo_result_rows, missing_ppo_checkpoint_hash, remote_training_not_completed`
+  - blocked_by: `source_freshness_regeneration_required, handoff_safety_issues_open, missing_ppo_result_rows, missing_ppo_checkpoint_hash, remote_training_not_completed`
   - completion_signal: Formal Gate3 eval CSV and summary are present in the pulled-back trial directory.
   - next_action: Audit and pull back evaluation outputs with the remote formal trial.
 - `gate3_audit_pullback_hashes` (acceptance): status=`blocked`, missing=`0`, runs_training=`False`
-  - blocked_by: `remote_packet_safety_audit_failed, remote_packet_safety_audit_issues_open, missing_ppo_result_rows, missing_ppo_checkpoint_hash, remote_training_not_completed`
+  - blocked_by: `source_freshness_regeneration_required, handoff_safety_issues_open, missing_ppo_result_rows, missing_ppo_checkpoint_hash, remote_training_not_completed`
   - completion_signal: Trial manifest, formal audit, and checkpoint SHA-256 record are present.
   - next_action: Record pullback hashes before any H01/H02 or claim gate regeneration.
 - `h01_h02_formal_acceptance` (evaluation_acceptance): status=`blocked`, missing=`1`, runs_training=`False`
-  - blocked_by: `h02_formal_output_acceptance, remote_packet_safety_audit_failed, remote_packet_safety_audit_issues_open, missing_ppo_result_rows, missing_ppo_checkpoint_hash, h02_scale_below_h01_queries_per_bucket, h02_scale_below_h01_seed_count, h02_scale_below_h01_queries_per_map, h02_verdict_not_formal, missing_remote_audit_pullback`
+  - blocked_by: `h02_formal_output_acceptance, source_freshness_regeneration_required, handoff_safety_issues_open, missing_ppo_result_rows, missing_ppo_checkpoint_hash, h02_scale_below_h01_queries_per_bucket, h02_scale_below_h01_seed_count, h02_scale_below_h01_queries_per_map, h02_verdict_not_formal, missing_remote_audit_pullback`
   - completion_signal: H01 exposes the formal run command and H02 accepts formal-scale PPO outputs.
   - next_action: Regenerate H01/H02 after audited checkpoint pullback, not before.
 - `claim_gate_regeneration` (claim_gate): status=`blocked`, missing=`1`, runs_training=`False`
-  - blocked_by: `h02_formal_acceptance_before_claim_gate, remote_packet_safety_audit_failed, remote_packet_safety_audit_issues_open, missing_ppo_result_rows, missing_ppo_checkpoint_hash, h02_scale_below_h01_queries_per_bucket, h02_scale_below_h01_seed_count, h02_scale_below_h01_queries_per_map, h02_verdict_not_formal, missing_or_failed_gate3_formal_audit, h02_formal_output_not_accepted, claim_safety_blocks_formal_performance, readiness_blocks_formal_results, formal_missing_artifacts_audit_issues_open, formal_gate_missing_artifacts_open, formal_gate_closure_checklist_open, formal_status_report_safety_issues_open, formal_gate_status_report_blocked, formal_gate_remaining_deliverables_open, h02_formal_acceptance_not_ready`
+  - blocked_by: `h02_formal_acceptance_before_claim_gate, source_freshness_regeneration_required, handoff_safety_issues_open, missing_ppo_result_rows, missing_ppo_checkpoint_hash, h02_scale_below_h01_queries_per_bucket, h02_scale_below_h01_seed_count, h02_scale_below_h01_queries_per_map, h02_verdict_not_formal, missing_or_failed_gate3_formal_audit, h02_formal_output_not_accepted, claim_safety_blocks_formal_performance, readiness_blocks_formal_results, formal_gate_missing_artifacts_open, formal_gate_closure_checklist_open, formal_gate_status_report_blocked, formal_gate_remaining_deliverables_open, h02_formal_acceptance_not_ready`
   - completion_signal: Claim safety, missing-artifacts inventory, and paper readiness are regenerated after H02 acceptance.
   - next_action: Only then can formal result writing be considered; this checklist itself does not allow claims.
 

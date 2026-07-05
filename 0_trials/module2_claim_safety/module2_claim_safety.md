@@ -22,6 +22,7 @@
 - f02_6_pending
 - formal_gate_closure_checklist_open
 - formal_gate_status_report_blocked
+- status_report_input_safety_issues_open
 - status_report_blocked_but_handoff_remote_preflight_allowed
 - status_report_blocked_but_handoff_remote_training_allowed
 - status_report_blocked_but_missing_artifacts_handoff_remote_training_allowed
@@ -50,6 +51,9 @@
 - status_report_next_required_formal_deliverables_missing_acceptance_pulled_back_checkpoint_hash_record
 - status_report_next_required_formal_deliverables_missing_formal_acceptance_h01_ready_for_formal_run
 - status_report_next_required_formal_deliverables_blocked_categories_mismatch
+- status_report_mainline_formal_gate_state_audit_failed
+- status_report_mainline_formal_gate_state_audit_issues_open
+- status_report_mainline_proof_summary_issues_open
 - status_report_blocked_but_approved_remote_preflight_allowed
 - status_report_blocked_but_gate3_remote_training_allowed
 - status_report_blocked_but_sync_to_remote_allowed
@@ -74,16 +78,16 @@
 
 ## F02.6 Decision Intake Summary
 
-- present=`True`, status=`f02_6_decision_intake_closed_clean`, record_status=`approved`, record_decider=`Dr Sun`, next_blocked_lane=`source_fresh_preflight`, audit_issue_count=`0`, decision_owner_required=`Dr Sun`, valid_decision_count=`2`, required_record_field_count=`3`, decision_note_required=`True`, invalid_input_count=`5`, post_decision_non_authorization_count=`4`, post_decision_route_count=`2`, approved_route_next_lane=`source_fresh_regeneration`, approved_route_allows_remote_training_now=`False`, rejected_route_requires_new_protocol_contract=`True`, remote_training_allowed_now=`False`, formal_claim_allowed_now=`False`, decision_impact_present=`True`, decision_record_is_not_training_authorization=`True`, decision_record_is_not_paper_result_material=`True`, decision_impact_remote_training_allowed_now=`False`, decision_impact_formal_claim_allowed_now=`False`, decision_impact_paper_result_material_allowed_now=`False`
+- present=`True`, status=`f02_6_decision_intake_closed_clean`, record_status=`approved`, record_decider=`Dr Sun`, next_blocked_lane=`remote_packet_preflight`, audit_issue_count=`0`, decision_owner_required=`Dr Sun`, valid_decision_count=`2`, required_record_field_count=`3`, decision_note_required=`True`, invalid_input_count=`5`, post_decision_non_authorization_count=`4`, post_decision_route_count=`2`, approved_route_next_lane=`source_fresh_regeneration`, approved_route_allows_remote_training_now=`False`, rejected_route_requires_new_protocol_contract=`True`, remote_training_allowed_now=`True`, formal_claim_allowed_now=`False`, decision_impact_present=`True`, decision_record_is_not_training_authorization=`True`, decision_record_is_not_paper_result_material=`True`, decision_impact_remote_training_allowed_now=`False`, decision_impact_formal_claim_allowed_now=`False`, decision_impact_paper_result_material_allowed_now=`False`
 - decision_evidence_matrix_status=`ready_for_dr_sun_decision_not_authorization`, route_count=`2`, required_evidence_count=`7`, missing_required_evidence_count=`0`, remote_training_allowed_now=`False`
 
 ## Status Report Next-Action Guard
 
-- present=`True`, status=`next_action_guard_not_applicable`, pending_f02_6_decision=`False`, expected_next_action_id=`None`, all_execution_disabled_now=`False`, execution_leak_count=`9`
+- present=`True`, status=`next_action_guard_not_applicable`, pending_f02_6_decision=`False`, expected_next_action_id=`None`, all_execution_disabled_now=`False`, execution_leak_count=`11`
 
 ## Status Report Mainline Formal Gate State Audit
 
-- present=`True`, status=`mainline_formal_gate_state_consistent_blocked`, audit_issue_count=`0`, proof_summary_chain_status=`formal_gate_proof_summary_chain_consistent_blocked`, proof_summary_chain_audit_issue_count=`0`, proof_summary_chain_proof_audit_input_safety_issue_count=`0`
+- present=`True`, status=`mainline_formal_gate_state_audit_failed`, audit_issue_count=`2`, proof_summary_chain_status=`formal_gate_proof_summary_chain_audit_failed`, proof_summary_chain_audit_issue_count=`2`, proof_summary_chain_proof_audit_input_safety_issue_count=`0`
 
 ## Handoff Single Next-Action Index
 

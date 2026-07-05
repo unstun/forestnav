@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_regeneration_plan",
   "status": "ready_for_remote_training_packet_execution",
-  "created_at_utc": "2026-07-05T19:41:18.632307+00:00",
-  "source_head": "e7b6289d8b71421681c110f01542be8b2c334456",
+  "created_at_utc": "2026-07-05T19:50:53.482520+00:00",
+  "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -42,9 +42,9 @@
       "paper_result_material"
     ],
     "post_decision_routes_are_current_authorization": false,
-    "all_execution_disabled_now": true,
-    "remote_preflight_allowed_now": false,
-    "remote_training_allowed_now": false,
+    "all_execution_disabled_now": false,
+    "remote_preflight_allowed_now": true,
+    "remote_training_allowed_now": true,
     "formal_claim_allowed_now": false,
     "local_training_allowed_now": false
   },
@@ -70,7 +70,9 @@
         "responsible_stage_id": "gate3_remote_training",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open"
+          "source_fresh_preflight_targets_open",
+          "f02_6_decision_not_approved",
+          "remote_packet_not_ready"
         ],
         "missing_artifact_matrix_ids": []
       },
