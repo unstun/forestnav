@@ -285,6 +285,9 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert manifest["status_report_f02_6_decision_evidence_matrix_summary"]["status"] == "ready_for_dr_sun_decision_not_authorization"
     assert manifest["status_report_f02_6_decision_evidence_matrix_summary"]["missing_required_evidence_count"] == 0
     assert manifest["status_report_f02_6_decision_evidence_matrix_summary"]["remote_training_allowed_now"] is False
+    assert manifest["handoff_f02_6_decision_evidence_matrix_summary"]["status"] == "ready_for_dr_sun_decision_not_authorization"
+    assert manifest["handoff_f02_6_decision_evidence_matrix_summary"]["missing_required_evidence_count"] == 0
+    assert manifest["handoff_f02_6_decision_evidence_matrix_summary"]["remote_training_allowed_now"] is False
 
     allowed_ids = {item["claim_id"] for item in manifest["allowed_claims"]}
     assert "method_is_ha_star_analytic_operator" in allowed_ids
@@ -1591,6 +1594,62 @@ def test_claim_safety_rejects_handoff_single_next_action_index_drift(tmp_path):
     assert "handoff_single_next_action_index_approval_skips_remote_preflight" in blockers
 
 
+def test_claim_safety_rejects_handoff_decision_evidence_matrix_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_claim_safety")
+    paper_tables = tmp_path / "paper_tables.json"
+    paper_tables.write_text(json.dumps({"status": "formal_ready", "formal_claim_allowed": True, "blockers": []}), encoding="utf-8")
+    h02_formal_acceptance = tmp_path / "h02_formal_acceptance.json"
+    h02_formal_acceptance.write_text(json.dumps({"status": "formal_output_accepted", "formal_output_accepted": True, "paper_result_input_allowed": True, "blockers": []}), encoding="utf-8")
+    h01_manifest = tmp_path / "h01.json"
+    h01_manifest.write_text(json.dumps({"status": "ready_for_formal_evaluation", "blockers": []}), encoding="utf-8")
+    f02_6_packet = tmp_path / "f02_6.json"
+    f02_6_packet.write_text(json.dumps({"status": "approved", "blockers": []}), encoding="utf-8")
+    gate3_audit = tmp_path / "gate3_audit.json"
+    gate3_audit.write_text(json.dumps({"formal_decision": "pass", "formal_claim_allowed": True}), encoding="utf-8")
+    method_algorithms = tmp_path / "method_algorithms.json"
+    method_algorithms.write_text(json.dumps({"status": "code_anchored"}), encoding="utf-8")
+    system_diagram = tmp_path / "system_diagram.json"
+    system_diagram.write_text(json.dumps({"status": "code_anchored_drawio"}), encoding="utf-8")
+    closure_checklist = tmp_path / "closure_checklist.json"
+    closure_checklist.write_text(json.dumps(_closure_checklist_payload(open_checklist=False)), encoding="utf-8")
+    status_report = tmp_path / "status_report.json"
+    status_report.write_text(json.dumps(_status_report_payload(ready=False)), encoding="utf-8")
+
+    handoff_payload = _handoff_bundle_payload(ready=False)
+    matrix = handoff_payload["f02_6_decision_evidence_matrix_handoff_summary"]
+    matrix["missing_required_evidence_count"] = 1
+    matrix["remote_training_allowed_now"] = True
+    matrix["global_invalid_substitute_count"] = 0
+    matrix["invalid_substitute_counts_by_route"]["approve_obstacle_summary_warm_start"] = 0
+    handoff_bundle = tmp_path / "handoff_bundle.json"
+    handoff_bundle.write_text(json.dumps(handoff_payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        repo_root=builder._repo_root(),
+        paper_tables_path=paper_tables,
+        h02_formal_acceptance_path=h02_formal_acceptance,
+        h01_manifest_path=h01_manifest,
+        f02_6_packet_path=f02_6_packet,
+        gate3_audit_path=gate3_audit,
+        method_algorithms_path=method_algorithms,
+        system_diagram_path=system_diagram,
+        closure_checklist_path=closure_checklist,
+        status_report_path=status_report,
+        handoff_bundle_path=handoff_bundle,
+    )
+
+    blockers = set(manifest["formal_performance_blockers"])
+    assert "handoff_f02_6_decision_evidence_matrix_missing_required_evidence" in blockers
+    assert "handoff_f02_6_decision_evidence_matrix_allows_remote_training" in blockers
+    assert "handoff_f02_6_decision_evidence_matrix_invalid_substitutes_missing" in blockers
+    assert (
+        "handoff_f02_6_decision_evidence_matrix_approve_obstacle_summary_warm_start_invalid_substitutes_missing"
+        in blockers
+    )
+    assert "handoff_f02_6_decision_evidence_matrix_status_report_mismatch" in blockers
+    assert manifest["handoff_f02_6_decision_evidence_matrix_summary"]["missing_required_evidence_count"] == 1
+
+
 def test_claim_safety_rejects_status_report_that_runs_or_claims(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_claim_safety")
     paper_tables = tmp_path / "paper_tables.json"
@@ -1882,6 +1941,7 @@ def _status_report_mainline_formal_gate_state_audit_summary_payload(*, ready):
 def _handoff_bundle_payload(*, ready):
     return {
         "status": "ready_for_manual_remote_execution_review" if ready else "blocked_until_f02_6_decision",
+        "f02_6_decision_evidence_matrix_handoff_summary": _handoff_decision_evidence_matrix_summary_payload(),
         "single_next_action_index": {
             "index_id": "module2_formal_gate_single_next_action_index",
             "status": "f02_6_decision_recorded" if ready else "awaiting_dr_sun_f02_6_decision",
@@ -1924,6 +1984,41 @@ def _handoff_bundle_payload(*, ready):
                 "remote_formal_execution_packet_ready",
                 "approved_remote_preflight",
             ],
+        },
+    }
+
+
+def _handoff_decision_evidence_matrix_summary_payload():
+    return {
+        "present": True,
+        "matrix_id": "module2_f02_6_decision_evidence_matrix",
+        "status": "ready_for_dr_sun_decision_not_authorization",
+        "route_count": 2,
+        "route_decisions": [
+            "approve_obstacle_summary_warm_start",
+            "reject_obstacle_summary_warm_start",
+        ],
+        "required_evidence_count": 7,
+        "satisfied_required_evidence_count": 7,
+        "missing_required_evidence_count": 0,
+        "missing_required_evidence_ids": [],
+        "source_issue_count": 0,
+        "global_invalid_substitute_count": 2,
+        "authorization_flags": {
+            "current_authorization_allowed_now": False,
+            "remote_preflight_allowed_now": False,
+            "remote_training_allowed_now": False,
+            "local_training_allowed_now": False,
+            "formal_claim_allowed_now": False,
+            "paper_result_material_allowed_now": False,
+        },
+        "evidence_counts_by_route": {
+            "approve_obstacle_summary_warm_start": 4,
+            "reject_obstacle_summary_warm_start": 3,
+        },
+        "invalid_substitute_counts_by_route": {
+            "approve_obstacle_summary_warm_start": 2,
+            "reject_obstacle_summary_warm_start": 2,
         },
     }
 
