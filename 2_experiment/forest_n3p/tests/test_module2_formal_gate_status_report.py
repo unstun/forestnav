@@ -1051,6 +1051,42 @@ def test_formal_gate_status_report_requires_remaining_deliverables_proof_command
     assert manifest["remaining_deliverables_proof_command_plan"]["total_matrix_rows"] == 9
 
 
+def test_formal_gate_status_report_requires_remaining_deliverables_source_blocker_summary(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    remaining = json.loads(config.remaining_deliverables_path.read_text(encoding="utf-8"))
+    summary = remaining["source_freshness_blocking_targets_summary"]
+    summary["summary_id"] = "wrong_summary"
+    summary["execution_boundary"] = "remote_probe"
+    summary["not_paper_result_material"] = False
+    summary["blocking_target_count"] = 2
+    summary["blocking_target_ids"] = ["wrong_target"]
+    summary["remote_readiness_blocking_target_ids"] = []
+    summary["remote_readiness_refresh_requires_external_ssh"] = False
+    summary["remote_readiness_refresh_allowed_now"] = True
+    summary["remote_preflight_allowed_now"] = True
+    summary["remote_training_allowed_now"] = True
+    summary["formal_claim_allowed_now"] = True
+    summary["rows"] = []
+    config.remaining_deliverables_path.write_text(json.dumps(remaining), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert "remaining_deliverables_source_blocker_summary_id_invalid" in issue_ids
+    assert "remaining_deliverables_source_blocker_summary_boundary_invalid" in issue_ids
+    assert "remaining_deliverables_source_blocker_summary_marked_as_paper_result" in issue_ids
+    assert "remaining_deliverables_source_blocker_summary_row_count_mismatch" in issue_ids
+    assert "remaining_deliverables_source_blocker_summary_target_ids_mismatch" in issue_ids
+    assert "remaining_deliverables_source_blocker_summary_remote_readiness_ids_mismatch" in issue_ids
+    assert "remaining_deliverables_source_blocker_summary_missing_ssh_boundary" in issue_ids
+    assert "remaining_deliverables_source_blocker_summary_allows_remote_readiness_refresh" in issue_ids
+    assert "remaining_deliverables_source_blocker_summary_allows_remote_preflight" in issue_ids
+    assert "remaining_deliverables_source_blocker_summary_allows_remote_training" in issue_ids
+    assert "remaining_deliverables_source_blocker_summary_allows_formal_claim" in issue_ids
+    assert manifest["remaining_deliverables_source_blocker_summary"]["blocking_target_ids"] == ["wrong_target"]
+
+
 def test_formal_gate_status_report_requires_formal_gate_proof_audit_summary(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
     config = _config(tmp_path, complete=True)

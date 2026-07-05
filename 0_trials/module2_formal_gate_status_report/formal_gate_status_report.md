@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5`
+- source_head: `12d53f28954095cf8f45f4586752845f2f6cbc35+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -112,6 +112,12 @@ This file is a read-only formal-gate status report. It does not execute commands
 - remaining_deliverables_proof_plan_present: `True`
 - remaining_deliverables_proof_plan_matrix_row_count: `10`
 - remaining_deliverables_proof_plan_command_count: `20`
+- remaining_deliverables_source_blocker_summary_present: `True`
+- remaining_deliverables_source_blocker_count: `1`
+- remaining_deliverables_source_blocker_ids: `['gpu3070ti_readiness_refresh']`
+- remaining_deliverables_remote_readiness_blocker_count: `1`
+- remaining_deliverables_remote_readiness_refresh_requires_external_ssh: `True`
+- remaining_deliverables_remote_readiness_refresh_allowed_now: `False`
 - formal_gate_proof_audit_status: `formal_gate_proof_audit_blocked`
 - formal_gate_proof_audit_command_count: `20`
 - formal_gate_proof_audit_passed_count: `2`
@@ -372,6 +378,20 @@ This file is a read-only formal-gate status report. It does not execute commands
 - `acceptance:pulled_back_checkpoint_hash_record`: proof_command_count=`2`, command_ids=`pulled_back_checkpoint_hash_record_exists_nonempty, pulled_back_checkpoint_hash_record_matches_model`
 - `formal_acceptance:h01_ready_for_formal_run`: proof_command_count=`2`, command_ids=`h01_ready_for_formal_run_exists_nonempty, h01_ready_for_formal_run_status`
 - `formal_acceptance:h02_formal_output_acceptance`: proof_command_count=`2`, command_ids=`h02_formal_output_acceptance_exists_nonempty, h02_formal_output_acceptance_status`
+
+## Remaining Deliverables Source Blocker Summary
+
+- present: `True`
+- summary_id: `module2_source_freshness_blocking_targets_summary`
+- blocking_target_count: `1`
+- blocking_target_ids: `gpu3070ti_readiness_refresh`
+- remote_readiness_blocking_target_count: `1`
+- remote_readiness_refresh_requires_external_ssh: `True`
+- remote_readiness_refresh_allowed_now: `False`
+- remote_preflight_allowed_now: `False`
+- remote_training_allowed_now: `False`
+- formal_claim_allowed_now: `False`
+- `gpu3070ti_readiness_refresh`: path=`0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`34`
 
 ## Formal Gate Proof Audit Gap Summary
 
