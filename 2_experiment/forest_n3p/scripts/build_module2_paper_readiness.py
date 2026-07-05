@@ -226,6 +226,9 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         claim_safety
     )
     claim_next_required_formal_deliverables = _claim_safety_next_required_formal_deliverables(claim_safety)
+    claim_mainline_formal_gate_state_audit_summary = _claim_safety_mainline_formal_gate_state_audit_summary(
+        claim_safety
+    )
     input_status = {
         "method_algorithms_status": method_algorithms.get("status"),
         "system_diagram_status": system_diagram.get("status"),
@@ -484,6 +487,19 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_next_required_formal_deliverables_row_count": claim_next_required_formal_deliverables[
             "row_count"
         ],
+        "claim_safety_mainline_audit_present": claim_mainline_formal_gate_state_audit_summary["present"],
+        "claim_safety_mainline_audit_status": claim_mainline_formal_gate_state_audit_summary["status"],
+        "claim_safety_mainline_audit_issue_count": claim_mainline_formal_gate_state_audit_summary[
+            "audit_issue_count"
+        ],
+        "claim_safety_mainline_audit_proof_summary_issue_count": claim_mainline_formal_gate_state_audit_summary[
+            "proof_summary_chain_audit_issue_count"
+        ],
+        "claim_safety_mainline_audit_proof_audit_input_safety_issue_count": (
+            claim_mainline_formal_gate_state_audit_summary[
+                "proof_summary_chain_proof_audit_input_safety_issue_count"
+            ]
+        ),
         "h02_formal_acceptance_status": h02_acceptance.get("status"),
         "h02_formal_output_accepted": h02_acceptance.get("formal_output_accepted"),
         "h02_paper_result_input_allowed": h02_acceptance.get("paper_result_input_allowed"),
@@ -552,6 +568,9 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_next_action_guard_summary": claim_next_action_guard_summary,
         "claim_safety_handoff_single_next_action_index_summary": claim_handoff_single_next_action_index_summary,
         "claim_safety_next_required_formal_deliverables": claim_next_required_formal_deliverables,
+        "claim_safety_mainline_formal_gate_state_audit_summary": (
+            claim_mainline_formal_gate_state_audit_summary
+        ),
         "global_blockers": global_blockers,
         "allowed_claim_ids": allowed_claim_ids,
         "conditional_claim_ids": conditional_claim_ids,
