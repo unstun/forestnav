@@ -452,6 +452,7 @@ def _config(tmp_path, *, complete):
         h01_manifest_path=_write_json(tmp_path / "h01.json", _h01(complete=complete)),
         h02_acceptance_path=_write_json(tmp_path / "h02.json", _h02(complete=complete)),
         source_freshness_path=_write_json(tmp_path / "source_freshness.json", _source_freshness(complete=complete)),
+        post_f02_6_plan_path=_write_json(tmp_path / "post_plan.json", _post_plan(complete=complete)),
     )
 
 
@@ -604,6 +605,93 @@ def _source_freshness(*, complete):
             "records_with_non_self_changed_paths_since_source": 0 if complete else 19,
             "records_with_self_artifact_only_lag": 0,
         },
+    }
+
+
+def _post_plan(*, complete):
+    blocked_by = [] if complete else ["f02_6_decision_not_approved", "remote_packet_not_ready"]
+    return {
+        "status": "ready_for_claim_gate" if complete else "blocked_until_f02_6_decision",
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+        "ordered_stages": [
+            _stage(
+                "gate3_remote_training",
+                "training",
+                complete=complete,
+                blocked_by=blocked_by,
+                runs_training=True,
+                runs_remote_preflight=False,
+                host="gpu3070ti-relay",
+                evidence_paths=[
+                    "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
+                    "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
+                    "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json",
+                    "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv",
+                    "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json",
+                    "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json",
+                ],
+            ),
+            _stage(
+                "gate3_remote_audit_pullback",
+                "acceptance",
+                complete=complete,
+                blocked_by=blocked_by,
+                runs_training=False,
+                runs_remote_preflight=False,
+                host="gpu3070ti-relay",
+                evidence_paths=[
+                    "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
+                    "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
+                    "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json",
+                    "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv",
+                    "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json",
+                    "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json",
+                    "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json",
+                ],
+            ),
+            _stage(
+                "regenerate_h01_h02_formal_artifacts",
+                "evaluation",
+                complete=complete,
+                blocked_by=[] if complete else ["missing_remote_audit_pullback"],
+                runs_training=False,
+                runs_remote_preflight=False,
+                host=None,
+                evidence_paths=[
+                    "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/module2_v1_evaluation_manifest.json",
+                    "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/h02_formal_acceptance.json",
+                ],
+            ),
+        ],
+    }
+
+
+def _stage(
+    stage_id,
+    phase,
+    *,
+    complete,
+    blocked_by,
+    runs_training,
+    runs_remote_preflight,
+    host,
+    evidence_paths,
+):
+    return {
+        "stage_id": stage_id,
+        "phase": phase,
+        "status": "ready" if complete else "blocked",
+        "allowed_now": complete,
+        "blocked_by": blocked_by,
+        "runs_training": runs_training,
+        "runs_remote_preflight": runs_remote_preflight,
+        "host": host,
+        "evidence_paths": evidence_paths,
+        "command_templates": [f"{stage_id} command template"],
     }
 
 
