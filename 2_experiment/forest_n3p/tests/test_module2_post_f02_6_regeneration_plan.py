@@ -75,11 +75,14 @@ def test_post_f02_6_regeneration_plan_allows_only_regeneration_after_approval_wh
     assert "build_module2_remote_packet_safety_audit" in joined_commands
     assert "build_module2_formal_gate_handoff_bundle" in joined_commands
     assert "build_module2_f02_6_decision_intake" in joined_commands
+    assert "build_module2_post_f02_6_regeneration_plan" in joined_commands
     assert "build_module2_post_f02_6_plan_audit" in joined_commands
     assert "manual read-only gpu3070ti readiness refresh" in joined_commands
     command_index = {entry["artifact_id"]: entry for entry in manifest["source_regeneration_command_index"]}
     assert command_index["f02_6_decision_intake"]["stage_id"] == "regenerate_preflight_gate_artifacts"
     assert "build_module2_f02_6_decision_intake" in command_index["f02_6_decision_intake"]["command_template"]
+    assert command_index["post_f02_6_regeneration_plan"]["stage_id"] == "regenerate_preflight_gate_artifacts"
+    assert "build_module2_post_f02_6_regeneration_plan" in command_index["post_f02_6_regeneration_plan"]["command_template"]
     assert command_index["formal_gate_status_report"]["stage_id"] == "regenerate_claim_gate_artifacts"
     assert "build_module2_formal_gate_status_report" in command_index["formal_gate_status_report"]["command_template"]
     assert command_index["formal_gate_remaining_deliverables"]["stage_id"] == "regenerate_claim_gate_artifacts"
@@ -323,6 +326,12 @@ def _source_freshness(tmp_path, *, required):
         {
             "artifact_id": "remote_packet_safety_audit",
             "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
+            "freshness_state": "historical_dirty",
+            "required_before": "approved_remote_preflight",
+        },
+        {
+            "artifact_id": "post_f02_6_regeneration_plan",
+            "path": "0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json",
             "freshness_state": "historical_dirty",
             "required_before": "approved_remote_preflight",
         },
