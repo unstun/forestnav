@@ -3,8 +3,8 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `92d3841d0d35c84fd534f49c5c8180afc37d7c5a`
-- input_safety_issue_count: `2`
+- source_head: `00b10f7ca607adb493b91f387b0f4d87f9d4004c`
+- input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
 - remote_training_allowed_now: `False`
@@ -559,8 +559,7 @@ This file is a read-only formal-gate status report. It does not execute commands
 
 ## Input Safety Issues
 
-- `remaining_deliverables_source_blocker_summary_target_ids_mismatch`: source blocker summary target ids must match source-freshness blocking targets.
-- `remaining_deliverables_source_blocker_summary_remote_readiness_ids_mismatch`: remote-readiness blocker ids must match source-freshness readiness blockers.
+- none
 
 ## Safe Work Without F02.6 Decision
 

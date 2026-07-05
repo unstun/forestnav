@@ -23,7 +23,6 @@
 - f02_6_pending
 - formal_gate_closure_checklist_open
 - formal_gate_status_report_blocked
-- status_report_input_safety_issues_open
 - status_report_remaining_deliverables_gap_rows_missing
 - status_report_remaining_deliverables_gap_categories_blocked
 - status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing
