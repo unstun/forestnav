@@ -2075,6 +2075,85 @@ def _remaining_deliverables_proof_command_plan(remaining_deliverables: dict[str,
     }
 
 
+def _remaining_deliverables_unlock_chain_summary(remaining_deliverables: dict[str, Any]) -> dict[str, Any]:
+    raw_chain = remaining_deliverables.get("deliverable_unlock_chain")
+    raw_chain = raw_chain if isinstance(raw_chain, dict) else {}
+    raw_rows = raw_chain.get("rows")
+    raw_rows = raw_rows if isinstance(raw_rows, list) else []
+    rows: dict[str, dict[str, Any]] = {}
+    categories: dict[str, dict[str, Any]] = {}
+    for raw in raw_rows:
+        if not isinstance(raw, dict) or not raw.get("matrix_id"):
+            continue
+        matrix_id = str(raw["matrix_id"])
+        category = str(raw.get("category") or "unknown")
+        row = {
+            "present": True,
+            "matrix_id": matrix_id,
+            "category": category,
+            "artifact_id": raw.get("artifact_id"),
+            "current_state": raw.get("current_state"),
+            "missing": raw.get("missing") if isinstance(raw.get("missing"), bool) else raw.get("current_state") == "missing",
+            "responsible_stage_id": raw.get("responsible_stage_id"),
+            "responsible_stage_allowed_now": raw.get("responsible_stage_allowed_now")
+            if isinstance(raw.get("responsible_stage_allowed_now"), bool)
+            else None,
+            "required_current_blockers": _strings(raw.get("required_current_blockers")),
+            "missing_required_current_blockers": _strings(raw.get("missing_required_current_blockers")),
+            "unlock_sequence_before_stage_allowed": _strings(raw.get("unlock_sequence_before_stage_allowed")),
+            "execution_boundary": raw.get("execution_boundary"),
+        }
+        rows[matrix_id] = row
+        category_summary = categories.setdefault(
+            category,
+            {
+                "row_count": 0,
+                "blocked_row_count": 0,
+                "rows_with_missing_required_blockers": 0,
+                "rows_allowed_while_missing": 0,
+                "required_current_blockers": [],
+                "unlock_sequence_before_stage_allowed": [],
+            },
+        )
+        category_summary["row_count"] += 1
+        if row["missing"] is True and row["responsible_stage_allowed_now"] is not True:
+            category_summary["blocked_row_count"] += 1
+        if row["missing_required_current_blockers"]:
+            category_summary["rows_with_missing_required_blockers"] += 1
+        if row["missing"] is True and row["responsible_stage_allowed_now"] is True:
+            category_summary["rows_allowed_while_missing"] += 1
+        category_summary["required_current_blockers"] = _unique(
+            [*category_summary["required_current_blockers"], *row["required_current_blockers"]]
+        )
+        category_summary["unlock_sequence_before_stage_allowed"] = _unique(
+            [*category_summary["unlock_sequence_before_stage_allowed"], *row["unlock_sequence_before_stage_allowed"]]
+        )
+    derived_blocked_row_count = sum(
+        1 for row in rows.values() if row["missing"] is True and row["responsible_stage_allowed_now"] is not True
+    )
+    derived_missing_blockers = sum(1 for row in rows.values() if row["missing_required_current_blockers"])
+    derived_allowed_while_missing = sum(
+        1 for row in rows.values() if row["missing"] is True and row["responsible_stage_allowed_now"] is True
+    )
+    return {
+        "present": bool(raw_chain),
+        "chain_id": raw_chain.get("chain_id"),
+        "status": raw_chain.get("status"),
+        "not_paper_result_material": raw_chain.get("not_paper_result_material") is True,
+        "execution_boundary": raw_chain.get("execution_boundary"),
+        "row_count": int(raw_chain.get("row_count") or 0),
+        "derived_row_count": len(rows),
+        "blocked_row_count": int(raw_chain.get("blocked_row_count") or 0),
+        "derived_blocked_row_count": derived_blocked_row_count,
+        "rows_with_missing_required_blockers": derived_missing_blockers,
+        "rows_allowed_while_missing": derived_allowed_while_missing,
+        "declared_rows_with_missing_required_blockers": int(raw_chain.get("rows_with_missing_required_blockers") or 0),
+        "declared_rows_allowed_while_missing": int(raw_chain.get("rows_allowed_while_missing") or 0),
+        "categories": categories,
+        "rows": rows,
+    }
+
+
 def _formal_gate_proof_audit_summary(proof_audit: dict[str, Any]) -> dict[str, Any]:
     raw_results = proof_audit.get("proof_command_results")
     raw_results = raw_results if isinstance(raw_results, list) else []
