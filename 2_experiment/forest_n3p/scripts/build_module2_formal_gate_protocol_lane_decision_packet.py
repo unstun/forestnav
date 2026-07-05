@@ -254,10 +254,21 @@ def _audit_issues(
         issues.append(_issue("valid_lane_set_mismatch", "Decision packet must expose the four protocol lanes."))
     for lane in lanes:
         lane_id = lane["lane_id"]
+        evidence = lane["must_carry_into_contract"]
         if lane["training_allowed_now"]:
             issues.append(_issue(f"{lane_id}_training_allowed", "Lane option must not authorize training."))
         if not lane["required_decision_justification"]:
             issues.append(_issue(f"{lane_id}_missing_justification_requirements", "Lane option must define justification requirements."))
+        if not evidence["required_contract_deltas"]:
+            issues.append(_issue(f"{lane_id}_missing_contract_deltas", "Lane option must define contract deltas."))
+        if not evidence["required_training_evidence"]:
+            issues.append(_issue(f"{lane_id}_missing_training_evidence", "Lane option must define required training evidence."))
+        if not evidence["required_evaluation_evidence"]:
+            issues.append(_issue(f"{lane_id}_missing_evaluation_evidence", "Lane option must define required evaluation evidence."))
+        if not evidence["required_acceptance_evidence"]:
+            issues.append(_issue(f"{lane_id}_missing_acceptance_evidence", "Lane option must define required acceptance evidence."))
+        if not evidence["invalid_substitutes"]:
+            issues.append(_issue(f"{lane_id}_missing_invalid_substitutes", "Lane option must define invalid substitutes."))
     return _unique_issues(issues)
 
 
