@@ -609,6 +609,42 @@ def _audit_issues(
         if current_state[field] is not False:
             issues.append(_issue(f"{field}_not_false", "Decision packet current authorization must not allow execution or result material.", current_state[field]))
 
+    matrix_summary = _decision_evidence_matrix_summary(packet)
+    expected_decisions = {APPROVE_OBSTACLE_SUMMARY, REJECT_OBSTACLE_SUMMARY}
+    if not matrix_summary["present"]:
+        issues.append(_issue("decision_evidence_matrix_missing", "Decision packet must expose a decision evidence matrix."))
+    if matrix_summary["matrix_id"] != "module2_f02_6_decision_evidence_matrix":
+        issues.append(_issue("decision_evidence_matrix_id_invalid", "Decision evidence matrix must use the expected matrix id.", matrix_summary["matrix_id"]))
+    if matrix_summary["status"] != "ready_for_dr_sun_decision_not_authorization":
+        issues.append(_issue("decision_evidence_matrix_status_invalid", "Decision evidence matrix must be ready for Dr Sun decision but not authorization.", matrix_summary["status"]))
+    if matrix_summary["route_count"] != 2:
+        issues.append(_issue("decision_evidence_matrix_route_count_invalid", "Decision evidence matrix must cover approve and reject routes.", matrix_summary["route_count"]))
+    if not expected_decisions.issubset(set(matrix_summary["route_decisions"])):
+        issues.append(_issue("decision_evidence_matrix_route_decisions_incomplete", "Decision evidence matrix must cover approve and reject decisions.", matrix_summary["route_decisions"]))
+    if matrix_summary["required_evidence_count"] < 7:
+        issues.append(_issue("decision_evidence_matrix_required_evidence_incomplete", "Decision evidence matrix must preserve the seven current F02.6 evidence rows.", matrix_summary["required_evidence_count"]))
+    if matrix_summary["missing_required_evidence_count"] != 0:
+        issues.append(_issue("decision_evidence_matrix_missing_required_evidence", "Decision evidence matrix must not have missing required evidence before it supports the human decision.", matrix_summary["missing_required_evidence_ids"]))
+    if matrix_summary["source_issue_count"] != 0:
+        issues.append(_issue("decision_evidence_matrix_source_issues_open", "Decision evidence matrix must not inherit source integrity issues.", matrix_summary["source_issue_count"]))
+    if matrix_summary["global_invalid_substitute_count"] == 0:
+        issues.append(_issue("decision_evidence_matrix_global_invalid_substitutes_missing", "Decision evidence matrix must list global invalid substitutes."))
+    for decision in expected_decisions:
+        if matrix_summary["evidence_counts_by_route"].get(decision, 0) == 0:
+            issues.append(_issue(f"decision_evidence_matrix_{decision}_missing_evidence", "Each decision route must list required evidence rows."))
+        if matrix_summary["invalid_substitute_counts_by_route"].get(decision, 0) == 0:
+            issues.append(_issue(f"decision_evidence_matrix_{decision}_missing_invalid_substitutes", "Each decision route must list invalid substitutes."))
+    for field in (
+        "current_authorization_allowed_now",
+        "remote_preflight_allowed_now",
+        "remote_training_allowed_now",
+        "local_training_allowed_now",
+        "formal_claim_allowed_now",
+        "paper_result_material_allowed_now",
+    ):
+        if matrix_summary[field] is not False:
+            issues.append(_issue(f"decision_evidence_matrix_{field}_not_false", "Decision evidence matrix must not authorize execution or result material.", matrix_summary[field]))
+
     record_status = current_state["record_status"]
     if record_status not in {"pending_human_decision", "approved", "rejected"}:
         issues.append(_issue("record_status_unknown", "Decision record status must be pending_human_decision, approved, or rejected.", record_status))
