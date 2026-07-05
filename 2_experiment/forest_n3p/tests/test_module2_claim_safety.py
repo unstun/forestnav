@@ -151,6 +151,11 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert manifest["input_status"]["status_report_decision_intake_approved_route_next_lane"] == "source_fresh_regeneration"
     assert manifest["input_status"]["status_report_decision_intake_approved_route_allows_remote_training_now"] is False
     assert manifest["input_status"]["status_report_decision_intake_rejected_route_requires_new_protocol_contract"] is True
+    assert manifest["input_status"]["status_report_decision_evidence_matrix_status"] == "ready_for_dr_sun_decision_not_authorization"
+    assert manifest["input_status"]["status_report_decision_evidence_matrix_route_count"] == 2
+    assert manifest["input_status"]["status_report_decision_evidence_matrix_required_evidence_count"] == 7
+    assert manifest["input_status"]["status_report_decision_evidence_matrix_missing_required_evidence_count"] == 0
+    assert manifest["input_status"]["status_report_decision_evidence_matrix_remote_training_allowed_now"] is False
     assert manifest["input_status"]["status_report_handoff_status"] == "ready_for_manual_remote_execution_review"
     assert manifest["input_status"]["status_report_transition_gate_status"] == "f02_6_transition_gate_audit_passed"
     assert manifest["input_status"]["status_report_transition_gate_audit_issue_count"] == 0
@@ -277,6 +282,9 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert manifest["status_report_decision_intake_summary"]["decision_impact_remote_training_allowed_now"] is False
     assert manifest["status_report_decision_intake_summary"]["decision_impact_formal_claim_allowed_now"] is False
     assert manifest["status_report_decision_intake_summary"]["decision_impact_paper_result_material_allowed_now"] is False
+    assert manifest["status_report_f02_6_decision_evidence_matrix_summary"]["status"] == "ready_for_dr_sun_decision_not_authorization"
+    assert manifest["status_report_f02_6_decision_evidence_matrix_summary"]["missing_required_evidence_count"] == 0
+    assert manifest["status_report_f02_6_decision_evidence_matrix_summary"]["remote_training_allowed_now"] is False
 
     allowed_ids = {item["claim_id"] for item in manifest["allowed_claims"]}
     assert "method_is_ha_star_analytic_operator" in allowed_ids
