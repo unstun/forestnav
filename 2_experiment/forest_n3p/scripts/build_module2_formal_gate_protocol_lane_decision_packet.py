@@ -297,6 +297,31 @@ def _markdown(manifest: dict[str, Any]) -> str:
     ]
     for lane in manifest["lane_options"]:
         lines.append(f"| `{lane['lane_id']}` | `{lane['status']}` | `{lane['training_allowed_now']}` |")
+    lines.extend(["", "## Lane Evidence Contracts"])
+    for lane in manifest["lane_options"]:
+        evidence = lane["must_carry_into_contract"]
+        lines.extend(
+            [
+                "",
+                f"### `{lane['lane_id']}`",
+                "",
+                f"- claim_scope: {lane['claim_scope']}",
+                f"- requires_new_or_revised_contract: `{lane['requires_new_or_revised_contract']}`",
+                "- required_decision_justification:",
+            ]
+        )
+        for item in lane["required_decision_justification"]:
+            lines.append(f"  - {item}")
+        for field in (
+            "required_contract_deltas",
+            "required_training_evidence",
+            "required_evaluation_evidence",
+            "required_acceptance_evidence",
+            "invalid_substitutes",
+        ):
+            lines.append(f"- {field}:")
+            for item in evidence[field]:
+                lines.append(f"  - {item}")
     lines.extend(["", "## Decision Record Schema", ""])
     lines.append(f"- required_fields: `{', '.join(manifest['decision_record_schema']['required_fields'])}`")
     lines.append(f"- training_authorization_must_be: `{manifest['decision_record_schema']['training_authorization_must_be']}`")
