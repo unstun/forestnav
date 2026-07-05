@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_handoff_bundle",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-05T00:22:43.212656+00:00",
-  "source_head": "9949fa4b4797c875818487289ddf378efc141402",
+  "created_at_utc": "2026-07-05T01:01:49.123154+00:00",
+  "source_head": "a11e340c7b8f8ce37bb97c0699af2c4561d7674d",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -17,7 +17,8 @@
     "formal_gate_status_report": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
     "remote_formal_execution_packet": "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json",
     "formal_gate_missing_artifacts": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
-    "h02_formal_acceptance": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
+    "h02_formal_acceptance": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+    "source_freshness_audit": "0_trials/module2_source_freshness_audit/source_freshness_audit.json"
   },
   "current_state": {
     "decision_status": "pending_human_decision",
@@ -32,7 +33,11 @@
     "h02_status": "blocked_formal_output_acceptance",
     "h02_formal_output_accepted": false,
     "h02_paper_result_input_allowed": false,
-    "next_blocked_lane": "decision"
+    "next_blocked_lane": "decision",
+    "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
+    "source_freshness_regeneration_required": true,
+    "source_freshness_non_self_changed_records": 18,
+    "source_freshness_self_artifact_only_lag_records": 1
   },
   "permissions_now": {
     "f02_6_decision_closed": false,
@@ -42,7 +47,8 @@
     "formal_h01_evaluation_allowed_now": false,
     "formal_h02_acceptance_allowed_now": false,
     "formal_claim_allowed_now": false,
-    "local_training_allowed_now": false
+    "local_training_allowed_now": false,
+    "source_freshness_ready_for_remote_preflight": false
   },
   "next_handoff_action": {
     "action_id": "record_f02_6_decision",

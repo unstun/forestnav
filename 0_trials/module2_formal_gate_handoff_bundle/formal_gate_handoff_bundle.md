@@ -23,6 +23,13 @@
 - rejected_route_next_lane: `protocol_redesign`
 - rejected_route_requires_new_protocol_contract: `True`
 
+## Source Freshness Gate
+
+- source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
+- source_freshness_regeneration_required: `True`
+- source_freshness_non_self_changed_records: `18`
+- source_freshness_self_artifact_only_lag_records: `1`
+
 ## Handoff Stages
 
 - 1. `f02_6_decision_record`: allowed_now=`True`, blocked_by=`none`
