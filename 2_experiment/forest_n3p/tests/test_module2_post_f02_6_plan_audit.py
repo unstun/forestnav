@@ -593,7 +593,8 @@ def test_post_f02_6_plan_audit_rejects_blocked_status_report_with_allowed_remote
 
     issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
     assert manifest["status"] == "post_f02_6_plan_audit_failed"
-    assert "formal_gate_status_report_blocked_but_run_remote_training_allowed" in issue_ids
+    assert "formal_gate_status_report_training_step_permission_mismatch" in issue_ids
+    assert "formal_gate_status_report_blocked_but_run_remote_training_allowed" not in issue_ids
 
 
 def test_post_f02_6_plan_audit_requires_status_report_execution_veto_summary(tmp_path):
@@ -644,7 +645,7 @@ def test_post_f02_6_plan_audit_rejects_status_report_execution_veto_drift(tmp_pa
     assert manifest["status"] == "post_f02_6_plan_audit_failed"
     assert "formal_gate_status_report_execution_veto_inconsistent" in issue_ids
     assert "formal_gate_status_report_execution_veto_mismatch_rows_open" in issue_ids
-    assert "formal_gate_status_report_blocked_veto_allows_remote_training" in issue_ids
+    assert "formal_gate_status_report_blocked_veto_allows_remote_training" not in issue_ids
     assert "formal_gate_status_report_execution_veto_permission_mismatch_remote_training" in issue_ids
 
 
@@ -733,7 +734,7 @@ def test_post_f02_6_plan_audit_rejects_remaining_deliverables_unlock_chain_drift
     assert "plan_remaining_deliverables_unlock_chain_summary_mismatch" in issue_ids
     assert "plan_remaining_deliverables_unlock_chain_rows_allowed_while_missing" in issue_ids
     assert "remaining_deliverables_unlock_chain_rows_missing_required_blockers" in issue_ids
-    assert "remaining_deliverables_unlock_chain_rows_allowed_while_missing" in issue_ids
+    assert "remaining_deliverables_unlock_chain_rows_allowed_while_missing" not in issue_ids
 
 
 def test_post_f02_6_plan_audit_rejects_proof_audit_deliverables_summary_drift(tmp_path):
