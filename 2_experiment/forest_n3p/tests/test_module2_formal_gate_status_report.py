@@ -721,6 +721,25 @@ def test_formal_gate_status_report_requires_clean_decision_intake(tmp_path):
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
 
 
+def test_formal_gate_status_report_rejects_decision_evidence_matrix_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    intake = json.loads(config.decision_intake_path.read_text(encoding="utf-8"))
+    matrix = intake["decision_evidence_matrix_summary"]
+    matrix["missing_required_evidence_count"] = 1
+    matrix["remote_training_allowed_now"] = True
+    matrix["global_invalid_substitute_count"] = 0
+    config.decision_intake_path.write_text(json.dumps(intake), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert manifest["status"] == "formal_gate_status_blocked"
+    assert "decision_intake_evidence_matrix_missing_required_evidence" in issue_ids
+    assert "decision_intake_decision_evidence_matrix_remote_training_allowed_now_not_false" in issue_ids
+    assert "decision_intake_evidence_matrix_invalid_substitutes_missing" in issue_ids
+
+
 def test_formal_gate_status_report_rejects_decision_record_current_permission_drift(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
     config = _config(tmp_path, complete=False)
