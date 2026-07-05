@@ -107,6 +107,21 @@ def build_packet(config: F026DecisionPacketConfig) -> dict[str, Any]:
         ),
     ]
 
+    remote_readiness = _remote_readiness(remote_no_warm=remote_no_warm, remote_warm=remote_warm, remote_smoke=remote_smoke)
+    current_authorization = _current_authorization(
+        decision_record=decision_record,
+        decision_intake=decision_intake,
+    )
+    source_integrity_summary = _source_integrity_summary(sources)
+    decision_evidence_matrix = _decision_evidence_matrix(
+        config,
+        candidates=candidates,
+        remote_readiness=remote_readiness,
+        current_authorization=current_authorization,
+        decision_intake=decision_intake,
+        source_integrity_summary=source_integrity_summary,
+    )
+
     return {
         "schema_version": 1,
         "packet_name": "module2_f02_6_warm_start_decision_packet",
@@ -144,14 +159,12 @@ def build_packet(config: F026DecisionPacketConfig) -> dict[str, Any]:
             bounded_eval=scalar_patch,
             verdict="reference_only",
         ),
-        "remote_readiness": _remote_readiness(remote_no_warm=remote_no_warm, remote_warm=remote_warm, remote_smoke=remote_smoke),
-        "current_authorization": _current_authorization(
-            decision_record=decision_record,
-            decision_intake=decision_intake,
-        ),
+        "remote_readiness": remote_readiness,
+        "current_authorization": current_authorization,
+        "decision_evidence_matrix": decision_evidence_matrix,
         "next_actions": _next_actions(),
         "sources": sources,
-        "source_integrity_summary": _source_integrity_summary(sources),
+        "source_integrity_summary": source_integrity_summary,
         "claim_boundaries": [
             "This packet is decision support, not a formal experiment result.",
             "It does not close F02.6; Dr Sun must explicitly approve or reject the recommendation.",
@@ -406,6 +419,299 @@ def _next_actions() -> dict[str, Any]:
             "next_protocol": "run a stronger/full patch-CNN warm-start protocol before any warm-start PPO formal trial",
         },
     }
+
+
+def _decision_evidence_matrix(
+    config: F026DecisionPacketConfig,
+    *,
+    candidates: Sequence[dict[str, Any]],
+    remote_readiness: dict[str, Any],
+    current_authorization: dict[str, Any],
+    decision_intake: dict[str, Any],
+    source_integrity_summary: dict[str, Any],
+) -> dict[str, Any]:
+    candidate_by_id = {str(candidate.get("candidate_id")): candidate for candidate in candidates}
+    no_warm = candidate_by_id["no_warm_start"]["formal_gate3"]
+    obstacle = candidate_by_id["obstacle_summary_bc"]
+    patch = candidate_by_id["patch_scalar_cnn_bounded"]
+    approve_route = _intake_route(decision_intake, "approve_obstacle_summary_warm_start")
+    reject_route = _intake_route(decision_intake, "reject_obstacle_summary_warm_start")
+
+    obstacle_bounded = obstacle["patch_bounded_closed_loop"]
+    patch_bounded = patch["patch_bounded_closed_loop"]
+    no_warm_rate = float(no_warm["terminal_rs_success_rate"])
+    no_warm_threshold = float(no_warm["success_threshold"])
+    approve_evidence = [
+        _decision_evidence(
+            evidence_id="no_warm_formal_gate3_failure",
+            role="Proves only the no-warm branch failed under the audited Gate #3 protocol.",
+            artifact_paths=[config.no_warm_audit, config.no_warm_eval_summary],
+            observed={
+                "formal_decision": no_warm["formal_decision"],
+                "terminal_rs_success": no_warm["terminal_rs_success"],
+                "episodes": no_warm["episodes"],
+                "terminal_rs_success_rate": no_warm_rate,
+                "success_threshold": no_warm_threshold,
+            },
+            satisfied=(
+                str(no_warm["formal_decision"]) == "fail"
+                and int(no_warm["episodes"]) >= 64
+                and no_warm_rate < no_warm_threshold
+            ),
+            invalid_substitutes=[
+                "remote CUDA smoke audit",
+                "available-subset smoke evaluation",
+                "paper table preview",
+            ],
+        ),
+        _decision_evidence(
+            evidence_id="obstacle_summary_bc_candidate_readiness",
+            role="Anchors the recommended practical warm-start initializer and its formal-v2 closed-loop evidence.",
+            artifact_paths=[config.obstacle_summary, config.obstacle_patch_bounded_eval, OBSTACLE_BC_CHECKPOINT],
+            observed={
+                "checkpoint": obstacle["checkpoint"],
+                "checkpoint_sha256": obstacle["checkpoint_sha256"],
+                "formal_v2_terminal_rs_success": obstacle["formal_v2_closed_loop"]["terminal_rs_success"],
+                "formal_v2_episodes": obstacle["formal_v2_closed_loop"]["episodes"],
+                "patch_bounded_terminal_rs_success": obstacle_bounded["terminal_rs_success"],
+                "patch_bounded_episodes": obstacle_bounded["episodes"],
+            },
+            satisfied=(
+                bool(obstacle["checkpoint_sha256"])
+                and int(obstacle["formal_v2_closed_loop"]["episodes"]) > 0
+                and int(obstacle_bounded["episodes"]) > 0
+            ),
+            invalid_substitutes=[
+                "checkpoint path without sha256",
+                "BC training summary without closed-loop rows",
+                "manual note that the model exists",
+            ],
+        ),
+        _decision_evidence(
+            evidence_id="bounded_candidate_comparison_against_patch_cnn",
+            role="Checks that obstacle-summary remains the stronger current warm-start candidate on the same bounded rows.",
+            artifact_paths=[config.obstacle_patch_bounded_eval, config.patch_summary],
+            observed={
+                "obstacle_summary_terminal_rs_success": obstacle_bounded["terminal_rs_success"],
+                "patch_scalar_cnn_terminal_rs_success": patch_bounded["terminal_rs_success"],
+                "obstacle_summary_episodes": obstacle_bounded["episodes"],
+                "patch_scalar_cnn_episodes": patch_bounded["episodes"],
+            },
+            satisfied=(
+                int(obstacle_bounded["episodes"]) == int(patch_bounded["episodes"])
+                and int(obstacle_bounded["terminal_rs_success"]) > int(patch_bounded["terminal_rs_success"])
+            ),
+            invalid_substitutes=[
+                "cross-protocol comparison",
+                "single scalar validation loss",
+                "README-level model description",
+            ],
+        ),
+        _decision_evidence(
+            evidence_id="remote_route_guarded_until_decision",
+            role="Keeps the post-approval remote route visible without treating it as current training authorization.",
+            artifact_paths=[
+                config.remote_warm_pending_preflight,
+                config.remote_warm_smoke_audit,
+                config.decision_record,
+                config.decision_intake,
+            ],
+            observed={
+                "warm_start_formal_trial_ready": remote_readiness["warm_start_formal_preflight"]["formal_trial_ready"],
+                "warm_start_blocker_codes": remote_readiness["warm_start_formal_preflight"]["blocker_codes"],
+                "cuda_smoke_formal_decision": remote_readiness["warm_start_cuda_smoke"]["formal_decision"],
+                "current_allowed_action_ids": current_authorization["current_allowed_action_ids"],
+                "current_blocked_action_ids": current_authorization["current_blocked_action_ids"],
+            },
+            satisfied=(
+                remote_readiness["warm_start_formal_preflight"]["formal_trial_ready"] is False
+                and "warm_start_decision_pending" in remote_readiness["warm_start_formal_preflight"]["blocker_codes"]
+                and remote_readiness["warm_start_cuda_smoke"]["formal_decision"] == "not_formal"
+                and current_authorization["remote_training_allowed_now"] is False
+            ),
+            invalid_substitutes=[
+                "pending remote preflight manifest",
+                "CUDA smoke treated as formal Gate #3 evidence",
+                "post-decision command copied into a shell",
+            ],
+        ),
+    ]
+    reject_evidence = [
+        _decision_evidence(
+            evidence_id="reject_route_defined_in_decision_intake",
+            role="Defines the audited route if Dr Sun rejects obstacle-summary warm-start.",
+            artifact_paths=[config.decision_intake],
+            observed={
+                "next_lane_after_record": reject_route.get("next_lane_after_record"),
+                "next_protocol": reject_route.get("next_protocol"),
+                "requires_new_protocol_contract": reject_route.get("requires_new_protocol_contract"),
+                "required_next_artifacts": reject_route.get("required_next_artifacts"),
+            },
+            satisfied=(
+                reject_route.get("requires_new_protocol_contract") is True
+                and reject_route.get("next_lane_after_record") == "protocol_redesign"
+                and bool(reject_route.get("required_next_artifacts"))
+            ),
+            invalid_substitutes=[
+                "using the rejected obstacle-summary checkpoint anyway",
+                "editing downstream permission JSON by hand",
+                "paper discussion paragraph without a revised protocol",
+            ],
+        ),
+        _decision_evidence(
+            evidence_id="reject_route_does_not_relabel_no_warm_failure",
+            role="Prevents the no-warm failure from being reused as a warm-start or protocol-redesign result.",
+            artifact_paths=[config.no_warm_audit, config.no_warm_eval_summary],
+            observed={
+                "no_warm_formal_decision": no_warm["formal_decision"],
+                "no_warm_terminal_rs_success_rate": no_warm_rate,
+                "success_threshold": no_warm_threshold,
+            },
+            satisfied=str(no_warm["formal_decision"]) == "fail" and no_warm_rate < no_warm_threshold,
+            invalid_substitutes=[
+                "no-warm failure relabeled as warm-start failure",
+                "no-warm failure relabeled as patch-CNN evidence",
+                "claim that all PPO warm-starts have failed",
+            ],
+        ),
+        _decision_evidence(
+            evidence_id="reject_route_requires_stronger_protocol_before_training",
+            role="Records that rejection moves to protocol redesign before any future formal warm-start PPO run.",
+            artifact_paths=[config.decision_intake, config.obstacle_summary, config.patch_summary],
+            observed={
+                "approve_route_next_lane": approve_route.get("next_lane_after_record"),
+                "reject_route_next_protocol": reject_route.get("next_protocol"),
+                "allows_remote_training_now": reject_route.get("allows_remote_training_now"),
+                "allows_formal_claim_now": reject_route.get("allows_formal_claim_now"),
+            },
+            satisfied=(
+                reject_route.get("next_protocol") == "stronger/full patch-CNN warm-start protocol"
+                and reject_route.get("allows_remote_training_now") is False
+                and reject_route.get("allows_formal_claim_now") is False
+            ),
+            invalid_substitutes=[
+                "stronger protocol name without a contract",
+                "remote training command from the approve route",
+                "warm-start paper result before new acceptance",
+            ],
+        ),
+    ]
+
+    routes = [
+        _decision_route_evidence(
+            decision="approve_obstacle_summary_warm_start",
+            route_status="decision_supported_not_authorized",
+            route_from_intake=approve_route,
+            required_evidence=approve_evidence,
+            invalid_substitutes=[
+                "decision packet recommendation without Dr Sun decision record",
+                "remote CUDA smoke as formal evidence",
+                "local training output",
+                "no-warm formal failure as obstacle-summary warm-start evidence",
+            ],
+        ),
+        _decision_route_evidence(
+            decision="reject_obstacle_summary_warm_start",
+            route_status="redesign_route_defined_not_authorized",
+            route_from_intake=reject_route,
+            required_evidence=reject_evidence,
+            invalid_substitutes=[
+                "implicit rejection by inaction",
+                "continuing obstacle-summary formal training after rejection",
+                "protocol redesign without revised contract",
+                "paper result claim before new formal acceptance",
+            ],
+        ),
+    ]
+    missing_ids = [
+        evidence["evidence_id"]
+        for route in routes
+        for evidence in route["required_evidence"]
+        if evidence["satisfied"] is not True
+    ]
+    required_count = sum(len(route["required_evidence"]) for route in routes)
+    status = (
+        "ready_for_dr_sun_decision_not_authorization"
+        if not missing_ids and int(source_integrity_summary.get("source_issue_count", 0) or 0) == 0
+        else "blocked_by_missing_decision_evidence"
+    )
+    return {
+        "schema_version": 1,
+        "matrix_id": "module2_f02_6_decision_evidence_matrix",
+        "status": status,
+        "current_authorization_allowed_now": False,
+        "remote_preflight_allowed_now": False,
+        "remote_training_allowed_now": False,
+        "local_training_allowed_now": False,
+        "formal_claim_allowed_now": False,
+        "paper_result_material_allowed_now": False,
+        "source_issue_count": int(source_integrity_summary.get("source_issue_count", 0) or 0),
+        "route_count": len(routes),
+        "required_evidence_count": required_count,
+        "satisfied_required_evidence_count": required_count - len(missing_ids),
+        "missing_required_evidence_count": len(missing_ids),
+        "missing_required_evidence_ids": missing_ids,
+        "routes": routes,
+        "global_invalid_substitutes": [
+            "summary written by an AI agent without artifact anchors",
+            "remote stdout without local pullback and hash",
+            "smoke result used as formal PPO checkpoint or Gate #3 evidence",
+            "paper appendix text used as a decision record",
+        ],
+    }
+
+
+def _decision_route_evidence(
+    *,
+    decision: str,
+    route_status: str,
+    route_from_intake: dict[str, Any],
+    required_evidence: Sequence[dict[str, Any]],
+    invalid_substitutes: Sequence[str],
+) -> dict[str, Any]:
+    missing_ids = [item["evidence_id"] for item in required_evidence if item["satisfied"] is not True]
+    return {
+        "decision": decision,
+        "route_status": route_status,
+        "record_status_after_command": route_from_intake.get("record_status_after_command"),
+        "next_lane_after_record": route_from_intake.get("next_lane_after_record"),
+        "next_protocol": route_from_intake.get("next_protocol"),
+        "required_next_artifacts": list(route_from_intake.get("required_next_artifacts") or ()),
+        "current_authorization_allowed_now": False,
+        "allows_local_training_now": False,
+        "allows_remote_preflight_now": False,
+        "allows_remote_training_now": False,
+        "allows_formal_claim_now": False,
+        "required_evidence": list(required_evidence),
+        "missing_required_evidence_ids": missing_ids,
+        "invalid_substitutes": list(invalid_substitutes),
+    }
+
+
+def _decision_evidence(
+    *,
+    evidence_id: str,
+    role: str,
+    artifact_paths: Sequence[Path],
+    observed: dict[str, Any],
+    satisfied: bool,
+    invalid_substitutes: Sequence[str],
+) -> dict[str, Any]:
+    return {
+        "evidence_id": evidence_id,
+        "role": role,
+        "required_artifact_paths": [str(path) for path in artifact_paths],
+        "observed": observed,
+        "satisfied": bool(satisfied),
+        "invalid_substitutes": list(invalid_substitutes),
+    }
+
+
+def _intake_route(decision_intake: dict[str, Any], decision: str) -> dict[str, Any]:
+    for route in decision_intake.get("post_decision_route_matrix") or ():
+        if isinstance(route, dict) and route.get("decision") == decision:
+            return route
+    return {}
 
 
 def _sources(config: F026DecisionPacketConfig) -> list[dict[str, Any]]:
