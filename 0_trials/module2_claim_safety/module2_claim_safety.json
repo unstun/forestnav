@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_claim_safety",
   "status": "blocked_formal_performance_claims",
-  "created_at_utc": "2026-07-05T12:15:49.711876+00:00",
-  "source_head": "232f39e3187597a33ce7052dfbfd9b255f5b918a",
+  "created_at_utc": "2026-07-05T12:24:32.288266+00:00",
+  "source_head": "7ed00f0967f72f24c8827bb6c19773bbdbf1ea23",
   "formal_performance_claim_allowed": false,
   "formal_performance_blockers": [
     "paper_tables_not_formal",
@@ -241,7 +241,8 @@
         "responsible_stage_status": "blocked",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "missing_remote_audit_pullback"
+          "missing_remote_audit_pullback",
+          "source_fresh_h01_h02_targets_open"
         ],
         "mapping_present": true,
         "mapping_matches_expected": true

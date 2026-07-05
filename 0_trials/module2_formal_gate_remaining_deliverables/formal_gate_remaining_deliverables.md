@@ -3,7 +3,7 @@
 This ledger is read-only. It lists remaining formal training, evaluation, and acceptance deliverables; it does not execute commands or write paper results.
 
 - status: `formal_gate_deliverables_blocked`
-- source_head: `232f39e3187597a33ce7052dfbfd9b255f5b918a`
+- source_head: `7ed00f0967f72f24c8827bb6c19773bbdbf1ea23`
 - missing_deliverable_count: `10`
 - open_category_count: `4`
 - missing_counts_by_formal_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
@@ -46,10 +46,10 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - h02_status: `blocked_formal_output_acceptance`
 - h02_formal_output_accepted: `False`
 - h02_paper_result_input_allowed: `False`
-- source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
-- source_freshness_regeneration_required: `True`
-- source_freshness_blocking_regeneration_required: `True`
-- source_freshness_non_self_changed_records: `22`
+- source_freshness_status: `source_freshness_clean_current`
+- source_freshness_regeneration_required: `False`
+- source_freshness_blocking_regeneration_required: `False`
+- source_freshness_non_self_changed_records: `0`
 - source_freshness_self_artifact_only_lag_records: `0`
 
 ## Formal Gate Gap Summary
