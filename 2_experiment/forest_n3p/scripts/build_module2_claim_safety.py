@@ -290,6 +290,21 @@ def build_manifest(
             "status_report_decision_impact_paper_result_material_allowed_now": status_report_decision_intake_summary[
                 "decision_impact_paper_result_material_allowed_now"
             ],
+            "status_report_decision_evidence_matrix_status": status_report_decision_intake_summary[
+                "decision_evidence_matrix_status"
+            ],
+            "status_report_decision_evidence_matrix_route_count": status_report_decision_intake_summary[
+                "decision_evidence_matrix_route_count"
+            ],
+            "status_report_decision_evidence_matrix_required_evidence_count": status_report_decision_intake_summary[
+                "decision_evidence_matrix_required_evidence_count"
+            ],
+            "status_report_decision_evidence_matrix_missing_required_evidence_count": status_report_decision_intake_summary[
+                "decision_evidence_matrix_missing_required_evidence_count"
+            ],
+            "status_report_decision_evidence_matrix_remote_training_allowed_now": status_report_decision_intake_summary[
+                "decision_evidence_matrix_remote_training_allowed_now"
+            ],
             "status_report_next_action_guard_present": status_report_next_action_guard_summary["present"],
             "status_report_next_action_guard_status": status_report_next_action_guard_summary["status"],
             "status_report_next_action_guard_pending_f02_6_decision": status_report_next_action_guard_summary[
@@ -537,6 +552,9 @@ def build_manifest(
             status_report_remote_packet_safety_claim_gate_command_index_summary
         ),
         "status_report_decision_intake_summary": status_report_decision_intake_summary,
+        "status_report_f02_6_decision_evidence_matrix_summary": status_report_decision_intake_summary[
+            "decision_evidence_matrix_summary"
+        ],
         "status_report_next_action_guard_summary": status_report_next_action_guard_summary,
         "handoff_single_next_action_index_summary": handoff_single_next_action_index_summary,
         "status_report_next_required_formal_deliverables": status_report_next_required_formal_deliverables,
