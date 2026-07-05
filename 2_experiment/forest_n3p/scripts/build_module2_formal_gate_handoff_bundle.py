@@ -895,9 +895,58 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- local training allowed: `{manifest['local_training_allowed']}`",
         f"- next action: `{manifest['next_handoff_action']['action_id']}`",
         "",
-        "## Remote Steps",
+        "## Single Next Action Index",
         "",
     ]
+    single = manifest["single_next_action_index"]
+    lines.extend(
+        [
+            f"- index_id: `{single['index_id']}`",
+            f"- status: `{single['status']}`",
+            f"- single_current_human_entry: `{single['single_current_human_entry']}`",
+            f"- next_action_id: `{single['next_action_id']}`",
+            f"- decision_owner_required: `{single['decision_owner_required']}`",
+            f"- valid_decisions: `{', '.join(single['valid_decisions'])}`",
+            f"- required_record_fields: `{', '.join(single['required_record_fields'])}`",
+            f"- current_allowed_action_ids: `{', '.join(single['current_allowed_action_ids'])}`",
+            f"- current_blocked_action_ids: `{', '.join(single['current_blocked_action_ids'])}`",
+            f"- all_execution_disabled_now: `{single['all_execution_disabled_now']}`",
+            f"- record_command_template_count: `{single['record_command_template_count']}`",
+            f"- missing_deliverable_count: `{single['missing_deliverable_count']}`",
+            f"- missing_by_category: `{single['missing_by_category']}`",
+            f"- source_freshness_status: `{single['source_freshness_status']}`",
+            f"- source_freshness_blocking_regeneration_required: `{single['source_freshness_blocking_regeneration_required']}`",
+            f"- local_training_allowed_now: `{single['local_training_allowed_now']}`",
+            f"- remote_preflight_allowed_now: `{single['remote_preflight_allowed_now']}`",
+            f"- remote_training_allowed_now: `{single['remote_training_allowed_now']}`",
+            f"- formal_claim_allowed_now: `{single['formal_claim_allowed_now']}`",
+            f"- paper_result_material_allowed_now: `{single['paper_result_material_allowed_now']}`",
+            f"- approved_route_next_lane: `{single['approved_route_next_lane']}`",
+            f"- rejected_route_next_lane: `{single['rejected_route_next_lane']}`",
+            f"- after_approval_still_requires: `{', '.join(single['after_approval_still_requires'])}`",
+        ]
+    )
+    for template in single["record_command_templates"]:
+        lines.extend(
+            [
+                "",
+                f"### record template: {template['decision']}",
+                "",
+                "```bash",
+                template["command"],
+                "```",
+                "",
+                f"- execution_boundary: `{template['execution_boundary']}`",
+                f"- allowed_for_agent_now: `{template['allowed_for_agent_now']}`",
+            ]
+        )
+    lines.extend(
+        [
+            "",
+        "## Remote Steps",
+        "",
+        ]
+    )
     for step_id, step in manifest["remote_execution_steps"].items():
         blockers = ", ".join(step["blocked_by"]) or "none"
         lines.append(f"- `{step_id}`: allowed_now=`{step['allowed_now']}`, blocked_by=`{blockers}`")
