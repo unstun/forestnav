@@ -3,7 +3,7 @@
 This ledger is read-only. It lists remaining formal training, evaluation, and acceptance deliverables; it does not execute commands or write paper results.
 
 - status: `formal_gate_deliverables_blocked`
-- source_head: `37fca35f7d525e6bacfc3c49a7f45aedcd87a89d+dirty`
+- source_head: `c58a1b4885abe65f5be8fb127845fca830627aad+dirty`
 - missing_deliverable_count: `10`
 - open_category_count: `4`
 - missing_counts_by_formal_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
@@ -35,7 +35,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 
 - status_report_status: `formal_gate_status_blocked`
 - next_blocked_lane: `decision`
-- missing_counts_by_category: `{'decision': 1, 'decision_gate': 0, 'regeneration': 19, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 7}`
+- missing_counts_by_category: `{'decision': 1, 'decision_gate': 0, 'regeneration': 21, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 8}`
 - remote_packet_status: `blocked_until_f02_6_decision`
 - ready_to_run_remote_training: `False`
 - h01_status: `blocked_pending_decisions`
@@ -44,7 +44,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - h02_paper_result_input_allowed: `False`
 - source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
 - source_freshness_regeneration_required: `True`
-- source_freshness_non_self_changed_records: `21`
+- source_freshness_non_self_changed_records: `23`
 - source_freshness_self_artifact_only_lag_records: `0`
 
 ## Formal Gate Gap Summary
@@ -351,9 +351,9 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
   - SHA-256 file or JSON exists for train/final_model.zip
   - recorded digest matches the locally pulled-back final_model.zip
 - proof_commands:
-  - `pulled_back_checkpoint_hash_record_exists_nonempty`: python -c "from pathlib import Path; p=Path('0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json'); assert p.is_file() and p.stat().st_size > 0, p"
+  - `pulled_back_checkpoint_hash_record_exists_nonempty`: python -c "from pathlib import Path; records=[Path(item) for item in ['0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256', '0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json']]; record=next((item for item in records if item.is_file()), None); assert record is not None and record.stat().st_size > 0, records"
     - expected_evidence: `exit_code=0`
-  - `pulled_back_checkpoint_hash_record_matches_model`: python -c "from pathlib import Path; import hashlib; record=Path('0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json'); model=Path('0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip'); digest=hashlib.sha256(model.read_bytes()).hexdigest(); assert digest in record.read_text(encoding='utf-8')"
+  - `pulled_back_checkpoint_hash_record_matches_model`: python -c "from pathlib import Path; import hashlib; records=[Path(item) for item in ['0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256', '0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json']]; model=Path('0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip'); record=next((item for item in records if item.is_file()), None); assert record is not None and record.stat().st_size > 0, records; digest=hashlib.sha256(model.read_bytes()).hexdigest(); assert digest in record.read_text(encoding='utf-8')"
     - expected_evidence: `recorded digest contains sha256(train/final_model.zip)`
 - invalid_substitutes:
   - remote command success without local pullback

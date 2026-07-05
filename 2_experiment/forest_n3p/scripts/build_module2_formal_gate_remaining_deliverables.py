@@ -362,11 +362,14 @@ def _acceptance_predicates(*, category: str, artifact_id: str) -> list[str]:
 
 
 def _acceptance_proof_commands(*, category: str, artifact_id: str, expected_path: str) -> list[dict[str, str]]:
+    exists_command = _python_exists_nonempty_command(expected_path)
+    if artifact_id == "pulled_back_checkpoint_hash_record":
+        exists_command = _python_sha256_record_exists_command(expected_path)
     common = [
         _proof_command(
             command_id=f"{artifact_id}_exists_nonempty",
             purpose="verify the expected formal artifact exists locally after pullback",
-            command=_python_exists_nonempty_command(expected_path),
+            command=exists_command,
             expected_evidence="exit_code=0",
         )
     ]
@@ -539,12 +542,45 @@ def _python_eval_csv_command(path: str) -> str:
     )
 
 
-def _python_sha256_match_command(path: str) -> str:
-    model_path = str(Path(path).with_name("final_model.zip"))
+def _path_candidate_literals(path: str) -> list[str]:
+    candidates = [candidate.strip() for candidate in path.split(" or ") if candidate.strip()]
+    if len(candidates) <= 1:
+        return candidates or [path]
+    first = Path(candidates[0])
+    normalized = [str(first)]
+    for candidate in candidates[1:]:
+        candidate_path = Path(candidate)
+        if candidate_path.is_absolute() or candidate.startswith("0_trials/"):
+            normalized.append(str(candidate_path))
+        elif first.parent != Path(".") and candidate_path.parts and candidate_path.parts[0] == first.parent.name:
+            normalized.append(str(first.parent.parent / candidate_path))
+        elif first.parent != Path("."):
+            normalized.append(str(first.parent / candidate_path))
+        else:
+            normalized.append(str(candidate_path))
+    return normalized
+
+
+def _python_sha256_record_exists_command(path: str) -> str:
+    candidates = _path_candidate_literals(path)
     return (
         "python -c "
-        f"\"from pathlib import Path; import hashlib; record=Path({path!r}); model=Path({model_path!r}); "
-        "digest=hashlib.sha256(model.read_bytes()).hexdigest(); assert digest in record.read_text(encoding='utf-8')\""
+        f"\"from pathlib import Path; records=[Path(item) for item in {candidates!r}]; "
+        "record=next((item for item in records if item.is_file()), None); "
+        "assert record is not None and record.stat().st_size > 0, records\""
+    )
+
+
+def _python_sha256_match_command(path: str) -> str:
+    candidates = _path_candidate_literals(path)
+    model_path = str(Path(candidates[0]).with_name("final_model.zip"))
+    return (
+        "python -c "
+        f"\"from pathlib import Path; import hashlib; records=[Path(item) for item in {candidates!r}]; "
+        f"model=Path({model_path!r}); record=next((item for item in records if item.is_file()), None); "
+        "assert record is not None and record.stat().st_size > 0, records; "
+        "digest=hashlib.sha256(model.read_bytes()).hexdigest(); "
+        "assert digest in record.read_text(encoding='utf-8')\""
     )
 
 

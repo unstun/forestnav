@@ -153,6 +153,22 @@ def test_remaining_deliverables_blocks_pending_formal_gate(tmp_path):
     assert "len(rows) >= 64" in matrix["eval_gate3_eval_episodes_csv"]["proof_commands"][1]["command"]
     assert matrix["gate3_formal_audit_json"]["proof_command_count"] == 2
     assert "formal_blockers" in matrix["gate3_formal_audit_json"]["proof_commands"][1]["command"]
+    hash_record_path = matrix["pulled_back_checkpoint_hash_record"]["expected_path"]
+    assert hash_record_path.endswith("train/final_model.zip.sha256 or train/final_model.zip.sha256.json")
+    hash_record_candidates = [
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256",
+        "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json",
+    ]
+    assert f"records=[Path(item) for item in {hash_record_candidates!r}]" in (
+        matrix["pulled_back_checkpoint_hash_record"]["proof_commands"][0]["command"]
+    )
+    assert "record=next((item for item in records if item.is_file()), None)" in (
+        matrix["pulled_back_checkpoint_hash_record"]["proof_commands"][1]["command"]
+    )
+    assert (
+        "Path('0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip')"
+        in matrix["pulled_back_checkpoint_hash_record"]["proof_commands"][1]["command"]
+    )
     assert matrix["h02_formal_output_acceptance"]["category"] == "formal_acceptance"
     assert any("formal_output_accepted=true" in item for item in matrix["h02_formal_output_acceptance"]["acceptance_predicates"])
     assert "paper_result_input_allowed" in matrix["h02_formal_output_acceptance"]["proof_commands"][1]["command"]
@@ -332,7 +348,12 @@ def _status_report(*, complete):
         "acceptance_artifacts_required": [
             _artifact("gate3_trial_manifest_json", "gate3_trial_manifest.json", complete=complete, state=status),
             _artifact("gate3_formal_audit_json", "gate3_formal_audit.json", complete=complete, state=status),
-            _artifact("pulled_back_checkpoint_hash_record", "train/final_model.zip.sha256", complete=complete, state=status),
+            _artifact(
+                "pulled_back_checkpoint_hash_record",
+                "train/final_model.zip.sha256 or train/final_model.zip.sha256.json",
+                complete=complete,
+                state=status,
+            ),
         ],
         "evaluation_acceptance_required": [
             _artifact("h01_ready_for_formal_run", "module2_v1_evaluation_manifest.json", complete=complete, state="ready_for_formal_run" if complete else "blocked_pending_decisions"),
