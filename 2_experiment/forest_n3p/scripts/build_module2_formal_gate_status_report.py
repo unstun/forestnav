@@ -378,6 +378,19 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "decision_intake_packet_paper_result_material_allowed_now": decision_intake_summary[
             "packet_paper_result_material_allowed_now"
         ],
+        "decision_intake_next_request_status": decision_intake_summary["next_request_status"],
+        "decision_intake_next_request_current_allowed_action_ids": decision_intake_summary[
+            "next_request_current_allowed_action_ids"
+        ],
+        "decision_intake_next_request_current_blocked_action_ids": decision_intake_summary[
+            "next_request_current_blocked_action_ids"
+        ],
+        "decision_intake_next_request_post_decision_routes_are_current_authorization": decision_intake_summary[
+            "next_request_post_decision_routes_are_current_authorization"
+        ],
+        "decision_intake_next_request_all_execution_disabled_now": decision_intake_summary[
+            "next_request_all_execution_disabled_now"
+        ],
             "formal_gate_status": formal_gate.get("status"),
             "missing_artifacts_status": missing_artifacts.get("status"),
             "missing_artifacts_handoff_index_status": missing_artifacts_handoff_summary["status"],
