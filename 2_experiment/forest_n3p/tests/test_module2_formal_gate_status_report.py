@@ -657,6 +657,22 @@ def test_formal_gate_status_report_blocks_remote_when_source_freshness_is_stale(
     assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
 
 
+def test_formal_gate_status_report_accepts_stale_source_when_execution_veto_blocks_remote(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=True)
+    formal_gate = _formal_gate(complete=True)
+    formal_gate["execution_veto_matrix"] = _execution_veto_matrix(complete=False)
+    config.formal_gate_path.write_text(json.dumps(formal_gate), encoding="utf-8")
+    config.source_freshness_path.write_text(json.dumps(_source_freshness(complete=False)), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert "source_freshness_blocks_remote_execution" not in issue_ids
+    assert manifest["formal_gate_execution_veto_summary"]["row_consensus"]["remote_training"] is False
+    assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+
+
 def test_formal_gate_status_report_accepts_source_freshness_self_lag_only(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
     config = _config(tmp_path, complete=True)
