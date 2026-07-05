@@ -151,6 +151,39 @@ def test_remaining_deliverables_blocks_pending_formal_gate(tmp_path):
     assert proof_plan["runs_remote_preflight"] is False
     assert proof_plan["total_matrix_rows"] == 10
     assert proof_plan["total_proof_command_count"] == sum(row["proof_command_count"] for row in matrix.values())
+    production_plan = manifest["deliverable_production_plan"]
+    assert production_plan["plan_id"] == "module2_formal_gate_deliverable_production_plan"
+    assert production_plan["source_plan"] == "post_f02_6_regeneration_plan"
+    assert production_plan["execution_boundary"] == "reference_only_no_execution"
+    assert production_plan["not_paper_result_material"] is True
+    assert production_plan["runs_training"] is False
+    assert production_plan["runs_remote_preflight"] is False
+    assert production_plan["post_plan_status"] == "blocked_until_f02_6_decision"
+    assert production_plan["row_count"] == 10
+    assert production_plan["rows_missing_production_stage"] == 0
+    assert production_plan["rows_missing_materialization_stage"] == 0
+    assert production_plan["rows_allowed_while_missing"] == 0
+    production_rows = {row["matrix_id"]: row for row in production_plan["rows"]}
+    train_row = production_rows["training:train_final_model_zip"]
+    assert train_row["remote_generation_stage_id"] == "gate3_remote_training"
+    assert train_row["local_materialization_stage_id"] == "gate3_remote_audit_pullback"
+    assert train_row["remote_generation_stage"]["runs_training"] is True
+    assert train_row["remote_generation_stage"]["host"] == "gpu3070ti-relay"
+    assert train_row["remote_generation_stage"]["allowed_now"] is False
+    assert "f02_6_decision_not_approved" in train_row["remote_generation_stage"]["blocked_by"]
+    assert train_row["local_materialization_stage"]["runs_training"] is False
+    assert train_row["local_materialization_stage"]["allowed_now"] is False
+    assert train_row["expected_path_listed_in_remote_generation_stage"] is True
+    assert train_row["expected_path_listed_in_local_materialization_stage"] is True
+    hash_row = production_rows["acceptance:pulled_back_checkpoint_hash_record"]
+    assert hash_row["remote_generation_stage_id"] == "gate3_remote_audit_pullback"
+    assert hash_row["hash_manifest_required_by_remote_packet"] is True
+    assert hash_row["expected_path_listed_in_remote_generation_stage"] is False
+    assert hash_row["expected_path_listed_in_local_materialization_stage"] is False
+    h02_row = production_rows["formal_acceptance:h02_formal_output_acceptance"]
+    assert h02_row["remote_generation_stage_id"] == "regenerate_h01_h02_formal_artifacts"
+    assert h02_row["local_materialization_stage_id"] == "regenerate_h01_h02_formal_artifacts"
+    assert h02_row["remote_generation_stage"]["runs_training"] is False
     unlock_chain = manifest["deliverable_unlock_chain"]
     assert unlock_chain["chain_id"] == "module2_formal_gate_missing_deliverable_unlock_chain"
     assert unlock_chain["execution_boundary"] == "read_only_no_execution"
@@ -246,6 +279,10 @@ def test_remaining_deliverables_accepts_synthetic_complete_gate(tmp_path):
     assert manifest["proof_command_plan"]["total_proof_command_count"] == sum(
         row["proof_command_count"] for row in manifest["deliverable_acceptance_matrix"]
     )
+    assert manifest["deliverable_production_plan"]["row_count"] == 10
+    assert manifest["deliverable_production_plan"]["rows_missing_production_stage"] == 0
+    assert manifest["deliverable_production_plan"]["rows_missing_materialization_stage"] == 0
+    assert manifest["deliverable_production_plan"]["rows_allowed_while_missing"] == 0
     assert manifest["deliverable_unlock_chain"]["blocked_row_count"] == 0
     assert manifest["deliverable_unlock_chain"]["rows_with_missing_required_blockers"] == 0
     assert manifest["deliverable_unlock_chain"]["rows_allowed_while_missing"] == 0
@@ -295,6 +332,8 @@ def test_remaining_deliverables_catches_unsafe_or_incomplete_inputs(tmp_path):
         "proof_command_evaluation_eval_gate3_eval_episodes_csv_eval_gate3_eval_episodes_csv_exists_nonempty_forbidden_execution_token"
         in issue_ids
     )
+    assert "production_plan_training_train_summary_json_generation_allowed_while_missing" in issue_ids
+    assert "production_plan_training_train_summary_json_materialization_allowed_while_missing" in issue_ids
     assert manifest["category_counts"]["training"]["present_count"] == 1
     assert manifest["category_counts"]["training"]["missing_count"] == 2
 
@@ -356,8 +395,10 @@ def test_remaining_deliverables_cli_writes_json_and_markdown(tmp_path):
             str(config.h01_manifest_path),
             "--h02-acceptance",
             str(config.h02_acceptance_path),
-            "--source-freshness",
-            str(config.source_freshness_path),
+        "--source-freshness",
+        str(config.source_freshness_path),
+            "--post-f02-6-plan",
+            str(config.post_f02_6_plan_path),
         ]
     )
 
@@ -378,11 +419,15 @@ def test_remaining_deliverables_cli_writes_json_and_markdown(tmp_path):
     assert "Formal Gate Gap Summary" in markdown
     assert "source_freshness_status" in markdown
     assert "Proof Command Plan" in markdown
+    assert "Deliverable Production Plan" in markdown
     assert "Deliverable Unlock Chain" in markdown
     assert "required_current_blockers" in markdown
     assert "record_f02_6_decision -> source_freshness_ready_for_remote_preflight" in markdown
     assert "total_missing_deliverables" in markdown
     assert "total_proof_command_count" in markdown
+    assert "production_plan_row_count" in markdown
+    assert "generation_stage=`gate3_remote_training`" in markdown
+    assert "materialization_stage=`gate3_remote_audit_pullback`" in markdown
     assert "remote_preflight_allowed_now" in markdown
     assert "paper_result_material_allowed_now" in markdown
     assert "gap:training" in markdown
