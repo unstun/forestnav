@@ -156,6 +156,9 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
         "next_handoff_action": _next_handoff_action(decision=decision, status_report=status_report),
         "f02_6_route_handoff_summary": route_summary,
         "remaining_deliverables_gap_summary": _remaining_deliverables_gap_summary(status_report),
+        "status_report_proof_audit_deliverables_summary": _status_report_proof_audit_deliverables_summary(
+            status_report
+        ),
         "post_plan_remaining_deliverables_gap_summary": _remaining_deliverables_gap_summary(post_plan),
         "formal_gate_requirements": _requirements(missing_artifacts, "formal_gate_requirements"),
         "h02_formal_acceptance_requirements": _requirements(h02_acceptance, "formal_acceptance_requirements"),
@@ -541,6 +544,30 @@ def _remaining_deliverables_gap_summary(artifact: dict[str, Any]) -> dict[str, A
     }
 
 
+def _status_report_proof_audit_deliverables_summary(status_report: dict[str, Any]) -> dict[str, Any]:
+    raw = status_report.get("formal_gate_proof_audit_remaining_deliverables_top_level_summary")
+    raw = raw if isinstance(raw, dict) else {}
+    counts = raw.get("missing_counts_by_formal_category")
+    counts = counts if isinstance(counts, dict) else {}
+    matrix_ids = raw.get("missing_matrix_ids_by_formal_category")
+    matrix_ids = matrix_ids if isinstance(matrix_ids, dict) else {}
+    return {
+        "present": raw.get("present") is True or bool(counts or matrix_ids),
+        "missing_counts_by_formal_category": {
+            str(category): int(count) for category, count in counts.items()
+        },
+        "missing_matrix_ids_by_formal_category": {
+            str(category): [str(item) for item in items] if isinstance(items, list) else []
+            for category, items in matrix_ids.items()
+        },
+        "next_blocked_lane": raw.get("next_blocked_lane"),
+        "h01_status": raw.get("h01_status"),
+        "h02_status": raw.get("h02_status"),
+        "h02_formal_output_accepted": raw.get("h02_formal_output_accepted"),
+        "h02_paper_result_input_allowed": raw.get("h02_paper_result_input_allowed"),
+    }
+
+
 def _gap_categories(raw_categories: Any) -> dict[str, dict[str, Any]]:
     if isinstance(raw_categories, dict):
         items = raw_categories.items()
@@ -659,6 +686,16 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"  - `{category}`: missing=`{item.get('missing_count')}`, "
             f"responsible_stage=`{item.get('responsible_stage_id')}`"
         )
+    proof_summary = manifest["status_report_proof_audit_deliverables_summary"]
+    lines.extend(["", "## Status Report Proof-Audit Deliverables Summary", ""])
+    lines.append(f"- present: `{proof_summary['present']}`")
+    lines.append(f"- missing_counts_by_formal_category: `{proof_summary['missing_counts_by_formal_category']}`")
+    lines.append(f"- next_blocked_lane: `{proof_summary['next_blocked_lane']}`")
+    lines.append(f"- h01_status: `{proof_summary['h01_status']}`")
+    lines.append(f"- h02_status: `{proof_summary['h02_status']}`")
+    for category, matrix_ids in proof_summary["missing_matrix_ids_by_formal_category"].items():
+        joined = ", ".join(matrix_ids) if matrix_ids else "none"
+        lines.append(f"- {category}_missing_matrix_ids: `{joined}`")
     lines.append(f"- formal gate requirements: `{len(manifest['formal_gate_requirements'])}`")
     for requirement in manifest["formal_gate_requirements"]:
         stage = requirement.get("responsible_stage_id") or "unmapped"
