@@ -95,6 +95,20 @@ def test_formal_gate_handoff_bundle_blocks_pending_decision_without_execution(tm
     assert route_summary["decision_impact_formal_claim_allowed_now"] is False
     assert route_summary["decision_impact_paper_result_material_allowed_now"] is False
     assert "approved_remote_preflight" in route_summary["decision_impact_formal_training_still_requires"]
+    matrix_summary = manifest["f02_6_decision_evidence_matrix_handoff_summary"]
+    assert matrix_summary["present"] is True
+    assert matrix_summary["matrix_id"] == "module2_f02_6_decision_evidence_matrix"
+    assert matrix_summary["status"] == "ready_for_dr_sun_decision_not_authorization"
+    assert matrix_summary["route_count"] == 2
+    assert set(matrix_summary["route_decisions"]) == {
+        "approve_obstacle_summary_warm_start",
+        "reject_obstacle_summary_warm_start",
+    }
+    assert matrix_summary["required_evidence_count"] == 7
+    assert matrix_summary["satisfied_required_evidence_count"] == 7
+    assert matrix_summary["missing_required_evidence_count"] == 0
+    assert matrix_summary["global_invalid_substitute_count"] == 4
+    assert matrix_summary["authorization_flags"]["remote_training_allowed_now"] is False
     assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
     assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 4
     assert manifest["remaining_deliverables_gap_summary"]["categories"]["training"]["missing_count"] == 3
@@ -289,6 +303,34 @@ def test_formal_gate_handoff_bundle_catches_f02_6_decision_impact_drift(tmp_path
     assert "f02_6_decision_impact_missing_required_approved_remote_preflight" in issue_ids
 
 
+def test_formal_gate_handoff_bundle_catches_f02_6_decision_evidence_matrix_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_handoff_bundle")
+    config = _config(tmp_path, complete=False)
+    status_report = json.loads(config.status_report_path.read_text(encoding="utf-8"))
+    matrix = status_report["f02_6_decision_evidence_matrix_summary"]
+    matrix["missing_required_evidence_count"] = 1
+    matrix["missing_required_evidence_ids"] = ["missing_basis"]
+    matrix["remote_training_allowed_now"] = True
+    matrix["global_invalid_substitute_count"] = 0
+    matrix["invalid_substitute_counts_by_route"]["approve_obstacle_summary_warm_start"] = 0
+    config.status_report_path.write_text(json.dumps(status_report), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    assert manifest["status"] == "blocked_handoff_input_safety_issues"
+    summary = manifest["f02_6_decision_evidence_matrix_handoff_summary"]
+    assert summary["missing_required_evidence_count"] == 1
+    assert summary["authorization_flags"]["remote_training_allowed_now"] is True
+    issue_ids = {issue["issue_id"] for issue in manifest["safety_issues"]}
+    assert "f02_6_decision_evidence_matrix_missing_required_evidence" in issue_ids
+    assert "f02_6_decision_evidence_matrix_allows_remote_training" in issue_ids
+    assert "f02_6_decision_evidence_matrix_invalid_substitutes_missing" in issue_ids
+    assert (
+        "f02_6_decision_evidence_matrix_approve_obstacle_summary_warm_start_invalid_substitutes_missing"
+        in issue_ids
+    )
+
+
 def test_formal_gate_handoff_bundle_cli_writes_json_and_markdown(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_handoff_bundle")
     config = _config(tmp_path, complete=False)
@@ -336,6 +378,9 @@ def test_formal_gate_handoff_bundle_cli_writes_json_and_markdown(tmp_path):
     assert "Remote Steps" in markdown
     assert "Handoff Stages" in markdown
     assert "F02.6 Route Handoff" in markdown
+    assert "F02.6 Decision Evidence Matrix" in markdown
+    assert "module2_f02_6_decision_evidence_matrix" in markdown
+    assert "ready_for_dr_sun_decision_not_authorization" in markdown
     assert "decision_record_is_not_training_authorization" in markdown
     assert "source_freshness_status" in markdown
     assert "remaining deliverables gap" in markdown
@@ -604,6 +649,40 @@ def _status_report(*, complete):
                 "remote_formal_execution_packet_ready",
                 "approved_remote_preflight",
             ],
+        },
+        "f02_6_decision_evidence_matrix_summary": _decision_evidence_matrix_summary(),
+    }
+
+
+def _decision_evidence_matrix_summary():
+    return {
+        "present": True,
+        "matrix_id": "module2_f02_6_decision_evidence_matrix",
+        "status": "ready_for_dr_sun_decision_not_authorization",
+        "route_count": 2,
+        "route_decisions": [
+            "approve_obstacle_summary_warm_start",
+            "reject_obstacle_summary_warm_start",
+        ],
+        "required_evidence_count": 7,
+        "satisfied_required_evidence_count": 7,
+        "missing_required_evidence_count": 0,
+        "missing_required_evidence_ids": [],
+        "current_authorization_allowed_now": False,
+        "remote_preflight_allowed_now": False,
+        "remote_training_allowed_now": False,
+        "local_training_allowed_now": False,
+        "formal_claim_allowed_now": False,
+        "paper_result_material_allowed_now": False,
+        "source_issue_count": 0,
+        "global_invalid_substitute_count": 4,
+        "evidence_counts_by_route": {
+            "approve_obstacle_summary_warm_start": 4,
+            "reject_obstacle_summary_warm_start": 3,
+        },
+        "invalid_substitute_counts_by_route": {
+            "approve_obstacle_summary_warm_start": 4,
+            "reject_obstacle_summary_warm_start": 4,
         },
     }
 
