@@ -35,8 +35,8 @@ FORMAL_REQUIREMENT_PHASE_BY_CATEGORY = {
 }
 CURRENT_BLOCKER_REQUIREMENTS_BY_CATEGORY = {
     "training": ("f02_6_decision_not_approved", "remote_packet_not_ready"),
-    "evaluation": ("f02_6_decision_not_approved", "remote_packet_not_ready"),
-    "acceptance": ("f02_6_decision_not_approved", "remote_packet_not_ready"),
+    "evaluation": ("remote_training_not_completed",),
+    "acceptance": ("remote_training_not_completed",),
     "formal_acceptance": ("missing_remote_audit_pullback",),
 }
 UNLOCK_SEQUENCE_BY_CATEGORY = {
@@ -462,7 +462,10 @@ def _deliverable_production_plan(
             for row in rows
             if row["current_missing"] is True
             and (
-                row["remote_generation_stage"].get("allowed_now") is True
+                (
+                    row["remote_generation_stage"].get("allowed_now") is True
+                    and row["remote_generation_stage_id"] != "gate3_remote_training"
+                )
                 or row["local_materialization_stage"].get("allowed_now") is True
             )
         ),
@@ -552,7 +555,11 @@ def _deliverable_unlock_chain(deliverable_acceptance_matrix: Sequence[dict[str, 
             1 for row in rows if row["missing_required_current_blockers"]
         ),
         "rows_allowed_while_missing": sum(
-            1 for row in rows if row["missing"] is True and row["responsible_stage_allowed_now"] is True
+            1
+            for row in rows
+            if row["missing"] is True
+            and row["responsible_stage_allowed_now"] is True
+            and row["responsible_stage_id"] != "gate3_remote_training"
         ),
         "rows": rows,
     }
