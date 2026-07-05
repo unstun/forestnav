@@ -21,7 +21,25 @@ DEFAULT_REMOTE_PACKET = Path("0_trials/module2_remote_formal_execution_packet/re
 DEFAULT_MISSING_ARTIFACTS = Path("0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json")
 DEFAULT_H02_ACCEPTANCE = Path("0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json")
 DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_freshness_audit.json")
+DEFAULT_PROTOCOL_LANE_STATUS_REPORT = Path(
+    "0_trials/module2_formal_gate_protocol_lane_status_report/protocol_lane_status_report.json"
+)
 REMOTE_STEP_IDS = ("sync_to_remote", "run_remote_preflight", "run_remote_training", "run_remote_audit")
+EXPECTED_PROTOCOL_LANE_STATUS = "protocol_lane_status_blocked_pending_lane_decision"
+EXPECTED_PROTOCOL_LANE_NEXT_ACTION = "record_protocol_lane_decision"
+EXPECTED_PROTOCOL_LANE_IDS = (
+    "stronger_obstacle_summary_warm_start",
+    "full_patch_cnn_policy",
+    "hybrid_ppo_analytic_fallback",
+    "stop_or_reframe_module2_claim",
+)
+EXPECTED_PROTOCOL_LANE_BLOCKED_ACTIONS = (
+    "local_training",
+    "remote_success_training",
+    "remote_preflight_for_new_success_attempt",
+    "formal_claim",
+    "paper_result_material",
+)
 EXPECTED_DECISION_EVIDENCE_MATRIX_ID = "module2_f02_6_decision_evidence_matrix"
 EXPECTED_DECISION_EVIDENCE_MATRIX_STATUS = "ready_for_dr_sun_decision_not_authorization"
 EXPECTED_DECISION_EVIDENCE_ROUTES = (
@@ -64,6 +82,7 @@ class FormalGateHandoffBundleConfig:
     missing_artifacts_path: Path = DEFAULT_MISSING_ARTIFACTS
     h02_acceptance_path: Path = DEFAULT_H02_ACCEPTANCE
     source_freshness_path: Path = DEFAULT_SOURCE_FRESHNESS
+    protocol_lane_status_report_path: Path = DEFAULT_PROTOCOL_LANE_STATUS_REPORT
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -81,6 +100,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         missing_artifacts_path=args.missing_artifacts,
         h02_acceptance_path=args.h02_acceptance,
         source_freshness_path=args.source_freshness,
+        protocol_lane_status_report_path=args.protocol_lane_status_report,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -111,13 +131,19 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
     missing_artifacts = _read_json(config.missing_artifacts_path)
     h02_acceptance = _read_json(config.h02_acceptance_path)
     source_freshness = _read_json(config.source_freshness_path)
+    protocol_lane_status = _protocol_lane_status_summary(_read_json(config.protocol_lane_status_report_path))
 
     stages = _handoff_stages(post_plan)
     remote_steps = _remote_steps(remote_packet)
+    if _protocol_lane_pending(protocol_lane_status):
+        stages = _block_remote_stages_for_protocol_lane(stages)
+        remote_steps = _block_remote_steps_for_protocol_lane(remote_steps)
     route_summary = _f02_6_route_handoff_summary(status_report)
     decision_matrix_summary = _f02_6_decision_evidence_matrix_handoff_summary(status_report)
     source_freshness_summary = _source_freshness_summary(source_freshness)
     permissions = _permissions(status_report, source_freshness=source_freshness)
+    if _protocol_lane_pending(protocol_lane_status):
+        permissions = _block_permissions_for_protocol_lane(permissions)
     remaining_gap = _remaining_deliverables_gap_summary(status_report)
     single_next_action_index = _single_next_action_index(
         decision=decision,
@@ -126,6 +152,7 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
         remaining_gap=remaining_gap,
         route_summary=route_summary,
         source_freshness_summary=source_freshness_summary,
+        protocol_lane_status=protocol_lane_status,
     )
     safety_issues = _safety_issues(
         decision=decision,
@@ -142,12 +169,14 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
         route_summary=route_summary,
         decision_matrix_summary=decision_matrix_summary,
         single_next_action_index=single_next_action_index,
+        protocol_lane_status=protocol_lane_status,
     )
     status = _status(
         decision=decision,
         permissions=permissions,
         remote_packet=remote_packet,
         safety_issues=safety_issues,
+        protocol_lane_status=protocol_lane_status,
     )
     return {
         "schema_version": 1,
@@ -171,26 +200,39 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
             "formal_gate_missing_artifacts": str(config.missing_artifacts_path),
             "h02_formal_acceptance": str(config.h02_acceptance_path),
             "source_freshness_audit": str(config.source_freshness_path),
+            "protocol_lane_status_report": str(config.protocol_lane_status_report_path),
         },
         "current_state": {
             "decision_status": decision.get("status"),
             "decision_decider": decision.get("decider"),
+            "protocol_lane_status": protocol_lane_status["status"],
+            "protocol_lane_decision_record_status": protocol_lane_status["decision_record_status"],
+            "protocol_lane_selected_lane_id": protocol_lane_status["selected_lane_id"],
             "transition_gate_status": transition_gate.get("status"),
             "transition_gate_audit_issue_count": transition_gate.get("audit_issue_count"),
             "post_plan_status": post_plan.get("status"),
             "status_report_status": status_report.get("status"),
             "remote_packet_status": remote_packet.get("status"),
-            "ready_to_run_remote_training": bool(remote_packet.get("ready_to_run_remote_training")),
+            "ready_to_run_remote_training": False
+            if _protocol_lane_pending(protocol_lane_status)
+            else bool(remote_packet.get("ready_to_run_remote_training")),
             "missing_artifacts_status": missing_artifacts.get("status"),
             "h02_status": h02_acceptance.get("status"),
             "h02_formal_output_accepted": bool(h02_acceptance.get("formal_output_accepted")),
             "h02_paper_result_input_allowed": bool(h02_acceptance.get("paper_result_input_allowed")),
-            "next_blocked_lane": _next_blocked_lane_id(status_report),
+            "next_blocked_lane": protocol_lane_status["next_blocked_lane"]
+            if _protocol_lane_pending(protocol_lane_status)
+            else _next_blocked_lane_id(status_report),
             **source_freshness_summary,
         },
         "permissions_now": permissions,
-        "next_handoff_action": _next_handoff_action(decision=decision, status_report=status_report),
+        "next_handoff_action": _next_handoff_action(
+            decision=decision,
+            status_report=status_report,
+            protocol_lane_status=protocol_lane_status,
+        ),
         "single_next_action_index": single_next_action_index,
+        "protocol_lane_status_summary": protocol_lane_status,
         "f02_6_route_handoff_summary": route_summary,
         "f02_6_decision_evidence_matrix_handoff_summary": decision_matrix_summary,
         "remaining_deliverables_gap_summary": remaining_gap,
@@ -209,6 +251,7 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
             "This handoff bundle is read-only and does not execute shell, ssh, rsync, preflight, training, audit, or pullback.",
             "Pending F02.6 means all remote execution steps must remain disabled.",
             "Any formal training command remains gpu3070ti-relay-only after Dr Sun approval and source-fresh regeneration.",
+            "A pending protocol-lane decision overrides older F02.6 or remote-packet readiness signals.",
             "Pulled-back checkpoint, audit, hash, H01, and H02 evidence are required before paper result claims.",
         ],
     }
@@ -228,6 +271,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--missing-artifacts", type=Path, default=DEFAULT_MISSING_ARTIFACTS)
     parser.add_argument("--h02-acceptance", type=Path, default=DEFAULT_H02_ACCEPTANCE)
     parser.add_argument("--source-freshness", type=Path, default=DEFAULT_SOURCE_FRESHNESS)
+    parser.add_argument("--protocol-lane-status-report", type=Path, default=DEFAULT_PROTOCOL_LANE_STATUS_REPORT)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
