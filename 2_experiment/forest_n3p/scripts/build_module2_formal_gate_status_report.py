@@ -3233,6 +3233,25 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"stage_allowed_now=`{payload['responsible_stage_allowed_now']}`, "
             f"missing_artifacts=`{missing_ids}`, proof_commands=`{proof_ids}`, blocked_by=`{blocked_by}`"
         )
+    next_deliverables = manifest["next_required_formal_deliverables"]
+    lines.extend(["", "## Next Required Formal Deliverables", ""])
+    lines.append(f"- status: `{next_deliverables['status']}`")
+    lines.append(f"- execution_boundary: `{next_deliverables['execution_boundary']}`")
+    lines.append(f"- not_paper_result_material: `{next_deliverables['not_paper_result_material']}`")
+    lines.append(f"- runs_training: `{next_deliverables['runs_training']}`")
+    lines.append(f"- runs_remote_preflight: `{next_deliverables['runs_remote_preflight']}`")
+    lines.append(f"- total_missing_deliverables: `{next_deliverables['total_missing_deliverables']}`")
+    lines.append(f"- blocked_categories: `{', '.join(next_deliverables['blocked_categories'])}`")
+    for row in next_deliverables["rows"]:
+        blocked_by = ", ".join(row["responsible_stage_blocked_by"]) if row["responsible_stage_blocked_by"] else "none"
+        proof_ids = ", ".join(row["proof_command_ids"]) if row["proof_command_ids"] else "none"
+        lines.append(
+            f"- `{row['matrix_id']}`: category=`{row['category']}`, artifact=`{row['artifact_id']}`, "
+            f"expected_path=`{row['expected_path']}`, current_state=`{row['current_state']}`, "
+            f"stage=`{row['responsible_stage_id']}`, stage_allowed_now=`{row['responsible_stage_allowed_now']}`, "
+            f"proof_commands=`{proof_ids}`, invalid_substitute_count=`{row['invalid_substitute_count']}`, "
+            f"blocked_by=`{blocked_by}`"
+        )
     proof_plan = manifest["remaining_deliverables_proof_command_plan"]
     lines.extend(["", "## Remaining Deliverables Proof Command Plan", ""])
     lines.append(f"- present: `{proof_plan['present']}`")
