@@ -1394,6 +1394,7 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- h02_formal_output_accepted: `{manifest['h02_formal_output_accepted']}`",
         f"- h02_paper_result_input_allowed: `{manifest['h02_paper_result_input_allowed']}`",
         f"- proof_command_count: `{manifest['proof_command_plan']['total_proof_command_count']}`",
+        f"- production_plan_row_count: `{manifest['deliverable_production_plan']['row_count']}`",
         f"- audit_issue_count: `{manifest['audit_issue_count']}`",
         f"- local_training_allowed_now: `{manifest['local_training_allowed_now']}`",
         f"- remote_preflight_allowed_now: `{manifest['remote_preflight_allowed_now']}`",
@@ -1463,6 +1464,28 @@ def _markdown(manifest: dict[str, Any]) -> str:
     for row in proof_plan["rows"]:
         command_ids = ", ".join(row["proof_command_ids"]) if row["proof_command_ids"] else "none"
         lines.append(f"- `{row['matrix_id']}`: proof_command_count=`{row['proof_command_count']}`, command_ids=`{command_ids}`")
+    production_plan = manifest["deliverable_production_plan"]
+    lines.extend(["", "## Deliverable Production Plan", ""])
+    lines.append(f"- plan_id: `{production_plan['plan_id']}`")
+    lines.append(f"- source_plan: `{production_plan['source_plan']}`")
+    lines.append(f"- post_plan_status: `{production_plan['post_plan_status']}`")
+    lines.append(f"- execution_boundary: `{production_plan['execution_boundary']}`")
+    lines.append(f"- row_count: `{production_plan['row_count']}`")
+    lines.append(f"- rows_missing_production_stage: `{production_plan['rows_missing_production_stage']}`")
+    lines.append(f"- rows_missing_materialization_stage: `{production_plan['rows_missing_materialization_stage']}`")
+    lines.append(f"- rows_allowed_while_missing: `{production_plan['rows_allowed_while_missing']}`")
+    for row in production_plan["rows"]:
+        generation_stage = row["remote_generation_stage"]
+        materialization_stage = row["local_materialization_stage"]
+        lines.append(
+            f"- `{row['matrix_id']}`: generation_stage=`{row['remote_generation_stage_id']}`, "
+            f"generation_allowed_now=`{generation_stage.get('allowed_now')}`, "
+            f"materialization_stage=`{row['local_materialization_stage_id']}`, "
+            f"materialization_allowed_now=`{materialization_stage.get('allowed_now')}`, "
+            f"host=`{generation_stage.get('host') or materialization_stage.get('host')}`, "
+            f"generation_evidence_path_listed=`{row['expected_path_listed_in_remote_generation_stage']}`, "
+            f"materialization_evidence_path_listed=`{row['expected_path_listed_in_local_materialization_stage']}`"
+        )
     unlock_chain = manifest["deliverable_unlock_chain"]
     lines.extend(["", "## Deliverable Unlock Chain", ""])
     lines.append(f"- chain_id: `{unlock_chain['chain_id']}`")
