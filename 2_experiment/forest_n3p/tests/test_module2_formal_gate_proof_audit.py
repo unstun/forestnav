@@ -168,6 +168,8 @@ def test_formal_gate_proof_audit_cli_writes_json_and_markdown(tmp_path):
     assert "train_final_model_zip_valid_zip" in markdown
     assert "blocked_missing_artifact" in markdown
     assert "command_was_executed" in markdown
+    assert "Current Gate State" in markdown
+    assert "Missing Evidence Summary" in markdown
 
 
 def _remaining_deliverables(root: Path):
