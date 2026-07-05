@@ -700,6 +700,27 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"responsible_stage=`{item.get('responsible_stage_id')}`, "
             f"allowed_now=`{item.get('responsible_stage_allowed_now')}`"
         )
+    unlock = manifest["remaining_deliverables_unlock_chain_summary"]
+    lines.extend(["", "## Remaining Deliverables Unlock Chain", ""])
+    lines.append(f"- present: `{unlock['present']}`")
+    lines.append(f"- chain_id: `{unlock['chain_id']}`")
+    lines.append(f"- status: `{unlock['status']}`")
+    lines.append(f"- execution_boundary: `{unlock['execution_boundary']}`")
+    lines.append(f"- row_count: `{unlock['row_count']}`")
+    lines.append(f"- blocked_row_count: `{unlock['blocked_row_count']}`")
+    lines.append(f"- rows_with_missing_required_blockers: `{unlock['rows_with_missing_required_blockers']}`")
+    lines.append(f"- rows_allowed_while_missing: `{unlock['rows_allowed_while_missing']}`")
+    for category, item in unlock["categories"].items():
+        blockers = ", ".join(item["required_current_blockers"]) if item["required_current_blockers"] else "none"
+        sequence = (
+            " -> ".join(item["unlock_sequence_before_stage_allowed"])
+            if item["unlock_sequence_before_stage_allowed"]
+            else "none"
+        )
+        lines.append(
+            f"- `{category}`: blocked_row_count=`{item['blocked_row_count']}`, "
+            f"required_current_blockers=`{blockers}`, unlock_sequence=`{sequence}`"
+        )
     lines.extend(["", "## Ordered Stages", ""])
     for stage in manifest["ordered_stages"]:
         host = f", host=`{stage['host']}`" if stage.get("host") else ""
