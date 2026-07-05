@@ -1667,6 +1667,9 @@ def _status_report_payload(*, ready, invalid=False):
         "next_blocked_lane": None if ready else {"lane_id": "decision"},
         "next_action_guard_summary": _status_report_next_action_guard_summary_payload(ready=ready),
         "next_required_formal_deliverables": _status_report_next_required_formal_deliverables_payload(ready=ready),
+        "mainline_formal_gate_state_audit_summary": _status_report_mainline_formal_gate_state_audit_summary_payload(
+            ready=ready
+        ),
         "formal_gate_handoff_summary": {
             "present": True,
             "status": "ready_for_manual_remote_execution_review" if ready else "blocked_until_f02_6_decision",
@@ -1816,6 +1819,28 @@ def _status_report_payload(*, ready, invalid=False):
                 "blocked_by": remote_training_blockers,
             },
         },
+    }
+
+
+def _status_report_mainline_formal_gate_state_audit_summary_payload(*, ready):
+    return {
+        "present": True,
+        "status": "mainline_formal_gate_state_consistent_ready"
+        if ready
+        else "mainline_formal_gate_state_consistent_blocked",
+        "not_paper_result_material": True,
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+        "audit_issue_count": 0,
+        "proof_summary_chain_status": "formal_gate_proof_summary_chain_consistent_ready"
+        if ready
+        else "formal_gate_proof_summary_chain_consistent_blocked",
+        "proof_summary_chain_audit_issue_count": 0,
+        "proof_summary_chain_proof_audit_input_safety_issue_count": 0,
+        "proof_summary_chain_proof_audit_blockers": [],
     }
 
 
