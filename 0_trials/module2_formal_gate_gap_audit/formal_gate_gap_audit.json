@@ -3,7 +3,7 @@
   "artifact_name": "module2_formal_gate_gap_audit",
   "status": "blocked_formal_gate_gaps_open",
   "created_at_utc": "2026-07-05T02:01:41.140447+00:00",
-  "source_head": "b34bda9f7bf26c8a0fd0dcf6f0c33c5d80ad3019+dirty",
+  "source_head": "b34bda9f7bf26c8a0fd0dcf6f0c33c5d80ad3019",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
