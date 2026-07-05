@@ -989,6 +989,27 @@ def _decision_intake_summary(decision_intake: dict[str, Any]) -> dict[str, Any]:
         "local_training_allowed_now": current_state.get("status_report_local_training_allowed_now")
         if isinstance(current_state.get("status_report_local_training_allowed_now"), bool)
         else None,
+        "packet_authorization_status": current_state.get("packet_authorization_status"),
+        "packet_current_allowed_action_ids": _string_list(current_state.get("packet_current_allowed_action_ids")),
+        "packet_current_blocked_action_ids": _string_list(current_state.get("packet_current_blocked_action_ids")),
+        "packet_post_decision_routes_are_current_authorization": current_state.get(
+            "packet_post_decision_routes_are_current_authorization"
+        ),
+        "packet_remote_preflight_allowed_now": current_state.get("packet_remote_preflight_allowed_now")
+        if isinstance(current_state.get("packet_remote_preflight_allowed_now"), bool)
+        else None,
+        "packet_remote_training_allowed_now": current_state.get("packet_remote_training_allowed_now")
+        if isinstance(current_state.get("packet_remote_training_allowed_now"), bool)
+        else None,
+        "packet_local_training_allowed_now": current_state.get("packet_local_training_allowed_now")
+        if isinstance(current_state.get("packet_local_training_allowed_now"), bool)
+        else None,
+        "packet_formal_claim_allowed_now": current_state.get("packet_formal_claim_allowed_now")
+        if isinstance(current_state.get("packet_formal_claim_allowed_now"), bool)
+        else None,
+        "packet_paper_result_material_allowed_now": current_state.get("packet_paper_result_material_allowed_now")
+        if isinstance(current_state.get("packet_paper_result_material_allowed_now"), bool)
+        else None,
         "decision_owner_required": contract.get("decision_owner_required"),
         "valid_decisions": valid_decisions,
         "valid_decision_count": len(valid_decisions),
@@ -1060,6 +1081,35 @@ def _decision_intake_safety_issues(decision_intake: dict[str, Any]) -> list[dict
         for field in ("local_training_allowed_now", "remote_preflight_allowed_now", "remote_training_allowed_now", "formal_claim_allowed_now"):
             if summary[field] is not False:
                 issues.append(_issue(f"decision_intake_{field}_not_false", "pending F02.6 intake must not allow execution or claim permissions."))
+        if summary["packet_authorization_status"] != "blocked_until_dr_sun_decision":
+            issues.append(_issue("decision_intake_packet_authorization_not_blocked", "pending F02.6 intake must report packet authorization blocked until Dr Sun decision."))
+        if summary["packet_current_allowed_action_ids"] != ["record_f02_6_decision"]:
+            issues.append(_issue("decision_intake_packet_allowed_actions_not_decision_only", "pending F02.6 packet authorization must allow only the decision record action."))
+        required_blocked_actions = {
+            "remote_preflight",
+            "remote_training",
+            "local_training",
+            "formal_claim",
+            "paper_result_material",
+        }
+        missing_blocked_actions = required_blocked_actions.difference(summary["packet_current_blocked_action_ids"])
+        if missing_blocked_actions:
+            issues.append(_issue("decision_intake_packet_missing_blocked_actions", "pending F02.6 packet authorization must block execution and result material paths."))
+        if summary["packet_post_decision_routes_are_current_authorization"] is not False:
+            issues.append(_issue("decision_intake_packet_treats_routes_as_authorization", "post-decision routes must not be current authorization."))
+        for field in (
+            "packet_remote_preflight_allowed_now",
+            "packet_remote_training_allowed_now",
+            "packet_local_training_allowed_now",
+            "packet_formal_claim_allowed_now",
+            "packet_paper_result_material_allowed_now",
+        ):
+            if summary[field] is not False:
+                issues.append(_issue(f"decision_intake_{field}_not_false", "packet current authorization must not allow execution or result material while F02.6 is pending."))
+        if summary["packet_remote_preflight_allowed_now"] != summary["remote_preflight_allowed_now"]:
+            issues.append(_issue("decision_intake_packet_status_report_remote_preflight_mismatch", "packet and status report must agree on pending remote preflight permission."))
+        if summary["packet_remote_training_allowed_now"] != summary["remote_training_allowed_now"]:
+            issues.append(_issue("decision_intake_packet_status_report_remote_training_mismatch", "packet and status report must agree on pending remote training permission."))
     elif record_status in {"approved", "rejected"}:
         if summary["record_decider"] != "Dr Sun":
             issues.append(_issue("decision_intake_closed_decider_not_dr_sun", "closed F02.6 intake must be decided by Dr Sun."))
