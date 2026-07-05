@@ -177,6 +177,24 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     )
     assert manifest["input_status"]["claim_safety_next_action_guard_all_execution_disabled_now"] is True
     assert manifest["input_status"]["claim_safety_next_action_guard_execution_leak_count"] == 0
+    assert manifest["input_status"]["claim_safety_handoff_single_next_action_index_present"] is True
+    assert (
+        manifest["input_status"]["claim_safety_handoff_single_next_action_index_status"]
+        == "awaiting_dr_sun_f02_6_decision"
+    )
+    assert (
+        manifest["input_status"]["claim_safety_handoff_single_next_action_index_next_action_id"]
+        == "record_f02_6_decision"
+    )
+    assert manifest["input_status"]["claim_safety_handoff_single_next_action_index_decision_owner_required"] == "Dr Sun"
+    assert manifest["input_status"]["claim_safety_handoff_single_next_action_index_all_execution_disabled_now"] is True
+    assert manifest["input_status"]["claim_safety_handoff_single_next_action_index_missing_deliverable_count"] == 10
+    assert manifest["input_status"]["claim_safety_handoff_single_next_action_index_remote_training_allowed_now"] is False
+    assert manifest["input_status"]["claim_safety_handoff_single_next_action_index_formal_claim_allowed_now"] is False
+    assert (
+        manifest["input_status"]["claim_safety_handoff_single_next_action_index_paper_result_material_allowed_now"]
+        is False
+    )
     assert manifest["input_status"]["claim_safety_next_required_formal_deliverables_present"] is True
     assert (
         manifest["input_status"]["claim_safety_next_required_formal_deliverables_status"]
@@ -258,6 +276,7 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert "claim_safety_remote_packet_safety_command_index_row_count" in markdown
     assert "Claim Safety Next-Action Guard" in markdown
     assert "claim_safety_next_action_guard_expected_next_action_id" in markdown
+    assert "Claim Safety Handoff Single Next-Action Index" in markdown
     assert "Claim Safety Next Required Formal Deliverables" in markdown
     assert "claim_safety_next_required_formal_deliverables_total_missing" in markdown
 
