@@ -399,6 +399,30 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "decision_intake_packet_paper_result_material_allowed_now": decision_intake_summary[
             "packet_paper_result_material_allowed_now"
         ],
+        "decision_intake_record_authorization_status": decision_intake_summary[
+            "record_authorization_status"
+        ],
+        "decision_intake_record_authorization_current_blocked_action_ids": decision_intake_summary[
+            "record_authorization_current_blocked_action_ids"
+        ],
+        "decision_intake_record_authorization_post_decision_routes_are_current_authorization": decision_intake_summary[
+            "record_authorization_post_decision_routes_are_current_authorization"
+        ],
+        "decision_intake_record_authorization_remote_preflight_allowed_now": decision_intake_summary[
+            "record_authorization_remote_preflight_allowed_now"
+        ],
+        "decision_intake_record_authorization_remote_training_allowed_now": decision_intake_summary[
+            "record_authorization_remote_training_allowed_now"
+        ],
+        "decision_intake_record_authorization_formal_claim_allowed_now": decision_intake_summary[
+            "record_authorization_formal_claim_allowed_now"
+        ],
+        "decision_intake_record_authorization_paper_result_material_allowed_now": decision_intake_summary[
+            "record_authorization_paper_result_material_allowed_now"
+        ],
+        "decision_intake_record_post_decision_non_authorization_count": decision_intake_summary[
+            "record_post_decision_non_authorization_count"
+        ],
         "decision_intake_next_request_status": decision_intake_summary["next_request_status"],
         "decision_intake_next_request_current_allowed_action_ids": decision_intake_summary[
             "next_request_current_allowed_action_ids"
@@ -1510,7 +1534,12 @@ def _decision_intake_safety_issues(decision_intake: dict[str, Any]) -> list[dict
         "approved_remote_preflight",
     ):
         if required not in summary["record_post_decision_formal_training_still_requires"]:
-            issues.append(f"decision_intake_record_non_authorization_missing_required_{required}")
+            issues.append(
+                _issue(
+                    f"decision_intake_record_non_authorization_missing_required_{required}",
+                    "F02.6 decision record non-authorization invariants must list every downstream gate still required.",
+                )
+            )
         if required not in summary["decision_impact_formal_training_still_requires"]:
             issues.append(
                 _issue(
