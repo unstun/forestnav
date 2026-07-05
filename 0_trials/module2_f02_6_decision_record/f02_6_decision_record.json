@@ -2,9 +2,9 @@
   "schema_version": 1,
   "record_name": "module2_f02_6_decision_record",
   "status": "approved",
-  "created_at_utc": "2026-07-05T18:43:34.319520+00:00",
+  "created_at_utc": "2026-07-05T18:50:28.199309+00:00",
   "execution_host": "MacBook-Pro.local",
-  "source_head": "7e3dd91dfccbe942c10b5849e997d7542a2475c9",
+  "source_head": "dc0f60fc13e12cdef36ee4d5305f5fd0237b8817",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -41,7 +41,7 @@
       "requires_dr_sun_approval"
     ],
     "formal_claim_allowed": false,
-    "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607"
+    "source_head": "7e3dd91dfccbe942c10b5849e997d7542a2475c9"
   },
   "decision_mapping": {
     "approve_obstacle_summary_warm_start": {

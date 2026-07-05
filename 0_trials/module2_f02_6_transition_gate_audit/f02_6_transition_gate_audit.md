@@ -3,7 +3,7 @@
 This file audits synthetic pending/approved/rejected F02.6 gate transitions. It does not record a decision, run preflight, train, audit, pull back artifacts, or write paper results.
 
 - status: `f02_6_transition_gate_audit_failed`
-- audit_issue_count: `19`
+- audit_issue_count: `21`
 - scenario_count: `3`
 - synthetic_inputs_persisted: `False`
 
@@ -34,8 +34,8 @@ This file audits synthetic pending/approved/rejected F02.6 gate transitions. It 
 - post_plan_audit_status: `post_f02_6_plan_audit_failed`
 - remote_packet_safety_status: `remote_packet_safety_audit_failed`
 - next_blocked_lane_id: `source_fresh_preflight`
-- remote_preflight_allowed_now: `False`
-- remote_training_allowed_now: `False`
+- remote_preflight_allowed_now: `True`
+- remote_training_allowed_now: `True`
 - formal_claim_allowed_now: `False`
 - regenerate_preflight_gate_artifacts_allowed: `True`
 - approved_remote_preflight_allowed: `False`
@@ -67,11 +67,13 @@ This file audits synthetic pending/approved/rejected F02.6 gate transitions. It 
 - `pending.remote_packet_safety_not_passed`: Remote packet safety must remain internally safe.
 - `pending.pending_plan_allows_training`: Pending post-plan must not allow training.
 - `pending.pending_ready_stages_drift`: Only the human decision stage should be ready while pending.
+- `approved.status_report_allows_remote_training`: Synthetic transition must not directly allow formal PPO training.
 - `approved.post_plan_audit_issue_count`: post_plan_audit_issue_count must be zero.
 - `approved.remote_packet_safety_issue_count`: remote_packet_safety_issue_count must be zero.
 - `approved.post_plan_audit_not_passed`: Post-plan audit must remain internally safe.
 - `approved.remote_packet_safety_not_passed`: Remote packet safety must remain internally safe.
 - `approved.approved_post_plan_wrong_status`: Approved scenario should advance only to local gate regeneration or remain blocked by formal gate preconditions.
+- `approved.approved_status_report_allows_remote_preflight_too_early`: Approved decision alone must not bypass remote packet/source freshness.
 - `approved.approved_training_ready_too_early`: Approved scenario must still block formal PPO training.
 - `rejected.post_plan_audit_issue_count`: post_plan_audit_issue_count must be zero.
 - `rejected.remote_packet_safety_issue_count`: remote_packet_safety_issue_count must be zero.

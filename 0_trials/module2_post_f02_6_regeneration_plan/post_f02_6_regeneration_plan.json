@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_regeneration_plan",
   "status": "ready_for_remote_training_packet_execution",
-  "created_at_utc": "2026-07-05T18:45:20.287516+00:00",
-  "source_head": "7e3dd91dfccbe942c10b5849e997d7542a2475c9",
+  "created_at_utc": "2026-07-05T18:50:29.234359+00:00",
+  "source_head": "dc0f60fc13e12cdef36ee4d5305f5fd0237b8817",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -117,8 +117,7 @@
         "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "missing_remote_audit_pullback",
-          "source_fresh_h01_h02_targets_open"
+          "missing_remote_audit_pullback"
         ],
         "missing_artifact_matrix_ids": [
           "formal_acceptance:h01_ready_for_formal_run",
@@ -496,19 +495,9 @@
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.preflight_rl_rs_gate3_formal_trial --output-dir 0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1 --manifest-out 0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1/gate3_preflight_manifest.json --warm-start-decision approved_obstacle_summary --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt --device cuda --allow-duplicate-openmp --allow-existing-output-dir"
       ],
       "formal_gate_blockers_snapshot": [
-        "source_freshness_regeneration_required",
         "handoff_safety_issues_open",
-        "handoff_step_allowed_mismatch_run_remote_training",
-        "handoff_step_blockers_mismatch_run_remote_training",
-        "handoff_step_allowed_mismatch_run_remote_audit",
-        "handoff_step_blockers_mismatch_run_remote_audit",
         "remote_packet_safety_audit_failed",
-        "remote_packet_safety_audit_issues_open",
-        "remote_packet_safety_stale_status",
-        "remote_packet_safety_allowed_mismatch_run_remote_training",
-        "remote_packet_safety_blockers_mismatch_run_remote_training",
-        "remote_packet_safety_allowed_mismatch_run_remote_audit",
-        "remote_packet_safety_blockers_mismatch_run_remote_audit"
+        "remote_packet_safety_audit_issues_open"
       ]
     },
     {
@@ -557,28 +546,18 @@
         "ssh gpu3070ti-relay 'cd ~/ForestNav && PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 --seed 20260704 --device cuda --train-curriculum-preset f03 --eval-curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260704 --train-total-timesteps 100000 --train-n-envs 1 --train-n-steps 128 --train-batch-size 64 --train-n-epochs 4 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --allow-duplicate-openmp --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt'"
       ],
       "formal_gate_blockers_snapshot": [
-        "source_freshness_regeneration_required",
         "handoff_safety_issues_open",
-        "handoff_step_allowed_mismatch_run_remote_training",
-        "handoff_step_blockers_mismatch_run_remote_training",
-        "handoff_step_allowed_mismatch_run_remote_audit",
-        "handoff_step_blockers_mismatch_run_remote_audit",
         "remote_packet_safety_audit_failed",
-        "remote_packet_safety_audit_issues_open",
-        "remote_packet_safety_stale_status",
-        "remote_packet_safety_allowed_mismatch_run_remote_training",
-        "remote_packet_safety_blockers_mismatch_run_remote_training",
-        "remote_packet_safety_allowed_mismatch_run_remote_audit",
-        "remote_packet_safety_blockers_mismatch_run_remote_audit"
+        "remote_packet_safety_audit_issues_open"
       ]
     },
     {
       "stage_id": "gate3_remote_audit_pullback",
       "phase": "acceptance",
-      "status": "ready",
-      "allowed_now": true,
+      "status": "blocked",
+      "allowed_now": false,
       "blocked_by": [
-        "source_fresh_preflight_targets_open"
+        "remote_training_not_completed"
       ],
       "runs_training": false,
       "runs_remote_preflight": false,
@@ -651,13 +630,13 @@
       "f02_6_decision_record",
       "approved_remote_preflight",
       "regenerate_remote_execution_packet",
+      "gate3_remote_audit_pullback",
       "regenerate_h01_h02_formal_artifacts",
       "regenerate_claim_gate_artifacts"
     ],
     "ready_stage_ids": [
       "regenerate_preflight_gate_artifacts",
-      "gate3_remote_training",
-      "gate3_remote_audit_pullback"
+      "gate3_remote_training"
     ],
     "training_allowed_now": true,
     "remote_preflight_allowed_now": false

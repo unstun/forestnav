@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_gap_audit",
   "status": "blocked_formal_gate_gaps_open",
-  "created_at_utc": "2026-07-05T18:45:20.408937+00:00",
-  "source_head": "7e3dd91dfccbe942c10b5849e997d7542a2475c9",
+  "created_at_utc": "2026-07-05T18:50:29.343211+00:00",
+  "source_head": "dc0f60fc13e12cdef36ee4d5305f5fd0237b8817",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -115,7 +115,7 @@
     "formal_claim_allowed_now": false,
     "local_training_allowed_now": false,
     "next_blocked_lane_id": "decision",
-    "input_safety_issue_count": 26
+    "input_safety_issue_count": 27
   },
   "remaining_deliverables_ledger": {
     "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
@@ -397,6 +397,20 @@
     },
     {
       "category": "training",
+      "gap_id": "handoff_step_allowed_mismatch_run_remote_audit",
+      "why_missing": "Handoff run_remote_audit.allowed_now=True does not match remote packet False.",
+      "evidence_path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
+      "required_next_artifact": "Regenerate handoff from the current remote execution packet."
+    },
+    {
+      "category": "training",
+      "gap_id": "handoff_step_blockers_mismatch_run_remote_audit",
+      "why_missing": "Handoff run_remote_audit.blocked_by does not match the remote packet.",
+      "evidence_path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
+      "required_next_artifact": "Regenerate handoff from the current remote execution packet blockers."
+    },
+    {
+      "category": "training",
       "gap_id": "remote_packet_safety_audit_failed",
       "why_missing": "Remote packet safety audit status is remote_packet_safety_audit_failed.",
       "evidence_path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
@@ -408,6 +422,20 @@
       "why_missing": "Remote packet safety audit reports 6 issues.",
       "evidence_path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
       "required_next_artifact": "Resolve every remote packet safety issue before approved remote execution."
+    },
+    {
+      "category": "training",
+      "gap_id": "remote_packet_safety_allowed_mismatch_run_remote_audit",
+      "why_missing": "Safety audit remote_audit_allowed_now=True does not match remote packet False.",
+      "evidence_path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
+      "required_next_artifact": "Regenerate safety audit from the current remote execution packet."
+    },
+    {
+      "category": "training",
+      "gap_id": "remote_packet_safety_blockers_mismatch_run_remote_audit",
+      "why_missing": "Safety audit remote_audit_blocked_by does not match remote packet blockers.",
+      "evidence_path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
+      "required_next_artifact": "Regenerate safety audit from the current remote execution packet blockers."
     }
   ],
   "missing_evaluation_artifacts": [
@@ -514,7 +542,7 @@
     {
       "category": "acceptance",
       "gap_id": "formal_status_report_safety_issues_open",
-      "why_missing": "Status report has 26 input safety issues.",
+      "why_missing": "Status report has 27 input safety issues.",
       "evidence_path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
       "required_next_artifact": "Resolve status report input safety issues before treating the formal gate as complete."
     },
@@ -703,7 +731,8 @@
     "all_rows_consistent": false,
     "mismatch_rows": [
       "remote_preflight",
-      "remote_training"
+      "remote_training",
+      "remote_audit"
     ],
     "rows": [
       {
@@ -744,11 +773,11 @@
         "row_id": "remote_audit",
         "allowed_now_by_source": {
           "handoff_bundle": true,
-          "remote_packet": true,
+          "remote_packet": false,
           "remote_packet_safety": true
         },
-        "consistent": true,
-        "consensus_allowed_now": true
+        "consistent": false,
+        "consensus_allowed_now": false
       },
       {
         "row_id": "formal_claim",
@@ -777,8 +806,12 @@
       "status": "blocked",
       "blocked_by": [
         "handoff_safety_issues_open",
+        "handoff_step_allowed_mismatch_run_remote_audit",
+        "handoff_step_blockers_mismatch_run_remote_audit",
         "remote_packet_safety_audit_failed",
-        "remote_packet_safety_audit_issues_open"
+        "remote_packet_safety_audit_issues_open",
+        "remote_packet_safety_allowed_mismatch_run_remote_audit",
+        "remote_packet_safety_blockers_mismatch_run_remote_audit"
       ],
       "runs_training": false,
       "host": "gpu3070ti-relay",
@@ -791,8 +824,12 @@
       "status": "blocked",
       "blocked_by": [
         "handoff_safety_issues_open",
+        "handoff_step_allowed_mismatch_run_remote_audit",
+        "handoff_step_blockers_mismatch_run_remote_audit",
         "remote_packet_safety_audit_failed",
-        "remote_packet_safety_audit_issues_open"
+        "remote_packet_safety_audit_issues_open",
+        "remote_packet_safety_allowed_mismatch_run_remote_audit",
+        "remote_packet_safety_blockers_mismatch_run_remote_audit"
       ],
       "runs_training": true,
       "host": "gpu3070ti-relay",
@@ -805,8 +842,12 @@
       "status": "blocked",
       "blocked_by": [
         "handoff_safety_issues_open",
+        "handoff_step_allowed_mismatch_run_remote_audit",
+        "handoff_step_blockers_mismatch_run_remote_audit",
         "remote_packet_safety_audit_failed",
         "remote_packet_safety_audit_issues_open",
+        "remote_packet_safety_allowed_mismatch_run_remote_audit",
+        "remote_packet_safety_blockers_mismatch_run_remote_audit",
         "missing_remote_pullback_artifact",
         "missing_ppo_result_rows",
         "missing_ppo_checkpoint_hash"
@@ -822,8 +863,12 @@
       "status": "blocked",
       "blocked_by": [
         "handoff_safety_issues_open",
+        "handoff_step_allowed_mismatch_run_remote_audit",
+        "handoff_step_blockers_mismatch_run_remote_audit",
         "remote_packet_safety_audit_failed",
         "remote_packet_safety_audit_issues_open",
+        "remote_packet_safety_allowed_mismatch_run_remote_audit",
+        "remote_packet_safety_blockers_mismatch_run_remote_audit",
         "missing_remote_pullback_artifact",
         "missing_ppo_result_rows",
         "missing_ppo_checkpoint_hash",
@@ -844,8 +889,12 @@
       "status": "blocked",
       "blocked_by": [
         "handoff_safety_issues_open",
+        "handoff_step_allowed_mismatch_run_remote_audit",
+        "handoff_step_blockers_mismatch_run_remote_audit",
         "remote_packet_safety_audit_failed",
         "remote_packet_safety_audit_issues_open",
+        "remote_packet_safety_allowed_mismatch_run_remote_audit",
+        "remote_packet_safety_blockers_mismatch_run_remote_audit",
         "missing_remote_pullback_artifact",
         "missing_ppo_result_rows",
         "missing_ppo_checkpoint_hash",

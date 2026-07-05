@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_remaining_deliverables",
   "status": "formal_gate_deliverables_blocked",
-  "created_at_utc": "2026-07-05T18:45:22.781079+00:00",
-  "source_head": "7e3dd91dfccbe942c10b5849e997d7542a2475c9",
+  "created_at_utc": "2026-07-05T18:50:52.118027+00:00",
+  "source_head": "dc0f60fc13e12cdef36ee4d5305f5fd0237b8817",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -33,13 +33,13 @@
     "missing_counts_by_category": {
       "decision": 0,
       "decision_gate": 1,
-      "regeneration": 0,
-      "gate_sequence": 5,
+      "regeneration": 9,
+      "gate_sequence": 6,
       "training": 3,
       "evaluation": 2,
       "acceptance": 3,
       "evaluation_acceptance": 2,
-      "claim_gate": 1
+      "claim_gate": 4
     },
     "remote_packet_status": "ready_for_gpu3070ti_remote_training",
     "ready_to_run_remote_training": true,
@@ -212,9 +212,9 @@
         "missing_count": 2,
         "present_count": 0,
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_allowed_now": true,
+        "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open"
+          "remote_training_not_completed"
         ],
         "next_required_evidence": [
           "eval/gate3_eval_episodes.csv from the approved formal remote run",
@@ -265,9 +265,9 @@
         "missing_count": 3,
         "present_count": 0,
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_allowed_now": true,
+        "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open"
+          "remote_training_not_completed"
         ],
         "next_required_evidence": [
           "gate3_trial_manifest.json copied back from the formal remote run",
@@ -392,8 +392,8 @@
     "execution_boundary": "read_only_no_execution",
     "not_paper_result_material": true,
     "status": "source_freshness_clean_current",
-    "source_head": "7e3dd91dfccbe942c10b5849e997d7542a2475c9",
-    "current_head": "7e3dd91dfccbe942c10b5849e997d7542a2475c9",
+    "source_head": "dc0f60fc13e12cdef36ee4d5305f5fd0237b8817",
+    "current_head": "dc0f60fc13e12cdef36ee4d5305f5fd0237b8817",
     "blocking_regeneration_required_before_remote_formal_execution": false,
     "blocking_target_count": 0,
     "blocking_target_ids": [],
@@ -538,7 +538,7 @@
     "row_count": 10,
     "rows_missing_production_stage": 0,
     "rows_missing_materialization_stage": 0,
-    "rows_allowed_while_missing": 8,
+    "rows_allowed_while_missing": 6,
     "rows": [
       {
         "matrix_id": "training:train_final_model_zip",
@@ -565,10 +565,10 @@
         "local_materialization_stage": {
           "stage_id": "gate3_remote_audit_pullback",
           "phase": "acceptance",
-          "status": "ready",
-          "allowed_now": true,
+          "status": "blocked",
+          "allowed_now": false,
           "blocked_by": [
-            "source_fresh_preflight_targets_open"
+            "remote_training_not_completed"
           ],
           "runs_training": false,
           "runs_remote_preflight": false,
@@ -608,10 +608,10 @@
         "local_materialization_stage": {
           "stage_id": "gate3_remote_audit_pullback",
           "phase": "acceptance",
-          "status": "ready",
-          "allowed_now": true,
+          "status": "blocked",
+          "allowed_now": false,
           "blocked_by": [
-            "source_fresh_preflight_targets_open"
+            "remote_training_not_completed"
           ],
           "runs_training": false,
           "runs_remote_preflight": false,
@@ -651,10 +651,10 @@
         "local_materialization_stage": {
           "stage_id": "gate3_remote_audit_pullback",
           "phase": "acceptance",
-          "status": "ready",
-          "allowed_now": true,
+          "status": "blocked",
+          "allowed_now": false,
           "blocked_by": [
-            "source_fresh_preflight_targets_open"
+            "remote_training_not_completed"
           ],
           "runs_training": false,
           "runs_remote_preflight": false,
@@ -694,10 +694,10 @@
         "local_materialization_stage": {
           "stage_id": "gate3_remote_audit_pullback",
           "phase": "acceptance",
-          "status": "ready",
-          "allowed_now": true,
+          "status": "blocked",
+          "allowed_now": false,
           "blocked_by": [
-            "source_fresh_preflight_targets_open"
+            "remote_training_not_completed"
           ],
           "runs_training": false,
           "runs_remote_preflight": false,
@@ -737,10 +737,10 @@
         "local_materialization_stage": {
           "stage_id": "gate3_remote_audit_pullback",
           "phase": "acceptance",
-          "status": "ready",
-          "allowed_now": true,
+          "status": "blocked",
+          "allowed_now": false,
           "blocked_by": [
-            "source_fresh_preflight_targets_open"
+            "remote_training_not_completed"
           ],
           "runs_training": false,
           "runs_remote_preflight": false,
@@ -780,10 +780,10 @@
         "local_materialization_stage": {
           "stage_id": "gate3_remote_audit_pullback",
           "phase": "acceptance",
-          "status": "ready",
-          "allowed_now": true,
+          "status": "blocked",
+          "allowed_now": false,
           "blocked_by": [
-            "source_fresh_preflight_targets_open"
+            "remote_training_not_completed"
           ],
           "runs_training": false,
           "runs_remote_preflight": false,
@@ -809,10 +809,10 @@
         "remote_generation_stage": {
           "stage_id": "gate3_remote_audit_pullback",
           "phase": "acceptance",
-          "status": "ready",
-          "allowed_now": true,
+          "status": "blocked",
+          "allowed_now": false,
           "blocked_by": [
-            "source_fresh_preflight_targets_open"
+            "remote_training_not_completed"
           ],
           "runs_training": false,
           "runs_remote_preflight": false,
@@ -823,10 +823,10 @@
         "local_materialization_stage": {
           "stage_id": "gate3_remote_audit_pullback",
           "phase": "acceptance",
-          "status": "ready",
-          "allowed_now": true,
+          "status": "blocked",
+          "allowed_now": false,
           "blocked_by": [
-            "source_fresh_preflight_targets_open"
+            "remote_training_not_completed"
           ],
           "runs_training": false,
           "runs_remote_preflight": false,
@@ -852,10 +852,10 @@
         "remote_generation_stage": {
           "stage_id": "gate3_remote_audit_pullback",
           "phase": "acceptance",
-          "status": "ready",
-          "allowed_now": true,
+          "status": "blocked",
+          "allowed_now": false,
           "blocked_by": [
-            "source_fresh_preflight_targets_open"
+            "remote_training_not_completed"
           ],
           "runs_training": false,
           "runs_remote_preflight": false,
@@ -866,10 +866,10 @@
         "local_materialization_stage": {
           "stage_id": "gate3_remote_audit_pullback",
           "phase": "acceptance",
-          "status": "ready",
-          "allowed_now": true,
+          "status": "blocked",
+          "allowed_now": false,
           "blocked_by": [
-            "source_fresh_preflight_targets_open"
+            "remote_training_not_completed"
           ],
           "runs_training": false,
           "runs_remote_preflight": false,
@@ -979,8 +979,8 @@
     "execution_boundary": "read_only_no_execution",
     "row_count": 10,
     "blocked_row_count": 10,
-    "rows_with_missing_required_blockers": 8,
-    "rows_allowed_while_missing": 8,
+    "rows_with_missing_required_blockers": 5,
+    "rows_allowed_while_missing": 3,
     "rows": [
       {
         "matrix_id": "training:train_final_model_zip",
@@ -993,14 +993,8 @@
         "responsible_stage_blocked_by": [
           "source_fresh_preflight_targets_open"
         ],
-        "required_current_blockers": [
-          "f02_6_decision_not_approved",
-          "remote_packet_not_ready"
-        ],
-        "missing_required_current_blockers": [
-          "f02_6_decision_not_approved",
-          "remote_packet_not_ready"
-        ],
+        "required_current_blockers": [],
+        "missing_required_current_blockers": [],
         "unlock_sequence_before_stage_allowed": [
           "record_f02_6_decision",
           "source_freshness_ready_for_remote_preflight",
@@ -1021,14 +1015,8 @@
         "responsible_stage_blocked_by": [
           "source_fresh_preflight_targets_open"
         ],
-        "required_current_blockers": [
-          "f02_6_decision_not_approved",
-          "remote_packet_not_ready"
-        ],
-        "missing_required_current_blockers": [
-          "f02_6_decision_not_approved",
-          "remote_packet_not_ready"
-        ],
+        "required_current_blockers": [],
+        "missing_required_current_blockers": [],
         "unlock_sequence_before_stage_allowed": [
           "record_f02_6_decision",
           "source_freshness_ready_for_remote_preflight",
@@ -1049,14 +1037,8 @@
         "responsible_stage_blocked_by": [
           "source_fresh_preflight_targets_open"
         ],
-        "required_current_blockers": [
-          "f02_6_decision_not_approved",
-          "remote_packet_not_ready"
-        ],
-        "missing_required_current_blockers": [
-          "f02_6_decision_not_approved",
-          "remote_packet_not_ready"
-        ],
+        "required_current_blockers": [],
+        "missing_required_current_blockers": [],
         "unlock_sequence_before_stage_allowed": [
           "record_f02_6_decision",
           "source_freshness_ready_for_remote_preflight",
@@ -1073,9 +1055,9 @@
         "missing": true,
         "current_state": "missing",
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_allowed_now": true,
+        "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open"
+          "remote_training_not_completed"
         ],
         "required_current_blockers": [
           "f02_6_decision_not_approved",
@@ -1102,9 +1084,9 @@
         "missing": true,
         "current_state": "missing",
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_allowed_now": true,
+        "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open"
+          "remote_training_not_completed"
         ],
         "required_current_blockers": [
           "f02_6_decision_not_approved",
@@ -1131,9 +1113,9 @@
         "missing": true,
         "current_state": "missing",
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_allowed_now": true,
+        "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open"
+          "remote_training_not_completed"
         ],
         "required_current_blockers": [
           "f02_6_decision_not_approved",
@@ -1160,9 +1142,9 @@
         "missing": true,
         "current_state": "missing",
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_allowed_now": true,
+        "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open"
+          "remote_training_not_completed"
         ],
         "required_current_blockers": [
           "f02_6_decision_not_approved",
@@ -1189,9 +1171,9 @@
         "missing": true,
         "current_state": "missing",
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_allowed_now": true,
+        "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open"
+          "remote_training_not_completed"
         ],
         "required_current_blockers": [
           "f02_6_decision_not_approved",
@@ -1305,9 +1287,9 @@
         "category": "evaluation",
         "missing_count": 2,
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_allowed_now": true,
+        "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open"
+          "remote_training_not_completed"
         ],
         "missing_matrix_ids": [
           "evaluation:eval_gate3_eval_episodes_csv",
@@ -1333,9 +1315,9 @@
         "category": "acceptance",
         "missing_count": 3,
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_allowed_now": true,
+        "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open"
+          "remote_training_not_completed"
         ],
         "missing_matrix_ids": [
           "acceptance:gate3_trial_manifest_json",
@@ -1449,10 +1431,10 @@
       "missing_count": 2,
       "present_count": 0,
       "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_status": "ready",
-      "responsible_stage_allowed_now": true,
+      "responsible_stage_status": "blocked",
+      "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
-        "source_fresh_preflight_targets_open"
+        "remote_training_not_completed"
       ],
       "acceptable_evidence": [
         "eval/gate3_eval_episodes.csv from the approved formal remote run",
@@ -1489,10 +1471,10 @@
       "missing_count": 3,
       "present_count": 0,
       "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_status": "ready",
-      "responsible_stage_allowed_now": true,
+      "responsible_stage_status": "blocked",
+      "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
-        "source_fresh_preflight_targets_open"
+        "remote_training_not_completed"
       ],
       "acceptable_evidence": [
         "gate3_trial_manifest.json copied back from the formal remote run",
@@ -1740,10 +1722,10 @@
       "missing": true,
       "missing_reason": "required formal Gate3 evaluation artifact",
       "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_status": "ready",
-      "responsible_stage_allowed_now": true,
+      "responsible_stage_status": "blocked",
+      "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
-        "source_fresh_preflight_targets_open"
+        "remote_training_not_completed"
       ],
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
@@ -1790,10 +1772,10 @@
       "missing": true,
       "missing_reason": "required formal Gate3 evaluation artifact",
       "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_status": "ready",
-      "responsible_stage_allowed_now": true,
+      "responsible_stage_status": "blocked",
+      "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
-        "source_fresh_preflight_targets_open"
+        "remote_training_not_completed"
       ],
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
@@ -1840,10 +1822,10 @@
       "missing": true,
       "missing_reason": "required formal Gate3 acceptance artifact",
       "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_status": "ready",
-      "responsible_stage_allowed_now": true,
+      "responsible_stage_status": "blocked",
+      "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
-        "source_fresh_preflight_targets_open"
+        "remote_training_not_completed"
       ],
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
@@ -1891,10 +1873,10 @@
       "missing": true,
       "missing_reason": "required formal Gate3 acceptance artifact",
       "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_status": "ready",
-      "responsible_stage_allowed_now": true,
+      "responsible_stage_status": "blocked",
+      "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
-        "source_fresh_preflight_targets_open"
+        "remote_training_not_completed"
       ],
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
@@ -1942,10 +1924,10 @@
       "missing": true,
       "missing_reason": "remote packet requires checkpoint hash before any local formal claim",
       "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_status": "ready",
-      "responsible_stage_allowed_now": true,
+      "responsible_stage_status": "blocked",
+      "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
-        "source_fresh_preflight_targets_open"
+        "remote_training_not_completed"
       ],
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
@@ -2088,135 +2070,23 @@
   ],
   "missing_deliverable_count": 10,
   "open_category_count": 4,
-  "audit_issue_count": 33,
+  "audit_issue_count": 5,
   "audit_issues": [
-    {
-      "issue_id": "training_allowed_while_status_report_blocked",
-      "message": "training stage cannot be allowed while status report is blocked."
-    },
-    {
-      "issue_id": "production_plan_training_train_final_model_zip_generation_allowed_while_missing",
-      "message": "training:train_final_model_zip generation stage cannot already be allowed while the gate still records the deliverable as missing."
-    },
-    {
-      "issue_id": "production_plan_training_train_final_model_zip_materialization_allowed_while_missing",
-      "message": "training:train_final_model_zip materialization stage cannot already be allowed while the gate still records the deliverable as missing."
-    },
-    {
-      "issue_id": "production_plan_training_train_summary_json_generation_allowed_while_missing",
-      "message": "training:train_summary_json generation stage cannot already be allowed while the gate still records the deliverable as missing."
-    },
-    {
-      "issue_id": "production_plan_training_train_summary_json_materialization_allowed_while_missing",
-      "message": "training:train_summary_json materialization stage cannot already be allowed while the gate still records the deliverable as missing."
-    },
-    {
-      "issue_id": "production_plan_training_train_training_manifest_json_generation_allowed_while_missing",
-      "message": "training:train_training_manifest_json generation stage cannot already be allowed while the gate still records the deliverable as missing."
-    },
-    {
-      "issue_id": "production_plan_training_train_training_manifest_json_materialization_allowed_while_missing",
-      "message": "training:train_training_manifest_json materialization stage cannot already be allowed while the gate still records the deliverable as missing."
-    },
-    {
-      "issue_id": "production_plan_evaluation_eval_gate3_eval_episodes_csv_generation_allowed_while_missing",
-      "message": "evaluation:eval_gate3_eval_episodes_csv generation stage cannot already be allowed while the gate still records the deliverable as missing."
-    },
-    {
-      "issue_id": "production_plan_evaluation_eval_gate3_eval_episodes_csv_materialization_allowed_while_missing",
-      "message": "evaluation:eval_gate3_eval_episodes_csv materialization stage cannot already be allowed while the gate still records the deliverable as missing."
-    },
-    {
-      "issue_id": "production_plan_evaluation_eval_gate3_summary_json_generation_allowed_while_missing",
-      "message": "evaluation:eval_gate3_summary_json generation stage cannot already be allowed while the gate still records the deliverable as missing."
-    },
-    {
-      "issue_id": "production_plan_evaluation_eval_gate3_summary_json_materialization_allowed_while_missing",
-      "message": "evaluation:eval_gate3_summary_json materialization stage cannot already be allowed while the gate still records the deliverable as missing."
-    },
-    {
-      "issue_id": "production_plan_acceptance_gate3_trial_manifest_json_generation_allowed_while_missing",
-      "message": "acceptance:gate3_trial_manifest_json generation stage cannot already be allowed while the gate still records the deliverable as missing."
-    },
-    {
-      "issue_id": "production_plan_acceptance_gate3_trial_manifest_json_materialization_allowed_while_missing",
-      "message": "acceptance:gate3_trial_manifest_json materialization stage cannot already be allowed while the gate still records the deliverable as missing."
-    },
-    {
-      "issue_id": "production_plan_acceptance_gate3_formal_audit_json_generation_allowed_while_missing",
-      "message": "acceptance:gate3_formal_audit_json generation stage cannot already be allowed while the gate still records the deliverable as missing."
-    },
-    {
-      "issue_id": "production_plan_acceptance_gate3_formal_audit_json_materialization_allowed_while_missing",
-      "message": "acceptance:gate3_formal_audit_json materialization stage cannot already be allowed while the gate still records the deliverable as missing."
-    },
-    {
-      "issue_id": "production_plan_acceptance_pulled_back_checkpoint_hash_record_generation_allowed_while_missing",
-      "message": "acceptance:pulled_back_checkpoint_hash_record generation stage cannot already be allowed while the gate still records the deliverable as missing."
-    },
-    {
-      "issue_id": "production_plan_acceptance_pulled_back_checkpoint_hash_record_materialization_allowed_while_missing",
-      "message": "acceptance:pulled_back_checkpoint_hash_record materialization stage cannot already be allowed while the gate still records the deliverable as missing."
-    },
-    {
-      "issue_id": "unlock_chain_training_train_final_model_zip_allowed_while_missing",
-      "message": "training:train_final_model_zip cannot have its responsible stage allowed while the formal deliverable is missing."
-    },
-    {
-      "issue_id": "unlock_chain_training_train_final_model_zip_missing_current_blockers",
-      "message": "training:train_final_model_zip is missing required current blockers for its formal-gate category."
-    },
-    {
-      "issue_id": "unlock_chain_training_train_summary_json_allowed_while_missing",
-      "message": "training:train_summary_json cannot have its responsible stage allowed while the formal deliverable is missing."
-    },
-    {
-      "issue_id": "unlock_chain_training_train_summary_json_missing_current_blockers",
-      "message": "training:train_summary_json is missing required current blockers for its formal-gate category."
-    },
-    {
-      "issue_id": "unlock_chain_training_train_training_manifest_json_allowed_while_missing",
-      "message": "training:train_training_manifest_json cannot have its responsible stage allowed while the formal deliverable is missing."
-    },
-    {
-      "issue_id": "unlock_chain_training_train_training_manifest_json_missing_current_blockers",
-      "message": "training:train_training_manifest_json is missing required current blockers for its formal-gate category."
-    },
-    {
-      "issue_id": "unlock_chain_evaluation_eval_gate3_eval_episodes_csv_allowed_while_missing",
-      "message": "evaluation:eval_gate3_eval_episodes_csv cannot have its responsible stage allowed while the formal deliverable is missing."
-    },
     {
       "issue_id": "unlock_chain_evaluation_eval_gate3_eval_episodes_csv_missing_current_blockers",
       "message": "evaluation:eval_gate3_eval_episodes_csv is missing required current blockers for its formal-gate category."
-    },
-    {
-      "issue_id": "unlock_chain_evaluation_eval_gate3_summary_json_allowed_while_missing",
-      "message": "evaluation:eval_gate3_summary_json cannot have its responsible stage allowed while the formal deliverable is missing."
     },
     {
       "issue_id": "unlock_chain_evaluation_eval_gate3_summary_json_missing_current_blockers",
       "message": "evaluation:eval_gate3_summary_json is missing required current blockers for its formal-gate category."
     },
     {
-      "issue_id": "unlock_chain_acceptance_gate3_trial_manifest_json_allowed_while_missing",
-      "message": "acceptance:gate3_trial_manifest_json cannot have its responsible stage allowed while the formal deliverable is missing."
-    },
-    {
       "issue_id": "unlock_chain_acceptance_gate3_trial_manifest_json_missing_current_blockers",
       "message": "acceptance:gate3_trial_manifest_json is missing required current blockers for its formal-gate category."
     },
     {
-      "issue_id": "unlock_chain_acceptance_gate3_formal_audit_json_allowed_while_missing",
-      "message": "acceptance:gate3_formal_audit_json cannot have its responsible stage allowed while the formal deliverable is missing."
-    },
-    {
       "issue_id": "unlock_chain_acceptance_gate3_formal_audit_json_missing_current_blockers",
       "message": "acceptance:gate3_formal_audit_json is missing required current blockers for its formal-gate category."
-    },
-    {
-      "issue_id": "unlock_chain_acceptance_pulled_back_checkpoint_hash_record_allowed_while_missing",
-      "message": "acceptance:pulled_back_checkpoint_hash_record cannot have its responsible stage allowed while the formal deliverable is missing."
     },
     {
       "issue_id": "unlock_chain_acceptance_pulled_back_checkpoint_hash_record_missing_current_blockers",

@@ -13,7 +13,7 @@ This file inventories missing formal-gate evidence. It does not execute commands
 - f02_6_decision_record_status: `approved`
 - f02_6_decision_gate_status: `f02_6_decision_gate_audit_passed`
 - f02_6_transition_gate_status: `f02_6_transition_gate_audit_failed`
-- f02_6_transition_gate_audit_issue_count: `19`
+- f02_6_transition_gate_audit_issue_count: `21`
 - post_f02_6_plan_status: `ready_for_remote_training_packet_execution`
 - post_plan_training_allowed_now: `True`
 - post_plan_remote_preflight_allowed_now: `False`
@@ -63,12 +63,12 @@ This file inventories missing formal-gate evidence. It does not execute commands
   - missing_artifact_ids: `eval_gate3_eval_episodes_csv, eval_gate3_summary_json`
   - source_artifacts: `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
   - downstream_consumers: `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
-  - responsible_stage: `gate3_remote_audit_pullback` (status=`ready`, allowed_now=`True`)
+  - responsible_stage: `gate3_remote_audit_pullback` (status=`blocked`, allowed_now=`False`)
 - `acceptance_remote_pullback_and_audit` (acceptance): status=`ready_to_execute_missing_outputs`, missing_count=`3`, execution_allowed_now=`True`
   - missing_artifact_ids: `gate3_trial_manifest_json, gate3_formal_audit_json, pulled_back_checkpoint_hash_record`
   - source_artifacts: `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json; 0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
   - downstream_consumers: `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
-  - responsible_stage: `gate3_remote_audit_pullback` (status=`ready`, allowed_now=`True`)
+  - responsible_stage: `gate3_remote_audit_pullback` (status=`blocked`, allowed_now=`False`)
 - `h01_h02_formal_evaluation_acceptance` (evaluation_acceptance): status=`blocked_missing_outputs`, missing_count=`2`, execution_allowed_now=`False`
   - missing_artifact_ids: `h01_ready_for_formal_run, h02_formal_output_acceptance`
   - source_artifacts: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
@@ -83,7 +83,7 @@ This file inventories missing formal-gate evidence. It does not execute commands
 - decision_gate: `1`
 - evaluation: `2`
 - evaluation_acceptance: `2`
-- gate_sequence: `5`
+- gate_sequence: `6`
 - regeneration: `0`
 - training: `3`
 
@@ -99,15 +99,15 @@ This file inventories missing formal-gate evidence. It does not execute commands
 - `evaluation_gate3_episode_outputs` (evaluation): status=`ready_to_execute_missing_outputs`, execution_allowed_now=`True`
   - missing_artifact_ids: `eval_gate3_eval_episodes_csv, eval_gate3_summary_json`
   - blocked_by: `eval_gate3_eval_episodes_csv, eval_gate3_summary_json`
-  - responsible_stage: `gate3_remote_audit_pullback` (status=`ready`, allowed_now=`True`)
-  - responsible_stage_blocked_by: `source_fresh_preflight_targets_open`
+  - responsible_stage: `gate3_remote_audit_pullback` (status=`blocked`, allowed_now=`False`)
+  - responsible_stage_blocked_by: `remote_training_not_completed`
   - acceptable_evidence: `eval/gate3_eval_episodes.csv from the approved formal remote run; eval/gate3_summary.json with formal terminal-RS success, collision, truncation, and timing fields`
   - invalid_substitutes: `H02 available-subset smoke CSV; paper table preview; no-warm formal failure eval reused as warm-start evidence`
 - `acceptance_remote_pullback_and_audit` (acceptance): status=`ready_to_execute_missing_outputs`, execution_allowed_now=`True`
   - missing_artifact_ids: `gate3_trial_manifest_json, gate3_formal_audit_json, pulled_back_checkpoint_hash_record`
   - blocked_by: `gate3_trial_manifest_json, gate3_formal_audit_json, pulled_back_checkpoint_hash_record`
-  - responsible_stage: `gate3_remote_audit_pullback` (status=`ready`, allowed_now=`True`)
-  - responsible_stage_blocked_by: `source_fresh_preflight_targets_open`
+  - responsible_stage: `gate3_remote_audit_pullback` (status=`blocked`, allowed_now=`False`)
+  - responsible_stage_blocked_by: `remote_training_not_completed`
   - acceptable_evidence: `gate3_trial_manifest.json copied back from the formal remote run; gate3_formal_audit.json marking the run formal, scoped, and non-smoke; checkpoint SHA-256 record for the pulled-back final_model.zip`
   - invalid_substitutes: `remote command success without local pullback; checkpoint file without hash record; audit marked candidate, smoke, preview, or not_formal`
 - `h01_h02_formal_evaluation_acceptance` (evaluation_acceptance): status=`blocked_missing_outputs`, execution_allowed_now=`False`
@@ -124,10 +124,11 @@ This file inventories missing formal-gate evidence. It does not execute commands
 - `f02_6_transition_gate_audit` (decision_gate): complete=`False`, blocked_by=`f02_6_transition_gate_audit_not_passed, f02_6_transition_gate_audit_issues_open`
   - missing `f02_6_transition_gate_audit`: `0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json` (transition audit must pass before the missing-artifacts inventory can represent the formal gate chain)
 - `source_fresh_regeneration_targets` (regeneration): complete=`True`, blocked_by=``
-- `post_f02_6_ordered_stages` (gate_sequence): complete=`False`, blocked_by=`f02_6_decision_record, approved_remote_preflight, regenerate_remote_execution_packet, regenerate_h01_h02_formal_artifacts, regenerate_claim_gate_artifacts`
+- `post_f02_6_ordered_stages` (gate_sequence): complete=`False`, blocked_by=`f02_6_decision_record, approved_remote_preflight, regenerate_remote_execution_packet, gate3_remote_audit_pullback, regenerate_h01_h02_formal_artifacts, regenerate_claim_gate_artifacts`
   - missing `f02_6_decision_record`: `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json` (current_decision_status_approved)
   - missing `approved_remote_preflight`: `0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1/gate3_preflight_manifest.json` (source_fresh_preflight_targets_open)
   - missing `regenerate_remote_execution_packet`: `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json` (source_fresh_preflight_targets_open)
+  - missing `gate3_remote_audit_pullback`: `0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json` (remote_training_not_completed)
   - missing `regenerate_h01_h02_formal_artifacts`: `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json` (missing_remote_audit_pullback)
   - missing `regenerate_claim_gate_artifacts`: `` (h02_formal_acceptance_not_ready)
 - `remote_training_outputs` (training): complete=`False`, blocked_by=`train_final_model_zip, train_summary_json, train_training_manifest_json`

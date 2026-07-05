@@ -61,7 +61,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - local_training_allowed_now: `False`
 - formal_claim_allowed_now: `False`
 - next_blocked_lane_id: `decision`
-- input_safety_issue_count: `26`
+- input_safety_issue_count: `27`
 
 ## Remaining Deliverables Ledger
 
@@ -117,12 +117,12 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 ## Execution Veto Matrix
 
 - all_rows_consistent: `False`
-- mismatch_rows: `['remote_preflight', 'remote_training']`
+- mismatch_rows: `['remote_preflight', 'remote_training', 'remote_audit']`
 
 - `local_training`: consistent=`True`, consensus_allowed_now=`False`, sources=`{'formal_gate_gap_audit': False, 'status_report': False, 'handoff_bundle': False, 'remote_packet': False}`
 - `remote_preflight`: consistent=`False`, consensus_allowed_now=`False`, sources=`{'status_report': False, 'handoff_bundle': False, 'remote_packet': True, 'remote_packet_safety': True}`
 - `remote_training`: consistent=`False`, consensus_allowed_now=`False`, sources=`{'decision_record': True, 'status_report': False, 'handoff_bundle': False, 'remote_packet': True, 'remote_packet_safety': True}`
-- `remote_audit`: consistent=`True`, consensus_allowed_now=`True`, sources=`{'handoff_bundle': True, 'remote_packet': True, 'remote_packet_safety': True}`
+- `remote_audit`: consistent=`False`, consensus_allowed_now=`False`, sources=`{'handoff_bundle': True, 'remote_packet': False, 'remote_packet_safety': True}`
 - `formal_claim`: consistent=`True`, consensus_allowed_now=`False`, sources=`{'status_report': False, 'handoff_bundle': False}`
 
 ## Decision Gaps
@@ -171,6 +171,14 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
   - evidence: `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`
   - why: Handoff bundle reports 3 safety issues.
   - needed: Resolve handoff safety issues before approved remote execution.
+- `handoff_step_allowed_mismatch_run_remote_audit`
+  - evidence: `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`
+  - why: Handoff run_remote_audit.allowed_now=True does not match remote packet False.
+  - needed: Regenerate handoff from the current remote execution packet.
+- `handoff_step_blockers_mismatch_run_remote_audit`
+  - evidence: `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`
+  - why: Handoff run_remote_audit.blocked_by does not match the remote packet.
+  - needed: Regenerate handoff from the current remote execution packet blockers.
 - `remote_packet_safety_audit_failed`
   - evidence: `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
   - why: Remote packet safety audit status is remote_packet_safety_audit_failed.
@@ -179,6 +187,14 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
   - evidence: `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
   - why: Remote packet safety audit reports 6 issues.
   - needed: Resolve every remote packet safety issue before approved remote execution.
+- `remote_packet_safety_allowed_mismatch_run_remote_audit`
+  - evidence: `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
+  - why: Safety audit remote_audit_allowed_now=True does not match remote packet False.
+  - needed: Regenerate safety audit from the current remote execution packet.
+- `remote_packet_safety_blockers_mismatch_run_remote_audit`
+  - evidence: `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
+  - why: Safety audit remote_audit_blocked_by does not match remote packet blockers.
+  - needed: Regenerate safety audit from the current remote execution packet blockers.
 
 ## Evaluation Artifact Gaps
 
@@ -243,7 +259,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
   - needed: Close every checklist item before final H02/claim readiness can pass.
 - `formal_status_report_safety_issues_open`
   - evidence: `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`
-  - why: Status report has 26 input safety issues.
+  - why: Status report has 27 input safety issues.
   - needed: Resolve status report input safety issues before treating the formal gate as complete.
 - `formal_gate_status_report_blocked`
   - evidence: `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`

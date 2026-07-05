@@ -3,7 +3,7 @@
 This file checks that the long-term Module2 mainline task book mirrors the current formal-gate state. It is not a training run, remote preflight, formal evaluation, or paper result.
 
 - status: `mainline_formal_gate_state_audit_failed`
-- audit_issue_count: `5`
+- audit_issue_count: `2`
 - expected_next_action_id: `None`
 - expected_next_action_mentioned: `False`
 - total_missing_deliverables: `10`
@@ -12,7 +12,7 @@ This file checks that the long-term Module2 mainline task book mirrors the curre
 - f02_6_decision_evidence_matrix_mentioned: `True`
 - f02_6_decision_evidence_matrix_status_mentioned: `True`
 - proof_summary_chain_status: `formal_gate_proof_summary_chain_audit_failed`
-- proof_summary_handoff_single_next_action_consistency: `{'row_count': 3, 'consistent_row_count': 1}`
+- proof_summary_handoff_single_next_action_consistency: `{'row_count': 3, 'consistent_row_count': 3}`
 - executes_commands: `False`
 - runs_training: `False`
 - runs_remote_preflight: `False`
@@ -22,9 +22,6 @@ This file checks that the long-term Module2 mainline task book mirrors the curre
 
 - `mainline_missing_proof_chain_status`: Mainline task book must mention the current proof-summary chain status.
 - `proof_summary_chain_has_audit_issues`: Mainline task-book state should only mirror a clean proof-summary chain.
-- `proof_summary_chain_next_action_guard_inconsistent`: Proof-summary chain must agree on the next-action guard before mainline mirrors it.
-- `proof_summary_chain_next_required_deliverables_inconsistent`: Proof-summary chain must agree on next required formal deliverables before mainline mirrors them.
-- `proof_summary_chain_handoff_single_next_action_inconsistent`: Proof-summary chain must agree on the handoff single-next-action index before mainline mirrors it.
 
 ## Missing Formal Deliverables
 

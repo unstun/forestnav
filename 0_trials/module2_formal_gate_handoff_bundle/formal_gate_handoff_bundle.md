@@ -37,7 +37,7 @@
 - `sync_to_remote`: allowed_now=`True`, blocked_by=`none`
 - `run_remote_preflight`: allowed_now=`True`, blocked_by=`none`
 - `run_remote_training`: allowed_now=`True`, blocked_by=`none`
-- `run_remote_audit`: allowed_now=`True`, blocked_by=`none`
+- `run_remote_audit`: allowed_now=`False`, blocked_by=`remote_training_not_completed`
 
 ## F02.6 Route Handoff
 
@@ -82,7 +82,7 @@
 - 3. `approved_remote_preflight`: allowed_now=`False`, blocked_by=`source_fresh_preflight_targets_open`
 - 4. `regenerate_remote_execution_packet`: allowed_now=`False`, blocked_by=`source_fresh_preflight_targets_open`
 - 5. `gate3_remote_training`: allowed_now=`True`, blocked_by=`source_fresh_preflight_targets_open`
-- 6. `gate3_remote_audit_pullback`: allowed_now=`True`, blocked_by=`source_fresh_preflight_targets_open`
+- 6. `gate3_remote_audit_pullback`: allowed_now=`False`, blocked_by=`remote_training_not_completed`
 - 7. `regenerate_h01_h02_formal_artifacts`: allowed_now=`False`, blocked_by=`missing_remote_audit_pullback`
 - 8. `regenerate_claim_gate_artifacts`: allowed_now=`False`, blocked_by=`h02_formal_acceptance_not_ready`
 
@@ -99,7 +99,7 @@
 - present: `True`
 - missing_counts_by_formal_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
 - next_blocked_lane: `decision`
-- h01_status: `blocked_pending_decisions`
+- h01_status: `blocked_protocol_gap`
 - h02_status: `blocked_formal_output_acceptance`
 - training_missing_matrix_ids: `training:train_final_model_zip, training:train_summary_json, training:train_training_manifest_json`
 - evaluation_missing_matrix_ids: `evaluation:eval_gate3_eval_episodes_csv, evaluation:eval_gate3_summary_json`
@@ -111,6 +111,6 @@
   - `acceptance_remote_pullback_and_audit`: status=`ready_to_execute_missing_outputs`, responsible_stage=`gate3_remote_audit_pullback`
   - `h01_h02_formal_evaluation_acceptance`: status=`blocked_missing_outputs`, responsible_stage=`regenerate_h01_h02_formal_artifacts`
 - H02 acceptance requirements: `4`
-- safety issues: `3`
+- safety issues: `4`
 
 This artifact is read-only and does not execute commands.
