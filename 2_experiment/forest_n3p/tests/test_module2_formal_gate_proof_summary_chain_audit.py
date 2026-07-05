@@ -55,6 +55,23 @@ def test_proof_summary_chain_audit_accepts_consistent_blocked_chain(tmp_path):
     ]["signature_matches_baseline"] is True
 
 
+def test_proof_summary_chain_audit_accepts_explicit_source_freshness_blocker(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit")
+    handoff_summary = _handoff_single_next_action_summary()
+    handoff_summary["source_freshness_status"] = "source_freshness_risks_recorded_gate_still_blocked"
+    handoff_summary["source_freshness_blocking_regeneration_required"] = True
+    paths = _write_chain_inputs(tmp_path, handoff_single_next_action=handoff_summary)
+
+    manifest = builder.build_manifest(_config(builder, tmp_path, paths))
+
+    assert manifest["status"] == "formal_gate_proof_summary_chain_consistent_blocked"
+    assert manifest["audit_issue_count"] == 0
+    assert manifest["handoff_single_next_action_consistent_row_count"] == 3
+    assert manifest["handoff_single_next_action_baseline_signature"][
+        "source_freshness_blocking_regeneration_required"
+    ] is True
+
+
 def test_proof_summary_chain_audit_fails_missing_downstream_summary(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit")
     paths = _write_chain_inputs(tmp_path)
