@@ -3,18 +3,18 @@
 This file checks that formal-gate proof-deliverables summaries remain consistent across downstream gate artifacts. It is not a training run, evaluation, remote preflight, paper table, or paper result.
 
 - status: `formal_gate_proof_summary_chain_audit_failed`
-- audit_issue_count: `32`
+- audit_issue_count: `29`
 - proof_open: `True`
 - row_count: `14`
-- consistent_row_count: `2`
+- consistent_row_count: `3`
 - missing_row_count: `0`
-- mismatch_row_count: `12`
+- mismatch_row_count: `11`
 - next_action_guard_row_count: `3`
 - next_action_guard_consistent_row_count: `3`
 - next_required_deliverables_row_count: `3`
 - next_required_deliverables_consistent_row_count: `3`
 - handoff_single_next_action_row_count: `3`
-- handoff_single_next_action_consistent_row_count: `1`
+- handoff_single_next_action_consistent_row_count: `3`
 - executes_commands: `False`
 - runs_training: `False`
 - runs_remote_preflight: `False`
@@ -31,7 +31,6 @@ This file checks that formal-gate proof-deliverables summaries remain consistent
 
 ## Audit Issues
 
-- `formal_gate_status_report_proof_summary_summary_mismatch`: Downstream proof-deliverables summary does not match the remaining-deliverables baseline.
 - `status_report_remote_safety_proof_summary_summary_mismatch`: Downstream proof-deliverables summary does not match the remaining-deliverables baseline.
 - `status_report_remote_safety_status_report_proof_summary_summary_mismatch`: Downstream proof-deliverables summary does not match the remaining-deliverables baseline.
 - `post_plan_status_report_proof_summary_summary_mismatch`: Downstream proof-deliverables summary does not match the remaining-deliverables baseline.
@@ -53,12 +52,10 @@ This file checks that formal-gate proof-deliverables summaries remain consistent
 - `handoff_bundle_single_next_action_index_not_single_human_entry`: Single-next-action summary must expose exactly one current human entry lane.
 - `handoff_bundle_single_next_action_index_unexpected_next_action`: Single-next-action summary must keep the next action at the F02.6 decision record.
 - `handoff_bundle_single_next_action_index_execution_not_disabled`: All execution surfaces must remain disabled now.
-- `claim_safety_handoff_single_next_action_index_summary_mismatch`: Downstream handoff single-next-action summary does not match the handoff-bundle baseline.
 - `claim_safety_handoff_single_next_action_index_unexpected_status`: Single-next-action summary must remain pending Dr Sun's F02.6 decision.
 - `claim_safety_handoff_single_next_action_index_not_single_human_entry`: Single-next-action summary must expose exactly one current human entry lane.
 - `claim_safety_handoff_single_next_action_index_unexpected_next_action`: Single-next-action summary must keep the next action at the F02.6 decision record.
 - `claim_safety_handoff_single_next_action_index_execution_not_disabled`: All execution surfaces must remain disabled now.
-- `paper_readiness_claim_safety_handoff_single_next_action_index_summary_mismatch`: Downstream handoff single-next-action summary does not match the handoff-bundle baseline.
 - `paper_readiness_claim_safety_handoff_single_next_action_index_unexpected_status`: Single-next-action summary must remain pending Dr Sun's F02.6 decision.
 - `paper_readiness_claim_safety_handoff_single_next_action_index_not_single_human_entry`: Single-next-action summary must expose exactly one current human entry lane.
 - `paper_readiness_claim_safety_handoff_single_next_action_index_unexpected_next_action`: Single-next-action summary must keep the next action at the F02.6 decision record.
@@ -68,7 +65,7 @@ This file checks that formal-gate proof-deliverables summaries remain consistent
 
 - `remaining_deliverables_top_level`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json`, key=`top_level`
 - `formal_gate_proof_audit_remaining_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json`, key=`remaining_deliverables_top_level_summary`
-- `formal_gate_status_report_proof_summary`: present=`True`, matches=`False`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`, key=`formal_gate_proof_audit_remaining_deliverables_top_level_summary`
+- `formal_gate_status_report_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`, key=`formal_gate_proof_audit_remaining_deliverables_top_level_summary`
 - `status_report_remote_safety_proof_summary`: present=`True`, matches=`False`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`, key=`remote_packet_safety_proof_deliverables_summary`
 - `status_report_remote_safety_status_report_proof_summary`: present=`True`, matches=`False`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`, key=`remote_packet_safety_status_report_proof_deliverables_summary`
 - `post_plan_status_report_proof_summary`: present=`True`, matches=`False`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json`, key=`status_report_proof_audit_deliverables_summary`
@@ -96,8 +93,8 @@ This file checks that formal-gate proof-deliverables summaries remain consistent
 ## Handoff Single Next-Action Chain Rows
 
 - `handoff_bundle_single_next_action_index`: present=`True`, matches=`True`, next_action_id=`manual_handoff_stage_review`, decision_owner_required=`Dr Sun`, all_execution_disabled_now=`False`, remote_training_allowed_now=`False`, path=`0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`, key=`single_next_action_index`
-- `claim_safety_handoff_single_next_action_index`: present=`True`, matches=`False`, next_action_id=`manual_handoff_stage_review`, decision_owner_required=`Dr Sun`, all_execution_disabled_now=`False`, remote_training_allowed_now=`False`, path=`0_trials/module2_claim_safety/module2_claim_safety.json`, key=`handoff_single_next_action_index_summary`
-- `paper_readiness_claim_safety_handoff_single_next_action_index`: present=`True`, matches=`False`, next_action_id=`manual_handoff_stage_review`, decision_owner_required=`Dr Sun`, all_execution_disabled_now=`False`, remote_training_allowed_now=`False`, path=`0_trials/module2_paper_readiness/module2_paper_readiness.json`, key=`claim_safety_handoff_single_next_action_index_summary`
+- `claim_safety_handoff_single_next_action_index`: present=`True`, matches=`True`, next_action_id=`manual_handoff_stage_review`, decision_owner_required=`Dr Sun`, all_execution_disabled_now=`False`, remote_training_allowed_now=`False`, path=`0_trials/module2_claim_safety/module2_claim_safety.json`, key=`handoff_single_next_action_index_summary`
+- `paper_readiness_claim_safety_handoff_single_next_action_index`: present=`True`, matches=`True`, next_action_id=`manual_handoff_stage_review`, decision_owner_required=`Dr Sun`, all_execution_disabled_now=`False`, remote_training_allowed_now=`False`, path=`0_trials/module2_paper_readiness/module2_paper_readiness.json`, key=`claim_safety_handoff_single_next_action_index_summary`
 
 ## Claim Boundaries
 

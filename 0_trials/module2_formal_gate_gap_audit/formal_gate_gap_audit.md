@@ -108,7 +108,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - runs_remote_preflight: `False`
 - packet_status: `blocked_remote_preflight_not_ready`
 - remote_training_allowed_now: `False`
-- audit_issue_count: `5`
+- audit_issue_count: `9`
 - command_index_present: `True`
 - command_index_row_count: `23`
 - command_index_missing_target_ids: `[]`
@@ -128,10 +128,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 
 ## Decision Gaps
 
-- `f02_6_warm_start_decision_pending`
-  - evidence: `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json`
-  - why: Gate artifact still reports decision blocker: f02_6_warm_start_decision_pending.
-  - needed: Close F02.6 first; do not bypass it by running local training or writing result claims.
+- none
 
 ## Training Artifact Gaps
 
@@ -185,14 +182,14 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
   - needed: Fix the remote execution packet or post-plan/status cross-gates before approved remote execution.
 - `remote_packet_safety_audit_issues_open`
   - evidence: `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
-  - why: Remote packet safety audit reports 5 issues.
+  - why: Remote packet safety audit reports 9 issues.
   - needed: Resolve every remote packet safety issue before approved remote execution.
 
 ## Evaluation Artifact Gaps
 
 - `h01_manifest_not_ready`
   - evidence: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`
-  - why: H01 manifest status is blocked_pending_decisions.
+  - why: H01 manifest status is blocked_protocol_gap.
   - needed: Regenerate H01 after F02.6 and checkpoint availability so the formal run command is unblocked.
 - `formal_main_evaluation_command_missing`
   - evidence: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`
@@ -260,7 +257,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 
 ## Ordered Next Steps
 
-- `F02.6` (decision): status=`blocked`, runs_training=`False`. Close Dr Sun's obstacle-summary warm-start decision record.
+- `F02.6` (decision): status=`ready`, runs_training=`False`. Close Dr Sun's obstacle-summary warm-start decision record.
 - `remote_preflight` (training): status=`blocked`, runs_training=`False`, host=`gpu3070ti-relay`. Regenerate source-fresh gate artifacts, then approved gpu3070ti preflight and require formal_trial_ready=true.
 - `gate3_remote_training` (training): status=`blocked`, runs_training=`True`, host=`gpu3070ti-relay`. Run formal PPO Gate3 trial remotely; never on local Mac.
 - `gate3_remote_audit_pullback` (acceptance): status=`blocked`, runs_training=`False`, host=`gpu3070ti-relay`. Audit remote trial, pull back checkpoint/eval/audit artifacts, and record hashes.

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_gap_audit",
   "status": "blocked_formal_gate_gaps_open",
-  "created_at_utc": "2026-07-05T18:10:46.571883+00:00",
-  "source_head": "7b2b67c2c1344c0a1d1c456c9ec880640450df0e",
+  "created_at_utc": "2026-07-05T18:20:35.417476+00:00",
+  "source_head": "f800cb68e7d2894e45543445d310681de5110fdf+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -318,7 +318,7 @@
     "f02_6_decision_status": "approved",
     "effective_warm_start_decision": "approved_obstacle_summary",
     "remote_training_allowed": true,
-    "h01_status": "blocked_pending_decisions",
+    "h01_status": "blocked_protocol_gap",
     "remote_packet_status": "blocked_remote_preflight_not_ready",
     "ready_to_run_remote_training": false,
     "h02_status": "blocked_formal_output_acceptance",
@@ -342,17 +342,9 @@
     "formal_gate_handoff_safety_issue_count": 2,
     "formal_gate_handoff_remote_training_allowed_now": false,
     "remote_packet_safety_status": "remote_packet_safety_audit_failed",
-    "remote_packet_safety_audit_issue_count": 5
+    "remote_packet_safety_audit_issue_count": 9
   },
-  "missing_decision_items": [
-    {
-      "category": "decision",
-      "gap_id": "f02_6_warm_start_decision_pending",
-      "why_missing": "Gate artifact still reports decision blocker: f02_6_warm_start_decision_pending.",
-      "evidence_path": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
-      "required_next_artifact": "Close F02.6 first; do not bypass it by running local training or writing result claims."
-    }
-  ],
+  "missing_decision_items": [],
   "missing_training_artifacts": [
     {
       "category": "training",
@@ -441,7 +433,7 @@
     {
       "category": "training",
       "gap_id": "remote_packet_safety_audit_issues_open",
-      "why_missing": "Remote packet safety audit reports 5 issues.",
+      "why_missing": "Remote packet safety audit reports 9 issues.",
       "evidence_path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
       "required_next_artifact": "Resolve every remote packet safety issue before approved remote execution."
     }
@@ -450,7 +442,7 @@
     {
       "category": "evaluation",
       "gap_id": "h01_manifest_not_ready",
-      "why_missing": "H01 manifest status is blocked_pending_decisions.",
+      "why_missing": "H01 manifest status is blocked_protocol_gap.",
       "evidence_path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
       "required_next_artifact": "Regenerate H01 after F02.6 and checkpoint availability so the formal run command is unblocked."
     },
@@ -594,8 +586,6 @@
         "allowed_now": false,
         "runs_training": true,
         "blocked_by": [
-          "f02_6_warm_start_decision_pending",
-          "missing_module2_bc_checkpoint",
           "missing_module2_rl_rs_checkpoint",
           "realmap_query_generation_not_frozen",
           "remote_formal_preflight_not_ready",
@@ -608,8 +598,6 @@
         "allowed_now": false,
         "runs_training": false,
         "blocked_by": [
-          "f02_6_warm_start_decision_pending",
-          "missing_module2_bc_checkpoint",
           "missing_module2_rl_rs_checkpoint",
           "realmap_query_generation_not_frozen",
           "remote_formal_preflight_not_ready",
@@ -628,7 +616,7 @@
     "runs_remote_preflight": false,
     "local_training_allowed": false,
     "formal_claim_allowed": false,
-    "audit_issue_count": 5,
+    "audit_issue_count": 9,
     "packet_status": "blocked_remote_preflight_not_ready",
     "remote_preflight_allowed_now": true,
     "remote_training_allowed_now": false,
@@ -810,10 +798,8 @@
     {
       "step_id": "F02.6",
       "phase": "decision",
-      "status": "blocked",
-      "blocked_by": [
-        "f02_6_warm_start_decision_pending"
-      ],
+      "status": "ready",
+      "blocked_by": [],
       "runs_training": false,
       "action": "Close Dr Sun's obstacle-summary warm-start decision record.",
       "evidence_to_update": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json"
@@ -823,7 +809,6 @@
       "phase": "training",
       "status": "blocked",
       "blocked_by": [
-        "f02_6_warm_start_decision_pending",
         "handoff_safety_issues_open",
         "remote_packet_safety_audit_failed",
         "remote_packet_safety_audit_issues_open"
@@ -838,7 +823,6 @@
       "phase": "training",
       "status": "blocked",
       "blocked_by": [
-        "f02_6_warm_start_decision_pending",
         "handoff_safety_issues_open",
         "remote_packet_safety_audit_failed",
         "remote_packet_safety_audit_issues_open",
@@ -854,7 +838,6 @@
       "phase": "acceptance",
       "status": "blocked",
       "blocked_by": [
-        "f02_6_warm_start_decision_pending",
         "handoff_safety_issues_open",
         "remote_packet_safety_audit_failed",
         "remote_packet_safety_audit_issues_open",
@@ -873,7 +856,6 @@
       "phase": "evaluation",
       "status": "blocked",
       "blocked_by": [
-        "f02_6_warm_start_decision_pending",
         "handoff_safety_issues_open",
         "remote_packet_safety_audit_failed",
         "remote_packet_safety_audit_issues_open",
@@ -897,7 +879,6 @@
       "phase": "acceptance",
       "status": "blocked",
       "blocked_by": [
-        "f02_6_warm_start_decision_pending",
         "handoff_safety_issues_open",
         "remote_packet_safety_audit_failed",
         "remote_packet_safety_audit_issues_open",

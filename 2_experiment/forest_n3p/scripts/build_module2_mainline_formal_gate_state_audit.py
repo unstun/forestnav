@@ -127,6 +127,11 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
     else:
         status = "mainline_formal_gate_state_consistent_ready"
 
+    expected_next_action_id = next_action_guard["expected_next_action_id"]
+    expected_next_action_mentioned = (
+        isinstance(expected_next_action_id, str) and expected_next_action_id in mainline_text
+    )
+
     return {
         "schema_version": 1,
         "artifact_name": "module2_mainline_formal_gate_state_audit",
@@ -145,8 +150,8 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
             "proof_summary_chain_audit": str(config.proof_summary_chain_audit_path),
         },
         "mainline_current_state_section_present": bool(current_section),
-        "expected_next_action_id": next_action_guard["expected_next_action_id"],
-        "expected_next_action_mentioned": next_action_guard["expected_next_action_id"] in mainline_text,
+        "expected_next_action_id": expected_next_action_id,
+        "expected_next_action_mentioned": expected_next_action_mentioned,
         "all_execution_disabled_now": next_action_guard["all_execution_disabled_now"],
         "execution_leak_count": next_action_guard["execution_leak_count"],
         "next_required_formal_deliverables_status": next_required["status"],

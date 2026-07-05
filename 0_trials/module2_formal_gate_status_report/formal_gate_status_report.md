@@ -3,8 +3,8 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `7b2b67c2c1344c0a1d1c456c9ec880640450df0e`
-- input_safety_issue_count: `4`
+- source_head: `f800cb68e7d2894e45543445d310681de5110fdf+dirty`
+- input_safety_issue_count: `10`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
 - remote_training_allowed_now: `False`
@@ -16,10 +16,10 @@ This file is a read-only formal-gate status report. It does not execute commands
 - decision_decider: `Dr Sun`
 - decision_remote_preflight_allowed_now: `False`
 - decision_remote_training_allowed_now: `False`
-- decision_intake_status: `f02_6_decision_intake_closed_clean`
+- decision_intake_status: `f02_6_decision_intake_failed`
 - decision_intake_record_status: `approved`
 - decision_intake_next_blocked_lane: `decision`
-- decision_intake_audit_issue_count: `0`
+- decision_intake_audit_issue_count: `2`
 - decision_intake_valid_decision_count: `2`
 - decision_intake_required_record_field_count: `3`
 - decision_intake_decision_note_required: `True`
@@ -85,7 +85,7 @@ This file is a read-only formal-gate status report. It does not execute commands
 - remote_preflight_requirement_blocked_count: `1`
 - post_run_acceptance_requirement_satisfied_count: `0`
 - post_run_acceptance_requirement_blocked_count: `4`
-- h01_status: `blocked_pending_decisions`
+- h01_status: `blocked_protocol_gap`
 - h02_status: `blocked_formal_output_acceptance`
 - h02_formal_output_accepted: `False`
 - h02_formal_acceptance_requirement_satisfied_count: `1`
@@ -129,10 +129,10 @@ This file is a read-only formal-gate status report. It does not execute commands
 - formal_gate_proof_audit_evaluation_missing_artifact_count: `2`
 - formal_gate_proof_audit_acceptance_missing_artifact_count: `3`
 - formal_gate_proof_audit_formal_acceptance_failed_artifact_count: `2`
-- mainline_formal_gate_state_audit_status: `mainline_formal_gate_state_consistent_blocked`
-- mainline_formal_gate_state_audit_issue_count: `0`
-- mainline_formal_gate_state_audit_proof_summary_chain_status: `formal_gate_proof_summary_chain_consistent_blocked`
-- mainline_formal_gate_state_audit_proof_summary_chain_issue_count: `0`
+- mainline_formal_gate_state_audit_status: `mainline_formal_gate_state_audit_failed`
+- mainline_formal_gate_state_audit_issue_count: `5`
+- mainline_formal_gate_state_audit_proof_summary_chain_status: `formal_gate_proof_summary_chain_audit_failed`
+- mainline_formal_gate_state_audit_proof_summary_chain_issue_count: `29`
 - mainline_formal_gate_state_audit_proof_audit_input_safety_issue_count: `0`
 - handoff_bundle_next_action: `resolve_decision`
 - handoff_bundle_safety_issue_count: `2`
@@ -174,12 +174,12 @@ This file is a read-only formal-gate status report. It does not execute commands
 ## F02.6 Decision Intake
 
 - present: `True`
-- status: `f02_6_decision_intake_closed_clean`
+- status: `f02_6_decision_intake_failed`
 - record_status: `approved`
 - record_decider: `Dr Sun`
 - effective_warm_start_decision: `approved_obstacle_summary`
 - next_blocked_lane: `decision`
-- audit_issue_count: `0`
+- audit_issue_count: `2`
 - decision_owner_required: `Dr Sun`
 - valid_decision_count: `2`
 - required_record_field_count: `3`
@@ -234,27 +234,27 @@ This file is a read-only formal-gate status report. It does not execute commands
   - completion_signal: F02.6 decision record is approved or rejected by Dr Sun.
   - action_when_blocked: Record Dr Sun's F02.6 decision before any formal preflight or training.
 - `source_fresh_preflight` (regeneration): status=`blocked`, missing=`0`, runs_training=`False`
-  - blocked_by: `f02_6_warm_start_decision_pending, source_freshness_regeneration_required, handoff_step_allowed_mismatch_sync_to_remote, handoff_step_blockers_mismatch_sync_to_remote, handoff_step_allowed_mismatch_run_remote_preflight, handoff_step_blockers_mismatch_run_remote_preflight, handoff_step_blockers_mismatch_run_remote_training, handoff_step_blockers_mismatch_run_remote_audit, remote_packet_safety_audit_failed, remote_packet_safety_audit_issues_open`
+  - blocked_by: `handoff_safety_issues_open, remote_packet_safety_audit_failed, remote_packet_safety_audit_issues_open, f02_6_warm_start_decision_pending`
   - completion_signal: Source-fresh preflight targets are regenerated from the current head.
   - action_when_blocked: After F02.6 closes, regenerate source-fresh gate artifacts before approved preflight.
 - `remote_packet_preflight` (remote_preflight): status=`blocked`, missing=`7`, runs_training=`False`
-  - blocked_by: `f02_6_decision_record, approved_remote_preflight, regenerate_remote_execution_packet, gate3_remote_training, gate3_remote_audit_pullback, regenerate_h01_h02_formal_artifacts, regenerate_claim_gate_artifacts, f02_6_warm_start_decision_pending, source_freshness_regeneration_required, handoff_step_allowed_mismatch_sync_to_remote, handoff_step_blockers_mismatch_sync_to_remote, handoff_step_allowed_mismatch_run_remote_preflight, handoff_step_blockers_mismatch_run_remote_preflight, handoff_step_blockers_mismatch_run_remote_training, handoff_step_blockers_mismatch_run_remote_audit, remote_packet_safety_audit_failed, remote_packet_safety_audit_issues_open, regenerate_preflight_gate_artifacts, source_fresh_preflight_targets_open`
+  - blocked_by: `f02_6_decision_record, approved_remote_preflight, regenerate_remote_execution_packet, gate3_remote_training, gate3_remote_audit_pullback, regenerate_h01_h02_formal_artifacts, regenerate_claim_gate_artifacts, handoff_safety_issues_open, remote_packet_safety_audit_failed, remote_packet_safety_audit_issues_open, f02_6_warm_start_decision_pending, source_fresh_preflight_targets_open`
   - completion_signal: Approved gpu3070ti preflight passes and remote packet reports ready.
   - action_when_blocked: Run only approved remote preflight after F02.6 and source freshness close.
 - `gate3_remote_training` (training): status=`blocked`, missing=`3`, runs_training=`True`, host=`gpu3070ti-relay`
-  - blocked_by: `train_final_model_zip, train_summary_json, train_training_manifest_json, f02_6_warm_start_decision_pending, source_freshness_regeneration_required, handoff_step_allowed_mismatch_sync_to_remote, handoff_step_blockers_mismatch_sync_to_remote, handoff_step_allowed_mismatch_run_remote_preflight, handoff_step_blockers_mismatch_run_remote_preflight, handoff_step_blockers_mismatch_run_remote_training, handoff_step_blockers_mismatch_run_remote_audit, remote_packet_safety_audit_failed, remote_packet_safety_audit_issues_open, remote_training_packet_not_ready, source_fresh_preflight_targets_open, remote_packet_not_ready`
+  - blocked_by: `train_final_model_zip, train_summary_json, train_training_manifest_json, handoff_safety_issues_open, remote_packet_safety_audit_failed, remote_packet_safety_audit_issues_open, remote_training_packet_not_ready, f02_6_warm_start_decision_pending, source_fresh_preflight_targets_open, remote_packet_not_ready`
   - completion_signal: final_model.zip, train summary, and training manifest are pulled back.
   - action_when_blocked: Run formal PPO only on gpu3070ti-relay after remote packet is ready.
 - `gate3_eval_and_audit_pullback` (acceptance): status=`blocked`, missing=`5`, runs_training=`False`
-  - blocked_by: `gate3_trial_manifest_json, gate3_formal_audit_json, pulled_back_checkpoint_hash_record, eval_gate3_eval_episodes_csv, eval_gate3_summary_json, f02_6_warm_start_decision_pending, source_freshness_regeneration_required, handoff_step_allowed_mismatch_sync_to_remote, handoff_step_blockers_mismatch_sync_to_remote, handoff_step_allowed_mismatch_run_remote_preflight, handoff_step_blockers_mismatch_run_remote_preflight, handoff_step_blockers_mismatch_run_remote_training, handoff_step_blockers_mismatch_run_remote_audit, remote_packet_safety_audit_failed, remote_packet_safety_audit_issues_open, remote_training_packet_not_ready, missing_remote_pullback_artifact, missing_ppo_result_rows, missing_ppo_checkpoint_hash, source_fresh_preflight_targets_open, remote_packet_not_ready`
+  - blocked_by: `gate3_trial_manifest_json, gate3_formal_audit_json, pulled_back_checkpoint_hash_record, eval_gate3_eval_episodes_csv, eval_gate3_summary_json, handoff_safety_issues_open, remote_packet_safety_audit_failed, remote_packet_safety_audit_issues_open, remote_training_packet_not_ready, missing_remote_pullback_artifact, missing_ppo_result_rows, missing_ppo_checkpoint_hash, f02_6_warm_start_decision_pending, source_fresh_preflight_targets_open, remote_packet_not_ready`
   - completion_signal: Gate3 eval outputs, trial manifest, formal audit, and checkpoint hash are present.
   - action_when_blocked: Audit remote trial and pull back the complete trial directory with hashes.
 - `h01_h02_formal_evaluation` (evaluation_acceptance): status=`blocked`, missing=`2`, runs_training=`False`
-  - blocked_by: `h01_ready_for_formal_run, h02_formal_output_acceptance, f02_6_warm_start_decision_pending, source_freshness_regeneration_required, handoff_step_allowed_mismatch_sync_to_remote, handoff_step_blockers_mismatch_sync_to_remote, handoff_step_allowed_mismatch_run_remote_preflight, handoff_step_blockers_mismatch_run_remote_preflight, handoff_step_blockers_mismatch_run_remote_training, handoff_step_blockers_mismatch_run_remote_audit, remote_packet_safety_audit_failed, remote_packet_safety_audit_issues_open, remote_training_packet_not_ready, missing_remote_pullback_artifact, missing_ppo_result_rows, missing_ppo_checkpoint_hash, h01_manifest_not_ready, formal_main_evaluation_command_missing, h02_scale_below_h01_queries_per_bucket, h02_scale_below_h01_seed_count, h02_scale_below_h01_queries_per_map, h02_verdict_not_formal, missing_remote_audit_pullback`
+  - blocked_by: `h01_ready_for_formal_run, h02_formal_output_acceptance, handoff_safety_issues_open, remote_packet_safety_audit_failed, remote_packet_safety_audit_issues_open, remote_training_packet_not_ready, missing_remote_pullback_artifact, missing_ppo_result_rows, missing_ppo_checkpoint_hash, h01_manifest_not_ready, formal_main_evaluation_command_missing, h02_scale_below_h01_queries_per_bucket, h02_scale_below_h01_seed_count, h02_scale_below_h01_queries_per_map, h02_verdict_not_formal, f02_6_warm_start_decision_pending, missing_remote_audit_pullback`
   - completion_signal: H01 is ready and H02 accepts formal-scale PPO outputs.
   - action_when_blocked: Regenerate H01/H02 only after audited checkpoint pullback is complete.
 - `claim_gate` (claim_gate): status=`blocked`, missing=`1`, runs_training=`False`
-  - blocked_by: `h02_formal_acceptance_before_claim_gate, f02_6_warm_start_decision_pending, source_freshness_regeneration_required, handoff_step_allowed_mismatch_sync_to_remote, handoff_step_blockers_mismatch_sync_to_remote, handoff_step_allowed_mismatch_run_remote_preflight, handoff_step_blockers_mismatch_run_remote_preflight, handoff_step_blockers_mismatch_run_remote_training, handoff_step_blockers_mismatch_run_remote_audit, remote_packet_safety_audit_failed, remote_packet_safety_audit_issues_open, remote_training_packet_not_ready, missing_remote_pullback_artifact, missing_ppo_result_rows, missing_ppo_checkpoint_hash, h01_manifest_not_ready, formal_main_evaluation_command_missing, h02_scale_below_h01_queries_per_bucket, h02_scale_below_h01_seed_count, h02_scale_below_h01_queries_per_map, h02_verdict_not_formal, missing_or_failed_gate3_formal_audit, h02_formal_output_not_accepted, claim_safety_blocks_formal_performance, readiness_blocks_formal_results, formal_gate_missing_artifacts_open, formal_gate_closure_checklist_open, formal_gate_status_report_blocked, formal_gate_remaining_deliverables_open, claim_safety, formal_gate_missing_artifacts, formal_gate_proof_audit, formal_gate_proof_summary_chain_audit, formal_gate_remaining_deliverables, formal_gate_status_report, mainline_formal_gate_state_audit, paper_readiness, h02_formal_acceptance_not_ready`
+  - blocked_by: `h02_formal_acceptance_before_claim_gate, handoff_safety_issues_open, remote_packet_safety_audit_failed, remote_packet_safety_audit_issues_open, remote_training_packet_not_ready, missing_remote_pullback_artifact, missing_ppo_result_rows, missing_ppo_checkpoint_hash, h01_manifest_not_ready, formal_main_evaluation_command_missing, h02_scale_below_h01_queries_per_bucket, h02_scale_below_h01_seed_count, h02_scale_below_h01_queries_per_map, h02_verdict_not_formal, missing_or_failed_gate3_formal_audit, h02_formal_output_not_accepted, claim_safety_blocks_formal_performance, readiness_blocks_formal_results, formal_missing_artifacts_audit_issues_open, formal_gate_missing_artifacts_open, formal_gate_closure_checklist_open, formal_status_report_safety_issues_open, formal_gate_status_report_blocked, formal_gate_remaining_deliverables_open, f02_6_warm_start_decision_pending, h02_formal_acceptance_not_ready`
   - completion_signal: Claim safety and paper readiness allow formal results after H02 acceptance.
   - action_when_blocked: Regenerate claim gates only after H02 formal acceptance passes.
 
@@ -262,8 +262,8 @@ This file is a read-only formal-gate status report. It does not execute commands
 
 - `sync_to_remote`: present=`True`, allowed_now=`True`, runs_training=`False`, blocked_by=`none`
 - `run_remote_preflight`: present=`True`, allowed_now=`True`, runs_training=`False`, blocked_by=`none`
-- `run_remote_training`: present=`True`, allowed_now=`False`, runs_training=`True`, blocked_by=`f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
-- `run_remote_audit`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
+- `run_remote_training`: present=`True`, allowed_now=`False`, runs_training=`True`, blocked_by=`missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
+- `run_remote_audit`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
 
 ## Remote Preflight Requirement Matrix
 
@@ -415,7 +415,7 @@ This file is a read-only formal-gate status report. It does not execute commands
 - remaining_deliverables_summary_present: `True`
 - remaining_missing_counts_by_formal_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
 - remaining_next_blocked_lane: `decision`
-- remaining_h01_status: `blocked_pending_decisions`
+- remaining_h01_status: `blocked_protocol_gap`
 - remaining_h02_status: `blocked_formal_output_acceptance`
 - remaining_training_missing_matrix_ids: `training:train_final_model_zip, training:train_summary_json, training:train_training_manifest_json`
 - remaining_evaluation_missing_matrix_ids: `evaluation:eval_gate3_eval_episodes_csv, evaluation:eval_gate3_summary_json`
@@ -445,10 +445,10 @@ This file is a read-only formal-gate status report. It does not execute commands
 ## Mainline Formal Gate State Audit
 
 - present: `True`
-- status: `mainline_formal_gate_state_consistent_blocked`
-- audit_issue_count: `0`
-- proof_summary_chain_status: `formal_gate_proof_summary_chain_consistent_blocked`
-- proof_summary_chain_audit_issue_count: `0`
+- status: `mainline_formal_gate_state_audit_failed`
+- audit_issue_count: `5`
+- proof_summary_chain_status: `formal_gate_proof_summary_chain_audit_failed`
+- proof_summary_chain_audit_issue_count: `29`
 - proof_summary_chain_proof_audit_input_safety_issue_count: `0`
 - proof_summary_chain_proof_audit_blockers: `missing_formal_training_artifacts, missing_formal_evaluation_artifacts, missing_formal_acceptance_artifacts, failed_formal_h01_h02_acceptance_artifacts`
 
@@ -470,7 +470,7 @@ This file is a read-only formal-gate status report. It does not execute commands
 - proof_h02_paper_result_input_allowed: `False`
 - status_report_proof_summary_present: `True`
 - status_report_proof_matches_remote_proof: `True`
-- remote_proof_matches_proof_audit: `True`
+- remote_proof_matches_proof_audit: `False`
 - remote_proof_training_missing_matrix_ids: `training:train_final_model_zip, training:train_summary_json, training:train_training_manifest_json`
 - remote_proof_evaluation_missing_matrix_ids: `evaluation:eval_gate3_eval_episodes_csv, evaluation:eval_gate3_summary_json`
 - remote_proof_acceptance_missing_matrix_ids: `acceptance:gate3_trial_manifest_json, acceptance:gate3_formal_audit_json, acceptance:pulled_back_checkpoint_hash_record`
@@ -515,8 +515,8 @@ This file is a read-only formal-gate status report. It does not execute commands
 - remote_training_allowed_now: `False`
 - `sync_to_remote`: present=`True`, allowed_now=`True`, runs_training=`False`, blocked_by=`none`
 - `run_remote_preflight`: present=`True`, allowed_now=`True`, runs_training=`False`, blocked_by=`none`
-- `run_remote_training`: present=`True`, allowed_now=`False`, runs_training=`True`, blocked_by=`f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
-- `run_remote_audit`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
+- `run_remote_training`: present=`True`, allowed_now=`False`, runs_training=`True`, blocked_by=`missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
+- `run_remote_audit`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
 
 ## Formal Gate Requirement Stage Summary
 
@@ -558,10 +558,16 @@ This file is a read-only formal-gate status report. It does not execute commands
 
 ## Input Safety Issues
 
+- `decision_intake_not_clean`: F02.6 decision intake must be clean before status reporting.
+- `decision_intake_audit_issues_open`: F02.6 decision intake reports open audit issues.
 - `handoff_bundle_safety_issues_open`: handoff bundle reports open safety issues.
 - `formal_gate_execution_veto_rows_inconsistent`: formal gate execution veto matrix has inconsistent rows.
 - `formal_gate_execution_veto_mismatch_rows_open`: formal gate execution veto matrix reports mismatch rows.
 - `remaining_deliverables_unlock_chain_rows_missing_required_blockers`: unlock chain rows must include all required current blockers while formal deliverables are missing.
+- `mainline_formal_gate_state_audit_failed`: mainline formal gate state audit must not be failed.
+- `mainline_formal_gate_state_audit_issues_open`: mainline formal gate state audit issues must be resolved before status reporting.
+- `mainline_formal_gate_state_audit_proof_summary_issues_open`: mainline audit must not inherit open proof-summary audit issues.
+- `formal_gate_remote_packet_safety_proof_deliverables_summary_drifted_from_proof_audit`: remote packet safety proof summary must match the local proof-audit top-level deliverable summary.
 
 ## Safe Work Without F02.6 Decision
 

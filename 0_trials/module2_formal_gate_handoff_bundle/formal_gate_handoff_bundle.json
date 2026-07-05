@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_handoff_bundle",
   "status": "blocked_handoff_input_safety_issues",
-  "created_at_utc": "2026-07-05T18:10:46.215149+00:00",
-  "source_head": "7b2b67c2c1344c0a1d1c456c9ec880640450df0e",
+  "created_at_utc": "2026-07-05T18:20:35.299233+00:00",
+  "source_head": "f800cb68e7d2894e45543445d310681de5110fdf+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -514,8 +514,6 @@
       "missing_artifact_ids": [
         "h02_verdict_formal_acceptance_true",
         "h01_manifest_ready",
-        "h01_blocker_f02_6_warm_start_decision_pending",
-        "h01_blocker_missing_module2_bc_checkpoint",
         "h01_blocker_missing_module2_rl_rs_checkpoint",
         "h01_blocker_realmap_query_generation_not_frozen",
         "remote_execution_packet_ready",
@@ -620,8 +618,6 @@
       "runs_training": true,
       "command": "ssh gpu3070ti-relay 'cd ~/ForestNav && PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 --seed 20260704 --device cuda --train-curriculum-preset f03 --eval-curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260704 --train-total-timesteps 100000 --train-n-envs 1 --train-n-steps 128 --train-batch-size 64 --train-n-epochs 4 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --allow-duplicate-openmp --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt'",
       "blocked_by": [
-        "f02_6_warm_start_decision_pending",
-        "missing_module2_bc_checkpoint",
         "missing_module2_rl_rs_checkpoint",
         "realmap_query_generation_not_frozen",
         "remote_formal_preflight_not_ready",
@@ -634,8 +630,6 @@
       "runs_training": false,
       "command": "ssh gpu3070ti-relay 'cd ~/ForestNav && PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.audit_rl_rs_gate3_trial --trial-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 --min-formal-episodes 64 --required-success-threshold 0.8 --required-train-curriculum f03 --required-eval-curriculum f03 --warm-start-decision approved_obstacle_summary'",
       "blocked_by": [
-        "f02_6_warm_start_decision_pending",
-        "missing_module2_bc_checkpoint",
         "missing_module2_rl_rs_checkpoint",
         "realmap_query_generation_not_frozen",
         "remote_formal_preflight_not_ready",

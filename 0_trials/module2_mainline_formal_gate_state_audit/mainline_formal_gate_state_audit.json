@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_mainline_formal_gate_state_audit",
-  "status": "mainline_formal_gate_state_consistent_blocked",
-  "created_at_utc": "2026-07-05T18:09:40.110773+00:00",
-  "source_head": "7b2b67c2c1344c0a1d1c456c9ec880640450df0e",
+  "status": "mainline_formal_gate_state_audit_failed",
+  "created_at_utc": "2026-07-05T18:20:35.950844+00:00",
+  "source_head": "f800cb68e7d2894e45543445d310681de5110fdf+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -16,10 +16,10 @@
     "proof_summary_chain_audit": "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json"
   },
   "mainline_current_state_section_present": true,
-  "expected_next_action_id": "record_f02_6_decision",
-  "expected_next_action_mentioned": true,
-  "all_execution_disabled_now": true,
-  "execution_leak_count": 0,
+  "expected_next_action_id": null,
+  "expected_next_action_mentioned": false,
+  "all_execution_disabled_now": false,
+  "execution_leak_count": 2,
   "next_required_formal_deliverables_status": "blocked_missing_formal_deliverables",
   "total_missing_deliverables": 10,
   "blocked_category_count": 4,
@@ -272,8 +272,8 @@
       "responsible_stage_allowed_now": false
     }
   },
-  "proof_summary_chain_status": "formal_gate_proof_summary_chain_consistent_blocked",
-  "proof_summary_chain_audit_issue_count": 0,
+  "proof_summary_chain_status": "formal_gate_proof_summary_chain_audit_failed",
+  "proof_summary_chain_audit_issue_count": 29,
   "proof_summary_chain_proof_audit_input_safety_issue_count": 0,
   "proof_summary_chain_proof_audit_blockers": [
     "missing_formal_training_artifacts",
@@ -345,8 +345,35 @@
       "mentioned": false
     }
   ],
-  "audit_issue_count": 0,
-  "audit_issues": [],
+  "audit_issue_count": 5,
+  "audit_issues": [
+    {
+      "issue_id": "mainline_missing_proof_chain_status",
+      "message": "Mainline task book must mention the current proof-summary chain status.",
+      "proof_summary_chain_status": "formal_gate_proof_summary_chain_audit_failed"
+    },
+    {
+      "issue_id": "status_report_next_action_guard_not_passed",
+      "message": "Status report next-action guard must be passed before the mainline can mirror it.",
+      "observed_status": "next_action_guard_not_applicable"
+    },
+    {
+      "issue_id": "status_report_unexpected_next_action",
+      "message": "F02.6-pending mainline audit expects the next action to remain the human decision record.",
+      "observed_next_action_id": null
+    },
+    {
+      "issue_id": "status_report_next_action_guard_execution_leak",
+      "message": "Status report exposes an execution leak while F02.6 is pending.",
+      "execution_leak_count": 2,
+      "all_execution_disabled_now": false
+    },
+    {
+      "issue_id": "proof_summary_chain_has_audit_issues",
+      "message": "Mainline task-book state should only mirror a clean proof-summary chain.",
+      "audit_issue_count": 29
+    }
+  ],
   "claim_boundaries": [
     "This audit only checks that the long-term mainline task book mirrors the current formal-gate state.",
     "It does not execute commands, run local training, run remote preflight, run remote PPO training, evaluate PPO, pull back artifacts, or write paper results.",
