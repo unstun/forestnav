@@ -20,6 +20,9 @@ DEFAULT_H01_MANIFEST = Path("0_trials/module2_v1_evaluation_manifest/module2_v1_
 DEFAULT_H02_ACCEPTANCE = Path("0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json")
 DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_freshness_audit.json")
 DEFAULT_POST_F02_6_PLAN = Path("0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json")
+DEFAULT_PROTOCOL_LANE_STATUS_REPORT = Path(
+    "0_trials/module2_formal_gate_protocol_lane_status_report/protocol_lane_status_report.json"
+)
 
 DELIVERABLE_CATEGORIES = (
     ("training", "training_artifacts_required"),
@@ -103,6 +106,7 @@ class FormalGateRemainingDeliverablesConfig:
     h02_acceptance_path: Path = DEFAULT_H02_ACCEPTANCE
     source_freshness_path: Path = DEFAULT_SOURCE_FRESHNESS
     post_f02_6_plan_path: Path = DEFAULT_POST_F02_6_PLAN
+    protocol_lane_status_report_path: Path = DEFAULT_PROTOCOL_LANE_STATUS_REPORT
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -119,6 +123,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         h02_acceptance_path=args.h02_acceptance,
         source_freshness_path=args.source_freshness,
         post_f02_6_plan_path=args.post_f02_6_plan,
+        protocol_lane_status_report_path=args.protocol_lane_status_report,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -142,11 +147,13 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
     h02_acceptance = _read_json(config.h02_acceptance_path)
     source_freshness = _read_json(config.source_freshness_path)
     post_f02_6_plan = _read_json(config.post_f02_6_plan_path)
+    protocol_lane_status = _read_json(config.protocol_lane_status_report_path)
 
     deliverable_groups = _deliverable_groups(
         status_report=status_report,
         closure_checklist=closure_checklist,
         missing_artifacts=missing_artifacts,
+        protocol_lane_status=protocol_lane_status,
     )
     deliverable_acceptance_matrix = _deliverable_acceptance_matrix(deliverable_groups)
     deliverable_gap_summary = _deliverable_gap_summary(
@@ -164,17 +171,24 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
     missing_counts_by_formal_category = {
         category: counts["missing_count"] for category, counts in category_counts.items()
     }
-    permissions_now = _permissions(status_report=status_report, remote_packet=remote_packet, source_freshness=source_freshness)
+    permissions_now = _permissions(
+        status_report=status_report,
+        remote_packet=remote_packet,
+        source_freshness=source_freshness,
+        protocol_lane_status=protocol_lane_status,
+    )
     source_freshness_summary = _source_freshness_summary(source_freshness)
     source_freshness_blocking_targets_summary = _source_freshness_blocking_targets_summary(source_freshness)
+    protocol_lane_pending = _protocol_lane_pending(protocol_lane_status)
     current_gate_summary = {
         "status_report_status": status_report.get("status"),
-        "next_blocked_lane": _next_blocked_lane_id(status_report),
+        "next_blocked_lane": "protocol_lane_decision" if protocol_lane_pending else _next_blocked_lane_id(status_report),
+        **_protocol_lane_status_summary(protocol_lane_status),
         "missing_counts_by_category": status_report.get("missing_counts_by_category")
         if isinstance(status_report.get("missing_counts_by_category"), dict)
         else {},
         "remote_packet_status": remote_packet.get("status"),
-        "ready_to_run_remote_training": remote_packet.get("ready_to_run_remote_training"),
+        "ready_to_run_remote_training": False if protocol_lane_pending else remote_packet.get("ready_to_run_remote_training"),
         "h01_status": h01_manifest.get("status"),
         "h02_status": h02_acceptance.get("status"),
         "h02_formal_output_accepted": h02_acceptance.get("formal_output_accepted"),
@@ -228,6 +242,7 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
             "h02_formal_acceptance": str(config.h02_acceptance_path),
             "source_freshness_audit": str(config.source_freshness_path),
             "post_f02_6_regeneration_plan": str(config.post_f02_6_plan_path),
+            "protocol_lane_status_report": str(config.protocol_lane_status_report_path),
         },
         "current_gate_summary": current_gate_summary,
         "permissions_now": permissions_now,
