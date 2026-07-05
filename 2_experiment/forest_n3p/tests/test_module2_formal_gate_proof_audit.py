@@ -65,6 +65,40 @@ def test_formal_gate_proof_audit_blocks_missing_current_deliverables(tmp_path):
     assert manifest["current_state"]["remaining_missing_deliverable_count"] == 10
     assert manifest["current_state"]["remaining_open_category_count"] == 4
     assert manifest["current_state"]["source_freshness_ready_for_remote_preflight"] is False
+    assert manifest["remaining_deliverables_top_level_summary"] == {
+        "present": True,
+        "missing_counts_by_formal_category": {
+            "training": 3,
+            "evaluation": 2,
+            "acceptance": 3,
+            "formal_acceptance": 2,
+        },
+        "missing_matrix_ids_by_formal_category": {
+            "training": [
+                "training:train_final_model_zip",
+                "training:train_summary_json",
+                "training:train_training_manifest_json",
+            ],
+            "evaluation": [
+                "evaluation:eval_gate3_eval_episodes_csv",
+                "evaluation:eval_gate3_summary_json",
+            ],
+            "acceptance": [
+                "acceptance:gate3_trial_manifest_json",
+                "acceptance:gate3_formal_audit_json",
+                "acceptance:pulled_back_checkpoint_hash_record",
+            ],
+            "formal_acceptance": [
+                "formal_acceptance:h01_ready_for_formal_run",
+                "formal_acceptance:h02_formal_output_acceptance",
+            ],
+        },
+        "next_blocked_lane": "decision",
+        "h01_status": "blocked_pending_decisions",
+        "h02_status": "blocked_formal_output_acceptance",
+        "h02_formal_output_accepted": False,
+        "h02_paper_result_input_allowed": False,
+    }
     assert manifest["category_status_counts"]["training"] == {
         "passed": 0,
         "failed": 0,
@@ -94,6 +128,12 @@ def test_formal_gate_proof_audit_accepts_synthetic_complete_pullback(tmp_path):
     )
 
     assert manifest["status"] == "formal_gate_proof_audit_passed"
+    assert manifest["remaining_deliverables_top_level_summary"]["missing_counts_by_formal_category"] == {
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 2,
+    }
     assert manifest["total_matrix_rows"] == 10
     assert manifest["total_proof_command_count"] == 20
     assert manifest["passed_proof_command_count"] == 20
@@ -169,6 +209,9 @@ def test_formal_gate_proof_audit_cli_writes_json_and_markdown(tmp_path):
     assert "blocked_missing_artifact" in markdown
     assert "command_was_executed" in markdown
     assert "Current Gate State" in markdown
+    assert "Remaining Deliverables Top-Level Summary" in markdown
+    assert "missing_counts_by_formal_category" in markdown
+    assert "formal_acceptance_missing_matrix_ids" in markdown
     assert "Missing Evidence Summary" in markdown
 
 
@@ -185,6 +228,37 @@ def _remaining_deliverables(root: Path):
         "formal_claim_allowed": False,
         "missing_deliverable_count": 10,
         "open_category_count": 4,
+        "missing_counts_by_formal_category": {
+            "training": 3,
+            "evaluation": 2,
+            "acceptance": 3,
+            "formal_acceptance": 2,
+        },
+        "missing_matrix_ids_by_formal_category": {
+            "training": [
+                "training:train_final_model_zip",
+                "training:train_summary_json",
+                "training:train_training_manifest_json",
+            ],
+            "evaluation": [
+                "evaluation:eval_gate3_eval_episodes_csv",
+                "evaluation:eval_gate3_summary_json",
+            ],
+            "acceptance": [
+                "acceptance:gate3_trial_manifest_json",
+                "acceptance:gate3_formal_audit_json",
+                "acceptance:pulled_back_checkpoint_hash_record",
+            ],
+            "formal_acceptance": [
+                "formal_acceptance:h01_ready_for_formal_run",
+                "formal_acceptance:h02_formal_output_acceptance",
+            ],
+        },
+        "next_blocked_lane": "decision",
+        "h01_status": "blocked_pending_decisions",
+        "h02_status": "blocked_formal_output_acceptance",
+        "h02_formal_output_accepted": False,
+        "h02_paper_result_input_allowed": False,
         "current_gate_summary": {
             "source_freshness_ready_for_remote_preflight": False,
             "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
