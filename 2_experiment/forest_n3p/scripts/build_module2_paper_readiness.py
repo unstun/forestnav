@@ -321,6 +321,24 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_decision_intake_formal_claim_allowed_now": claim_decision_intake_summary[
             "formal_claim_allowed_now"
         ],
+        "claim_safety_decision_intake_impact_present": claim_decision_intake_summary[
+            "decision_impact_present"
+        ],
+        "claim_safety_decision_record_is_not_training_authorization": claim_decision_intake_summary[
+            "decision_record_is_not_training_authorization"
+        ],
+        "claim_safety_decision_record_is_not_paper_result_material": claim_decision_intake_summary[
+            "decision_record_is_not_paper_result_material"
+        ],
+        "claim_safety_decision_impact_remote_training_allowed_now": claim_decision_intake_summary[
+            "decision_impact_remote_training_allowed_now"
+        ],
+        "claim_safety_decision_impact_formal_claim_allowed_now": claim_decision_intake_summary[
+            "decision_impact_formal_claim_allowed_now"
+        ],
+        "claim_safety_decision_impact_paper_result_material_allowed_now": claim_decision_intake_summary[
+            "decision_impact_paper_result_material_allowed_now"
+        ],
         "claim_safety_remaining_deliverables_acceptance_present": claim_remaining_deliverables_acceptance_summary[
             "present"
         ],
