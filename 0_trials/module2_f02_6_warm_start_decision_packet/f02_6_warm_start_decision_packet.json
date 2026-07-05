@@ -2,9 +2,15 @@
   "schema_version": 1,
   "packet_name": "module2_f02_6_warm_start_decision_packet",
   "status": "pending_human_decision",
-  "created_at_utc": "2026-07-05T04:24:53.095488+00:00",
+  "created_at_utc": "2026-07-05T04:29:38.918667+00:00",
   "execution_host": "MacBook-Pro.local",
-  "source_head": "8006628294857c73fb2e9b84e2d72c899d173d8c",
+  "source_head": "80731f4098b0b56afb4df492f94617e34938090b",
+  "not_paper_result_material": true,
+  "executes_commands": false,
+  "runs_training": false,
+  "runs_remote_preflight": false,
+  "local_training_allowed": false,
+  "formal_claim_allowed": false,
   "blockers": [
     "requires_dr_sun_approval"
   ],
@@ -240,6 +246,17 @@
       "sha256": "c82045777749167764b8de8414d471fd7cbdeada0837ad252ce27d67d58ed15e"
     }
   ],
+  "source_integrity_summary": {
+    "source_count": 10,
+    "existing_source_count": 10,
+    "missing_source_count": 0,
+    "hash_record_count": 10,
+    "all_sources_present": true,
+    "all_existing_sources_hashed": true,
+    "source_issue_count": 0,
+    "missing_sources": [],
+    "unhashed_sources": []
+  },
   "claim_boundaries": [
     "This packet is decision support, not a formal experiment result.",
     "It does not close F02.6; Dr Sun must explicitly approve or reject the recommendation.",

@@ -17,6 +17,13 @@
 - warm-start blockers: `warm_start_decision_pending`
 - CUDA smoke formal decision: `not_formal`
 
+## Source Integrity
+
+- source_count: `10`
+- missing_source_count: `0`
+- all_sources_present: `True`
+- all_existing_sources_hashed: `True`
+
 ## Next Command If Approved
 
 ```bash
