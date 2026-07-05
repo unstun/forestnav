@@ -3,8 +3,8 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `12d53f28954095cf8f45f4586752845f2f6cbc35+dirty`
-- input_safety_issue_count: `0`
+- source_head: `92d3841d0d35c84fd534f49c5c8180afc37d7c5a`
+- input_safety_issue_count: `2`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
 - remote_training_allowed_now: `False`
@@ -156,7 +156,7 @@ This file is a read-only formal-gate status report. It does not execute commands
 - source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
 - source_freshness_regeneration_required: `True`
 - source_freshness_blocking_regeneration_required: `True`
-- source_freshness_non_self_changed_records: `1`
+- source_freshness_non_self_changed_records: `17`
 - source_freshness_self_artifact_only_lag_records: `0`
 - remote_packet_safety_command_index_present: `True`
 - remote_packet_safety_command_index_row_count: `23`
@@ -559,7 +559,8 @@ This file is a read-only formal-gate status report. It does not execute commands
 
 ## Input Safety Issues
 
-- none
+- `remaining_deliverables_source_blocker_summary_target_ids_mismatch`: source blocker summary target ids must match source-freshness blocking targets.
+- `remaining_deliverables_source_blocker_summary_remote_readiness_ids_mismatch`: remote-readiness blocker ids must match source-freshness readiness blockers.
 
 ## Safe Work Without F02.6 Decision
 
