@@ -104,6 +104,12 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert manifest["input_status"]["claim_safety_decision_evidence_matrix_remote_training_allowed_now"] is False
     assert manifest["input_status"]["claim_safety_decision_record_is_not_training_authorization"] is True
     assert manifest["input_status"]["claim_safety_decision_record_is_not_paper_result_material"] is True
+    assert manifest["input_status"]["claim_safety_decision_record_authorization_status"] == (
+        "blocked_until_dr_sun_decision"
+    )
+    assert manifest["input_status"]["claim_safety_decision_record_authorization_remote_training_allowed_now"] is False
+    assert manifest["input_status"]["claim_safety_decision_record_authorization_formal_claim_allowed_now"] is False
+    assert manifest["input_status"]["claim_safety_decision_record_post_decision_non_authorization_count"] == 4
     assert manifest["input_status"]["claim_safety_decision_impact_remote_training_allowed_now"] is False
     assert manifest["input_status"]["claim_safety_decision_impact_formal_claim_allowed_now"] is False
     assert manifest["input_status"]["claim_safety_decision_impact_paper_result_material_allowed_now"] is False
