@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_remaining_deliverables",
   "status": "formal_gate_deliverables_blocked",
-  "created_at_utc": "2026-07-05T17:29:43.839500+00:00",
-  "source_head": "500ac8a9a0c59a811a8e89c744be80793eaff10e",
+  "created_at_utc": "2026-07-05T17:43:56.139062+00:00",
+  "source_head": "d235f7df03161acea839807276917a6e15d7bf2a",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -50,9 +50,9 @@
     "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
     "source_freshness_regeneration_required": true,
     "source_freshness_blocking_regeneration_required": true,
-    "source_freshness_non_self_changed_records": 18,
+    "source_freshness_non_self_changed_records": 23,
     "source_freshness_self_artifact_only_lag_records": 0,
-    "source_freshness_blocking_target_count": 18,
+    "source_freshness_blocking_target_count": 20,
     "source_freshness_blocking_target_ids": [
       "f02_6_decision_gate_audit",
       "f02_6_decision_intake",
@@ -61,6 +61,7 @@
       "f02_6_warm_start_decision_packet",
       "formal_gate_closure_checklist",
       "formal_gate_gap_audit",
+      "formal_gate_handoff_bundle",
       "gpu3070ti_readiness_refresh",
       "post_f02_6_plan_audit",
       "post_f02_6_regeneration_plan",
@@ -68,10 +69,11 @@
       "remote_packet_safety_audit",
       "h01_evaluation_manifest",
       "h02_formal_acceptance",
+      "claim_safety",
       "formal_gate_missing_artifacts",
-      "formal_gate_proof_audit",
-      "formal_gate_proof_summary_chain_audit",
-      "mainline_formal_gate_state_audit"
+      "formal_gate_remaining_deliverables",
+      "formal_gate_status_report",
+      "paper_readiness"
     ]
   },
   "permissions_now": {
@@ -417,10 +419,10 @@
     "execution_boundary": "read_only_no_execution",
     "not_paper_result_material": true,
     "status": "source_freshness_risks_recorded_gate_still_blocked",
-    "source_head": "500ac8a9a0c59a811a8e89c744be80793eaff10e",
-    "current_head": "500ac8a9a0c59a811a8e89c744be80793eaff10e",
+    "source_head": "d235f7df03161acea839807276917a6e15d7bf2a",
+    "current_head": "d235f7df03161acea839807276917a6e15d7bf2a",
     "blocking_regeneration_required_before_remote_formal_execution": true,
-    "blocking_target_count": 18,
+    "blocking_target_count": 20,
     "blocking_target_ids": [
       "f02_6_decision_gate_audit",
       "f02_6_decision_intake",
@@ -429,6 +431,7 @@
       "f02_6_warm_start_decision_packet",
       "formal_gate_closure_checklist",
       "formal_gate_gap_audit",
+      "formal_gate_handoff_bundle",
       "gpu3070ti_readiness_refresh",
       "post_f02_6_plan_audit",
       "post_f02_6_regeneration_plan",
@@ -436,15 +439,17 @@
       "remote_packet_safety_audit",
       "h01_evaluation_manifest",
       "h02_formal_acceptance",
+      "claim_safety",
       "formal_gate_missing_artifacts",
-      "formal_gate_proof_audit",
-      "formal_gate_proof_summary_chain_audit",
-      "mainline_formal_gate_state_audit"
+      "formal_gate_remaining_deliverables",
+      "formal_gate_status_report",
+      "paper_readiness"
     ],
     "remote_readiness_blocking_target_ids": [
-      "gpu3070ti_readiness_refresh"
+      "gpu3070ti_readiness_refresh",
+      "paper_readiness"
     ],
-    "remote_readiness_blocking_target_count": 1,
+    "remote_readiness_blocking_target_count": 2,
     "remote_readiness_refresh_requires_external_ssh": true,
     "remote_readiness_refresh_allowed_now": false,
     "remote_preflight_allowed_now": false,
@@ -457,8 +462,8 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 21,
-        "blocking_changed_path_count_since_source": 8
+        "commits_since_source": 31,
+        "blocking_changed_path_count_since_source": 11
       },
       {
         "artifact_id": "f02_6_decision_intake",
@@ -466,8 +471,8 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 21,
-        "blocking_changed_path_count_since_source": 8
+        "commits_since_source": 31,
+        "blocking_changed_path_count_since_source": 11
       },
       {
         "artifact_id": "f02_6_decision_record",
@@ -475,8 +480,8 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 21,
-        "blocking_changed_path_count_since_source": 8
+        "commits_since_source": 31,
+        "blocking_changed_path_count_since_source": 11
       },
       {
         "artifact_id": "f02_6_transition_gate_audit",
@@ -484,8 +489,8 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 21,
-        "blocking_changed_path_count_since_source": 8
+        "commits_since_source": 31,
+        "blocking_changed_path_count_since_source": 11
       },
       {
         "artifact_id": "f02_6_warm_start_decision_packet",
@@ -493,8 +498,8 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 21,
-        "blocking_changed_path_count_since_source": 8
+        "commits_since_source": 31,
+        "blocking_changed_path_count_since_source": 11
       },
       {
         "artifact_id": "formal_gate_closure_checklist",
@@ -502,17 +507,26 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 21,
-        "blocking_changed_path_count_since_source": 8
+        "commits_since_source": 31,
+        "blocking_changed_path_count_since_source": 11
       },
       {
         "artifact_id": "formal_gate_gap_audit",
         "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
         "freshness_state": "historical_clean",
-        "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
+        "source_head": "2516b401ff74b3f67d424e06ae4a9eb49e17d563",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 21,
-        "blocking_changed_path_count_since_source": 8
+        "commits_since_source": 4,
+        "blocking_changed_path_count_since_source": 2
+      },
+      {
+        "artifact_id": "formal_gate_handoff_bundle",
+        "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
+        "freshness_state": "historical_clean",
+        "source_head": "2516b401ff74b3f67d424e06ae4a9eb49e17d563",
+        "required_before": "approved_remote_preflight",
+        "commits_since_source": 4,
+        "blocking_changed_path_count_since_source": 2
       },
       {
         "artifact_id": "gpu3070ti_readiness_refresh",
@@ -520,26 +534,26 @@
         "freshness_state": "historical_clean",
         "source_head": "181860fa90c7f5f35dfb9bc224ca84c849a60d8a",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 128,
-        "blocking_changed_path_count_since_source": 39
+        "commits_since_source": 138,
+        "blocking_changed_path_count_since_source": 42
       },
       {
         "artifact_id": "post_f02_6_plan_audit",
         "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
         "freshness_state": "historical_clean",
-        "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
+        "source_head": "7ceb9bb2c2097cff0f06046dca9cd3ef579f1d61",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 21,
-        "blocking_changed_path_count_since_source": 8
+        "commits_since_source": 7,
+        "blocking_changed_path_count_since_source": 3
       },
       {
         "artifact_id": "post_f02_6_regeneration_plan",
         "path": "0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json",
         "freshness_state": "historical_clean",
-        "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
+        "source_head": "7ceb9bb2c2097cff0f06046dca9cd3ef579f1d61",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 21,
-        "blocking_changed_path_count_since_source": 8
+        "commits_since_source": 7,
+        "blocking_changed_path_count_since_source": 3
       },
       {
         "artifact_id": "remote_formal_execution_packet",
@@ -547,17 +561,17 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 21,
-        "blocking_changed_path_count_since_source": 8
+        "commits_since_source": 31,
+        "blocking_changed_path_count_since_source": 11
       },
       {
         "artifact_id": "remote_packet_safety_audit",
         "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
         "freshness_state": "historical_clean",
-        "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
+        "source_head": "2516b401ff74b3f67d424e06ae4a9eb49e17d563",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 21,
-        "blocking_changed_path_count_since_source": 8
+        "commits_since_source": 4,
+        "blocking_changed_path_count_since_source": 2
       },
       {
         "artifact_id": "h01_evaluation_manifest",
@@ -565,8 +579,8 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "formal_h01_h02",
-        "commits_since_source": 21,
-        "blocking_changed_path_count_since_source": 8
+        "commits_since_source": 31,
+        "blocking_changed_path_count_since_source": 11
       },
       {
         "artifact_id": "h02_formal_acceptance",
@@ -574,8 +588,17 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "formal_h01_h02",
-        "commits_since_source": 21,
-        "blocking_changed_path_count_since_source": 8
+        "commits_since_source": 31,
+        "blocking_changed_path_count_since_source": 11
+      },
+      {
+        "artifact_id": "claim_safety",
+        "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
+        "freshness_state": "historical_clean",
+        "source_head": "2516b401ff74b3f67d424e06ae4a9eb49e17d563",
+        "required_before": "formal_claim_gate",
+        "commits_since_source": 4,
+        "blocking_changed_path_count_since_source": 2
       },
       {
         "artifact_id": "formal_gate_missing_artifacts",
@@ -583,35 +606,35 @@
         "freshness_state": "historical_clean",
         "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
         "required_before": "formal_claim_gate",
-        "commits_since_source": 21,
-        "blocking_changed_path_count_since_source": 8
+        "commits_since_source": 31,
+        "blocking_changed_path_count_since_source": 11
       },
       {
-        "artifact_id": "formal_gate_proof_audit",
-        "path": "0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json",
+        "artifact_id": "formal_gate_remaining_deliverables",
+        "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
         "freshness_state": "historical_clean",
-        "source_head": "365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5",
+        "source_head": "500ac8a9a0c59a811a8e89c744be80793eaff10e",
         "required_before": "formal_claim_gate",
-        "commits_since_source": 21,
-        "blocking_changed_path_count_since_source": 8
+        "commits_since_source": 10,
+        "blocking_changed_path_count_since_source": 4
       },
       {
-        "artifact_id": "formal_gate_proof_summary_chain_audit",
-        "path": "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
-        "freshness_state": "historical_dirty",
-        "source_head": "12d53f28954095cf8f45f4586752845f2f6cbc35+dirty",
+        "artifact_id": "formal_gate_status_report",
+        "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
+        "freshness_state": "historical_clean",
+        "source_head": "2516b401ff74b3f67d424e06ae4a9eb49e17d563",
         "required_before": "formal_claim_gate",
-        "commits_since_source": 8,
-        "blocking_changed_path_count_since_source": 5
+        "commits_since_source": 4,
+        "blocking_changed_path_count_since_source": 2
       },
       {
-        "artifact_id": "mainline_formal_gate_state_audit",
-        "path": "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json",
-        "freshness_state": "historical_dirty",
-        "source_head": "12d53f28954095cf8f45f4586752845f2f6cbc35+dirty",
+        "artifact_id": "paper_readiness",
+        "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
+        "freshness_state": "historical_clean",
+        "source_head": "2516b401ff74b3f67d424e06ae4a9eb49e17d563",
         "required_before": "formal_claim_gate",
-        "commits_since_source": 8,
-        "blocking_changed_path_count_since_source": 5
+        "commits_since_source": 4,
+        "blocking_changed_path_count_since_source": 2
       }
     ]
   },
@@ -1139,13 +1162,14 @@
           "status": "blocked",
           "allowed_now": false,
           "blocked_by": [
-            "missing_remote_audit_pullback"
+            "missing_remote_audit_pullback",
+            "source_fresh_h01_h02_targets_open"
           ],
           "runs_training": false,
           "runs_remote_preflight": false,
           "host": null,
           "command_template_count": 2,
-          "evidence_path_count": 1
+          "evidence_path_count": 3
         },
         "local_materialization_stage": {
           "stage_id": "regenerate_h01_h02_formal_artifacts",
@@ -1153,16 +1177,17 @@
           "status": "blocked",
           "allowed_now": false,
           "blocked_by": [
-            "missing_remote_audit_pullback"
+            "missing_remote_audit_pullback",
+            "source_fresh_h01_h02_targets_open"
           ],
           "runs_training": false,
           "runs_remote_preflight": false,
           "host": null,
           "command_template_count": 2,
-          "evidence_path_count": 1
+          "evidence_path_count": 3
         },
-        "expected_path_listed_in_remote_generation_stage": false,
-        "expected_path_listed_in_local_materialization_stage": false,
+        "expected_path_listed_in_remote_generation_stage": true,
+        "expected_path_listed_in_local_materialization_stage": true,
         "hash_manifest_required_by_remote_packet": true,
         "post_plan_input_status": "blocked_until_f02_6_decision",
         "execution_boundary": "reference_only_no_execution",
@@ -1182,13 +1207,14 @@
           "status": "blocked",
           "allowed_now": false,
           "blocked_by": [
-            "missing_remote_audit_pullback"
+            "missing_remote_audit_pullback",
+            "source_fresh_h01_h02_targets_open"
           ],
           "runs_training": false,
           "runs_remote_preflight": false,
           "host": null,
           "command_template_count": 2,
-          "evidence_path_count": 1
+          "evidence_path_count": 3
         },
         "local_materialization_stage": {
           "stage_id": "regenerate_h01_h02_formal_artifacts",
@@ -1196,13 +1222,14 @@
           "status": "blocked",
           "allowed_now": false,
           "blocked_by": [
-            "missing_remote_audit_pullback"
+            "missing_remote_audit_pullback",
+            "source_fresh_h01_h02_targets_open"
           ],
           "runs_training": false,
           "runs_remote_preflight": false,
           "host": null,
           "command_template_count": 2,
-          "evidence_path_count": 1
+          "evidence_path_count": 3
         },
         "expected_path_listed_in_remote_generation_stage": true,
         "expected_path_listed_in_local_materialization_stage": true,

@@ -3,7 +3,7 @@
 This ledger is read-only. It lists remaining formal training, evaluation, and acceptance deliverables; it does not execute commands or write paper results.
 
 - status: `formal_gate_deliverables_blocked`
-- source_head: `500ac8a9a0c59a811a8e89c744be80793eaff10e`
+- source_head: `d235f7df03161acea839807276917a6e15d7bf2a`
 - missing_deliverable_count: `10`
 - open_category_count: `4`
 - missing_counts_by_formal_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
@@ -50,37 +50,39 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
 - source_freshness_regeneration_required: `True`
 - source_freshness_blocking_regeneration_required: `True`
-- source_freshness_non_self_changed_records: `18`
+- source_freshness_non_self_changed_records: `23`
 - source_freshness_self_artifact_only_lag_records: `0`
-- source_freshness_blocking_target_count: `18`
-- source_freshness_blocking_target_ids: `['f02_6_decision_gate_audit', 'f02_6_decision_intake', 'f02_6_decision_record', 'f02_6_transition_gate_audit', 'f02_6_warm_start_decision_packet', 'formal_gate_closure_checklist', 'formal_gate_gap_audit', 'gpu3070ti_readiness_refresh', 'post_f02_6_plan_audit', 'post_f02_6_regeneration_plan', 'remote_formal_execution_packet', 'remote_packet_safety_audit', 'h01_evaluation_manifest', 'h02_formal_acceptance', 'formal_gate_missing_artifacts', 'formal_gate_proof_audit', 'formal_gate_proof_summary_chain_audit', 'mainline_formal_gate_state_audit']`
+- source_freshness_blocking_target_count: `20`
+- source_freshness_blocking_target_ids: `['f02_6_decision_gate_audit', 'f02_6_decision_intake', 'f02_6_decision_record', 'f02_6_transition_gate_audit', 'f02_6_warm_start_decision_packet', 'formal_gate_closure_checklist', 'formal_gate_gap_audit', 'formal_gate_handoff_bundle', 'gpu3070ti_readiness_refresh', 'post_f02_6_plan_audit', 'post_f02_6_regeneration_plan', 'remote_formal_execution_packet', 'remote_packet_safety_audit', 'h01_evaluation_manifest', 'h02_formal_acceptance', 'claim_safety', 'formal_gate_missing_artifacts', 'formal_gate_remaining_deliverables', 'formal_gate_status_report', 'paper_readiness']`
 
 ## Source-Freshness Blocking Targets
 
 - summary_id: `module2_source_freshness_blocking_targets_summary`
 - status: `source_freshness_risks_recorded_gate_still_blocked`
-- blocking_target_count: `18`
-- remote_readiness_blocking_target_count: `1`
+- blocking_target_count: `20`
+- remote_readiness_blocking_target_count: `2`
 - remote_readiness_refresh_requires_external_ssh: `True`
 - remote_readiness_refresh_allowed_now: `False`
-- `f02_6_decision_gate_audit`: path=`0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`8`
-- `f02_6_decision_intake`: path=`0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`8`
-- `f02_6_decision_record`: path=`0_trials/module2_f02_6_decision_record/f02_6_decision_record.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`8`
-- `f02_6_transition_gate_audit`: path=`0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`8`
-- `f02_6_warm_start_decision_packet`: path=`0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`8`
-- `formal_gate_closure_checklist`: path=`0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`8`
-- `formal_gate_gap_audit`: path=`0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`8`
-- `gpu3070ti_readiness_refresh`: path=`0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`39`
-- `post_f02_6_plan_audit`: path=`0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`8`
-- `post_f02_6_regeneration_plan`: path=`0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`8`
-- `remote_formal_execution_packet`: path=`0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`8`
-- `remote_packet_safety_audit`: path=`0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`8`
-- `h01_evaluation_manifest`: path=`0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`, freshness_state=`historical_clean`, required_before=`formal_h01_h02`, blocking_changed_path_count_since_source=`8`
-- `h02_formal_acceptance`: path=`0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`, freshness_state=`historical_clean`, required_before=`formal_h01_h02`, blocking_changed_path_count_since_source=`8`
-- `formal_gate_missing_artifacts`: path=`0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json`, freshness_state=`historical_clean`, required_before=`formal_claim_gate`, blocking_changed_path_count_since_source=`8`
-- `formal_gate_proof_audit`: path=`0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json`, freshness_state=`historical_clean`, required_before=`formal_claim_gate`, blocking_changed_path_count_since_source=`8`
-- `formal_gate_proof_summary_chain_audit`: path=`0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json`, freshness_state=`historical_dirty`, required_before=`formal_claim_gate`, blocking_changed_path_count_since_source=`5`
-- `mainline_formal_gate_state_audit`: path=`0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json`, freshness_state=`historical_dirty`, required_before=`formal_claim_gate`, blocking_changed_path_count_since_source=`5`
+- `f02_6_decision_gate_audit`: path=`0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`11`
+- `f02_6_decision_intake`: path=`0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`11`
+- `f02_6_decision_record`: path=`0_trials/module2_f02_6_decision_record/f02_6_decision_record.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`11`
+- `f02_6_transition_gate_audit`: path=`0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`11`
+- `f02_6_warm_start_decision_packet`: path=`0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`11`
+- `formal_gate_closure_checklist`: path=`0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`11`
+- `formal_gate_gap_audit`: path=`0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`2`
+- `formal_gate_handoff_bundle`: path=`0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`2`
+- `gpu3070ti_readiness_refresh`: path=`0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`42`
+- `post_f02_6_plan_audit`: path=`0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`3`
+- `post_f02_6_regeneration_plan`: path=`0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`3`
+- `remote_formal_execution_packet`: path=`0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`11`
+- `remote_packet_safety_audit`: path=`0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`2`
+- `h01_evaluation_manifest`: path=`0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`, freshness_state=`historical_clean`, required_before=`formal_h01_h02`, blocking_changed_path_count_since_source=`11`
+- `h02_formal_acceptance`: path=`0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`, freshness_state=`historical_clean`, required_before=`formal_h01_h02`, blocking_changed_path_count_since_source=`11`
+- `claim_safety`: path=`0_trials/module2_claim_safety/module2_claim_safety.json`, freshness_state=`historical_clean`, required_before=`formal_claim_gate`, blocking_changed_path_count_since_source=`2`
+- `formal_gate_missing_artifacts`: path=`0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json`, freshness_state=`historical_clean`, required_before=`formal_claim_gate`, blocking_changed_path_count_since_source=`11`
+- `formal_gate_remaining_deliverables`: path=`0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json`, freshness_state=`historical_clean`, required_before=`formal_claim_gate`, blocking_changed_path_count_since_source=`4`
+- `formal_gate_status_report`: path=`0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`, freshness_state=`historical_clean`, required_before=`formal_claim_gate`, blocking_changed_path_count_since_source=`2`
+- `paper_readiness`: path=`0_trials/module2_paper_readiness/module2_paper_readiness.json`, freshness_state=`historical_clean`, required_before=`formal_claim_gate`, blocking_changed_path_count_since_source=`2`
 
 ## Formal Gate Gap Summary
 
@@ -158,7 +160,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - `acceptance:gate3_trial_manifest_json`: generation_stage=`gate3_remote_training`, generation_allowed_now=`False`, materialization_stage=`gate3_remote_audit_pullback`, materialization_allowed_now=`False`, host=`gpu3070ti-relay`, generation_evidence_path_listed=`True`, materialization_evidence_path_listed=`True`
 - `acceptance:gate3_formal_audit_json`: generation_stage=`gate3_remote_audit_pullback`, generation_allowed_now=`False`, materialization_stage=`gate3_remote_audit_pullback`, materialization_allowed_now=`False`, host=`gpu3070ti-relay`, generation_evidence_path_listed=`True`, materialization_evidence_path_listed=`True`
 - `acceptance:pulled_back_checkpoint_hash_record`: generation_stage=`gate3_remote_audit_pullback`, generation_allowed_now=`False`, materialization_stage=`gate3_remote_audit_pullback`, materialization_allowed_now=`False`, host=`gpu3070ti-relay`, generation_evidence_path_listed=`False`, materialization_evidence_path_listed=`False`
-- `formal_acceptance:h01_ready_for_formal_run`: generation_stage=`regenerate_h01_h02_formal_artifacts`, generation_allowed_now=`False`, materialization_stage=`regenerate_h01_h02_formal_artifacts`, materialization_allowed_now=`False`, host=`None`, generation_evidence_path_listed=`False`, materialization_evidence_path_listed=`False`
+- `formal_acceptance:h01_ready_for_formal_run`: generation_stage=`regenerate_h01_h02_formal_artifacts`, generation_allowed_now=`False`, materialization_stage=`regenerate_h01_h02_formal_artifacts`, materialization_allowed_now=`False`, host=`None`, generation_evidence_path_listed=`True`, materialization_evidence_path_listed=`True`
 - `formal_acceptance:h02_formal_output_acceptance`: generation_stage=`regenerate_h01_h02_formal_artifacts`, generation_allowed_now=`False`, materialization_stage=`regenerate_h01_h02_formal_artifacts`, materialization_allowed_now=`False`, host=`None`, generation_evidence_path_listed=`True`, materialization_evidence_path_listed=`True`
 
 ## Deliverable Unlock Chain
