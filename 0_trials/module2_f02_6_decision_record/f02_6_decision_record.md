@@ -10,6 +10,9 @@
 - remote training allowed now: `False`
 - local training allowed: `False`
 - formal claim allowed: `False`
+- paper result material allowed now: `False`
+- decision_record_is_not_training_authorization: `True`
+- decision_record_is_not_paper_result_material: `True`
 - next remote preflight status: `blocked_until_decision`
 
 ## Blockers
@@ -19,6 +22,19 @@
 - path: `0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json`
 - status: `pending_human_decision`
 - recommendation: `approve_obstacle_summary_warm_start`
+
+## Current Authorization Boundary
+- authorization_status: `blocked_until_dr_sun_decision`
+- current_allowed_action_ids: `record_f02_6_decision`
+- current_blocked_action_ids: `remote_preflight, remote_training, local_training, formal_claim, paper_result_material`
+- post_decision_routes_are_current_authorization: `False`
+- remote_preflight_allowed_now: `False`
+- remote_training_allowed_now: `False`
+- formal_claim_allowed_now: `False`
+
+## Post-Decision Non-Authorization Invariants
+- formal_training_still_requires: `source_freshness_audit, post_f02_6_regeneration_plan, post_f02_6_plan_audit, remote_formal_execution_packet_ready, approved_remote_preflight`
+- blocked_after_decision_record_count: `4`
 
 ## Remote Preflight Intent
 - host: `gpu3070ti-relay`

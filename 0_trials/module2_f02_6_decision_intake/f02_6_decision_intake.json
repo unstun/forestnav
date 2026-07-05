@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_f02_6_decision_intake",
   "status": "f02_6_decision_intake_pending_clean",
-  "created_at_utc": "2026-07-05T15:23:46.306756+00:00",
-  "source_head": "1d03fd8b1a091b6e2e4017757ef8d9220fc6e3b9+dirty",
+  "created_at_utc": "2026-07-05T16:31:33.778842+00:00",
+  "source_head": "c9458a7d71db09e5dea8b07df2d6a8fd2409eabb+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -31,7 +31,66 @@
     "record_remote_preflight_allowed_now": false,
     "record_remote_training_allowed_now": false,
     "record_local_training_allowed": false,
+    "record_local_training_allowed_now": false,
     "record_formal_claim_allowed": false,
+    "record_formal_claim_allowed_now": false,
+    "record_paper_result_material_allowed_now": false,
+    "record_decision_record_is_not_training_authorization": true,
+    "record_decision_record_is_not_paper_result_material": true,
+    "record_authorization_status": "blocked_until_dr_sun_decision",
+    "record_authorization_current_allowed_action_ids": [
+      "record_f02_6_decision"
+    ],
+    "record_authorization_current_blocked_action_ids": [
+      "remote_preflight",
+      "remote_training",
+      "local_training",
+      "formal_claim",
+      "paper_result_material"
+    ],
+    "record_authorization_post_decision_routes_are_current_authorization": false,
+    "record_authorization_remote_preflight_allowed_now": false,
+    "record_authorization_remote_training_allowed_now": false,
+    "record_authorization_local_training_allowed_now": false,
+    "record_authorization_formal_claim_allowed_now": false,
+    "record_authorization_paper_result_material_allowed_now": false,
+    "record_post_decision_non_authorization_count": 4,
+    "record_post_decision_formal_training_still_requires": [
+      "source_freshness_audit",
+      "post_f02_6_regeneration_plan",
+      "post_f02_6_plan_audit",
+      "remote_formal_execution_packet_ready",
+      "approved_remote_preflight"
+    ],
+    "record_command_template_count": 2,
+    "record_command_templates": [
+      {
+        "decision": "approve_obstacle_summary_warm_start",
+        "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'",
+        "execution_boundary": "local_decision_record_only",
+        "requires_dr_sun_note": true,
+        "allowed_for_agent_now": false,
+        "runs_training": false,
+        "runs_remote_preflight": false,
+        "runs_remote_audit": false,
+        "runs_remote_training": false,
+        "formal_claim_allowed_now": false,
+        "paper_result_material_allowed_now": false
+      },
+      {
+        "decision": "reject_obstacle_summary_warm_start",
+        "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision reject_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun rejection note>'",
+        "execution_boundary": "local_decision_record_only",
+        "requires_dr_sun_note": true,
+        "allowed_for_agent_now": false,
+        "runs_training": false,
+        "runs_remote_preflight": false,
+        "runs_remote_audit": false,
+        "runs_remote_training": false,
+        "formal_claim_allowed_now": false,
+        "paper_result_material_allowed_now": false
+      }
+    ],
     "packet_authorization_status": "blocked_until_dr_sun_decision",
     "packet_current_allowed_action_ids": [
       "record_f02_6_decision"
@@ -173,6 +232,15 @@
       "formal_claim",
       "paper_result_material"
     ],
+    "record_authorization_status": "blocked_until_dr_sun_decision",
+    "record_authorization_current_blocked_action_ids": [
+      "remote_preflight",
+      "remote_training",
+      "local_training",
+      "formal_claim",
+      "paper_result_material"
+    ],
+    "record_post_decision_non_authorization_count": 4,
     "decision_routes": [
       {
         "decision": "approve_obstacle_summary_warm_start",

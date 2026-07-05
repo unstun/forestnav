@@ -2,9 +2,14 @@
   "schema_version": 1,
   "record_name": "module2_f02_6_decision_record",
   "status": "pending_human_decision",
-  "created_at_utc": "2026-07-05T14:28:35.671854+00:00",
+  "created_at_utc": "2026-07-05T16:31:33.541850+00:00",
   "execution_host": "MacBook-Pro.local",
-  "source_head": "181860fa90c7f5f35dfb9bc224ca84c849a60d8a",
+  "source_head": "c9458a7d71db09e5dea8b07df2d6a8fd2409eabb+dirty",
+  "not_paper_result_material": true,
+  "executes_commands": false,
+  "runs_training": false,
+  "runs_remote_preflight": false,
+  "runs_remote_audit": false,
   "decision_owner_required": "Dr Sun",
   "requested_decision": "pending",
   "decider": null,
@@ -36,7 +41,7 @@
       "requires_dr_sun_approval"
     ],
     "formal_claim_allowed": false,
-    "source_head": "ce3cc78c3d943d26af628e1d13046ee78b266d3f"
+    "source_head": "4e88654613293ffea82c63203b47007c49cb45e9+dirty"
   },
   "decision_mapping": {
     "approve_obstacle_summary_warm_start": {
@@ -55,7 +60,98 @@
   "remote_preflight_allowed_now": false,
   "remote_training_allowed_now": false,
   "local_training_allowed": false,
+  "local_training_allowed_now": false,
   "formal_claim_allowed": false,
+  "formal_claim_allowed_now": false,
+  "paper_result_material_allowed_now": false,
+  "decision_record_is_not_training_authorization": true,
+  "decision_record_is_not_paper_result_material": true,
+  "current_authorization": {
+    "authorization_status": "blocked_until_dr_sun_decision",
+    "current_allowed_action_ids": [
+      "record_f02_6_decision"
+    ],
+    "current_blocked_action_ids": [
+      "remote_preflight",
+      "remote_training",
+      "local_training",
+      "formal_claim",
+      "paper_result_material"
+    ],
+    "post_decision_routes_are_current_authorization": false,
+    "record_scope": "local_decision_record_only",
+    "remote_preflight_allowed_now": false,
+    "remote_training_allowed_now": false,
+    "local_training_allowed_now": false,
+    "formal_claim_allowed_now": false,
+    "paper_result_material_allowed_now": false
+  },
+  "record_command_templates": [
+    {
+      "decision": "approve_obstacle_summary_warm_start",
+      "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'",
+      "execution_boundary": "local_decision_record_only",
+      "requires_dr_sun_note": true,
+      "allowed_for_agent_now": false,
+      "runs_training": false,
+      "runs_remote_preflight": false,
+      "runs_remote_audit": false,
+      "runs_remote_training": false,
+      "formal_claim_allowed_now": false,
+      "paper_result_material_allowed_now": false
+    },
+    {
+      "decision": "reject_obstacle_summary_warm_start",
+      "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision reject_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun rejection note>'",
+      "execution_boundary": "local_decision_record_only",
+      "requires_dr_sun_note": true,
+      "allowed_for_agent_now": false,
+      "runs_training": false,
+      "runs_remote_preflight": false,
+      "runs_remote_audit": false,
+      "runs_remote_training": false,
+      "formal_claim_allowed_now": false,
+      "paper_result_material_allowed_now": false
+    }
+  ],
+  "post_decision_non_authorization_invariants": {
+    "decision_record_is_not_training_authorization": true,
+    "decision_record_is_not_paper_result_material": true,
+    "local_training_allowed_now": false,
+    "remote_preflight_allowed_now": false,
+    "remote_training_allowed_now": false,
+    "formal_claim_allowed_now": false,
+    "paper_result_material_allowed_now": false,
+    "formal_training_still_requires": [
+      "source_freshness_audit",
+      "post_f02_6_regeneration_plan",
+      "post_f02_6_plan_audit",
+      "remote_formal_execution_packet_ready",
+      "approved_remote_preflight"
+    ],
+    "blocked_after_decision_record": [
+      {
+        "action": "local_training",
+        "allowed_after_decision_record": false,
+        "reason": "Formal PPO training is remote-only on gpu3070ti-relay."
+      },
+      {
+        "action": "remote_preflight",
+        "allowed_after_decision_record": false,
+        "reason": "Approved decisions still require source-fresh gate regeneration before remote preflight."
+      },
+      {
+        "action": "remote_training",
+        "allowed_after_decision_record": false,
+        "reason": "Remote training still requires approved preflight, packet safety, formal manifest, and pullback protocol."
+      },
+      {
+        "action": "paper_formal_result_claim",
+        "allowed_after_decision_record": false,
+        "reason": "A decision record is not a PPO checkpoint, evaluation CSV, H02 acceptance, or paper-result input."
+      }
+    ]
+  },
   "next_remote_preflight_status": "blocked_until_decision",
   "blockers": [
     "requires_dr_sun_approval"
