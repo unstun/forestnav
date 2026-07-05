@@ -1123,6 +1123,16 @@ def _decision_intake_safety_issues(decision_intake: dict[str, Any]) -> list[dict
             issues.append(_issue("decision_intake_packet_authorization_not_blocked", "pending F02.6 intake must report packet authorization blocked until Dr Sun decision."))
         if summary["packet_current_allowed_action_ids"] != ["record_f02_6_decision"]:
             issues.append(_issue("decision_intake_packet_allowed_actions_not_decision_only", "pending F02.6 packet authorization must allow only the decision record action."))
+        if summary["next_request_status"] != "awaiting_dr_sun_decision":
+            issues.append(_issue("decision_intake_next_request_not_awaiting_dr_sun", "pending F02.6 intake must expose an awaiting Dr Sun decision request."))
+        if summary["next_request_decision_owner_required"] != "Dr Sun":
+            issues.append(_issue("decision_intake_next_request_owner_not_dr_sun", "pending F02.6 decision request must require Dr Sun."))
+        if not expected_decisions.issubset(set(summary["next_request_valid_decisions"])):
+            issues.append(_issue("decision_intake_next_request_missing_valid_decisions", "pending F02.6 decision request must list approve and reject options."))
+        if not expected_fields.issubset(set(summary["next_request_required_record_fields"])):
+            issues.append(_issue("decision_intake_next_request_missing_required_fields", "pending F02.6 decision request must require decision, decider, and decision_note."))
+        if summary["next_request_current_allowed_action_ids"] != ["record_f02_6_decision"]:
+            issues.append(_issue("decision_intake_next_request_allowed_actions_not_decision_only", "pending F02.6 decision request must allow only the decision record action."))
         required_blocked_actions = {
             "remote_preflight",
             "remote_training",
@@ -1133,8 +1143,17 @@ def _decision_intake_safety_issues(decision_intake: dict[str, Any]) -> list[dict
         missing_blocked_actions = required_blocked_actions.difference(summary["packet_current_blocked_action_ids"])
         if missing_blocked_actions:
             issues.append(_issue("decision_intake_packet_missing_blocked_actions", "pending F02.6 packet authorization must block execution and result material paths."))
+        missing_request_blocked_actions = required_blocked_actions.difference(
+            summary["next_request_current_blocked_action_ids"]
+        )
+        if missing_request_blocked_actions:
+            issues.append(_issue("decision_intake_next_request_missing_blocked_actions", "pending F02.6 decision request must block execution and result material paths."))
         if summary["packet_post_decision_routes_are_current_authorization"] is not False:
             issues.append(_issue("decision_intake_packet_treats_routes_as_authorization", "post-decision routes must not be current authorization."))
+        if summary["next_request_post_decision_routes_are_current_authorization"] is not False:
+            issues.append(_issue("decision_intake_next_request_treats_routes_as_authorization", "decision request post-decision routes must not be current authorization."))
+        if summary["next_request_all_execution_disabled_now"] is not True:
+            issues.append(_issue("decision_intake_next_request_execution_not_disabled", "pending F02.6 decision request must report all execution disabled."))
         for field in (
             "packet_remote_preflight_allowed_now",
             "packet_remote_training_allowed_now",
