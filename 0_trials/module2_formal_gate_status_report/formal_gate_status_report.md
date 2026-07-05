@@ -3,11 +3,11 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `82cec025c50398dc56df7de4a1ea15b3c5e67287`
-- input_safety_issue_count: `0`
+- source_head: `2cd4e13da6aff82d096cbf7cd11595f859ec4d05`
+- input_safety_issue_count: `6`
 - local_training_allowed_now: `False`
-- remote_preflight_allowed_now: `True`
-- remote_training_allowed_now: `True`
+- remote_preflight_allowed_now: `False`
+- remote_training_allowed_now: `False`
 - formal_claim_allowed_now: `False`
 
 ## Current State
@@ -548,7 +548,12 @@ This file is a read-only formal-gate status report. It does not execute commands
 
 ## Input Safety Issues
 
-- none
+- `missing_artifacts_handoff_allows_remote_training_while_open`: missing-artifacts handoff index must not allow remote training while the inventory is open.
+- `blocked_formal_gate_execution_veto_allows_remote_training`: blocked formal gate must not allow remote_training.
+- `remaining_deliverables_training_train_final_model_zip_stage_allowed_while_blocked`: training:train_final_model_zip responsible stage cannot be allowed while remaining deliverables are blocked.
+- `remaining_deliverables_training_train_summary_json_stage_allowed_while_blocked`: training:train_summary_json responsible stage cannot be allowed while remaining deliverables are blocked.
+- `remaining_deliverables_training_train_training_manifest_json_stage_allowed_while_blocked`: training:train_training_manifest_json responsible stage cannot be allowed while remaining deliverables are blocked.
+- `remaining_deliverables_gap_training_stage_allowed_while_blocked`: gap summary training stage cannot be allowed while remaining deliverables are blocked.
 
 ## Safe Work Without F02.6 Decision
 

@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_mainline_formal_gate_state_audit",
-  "status": "mainline_formal_gate_state_audit_failed",
-  "created_at_utc": "2026-07-05T23:12:17.859177+00:00",
-  "source_head": "adf7f0a86ed72767b2f150d60c40b81f03ebb7c6+dirty",
+  "status": "mainline_formal_gate_state_consistent_blocked",
+  "created_at_utc": "2026-07-05T23:15:21.686412+00:00",
+  "source_head": "2cd4e13da6aff82d096cbf7cd11595f859ec4d05",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -101,26 +101,26 @@
     "paper_result_material_allowed_now": false,
     "new_success_training_allowed_now": false
   },
-  "protocol_lane_status_mentioned": false,
-  "protocol_lane_next_blocked_mentioned": false,
-  "protocol_lane_next_action_mentioned": false,
-  "protocol_lane_decision_record_status_mentioned": false,
+  "protocol_lane_status_mentioned": true,
+  "protocol_lane_next_blocked_mentioned": true,
+  "protocol_lane_next_action_mentioned": true,
+  "protocol_lane_decision_record_status_mentioned": true,
   "protocol_lane_lane_mentions": [
     {
       "lane_id": "stronger_obstacle_summary_warm_start",
-      "mentioned": false
+      "mentioned": true
     },
     {
       "lane_id": "full_patch_cnn_policy",
-      "mentioned": false
+      "mentioned": true
     },
     {
       "lane_id": "hybrid_ppo_analytic_fallback",
-      "mentioned": false
+      "mentioned": true
     },
     {
       "lane_id": "stop_or_reframe_module2_claim",
-      "mentioned": false
+      "mentioned": true
     }
   ],
   "protocol_lane_blocked_action_mentions": [
@@ -130,11 +130,11 @@
     },
     {
       "action_id": "remote_success_training",
-      "mentioned": false
+      "mentioned": true
     },
     {
       "action_id": "remote_preflight_for_new_success_attempt",
-      "mentioned": false
+      "mentioned": true
     },
     {
       "action_id": "formal_claim",
@@ -240,59 +240,8 @@
       "mentioned": false
     }
   ],
-  "audit_issue_count": 10,
-  "audit_issues": [
-    {
-      "issue_id": "mainline_current_section_missing_protocol_lane_status",
-      "message": "Current formal-gate section must mention the protocol-lane status report state.",
-      "protocol_lane_status": "protocol_lane_status_blocked_pending_lane_decision"
-    },
-    {
-      "issue_id": "mainline_current_section_missing_protocol_lane_next_blocked",
-      "message": "Current formal-gate section must mention protocol_lane_decision as the current blocked lane.",
-      "next_blocked_lane": "protocol_lane_decision"
-    },
-    {
-      "issue_id": "mainline_current_section_missing_protocol_lane_next_action",
-      "message": "Current formal-gate section must mention the only allowed protocol-lane next action.",
-      "action_id": "record_protocol_lane_decision"
-    },
-    {
-      "issue_id": "mainline_current_section_missing_protocol_lane_decision_record_status",
-      "message": "Current formal-gate section must mention the pending protocol-lane decision record.",
-      "decision_record_status": "pending_protocol_lane_decision"
-    },
-    {
-      "issue_id": "mainline_current_section_missing_protocol_lane_stronger_obstacle_summary_warm_start",
-      "message": "Current formal-gate section must mention every protocol-lane option.",
-      "lane_id": "stronger_obstacle_summary_warm_start"
-    },
-    {
-      "issue_id": "mainline_current_section_missing_protocol_lane_full_patch_cnn_policy",
-      "message": "Current formal-gate section must mention every protocol-lane option.",
-      "lane_id": "full_patch_cnn_policy"
-    },
-    {
-      "issue_id": "mainline_current_section_missing_protocol_lane_hybrid_ppo_analytic_fallback",
-      "message": "Current formal-gate section must mention every protocol-lane option.",
-      "lane_id": "hybrid_ppo_analytic_fallback"
-    },
-    {
-      "issue_id": "mainline_current_section_missing_protocol_lane_stop_or_reframe_module2_claim",
-      "message": "Current formal-gate section must mention every protocol-lane option.",
-      "lane_id": "stop_or_reframe_module2_claim"
-    },
-    {
-      "issue_id": "mainline_current_section_missing_protocol_lane_blocked_action_remote_success_training",
-      "message": "Current formal-gate section must mention every blocked protocol-lane action.",
-      "action_id": "remote_success_training"
-    },
-    {
-      "issue_id": "mainline_current_section_missing_protocol_lane_blocked_action_remote_preflight_for_new_success_attempt",
-      "message": "Current formal-gate section must mention every blocked protocol-lane action.",
-      "action_id": "remote_preflight_for_new_success_attempt"
-    }
-  ],
+  "audit_issue_count": 0,
+  "audit_issues": [],
   "claim_boundaries": [
     "This audit only checks that the long-term mainline task book mirrors the current formal-gate state.",
     "It does not execute commands, run local training, run remote preflight, run remote PPO training, evaluate PPO, pull back artifacts, or write paper results.",

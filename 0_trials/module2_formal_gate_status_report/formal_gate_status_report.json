@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-05T19:51:51.541382+00:00",
-  "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+  "created_at_utc": "2026-07-05T23:15:17.586349+00:00",
+  "source_head": "2cd4e13da6aff82d096cbf7cd11595f859ec4d05",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -205,9 +205,9 @@
   "permissions_now": {
     "f02_6_decision_closed": true,
     "warm_start_formal_chain_approved": true,
-    "remote_preflight_allowed_now": true,
-    "remote_training_allowed_now": true,
-    "formal_h01_evaluation_allowed_now": true,
+    "remote_preflight_allowed_now": false,
+    "remote_training_allowed_now": false,
+    "formal_h01_evaluation_allowed_now": false,
     "formal_h02_acceptance_allowed_now": false,
     "formal_claim_allowed_now": false,
     "local_training_allowed_now": false,
@@ -2722,8 +2722,33 @@
       "source_freshness_regeneration_required"
     ]
   },
-  "input_safety_issue_count": 0,
-  "input_safety_issues": [],
+  "input_safety_issue_count": 6,
+  "input_safety_issues": [
+    {
+      "issue_id": "missing_artifacts_handoff_allows_remote_training_while_open",
+      "message": "missing-artifacts handoff index must not allow remote training while the inventory is open."
+    },
+    {
+      "issue_id": "blocked_formal_gate_execution_veto_allows_remote_training",
+      "message": "blocked formal gate must not allow remote_training."
+    },
+    {
+      "issue_id": "remaining_deliverables_training_train_final_model_zip_stage_allowed_while_blocked",
+      "message": "training:train_final_model_zip responsible stage cannot be allowed while remaining deliverables are blocked."
+    },
+    {
+      "issue_id": "remaining_deliverables_training_train_summary_json_stage_allowed_while_blocked",
+      "message": "training:train_summary_json responsible stage cannot be allowed while remaining deliverables are blocked."
+    },
+    {
+      "issue_id": "remaining_deliverables_training_train_training_manifest_json_stage_allowed_while_blocked",
+      "message": "training:train_training_manifest_json responsible stage cannot be allowed while remaining deliverables are blocked."
+    },
+    {
+      "issue_id": "remaining_deliverables_gap_training_stage_allowed_while_blocked",
+      "message": "gap summary training stage cannot be allowed while remaining deliverables are blocked."
+    }
+  ],
   "safe_work_without_f02_6_decision": [
     "Maintain or harden read-only gate artifacts.",
     "Add tests for gate ordering, artifact inventory, and claim blocking.",
