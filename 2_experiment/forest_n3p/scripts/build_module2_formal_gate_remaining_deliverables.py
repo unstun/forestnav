@@ -1413,6 +1413,55 @@ def _source_freshness_summary(source_freshness: dict[str, Any]) -> dict[str, Any
     }
 
 
+def _source_freshness_blocking_targets_summary(source_freshness: dict[str, Any]) -> dict[str, Any]:
+    raw_targets = source_freshness.get("blocking_ordered_regeneration_targets")
+    targets = raw_targets if isinstance(raw_targets, list) else []
+    rows: list[dict[str, Any]] = []
+    for item in targets:
+        if not isinstance(item, dict):
+            continue
+        rows.append(
+            {
+                "artifact_id": item.get("artifact_id"),
+                "path": item.get("path"),
+                "freshness_state": item.get("freshness_state"),
+                "source_head": item.get("source_head"),
+                "required_before": item.get("required_before"),
+                "commits_since_source": item.get("commits_since_source"),
+                "blocking_changed_path_count_since_source": item.get(
+                    "blocking_changed_path_count_since_source"
+                ),
+            }
+        )
+    blocking_target_ids = [str(row["artifact_id"]) for row in rows if row.get("artifact_id")]
+    remote_readiness_ids = [
+        target_id
+        for target_id in blocking_target_ids
+        if "readiness" in target_id or "gpu3070ti" in target_id
+    ]
+    return {
+        "summary_id": "module2_source_freshness_blocking_targets_summary",
+        "execution_boundary": "read_only_no_execution",
+        "not_paper_result_material": True,
+        "status": source_freshness.get("status"),
+        "source_head": source_freshness.get("source_head"),
+        "current_head": source_freshness.get("current_head"),
+        "blocking_regeneration_required_before_remote_formal_execution": _source_freshness_blocking_regeneration_required(
+            source_freshness
+        ),
+        "blocking_target_count": len(rows),
+        "blocking_target_ids": blocking_target_ids,
+        "remote_readiness_blocking_target_ids": remote_readiness_ids,
+        "remote_readiness_blocking_target_count": len(remote_readiness_ids),
+        "remote_readiness_refresh_requires_external_ssh": bool(remote_readiness_ids),
+        "remote_readiness_refresh_allowed_now": False,
+        "remote_preflight_allowed_now": False,
+        "remote_training_allowed_now": False,
+        "formal_claim_allowed_now": False,
+        "rows": rows,
+    }
+
+
 def _source_freshness_ready_for_remote_preflight(source_freshness: dict[str, Any]) -> bool:
     return (
         source_freshness.get("status")
