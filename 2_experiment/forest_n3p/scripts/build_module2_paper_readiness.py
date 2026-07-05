@@ -1189,6 +1189,126 @@ def _claim_safety_decision_intake_blockers(claim_safety: dict[str, Any]) -> list
     return blockers
 
 
+def _normalize_decision_evidence_matrix(raw: Any) -> dict[str, Any]:
+    matrix = raw if isinstance(raw, dict) else {}
+    auth = matrix.get("authorization_flags") if isinstance(matrix.get("authorization_flags"), dict) else {}
+    evidence_counts = matrix.get("evidence_counts_by_route")
+    invalid_counts = matrix.get("invalid_substitute_counts_by_route")
+    route_decisions = _string_list(matrix.get("route_decisions"))
+    return {
+        "present": bool(matrix.get("present")) or bool(matrix),
+        "matrix_id": matrix.get("matrix_id"),
+        "status": matrix.get("status"),
+        "route_count": int(matrix.get("route_count") or len(route_decisions)),
+        "route_decisions": route_decisions,
+        "required_evidence_count": int(matrix.get("required_evidence_count") or 0),
+        "satisfied_required_evidence_count": int(matrix.get("satisfied_required_evidence_count") or 0),
+        "missing_required_evidence_count": int(matrix.get("missing_required_evidence_count") or 0),
+        "missing_required_evidence_ids": _strings(matrix.get("missing_required_evidence_ids")),
+        "source_issue_count": int(matrix.get("source_issue_count") or 0),
+        "global_invalid_substitute_count": int(matrix.get("global_invalid_substitute_count") or 0),
+        "current_authorization_allowed_now": _matrix_bool(matrix, auth, "current_authorization_allowed_now"),
+        "remote_preflight_allowed_now": _matrix_bool(matrix, auth, "remote_preflight_allowed_now"),
+        "remote_training_allowed_now": _matrix_bool(matrix, auth, "remote_training_allowed_now"),
+        "local_training_allowed_now": _matrix_bool(matrix, auth, "local_training_allowed_now"),
+        "formal_claim_allowed_now": _matrix_bool(matrix, auth, "formal_claim_allowed_now"),
+        "paper_result_material_allowed_now": _matrix_bool(matrix, auth, "paper_result_material_allowed_now"),
+        "evidence_counts_by_route": {
+            str(key): int(value or 0)
+            for key, value in (evidence_counts if isinstance(evidence_counts, dict) else {}).items()
+        },
+        "invalid_substitute_counts_by_route": {
+            str(key): int(value or 0)
+            for key, value in (invalid_counts if isinstance(invalid_counts, dict) else {}).items()
+        },
+    }
+
+
+def _matrix_bool(matrix: dict[str, Any], auth: dict[str, Any], field: str) -> bool | None:
+    if isinstance(matrix.get(field), bool):
+        return matrix[field]
+    if isinstance(auth.get(field), bool):
+        return auth[field]
+    return None
+
+
+def _claim_safety_handoff_decision_evidence_matrix_summary(claim_safety: dict[str, Any]) -> dict[str, Any]:
+    return _normalize_decision_evidence_matrix(claim_safety.get("handoff_f02_6_decision_evidence_matrix_summary"))
+
+
+def _decision_evidence_matrix_signature(summary: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "present": summary.get("present"),
+        "matrix_id": summary.get("matrix_id"),
+        "status": summary.get("status"),
+        "route_count": summary.get("route_count"),
+        "route_decisions": summary.get("route_decisions"),
+        "required_evidence_count": summary.get("required_evidence_count"),
+        "satisfied_required_evidence_count": summary.get("satisfied_required_evidence_count"),
+        "missing_required_evidence_count": summary.get("missing_required_evidence_count"),
+        "missing_required_evidence_ids": summary.get("missing_required_evidence_ids"),
+        "source_issue_count": summary.get("source_issue_count"),
+        "current_authorization_allowed_now": summary.get("current_authorization_allowed_now"),
+        "remote_preflight_allowed_now": summary.get("remote_preflight_allowed_now"),
+        "remote_training_allowed_now": summary.get("remote_training_allowed_now"),
+        "local_training_allowed_now": summary.get("local_training_allowed_now"),
+        "formal_claim_allowed_now": summary.get("formal_claim_allowed_now"),
+        "paper_result_material_allowed_now": summary.get("paper_result_material_allowed_now"),
+    }
+
+
+def _claim_safety_handoff_decision_evidence_matrix_blockers(claim_safety: dict[str, Any]) -> list[str]:
+    summary = _claim_safety_handoff_decision_evidence_matrix_summary(claim_safety)
+    blockers: list[str] = []
+    if not summary["present"]:
+        blockers.append("claim_safety_handoff_f02_6_decision_evidence_matrix_missing")
+        return blockers
+    if summary["matrix_id"] != "module2_f02_6_decision_evidence_matrix":
+        blockers.append("claim_safety_handoff_f02_6_decision_evidence_matrix_id_invalid")
+    if summary["status"] != "ready_for_dr_sun_decision_not_authorization":
+        blockers.append("claim_safety_handoff_f02_6_decision_evidence_matrix_status_invalid")
+    if summary["route_count"] != 2:
+        blockers.append("claim_safety_handoff_f02_6_decision_evidence_matrix_route_count_invalid")
+    expected_decisions = {"approve_obstacle_summary_warm_start", "reject_obstacle_summary_warm_start"}
+    if not expected_decisions.issubset(set(summary["route_decisions"])):
+        blockers.append("claim_safety_handoff_f02_6_decision_evidence_matrix_routes_incomplete")
+    if summary["required_evidence_count"] < 7:
+        blockers.append("claim_safety_handoff_f02_6_decision_evidence_matrix_required_evidence_incomplete")
+    if summary["missing_required_evidence_count"] != 0:
+        blockers.append("claim_safety_handoff_f02_6_decision_evidence_matrix_missing_required_evidence")
+    if summary["source_issue_count"] != 0:
+        blockers.append("claim_safety_handoff_f02_6_decision_evidence_matrix_source_issues_open")
+    if summary["global_invalid_substitute_count"] == 0:
+        blockers.append("claim_safety_handoff_f02_6_decision_evidence_matrix_invalid_substitutes_missing")
+    for route in expected_decisions:
+        if int(summary["invalid_substitute_counts_by_route"].get(route, 0)) == 0:
+            blockers.append(f"claim_safety_handoff_f02_6_decision_evidence_matrix_{route}_invalid_substitutes_missing")
+    for field, blocker in (
+        ("current_authorization_allowed_now", "claim_safety_handoff_f02_6_decision_evidence_matrix_authorizes_now"),
+        ("remote_preflight_allowed_now", "claim_safety_handoff_f02_6_decision_evidence_matrix_allows_remote_preflight"),
+        ("remote_training_allowed_now", "claim_safety_handoff_f02_6_decision_evidence_matrix_allows_remote_training"),
+        ("local_training_allowed_now", "claim_safety_handoff_f02_6_decision_evidence_matrix_allows_local_training"),
+        ("formal_claim_allowed_now", "claim_safety_handoff_f02_6_decision_evidence_matrix_allows_formal_claim"),
+        (
+            "paper_result_material_allowed_now",
+            "claim_safety_handoff_f02_6_decision_evidence_matrix_allows_paper_result_material",
+        ),
+    ):
+        if summary[field] is not False:
+            blockers.append(blocker)
+
+    status_report_summary = _claim_safety_decision_intake_summary(claim_safety)[
+        "decision_evidence_matrix_summary"
+    ]
+    normalized_status_report = _normalize_decision_evidence_matrix(status_report_summary)
+    if normalized_status_report["present"] and (
+        _decision_evidence_matrix_signature(summary)
+        != _decision_evidence_matrix_signature(normalized_status_report)
+    ):
+        blockers.append("claim_safety_handoff_f02_6_decision_evidence_matrix_claim_safety_mismatch")
+    return blockers
+
+
 def _claim_safety_next_action_guard_summary(claim_safety: dict[str, Any]) -> dict[str, Any]:
     summary = claim_safety.get("status_report_next_action_guard_summary")
     summary = summary if isinstance(summary, dict) else {}
