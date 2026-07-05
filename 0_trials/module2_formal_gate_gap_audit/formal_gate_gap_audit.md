@@ -24,7 +24,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - runs_remote_preflight: `False`
 - formal_claim_allowed: `False`
 - regeneration_required_before_remote_formal_execution: `True`
-- ordered_regeneration_target_count: `19`
+- ordered_regeneration_target_count: `22`
 
 ### Source Freshness Regeneration Targets
 
@@ -34,7 +34,8 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - `f02_6_transition_gate_audit`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json`
 - `f02_6_warm_start_decision_packet`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json`
 - `formal_gate_closure_checklist`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json`
-- `formal_gate_handoff_bundle`: `current_clean`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`
+- `formal_gate_gap_audit`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json`
+- `formal_gate_handoff_bundle`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`
 - `gpu3070ti_readiness_refresh`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json`
 - `post_f02_6_plan_audit`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json`
 - `post_f02_6_regeneration_plan`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json`
@@ -45,6 +46,8 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - `claim_safety`: `historical_clean`, required before `formal_claim_gate`, path `0_trials/module2_claim_safety/module2_claim_safety.json`
 - `formal_gate_proof_audit`: `historical_clean`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json`
 - `formal_gate_proof_summary_chain_audit`: `historical_clean`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json`
+- `formal_gate_remaining_deliverables`: `historical_clean`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json`
+- `formal_gate_status_report`: `historical_clean`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`
 - `mainline_formal_gate_state_audit`: `historical_clean`, required before `formal_claim_gate`, path `0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json`
 - `paper_readiness`: `historical_clean`, required before `formal_claim_gate`, path `0_trials/module2_paper_readiness/module2_paper_readiness.json`
 
@@ -57,7 +60,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - runs_remote_preflight: `False`
 - all_required_evidence_present: `False`
 - audit_issue_count: `0`
-- missing_counts_by_category: `{'decision': 0, 'decision_gate': 0, 'regeneration': 22, 'gate_sequence': 4, 'training': 0, 'evaluation': 0, 'acceptance': 0, 'evaluation_acceptance': 1, 'claim_gate': 8}`
+- missing_counts_by_category: `{'decision': 0, 'decision_gate': 0, 'regeneration': 19, 'gate_sequence': 4, 'training': 0, 'evaluation': 0, 'acceptance': 0, 'evaluation_acceptance': 1, 'claim_gate': 6}`
 
 ## Closure Checklist
 
@@ -79,7 +82,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - local_training_allowed_now: `False`
 - formal_claim_allowed_now: `False`
 - next_blocked_lane_id: `source_fresh_preflight`
-- input_safety_issue_count: `1`
+- input_safety_issue_count: `0`
 
 ## Remaining Deliverables Ledger
 
@@ -229,16 +232,12 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
   - needed: Use readiness only as a gate; do not write result material until it reports formal_results_ready=true.
 - `formal_gate_missing_artifacts_open`
   - evidence: `0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json`
-  - why: Formal gate inventory still reports missing evidence counts: {'decision': 0, 'decision_gate': 0, 'regeneration': 22, 'gate_sequence': 4, 'training': 0, 'evaluation': 0, 'acceptance': 0, 'evaluation_acceptance': 1, 'claim_gate': 8}.
+  - why: Formal gate inventory still reports missing evidence counts: {'decision': 0, 'decision_gate': 0, 'regeneration': 19, 'gate_sequence': 4, 'training': 0, 'evaluation': 0, 'acceptance': 0, 'evaluation_acceptance': 1, 'claim_gate': 6}.
   - needed: Close every missing-artifacts group before final H02/claim readiness can pass.
 - `formal_gate_closure_checklist_open`
   - evidence: `0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json`
   - why: Closure checklist status is formal_gate_closure_blocked; open_item_count=7.
   - needed: Close every checklist item before final H02/claim readiness can pass.
-- `formal_status_report_safety_issues_open`
-  - evidence: `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`
-  - why: Status report has 1 input safety issues.
-  - needed: Resolve status report input safety issues before treating the formal gate as complete.
 - `formal_gate_status_report_blocked`
   - evidence: `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`
   - why: Status report status is formal_gate_status_blocked; formal_claim_allowed_now=False.

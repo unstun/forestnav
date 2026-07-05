@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_handoff_bundle",
   "status": "blocked_until_protocol_lane_decision",
-  "created_at_utc": "2026-07-05T23:48:47.289622+00:00",
-  "source_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
+  "created_at_utc": "2026-07-05T23:50:46.812662+00:00",
+  "source_head": "52e29e32dac4ae0e006408889541cb8d60d81451",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -42,7 +42,7 @@
     "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
     "source_freshness_regeneration_required": true,
     "source_freshness_blocking_regeneration_required": true,
-    "source_freshness_non_self_changed_records": 18,
+    "source_freshness_non_self_changed_records": 22,
     "source_freshness_self_artifact_only_lag_records": 0
   },
   "permissions_now": {
@@ -50,7 +50,7 @@
     "warm_start_formal_chain_approved": true,
     "remote_preflight_allowed_now": false,
     "remote_training_allowed_now": false,
-    "formal_h01_evaluation_allowed_now": false,
+    "formal_h01_evaluation_allowed_now": true,
     "formal_h02_acceptance_allowed_now": false,
     "formal_claim_allowed_now": false,
     "local_training_allowed_now": false,
