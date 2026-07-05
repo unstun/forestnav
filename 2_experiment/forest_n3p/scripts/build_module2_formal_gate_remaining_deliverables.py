@@ -576,12 +576,11 @@ def _missing_matrix_ids_by_category(deliverable_gap_summary: dict[str, Any]) -> 
         if not isinstance(category, dict) or not category.get("category"):
             continue
         missing_artifacts = category.get("missing_artifacts")
-        out[str(category["category"])] = [
-            str(item["matrix_id"])
-            for item in missing_artifacts if isinstance(missing_artifacts, list)
-            for item in missing_artifacts
-            if isinstance(item, dict) and item.get("matrix_id")
-        ]
+        matrix_ids: list[str] = []
+        for item in missing_artifacts if isinstance(missing_artifacts, list) else []:
+            if isinstance(item, dict) and item.get("matrix_id"):
+                matrix_ids.append(str(item["matrix_id"]))
+        out[str(category["category"])] = matrix_ids
     return out
 
 
