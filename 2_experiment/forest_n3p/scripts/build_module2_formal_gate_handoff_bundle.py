@@ -1107,7 +1107,19 @@ def _transition_gate_issues(transition_gate: dict[str, Any]) -> list[dict[str, s
     return issues
 
 
-def _next_handoff_action(*, decision: dict[str, Any], status_report: dict[str, Any]) -> dict[str, Any]:
+def _next_handoff_action(
+    *,
+    decision: dict[str, Any],
+    status_report: dict[str, Any],
+    protocol_lane_status: dict[str, Any],
+) -> dict[str, Any]:
+    if _protocol_lane_pending(protocol_lane_status):
+        return {
+            "action_id": EXPECTED_PROTOCOL_LANE_NEXT_ACTION,
+            "requires_dr_sun": True,
+            "allowed_for_agent_now": False,
+            "description": "Dr Sun must select the next protocol lane before contract drafting, remote preflight, training, or result material can proceed.",
+        }
     if decision.get("status") == "pending_human_decision":
         return {
             "action_id": "record_f02_6_decision",
@@ -1458,6 +1470,14 @@ def _markdown(manifest: dict[str, Any]) -> str:
         "source_freshness_self_artifact_only_lag_records",
     ):
         lines.append(f"- {key}: `{current_state.get(key)}`")
+    protocol_lane = manifest["protocol_lane_status_summary"]
+    lines.extend(["", "## Protocol Lane Gate", ""])
+    lines.append(f"- status: `{protocol_lane['status']}`")
+    lines.append(f"- next_blocked_lane: `{protocol_lane['next_blocked_lane']}`")
+    lines.append(f"- decision_record_status: `{protocol_lane['decision_record_status']}`")
+    lines.append(f"- selected_lane_id: `{protocol_lane['selected_lane_id']}`")
+    lines.append(f"- allowed_next_action_ids: `{', '.join(protocol_lane['allowed_next_action_ids'])}`")
+    lines.append(f"- blocked_action_ids: `{', '.join(protocol_lane['blocked_action_ids'])}`")
     lines.extend(["", "## Handoff Stages", ""])
     for stage in manifest["handoff_stages"]:
         blockers = ", ".join(stage["blocked_by"]) or "none"
