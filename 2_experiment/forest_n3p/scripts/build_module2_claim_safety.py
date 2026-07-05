@@ -262,6 +262,24 @@ def build_manifest(
             "status_report_decision_intake_formal_claim_allowed_now": status_report_decision_intake_summary[
                 "formal_claim_allowed_now"
             ],
+            "status_report_decision_intake_impact_present": status_report_decision_intake_summary[
+                "decision_impact_present"
+            ],
+            "status_report_decision_record_is_not_training_authorization": status_report_decision_intake_summary[
+                "decision_record_is_not_training_authorization"
+            ],
+            "status_report_decision_record_is_not_paper_result_material": status_report_decision_intake_summary[
+                "decision_record_is_not_paper_result_material"
+            ],
+            "status_report_decision_impact_remote_training_allowed_now": status_report_decision_intake_summary[
+                "decision_impact_remote_training_allowed_now"
+            ],
+            "status_report_decision_impact_formal_claim_allowed_now": status_report_decision_intake_summary[
+                "decision_impact_formal_claim_allowed_now"
+            ],
+            "status_report_decision_impact_paper_result_material_allowed_now": status_report_decision_intake_summary[
+                "decision_impact_paper_result_material_allowed_now"
+            ],
             "status_report_next_action_guard_present": status_report_next_action_guard_summary["present"],
             "status_report_next_action_guard_status": status_report_next_action_guard_summary["status"],
             "status_report_next_action_guard_pending_f02_6_decision": status_report_next_action_guard_summary[
