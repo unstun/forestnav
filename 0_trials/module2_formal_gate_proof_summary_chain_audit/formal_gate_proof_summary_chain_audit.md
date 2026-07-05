@@ -1,0 +1,52 @@
+# Module2 Formal Gate Proof Summary Chain Audit
+
+This file checks that formal-gate proof-deliverables summaries remain consistent across downstream gate artifacts. It is not a training run, evaluation, remote preflight, paper table, or paper result.
+
+- status: `formal_gate_proof_summary_chain_consistent_blocked`
+- audit_issue_count: `0`
+- proof_open: `True`
+- row_count: `14`
+- consistent_row_count: `14`
+- missing_row_count: `0`
+- mismatch_row_count: `0`
+- executes_commands: `False`
+- runs_training: `False`
+- runs_remote_preflight: `False`
+- formal_claim_allowed: `False`
+
+## Baseline Summary
+
+- missing_counts_by_formal_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
+- next_blocked_lane: `decision`
+- h01_status: `blocked_pending_decisions`
+- h02_status: `blocked_formal_output_acceptance`
+- h02_formal_output_accepted: `False`
+- h02_paper_result_input_allowed: `False`
+
+## Audit Issues
+
+- none
+
+## Chain Rows
+
+- `remaining_deliverables_top_level`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json`, key=`top_level`
+- `formal_gate_proof_audit_remaining_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json`, key=`remaining_deliverables_top_level_summary`
+- `formal_gate_status_report_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`, key=`formal_gate_proof_audit_remaining_deliverables_top_level_summary`
+- `status_report_remote_safety_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`, key=`remote_packet_safety_proof_deliverables_summary`
+- `status_report_remote_safety_status_report_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`, key=`remote_packet_safety_status_report_proof_deliverables_summary`
+- `post_plan_status_report_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json`, key=`status_report_proof_audit_deliverables_summary`
+- `remote_safety_post_plan_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`, key=`cross_gate_summary.post_plan_proof_audit_deliverables_summary`
+- `remote_safety_post_plan_status_report_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`, key=`cross_gate_summary.post_plan_status_report_proof_audit_deliverables_summary`
+- `gap_audit_remote_safety_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json`, key=`remote_packet_safety.proof_deliverables_summary`
+- `gap_audit_remote_safety_status_report_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json`, key=`remote_packet_safety.status_report_proof_deliverables_summary`
+- `claim_safety_remote_safety_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_claim_safety/module2_claim_safety.json`, key=`status_report_remote_packet_safety_proof_deliverables_summary`
+- `claim_safety_remote_safety_status_report_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_claim_safety/module2_claim_safety.json`, key=`status_report_remote_packet_safety_status_report_proof_deliverables_summary`
+- `paper_readiness_remote_safety_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_paper_readiness/module2_paper_readiness.json`, key=`claim_safety_remote_packet_safety_proof_deliverables_summary`
+- `paper_readiness_remote_safety_status_report_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_paper_readiness/module2_paper_readiness.json`, key=`claim_safety_remote_packet_safety_status_report_proof_deliverables_summary`
+
+## Claim Boundaries
+
+- This audit is a local read-only consistency check over existing formal-gate summary fields.
+- It does not execute proof commands, run training, run remote preflight, evaluate PPO, pull back artifacts, or write paper results.
+- A consistent blocked chain only proves the downstream artifacts agree that the formal gate is still blocked.
+- Formal PPO-vs-RS performance claims still require the missing training, evaluation, acceptance, and H01/H02 artifacts to be produced and audited.
