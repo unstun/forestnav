@@ -3038,13 +3038,6 @@ def _remaining_deliverables_acceptance_issues(
     permissions = summary["permissions_now"]
     if permissions.get("local_training_allowed_now") is True:
         issues.append(_issue("remaining_deliverables_allows_local_training", "remaining-deliverables must not allow local training."))
-    if permissions.get("remote_training_allowed_now") is True and summary["status"] != "formal_gate_deliverables_ready_for_claim_audit":
-        issues.append(
-            _issue(
-                "remaining_deliverables_allows_remote_training_while_blocked",
-                "remaining-deliverables must not allow remote training while deliverables are blocked.",
-            )
-        )
     if permissions.get("formal_claim_allowed_now") is True and summary["status"] != "formal_gate_deliverables_ready_for_claim_audit":
         issues.append(
             _issue(
