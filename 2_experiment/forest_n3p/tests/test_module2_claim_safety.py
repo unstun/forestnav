@@ -75,6 +75,8 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     closure_checklist.write_text(json.dumps(_closure_checklist_payload(open_checklist=True)), encoding="utf-8")
     status_report = tmp_path / "status_report.json"
     status_report.write_text(json.dumps(_status_report_payload(ready=True)), encoding="utf-8")
+    handoff_bundle = tmp_path / "handoff_bundle.json"
+    handoff_bundle.write_text(json.dumps(_handoff_bundle_payload(ready=True)), encoding="utf-8")
     draft = tmp_path / "draft.md"
     draft.write_text(
         "Our method is globally optimal. RL replaces Hybrid A*. No-warm Gate #3 formal failed.",
@@ -103,6 +105,8 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
             str(closure_checklist),
             "--status-report",
             str(status_report),
+            "--handoff-bundle",
+            str(handoff_bundle),
             "--draft-text",
             str(draft),
             "--output-dir",
@@ -131,6 +135,9 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert manifest["input_status"]["closure_checklist_status"] == "formal_gate_closure_blocked"
     assert manifest["input_status"]["status_report_status"] == "formal_gate_status_ready_for_claim_audit"
     assert manifest["input_status"]["status_report_next_blocked_lane_id"] is None
+    assert manifest["input_status"]["handoff_single_next_action_index_present"] is True
+    assert manifest["input_status"]["handoff_single_next_action_index_status"] == "f02_6_decision_recorded"
+    assert manifest["input_status"]["handoff_single_next_action_index_next_action_id"] is None
     assert manifest["input_status"]["status_report_decision_intake_status"] == "f02_6_decision_intake_closed_clean"
     assert manifest["input_status"]["status_report_decision_intake_record_status"] == "approved"
     assert manifest["input_status"]["status_report_decision_intake_audit_issue_count"] == 0
@@ -282,6 +289,7 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert "no-warm" in markdown
     assert "decision_owner_required" in markdown
     assert "decision_note_required" in markdown
+    assert "Handoff Single Next-Action Index" in markdown
     assert "Status Report Remote-Safety Proof Deliverables Summary" in markdown
     assert "proof_h02_paper_result_input_allowed" in markdown
 
