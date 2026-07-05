@@ -975,6 +975,20 @@ def _stage_context(stages_by_id: dict[str, dict[str, Any]], stage_id: str) -> di
     }
 
 
+def _blocked_stage_context(stage: dict[str, Any], *, blocker: str | None) -> dict[str, Any]:
+    if not blocker:
+        return stage
+    blocked_by = _strings(stage.get("blocked_by"))
+    if blocker not in blocked_by:
+        blocked_by.append(blocker)
+    return {
+        **stage,
+        "status": "blocked",
+        "allowed_now": False,
+        "blocked_by": blocked_by,
+    }
+
+
 def _group_missing(groups: Sequence[dict[str, Any]], group_id: str) -> bool:
     for group in groups:
         if group.get("group_id") == group_id:
