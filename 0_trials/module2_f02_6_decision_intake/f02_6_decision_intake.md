@@ -2,10 +2,10 @@
 
 This read-only artifact explains how F02.6 can be closed. It does not record a decision, run preflight, train, or write paper results.
 
-- status: `f02_6_decision_intake_pending_clean`
+- status: `f02_6_decision_intake_failed`
 - decision_owner_required: `Dr Sun`
-- record_status: `pending_human_decision`
-- effective_warm_start_decision: `pending`
+- record_status: `approved`
+- effective_warm_start_decision: `approved_obstacle_summary`
 - packet_recommendation: `approve_obstacle_summary_warm_start`
 - packet_authorization_status: `blocked_until_dr_sun_decision`
 - packet_allowed_now: `record_f02_6_decision`
@@ -19,7 +19,7 @@ This read-only artifact explains how F02.6 can be closed. It does not record a d
 
 ## Next Human Decision Request
 
-- status: `awaiting_dr_sun_decision`
+- status: `decision_recorded`
 - decision_owner_required: `Dr Sun`
 - valid_decisions: `approve_obstacle_summary_warm_start, reject_obstacle_summary_warm_start`
 - required_record_fields: `decision, decider, decision_note`
@@ -49,7 +49,7 @@ This read-only artifact explains how F02.6 can be closed. It does not record a d
 ## Formal Gate Decision Impact
 
 - current_blocker: `decision`
-- current_record_status: `pending_human_decision`
+- current_record_status: `approved`
 - missing_deliverable_count: `10`
 - missing_by_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
 - current_allowed_action_ids: `record_f02_6_decision`
@@ -118,7 +118,8 @@ PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decisio
 
 ## Audit Issues
 
-- none
+- `decision_gate_has_issues`: F02.6 decision gate audit must be clean before using this intake.
+- `decision_gate_failed`: F02.6 decision gate audit currently failed.
 
 ## Claim Boundaries
 

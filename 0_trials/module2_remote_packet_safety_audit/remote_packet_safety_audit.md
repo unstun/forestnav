@@ -2,17 +2,17 @@
 
 This file audits the remote formal execution packet. It does not execute any command.
 
-- status: `remote_packet_safety_audit_passed`
-- audit_issue_count: `0`
-- packet_status: `blocked_until_f02_6_decision`
+- status: `remote_packet_safety_audit_failed`
+- audit_issue_count: `9`
+- packet_status: `blocked_remote_preflight_not_ready`
 - remote_training_allowed_now: `False`
 - pullback_artifact_count: `7`
 - post_plan_status_report_status: `formal_gate_status_blocked`
 - post_plan_status_report_next_blocked_lane_id: `decision`
-- post_plan_handoff_status: `blocked_until_f02_6_decision`
+- post_plan_handoff_status: `blocked_handoff_input_safety_issues`
 - post_plan_handoff_remote_training_allowed_now: `False`
 - post_plan_execution_veto_present: `True`
-- post_plan_execution_veto_all_rows_consistent: `True`
+- post_plan_execution_veto_all_rows_consistent: `False`
 - post_plan_execution_veto_remote_training_allowed_now: `False`
 - post_plan_command_index_present: `True`
 - post_plan_command_index_row_count: `23`
@@ -28,7 +28,15 @@ This file audits the remote formal execution packet. It does not execute any com
 
 ## Audit Issues
 
-- none
+- `post_plan_status_report_run_remote_training_blockers_mismatch`: Status report remote step blocked_by must match the remote packet.
+- `post_plan_status_report_run_remote_audit_blockers_mismatch`: Status report remote step blocked_by must match the remote packet.
+- `post_plan_handoff_run_remote_training_blockers_mismatch`: Handoff remote step blocked_by must match the remote packet.
+- `post_plan_handoff_run_remote_audit_blockers_mismatch`: Handoff remote step blocked_by must match the remote packet.
+- `post_plan_execution_veto_rows_inconsistent`: Post-plan status report execution veto matrix must be consistent.
+- `post_plan_execution_veto_mismatch_rows_open`: Post-plan status report execution veto matrix reports mismatch rows.
+- `post_plan_execution_veto_remote_preflight_packet_mismatch`: Post-plan execution veto consensus must match the remote packet allowed_now state.
+- `blocked_status_report_allows_remote_sync`: Remote sync must remain disallowed while the formal gate status report is blocked.
+- `blocked_status_report_allows_remote_preflight`: Remote preflight must remain disallowed while the formal gate status report is blocked.
 
 ## Claim Boundaries
 

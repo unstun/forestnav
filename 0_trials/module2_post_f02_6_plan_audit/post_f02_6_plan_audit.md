@@ -2,24 +2,24 @@
 
 This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
-- status: `post_f02_6_plan_audit_passed`
-- audit_issue_count: `0`
+- status: `post_f02_6_plan_audit_failed`
+- audit_issue_count: `9`
 - executes_commands: `False`
 - runs_training: `False`
 - runs_remote_preflight: `False`
 
 ## Current Blocking Summary
 
-- plan_status: `blocked_until_f02_6_decision`
+- plan_status: `blocked_formal_gate_preconditions`
 - training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
-- ready_stage_ids: `['f02_6_decision_record']`
-- blocked_stage_ids: `['regenerate_preflight_gate_artifacts', 'approved_remote_preflight', 'regenerate_remote_execution_packet', 'gate3_remote_training', 'gate3_remote_audit_pullback', 'regenerate_h01_h02_formal_artifacts', 'regenerate_claim_gate_artifacts']`
+- ready_stage_ids: `['regenerate_preflight_gate_artifacts']`
+- blocked_stage_ids: `['f02_6_decision_record', 'approved_remote_preflight', 'regenerate_remote_execution_packet', 'gate3_remote_training', 'gate3_remote_audit_pullback', 'regenerate_h01_h02_formal_artifacts', 'regenerate_claim_gate_artifacts']`
 
 ## F02.6 Human Decision Request
 
 - present: `True`
-- status: `awaiting_dr_sun_decision`
+- status: `decision_recorded`
 - decision_owner_required: `Dr Sun`
 - current_allowed_action_ids: `['record_f02_6_decision']`
 - current_blocked_action_ids: `['remote_preflight', 'remote_training', 'local_training', 'formal_claim', 'paper_result_material']`
@@ -47,8 +47,8 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - runs_training: `False`
 - runs_remote_preflight: `False`
 - all_required_evidence_present: `False`
-- audit_issue_count: `0`
-- missing_counts_by_category: `{'decision': 1, 'decision_gate': 0, 'regeneration': 2, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 1}`
+- audit_issue_count: `3`
+- missing_counts_by_category: `{'decision': 0, 'decision_gate': 1, 'regeneration': 0, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 1}`
 
 ## Closure Checklist
 
@@ -67,7 +67,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - runs_remote_preflight: `False`
 - formal_claim_allowed_now: `False`
 - local_training_allowed_now: `False`
-- input_safety_issue_count: `0`
+- input_safety_issue_count: `4`
 - next_blocked_lane_id: `decision`
 
 ### Remaining Deliverables Gap Summary
@@ -86,7 +86,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - status: `blocked_missing_formal_deliverables`
 - row_count: `10`
 - blocked_row_count: `10`
-- rows_with_missing_required_blockers: `0`
+- rows_with_missing_required_blockers: `8`
 - rows_allowed_while_missing: `0`
 
 ### Status Report Proof-Audit Deliverables Summary
@@ -100,15 +100,15 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
 ### Status Report Handoff Summary
 
-- status: `blocked_until_f02_6_decision`
+- status: `blocked_handoff_input_safety_issues`
 - remote_training_allowed_now: `False`
-- safety_issue_count: `0`
+- safety_issue_count: `2`
 
 ### Status Report Execution Veto Matrix
 
 - present: `True`
-- all_rows_consistent: `True`
-- mismatch_rows: `[]`
+- all_rows_consistent: `False`
+- mismatch_rows: `['remote_preflight', 'remote_training']`
 
 ### Status Report Remote Execution Steps
 
@@ -118,14 +118,22 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - `remote_audit`: consensus_allowed_now=`False`
 - `formal_claim`: consensus_allowed_now=`False`
 
-- `sync_to_remote`: allowed_now=`False`, runs_training=`False`, blocked_by=`requires_dr_sun_approval`
-- `run_remote_preflight`: allowed_now=`False`, runs_training=`False`, blocked_by=`requires_dr_sun_approval`
-- `run_remote_training`: allowed_now=`False`, runs_training=`True`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_packet_not_ready`
-- `run_remote_audit`: allowed_now=`False`, runs_training=`False`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_packet_not_ready`
+- `sync_to_remote`: allowed_now=`True`, runs_training=`False`, blocked_by=`none`
+- `run_remote_preflight`: allowed_now=`True`, runs_training=`False`, blocked_by=`none`
+- `run_remote_training`: allowed_now=`False`, runs_training=`True`, blocked_by=`f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
+- `run_remote_audit`: allowed_now=`False`, runs_training=`False`, blocked_by=`f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
 
 ## Audit Issues
 
-- none
+- `plan_source_freshness_requirement_mismatch`: Plan source freshness flag does not match source freshness audit.
+- `missing_artifacts_inventory_has_audit_issues`: Missing-artifacts inventory reports open audit issues.
+- `formal_gate_status_report_has_input_safety_issues`: Status report reports open input safety issues.
+- `formal_gate_status_report_blocked_but_sync_to_remote_allowed`: Status report must not allow remote execution steps while the formal gate is blocked.
+- `formal_gate_status_report_blocked_but_run_remote_preflight_allowed`: Status report must not allow remote execution steps while the formal gate is blocked.
+- `formal_gate_status_report_execution_veto_inconsistent`: Status report execution veto matrix must have all_rows_consistent=true.
+- `formal_gate_status_report_execution_veto_mismatch_rows_open`: Status report execution veto matrix reports mismatch rows.
+- `remaining_deliverables_unlock_chain_rows_missing_required_blockers`: Unlock chain rows must include every required current blocker while formal deliverables are missing.
+- `plan_remaining_deliverables_unlock_chain_rows_missing_required_blockers`: Unlock chain rows must include every required current blocker while formal deliverables are missing.
 
 ## Claim Boundaries
 

@@ -1,11 +1,11 @@
 # Module2 F02.6 Decision Record
 
-- status: `pending_human_decision`
-- requested decision: `pending`
-- effective warm-start decision: `pending`
-- decider: `None`
-- decision note audit: `{'required_for_non_pending_decision': False, 'present': False, 'character_count': 0, 'word_count': 0, 'guidance_items': ['selected decision', 'human rationale', 'evidence basis', 'risk accepted or avoided', 'next gated action'], 'mentions_selected_route': False, 'mentions_evidence_or_risk_basis': False, 'mentions_next_gated_action': False, 'quality_warning': None}`
-- remote training allowed: `False`
+- status: `approved`
+- requested decision: `approve_obstacle_summary_warm_start`
+- effective warm-start decision: `approved_obstacle_summary`
+- decider: `Dr Sun`
+- decision note audit: `{'required_for_non_pending_decision': True, 'present': True, 'character_count': 378, 'word_count': 46, 'guidance_items': ['selected decision', 'human rationale', 'evidence basis', 'risk accepted or avoided', 'next gated action'], 'mentions_selected_route': True, 'mentions_evidence_or_risk_basis': True, 'mentions_next_gated_action': True, 'quality_warning': None}`
+- remote training allowed: `True`
 - remote preflight allowed now: `False`
 - remote training allowed now: `False`
 - local training allowed: `False`
@@ -13,10 +13,10 @@
 - paper result material allowed now: `False`
 - decision_record_is_not_training_authorization: `True`
 - decision_record_is_not_paper_result_material: `True`
-- next remote preflight status: `blocked_until_decision`
+- next remote preflight status: `ready_to_regenerate_approved_warm_start_preflight`
 
 ## Blockers
-- `requires_dr_sun_approval`
+- none
 
 ## Packet
 - path: `0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json`
@@ -24,8 +24,8 @@
 - recommendation: `approve_obstacle_summary_warm_start`
 
 ## Current Authorization Boundary
-- authorization_status: `blocked_until_dr_sun_decision`
-- current_allowed_action_ids: `record_f02_6_decision`
+- authorization_status: `decision_recorded_not_execution_authorization`
+- current_allowed_action_ids: `regenerate_post_f02_6_gate_artifacts`
 - current_blocked_action_ids: `remote_preflight, remote_training, local_training, formal_claim, paper_result_material`
 - post_decision_routes_are_current_authorization: `False`
 - remote_preflight_allowed_now: `False`

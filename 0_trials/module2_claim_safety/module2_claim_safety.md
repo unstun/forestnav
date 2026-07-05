@@ -20,15 +20,34 @@
 - f02_6_formal_chain_pending
 - missing_module2_bc_checkpoint
 - realmap_query_generation_not_frozen
+- remote_formal_preflight_not_ready
+- warm_start_decision_pending
 - f02_6_pending
 - formal_gate_closure_checklist_open
 - formal_gate_status_report_blocked
+- status_report_input_safety_issues_open
+- status_report_transition_gate_not_passed
+- status_report_transition_gate_issues_open
+- status_report_handoff_safety_issues_open
+- status_report_remote_preflight_requirement_f02_6_decision_closed_for_preflight_allowed_while_status_blocked
+- status_report_remote_preflight_requirement_approved_remote_preflight_manifest_allowed_while_status_blocked
+- status_report_remote_preflight_requirement_remote_preflight_protocol_contract_allowed_while_status_blocked
+- status_report_remote_preflight_requirement_remote_preflight_command_packetized_allowed_while_status_blocked
 - status_report_remaining_deliverables_gap_rows_missing
 - status_report_remaining_deliverables_gap_categories_blocked
 - status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing
 - status_report_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked
-- handoff_single_next_action_index_source_freshness_not_clean
-- handoff_single_next_action_index_source_freshness_blocks
+- status_report_next_action_guard_not_passed
+- status_report_next_action_guard_not_pending_f02_6
+- status_report_next_action_guard_next_action_not_decision
+- status_report_next_action_guard_handoff_action_not_decision
+- status_report_next_action_guard_missing_artifacts_action_not_decision
+- status_report_next_action_guard_handoff_not_gated_by_dr_sun
+- status_report_next_action_guard_execution_not_disabled
+- status_report_next_action_guard_execution_leaks_open
+- status_report_next_action_guard_remote_execution_allowed
+- status_report_blocked_but_sync_to_remote_allowed
+- status_report_blocked_but_run_remote_preflight_allowed
 
 ## Allowed Claims
 
@@ -44,16 +63,16 @@
 
 ## Status Report Handoff Summary
 
-- present=`True`, status=`blocked_until_f02_6_decision`, transition_gate_status=`f02_6_transition_gate_audit_passed`, transition_gate_audit_issue_count=`0`, safety_issue_count=`0`, remote_training_allowed_now=`False`
+- present=`True`, status=`blocked_handoff_input_safety_issues`, transition_gate_status=`f02_6_transition_gate_audit_failed`, transition_gate_audit_issue_count=`12`, safety_issue_count=`3`, remote_training_allowed_now=`False`
 
 ## F02.6 Decision Intake Summary
 
-- present=`True`, status=`f02_6_decision_intake_pending_clean`, record_status=`pending_human_decision`, record_decider=`None`, next_blocked_lane=`decision`, audit_issue_count=`0`, decision_owner_required=`Dr Sun`, valid_decision_count=`2`, required_record_field_count=`3`, decision_note_required=`True`, invalid_input_count=`5`, post_decision_non_authorization_count=`4`, post_decision_route_count=`2`, approved_route_next_lane=`source_fresh_regeneration`, approved_route_allows_remote_training_now=`False`, rejected_route_requires_new_protocol_contract=`True`, remote_training_allowed_now=`False`, formal_claim_allowed_now=`False`, decision_impact_present=`True`, decision_record_is_not_training_authorization=`True`, decision_record_is_not_paper_result_material=`True`, decision_impact_remote_training_allowed_now=`False`, decision_impact_formal_claim_allowed_now=`False`, decision_impact_paper_result_material_allowed_now=`False`
+- present=`True`, status=`f02_6_decision_intake_closed_clean`, record_status=`approved`, record_decider=`Dr Sun`, next_blocked_lane=`decision`, audit_issue_count=`0`, decision_owner_required=`Dr Sun`, valid_decision_count=`2`, required_record_field_count=`3`, decision_note_required=`True`, invalid_input_count=`5`, post_decision_non_authorization_count=`4`, post_decision_route_count=`2`, approved_route_next_lane=`source_fresh_regeneration`, approved_route_allows_remote_training_now=`False`, rejected_route_requires_new_protocol_contract=`True`, remote_training_allowed_now=`False`, formal_claim_allowed_now=`False`, decision_impact_present=`True`, decision_record_is_not_training_authorization=`True`, decision_record_is_not_paper_result_material=`True`, decision_impact_remote_training_allowed_now=`False`, decision_impact_formal_claim_allowed_now=`False`, decision_impact_paper_result_material_allowed_now=`False`
 - decision_evidence_matrix_status=`ready_for_dr_sun_decision_not_authorization`, route_count=`2`, required_evidence_count=`7`, missing_required_evidence_count=`0`, remote_training_allowed_now=`False`
 
 ## Status Report Next-Action Guard
 
-- present=`True`, status=`next_action_guard_passed`, pending_f02_6_decision=`True`, expected_next_action_id=`record_f02_6_decision`, all_execution_disabled_now=`True`, execution_leak_count=`0`
+- present=`True`, status=`next_action_guard_not_applicable`, pending_f02_6_decision=`False`, expected_next_action_id=`None`, all_execution_disabled_now=`False`, execution_leak_count=`2`
 
 ## Status Report Mainline Formal Gate State Audit
 
@@ -61,7 +80,7 @@
 
 ## Handoff Single Next-Action Index
 
-- present=`True`, status=`awaiting_dr_sun_f02_6_decision`, next_action_id=`record_f02_6_decision`, decision_owner_required=`Dr Sun`, single_current_human_entry=`True`, all_execution_disabled_now=`True`, missing_deliverable_count=`10`, source_freshness_status=`source_freshness_risks_recorded_gate_still_blocked`, remote_training_allowed_now=`False`, formal_claim_allowed_now=`False`, paper_result_material_allowed_now=`False`
+- present=`True`, status=`follow_handoff_stages`, next_action_id=`manual_handoff_stage_review`, decision_owner_required=`Dr Sun`, single_current_human_entry=`False`, all_execution_disabled_now=`False`, missing_deliverable_count=`10`, source_freshness_status=`source_freshness_risks_recorded_gate_still_blocked`, remote_training_allowed_now=`False`, formal_claim_allowed_now=`False`, paper_result_material_allowed_now=`False`
 
 ## Status Report Next Required Formal Deliverables
 
@@ -69,7 +88,7 @@
 
 ## Status Report Missing-Artifacts Handoff Index
 
-- present=`True`, status=`blocked_until_f02_6_decision`, next_action=`record_f02_6_decision`, open_requirement_count=`5`, remote_training_allowed_now=`False`, formal_result_material_allowed_now=`False`
+- present=`True`, status=`formal_gate_requirements_open`, next_action=`resolve_training_remote_ppo_checkpoint`, open_requirement_count=`4`, remote_training_allowed_now=`False`, formal_result_material_allowed_now=`False`
 
 ## Status Report Requirement Stage Summary
 
@@ -81,7 +100,7 @@
 - `training_remote_ppo_checkpoint`: stage=`gate3_remote_training`, stage_status=`blocked`, allowed_now=`False`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 - `evaluation_gate3_episode_outputs`: stage=`gate3_remote_audit_pullback`, stage_status=`blocked`, allowed_now=`False`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 - `acceptance_remote_pullback_and_audit`: stage=`gate3_remote_audit_pullback`, stage_status=`blocked`, allowed_now=`False`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
-- `h01_h02_formal_evaluation_acceptance`: stage=`regenerate_h01_h02_formal_artifacts`, stage_status=`blocked`, allowed_now=`False`, blocked_by=`missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
+- `h01_h02_formal_evaluation_acceptance`: stage=`regenerate_h01_h02_formal_artifacts`, stage_status=`blocked`, allowed_now=`False`, blocked_by=`missing_remote_audit_pullback`
 
 ## Status Report Remote Gate Summary
 
@@ -90,21 +109,21 @@
 - `gate3_remote_training`: allowed_now=`False`, runs_training=`True`, runs_remote_preflight=`False`, host=`gpu3070ti-relay`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 - `gate3_remote_audit_pullback`: allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`False`, host=`gpu3070ti-relay`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 ### remote_execution_step_summary
-- `sync_to_remote`: allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`requires_dr_sun_approval`
-- `run_remote_preflight`: allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`requires_dr_sun_approval`
-- `run_remote_training`: allowed_now=`False`, runs_training=`True`, runs_remote_preflight=`None`, host=`None`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_packet_not_ready`
-- `run_remote_audit`: allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_packet_not_ready`
+- `sync_to_remote`: allowed_now=`True`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`none`
+- `run_remote_preflight`: allowed_now=`True`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`none`
+- `run_remote_training`: allowed_now=`False`, runs_training=`True`, runs_remote_preflight=`None`, host=`None`, blocked_by=`f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
+- `run_remote_audit`: allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
 
 ## Status Report Remote Requirement Matrices
 
 ### remote_preflight_requirement_summary
 - present=`True`
-- status_counts=`{'blocked_missing_preflight': 2, 'satisfied': 2}`
-- blocked_requirement_count=`2`
-- `f02_6_decision_closed_for_preflight`: status=`blocked_missing_preflight`, complete=`False`, execution_allowed_now=`False`, remote_training_ready_now=`None`
-- `approved_remote_preflight_manifest`: status=`blocked_missing_preflight`, complete=`False`, execution_allowed_now=`False`, remote_training_ready_now=`None`
-- `remote_preflight_protocol_contract`: status=`satisfied`, complete=`True`, execution_allowed_now=`False`, remote_training_ready_now=`None`
-- `remote_preflight_command_packetized`: status=`satisfied`, complete=`True`, execution_allowed_now=`False`, remote_training_ready_now=`None`
+- status_counts=`{'satisfied': 3, 'ready_to_execute_missing_preflight': 1}`
+- blocked_requirement_count=`1`
+- `f02_6_decision_closed_for_preflight`: status=`satisfied`, complete=`True`, execution_allowed_now=`True`, remote_training_ready_now=`None`
+- `approved_remote_preflight_manifest`: status=`ready_to_execute_missing_preflight`, complete=`False`, execution_allowed_now=`True`, remote_training_ready_now=`None`
+- `remote_preflight_protocol_contract`: status=`satisfied`, complete=`True`, execution_allowed_now=`True`, remote_training_ready_now=`None`
+- `remote_preflight_command_packetized`: status=`satisfied`, complete=`True`, execution_allowed_now=`True`, remote_training_ready_now=`None`
 ### post_run_acceptance_requirement_summary
 - present=`True`
 - status_counts=`{'blocked_until_remote_audit': 4}`
