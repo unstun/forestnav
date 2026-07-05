@@ -282,6 +282,8 @@ def test_f02_6_decision_intake_cli_writes_json_and_markdown(tmp_path):
     assert "Formal Gate Decision Impact" in markdown
     assert "all_execution_disabled_now" in markdown
     assert "packet_authorization_status" in markdown
+    assert "Decision Evidence Matrix" in markdown
+    assert "ready_for_dr_sun_decision_not_authorization" in markdown
     assert "decision_note_guidance" in markdown
     assert "evidence basis" in markdown
     assert "decision_note" in markdown
