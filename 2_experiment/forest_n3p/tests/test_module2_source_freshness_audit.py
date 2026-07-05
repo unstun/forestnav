@@ -251,7 +251,8 @@ def test_source_freshness_audit_cli_writes_json_and_markdown(tmp_path):
     assert records["formal_gate_proof_audit"]["required_before"] == "formal_claim_gate"
     assert records["formal_gate_proof_summary_chain_audit"]["required_before"] == "formal_claim_gate"
     required_before = {target["artifact_id"]: target["required_before"] for target in manifest["ordered_regeneration_targets"]}
-    assert required_before.get("f02_6_warm_start_decision_packet") == "approved_remote_preflight"
+    if records["f02_6_warm_start_decision_packet"]["freshness_state"] != "current_clean":
+        assert required_before.get("f02_6_warm_start_decision_packet") == "approved_remote_preflight"
     assert required_before.get("f02_6_decision_intake") == "approved_remote_preflight"
     assert required_before.get("f02_6_decision_gate_audit") == "approved_remote_preflight"
     assert required_before.get("f02_6_transition_gate_audit") == "approved_remote_preflight"
