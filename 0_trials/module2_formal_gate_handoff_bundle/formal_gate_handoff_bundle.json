@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_handoff_bundle",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-05T14:29:00.508788+00:00",
-  "source_head": "181860fa90c7f5f35dfb9bc224ca84c849a60d8a",
+  "created_at_utc": "2026-07-05T15:44:10.972240+00:00",
+  "source_head": "2a19340105406bae8ad54ba1eac679b95a41580f",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -35,10 +35,10 @@
     "h02_formal_output_accepted": false,
     "h02_paper_result_input_allowed": false,
     "next_blocked_lane": "decision",
-    "source_freshness_status": "source_freshness_clean_current",
-    "source_freshness_regeneration_required": false,
-    "source_freshness_blocking_regeneration_required": false,
-    "source_freshness_non_self_changed_records": 0,
+    "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
+    "source_freshness_regeneration_required": true,
+    "source_freshness_blocking_regeneration_required": true,
+    "source_freshness_non_self_changed_records": 23,
     "source_freshness_self_artifact_only_lag_records": 0
   },
   "permissions_now": {
@@ -50,7 +50,7 @@
     "formal_h02_acceptance_allowed_now": false,
     "formal_claim_allowed_now": false,
     "local_training_allowed_now": false,
-    "source_freshness_ready_for_remote_preflight": true
+    "source_freshness_ready_for_remote_preflight": false
   },
   "next_handoff_action": {
     "action_id": "record_f02_6_decision",
@@ -119,8 +119,8 @@
       "acceptance": 3,
       "formal_acceptance": 2
     },
-    "source_freshness_status": "source_freshness_clean_current",
-    "source_freshness_blocking_regeneration_required": false,
+    "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
+    "source_freshness_blocking_regeneration_required": true,
     "approved_route_next_lane": "source_fresh_regeneration",
     "rejected_route_next_lane": "protocol_redesign",
     "after_approval_still_requires": [
@@ -162,6 +162,38 @@
       "remote_formal_execution_packet_ready",
       "approved_remote_preflight"
     ]
+  },
+  "f02_6_decision_evidence_matrix_handoff_summary": {
+    "present": true,
+    "matrix_id": "module2_f02_6_decision_evidence_matrix",
+    "status": "ready_for_dr_sun_decision_not_authorization",
+    "route_count": 2,
+    "route_decisions": [
+      "approve_obstacle_summary_warm_start",
+      "reject_obstacle_summary_warm_start"
+    ],
+    "required_evidence_count": 7,
+    "satisfied_required_evidence_count": 7,
+    "missing_required_evidence_count": 0,
+    "missing_required_evidence_ids": [],
+    "source_issue_count": 0,
+    "global_invalid_substitute_count": 4,
+    "authorization_flags": {
+      "current_authorization_allowed_now": false,
+      "remote_preflight_allowed_now": false,
+      "remote_training_allowed_now": false,
+      "local_training_allowed_now": false,
+      "formal_claim_allowed_now": false,
+      "paper_result_material_allowed_now": false
+    },
+    "evidence_counts_by_route": {
+      "approve_obstacle_summary_warm_start": 4,
+      "reject_obstacle_summary_warm_start": 3
+    },
+    "invalid_substitute_counts_by_route": {
+      "approve_obstacle_summary_warm_start": 4,
+      "reject_obstacle_summary_warm_start": 4
+    }
   },
   "remaining_deliverables_gap_summary": {
     "present": true,
@@ -432,9 +464,12 @@
       "responsible_stage_status": "blocked",
       "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
-        "missing_remote_audit_pullback"
+        "missing_remote_audit_pullback",
+        "source_fresh_h01_h02_targets_open"
       ],
       "responsible_stage_evidence_paths": [
+        "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
+        "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
         "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
       ],
       "acceptable_evidence": [
@@ -644,9 +679,33 @@
         "f02_6_decision_not_approved"
       ],
       "evidence_paths": [
-        "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json"
+        "0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json",
+        "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
+        "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+        "0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json",
+        "0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json",
+        "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
+        "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
+        "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
+        "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
+        "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
+        "0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json",
+        "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json",
+        "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json"
       ],
       "command_templates": [
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_warm_start_decision_packet",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_intake",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_gate_audit",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_transition_gate_audit",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_formal_execution_packet",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_gap_audit",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_regeneration_plan",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_plan_audit",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_packet_safety_audit",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_closure_checklist",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_gpu3070ti_readiness_refresh",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_handoff_bundle"
       ]
     },
@@ -755,9 +814,12 @@
       "runs_remote_preflight": false,
       "host": null,
       "blocked_by": [
-        "missing_remote_audit_pullback"
+        "missing_remote_audit_pullback",
+        "source_fresh_h01_h02_targets_open"
       ],
       "evidence_paths": [
+        "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
+        "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
         "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
       ],
       "command_templates": [
@@ -775,12 +837,28 @@
       "runs_remote_preflight": false,
       "host": null,
       "blocked_by": [
-        "h02_formal_acceptance_not_ready"
+        "h02_formal_acceptance_not_ready",
+        "source_fresh_claim_targets_open"
       ],
-      "evidence_paths": [],
+      "evidence_paths": [
+        "0_trials/module2_claim_safety/module2_claim_safety.json",
+        "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
+        "0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json",
+        "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
+        "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
+        "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
+        "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json",
+        "0_trials/module2_paper_readiness/module2_paper_readiness.json"
+      ],
       "command_templates": [
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety",
-        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_paper_readiness"
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_paper_readiness",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_missing_artifacts_audit",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_status_report",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_remaining_deliverables",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_audit",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit"
       ]
     }
   ],

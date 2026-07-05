@@ -27,6 +27,8 @@
 - status_report_remaining_deliverables_gap_categories_blocked
 - status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing
 - status_report_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked
+- handoff_single_next_action_index_source_freshness_not_clean
+- handoff_single_next_action_index_source_freshness_blocks
 
 ## Allowed Claims
 
@@ -59,7 +61,7 @@
 
 ## Handoff Single Next-Action Index
 
-- present=`True`, status=`awaiting_dr_sun_f02_6_decision`, next_action_id=`record_f02_6_decision`, decision_owner_required=`Dr Sun`, single_current_human_entry=`True`, all_execution_disabled_now=`True`, missing_deliverable_count=`10`, source_freshness_status=`source_freshness_clean_current`, remote_training_allowed_now=`False`, formal_claim_allowed_now=`False`, paper_result_material_allowed_now=`False`
+- present=`True`, status=`awaiting_dr_sun_f02_6_decision`, next_action_id=`record_f02_6_decision`, decision_owner_required=`Dr Sun`, single_current_human_entry=`True`, all_execution_disabled_now=`True`, missing_deliverable_count=`10`, source_freshness_status=`source_freshness_risks_recorded_gate_still_blocked`, remote_training_allowed_now=`False`, formal_claim_allowed_now=`False`, paper_result_material_allowed_now=`False`
 
 ## Status Report Next Required Formal Deliverables
 

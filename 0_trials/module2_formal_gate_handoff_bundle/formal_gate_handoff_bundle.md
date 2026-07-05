@@ -21,8 +21,8 @@
 - record_command_template_count: `2`
 - missing_deliverable_count: `10`
 - missing_by_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
-- source_freshness_status: `source_freshness_clean_current`
-- source_freshness_blocking_regeneration_required: `False`
+- source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
+- source_freshness_blocking_regeneration_required: `True`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
 - remote_training_allowed_now: `False`
@@ -74,11 +74,23 @@ PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decisio
 - decision_impact_paper_result_material_allowed_now: `False`
 - decision_impact_formal_training_still_requires: `source_freshness_audit, post_f02_6_regeneration_plan, post_f02_6_plan_audit, remote_formal_execution_packet_ready, approved_remote_preflight`
 
+## F02.6 Decision Evidence Matrix
+
+- present: `True`
+- matrix_id: `module2_f02_6_decision_evidence_matrix`
+- status: `ready_for_dr_sun_decision_not_authorization`
+- route_count: `2`
+- route_decisions: `approve_obstacle_summary_warm_start, reject_obstacle_summary_warm_start`
+- required_evidence_count: `7`
+- missing_required_evidence_count: `0`
+- global_invalid_substitute_count: `4`
+- authorization_flags: `{'current_authorization_allowed_now': False, 'remote_preflight_allowed_now': False, 'remote_training_allowed_now': False, 'local_training_allowed_now': False, 'formal_claim_allowed_now': False, 'paper_result_material_allowed_now': False}`
+
 ## Source Freshness Gate
 
-- source_freshness_status: `source_freshness_clean_current`
-- source_freshness_regeneration_required: `False`
-- source_freshness_non_self_changed_records: `0`
+- source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
+- source_freshness_regeneration_required: `True`
+- source_freshness_non_self_changed_records: `23`
 - source_freshness_self_artifact_only_lag_records: `0`
 
 ## Handoff Stages
@@ -89,8 +101,8 @@ PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decisio
 - 4. `regenerate_remote_execution_packet`: allowed_now=`False`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open`
 - 5. `gate3_remote_training`: allowed_now=`False`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 - 6. `gate3_remote_audit_pullback`: allowed_now=`False`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
-- 7. `regenerate_h01_h02_formal_artifacts`: allowed_now=`False`, blocked_by=`missing_remote_audit_pullback`
-- 8. `regenerate_claim_gate_artifacts`: allowed_now=`False`, blocked_by=`h02_formal_acceptance_not_ready`
+- 7. `regenerate_h01_h02_formal_artifacts`: allowed_now=`False`, blocked_by=`missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
+- 8. `regenerate_claim_gate_artifacts`: allowed_now=`False`, blocked_by=`h02_formal_acceptance_not_ready, source_fresh_claim_targets_open`
 
 ## Requirement Summary
 

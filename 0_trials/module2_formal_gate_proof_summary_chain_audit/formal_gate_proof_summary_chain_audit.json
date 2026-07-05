@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_proof_summary_chain_audit",
-  "status": "formal_gate_proof_summary_chain_consistent_blocked",
-  "created_at_utc": "2026-07-05T14:55:55.267674+00:00",
-  "source_head": "0f5d0e63cebbb4df6544aa04918b02a95f4a4cb9",
+  "status": "formal_gate_proof_summary_chain_audit_failed",
+  "created_at_utc": "2026-07-05T15:44:11.267313+00:00",
+  "source_head": "2a19340105406bae8ad54ba1eac679b95a41580f",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -108,8 +108,24 @@
     "missing_formal_acceptance_artifacts",
     "failed_formal_h01_h02_acceptance_artifacts"
   ],
-  "audit_issue_count": 0,
-  "audit_issues": [],
+  "audit_issue_count": 3,
+  "audit_issues": [
+    {
+      "issue_id": "handoff_bundle_single_next_action_index_source_freshness_blocks",
+      "message": "Single-next-action handoff must not hide a blocking source-freshness regeneration requirement.",
+      "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json"
+    },
+    {
+      "issue_id": "claim_safety_handoff_single_next_action_index_source_freshness_blocks",
+      "message": "Single-next-action handoff must not hide a blocking source-freshness regeneration requirement.",
+      "path": "0_trials/module2_claim_safety/module2_claim_safety.json"
+    },
+    {
+      "issue_id": "paper_readiness_claim_safety_handoff_single_next_action_index_source_freshness_blocks",
+      "message": "Single-next-action handoff must not hide a blocking source-freshness regeneration requirement.",
+      "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json"
+    }
+  ],
   "chain_rows": [
     {
       "row_id": "remaining_deliverables_top_level",
@@ -3357,8 +3373,8 @@
     "paper_result_material_allowed_now": false,
     "missing_deliverable_count": 10,
     "open_category_count": 4,
-    "source_freshness_status": "source_freshness_clean_current",
-    "source_freshness_blocking_regeneration_required": false,
+    "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
+    "source_freshness_blocking_regeneration_required": true,
     "approved_route_next_lane": "source_fresh_regeneration",
     "rejected_route_next_lane": "protocol_redesign",
     "after_approval_still_requires": [
@@ -3396,7 +3412,7 @@
       "remote_training_allowed_now": false,
       "formal_claim_allowed_now": false,
       "paper_result_material_allowed_now": false,
-      "source_freshness_blocking_regeneration_required": false,
+      "source_freshness_blocking_regeneration_required": true,
       "approved_route_next_lane": "source_fresh_regeneration",
       "after_approval_still_requires": [
         "source_freshness_audit",
@@ -3440,8 +3456,8 @@
         "paper_result_material_allowed_now": false,
         "missing_deliverable_count": 10,
         "open_category_count": 4,
-        "source_freshness_status": "source_freshness_clean_current",
-        "source_freshness_blocking_regeneration_required": false,
+        "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
+        "source_freshness_blocking_regeneration_required": true,
         "approved_route_next_lane": "source_fresh_regeneration",
         "rejected_route_next_lane": "protocol_redesign",
         "after_approval_still_requires": [
@@ -3480,7 +3496,7 @@
       "remote_training_allowed_now": false,
       "formal_claim_allowed_now": false,
       "paper_result_material_allowed_now": false,
-      "source_freshness_blocking_regeneration_required": false,
+      "source_freshness_blocking_regeneration_required": true,
       "approved_route_next_lane": "source_fresh_regeneration",
       "after_approval_still_requires": [
         "source_freshness_audit",
@@ -3524,8 +3540,8 @@
         "paper_result_material_allowed_now": false,
         "missing_deliverable_count": 10,
         "open_category_count": 4,
-        "source_freshness_status": "source_freshness_clean_current",
-        "source_freshness_blocking_regeneration_required": false,
+        "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
+        "source_freshness_blocking_regeneration_required": true,
         "approved_route_next_lane": "source_fresh_regeneration",
         "rejected_route_next_lane": "protocol_redesign",
         "after_approval_still_requires": [
@@ -3564,7 +3580,7 @@
       "remote_training_allowed_now": false,
       "formal_claim_allowed_now": false,
       "paper_result_material_allowed_now": false,
-      "source_freshness_blocking_regeneration_required": false,
+      "source_freshness_blocking_regeneration_required": true,
       "approved_route_next_lane": "source_fresh_regeneration",
       "after_approval_still_requires": [
         "source_freshness_audit",
@@ -3608,8 +3624,8 @@
         "paper_result_material_allowed_now": false,
         "missing_deliverable_count": 10,
         "open_category_count": 4,
-        "source_freshness_status": "source_freshness_clean_current",
-        "source_freshness_blocking_regeneration_required": false,
+        "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
+        "source_freshness_blocking_regeneration_required": true,
         "approved_route_next_lane": "source_fresh_regeneration",
         "rejected_route_next_lane": "protocol_redesign",
         "after_approval_still_requires": [
@@ -3650,7 +3666,7 @@
       "remote_training_allowed_now": false,
       "formal_claim_allowed_now": false,
       "paper_result_material_allowed_now": false,
-      "source_freshness_blocking_regeneration_required": false,
+      "source_freshness_blocking_regeneration_required": true,
       "approved_route_next_lane": "source_fresh_regeneration",
       "after_approval_still_requires": [
         "source_freshness_audit",
@@ -3694,8 +3710,8 @@
         "paper_result_material_allowed_now": false,
         "missing_deliverable_count": 10,
         "open_category_count": 4,
-        "source_freshness_status": "source_freshness_clean_current",
-        "source_freshness_blocking_regeneration_required": false,
+        "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
+        "source_freshness_blocking_regeneration_required": true,
         "approved_route_next_lane": "source_fresh_regeneration",
         "rejected_route_next_lane": "protocol_redesign",
         "after_approval_still_requires": [
@@ -3734,7 +3750,7 @@
       "remote_training_allowed_now": false,
       "formal_claim_allowed_now": false,
       "paper_result_material_allowed_now": false,
-      "source_freshness_blocking_regeneration_required": false,
+      "source_freshness_blocking_regeneration_required": true,
       "approved_route_next_lane": "source_fresh_regeneration",
       "after_approval_still_requires": [
         "source_freshness_audit",
@@ -3778,8 +3794,8 @@
         "paper_result_material_allowed_now": false,
         "missing_deliverable_count": 10,
         "open_category_count": 4,
-        "source_freshness_status": "source_freshness_clean_current",
-        "source_freshness_blocking_regeneration_required": false,
+        "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
+        "source_freshness_blocking_regeneration_required": true,
         "approved_route_next_lane": "source_fresh_regeneration",
         "rejected_route_next_lane": "protocol_redesign",
         "after_approval_still_requires": [
@@ -3818,7 +3834,7 @@
       "remote_training_allowed_now": false,
       "formal_claim_allowed_now": false,
       "paper_result_material_allowed_now": false,
-      "source_freshness_blocking_regeneration_required": false,
+      "source_freshness_blocking_regeneration_required": true,
       "approved_route_next_lane": "source_fresh_regeneration",
       "after_approval_still_requires": [
         "source_freshness_audit",
@@ -3862,8 +3878,8 @@
         "paper_result_material_allowed_now": false,
         "missing_deliverable_count": 10,
         "open_category_count": 4,
-        "source_freshness_status": "source_freshness_clean_current",
-        "source_freshness_blocking_regeneration_required": false,
+        "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
+        "source_freshness_blocking_regeneration_required": true,
         "approved_route_next_lane": "source_fresh_regeneration",
         "rejected_route_next_lane": "protocol_redesign",
         "after_approval_still_requires": [
