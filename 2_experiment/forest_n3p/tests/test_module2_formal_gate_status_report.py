@@ -32,6 +32,12 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["current_state"]["decision_intake_record_status"] == "pending_human_decision"
     assert manifest["current_state"]["decision_intake_next_blocked_lane"] == "decision"
     assert manifest["current_state"]["decision_intake_audit_issue_count"] == 0
+    assert manifest["current_state"]["decision_intake_valid_decision_count"] == 2
+    assert manifest["current_state"]["decision_intake_required_record_field_count"] == 3
+    assert manifest["current_state"]["decision_intake_decision_note_required"] is True
+    assert manifest["current_state"]["decision_intake_record_command_template_count"] == 2
+    assert manifest["current_state"]["decision_intake_post_decision_non_authorization_count"] == 2
+    assert manifest["current_state"]["decision_intake_post_decision_route_count"] == 2
     assert manifest["current_state"]["decision_intake_remote_preflight_allowed_now"] is False
     assert manifest["current_state"]["decision_intake_remote_training_allowed_now"] is False
     assert manifest["current_state"]["decision_intake_formal_claim_allowed_now"] is False
@@ -402,6 +408,10 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     assert manifest["f02_6_decision_intake_summary"]["record_status"] == "approved"
     assert manifest["f02_6_decision_intake_summary"]["record_decider"] == "Dr Sun"
     assert manifest["f02_6_decision_intake_summary"]["decision_owner_required"] == "Dr Sun"
+    assert manifest["current_state"]["decision_intake_valid_decision_count"] == 2
+    assert manifest["current_state"]["decision_intake_required_record_field_count"] == 3
+    assert manifest["current_state"]["decision_intake_record_command_template_count"] == 2
+    assert manifest["current_state"]["decision_intake_post_decision_route_count"] == 2
     assert manifest["f02_6_decision_intake_summary"]["decision_note_required"] is True
     assert manifest["remote_preflight_requirement_summary"]["status_counts"] == {"satisfied": 4}
     assert manifest["post_run_acceptance_requirement_summary"]["status_counts"] == {"satisfied": 4}

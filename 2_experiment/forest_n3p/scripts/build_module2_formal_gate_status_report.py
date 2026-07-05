@@ -337,6 +337,20 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "decision_intake_record_status": decision_intake_summary["record_status"],
             "decision_intake_next_blocked_lane": decision_intake_summary["next_blocked_lane"],
             "decision_intake_audit_issue_count": decision_intake_summary["audit_issue_count"],
+            "decision_intake_valid_decision_count": decision_intake_summary["valid_decision_count"],
+            "decision_intake_required_record_field_count": decision_intake_summary[
+                "required_record_field_count"
+            ],
+            "decision_intake_decision_note_required": decision_intake_summary["decision_note_required"],
+            "decision_intake_record_command_template_count": decision_intake_summary[
+                "record_command_template_count"
+            ],
+            "decision_intake_post_decision_non_authorization_count": decision_intake_summary[
+                "post_decision_non_authorization_count"
+            ],
+            "decision_intake_post_decision_route_count": decision_intake_summary[
+                "post_decision_route_count"
+            ],
             "decision_intake_remote_preflight_allowed_now": decision_intake_summary["remote_preflight_allowed_now"],
             "decision_intake_remote_training_allowed_now": decision_intake_summary["remote_training_allowed_now"],
             "decision_intake_formal_claim_allowed_now": decision_intake_summary["formal_claim_allowed_now"],
