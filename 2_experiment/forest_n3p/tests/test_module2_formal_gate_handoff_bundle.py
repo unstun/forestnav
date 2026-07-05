@@ -241,7 +241,7 @@ def test_formal_gate_handoff_bundle_consumes_transition_gate_audit(tmp_path):
     issue_ids = {issue["issue_id"] for issue in manifest["safety_issues"]}
     assert "transition_gate_audit_not_passed" in issue_ids
     assert "transition_gate_audit_issues_open" in issue_ids
-    assert "transition_gate_approved_allows_remote_training" in issue_ids
+    assert "transition_gate_approved_gate3_remote_training_ready_too_early" in issue_ids
     assert "transition_gate_approved_allows_formal_claim" in issue_ids
     assert "transition_gate_approved_gate3_remote_training_ready_too_early" in issue_ids
 
