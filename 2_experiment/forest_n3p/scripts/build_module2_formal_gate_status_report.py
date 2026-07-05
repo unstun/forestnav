@@ -3358,6 +3358,136 @@ def _remaining_deliverables_proof_command_plan_issues(
     return issues
 
 
+def _remaining_deliverables_source_blocker_summary_issues(
+    *,
+    remaining_deliverables: dict[str, Any],
+    source_freshness: dict[str, Any],
+    summary: dict[str, Any],
+) -> list[dict[str, str]]:
+    if not remaining_deliverables:
+        return []
+    if not summary["present"]:
+        return [
+            _issue(
+                "remaining_deliverables_source_blocker_summary_missing",
+                "remaining-deliverables ledger must expose source_freshness_blocking_targets_summary.",
+            )
+        ]
+    issues: list[dict[str, str]] = []
+    if summary["summary_id"] != "module2_source_freshness_blocking_targets_summary":
+        issues.append(
+            _issue(
+                "remaining_deliverables_source_blocker_summary_id_invalid",
+                "source blocker summary id must match the formal gate contract.",
+            )
+        )
+    if summary["execution_boundary"] != "read_only_no_execution":
+        issues.append(
+            _issue(
+                "remaining_deliverables_source_blocker_summary_boundary_invalid",
+                "source blocker summary must be read-only.",
+            )
+        )
+    if not summary["not_paper_result_material"]:
+        issues.append(
+            _issue(
+                "remaining_deliverables_source_blocker_summary_marked_as_paper_result",
+                "source blocker summary must not be paper result material.",
+            )
+        )
+    expected_ids = _source_freshness_blocking_target_ids(source_freshness)
+    if summary["blocking_target_count"] != len(summary["rows"]):
+        issues.append(
+            _issue(
+                "remaining_deliverables_source_blocker_summary_row_count_mismatch",
+                "source blocker summary count must match row count.",
+            )
+        )
+    if summary["blocking_target_count"] != len(summary["blocking_target_ids"]):
+        issues.append(
+            _issue(
+                "remaining_deliverables_source_blocker_summary_id_count_mismatch",
+                "source blocker summary count must match target id count.",
+            )
+        )
+    if summary["blocking_target_ids"] != expected_ids:
+        issues.append(
+            _issue(
+                "remaining_deliverables_source_blocker_summary_target_ids_mismatch",
+                "source blocker summary target ids must match source-freshness blocking targets.",
+            )
+        )
+    remote_ids = [target_id for target_id in expected_ids if "readiness" in target_id or "gpu3070ti" in target_id]
+    if summary["remote_readiness_blocking_target_ids"] != remote_ids:
+        issues.append(
+            _issue(
+                "remaining_deliverables_source_blocker_summary_remote_readiness_ids_mismatch",
+                "remote-readiness blocker ids must match source-freshness readiness blockers.",
+            )
+        )
+    if summary["remote_readiness_blocking_target_count"] != len(summary["remote_readiness_blocking_target_ids"]):
+        issues.append(
+            _issue(
+                "remaining_deliverables_source_blocker_summary_remote_readiness_count_mismatch",
+                "remote-readiness blocker count must match its ids.",
+            )
+        )
+    if remote_ids and summary["remote_readiness_refresh_requires_external_ssh"] is not True:
+        issues.append(
+            _issue(
+                "remaining_deliverables_source_blocker_summary_missing_ssh_boundary",
+                "remote-readiness source blockers must record that refresh requires external SSH.",
+            )
+        )
+    if summary["remote_readiness_refresh_allowed_now"] is True:
+        issues.append(
+            _issue(
+                "remaining_deliverables_source_blocker_summary_allows_remote_readiness_refresh",
+                "remaining-deliverables must not allow remote readiness refresh while F02.6 is pending.",
+            )
+        )
+    if summary["remote_preflight_allowed_now"] is True:
+        issues.append(
+            _issue(
+                "remaining_deliverables_source_blocker_summary_allows_remote_preflight",
+                "remaining-deliverables source blocker summary must not allow remote preflight.",
+            )
+        )
+    if summary["remote_training_allowed_now"] is True:
+        issues.append(
+            _issue(
+                "remaining_deliverables_source_blocker_summary_allows_remote_training",
+                "remaining-deliverables source blocker summary must not allow remote training.",
+            )
+        )
+    if summary["formal_claim_allowed_now"] is True:
+        issues.append(
+            _issue(
+                "remaining_deliverables_source_blocker_summary_allows_formal_claim",
+                "remaining-deliverables source blocker summary must not allow formal claims.",
+            )
+        )
+    row_ids = [str(row["artifact_id"]) for row in summary["rows"] if row.get("artifact_id")]
+    if row_ids != summary["blocking_target_ids"]:
+        issues.append(
+            _issue(
+                "remaining_deliverables_source_blocker_summary_row_ids_mismatch",
+                "source blocker summary row ids must match target ids.",
+            )
+        )
+    return issues
+
+
+def _source_freshness_blocking_target_ids(source_freshness: dict[str, Any]) -> list[str]:
+    raw_targets = source_freshness.get("blocking_ordered_regeneration_targets")
+    raw_targets = raw_targets if isinstance(raw_targets, list) else []
+    return [
+        str(item["artifact_id"])
+        for item in raw_targets
+        if isinstance(item, dict) and item.get("artifact_id")
+    ]
+
+
 def _remaining_deliverables_unlock_chain_issues(
     *,
     remaining_deliverables: dict[str, Any],
