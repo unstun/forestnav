@@ -354,6 +354,55 @@ def _audit_issues(
         issues.append(_issue("packet_allows_formal_claim", "Decision packet must not allow formal claims.", current_state["packet_formal_claim_allowed"]))
     if current_state["packet_recommendation"] != APPROVE_OBSTACLE_SUMMARY:
         issues.append(_issue("packet_recommendation_not_obstacle_summary", "Current intake expects the obstacle-summary warm-start recommendation.", current_state["packet_recommendation"]))
+    if current_state["packet_authorization_status"] != "blocked_until_dr_sun_decision":
+        issues.append(
+            _issue(
+                "packet_current_authorization_not_blocked",
+                "Decision packet current authorization must remain blocked until Dr Sun records F02.6.",
+                current_state["packet_authorization_status"],
+            )
+        )
+    if current_state["packet_current_allowed_action_ids"] != ["record_f02_6_decision"]:
+        issues.append(
+            _issue(
+                "packet_current_allowed_actions_not_decision_only",
+                "Decision packet must allow only recording F02.6 while the gate is pending.",
+                current_state["packet_current_allowed_action_ids"],
+            )
+        )
+    required_blocked_actions = {
+        "remote_preflight",
+        "remote_training",
+        "local_training",
+        "formal_claim",
+        "paper_result_material",
+    }
+    missing_blocked_actions = sorted(required_blocked_actions.difference(current_state["packet_current_blocked_action_ids"]))
+    if missing_blocked_actions:
+        issues.append(
+            _issue(
+                "packet_current_authorization_missing_blocked_actions",
+                "Decision packet current authorization must block every execution and result-claim path.",
+                missing_blocked_actions,
+            )
+        )
+    if current_state["packet_post_decision_routes_are_current_authorization"] is not False:
+        issues.append(
+            _issue(
+                "packet_treats_post_decision_routes_as_current_authorization",
+                "Post-decision routes must not be current execution authorization.",
+                current_state["packet_post_decision_routes_are_current_authorization"],
+            )
+        )
+    for field in (
+        "packet_remote_preflight_allowed_now",
+        "packet_remote_training_allowed_now",
+        "packet_local_training_allowed_now",
+        "packet_formal_claim_allowed_now",
+        "packet_paper_result_material_allowed_now",
+    ):
+        if current_state[field] is not False:
+            issues.append(_issue(f"{field}_not_false", "Decision packet current authorization must not allow execution or result material.", current_state[field]))
 
     record_status = current_state["record_status"]
     if record_status not in {"pending_human_decision", "approved", "rejected"}:
@@ -392,6 +441,28 @@ def _audit_issues(
         ):
             if current_state[field] is not False:
                 issues.append(_issue(f"{field}_not_false", "Pending F02.6 must not allow remote preflight or remote training.", current_state[field]))
+        if current_state["packet_remote_preflight_allowed_now"] != current_state["status_report_remote_preflight_allowed_now"]:
+            issues.append(
+                _issue(
+                    "packet_status_report_remote_preflight_permission_mismatch",
+                    "Packet and status report must agree on remote preflight permission while F02.6 is pending.",
+                    {
+                        "packet": current_state["packet_remote_preflight_allowed_now"],
+                        "status_report": current_state["status_report_remote_preflight_allowed_now"],
+                    },
+                )
+            )
+        if current_state["packet_remote_training_allowed_now"] != current_state["status_report_remote_training_allowed_now"]:
+            issues.append(
+                _issue(
+                    "packet_status_report_remote_training_permission_mismatch",
+                    "Packet and status report must agree on remote training permission while F02.6 is pending.",
+                    {
+                        "packet": current_state["packet_remote_training_allowed_now"],
+                        "status_report": current_state["status_report_remote_training_allowed_now"],
+                    },
+                )
+            )
         if current_state["remaining_deliverables_status"] != "formal_gate_deliverables_blocked":
             issues.append(_issue("remaining_deliverables_not_blocked", "Pending F02.6 should keep remaining deliverables blocked.", current_state["remaining_deliverables_status"]))
 
@@ -450,6 +521,9 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- record_status: `{state['record_status']}`",
         f"- effective_warm_start_decision: `{state['effective_warm_start_decision']}`",
         f"- packet_recommendation: `{state['packet_recommendation']}`",
+        f"- packet_authorization_status: `{state['packet_authorization_status']}`",
+        f"- packet_allowed_now: `{', '.join(state['packet_current_allowed_action_ids'])}`",
+        f"- packet_blocked_now: `{', '.join(state['packet_current_blocked_action_ids'])}`",
         f"- next_blocked_lane: `{state['next_blocked_lane']}`",
         f"- missing_deliverable_count: `{state['missing_deliverable_count']}`",
         f"- local_training_allowed_now: `{state['status_report_local_training_allowed_now']}`",
