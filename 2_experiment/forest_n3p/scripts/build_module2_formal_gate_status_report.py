@@ -1996,6 +1996,76 @@ def _gap_signature(summary: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _formal_gate_remote_packet_safety_proof_deliverables_summary(formal_gate: dict[str, Any]) -> dict[str, Any]:
+    remote_safety = formal_gate.get("remote_packet_safety") if isinstance(formal_gate.get("remote_packet_safety"), dict) else {}
+    return _normalize_proof_deliverables_summary(remote_safety.get("proof_deliverables_summary"))
+
+
+def _formal_gate_remote_packet_safety_status_report_proof_deliverables_summary(
+    formal_gate: dict[str, Any],
+) -> dict[str, Any]:
+    remote_safety = formal_gate.get("remote_packet_safety") if isinstance(formal_gate.get("remote_packet_safety"), dict) else {}
+    return _normalize_proof_deliverables_summary(remote_safety.get("status_report_proof_deliverables_summary"))
+
+
+def _formal_gate_remote_packet_safety_proof_deliverables_summary_issues(
+    *,
+    formal_gate: dict[str, Any],
+    proof_summary: dict[str, Any],
+    status_report_summary: dict[str, Any],
+    proof_audit_summary: dict[str, Any],
+) -> list[dict[str, str]]:
+    if not formal_gate:
+        return [_issue("formal_gate_gap_audit_missing", "status report must consume formal gate gap audit.")]
+    issues: list[dict[str, str]] = []
+    if not proof_summary["present"]:
+        issues.append(
+            _issue(
+                "formal_gate_remote_packet_safety_missing_proof_deliverables_summary",
+                "formal gate gap audit must forward remote packet safety proof-deliverables summary.",
+            )
+        )
+    if not status_report_summary["present"]:
+        issues.append(
+            _issue(
+                "formal_gate_remote_packet_safety_missing_status_report_proof_deliverables_summary",
+                "formal gate gap audit must forward the status-report proof-deliverables summary from remote packet safety.",
+            )
+        )
+    if proof_summary["present"] and status_report_summary["present"]:
+        if _proof_deliverables_signature(proof_summary) != _proof_deliverables_signature(status_report_summary):
+            issues.append(
+                _issue(
+                    "formal_gate_remote_packet_safety_proof_deliverables_summary_mismatch",
+                    "remote packet safety proof summary and status-report proof summary must match.",
+                )
+            )
+    if proof_summary["present"] and proof_audit_summary["present"]:
+        if _proof_deliverables_signature(proof_summary) != _proof_deliverables_signature(proof_audit_summary):
+            issues.append(
+                _issue(
+                    "formal_gate_remote_packet_safety_proof_deliverables_summary_drifted_from_proof_audit",
+                    "remote packet safety proof summary must match the local proof-audit top-level deliverable summary.",
+                )
+            )
+    for summary_id, summary in (
+        ("proof", proof_summary),
+        ("status_report_proof", status_report_summary),
+    ):
+        if (
+            summary["present"]
+            and _proof_deliverables_missing_total(summary) > 0
+            and summary["h02_paper_result_input_allowed"] is True
+        ):
+            issues.append(
+                _issue(
+                    f"formal_gate_remote_packet_safety_{summary_id}_allows_paper_results_with_missing_deliverables",
+                    "remote packet safety proof summary must not allow paper result input while formal deliverables are missing.",
+                )
+            )
+    return issues
+
+
 def _formal_gate_remote_packet_safety_claim_gate_command_index_summary(formal_gate: dict[str, Any]) -> dict[str, Any]:
     remote_safety = formal_gate.get("remote_packet_safety") if isinstance(formal_gate.get("remote_packet_safety"), dict) else {}
     summary = (
