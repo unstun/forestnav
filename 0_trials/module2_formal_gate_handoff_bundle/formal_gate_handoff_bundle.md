@@ -79,9 +79,9 @@
 
 - 1. `f02_6_decision_record`: allowed_now=`False`, blocked_by=`current_decision_status_approved`
 - 2. `regenerate_preflight_gate_artifacts`: allowed_now=`True`, blocked_by=`none`
-- 3. `approved_remote_preflight`: allowed_now=`False`, blocked_by=`source_fresh_preflight_targets_open`
-- 4. `regenerate_remote_execution_packet`: allowed_now=`False`, blocked_by=`source_fresh_preflight_targets_open`
-- 5. `gate3_remote_training`: allowed_now=`True`, blocked_by=`source_fresh_preflight_targets_open`
+- 3. `approved_remote_preflight`: allowed_now=`True`, blocked_by=`none`
+- 4. `regenerate_remote_execution_packet`: allowed_now=`True`, blocked_by=`none`
+- 5. `gate3_remote_training`: allowed_now=`True`, blocked_by=`none`
 - 6. `gate3_remote_audit_pullback`: allowed_now=`False`, blocked_by=`remote_training_not_completed`
 - 7. `regenerate_h01_h02_formal_artifacts`: allowed_now=`False`, blocked_by=`missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
 - 8. `regenerate_claim_gate_artifacts`: allowed_now=`False`, blocked_by=`h02_formal_acceptance_not_ready, source_fresh_claim_targets_open`

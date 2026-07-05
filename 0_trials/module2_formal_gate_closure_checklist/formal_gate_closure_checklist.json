@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_closure_checklist",
   "status": "formal_gate_closure_blocked",
-  "created_at_utc": "2026-07-05T19:10:11.295847+00:00",
-  "source_head": "9e655abe45912003394f524ca7cbd02d7cc80206",
+  "created_at_utc": "2026-07-05T19:12:37.696448+00:00",
+  "source_head": "be11232de21fd3d30b2590b971252180465d2f3a",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -36,8 +36,6 @@
     "formal_ordered_next_step_count": 6,
     "post_plan_blocked_stage_ids": [
       "f02_6_decision_record",
-      "approved_remote_preflight",
-      "regenerate_remote_execution_packet",
       "gate3_remote_audit_pullback",
       "regenerate_h01_h02_formal_artifacts",
       "regenerate_claim_gate_artifacts"
@@ -213,14 +211,12 @@
   "post_plan_remote_stage_summary": {
     "approved_remote_preflight": {
       "present": true,
-      "status": "blocked",
-      "allowed_now": false,
+      "status": "ready",
+      "allowed_now": true,
       "runs_training": false,
       "runs_remote_preflight": true,
       "host": "gpu3070ti-relay",
-      "blocked_by": [
-        "source_fresh_preflight_targets_open"
-      ]
+      "blocked_by": []
     },
     "gate3_remote_training": {
       "present": true,
@@ -229,9 +225,7 @@
       "runs_training": true,
       "runs_remote_preflight": false,
       "host": "gpu3070ti-relay",
-      "blocked_by": [
-        "source_fresh_preflight_targets_open"
-      ]
+      "blocked_by": []
     },
     "gate3_remote_audit_pullback": {
       "present": true,
@@ -591,15 +585,14 @@
       "host": null,
       "group_id": "post_f02_6_ordered_stages",
       "formal_step_status": "pending_execution",
-      "post_plan_stage_status": "blocked",
+      "post_plan_stage_status": "ready",
       "blocked_by": [
         "f02_6_decision_record",
         "approved_remote_preflight",
         "regenerate_remote_execution_packet",
         "gate3_remote_audit_pullback",
         "regenerate_h01_h02_formal_artifacts",
-        "regenerate_claim_gate_artifacts",
-        "source_fresh_preflight_targets_open"
+        "regenerate_claim_gate_artifacts"
       ],
       "missing_item_count": 6,
       "required_items": [
@@ -684,8 +677,7 @@
       "blocked_by": [
         "train_final_model_zip",
         "train_summary_json",
-        "train_training_manifest_json",
-        "source_fresh_preflight_targets_open"
+        "train_training_manifest_json"
       ],
       "missing_item_count": 3,
       "required_items": [
@@ -979,13 +971,8 @@
       "next_action": "Only then can formal result writing be considered; this checklist itself does not allow claims."
     }
   ],
-  "input_safety_issue_count": 1,
-  "input_safety_issues": [
-    {
-      "issue_id": "post_plan_gate3_remote_training_allowed_with_blockers",
-      "message": "allowed post-plan stage gate3_remote_training must not carry blocked_by."
-    }
-  ],
+  "input_safety_issue_count": 0,
+  "input_safety_issues": [],
   "claim_boundaries": [
     "This checklist is a formal-gate execution ledger, not a result table, paper appendix, or permission to train.",
     "It does not execute local commands, remote preflight, remote training, remote audit, sync, pullback, or evaluation.",

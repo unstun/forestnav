@@ -5,7 +5,7 @@ This file is a formal-gate closure checklist. It does not execute commands, trai
 - status: `formal_gate_closure_blocked`
 - closure_item_count: `8`
 - open_item_count: `7`
-- input_safety_issue_count: `1`
+- input_safety_issue_count: `0`
 - runs_training: `False`
 - runs_remote_preflight: `False`
 - formal_claim_allowed: `False`
@@ -18,7 +18,7 @@ This file is a formal-gate closure checklist. It does not execute commands, trai
 - source_freshness_status: `source_freshness_tracked_artifact_lag_only_gate_ready`
 - missing_counts_by_category: `{'decision': 0, 'decision_gate': 1, 'regeneration': 0, 'gate_sequence': 6, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 9}`
 - formal_ordered_next_step_count: `6`
-- post_plan_blocked_stage_ids: `['f02_6_decision_record', 'approved_remote_preflight', 'regenerate_remote_execution_packet', 'gate3_remote_audit_pullback', 'regenerate_h01_h02_formal_artifacts', 'regenerate_claim_gate_artifacts']`
+- post_plan_blocked_stage_ids: `['f02_6_decision_record', 'gate3_remote_audit_pullback', 'regenerate_h01_h02_formal_artifacts', 'regenerate_claim_gate_artifacts']`
 - source_regeneration_target_count: `23`
 - remaining_deliverables_gap_total_missing: `10`
 - remaining_deliverables_gap_open_category_count: `4`
@@ -42,11 +42,11 @@ This file is a formal-gate closure checklist. It does not execute commands, trai
   - completion_signal: All approved_remote_preflight source-fresh targets are regenerated from the current head.
   - next_action: Regenerate source freshness targets only after F02.6 is closed.
 - `approved_remote_preflight_and_packet` (remote_preflight): status=`blocked`, missing=`6`, runs_training=`False`
-  - blocked_by: `f02_6_decision_record, approved_remote_preflight, regenerate_remote_execution_packet, gate3_remote_audit_pullback, regenerate_h01_h02_formal_artifacts, regenerate_claim_gate_artifacts, source_fresh_preflight_targets_open`
+  - blocked_by: `f02_6_decision_record, approved_remote_preflight, regenerate_remote_execution_packet, gate3_remote_audit_pullback, regenerate_h01_h02_formal_artifacts, regenerate_claim_gate_artifacts`
   - completion_signal: Approved gpu3070ti preflight passes and the remote execution packet becomes ready.
   - next_action: Run only the approved remote preflight path; do not train locally.
 - `gate3_remote_training_outputs` (training): status=`blocked`, missing=`3`, runs_training=`True`, host=`gpu3070ti-relay`
-  - blocked_by: `train_final_model_zip, train_summary_json, train_training_manifest_json, source_fresh_preflight_targets_open`
+  - blocked_by: `train_final_model_zip, train_summary_json, train_training_manifest_json`
   - completion_signal: Remote formal Gate3 PPO training returns final_model.zip, summary.json, and training_manifest.json.
   - next_action: Run formal PPO only on gpu3070ti-relay after the packet reports ready.
 - `gate3_formal_eval_outputs` (evaluation): status=`blocked`, missing=`2`, runs_training=`False`
@@ -85,13 +85,13 @@ This file is a formal-gate closure checklist. It does not execute commands, trai
 
 ## Post-Plan Remote Stages
 
-- `approved_remote_preflight`: present=`True`, allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`True`, host=`gpu3070ti-relay`, blocked_by=`source_fresh_preflight_targets_open`
-- `gate3_remote_training`: present=`True`, allowed_now=`True`, runs_training=`True`, runs_remote_preflight=`False`, host=`gpu3070ti-relay`, blocked_by=`source_fresh_preflight_targets_open`
+- `approved_remote_preflight`: present=`True`, allowed_now=`True`, runs_training=`False`, runs_remote_preflight=`True`, host=`gpu3070ti-relay`, blocked_by=`none`
+- `gate3_remote_training`: present=`True`, allowed_now=`True`, runs_training=`True`, runs_remote_preflight=`False`, host=`gpu3070ti-relay`, blocked_by=`none`
 - `gate3_remote_audit_pullback`: present=`True`, allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`False`, host=`gpu3070ti-relay`, blocked_by=`remote_training_not_completed`
 
 ## Input Safety Issues
 
-- `post_plan_gate3_remote_training_allowed_with_blockers`: allowed post-plan stage gate3_remote_training must not carry blocked_by.
+- none
 
 ## Claim Boundaries
 

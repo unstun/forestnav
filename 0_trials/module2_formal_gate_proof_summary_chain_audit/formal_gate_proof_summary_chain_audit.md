@@ -61,7 +61,7 @@ This file checks that formal-gate proof-deliverables summaries remain consistent
 
 ## Next-Action Guard Chain Rows
 
-- `status_report_next_action_guard`: present=`True`, matches=`True`, expected_next_action_id=`None`, execution_leak_count=`8`, path=`0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`, key=`next_action_guard_summary`
+- `status_report_next_action_guard`: present=`True`, matches=`True`, expected_next_action_id=`None`, execution_leak_count=`9`, path=`0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`, key=`next_action_guard_summary`
 - `claim_safety_status_report_next_action_guard`: present=`True`, matches=`False`, expected_next_action_id=`None`, execution_leak_count=`8`, path=`0_trials/module2_claim_safety/module2_claim_safety.json`, key=`status_report_next_action_guard_summary`
 - `paper_readiness_claim_safety_next_action_guard`: present=`True`, matches=`False`, expected_next_action_id=`None`, execution_leak_count=`8`, path=`0_trials/module2_paper_readiness/module2_paper_readiness.json`, key=`claim_safety_next_action_guard_summary`
 

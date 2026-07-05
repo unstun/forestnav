@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_missing_artifacts_audit",
   "status": "formal_gate_missing_artifacts_open",
-  "created_at_utc": "2026-07-05T19:09:37.941271+00:00",
-  "source_head": "9e655abe45912003394f524ca7cbd02d7cc80206",
+  "created_at_utc": "2026-07-05T19:12:37.808189+00:00",
+  "source_head": "be11232de21fd3d30b2590b971252180465d2f3a",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -28,13 +28,13 @@
     "f02_6_transition_gate_audit_issue_count": 17,
     "post_f02_6_plan_status": "ready_for_remote_training_packet_execution",
     "post_plan_training_allowed_now": true,
-    "post_plan_remote_preflight_allowed_now": false,
+    "post_plan_remote_preflight_allowed_now": true,
     "source_freshness_status": "source_freshness_tracked_artifact_lag_only_gate_ready",
     "source_freshness_regeneration_required": true,
     "source_freshness_blocking_regeneration_required": false,
     "remote_packet_status": "ready_for_gpu3070ti_remote_training",
     "ready_to_run_remote_training": true,
-    "remote_packet_safety_audit_status": "remote_packet_safety_audit_failed",
+    "remote_packet_safety_audit_status": "remote_packet_safety_audit_passed",
     "h01_manifest_status": "blocked_protocol_gap",
     "h01_blockers": [
       "missing_module2_rl_rs_checkpoint",
@@ -122,9 +122,7 @@
         "responsible_stage_id": "gate3_remote_training",
         "responsible_stage_status": "ready",
         "responsible_stage_allowed_now": true,
-        "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open"
-        ],
+        "responsible_stage_blocked_by": [],
         "responsible_stage_evidence_paths": [
           "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
           "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
@@ -306,7 +304,7 @@
     "decision": 0,
     "decision_gate": 1,
     "regeneration": 0,
-    "gate_sequence": 6,
+    "gate_sequence": 4,
     "training": 3,
     "evaluation": 2,
     "acceptance": 3,
@@ -575,8 +573,6 @@
       "complete": false,
       "blocked_by": [
         "f02_6_decision_record",
-        "approved_remote_preflight",
-        "regenerate_remote_execution_packet",
         "gate3_remote_audit_pullback",
         "regenerate_h01_h02_formal_artifacts",
         "regenerate_claim_gate_artifacts"
@@ -602,17 +598,17 @@
           "artifact_id": "approved_remote_preflight",
           "path": "0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1/gate3_preflight_manifest.json",
           "exists": true,
-          "state": "blocked",
-          "missing": true,
-          "reason": "source_fresh_preflight_targets_open"
+          "state": "ready",
+          "missing": false,
+          "reason": ""
         },
         {
           "artifact_id": "regenerate_remote_execution_packet",
           "path": "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json",
           "exists": true,
-          "state": "blocked",
-          "missing": true,
-          "reason": "source_fresh_preflight_targets_open"
+          "state": "ready",
+          "missing": false,
+          "reason": ""
         },
         {
           "artifact_id": "gate3_remote_training",
@@ -620,7 +616,7 @@
           "exists": true,
           "state": "ready",
           "missing": false,
-          "reason": "source_fresh_preflight_targets_open"
+          "reason": ""
         },
         {
           "artifact_id": "gate3_remote_audit_pullback",
@@ -896,9 +892,7 @@
       "responsible_stage_id": "gate3_remote_training",
       "responsible_stage_status": "ready",
       "responsible_stage_allowed_now": true,
-      "responsible_stage_blocked_by": [
-        "source_fresh_preflight_targets_open"
-      ],
+      "responsible_stage_blocked_by": [],
       "responsible_stage_evidence_paths": [
         "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
         "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
@@ -1059,7 +1053,7 @@
     "ready_to_execute_missing_outputs": 3,
     "blocked_missing_outputs": 1
   },
-  "audit_issue_count": 3,
+  "audit_issue_count": 2,
   "audit_issues": [
     {
       "issue_id": "transition_gate_audit_not_passed",
@@ -1068,10 +1062,6 @@
     {
       "issue_id": "transition_gate_audit_issues_open",
       "message": "F02.6 transition gate audit reports open issues."
-    },
-    {
-      "issue_id": "remote_packet_safety_audit_not_passed",
-      "message": "Remote packet safety audit must pass before formal execution."
     }
   ],
   "claim_boundaries": [

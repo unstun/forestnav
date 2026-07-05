@@ -61,14 +61,11 @@ This file is an ordered plan. It does not execute commands, train, preflight, au
   - evidence: `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json`
 - `regenerate_preflight_gate_artifacts` (regeneration): status=`ready`, allowed_now=`True`, runs_training=`False`, runs_remote_preflight=`False`
   - evidence: `0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json; 0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json; 0_trials/module2_f02_6_decision_record/f02_6_decision_record.json; 0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json; 0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json; 0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json; 0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json; 0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json; 0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json; 0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json; 0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json; 0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json; 0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
-- `approved_remote_preflight` (remote_preflight): status=`blocked`, allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`True`, host=`gpu3070ti-relay`
-  - blocked_by: `source_fresh_preflight_targets_open`
+- `approved_remote_preflight` (remote_preflight): status=`ready`, allowed_now=`True`, runs_training=`False`, runs_remote_preflight=`True`, host=`gpu3070ti-relay`
   - evidence: `0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1/gate3_preflight_manifest.json`
-- `regenerate_remote_execution_packet` (regeneration): status=`blocked`, allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`False`
-  - blocked_by: `source_fresh_preflight_targets_open`
+- `regenerate_remote_execution_packet` (regeneration): status=`ready`, allowed_now=`True`, runs_training=`False`, runs_remote_preflight=`False`
   - evidence: `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json`
 - `gate3_remote_training` (training): status=`ready`, allowed_now=`True`, runs_training=`True`, runs_remote_preflight=`False`, host=`gpu3070ti-relay`
-  - blocked_by: `source_fresh_preflight_targets_open`
   - evidence: `0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json`
 - `gate3_remote_audit_pullback` (acceptance): status=`blocked`, allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`False`, host=`gpu3070ti-relay`
   - blocked_by: `remote_training_not_completed`

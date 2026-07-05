@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_remaining_deliverables",
   "status": "formal_gate_deliverables_blocked",
-  "created_at_utc": "2026-07-05T19:09:40.612594+00:00",
-  "source_head": "9e655abe45912003394f524ca7cbd02d7cc80206",
+  "created_at_utc": "2026-07-05T19:12:37.913944+00:00",
+  "source_head": "be11232de21fd3d30b2590b971252180465d2f3a",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -138,9 +138,7 @@
         "present_count": 0,
         "responsible_stage_id": "gate3_remote_training",
         "responsible_stage_allowed_now": true,
-        "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open"
-        ],
+        "responsible_stage_blocked_by": [],
         "next_required_evidence": [
           "remote-produced train/final_model.zip pulled back to the local formal Gate3 trial directory",
           "train/summary.json with PPO run metadata and terminal-RS training signals",
@@ -554,9 +552,7 @@
           "phase": "training",
           "status": "ready",
           "allowed_now": true,
-          "blocked_by": [
-            "source_fresh_preflight_targets_open"
-          ],
+          "blocked_by": [],
           "runs_training": true,
           "runs_remote_preflight": false,
           "host": "gpu3070ti-relay",
@@ -597,9 +593,7 @@
           "phase": "training",
           "status": "ready",
           "allowed_now": true,
-          "blocked_by": [
-            "source_fresh_preflight_targets_open"
-          ],
+          "blocked_by": [],
           "runs_training": true,
           "runs_remote_preflight": false,
           "host": "gpu3070ti-relay",
@@ -640,9 +634,7 @@
           "phase": "training",
           "status": "ready",
           "allowed_now": true,
-          "blocked_by": [
-            "source_fresh_preflight_targets_open"
-          ],
+          "blocked_by": [],
           "runs_training": true,
           "runs_remote_preflight": false,
           "host": "gpu3070ti-relay",
@@ -683,9 +675,7 @@
           "phase": "training",
           "status": "ready",
           "allowed_now": true,
-          "blocked_by": [
-            "source_fresh_preflight_targets_open"
-          ],
+          "blocked_by": [],
           "runs_training": true,
           "runs_remote_preflight": false,
           "host": "gpu3070ti-relay",
@@ -726,9 +716,7 @@
           "phase": "training",
           "status": "ready",
           "allowed_now": true,
-          "blocked_by": [
-            "source_fresh_preflight_targets_open"
-          ],
+          "blocked_by": [],
           "runs_training": true,
           "runs_remote_preflight": false,
           "host": "gpu3070ti-relay",
@@ -769,9 +757,7 @@
           "phase": "training",
           "status": "ready",
           "allowed_now": true,
-          "blocked_by": [
-            "source_fresh_preflight_targets_open"
-          ],
+          "blocked_by": [],
           "runs_training": true,
           "runs_remote_preflight": false,
           "host": "gpu3070ti-relay",
@@ -995,9 +981,7 @@
         "current_state": "missing",
         "responsible_stage_id": "gate3_remote_training",
         "responsible_stage_allowed_now": true,
-        "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open"
-        ],
+        "responsible_stage_blocked_by": [],
         "required_current_blockers": [],
         "missing_required_current_blockers": [],
         "unlock_sequence_before_stage_allowed": [
@@ -1017,9 +1001,7 @@
         "current_state": "missing",
         "responsible_stage_id": "gate3_remote_training",
         "responsible_stage_allowed_now": true,
-        "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open"
-        ],
+        "responsible_stage_blocked_by": [],
         "required_current_blockers": [],
         "missing_required_current_blockers": [],
         "unlock_sequence_before_stage_allowed": [
@@ -1039,9 +1021,7 @@
         "current_state": "missing",
         "responsible_stage_id": "gate3_remote_training",
         "responsible_stage_allowed_now": true,
-        "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open"
-        ],
+        "responsible_stage_blocked_by": [],
         "required_current_blockers": [],
         "missing_required_current_blockers": [],
         "unlock_sequence_before_stage_allowed": [
@@ -1242,9 +1222,7 @@
         "missing_count": 3,
         "responsible_stage_id": "gate3_remote_training",
         "responsible_stage_allowed_now": true,
-        "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open"
-        ],
+        "responsible_stage_blocked_by": [],
         "missing_matrix_ids": [
           "training:train_final_model_zip",
           "training:train_summary_json",
@@ -1371,9 +1349,7 @@
       "responsible_stage_id": "gate3_remote_training",
       "responsible_stage_status": "ready",
       "responsible_stage_allowed_now": true,
-      "responsible_stage_blocked_by": [
-        "source_fresh_preflight_targets_open"
-      ],
+      "responsible_stage_blocked_by": [],
       "acceptable_evidence": [
         "remote-produced train/final_model.zip pulled back to the local formal Gate3 trial directory",
         "train/summary.json with PPO run metadata and terminal-RS training signals",
@@ -1557,9 +1533,7 @@
       "responsible_stage_id": "gate3_remote_training",
       "responsible_stage_status": "ready",
       "responsible_stage_allowed_now": true,
-      "responsible_stage_blocked_by": [
-        "source_fresh_preflight_targets_open"
-      ],
+      "responsible_stage_blocked_by": [],
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
         "artifact state is not missing, blocked, smoke, preview, or candidate",
@@ -1609,9 +1583,7 @@
       "responsible_stage_id": "gate3_remote_training",
       "responsible_stage_status": "ready",
       "responsible_stage_allowed_now": true,
-      "responsible_stage_blocked_by": [
-        "source_fresh_preflight_targets_open"
-      ],
+      "responsible_stage_blocked_by": [],
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
         "artifact state is not missing, blocked, smoke, preview, or candidate",
@@ -1661,9 +1633,7 @@
       "responsible_stage_id": "gate3_remote_training",
       "responsible_stage_status": "ready",
       "responsible_stage_allowed_now": true,
-      "responsible_stage_blocked_by": [
-        "source_fresh_preflight_targets_open"
-      ],
+      "responsible_stage_blocked_by": [],
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
         "artifact state is not missing, blocked, smoke, preview, or candidate",

@@ -3,7 +3,7 @@
 This ledger is read-only. It lists remaining formal training, evaluation, and acceptance deliverables; it does not execute commands or write paper results.
 
 - status: `formal_gate_deliverables_blocked`
-- source_head: `9e655abe45912003394f524ca7cbd02d7cc80206`
+- source_head: `be11232de21fd3d30b2590b971252180465d2f3a`
 - missing_deliverable_count: `10`
 - open_category_count: `4`
 - missing_counts_by_formal_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
@@ -31,7 +31,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - local_training_allowed_now: `False`
 - remote_training_allowed_now: `True`
 - formal_claim_allowed_now: `False`
-- `training`: missing=`3`, stage=`gate3_remote_training`, stage_allowed_now=`True`, missing_artifacts=`training:train_final_model_zip, training:train_summary_json, training:train_training_manifest_json`, proof_commands=`train_final_model_zip_exists_nonempty, train_final_model_zip_valid_zip, train_summary_json_exists_nonempty, train_summary_json_formal_warm_start_metadata, train_training_manifest_json_exists_nonempty, train_training_manifest_json_provenance`, blocked_by=`source_fresh_preflight_targets_open`
+- `training`: missing=`3`, stage=`gate3_remote_training`, stage_allowed_now=`True`, missing_artifacts=`training:train_final_model_zip, training:train_summary_json, training:train_training_manifest_json`, proof_commands=`train_final_model_zip_exists_nonempty, train_final_model_zip_valid_zip, train_summary_json_exists_nonempty, train_summary_json_formal_warm_start_metadata, train_training_manifest_json_exists_nonempty, train_training_manifest_json_provenance`, blocked_by=`none`
 - `evaluation`: missing=`2`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`evaluation:eval_gate3_eval_episodes_csv, evaluation:eval_gate3_summary_json`, proof_commands=`eval_gate3_eval_episodes_csv_exists_nonempty, eval_gate3_eval_episodes_csv_schema, eval_gate3_summary_json_exists_nonempty, eval_gate3_summary_json_formal_scope`, blocked_by=`remote_training_not_completed`
 - `acceptance`: missing=`3`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`acceptance:gate3_trial_manifest_json, acceptance:gate3_formal_audit_json, acceptance:pulled_back_checkpoint_hash_record`, proof_commands=`gate3_trial_manifest_json_exists_nonempty, gate3_trial_manifest_json_formal_warm_start_scope, gate3_formal_audit_json_exists_nonempty, gate3_formal_audit_json_accepts_formal_scope, pulled_back_checkpoint_hash_record_exists_nonempty, pulled_back_checkpoint_hash_record_matches_model`, blocked_by=`remote_training_not_completed`
 - `formal_acceptance`: missing=`2`, stage=`regenerate_h01_h02_formal_artifacts`, stage_allowed_now=`False`, missing_artifacts=`formal_acceptance:h01_ready_for_formal_run, formal_acceptance:h02_formal_output_acceptance`, proof_commands=`h01_ready_for_formal_run_exists_nonempty, h01_ready_for_formal_run_status, h02_formal_output_acceptance_exists_nonempty, h02_formal_output_acceptance_status`, blocked_by=`missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
@@ -75,7 +75,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - missing_count: `3`
 - responsible_stage_id: `gate3_remote_training`
 - responsible_stage_allowed_now: `True`
-- responsible_stage_blocked_by: `source_fresh_preflight_targets_open`
+- responsible_stage_blocked_by: `none`
 - missing_artifacts:
   - `training:train_final_model_zip`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip`, acceptance_predicate_count=`5`, proof_command_count=`2`
   - `training:train_summary_json`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json`, acceptance_predicate_count=`5`, proof_command_count=`2`
@@ -170,7 +170,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - missing_count: `3`
 - responsible_stage_id: `gate3_remote_training`
 - responsible_stage_allowed_now: `True`
-- responsible_stage_blocked_by: `source_fresh_preflight_targets_open`
+- responsible_stage_blocked_by: `none`
 - items:
   - `train_final_model_zip`: missing=`True`, exists=`False`, state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip`
   - `train_summary_json`: missing=`True`, exists=`False`, state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json`
@@ -244,7 +244,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - current_state: `missing`
 - responsible_stage_id: `gate3_remote_training`
 - responsible_stage_allowed_now: `True`
-- responsible_stage_blocked_by: `source_fresh_preflight_targets_open`
+- responsible_stage_blocked_by: `none`
 - acceptance_predicates:
   - expected_path exists in the local pulled-back formal Gate3 artifact tree
   - artifact state is not missing, blocked, smoke, preview, or candidate
@@ -267,7 +267,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - current_state: `missing`
 - responsible_stage_id: `gate3_remote_training`
 - responsible_stage_allowed_now: `True`
-- responsible_stage_blocked_by: `source_fresh_preflight_targets_open`
+- responsible_stage_blocked_by: `none`
 - acceptance_predicates:
   - expected_path exists in the local pulled-back formal Gate3 artifact tree
   - artifact state is not missing, blocked, smoke, preview, or candidate
@@ -290,7 +290,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - current_state: `missing`
 - responsible_stage_id: `gate3_remote_training`
 - responsible_stage_allowed_now: `True`
-- responsible_stage_blocked_by: `source_fresh_preflight_targets_open`
+- responsible_stage_blocked_by: `none`
 - acceptance_predicates:
   - expected_path exists in the local pulled-back formal Gate3 artifact tree
   - artifact state is not missing, blocked, smoke, preview, or candidate

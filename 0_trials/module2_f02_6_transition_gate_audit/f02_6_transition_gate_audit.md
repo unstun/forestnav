@@ -38,7 +38,7 @@ This file audits synthetic pending/approved/rejected F02.6 gate transitions. It 
 - remote_training_allowed_now: `True`
 - formal_claim_allowed_now: `False`
 - regenerate_preflight_gate_artifacts_allowed: `True`
-- approved_remote_preflight_allowed: `False`
+- approved_remote_preflight_allowed: `True`
 - gate3_remote_training_allowed: `True`
 
 ### rejected
