@@ -3,9 +3,15 @@
 This ledger is read-only. It lists remaining formal training, evaluation, and acceptance deliverables; it does not execute commands or write paper results.
 
 - status: `formal_gate_deliverables_blocked`
-- source_head: `6c3c910cbae1484f53428bf2f7809861411852b7`
+- source_head: `df1e95b557eb90564f1229187ae8b48f20199d95`
 - missing_deliverable_count: `10`
 - open_category_count: `4`
+- missing_counts_by_formal_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
+- next_blocked_lane: `decision`
+- h01_status: `blocked_pending_decisions`
+- h02_status: `blocked_formal_output_acceptance`
+- h02_formal_output_accepted: `False`
+- h02_paper_result_input_allowed: `False`
 - proof_command_count: `20`
 - audit_issue_count: `0`
 - local_training_allowed_now: `False`

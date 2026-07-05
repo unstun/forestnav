@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_remaining_deliverables",
   "status": "formal_gate_deliverables_blocked",
-  "created_at_utc": "2026-07-05T02:06:28.924273+00:00",
-  "source_head": "6c3c910cbae1484f53428bf2f7809861411852b7",
+  "created_at_utc": "2026-07-05T02:19:21.911817+00:00",
+  "source_head": "df1e95b557eb90564f1229187ae8b48f20199d95",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -76,6 +76,37 @@
       "present_count": 0
     }
   },
+  "missing_counts_by_formal_category": {
+    "training": 3,
+    "evaluation": 2,
+    "acceptance": 3,
+    "formal_acceptance": 2
+  },
+  "missing_matrix_ids_by_formal_category": {
+    "training": [
+      "training:train_final_model_zip",
+      "training:train_summary_json",
+      "training:train_training_manifest_json"
+    ],
+    "evaluation": [
+      "evaluation:eval_gate3_eval_episodes_csv",
+      "evaluation:eval_gate3_summary_json"
+    ],
+    "acceptance": [
+      "acceptance:gate3_trial_manifest_json",
+      "acceptance:gate3_formal_audit_json",
+      "acceptance:pulled_back_checkpoint_hash_record"
+    ],
+    "formal_acceptance": [
+      "formal_acceptance:h01_ready_for_formal_run",
+      "formal_acceptance:h02_formal_output_acceptance"
+    ]
+  },
+  "next_blocked_lane": "decision",
+  "h01_status": "blocked_pending_decisions",
+  "h02_status": "blocked_formal_output_acceptance",
+  "h02_formal_output_accepted": false,
+  "h02_paper_result_input_allowed": false,
   "deliverable_gap_summary": {
     "summary_id": "module2_formal_gate_missing_training_eval_acceptance_summary",
     "execution_boundary": "read_only_no_execution",
