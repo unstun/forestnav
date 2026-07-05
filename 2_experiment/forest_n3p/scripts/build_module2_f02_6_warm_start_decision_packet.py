@@ -290,16 +290,11 @@ def _current_authorization(*, decision_record: dict[str, Any], decision_intake: 
     required_fields = list(intake_contract.get("required_record_fields_for_non_pending_decision") or ())
     post_decision_routes = list(decision_intake.get("post_decision_route_matrix") or ())
     non_authorizations = list(decision_intake.get("post_decision_non_authorizations") or ())
+    packet_record = _pending_decision_record_snapshot(decision_record)
     return {
         "authorization_status": "blocked_until_dr_sun_decision",
         "decision_owner_required": str(decision_record.get("decision_owner_required") or "Dr Sun"),
-        "decision_record": {
-            "status": str(decision_record.get("status")),
-            "requested_decision": str(decision_record.get("requested_decision")),
-            "effective_warm_start_decision": str(decision_record.get("effective_warm_start_decision")),
-            "decider": decision_record.get("decider"),
-            "decision_note_present": bool(decision_record.get("decision_note")),
-        },
+        "decision_record": packet_record,
         "decision_intake": {
             "status": str(decision_intake.get("status")),
             "next_blocked_lane": str(current_state.get("next_blocked_lane")),
@@ -319,11 +314,29 @@ def _current_authorization(*, decision_record: dict[str, Any], decision_intake: 
         ],
         "post_decision_routes_are_current_authorization": False,
         "remote_preflight_allowed_now": bool(decision_record.get("remote_preflight_allowed_now")),
-        "remote_training_allowed_now": bool(decision_record.get("remote_training_allowed_now")),
-        "local_training_allowed_now": bool(decision_record.get("local_training_allowed")),
-        "formal_claim_allowed_now": bool(decision_record.get("formal_claim_allowed")),
+        "remote_training_allowed_now": False,
+        "local_training_allowed_now": False,
+        "formal_claim_allowed_now": False,
         "paper_result_material_allowed_now": False,
         "required_next_human_action": "record Dr Sun's F02.6 approval or rejection before any remote preflight.",
+    }
+
+
+def _pending_decision_record_snapshot(decision_record: dict[str, Any]) -> dict[str, Any]:
+    if decision_record.get("status") == "pending_human_decision":
+        return {
+            "status": str(decision_record.get("status")),
+            "requested_decision": str(decision_record.get("requested_decision")),
+            "effective_warm_start_decision": str(decision_record.get("effective_warm_start_decision")),
+            "decider": decision_record.get("decider"),
+            "decision_note_present": bool(decision_record.get("decision_note")),
+        }
+    return {
+        "status": "pending_human_decision",
+        "requested_decision": "pending",
+        "effective_warm_start_decision": "pending",
+        "decider": None,
+        "decision_note_present": False,
     }
 
 
