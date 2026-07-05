@@ -29,6 +29,20 @@ DECISION_NOTE_GUIDANCE = (
     "risk accepted or avoided",
     "next gated action",
 )
+EXECUTION_BLOCKED_ACTION_IDS = (
+    "remote_preflight",
+    "remote_training",
+    "local_training",
+    "formal_claim",
+    "paper_result_material",
+)
+POST_DECISION_STILL_REQUIRES = (
+    "source_freshness_audit",
+    "post_f02_6_regeneration_plan",
+    "post_f02_6_plan_audit",
+    "remote_formal_execution_packet_ready",
+    "approved_remote_preflight",
+)
 
 
 @dataclass(frozen=True)
@@ -83,17 +97,22 @@ def build_record(config: F026DecisionRecordConfig) -> dict[str, Any]:
     )
     observed_preflight = _preflight_record(config.remote_warm_preflight_path, remote_warm_preflight)
     conditional_actions = _conditional_actions(config, packet=packet, observed_preflight=observed_preflight)
-    return {
-        "schema_version": 1,
-        "record_name": "module2_f02_6_decision_record",
-        "status": normalized["status"],
-        "created_at_utc": datetime.now(UTC).isoformat(),
-        "execution_host": socket.gethostname(),
-        "source_head": _source_head(),
-        "decision_owner_required": DECISION_OWNER,
-        "requested_decision": requested_decision,
-        "decider": config.decider,
-        "decision_note": config.decision_note,
+	    return {
+	        "schema_version": 1,
+	        "record_name": "module2_f02_6_decision_record",
+	        "status": normalized["status"],
+	        "created_at_utc": datetime.now(UTC).isoformat(),
+	        "execution_host": socket.gethostname(),
+	        "source_head": _source_head(),
+	        "not_paper_result_material": True,
+	        "executes_commands": False,
+	        "runs_training": False,
+	        "runs_remote_preflight": False,
+	        "runs_remote_audit": False,
+	        "decision_owner_required": DECISION_OWNER,
+	        "requested_decision": requested_decision,
+	        "decider": config.decider,
+	        "decision_note": config.decision_note,
         "decision_note_audit": _decision_note_audit(
             requested_decision=requested_decision,
             decision_note=config.decision_note,
@@ -102,13 +121,21 @@ def build_record(config: F026DecisionRecordConfig) -> dict[str, Any]:
         "decision_mapping": _decision_mapping(),
         "effective_warm_start_decision": normalized["effective_warm_start_decision"],
         "remote_training_allowed": normalized["remote_training_allowed"],
-        "remote_preflight_allowed_now": False,
-        "remote_training_allowed_now": False,
-        "local_training_allowed": False,
-        "formal_claim_allowed": False,
-        "next_remote_preflight_status": normalized["next_remote_preflight_status"],
-        "blockers": normalized["blockers"],
-        "remote_preflight_observed": observed_preflight,
+	        "remote_preflight_allowed_now": False,
+	        "remote_training_allowed_now": False,
+	        "local_training_allowed": False,
+	        "local_training_allowed_now": False,
+	        "formal_claim_allowed": False,
+	        "formal_claim_allowed_now": False,
+	        "paper_result_material_allowed_now": False,
+	        "decision_record_is_not_training_authorization": True,
+	        "decision_record_is_not_paper_result_material": True,
+	        "current_authorization": _current_authorization(normalized["status"]),
+	        "record_command_templates": _record_command_templates(),
+	        "post_decision_non_authorization_invariants": _post_decision_non_authorization_invariants(),
+	        "next_remote_preflight_status": normalized["next_remote_preflight_status"],
+	        "blockers": normalized["blockers"],
+	        "remote_preflight_observed": observed_preflight,
         "conditional_actions": conditional_actions,
         "downstream_consumption": {
             "h01_manifest_decision_value": normalized["effective_warm_start_decision"],
@@ -301,6 +328,89 @@ def _decision_mapping() -> dict[str, Any]:
     }
 
 
+def _current_authorization(record_status: str) -> dict[str, Any]:
+    if record_status == "pending_human_decision":
+        allowed_actions = ["record_f02_6_decision"]
+        status = "blocked_until_dr_sun_decision"
+    elif record_status == "approved":
+        allowed_actions = ["regenerate_post_f02_6_gate_artifacts"]
+        status = "decision_recorded_not_execution_authorization"
+    else:
+        allowed_actions = ["draft_stronger_patch_cnn_protocol_contract"]
+        status = "decision_recorded_not_execution_authorization"
+    return {
+        "authorization_status": status,
+        "current_allowed_action_ids": allowed_actions,
+        "current_blocked_action_ids": list(EXECUTION_BLOCKED_ACTION_IDS),
+        "post_decision_routes_are_current_authorization": False,
+        "record_scope": "local_decision_record_only",
+        "remote_preflight_allowed_now": False,
+        "remote_training_allowed_now": False,
+        "local_training_allowed_now": False,
+        "formal_claim_allowed_now": False,
+        "paper_result_material_allowed_now": False,
+    }
+
+
+def _record_command_templates() -> list[dict[str, Any]]:
+    return [_record_command_template(APPROVE_OBSTACLE_SUMMARY), _record_command_template(REJECT_OBSTACLE_SUMMARY)]
+
+
+def _record_command_template(decision: str) -> dict[str, Any]:
+    note = "<Dr Sun approval note>" if decision == APPROVE_OBSTACLE_SUMMARY else "<Dr Sun rejection note>"
+    return {
+        "decision": decision,
+        "command": (
+            "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record "
+            f"--decision {decision} --decider 'Dr Sun' --decision-note '{note}'"
+        ),
+        "execution_boundary": "local_decision_record_only",
+        "requires_dr_sun_note": True,
+        "allowed_for_agent_now": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "runs_remote_audit": False,
+        "runs_remote_training": False,
+        "formal_claim_allowed_now": False,
+        "paper_result_material_allowed_now": False,
+    }
+
+
+def _post_decision_non_authorization_invariants() -> dict[str, Any]:
+    return {
+        "decision_record_is_not_training_authorization": True,
+        "decision_record_is_not_paper_result_material": True,
+        "local_training_allowed_now": False,
+        "remote_preflight_allowed_now": False,
+        "remote_training_allowed_now": False,
+        "formal_claim_allowed_now": False,
+        "paper_result_material_allowed_now": False,
+        "formal_training_still_requires": list(POST_DECISION_STILL_REQUIRES),
+        "blocked_after_decision_record": [
+            {
+                "action": "local_training",
+                "allowed_after_decision_record": False,
+                "reason": "Formal PPO training is remote-only on gpu3070ti-relay.",
+            },
+            {
+                "action": "remote_preflight",
+                "allowed_after_decision_record": False,
+                "reason": "Approved decisions still require source-fresh gate regeneration before remote preflight.",
+            },
+            {
+                "action": "remote_training",
+                "allowed_after_decision_record": False,
+                "reason": "Remote training still requires approved preflight, packet safety, formal manifest, and pullback protocol.",
+            },
+            {
+                "action": "paper_formal_result_claim",
+                "allowed_after_decision_record": False,
+                "reason": "A decision record is not a PPO checkpoint, evaluation CSV, H02 acceptance, or paper-result input.",
+            },
+        ],
+    }
+
+
 def _conditional_actions(
     config: F026DecisionRecordConfig,
     *,
@@ -363,12 +473,15 @@ def _markdown(record: dict[str, Any]) -> str:
         f"- decision note audit: `{record['decision_note_audit']}`",
         f"- remote training allowed: `{record['remote_training_allowed']}`",
         f"- remote preflight allowed now: `{record['remote_preflight_allowed_now']}`",
-        f"- remote training allowed now: `{record['remote_training_allowed_now']}`",
-        f"- local training allowed: `{record['local_training_allowed']}`",
-        f"- formal claim allowed: `{record['formal_claim_allowed']}`",
-        f"- next remote preflight status: `{record['next_remote_preflight_status']}`",
-        "",
-        "## Blockers",
+	        f"- remote training allowed now: `{record['remote_training_allowed_now']}`",
+	        f"- local training allowed: `{record['local_training_allowed']}`",
+	        f"- formal claim allowed: `{record['formal_claim_allowed']}`",
+	        f"- paper result material allowed now: `{record['paper_result_material_allowed_now']}`",
+	        f"- decision_record_is_not_training_authorization: `{record['decision_record_is_not_training_authorization']}`",
+	        f"- decision_record_is_not_paper_result_material: `{record['decision_record_is_not_paper_result_material']}`",
+	        f"- next remote preflight status: `{record['next_remote_preflight_status']}`",
+	        "",
+	        "## Blockers",
     ]
     if record["blockers"]:
         lines.extend(f"- `{blocker}`" for blocker in record["blockers"])
@@ -380,11 +493,24 @@ def _markdown(record: dict[str, Any]) -> str:
             "## Packet",
             f"- path: `{record['packet']['path']}`",
             f"- status: `{record['packet']['status']}`",
-            f"- recommendation: `{record['packet']['recommendation']}`",
-            "",
-            "## Remote Preflight Intent",
-            f"- host: `{record['conditional_actions']['if_approved_obstacle_summary']['host']}`",
-            f"- observed pending preflight: `{record['remote_preflight_observed']['preflight_status']}`",
+	            f"- recommendation: `{record['packet']['recommendation']}`",
+	            "",
+	            "## Current Authorization Boundary",
+	            f"- authorization_status: `{record['current_authorization']['authorization_status']}`",
+	            f"- current_allowed_action_ids: `{', '.join(record['current_authorization']['current_allowed_action_ids'])}`",
+	            f"- current_blocked_action_ids: `{', '.join(record['current_authorization']['current_blocked_action_ids'])}`",
+	            f"- post_decision_routes_are_current_authorization: `{record['current_authorization']['post_decision_routes_are_current_authorization']}`",
+	            f"- remote_preflight_allowed_now: `{record['current_authorization']['remote_preflight_allowed_now']}`",
+	            f"- remote_training_allowed_now: `{record['current_authorization']['remote_training_allowed_now']}`",
+	            f"- formal_claim_allowed_now: `{record['current_authorization']['formal_claim_allowed_now']}`",
+	            "",
+	            "## Post-Decision Non-Authorization Invariants",
+	            f"- formal_training_still_requires: `{', '.join(record['post_decision_non_authorization_invariants']['formal_training_still_requires'])}`",
+	            f"- blocked_after_decision_record_count: `{len(record['post_decision_non_authorization_invariants']['blocked_after_decision_record'])}`",
+	            "",
+	            "## Remote Preflight Intent",
+	            f"- host: `{record['conditional_actions']['if_approved_obstacle_summary']['host']}`",
+	            f"- observed pending preflight: `{record['remote_preflight_observed']['preflight_status']}`",
             "",
             "```bash",
             record["conditional_actions"]["if_approved_obstacle_summary"]["preflight_command"],
