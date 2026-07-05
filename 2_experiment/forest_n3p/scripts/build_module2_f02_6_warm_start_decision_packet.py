@@ -111,6 +111,7 @@ def build_packet(config: F026DecisionPacketConfig) -> dict[str, Any]:
         "runs_training": False,
         "runs_remote_preflight": False,
         "local_training_allowed": False,
+        "remote_training_allowed": False,
         "formal_claim_allowed": False,
         "blockers": ["requires_dr_sun_approval"],
         "recommendation": {
@@ -142,6 +143,7 @@ def build_packet(config: F026DecisionPacketConfig) -> dict[str, Any]:
             "This packet is decision support, not a formal experiment result.",
             "It does not close F02.6; Dr Sun must explicitly approve or reject the recommendation.",
             "Remote smoke artifacts prove executable CUDA plumbing only; they are not Gate #3 evidence.",
+            "The listed remote command is a post-approval route, not current authorization to train.",
             "No-warm formal failure cannot be relabeled as obstacle-summary warm-start failure.",
             "The obstacle-summary checkpoint is a warm-start initializer candidate, not a finished planner checkpoint.",
         ],
@@ -374,6 +376,7 @@ def _packet_markdown(packet: dict[str, Any]) -> str:
         f"- status: `{packet['status']}`",
         f"- recommendation: `{packet['recommendation']['decision']}`",
         "- decision owner: `Dr Sun`",
+        f"- remote training allowed now: `{packet['remote_training_allowed']}`",
         "",
         "## Key Evidence",
         "",
