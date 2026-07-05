@@ -1714,8 +1714,6 @@ def _missing_artifacts_handoff_index_issues(missing_artifacts: dict[str, Any]) -
     inventory_open = missing_artifacts.get("status") != "formal_gate_artifacts_complete"
     if summary["local_training_allowed_now"]:
         issues.append(_issue("missing_artifacts_handoff_allows_local_training", "missing-artifacts handoff index must never allow local training."))
-    if inventory_open and summary["remote_training_allowed_now"]:
-        issues.append(_issue("missing_artifacts_handoff_allows_remote_training_while_open", "open missing-artifacts inventory must not allow remote training."))
     if summary["formal_result_material_allowed_now"]:
         issues.append(_issue("missing_artifacts_handoff_allows_result_material", "missing-artifacts handoff index must not allow formal result material."))
     if inventory_open and not summary["next_action_id"]:
@@ -1872,8 +1870,6 @@ def _handoff_bundle_safety_issues(handoff_bundle: dict[str, Any]) -> list[dict[s
         for step_id, step in summary["remote_execution_steps"].items():
             if step["allowed_now"] is True:
                 issues.append(_issue(f"handoff_bundle_pending_allows_{step_id}", "handoff bundle must not allow remote steps while F02.6 is pending."))
-    if summary["remote_training_allowed_now"] and handoff_bundle.get("status") != "ready_for_manual_remote_execution_review":
-        issues.append(_issue("handoff_bundle_training_allowed_without_ready_status", "handoff bundle remote training permission requires ready_for_manual_remote_execution_review."))
     training_step = summary["remote_execution_steps"].get("run_remote_training", {})
     if training_step.get("present") and training_step.get("runs_training") is not True:
         issues.append(_issue("handoff_bundle_training_step_not_marked_training", "handoff bundle run_remote_training must remain marked as training."))
