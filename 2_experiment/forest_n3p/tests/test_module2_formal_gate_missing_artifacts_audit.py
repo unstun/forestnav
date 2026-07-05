@@ -188,6 +188,8 @@ def test_missing_artifacts_audit_cli_writes_json_and_markdown(tmp_path):
             str(config.h01_manifest_path),
             "--h02-acceptance",
             str(config.h02_acceptance_path),
+            "--protocol-lane-status-report",
+            str(config.protocol_lane_status_report_path),
         ]
     )
 
