@@ -442,6 +442,22 @@ def _markdown(manifest: dict[str, Any]) -> str:
         "",
     ]
     lines.extend(f"- `{blocker}`" for blocker in manifest["blockers"]) if manifest["blockers"] else lines.append("- none")
+    current_state = manifest.get("current_state", {})
+    lines.extend(["", "## Current Gate State", ""])
+    for key in (
+        "remaining_deliverables_status",
+        "remaining_missing_deliverable_count",
+        "remaining_open_category_count",
+        "source_freshness_ready_for_remote_preflight",
+        "source_freshness_status",
+        "source_freshness_regeneration_required",
+    ):
+        lines.append(f"- {key}: `{current_state.get(key)}`")
+    lines.extend(["", "## Missing Evidence Summary", ""])
+    for category, summary in manifest["formal_gate_missing_evidence_summary"].items():
+        missing = ", ".join(summary["missing_artifact_ids"]) or "none"
+        failed = ", ".join(summary["failed_artifact_ids"]) or "none"
+        lines.append(f"- `{category}`: missing=`{missing}`, failed=`{failed}`")
     lines.extend(["", "## Proof Command Results", ""])
     for result in manifest["proof_command_results"]:
         lines.append(f"### {result['command_id']}")
