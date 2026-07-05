@@ -421,6 +421,64 @@ def _next_required_deliverables_rows(config: FormalGateProofSummaryChainAuditCon
     return rows
 
 
+def _handoff_single_next_action_rows(config: FormalGateProofSummaryChainAuditConfig) -> list[dict[str, Any]]:
+    sources = [
+        (
+            "handoff_bundle_single_next_action_index",
+            config.formal_gate_handoff_bundle_path,
+            ("single_next_action_index",),
+        ),
+        (
+            "claim_safety_handoff_single_next_action_index",
+            config.claim_safety_path,
+            ("handoff_single_next_action_index_summary",),
+        ),
+        (
+            "paper_readiness_claim_safety_handoff_single_next_action_index",
+            config.paper_readiness_path,
+            ("claim_safety_handoff_single_next_action_index_summary",),
+        ),
+    ]
+    baseline_signature: dict[str, Any] | None = None
+    rows: list[dict[str, Any]] = []
+    for row_id, path, key_path in sources:
+        summary = _normalize_handoff_single_next_action(_get_nested(_read_json(path), key_path))
+        signature = _handoff_single_next_action_signature(summary)
+        if baseline_signature is None:
+            baseline_signature = signature
+        rows.append(
+            {
+                "row_id": row_id,
+                "path": str(path),
+                "summary_key_path": ".".join(key_path),
+                "present": summary["present"],
+                "status": summary["status"],
+                "single_current_human_entry": summary["single_current_human_entry"],
+                "next_action_id": summary["next_action_id"],
+                "decision_owner_required": summary["decision_owner_required"],
+                "current_allowed_action_ids": summary["current_allowed_action_ids"],
+                "current_blocked_action_ids": summary["current_blocked_action_ids"],
+                "post_decision_routes_are_current_authorization": summary[
+                    "post_decision_routes_are_current_authorization"
+                ],
+                "all_execution_disabled_now": summary["all_execution_disabled_now"],
+                "local_training_allowed_now": summary["local_training_allowed_now"],
+                "remote_preflight_allowed_now": summary["remote_preflight_allowed_now"],
+                "remote_training_allowed_now": summary["remote_training_allowed_now"],
+                "formal_claim_allowed_now": summary["formal_claim_allowed_now"],
+                "paper_result_material_allowed_now": summary["paper_result_material_allowed_now"],
+                "source_freshness_blocking_regeneration_required": summary[
+                    "source_freshness_blocking_regeneration_required"
+                ],
+                "approved_route_next_lane": summary["approved_route_next_lane"],
+                "after_approval_still_requires": summary["after_approval_still_requires"],
+                "signature": signature,
+                "signature_matches_baseline": summary["present"] and signature == baseline_signature,
+            }
+        )
+    return rows
+
+
 def _audit_issues(*, rows: Sequence[dict[str, Any]], baseline_summary: dict[str, Any]) -> list[dict[str, Any]]:
     issues: list[dict[str, Any]] = []
     if not baseline_summary["present"]:
@@ -563,6 +621,150 @@ def _next_required_deliverables_issues(*, rows: Sequence[dict[str, Any]]) -> lis
                 {
                     "issue_id": f"{row_id}_runs_remote_preflight",
                     "message": "Next-required deliverables summary must not run or authorize remote preflight.",
+                    "path": row["path"],
+                }
+            )
+    return _unique_issues(issues)
+
+
+def _handoff_single_next_action_issues(*, rows: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    required_blocked = {
+        "remote_preflight",
+        "remote_training",
+        "local_training",
+        "formal_claim",
+        "paper_result_material",
+    }
+    for row in rows:
+        row_id = row["row_id"]
+        if not row["present"]:
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_missing_summary",
+                    "message": "Downstream artifact is missing the propagated handoff single-next-action index.",
+                    "path": row["path"],
+                    "summary_key_path": row["summary_key_path"],
+                }
+            )
+            continue
+        if not row["signature_matches_baseline"]:
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_summary_mismatch",
+                    "message": "Downstream handoff single-next-action summary does not match the handoff-bundle baseline.",
+                    "path": row["path"],
+                    "summary_key_path": row["summary_key_path"],
+                    "observed_signature": row["signature"],
+                    "expected_signature": rows[0]["signature"] if rows else {},
+                }
+            )
+        if row["status"] != "awaiting_dr_sun_f02_6_decision":
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_unexpected_status",
+                    "message": "Single-next-action summary must remain pending Dr Sun's F02.6 decision.",
+                    "path": row["path"],
+                    "observed_status": row["status"],
+                }
+            )
+        if row["single_current_human_entry"] is not True:
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_not_single_human_entry",
+                    "message": "Single-next-action summary must expose exactly one current human entry lane.",
+                    "path": row["path"],
+                }
+            )
+        if row["next_action_id"] != "record_f02_6_decision":
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_unexpected_next_action",
+                    "message": "Single-next-action summary must keep the next action at the F02.6 decision record.",
+                    "path": row["path"],
+                    "observed_next_action_id": row["next_action_id"],
+                }
+            )
+        if row["decision_owner_required"] != "Dr Sun":
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_unexpected_decision_owner",
+                    "message": "Single-next-action summary must keep Dr Sun as the required decision owner.",
+                    "path": row["path"],
+                    "observed_decision_owner_required": row["decision_owner_required"],
+                }
+            )
+        if row["current_allowed_action_ids"] != ["record_f02_6_decision"]:
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_unexpected_allowed_actions",
+                    "message": "Only the local F02.6 decision-record action may be allowed.",
+                    "path": row["path"],
+                    "observed_current_allowed_action_ids": row["current_allowed_action_ids"],
+                }
+            )
+        if not required_blocked.issubset(set(row["current_blocked_action_ids"])):
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_missing_blocked_actions",
+                    "message": "Execution and result surfaces must remain blocked while F02.6 is pending.",
+                    "path": row["path"],
+                    "observed_current_blocked_action_ids": row["current_blocked_action_ids"],
+                }
+            )
+        if row["post_decision_routes_are_current_authorization"] is not False:
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_post_decision_route_authorizes_now",
+                    "message": "Post-decision routes must not be treated as current authorization.",
+                    "path": row["path"],
+                }
+            )
+        if row["all_execution_disabled_now"] is not True:
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_execution_not_disabled",
+                    "message": "All execution surfaces must remain disabled now.",
+                    "path": row["path"],
+                }
+            )
+        for flag in (
+            "local_training_allowed_now",
+            "remote_preflight_allowed_now",
+            "remote_training_allowed_now",
+            "formal_claim_allowed_now",
+            "paper_result_material_allowed_now",
+        ):
+            if row[flag] is True:
+                issues.append(
+                    {
+                        "issue_id": f"{row_id}_{flag}",
+                        "message": "Single-next-action summary unexpectedly allows a blocked training, claim, or result surface.",
+                        "path": row["path"],
+                    }
+                )
+        if row["source_freshness_blocking_regeneration_required"] is True:
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_source_freshness_blocks",
+                    "message": "Single-next-action handoff must not hide a blocking source-freshness regeneration requirement.",
+                    "path": row["path"],
+                }
+            )
+        if row["approved_route_next_lane"] != "source_fresh_regeneration":
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_approval_route_skips_source_freshness",
+                    "message": "F02.6 approval must route through source freshness before remote execution.",
+                    "path": row["path"],
+                    "observed_approved_route_next_lane": row["approved_route_next_lane"],
+                }
+            )
+        if "approved_remote_preflight" not in row["after_approval_still_requires"]:
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_approval_skips_remote_preflight",
+                    "message": "F02.6 approval must still require an approved remote preflight before training.",
                     "path": row["path"],
                 }
             )
