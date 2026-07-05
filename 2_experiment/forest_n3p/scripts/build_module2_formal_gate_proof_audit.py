@@ -61,7 +61,7 @@ def build_manifest(config: FormalGateProofAuditConfig) -> dict[str, Any]:
     plan = remaining.get("proof_command_plan") if isinstance(remaining.get("proof_command_plan"), dict) else {}
     matrix = remaining.get("deliverable_acceptance_matrix")
     matrix = matrix if isinstance(matrix, list) else []
-    input_safety_issues = _input_safety_issues(remaining=remaining, plan=plan)
+    input_safety_issues = _input_safety_issues(remaining=remaining, plan=plan, matrix=matrix)
     results = _proof_command_results(matrix=matrix, workspace_root=Path(config.workspace_root))
     category_status_counts = _category_status_counts(results)
     blockers = _blockers(category_status_counts=category_status_counts, input_safety_issues=input_safety_issues)
@@ -228,7 +228,7 @@ def _int_or_none(value: Any) -> int | None:
         return None
 
 
-def _input_safety_issues(*, remaining: dict[str, Any], plan: dict[str, Any]) -> list[dict[str, Any]]:
+def _input_safety_issues(*, remaining: dict[str, Any], plan: dict[str, Any], matrix: Sequence[Any]) -> list[dict[str, Any]]:
     issues: list[dict[str, Any]] = []
     for key in ("executes_commands", "runs_training", "runs_remote_preflight", "local_training_allowed", "formal_claim_allowed"):
         if remaining.get(key) is not False:
@@ -248,6 +248,69 @@ def _input_safety_issues(*, remaining: dict[str, Any], plan: dict[str, Any]) -> 
         issues.append({"issue_id": "proof_plan_runs_remote_preflight", "observed": plan.get("runs_remote_preflight")})
     if plan.get("execution_boundary") != "local_read_only_after_formal_remote_pullback":
         issues.append({"issue_id": "proof_plan_execution_boundary_invalid", "observed": plan.get("execution_boundary")})
+    issues.extend(_proof_command_input_safety_issues(matrix))
+    return issues
+
+
+def _proof_command_input_safety_issues(matrix: Sequence[Any]) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    forbidden_tokens = (
+        "ssh ",
+        "rsync ",
+        "scp ",
+        "preflight_rl_rs_gate3_formal_trial",
+        "run_rl_rs_gate3_trial",
+        "audit_rl_rs_gate3_trial",
+    )
+    for raw_row in matrix:
+        if not isinstance(raw_row, dict):
+            continue
+        matrix_id = str(raw_row.get("matrix_id") or f"{raw_row.get('category', 'unknown')}:{raw_row.get('artifact_id', 'unknown')}")
+        safe_matrix_id = _safe_issue_id(matrix_id)
+        commands = raw_row.get("proof_commands")
+        commands = commands if isinstance(commands, list) else []
+        if int(raw_row.get("proof_command_count") or len(commands)) != len(commands):
+            issues.append(
+                {
+                    "issue_id": f"proof_command_{safe_matrix_id}_count_mismatch",
+                    "observed": raw_row.get("proof_command_count"),
+                }
+            )
+        for raw_command in commands:
+            if not isinstance(raw_command, dict):
+                issues.append({"issue_id": f"proof_command_{safe_matrix_id}_malformed"})
+                continue
+            command_id = str(raw_command.get("command_id") or "unknown_command")
+            safe_command_id = _safe_issue_id(command_id)
+            command_text = str(raw_command.get("command") or "")
+            if raw_command.get("execution_boundary") != "local_read_only_after_formal_remote_pullback":
+                issues.append(
+                    {
+                        "issue_id": f"proof_command_{safe_matrix_id}_{safe_command_id}_wrong_boundary",
+                        "observed": raw_command.get("execution_boundary"),
+                    }
+                )
+            if not command_text.startswith("python -c "):
+                issues.append(
+                    {
+                        "issue_id": f"proof_command_{safe_matrix_id}_{safe_command_id}_not_python_c",
+                        "observed": command_text,
+                    }
+                )
+            if " or " in command_text:
+                issues.append(
+                    {
+                        "issue_id": f"proof_command_{safe_matrix_id}_{safe_command_id}_raw_or_path",
+                        "observed": command_text,
+                    }
+                )
+            if any(token in command_text for token in forbidden_tokens):
+                issues.append(
+                    {
+                        "issue_id": f"proof_command_{safe_matrix_id}_{safe_command_id}_forbidden_execution_token",
+                        "observed": command_text,
+                    }
+                )
     return issues
 
 
@@ -537,6 +600,10 @@ def _resolve_path_candidates(workspace_root: Path, expected_path: str) -> list[P
 def _resolve_path(workspace_root: Path, expected_path: str) -> Path:
     path = Path(expected_path)
     return path if path.is_absolute() else workspace_root / path
+
+
+def _safe_issue_id(value: str) -> str:
+    return "".join(ch if ch.isalnum() else "_" for ch in value).strip("_")
 
 
 def _source_head() -> str:

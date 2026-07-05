@@ -209,6 +209,45 @@ def test_formal_gate_proof_audit_catches_metadata_failures_without_running_comma
     assert "failed_formal_training_artifacts" in manifest["blockers"]
 
 
+def test_formal_gate_proof_audit_rejects_unsafe_upstream_proof_commands(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_proof_audit")
+    _write_complete_pullback(tmp_path)
+    remaining = _remaining_deliverables(tmp_path)
+    rows = {row["artifact_id"]: row for row in remaining["deliverable_acceptance_matrix"]}
+    rows["train_final_model_zip"]["proof_commands"][0]["command"] = (
+        "python -c \"from pathlib import Path; p=Path('train/final_model.zip or train/alternate.zip'); assert p\""
+    )
+    rows["eval_gate3_eval_episodes_csv"]["proof_commands"][0]["command"] = (
+        "ssh gpu3070ti-relay 'python audit.py'"
+    )
+    remaining_path = _write_json(tmp_path / "remaining_deliverables.json", remaining)
+
+    manifest = builder.build_manifest(
+        builder.FormalGateProofAuditConfig(
+            output_dir=tmp_path,
+            remaining_deliverables_path=remaining_path,
+            workspace_root=tmp_path,
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert manifest["status"] == "formal_gate_proof_audit_blocked"
+    assert "proof_audit_input_safety_issues_open" in manifest["blockers"]
+    assert (
+        "proof_command_training_train_final_model_zip_train_final_model_zip_exists_nonempty_raw_or_path"
+        in issue_ids
+    )
+    assert (
+        "proof_command_evaluation_eval_gate3_eval_episodes_csv_eval_gate3_eval_episodes_csv_exists_nonempty_not_python_c"
+        in issue_ids
+    )
+    assert (
+        "proof_command_evaluation_eval_gate3_eval_episodes_csv_eval_gate3_eval_episodes_csv_exists_nonempty_forbidden_execution_token"
+        in issue_ids
+    )
+    assert all(result["command_was_executed"] is False for result in manifest["proof_command_results"])
+
+
 def test_formal_gate_proof_audit_cli_writes_json_and_markdown(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_proof_audit")
     remaining_path = _write_json(tmp_path / "remaining_deliverables.json", _remaining_deliverables(tmp_path))
@@ -394,7 +433,7 @@ def _proof_commands(artifact_id):
         {
             "command_id": command_id,
             "purpose": f"verify {command_id}",
-            "command": f"local-read-only:{command_id}",
+            "command": f"python -c \"print('{command_id}')\"",
             "expected_evidence": _expected_evidence(command_id),
             "execution_boundary": "local_read_only_after_formal_remote_pullback",
         }
