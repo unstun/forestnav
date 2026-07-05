@@ -83,6 +83,12 @@ DEFAULT_ARTIFACTS = (
         "approved_remote_preflight",
     ),
     ArtifactTarget(
+        "post_f02_6_regeneration_plan",
+        "formal_gate",
+        Path("0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json"),
+        "approved_remote_preflight",
+    ),
+    ArtifactTarget(
         "post_f02_6_plan_audit",
         "formal_gate",
         Path("0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json"),

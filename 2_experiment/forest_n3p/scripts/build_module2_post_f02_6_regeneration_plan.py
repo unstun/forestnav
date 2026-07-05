@@ -355,6 +355,8 @@ def _regeneration_command_entry(target: dict[str, Any]) -> dict[str, Any]:
         command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_closure_checklist"
     elif artifact_id == "post_f02_6_plan_audit":
         command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_plan_audit"
+    elif artifact_id == "post_f02_6_regeneration_plan":
+        command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_regeneration_plan"
     elif artifact_id == "formal_gate_missing_artifacts":
         command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_missing_artifacts_audit"
     elif artifact_id == "formal_gate_handoff_bundle":
