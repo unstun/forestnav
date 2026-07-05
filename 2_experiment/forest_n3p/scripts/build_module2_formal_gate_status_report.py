@@ -28,6 +28,9 @@ DEFAULT_REMAINING_DELIVERABLES = Path(
 )
 DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_freshness_audit.json")
 DEFAULT_FORMAL_GATE_PROOF_AUDIT = Path("0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json")
+DEFAULT_MAINLINE_FORMAL_GATE_STATE_AUDIT = Path(
+    "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json"
+)
 REMOTE_EXECUTION_STEP_IDS = (
     "sync_to_remote",
     "run_remote_preflight",
@@ -110,6 +113,7 @@ class FormalGateStatusReportConfig:
     remaining_deliverables_path: Path = DEFAULT_REMAINING_DELIVERABLES
     source_freshness_path: Path = DEFAULT_SOURCE_FRESHNESS
     formal_gate_proof_audit_path: Path = DEFAULT_FORMAL_GATE_PROOF_AUDIT
+    mainline_formal_gate_state_audit_path: Path = DEFAULT_MAINLINE_FORMAL_GATE_STATE_AUDIT
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -132,6 +136,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         remaining_deliverables_path=args.remaining_deliverables,
         source_freshness_path=args.source_freshness,
         formal_gate_proof_audit_path=args.formal_gate_proof_audit,
+        mainline_formal_gate_state_audit_path=args.mainline_formal_gate_state_audit,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -161,6 +166,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     remaining_deliverables = _read_json(config.remaining_deliverables_path)
     source_freshness = _read_json(config.source_freshness_path)
     formal_gate_proof_audit = _read_json(config.formal_gate_proof_audit_path)
+    mainline_formal_gate_state_audit = _read_json(config.mainline_formal_gate_state_audit_path)
     remote_execution_steps = _remote_execution_step_summary(remote_packet)
     remote_preflight_requirements = _remote_requirement_matrix_summary(
         remote_packet=remote_packet,
@@ -193,6 +199,9 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     formal_gate_proof_audit_missing_evidence_summary = formal_gate_proof_audit_summary[
         "missing_evidence_summary"
     ]
+    mainline_formal_gate_state_audit_summary = _mainline_formal_gate_state_audit_summary(
+        mainline_formal_gate_state_audit
+    )
     next_action_guard_summary = _next_action_guard_summary(
         decision=decision,
         decision_intake_summary=decision_intake_summary,
@@ -232,6 +241,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "remaining_deliverables": remaining_deliverables,
             "source_freshness": source_freshness,
             "formal_gate_proof_audit": formal_gate_proof_audit,
+            "mainline_formal_gate_state_audit": mainline_formal_gate_state_audit,
         }
     )
     input_safety_issues = _unique_issues(
@@ -265,6 +275,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             summary=formal_gate_proof_audit_summary,
             proof_plan=remaining_deliverables_proof_command_plan,
         )
+        + _mainline_formal_gate_state_audit_issues(mainline_formal_gate_state_audit_summary)
         + _formal_gate_gap_audit_remaining_deliverables_gap_summary_issues(
             formal_gate=formal_gate,
             formal_gate_gap_summary=formal_gate_gap_audit_remaining_deliverables_gap_summary,
@@ -339,6 +350,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "formal_gate_remaining_deliverables": str(config.remaining_deliverables_path),
             "source_freshness_audit": str(config.source_freshness_path),
             "formal_gate_proof_audit": str(config.formal_gate_proof_audit_path),
+            "mainline_formal_gate_state_audit": str(config.mainline_formal_gate_state_audit_path),
         },
         "current_state": {
             "decision_status": decision.get("status"),
@@ -549,6 +561,19 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
                 "formal_acceptance",
                 "failed_artifact_ids",
             ),
+            "mainline_formal_gate_state_audit_status": mainline_formal_gate_state_audit_summary["status"],
+            "mainline_formal_gate_state_audit_issue_count": mainline_formal_gate_state_audit_summary[
+                "audit_issue_count"
+            ],
+            "mainline_formal_gate_state_audit_proof_summary_chain_status": mainline_formal_gate_state_audit_summary[
+                "proof_summary_chain_status"
+            ],
+            "mainline_formal_gate_state_audit_proof_summary_chain_issue_count": mainline_formal_gate_state_audit_summary[
+                "proof_summary_chain_audit_issue_count"
+            ],
+            "mainline_formal_gate_state_audit_proof_audit_input_safety_issue_count": mainline_formal_gate_state_audit_summary[
+                "proof_summary_chain_proof_audit_input_safety_issue_count"
+            ],
             "handoff_bundle_next_action": handoff_summary["next_handoff_action_id"],
             "handoff_bundle_safety_issue_count": handoff_summary["safety_issue_count"],
             "handoff_bundle_remote_training_allowed_now": handoff_summary["remote_training_allowed_now"],
@@ -651,6 +676,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         ),
         "formal_gate_proof_audit_gap_summary": formal_gate_proof_audit_gap_summary,
         "formal_gate_proof_audit_missing_evidence_summary": formal_gate_proof_audit_missing_evidence_summary,
+        "mainline_formal_gate_state_audit_summary": mainline_formal_gate_state_audit_summary,
         "next_action_guard_summary": next_action_guard_summary,
         "formal_gate_gap_audit_remaining_deliverables_gap_summary": (
             formal_gate_gap_audit_remaining_deliverables_gap_summary
@@ -701,6 +727,11 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--remaining-deliverables", type=Path, default=DEFAULT_REMAINING_DELIVERABLES)
     parser.add_argument("--source-freshness", type=Path, default=DEFAULT_SOURCE_FRESHNESS)
     parser.add_argument("--formal-gate-proof-audit", type=Path, default=DEFAULT_FORMAL_GATE_PROOF_AUDIT)
+    parser.add_argument(
+        "--mainline-formal-gate-state-audit",
+        type=Path,
+        default=DEFAULT_MAINLINE_FORMAL_GATE_STATE_AUDIT,
+    )
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
