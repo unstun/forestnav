@@ -372,6 +372,21 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_decision_record_is_not_paper_result_material": claim_decision_intake_summary[
             "decision_record_is_not_paper_result_material"
         ],
+        "claim_safety_decision_record_authorization_status": claim_decision_intake_summary[
+            "record_authorization_status"
+        ],
+        "claim_safety_decision_record_authorization_current_blocked_action_ids": claim_decision_intake_summary[
+            "record_authorization_current_blocked_action_ids"
+        ],
+        "claim_safety_decision_record_authorization_remote_training_allowed_now": claim_decision_intake_summary[
+            "record_authorization_remote_training_allowed_now"
+        ],
+        "claim_safety_decision_record_authorization_formal_claim_allowed_now": claim_decision_intake_summary[
+            "record_authorization_formal_claim_allowed_now"
+        ],
+        "claim_safety_decision_record_post_decision_non_authorization_count": claim_decision_intake_summary[
+            "record_post_decision_non_authorization_count"
+        ],
         "claim_safety_decision_impact_remote_training_allowed_now": claim_decision_intake_summary[
             "decision_impact_remote_training_allowed_now"
         ],
@@ -1041,6 +1056,46 @@ def _claim_safety_decision_intake_summary(claim_safety: dict[str, Any]) -> dict[
         if isinstance(summary.get("decision_impact_paper_result_material_allowed_now"), bool)
         else None,
         "decision_impact_formal_training_still_requires": impact_required,
+        "record_authorization_status": summary.get("record_authorization_status"),
+        "record_authorization_current_blocked_action_ids": _string_list(
+            summary.get("record_authorization_current_blocked_action_ids")
+        ),
+        "record_authorization_post_decision_routes_are_current_authorization": summary.get(
+            "record_authorization_post_decision_routes_are_current_authorization"
+        )
+        if isinstance(summary.get("record_authorization_post_decision_routes_are_current_authorization"), bool)
+        else None,
+        "record_authorization_remote_preflight_allowed_now": summary.get(
+            "record_authorization_remote_preflight_allowed_now"
+        )
+        if isinstance(summary.get("record_authorization_remote_preflight_allowed_now"), bool)
+        else None,
+        "record_authorization_remote_training_allowed_now": summary.get(
+            "record_authorization_remote_training_allowed_now"
+        )
+        if isinstance(summary.get("record_authorization_remote_training_allowed_now"), bool)
+        else None,
+        "record_authorization_local_training_allowed_now": summary.get(
+            "record_authorization_local_training_allowed_now"
+        )
+        if isinstance(summary.get("record_authorization_local_training_allowed_now"), bool)
+        else None,
+        "record_authorization_formal_claim_allowed_now": summary.get(
+            "record_authorization_formal_claim_allowed_now"
+        )
+        if isinstance(summary.get("record_authorization_formal_claim_allowed_now"), bool)
+        else None,
+        "record_authorization_paper_result_material_allowed_now": summary.get(
+            "record_authorization_paper_result_material_allowed_now"
+        )
+        if isinstance(summary.get("record_authorization_paper_result_material_allowed_now"), bool)
+        else None,
+        "record_post_decision_non_authorization_count": int(
+            summary.get("record_post_decision_non_authorization_count") or 0
+        ),
+        "record_post_decision_formal_training_still_requires": _string_list(
+            summary.get("record_post_decision_formal_training_still_requires")
+        ),
         "decision_evidence_matrix_summary": evidence_matrix,
         "decision_evidence_matrix_present": bool(evidence_matrix.get("present")) or bool(evidence_matrix),
         "decision_evidence_matrix_id": evidence_matrix.get("matrix_id"),
@@ -1142,6 +1197,38 @@ def _claim_safety_decision_intake_blockers(claim_safety: dict[str, Any]) -> list
         blockers.append("claim_safety_f02_6_decision_record_may_authorize_training")
     if summary["decision_record_is_not_paper_result_material"] is not True:
         blockers.append("claim_safety_f02_6_decision_record_may_be_paper_result_material")
+    expected_record_authorization_status = (
+        "blocked_until_dr_sun_decision"
+        if summary["record_status"] == "pending_human_decision"
+        else "decision_recorded_not_execution_authorization"
+    )
+    if summary["record_authorization_status"] != expected_record_authorization_status:
+        blockers.append("claim_safety_f02_6_record_authorization_status_invalid")
+    required_blocked_actions = {
+        "remote_preflight",
+        "remote_training",
+        "local_training",
+        "formal_claim",
+        "paper_result_material",
+    }
+    if required_blocked_actions.difference(summary["record_authorization_current_blocked_action_ids"]):
+        blockers.append("claim_safety_f02_6_record_authorization_missing_blocked_actions")
+    if summary["record_authorization_post_decision_routes_are_current_authorization"] is not False:
+        blockers.append("claim_safety_f02_6_record_authorization_treats_routes_as_current_authorization")
+    for field, blocker in (
+        ("record_authorization_remote_preflight_allowed_now", "claim_safety_f02_6_record_authorization_allows_remote_preflight"),
+        ("record_authorization_remote_training_allowed_now", "claim_safety_f02_6_record_authorization_allows_remote_training"),
+        ("record_authorization_local_training_allowed_now", "claim_safety_f02_6_record_authorization_allows_local_training"),
+        ("record_authorization_formal_claim_allowed_now", "claim_safety_f02_6_record_authorization_allows_formal_claim"),
+        (
+            "record_authorization_paper_result_material_allowed_now",
+            "claim_safety_f02_6_record_authorization_allows_paper_result_material",
+        ),
+    ):
+        if summary[field] is not False:
+            blockers.append(blocker)
+    if summary["record_post_decision_non_authorization_count"] < 4:
+        blockers.append("claim_safety_f02_6_record_non_authorizations_incomplete")
     for field, blocker in (
         ("decision_impact_remote_preflight_allowed_now", "claim_safety_f02_6_decision_impact_allows_remote_preflight"),
         ("decision_impact_remote_training_allowed_now", "claim_safety_f02_6_decision_impact_allows_remote_training"),
@@ -1157,6 +1244,8 @@ def _claim_safety_decision_intake_blockers(claim_safety: dict[str, Any]) -> list
         "remote_formal_execution_packet_ready",
         "approved_remote_preflight",
     ):
+        if required not in summary["record_post_decision_formal_training_still_requires"]:
+            blockers.append(f"claim_safety_f02_6_record_non_authorization_missing_required_{required}")
         if required not in summary["decision_impact_formal_training_still_requires"]:
             blockers.append(f"claim_safety_f02_6_decision_impact_missing_required_{required}")
     if summary["decision_evidence_matrix_present"] is not True:
