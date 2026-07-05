@@ -3803,6 +3803,17 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.append(
         f"- decision_impact_missing_deliverable_count: `{intake['decision_impact_missing_deliverable_count']}`"
     )
+    lines.append(f"- decision_evidence_matrix_status: `{intake['decision_evidence_matrix_status']}`")
+    lines.append(f"- decision_evidence_matrix_route_count: `{intake['decision_evidence_matrix_route_count']}`")
+    lines.append(
+        f"- decision_evidence_matrix_required_evidence_count: `{intake['decision_evidence_matrix_required_evidence_count']}`"
+    )
+    lines.append(
+        f"- decision_evidence_matrix_missing_required_evidence_count: `{intake['decision_evidence_matrix_missing_required_evidence_count']}`"
+    )
+    lines.append(
+        f"- decision_evidence_matrix_remote_training_allowed_now: `{intake['decision_evidence_matrix_remote_training_allowed_now']}`"
+    )
     lines.append(
         "- decision_record_is_not_training_authorization: "
         f"`{intake['decision_record_is_not_training_authorization']}`"
