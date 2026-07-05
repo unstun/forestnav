@@ -288,6 +288,7 @@ def _contract_output_requirements() -> dict[str, Any]:
         "allowed_status_before_training": ["approved", "frozen"],
         "draft_status_allows_training": False,
         "required_sections": [
+            "protocol_lane",
             "hypothesis",
             "success_signal",
             "failure_signal",
