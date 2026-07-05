@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-05T00:50:15.291610+00:00",
-  "source_head": "9af2ba3aeaadc49853c989079792632d7f2a55b6",
+  "created_at_utc": "2026-07-05T01:12:35.570213+00:00",
+  "source_head": "ad69fc1bc1f7265d14b1b8c223de2274d7808c8d",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -87,6 +87,10 @@
     "formal_gate_proof_audit_blocked_count": 16,
     "formal_gate_proof_audit_missing_artifact_count": 8,
     "formal_gate_proof_audit_failed_acceptance_artifact_count": 2,
+    "formal_gate_proof_audit_training_missing_artifact_count": 3,
+    "formal_gate_proof_audit_evaluation_missing_artifact_count": 2,
+    "formal_gate_proof_audit_acceptance_missing_artifact_count": 3,
+    "formal_gate_proof_audit_formal_acceptance_failed_artifact_count": 2,
     "handoff_bundle_next_action": "record_f02_6_decision",
     "handoff_bundle_safety_issue_count": 0,
     "handoff_bundle_remote_training_allowed_now": false,
@@ -1787,6 +1791,38 @@
         "command_was_executed": false,
         "diagnostic": "h02_formal_output_acceptance_status failed: ; expected formal_output_accepted=true and paper_result_input_allowed=true"
       }
+    },
+    "missing_evidence_summary": {
+      "training": {
+        "missing_artifact_ids": [
+          "train_final_model_zip",
+          "train_summary_json",
+          "train_training_manifest_json"
+        ],
+        "failed_artifact_ids": []
+      },
+      "evaluation": {
+        "missing_artifact_ids": [
+          "eval_gate3_eval_episodes_csv",
+          "eval_gate3_summary_json"
+        ],
+        "failed_artifact_ids": []
+      },
+      "acceptance": {
+        "missing_artifact_ids": [
+          "gate3_trial_manifest_json",
+          "gate3_formal_audit_json",
+          "pulled_back_checkpoint_hash_record"
+        ],
+        "failed_artifact_ids": []
+      },
+      "formal_acceptance": {
+        "missing_artifact_ids": [],
+        "failed_artifact_ids": [
+          "h01_ready_for_formal_run",
+          "h02_formal_output_acceptance"
+        ]
+      }
     }
   },
   "formal_gate_proof_audit_gap_summary": {
@@ -1899,6 +1935,38 @@
           "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
         ]
       }
+    }
+  },
+  "formal_gate_proof_audit_missing_evidence_summary": {
+    "training": {
+      "missing_artifact_ids": [
+        "train_final_model_zip",
+        "train_summary_json",
+        "train_training_manifest_json"
+      ],
+      "failed_artifact_ids": []
+    },
+    "evaluation": {
+      "missing_artifact_ids": [
+        "eval_gate3_eval_episodes_csv",
+        "eval_gate3_summary_json"
+      ],
+      "failed_artifact_ids": []
+    },
+    "acceptance": {
+      "missing_artifact_ids": [
+        "gate3_trial_manifest_json",
+        "gate3_formal_audit_json",
+        "pulled_back_checkpoint_hash_record"
+      ],
+      "failed_artifact_ids": []
+    },
+    "formal_acceptance": {
+      "missing_artifact_ids": [],
+      "failed_artifact_ids": [
+        "h01_ready_for_formal_run",
+        "h02_formal_output_acceptance"
+      ]
     }
   },
   "next_action_guard_summary": {

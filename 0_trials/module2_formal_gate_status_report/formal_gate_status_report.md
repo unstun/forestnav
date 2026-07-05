@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `9af2ba3aeaadc49853c989079792632d7f2a55b6`
+- source_head: `ad69fc1bc1f7265d14b1b8c223de2274d7808c8d`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -72,6 +72,10 @@ This file is a read-only formal-gate status report. It does not execute commands
 - formal_gate_proof_audit_blocked_count: `16`
 - formal_gate_proof_audit_missing_artifact_count: `8`
 - formal_gate_proof_audit_failed_acceptance_artifact_count: `2`
+- formal_gate_proof_audit_training_missing_artifact_count: `3`
+- formal_gate_proof_audit_evaluation_missing_artifact_count: `2`
+- formal_gate_proof_audit_acceptance_missing_artifact_count: `3`
+- formal_gate_proof_audit_formal_acceptance_failed_artifact_count: `2`
 - handoff_bundle_next_action: `record_f02_6_decision`
 - handoff_bundle_safety_issue_count: `0`
 - handoff_bundle_remote_training_allowed_now: `False`
