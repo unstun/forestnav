@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-05T02:28:02.444169+00:00",
-  "source_head": "eaeb7f90d66edae27ec6c5594617cd3b6642be8a",
+  "created_at_utc": "2026-07-05T03:07:59.371539+00:00",
+  "source_head": "6ed0ca78b99e41d8ce86946d2672cfbd0325ddf0+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -102,10 +102,18 @@
     "formal_gate_execution_veto_formal_claim_allowed_now": false,
     "formal_gate_gap_audit_remaining_total_missing_deliverables": 10,
     "formal_gate_gap_audit_remaining_open_category_count": 4,
+    "remote_packet_safety_proof_summary_present": true,
+    "remote_packet_safety_proof_training_missing_count": 3,
+    "remote_packet_safety_proof_evaluation_missing_count": 2,
+    "remote_packet_safety_proof_acceptance_missing_count": 3,
+    "remote_packet_safety_proof_formal_acceptance_missing_count": 2,
+    "remote_packet_safety_proof_next_blocked_lane": "decision",
+    "remote_packet_safety_proof_h02_paper_result_input_allowed": false,
+    "remote_packet_safety_status_report_proof_summary_present": true,
     "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
     "source_freshness_regeneration_required": true,
-    "source_freshness_non_self_changed_records": 18,
-    "source_freshness_self_artifact_only_lag_records": 1,
+    "source_freshness_non_self_changed_records": 19,
+    "source_freshness_self_artifact_only_lag_records": 0,
     "remote_packet_safety_command_index_present": true,
     "remote_packet_safety_command_index_row_count": 19,
     "remote_packet_safety_command_index_source_target_count": 19,
@@ -2210,6 +2218,74 @@
         "missing_artifacts": []
       }
     }
+  },
+  "remote_packet_safety_proof_deliverables_summary": {
+    "present": true,
+    "missing_counts_by_formal_category": {
+      "training": 3,
+      "evaluation": 2,
+      "acceptance": 3,
+      "formal_acceptance": 2
+    },
+    "missing_matrix_ids_by_formal_category": {
+      "training": [
+        "training:train_final_model_zip",
+        "training:train_summary_json",
+        "training:train_training_manifest_json"
+      ],
+      "evaluation": [
+        "evaluation:eval_gate3_eval_episodes_csv",
+        "evaluation:eval_gate3_summary_json"
+      ],
+      "acceptance": [
+        "acceptance:gate3_trial_manifest_json",
+        "acceptance:gate3_formal_audit_json",
+        "acceptance:pulled_back_checkpoint_hash_record"
+      ],
+      "formal_acceptance": [
+        "formal_acceptance:h01_ready_for_formal_run",
+        "formal_acceptance:h02_formal_output_acceptance"
+      ]
+    },
+    "next_blocked_lane": "decision",
+    "h01_status": "blocked_pending_decisions",
+    "h02_status": "blocked_formal_output_acceptance",
+    "h02_formal_output_accepted": false,
+    "h02_paper_result_input_allowed": false
+  },
+  "remote_packet_safety_status_report_proof_deliverables_summary": {
+    "present": true,
+    "missing_counts_by_formal_category": {
+      "training": 3,
+      "evaluation": 2,
+      "acceptance": 3,
+      "formal_acceptance": 2
+    },
+    "missing_matrix_ids_by_formal_category": {
+      "training": [
+        "training:train_final_model_zip",
+        "training:train_summary_json",
+        "training:train_training_manifest_json"
+      ],
+      "evaluation": [
+        "evaluation:eval_gate3_eval_episodes_csv",
+        "evaluation:eval_gate3_summary_json"
+      ],
+      "acceptance": [
+        "acceptance:gate3_trial_manifest_json",
+        "acceptance:gate3_formal_audit_json",
+        "acceptance:pulled_back_checkpoint_hash_record"
+      ],
+      "formal_acceptance": [
+        "formal_acceptance:h01_ready_for_formal_run",
+        "formal_acceptance:h02_formal_output_acceptance"
+      ]
+    },
+    "next_blocked_lane": "decision",
+    "h01_status": "blocked_pending_decisions",
+    "h02_status": "blocked_formal_output_acceptance",
+    "h02_formal_output_accepted": false,
+    "h02_paper_result_input_allowed": false
   },
   "remote_packet_safety_claim_gate_command_index_summary": {
     "present": true,

@@ -1104,7 +1104,7 @@ def _formal_gate(*, complete):
         "remote_packet_safety": {
             "claim_gate_command_index_summary": _command_index_summary(),
             "proof_deliverables_summary": proof_summary,
-            "status_report_proof_deliverables_summary": dict(proof_summary),
+            "status_report_proof_deliverables_summary": json.loads(json.dumps(proof_summary)),
         },
         "ordered_next_steps": [
             {"step_id": "F02.6", "status": "complete" if complete else "blocked", "blocked_by": [] if complete else ["f02_6_decision_not_approved"]},

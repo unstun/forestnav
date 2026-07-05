@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `eaeb7f90d66edae27ec6c5594617cd3b6642be8a`
+- source_head: `6ed0ca78b99e41d8ce86946d2672cfbd0325ddf0+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -87,10 +87,18 @@ This file is a read-only formal-gate status report. It does not execute commands
 - formal_gate_execution_veto_formal_claim_allowed_now: `False`
 - formal_gate_gap_audit_remaining_total_missing_deliverables: `10`
 - formal_gate_gap_audit_remaining_open_category_count: `4`
+- remote_packet_safety_proof_summary_present: `True`
+- remote_packet_safety_proof_training_missing_count: `3`
+- remote_packet_safety_proof_evaluation_missing_count: `2`
+- remote_packet_safety_proof_acceptance_missing_count: `3`
+- remote_packet_safety_proof_formal_acceptance_missing_count: `2`
+- remote_packet_safety_proof_next_blocked_lane: `decision`
+- remote_packet_safety_proof_h02_paper_result_input_allowed: `False`
+- remote_packet_safety_status_report_proof_summary_present: `True`
 - source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
 - source_freshness_regeneration_required: `True`
-- source_freshness_non_self_changed_records: `18`
-- source_freshness_self_artifact_only_lag_records: `1`
+- source_freshness_non_self_changed_records: `19`
+- source_freshness_self_artifact_only_lag_records: `0`
 - remote_packet_safety_command_index_present: `True`
 - remote_packet_safety_command_index_row_count: `19`
 - remote_packet_safety_command_index_source_target_count: `19`
@@ -319,6 +327,22 @@ This file is a read-only formal-gate status report. It does not execute commands
 - total_missing_deliverables: `10`
 - open_category_count: `4`
 - matches_ledger_signature: `True`
+
+## Remote Packet Safety Proof Deliverables Summary
+
+- proof_summary_present: `True`
+- proof_missing_counts_by_formal_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
+- proof_next_blocked_lane: `decision`
+- proof_h01_status: `blocked_pending_decisions`
+- proof_h02_status: `blocked_formal_output_acceptance`
+- proof_h02_paper_result_input_allowed: `False`
+- status_report_proof_summary_present: `True`
+- status_report_proof_matches_remote_proof: `True`
+- remote_proof_matches_proof_audit: `True`
+- remote_proof_training_missing_matrix_ids: `training:train_final_model_zip, training:train_summary_json, training:train_training_manifest_json`
+- remote_proof_evaluation_missing_matrix_ids: `evaluation:eval_gate3_eval_episodes_csv, evaluation:eval_gate3_summary_json`
+- remote_proof_acceptance_missing_matrix_ids: `acceptance:gate3_trial_manifest_json, acceptance:gate3_formal_audit_json, acceptance:pulled_back_checkpoint_hash_record`
+- remote_proof_formal_acceptance_missing_matrix_ids: `formal_acceptance:h01_ready_for_formal_run, formal_acceptance:h02_formal_output_acceptance`
 
 ## Remote Packet Safety Claim-Gate Command Index
 
