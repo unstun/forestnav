@@ -396,6 +396,12 @@ def _cross_gate_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any],
     )
     plan_gap = _normalize_gap_summary(plan_audit.get("remaining_deliverables_gap_summary"))
     status_gap = _normalize_gap_summary(status_summary.get("remaining_deliverables_gap_summary"))
+    plan_proof_deliverables = _normalize_proof_deliverables_summary(
+        plan_audit.get("status_report_proof_audit_deliverables_summary")
+    )
+    status_proof_deliverables = _normalize_proof_deliverables_summary(
+        status_summary.get("proof_audit_deliverables_summary")
+    )
     if plan_audit and status_summary and not status_step_summary:
         issues.append(_issue("post_plan_missing_status_report_remote_step_summary", "Post-F02.6 plan audit must forward status report remote execution step summary."))
     if plan_audit and status_summary and not handoff_summary:
@@ -470,6 +476,60 @@ def _cross_gate_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any],
                 observed={"post_plan": _gap_signature(plan_gap), "status_report": _gap_signature(status_gap)},
             )
         )
+    if plan_audit and not plan_proof_deliverables["present"]:
+        issues.append(
+            _issue(
+                "post_plan_missing_proof_audit_deliverables_summary",
+                "Post-F02.6 plan audit must expose proof-audit deliverables summary before remote packet safety can pass.",
+            )
+        )
+    if plan_audit and status_summary and not status_proof_deliverables["present"]:
+        issues.append(
+            _issue(
+                "post_plan_status_report_missing_proof_audit_deliverables_summary",
+                "Status report summary must forward proof-audit deliverables summary.",
+            )
+        )
+    if (
+        plan_proof_deliverables["present"]
+        and status_proof_deliverables["present"]
+        and _proof_deliverables_signature(plan_proof_deliverables) != _proof_deliverables_signature(status_proof_deliverables)
+    ):
+        issues.append(
+            _issue(
+                "post_plan_status_report_proof_audit_deliverables_summary_mismatch",
+                "Post-plan and status-report proof-audit deliverable summaries must agree before remote packet safety can pass.",
+                observed={
+                    "post_plan": _proof_deliverables_signature(plan_proof_deliverables),
+                    "status_report": _proof_deliverables_signature(status_proof_deliverables),
+                },
+            )
+        )
+    if _proof_deliverables_open(plan_proof_deliverables):
+        if status_summary.get("formal_claim_allowed_now") is True:
+            issues.append(
+                _issue(
+                    "status_report_allows_formal_claim_with_proof_deliverables_missing",
+                    "Formal claim must remain blocked while proof-audit deliverables summary still has missing formal artifacts.",
+                    observed=_proof_deliverables_signature(plan_proof_deliverables),
+                )
+            )
+        if status_summary.get("status") == "formal_gate_status_ready_for_claim_audit":
+            issues.append(
+                _issue(
+                    "status_report_ready_with_proof_deliverables_missing",
+                    "Status report cannot be ready for claim audit while proof-audit deliverables summary still has missing formal artifacts.",
+                    observed=_proof_deliverables_signature(plan_proof_deliverables),
+                )
+            )
+        if plan_proof_deliverables.get("h02_paper_result_input_allowed") is True:
+            issues.append(
+                _issue(
+                    "proof_deliverables_allow_h02_paper_input_while_missing",
+                    "H02 paper-result input must remain blocked while proof-audit deliverables summary is still open.",
+                    observed=_proof_deliverables_signature(plan_proof_deliverables),
+                )
+            )
     if status_step_summary:
         packet_summary = _packet_summary(packet)
         for step_id, (allowed_key, blocked_key) in REMOTE_STATUS_STEP_MAP.items():
@@ -669,6 +729,12 @@ def _cross_gate_summary(*, decision_gate: dict[str, Any], plan_audit: dict[str, 
     )
     plan_gap = _normalize_gap_summary(plan_audit.get("remaining_deliverables_gap_summary"))
     status_gap = _normalize_gap_summary(status_summary.get("remaining_deliverables_gap_summary"))
+    plan_proof_deliverables = _normalize_proof_deliverables_summary(
+        plan_audit.get("status_report_proof_audit_deliverables_summary")
+    )
+    status_proof_deliverables = _normalize_proof_deliverables_summary(
+        status_summary.get("proof_audit_deliverables_summary")
+    )
     return {
         "decision_gate_status": decision_gate.get("status"),
         "f02_6_record_status": decision.get("record_status"),
@@ -686,6 +752,8 @@ def _cross_gate_summary(*, decision_gate: dict[str, Any], plan_audit: dict[str, 
         "post_plan_source_regeneration_command_index_summary": command_index_summary,
         "post_plan_remaining_deliverables_gap_summary": plan_gap,
         "post_plan_status_report_remaining_deliverables_gap_summary": status_gap,
+        "post_plan_proof_audit_deliverables_summary": plan_proof_deliverables,
+        "post_plan_status_report_proof_audit_deliverables_summary": status_proof_deliverables,
     }
 
 
@@ -728,6 +796,60 @@ def _normalize_gap_summary(raw: Any) -> dict[str, Any]:
         else list(categories),
         "categories": categories,
     }
+
+
+def _normalize_proof_deliverables_summary(raw: Any) -> dict[str, Any]:
+    summary = raw if isinstance(raw, dict) else {}
+    counts = summary.get("missing_counts_by_formal_category")
+    ids_by_category = summary.get("missing_matrix_ids_by_formal_category")
+    return {
+        "present": bool(summary),
+        "missing_counts_by_formal_category": {
+            str(category): int(count or 0)
+            for category, count in counts.items()
+            if category
+        }
+        if isinstance(counts, dict)
+        else {},
+        "missing_matrix_ids_by_formal_category": {
+            str(category): [str(item) for item in ids if item]
+            for category, ids in ids_by_category.items()
+            if category and isinstance(ids, list)
+        }
+        if isinstance(ids_by_category, dict)
+        else {},
+        "next_blocked_lane": summary.get("next_blocked_lane"),
+        "h01_status": summary.get("h01_status"),
+        "h02_status": summary.get("h02_status"),
+        "h02_formal_output_accepted": summary.get("h02_formal_output_accepted")
+        if isinstance(summary.get("h02_formal_output_accepted"), bool)
+        else None,
+        "h02_paper_result_input_allowed": summary.get("h02_paper_result_input_allowed")
+        if isinstance(summary.get("h02_paper_result_input_allowed"), bool)
+        else None,
+    }
+
+
+def _proof_deliverables_signature(summary: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "missing_counts_by_formal_category": {
+            key: summary["missing_counts_by_formal_category"].get(key)
+            for key in sorted(summary.get("missing_counts_by_formal_category", {}))
+        },
+        "missing_matrix_ids_by_formal_category": {
+            key: summary["missing_matrix_ids_by_formal_category"].get(key, [])
+            for key in sorted(summary.get("missing_matrix_ids_by_formal_category", {}))
+        },
+        "next_blocked_lane": summary.get("next_blocked_lane"),
+        "h01_status": summary.get("h01_status"),
+        "h02_status": summary.get("h02_status"),
+        "h02_formal_output_accepted": summary.get("h02_formal_output_accepted"),
+        "h02_paper_result_input_allowed": summary.get("h02_paper_result_input_allowed"),
+    }
+
+
+def _proof_deliverables_open(summary: dict[str, Any]) -> bool:
+    return sum(int(count) for count in summary.get("missing_counts_by_formal_category", {}).values()) > 0
 
 
 def _normalize_gap_categories(raw_categories: Any) -> dict[str, dict[str, Any]]:
@@ -848,6 +970,9 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- post_plan_command_index_forbidden_command_count: `{manifest['cross_gate_summary']['post_plan_source_regeneration_command_index_summary'].get('forbidden_command_count')}`",
         f"- post_plan_remaining_deliverables_gap_total_missing: `{manifest['cross_gate_summary']['post_plan_remaining_deliverables_gap_summary'].get('total_missing_deliverables')}`",
         f"- post_plan_status_report_gap_total_missing: `{manifest['cross_gate_summary']['post_plan_status_report_remaining_deliverables_gap_summary'].get('total_missing_deliverables')}`",
+        f"- post_plan_proof_deliverables_present: `{manifest['cross_gate_summary']['post_plan_proof_audit_deliverables_summary'].get('present')}`",
+        f"- post_plan_proof_deliverables_missing_counts: `{manifest['cross_gate_summary']['post_plan_proof_audit_deliverables_summary'].get('missing_counts_by_formal_category')}`",
+        f"- post_plan_proof_deliverables_h02_paper_result_input_allowed: `{manifest['cross_gate_summary']['post_plan_proof_audit_deliverables_summary'].get('h02_paper_result_input_allowed')}`",
         "",
         "## Audit Issues",
         "",
