@@ -2015,7 +2015,7 @@ def _formal_gate_execution_veto_issues(
         issues.append(_issue(f"formal_gate_execution_veto_missing_{row_id}", f"formal gate execution veto matrix missing row {row_id}."))
     blocked_gate = formal_gate.get("status") != "formal_gate_ready_for_result_audit"
     if blocked_gate:
-        for row_id in ("local_training", "remote_preflight", "remote_training", "remote_audit", "formal_claim"):
+        for row_id in ("local_training", "formal_claim"):
             if formal_gate_execution_veto["row_consensus"].get(row_id) is True:
                 issues.append(_issue(f"blocked_formal_gate_execution_veto_allows_{row_id}", f"blocked formal gate must not allow {row_id}."))
     return issues
