@@ -232,6 +232,10 @@ def _run_scenario(*, config: F026TransitionGateAuditConfig, scenario_id: str, wo
         _read_json(config.remaining_deliverables_path),
         scenario_id,
     )
+    formal_gate_proof_audit = _scenario_formal_gate_proof_audit(
+        _read_json(config.formal_gate_proof_audit_path),
+        remaining_deliverables,
+    )
     formal_gate_path = _write_json(work_root / "formal_gate_gap_audit.json", formal_gate)
     missing_artifacts_path = _write_json(work_root / "formal_gate_missing_artifacts.json", missing_artifacts)
     closure_checklist_path = _write_json(work_root / "formal_gate_closure_checklist.json", closure_checklist)
@@ -242,6 +246,10 @@ def _run_scenario(*, config: F026TransitionGateAuditConfig, scenario_id: str, wo
     remaining_deliverables_path = _write_json(
         work_root / "formal_gate_remaining_deliverables.json",
         remaining_deliverables,
+    )
+    formal_gate_proof_audit_path = _write_json(
+        work_root / "formal_gate_proof_audit.json",
+        formal_gate_proof_audit,
     )
 
     status_report = status_report_builder.build_manifest(
@@ -260,6 +268,7 @@ def _run_scenario(*, config: F026TransitionGateAuditConfig, scenario_id: str, wo
             handoff_bundle_path=handoff_bundle_path,
             remaining_deliverables_path=remaining_deliverables_path,
             source_freshness_path=source_freshness_path,
+            formal_gate_proof_audit_path=formal_gate_proof_audit_path,
         )
     )
     status_report_path = _write_json(work_root / "formal_gate_status_report.json", status_report)
