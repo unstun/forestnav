@@ -186,6 +186,14 @@
 - claim_safety_next_required_formal_deliverables_blocked_category_count: `4`
 - claim_safety_next_required_formal_deliverables_row_count: `10`
 
+## Claim Safety Mainline Formal Gate State Audit
+
+- claim_safety_mainline_audit_present: `True`
+- claim_safety_mainline_audit_status: `mainline_formal_gate_state_consistent_blocked`
+- claim_safety_mainline_audit_issue_count: `0`
+- claim_safety_mainline_audit_proof_summary_issue_count: `0`
+- claim_safety_mainline_audit_proof_audit_input_safety_issue_count: `0`
+
 ## Section Readiness
 
 ### method_algorithm

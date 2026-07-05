@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_claim_safety",
   "status": "blocked_formal_performance_claims",
-  "created_at_utc": "2026-07-05T14:11:06.834719+00:00",
-  "source_head": "ce3cc78c3d943d26af628e1d13046ee78b266d3f",
+  "created_at_utc": "2026-07-05T14:29:01.291394+00:00",
+  "source_head": "181860fa90c7f5f35dfb9bc224ca84c849a60d8a",
   "formal_performance_claim_allowed": false,
   "formal_performance_blockers": [
     "paper_tables_not_formal",
@@ -108,6 +108,11 @@
     "status_report_next_required_formal_deliverables_total_missing": 10,
     "status_report_next_required_formal_deliverables_blocked_category_count": 4,
     "status_report_next_required_formal_deliverables_row_count": 10,
+    "status_report_mainline_audit_present": true,
+    "status_report_mainline_audit_status": "mainline_formal_gate_state_consistent_blocked",
+    "status_report_mainline_audit_issue_count": 0,
+    "status_report_mainline_audit_proof_summary_issue_count": 0,
+    "status_report_mainline_audit_proof_audit_input_safety_issue_count": 0,
     "status_report_handoff_status": "blocked_until_f02_6_decision",
     "status_report_transition_gate_status": "f02_6_transition_gate_audit_passed",
     "status_report_transition_gate_audit_issue_count": 0,
@@ -1210,6 +1215,26 @@
         "invalid_substitute_count": 3
       }
     }
+  },
+  "status_report_mainline_formal_gate_state_audit_summary": {
+    "present": true,
+    "status": "mainline_formal_gate_state_consistent_blocked",
+    "not_paper_result_material": true,
+    "executes_commands": false,
+    "runs_training": false,
+    "runs_remote_preflight": false,
+    "local_training_allowed": false,
+    "formal_claim_allowed": false,
+    "audit_issue_count": 0,
+    "proof_summary_chain_status": "formal_gate_proof_summary_chain_consistent_blocked",
+    "proof_summary_chain_audit_issue_count": 0,
+    "proof_summary_chain_proof_audit_input_safety_issue_count": 0,
+    "proof_summary_chain_proof_audit_blockers": [
+      "missing_formal_training_artifacts",
+      "missing_formal_evaluation_artifacts",
+      "missing_formal_acceptance_artifacts",
+      "failed_formal_h01_h02_acceptance_artifacts"
+    ]
   },
   "status_report_remote_gate_summary": {
     "closure_remote_stage_summary": {

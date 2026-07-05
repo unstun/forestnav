@@ -56,6 +56,10 @@
 
 - present=`True`, status=`next_action_guard_passed`, pending_f02_6_decision=`True`, expected_next_action_id=`record_f02_6_decision`, all_execution_disabled_now=`True`, execution_leak_count=`0`
 
+## Status Report Mainline Formal Gate State Audit
+
+- present=`True`, status=`mainline_formal_gate_state_consistent_blocked`, audit_issue_count=`0`, proof_summary_chain_status=`formal_gate_proof_summary_chain_consistent_blocked`, proof_summary_chain_audit_issue_count=`0`, proof_summary_chain_proof_audit_input_safety_issue_count=`0`
+
 ## Handoff Single Next-Action Index
 
 - present=`True`, status=`awaiting_dr_sun_f02_6_decision`, next_action_id=`record_f02_6_decision`, decision_owner_required=`Dr Sun`, single_current_human_entry=`True`, all_execution_disabled_now=`True`, missing_deliverable_count=`10`, source_freshness_status=`source_freshness_clean_current`, remote_training_allowed_now=`False`, formal_claim_allowed_now=`False`, paper_result_material_allowed_now=`False`
