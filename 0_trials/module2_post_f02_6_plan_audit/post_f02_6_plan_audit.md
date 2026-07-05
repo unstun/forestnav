@@ -16,6 +16,20 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - ready_stage_ids: `['f02_6_decision_record']`
 - blocked_stage_ids: `['regenerate_preflight_gate_artifacts', 'approved_remote_preflight', 'regenerate_remote_execution_packet', 'gate3_remote_training', 'gate3_remote_audit_pullback', 'regenerate_h01_h02_formal_artifacts', 'regenerate_claim_gate_artifacts']`
 
+## F02.6 Human Decision Request
+
+- present: `True`
+- status: `awaiting_dr_sun_decision`
+- decision_owner_required: `Dr Sun`
+- current_allowed_action_ids: `['record_f02_6_decision']`
+- current_blocked_action_ids: `['remote_preflight', 'remote_training', 'local_training', 'formal_claim', 'paper_result_material']`
+- post_decision_routes_are_current_authorization: `False`
+- all_execution_disabled_now: `True`
+- remote_preflight_allowed_now: `False`
+- remote_training_allowed_now: `False`
+- formal_claim_allowed_now: `False`
+- local_training_allowed_now: `False`
+
 ## Source Regeneration Command Index
 
 - present: `True`
