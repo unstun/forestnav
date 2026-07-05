@@ -3,18 +3,18 @@
 This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
 - status: `post_f02_6_plan_audit_failed`
-- audit_issue_count: `9`
+- audit_issue_count: `14`
 - executes_commands: `False`
 - runs_training: `False`
 - runs_remote_preflight: `False`
 
 ## Current Blocking Summary
 
-- plan_status: `ready_to_execute_post_f02_6_regeneration_plan`
-- training_allowed_now: `False`
+- plan_status: `ready_for_remote_training_packet_execution`
+- training_allowed_now: `True`
 - remote_preflight_allowed_now: `False`
-- ready_stage_ids: `['regenerate_preflight_gate_artifacts']`
-- blocked_stage_ids: `['f02_6_decision_record', 'approved_remote_preflight', 'regenerate_remote_execution_packet', 'gate3_remote_training', 'gate3_remote_audit_pullback', 'regenerate_h01_h02_formal_artifacts', 'regenerate_claim_gate_artifacts']`
+- ready_stage_ids: `['regenerate_preflight_gate_artifacts', 'gate3_remote_training', 'gate3_remote_audit_pullback']`
+- blocked_stage_ids: `['f02_6_decision_record', 'approved_remote_preflight', 'regenerate_remote_execution_packet', 'regenerate_h01_h02_formal_artifacts', 'regenerate_claim_gate_artifacts']`
 
 ## F02.6 Human Decision Request
 
@@ -48,7 +48,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - runs_remote_preflight: `False`
 - all_required_evidence_present: `False`
 - audit_issue_count: `3`
-- missing_counts_by_category: `{'decision': 0, 'decision_gate': 1, 'regeneration': 11, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 6}`
+- missing_counts_by_category: `{'decision': 0, 'decision_gate': 1, 'regeneration': 0, 'gate_sequence': 5, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 1}`
 
 ## Closure Checklist
 
@@ -57,7 +57,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - runs_training: `False`
 - runs_remote_preflight: `False`
 - open_item_count: `8`
-- input_safety_issue_count: `0`
+- input_safety_issue_count: `2`
 
 ## Formal Gate Status Report
 
@@ -67,7 +67,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - runs_remote_preflight: `False`
 - formal_claim_allowed_now: `False`
 - local_training_allowed_now: `False`
-- input_safety_issue_count: `9`
+- input_safety_issue_count: `26`
 - next_blocked_lane_id: `decision`
 
 ### Remaining Deliverables Gap Summary
@@ -87,7 +87,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - row_count: `10`
 - blocked_row_count: `10`
 - rows_with_missing_required_blockers: `8`
-- rows_allowed_while_missing: `0`
+- rows_allowed_while_missing: `8`
 
 ### Status Report Proof-Audit Deliverables Summary
 
@@ -108,7 +108,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
 - present: `True`
 - all_rows_consistent: `False`
-- mismatch_rows: `['remote_preflight', 'remote_training']`
+- mismatch_rows: `['remote_preflight', 'remote_training', 'remote_audit']`
 
 ### Status Report Remote Execution Steps
 
@@ -120,20 +120,25 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
 - `sync_to_remote`: allowed_now=`True`, runs_training=`False`, blocked_by=`none`
 - `run_remote_preflight`: allowed_now=`True`, runs_training=`False`, blocked_by=`none`
-- `run_remote_training`: allowed_now=`False`, runs_training=`True`, blocked_by=`f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_packet_not_ready`
-- `run_remote_audit`: allowed_now=`False`, runs_training=`False`, blocked_by=`f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_packet_not_ready`
+- `run_remote_training`: allowed_now=`True`, runs_training=`True`, blocked_by=`none`
+- `run_remote_audit`: allowed_now=`True`, runs_training=`False`, blocked_by=`none`
 
 ## Audit Issues
 
-- `plan_source_regeneration_target_counts_mismatch`: Plan target counts by gate do not match source freshness audit.
 - `missing_artifacts_inventory_has_audit_issues`: Missing-artifacts inventory reports open audit issues.
+- `closure_checklist_has_input_safety_issues`: Closure checklist reports open input safety issues.
 - `formal_gate_status_report_has_input_safety_issues`: Status report reports open input safety issues.
 - `formal_gate_status_report_sync_allowed_without_remote_permission`: Status report may surface remote sync only when a remote preflight/training lane is allowed.
 - `formal_gate_status_report_preflight_step_permission_mismatch`: Status report remote preflight step must match remote_preflight_allowed_now.
+- `formal_gate_status_report_training_step_permission_mismatch`: Status report remote training step must match remote_training_allowed_now.
 - `formal_gate_status_report_execution_veto_inconsistent`: Status report execution veto matrix must have all_rows_consistent=true.
 - `formal_gate_status_report_execution_veto_mismatch_rows_open`: Status report execution veto matrix reports mismatch rows.
 - `remaining_deliverables_unlock_chain_rows_missing_required_blockers`: Unlock chain rows must include every required current blocker while formal deliverables are missing.
+- `remaining_deliverables_unlock_chain_rows_allowed_while_missing`: Unlock chain must not allow responsible stages while their formal deliverables are missing.
 - `plan_remaining_deliverables_unlock_chain_rows_missing_required_blockers`: Unlock chain rows must include every required current blocker while formal deliverables are missing.
+- `plan_remaining_deliverables_unlock_chain_rows_allowed_while_missing`: Unlock chain must not allow responsible stages while their formal deliverables are missing.
+- `plan_remaining_deliverables_unlock_chain_summary_mismatch`: Plan unlock-chain summary must match the remaining-deliverables ledger.
+- `status_report_proof_audit_deliverables_summary_mismatch`: Status-report proof-audit deliverable summary must match the remaining-deliverables ledger.
 
 ## Claim Boundaries
 

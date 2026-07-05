@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_f02_6_transition_gate_audit",
   "status": "f02_6_transition_gate_audit_failed",
-  "created_at_utc": "2026-07-05T18:40:06.474052+00:00",
-  "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
+  "created_at_utc": "2026-07-05T18:45:22.452187+00:00",
+  "source_head": "7e3dd91dfccbe942c10b5849e997d7542a2475c9",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -38,22 +38,22 @@
       "record_remote_training_allowed_now": false,
       "record_local_training_allowed": false,
       "record_formal_claim_allowed": false,
-      "decision_gate_status": "f02_6_decision_gate_pending_clean",
-      "decision_gate_audit_issue_count": 0,
+      "decision_gate_status": "f02_6_decision_gate_audit_failed",
+      "decision_gate_audit_issue_count": 1,
       "post_plan_status": "blocked_until_f02_6_decision",
       "post_plan_ready_stage_ids": [
-        "f02_6_decision_record"
+        "f02_6_decision_record",
+        "gate3_remote_training",
+        "gate3_remote_audit_pullback"
       ],
       "post_plan_blocked_stage_ids": [
         "regenerate_preflight_gate_artifacts",
         "approved_remote_preflight",
         "regenerate_remote_execution_packet",
-        "gate3_remote_training",
-        "gate3_remote_audit_pullback",
         "regenerate_h01_h02_formal_artifacts",
         "regenerate_claim_gate_artifacts"
       ],
-      "post_plan_training_allowed_now": false,
+      "post_plan_training_allowed_now": true,
       "post_plan_remote_preflight_allowed_now": false,
       "post_plan_stage_summary": {
         "f02_6_decision_record": {
@@ -97,27 +97,25 @@
           ]
         },
         "gate3_remote_training": {
-          "status": "blocked",
-          "allowed_now": false,
+          "status": "ready",
+          "allowed_now": true,
           "runs_training": true,
           "runs_remote_preflight": false,
           "host": "gpu3070ti-relay",
           "blocked_by": [
             "f02_6_decision_not_approved",
-            "source_fresh_preflight_targets_open",
-            "remote_packet_not_ready"
+            "source_fresh_preflight_targets_open"
           ]
         },
         "gate3_remote_audit_pullback": {
-          "status": "blocked",
-          "allowed_now": false,
+          "status": "ready",
+          "allowed_now": true,
           "runs_training": false,
           "runs_remote_preflight": false,
           "host": "gpu3070ti-relay",
           "blocked_by": [
             "f02_6_decision_not_approved",
-            "source_fresh_preflight_targets_open",
-            "remote_packet_not_ready"
+            "source_fresh_preflight_targets_open"
           ]
         },
         "regenerate_h01_h02_formal_artifacts": {
@@ -127,8 +125,7 @@
           "runs_remote_preflight": false,
           "host": null,
           "blocked_by": [
-            "missing_remote_audit_pullback",
-            "source_fresh_h01_h02_targets_open"
+            "missing_remote_audit_pullback"
           ]
         },
         "regenerate_claim_gate_artifacts": {
@@ -138,13 +135,12 @@
           "runs_remote_preflight": false,
           "host": null,
           "blocked_by": [
-            "h02_formal_acceptance_not_ready",
-            "source_fresh_claim_targets_open"
+            "h02_formal_acceptance_not_ready"
           ]
         }
       },
       "formal_gate_status_report_status": "formal_gate_status_blocked",
-      "formal_gate_status_report_input_safety_issue_count": 11,
+      "formal_gate_status_report_input_safety_issue_count": 29,
       "formal_gate_status_report_permissions_now": {
         "local_training_allowed_now": false,
         "remote_preflight_allowed_now": false,
@@ -153,19 +149,19 @@
       },
       "formal_gate_status_report_next_blocked_lane_id": "decision",
       "post_plan_audit_status": "post_f02_6_plan_audit_failed",
-      "post_plan_audit_issue_count": 7,
+      "post_plan_audit_issue_count": 15,
       "remote_packet_safety_status": "remote_packet_safety_audit_failed",
-      "remote_packet_safety_issue_count": 11,
+      "remote_packet_safety_issue_count": 13,
       "missing_counts_by_category": {
         "decision": 0,
         "decision_gate": 1,
-        "regeneration": 11,
-        "gate_sequence": 7,
+        "regeneration": 0,
+        "gate_sequence": 5,
         "training": 3,
         "evaluation": 2,
         "acceptance": 3,
         "evaluation_acceptance": 2,
-        "claim_gate": 6
+        "claim_gate": 1
       },
       "closure_open_item_count": 8
     },
@@ -181,20 +177,20 @@
       "record_formal_claim_allowed": false,
       "decision_gate_status": "f02_6_decision_gate_audit_passed",
       "decision_gate_audit_issue_count": 0,
-      "post_plan_status": "ready_to_execute_post_f02_6_regeneration_plan",
+      "post_plan_status": "ready_for_remote_training_packet_execution",
       "post_plan_ready_stage_ids": [
-        "regenerate_preflight_gate_artifacts"
+        "regenerate_preflight_gate_artifacts",
+        "gate3_remote_training",
+        "gate3_remote_audit_pullback"
       ],
       "post_plan_blocked_stage_ids": [
         "f02_6_decision_record",
         "approved_remote_preflight",
         "regenerate_remote_execution_packet",
-        "gate3_remote_training",
-        "gate3_remote_audit_pullback",
         "regenerate_h01_h02_formal_artifacts",
         "regenerate_claim_gate_artifacts"
       ],
-      "post_plan_training_allowed_now": false,
+      "post_plan_training_allowed_now": true,
       "post_plan_remote_preflight_allowed_now": false,
       "post_plan_stage_summary": {
         "f02_6_decision_record": {
@@ -236,25 +232,23 @@
           ]
         },
         "gate3_remote_training": {
-          "status": "blocked",
-          "allowed_now": false,
+          "status": "ready",
+          "allowed_now": true,
           "runs_training": true,
           "runs_remote_preflight": false,
           "host": "gpu3070ti-relay",
           "blocked_by": [
-            "source_fresh_preflight_targets_open",
-            "remote_packet_not_ready"
+            "source_fresh_preflight_targets_open"
           ]
         },
         "gate3_remote_audit_pullback": {
-          "status": "blocked",
-          "allowed_now": false,
+          "status": "ready",
+          "allowed_now": true,
           "runs_training": false,
           "runs_remote_preflight": false,
           "host": "gpu3070ti-relay",
           "blocked_by": [
-            "source_fresh_preflight_targets_open",
-            "remote_packet_not_ready"
+            "source_fresh_preflight_targets_open"
           ]
         },
         "regenerate_h01_h02_formal_artifacts": {
@@ -264,8 +258,7 @@
           "runs_remote_preflight": false,
           "host": null,
           "blocked_by": [
-            "missing_remote_audit_pullback",
-            "source_fresh_h01_h02_targets_open"
+            "missing_remote_audit_pullback"
           ]
         },
         "regenerate_claim_gate_artifacts": {
@@ -275,13 +268,12 @@
           "runs_remote_preflight": false,
           "host": null,
           "blocked_by": [
-            "h02_formal_acceptance_not_ready",
-            "source_fresh_claim_targets_open"
+            "h02_formal_acceptance_not_ready"
           ]
         }
       },
       "formal_gate_status_report_status": "formal_gate_status_blocked",
-      "formal_gate_status_report_input_safety_issue_count": 7,
+      "formal_gate_status_report_input_safety_issue_count": 25,
       "formal_gate_status_report_permissions_now": {
         "local_training_allowed_now": false,
         "remote_preflight_allowed_now": false,
@@ -290,19 +282,19 @@
       },
       "formal_gate_status_report_next_blocked_lane_id": "source_fresh_preflight",
       "post_plan_audit_status": "post_f02_6_plan_audit_failed",
-      "post_plan_audit_issue_count": 6,
+      "post_plan_audit_issue_count": 11,
       "remote_packet_safety_status": "remote_packet_safety_audit_failed",
-      "remote_packet_safety_issue_count": 1,
+      "remote_packet_safety_issue_count": 3,
       "missing_counts_by_category": {
         "decision": 0,
         "decision_gate": 1,
-        "regeneration": 11,
-        "gate_sequence": 7,
+        "regeneration": 0,
+        "gate_sequence": 5,
         "training": 3,
         "evaluation": 2,
         "acceptance": 3,
         "evaluation_acceptance": 2,
-        "claim_gate": 6
+        "claim_gate": 1
       },
       "closure_open_item_count": 7
     },
@@ -319,18 +311,19 @@
       "decision_gate_status": "f02_6_decision_gate_audit_passed",
       "decision_gate_audit_issue_count": 0,
       "post_plan_status": "blocked_by_f02_6_rejected",
-      "post_plan_ready_stage_ids": [],
+      "post_plan_ready_stage_ids": [
+        "gate3_remote_training",
+        "gate3_remote_audit_pullback"
+      ],
       "post_plan_blocked_stage_ids": [
         "f02_6_decision_record",
         "regenerate_preflight_gate_artifacts",
         "approved_remote_preflight",
         "regenerate_remote_execution_packet",
-        "gate3_remote_training",
-        "gate3_remote_audit_pullback",
         "regenerate_h01_h02_formal_artifacts",
         "regenerate_claim_gate_artifacts"
       ],
-      "post_plan_training_allowed_now": false,
+      "post_plan_training_allowed_now": true,
       "post_plan_remote_preflight_allowed_now": false,
       "post_plan_stage_summary": {
         "f02_6_decision_record": {
@@ -376,27 +369,25 @@
           ]
         },
         "gate3_remote_training": {
-          "status": "blocked",
-          "allowed_now": false,
+          "status": "ready",
+          "allowed_now": true,
           "runs_training": true,
           "runs_remote_preflight": false,
           "host": "gpu3070ti-relay",
           "blocked_by": [
             "f02_6_decision_not_approved",
-            "source_fresh_preflight_targets_open",
-            "remote_packet_not_ready"
+            "source_fresh_preflight_targets_open"
           ]
         },
         "gate3_remote_audit_pullback": {
-          "status": "blocked",
-          "allowed_now": false,
+          "status": "ready",
+          "allowed_now": true,
           "runs_training": false,
           "runs_remote_preflight": false,
           "host": "gpu3070ti-relay",
           "blocked_by": [
             "f02_6_decision_not_approved",
-            "source_fresh_preflight_targets_open",
-            "remote_packet_not_ready"
+            "source_fresh_preflight_targets_open"
           ]
         },
         "regenerate_h01_h02_formal_artifacts": {
@@ -406,8 +397,7 @@
           "runs_remote_preflight": false,
           "host": null,
           "blocked_by": [
-            "missing_remote_audit_pullback",
-            "source_fresh_h01_h02_targets_open"
+            "missing_remote_audit_pullback"
           ]
         },
         "regenerate_claim_gate_artifacts": {
@@ -417,13 +407,12 @@
           "runs_remote_preflight": false,
           "host": null,
           "blocked_by": [
-            "h02_formal_acceptance_not_ready",
-            "source_fresh_claim_targets_open"
+            "h02_formal_acceptance_not_ready"
           ]
         }
       },
       "formal_gate_status_report_status": "formal_gate_status_blocked",
-      "formal_gate_status_report_input_safety_issue_count": 7,
+      "formal_gate_status_report_input_safety_issue_count": 25,
       "formal_gate_status_report_permissions_now": {
         "local_training_allowed_now": false,
         "remote_preflight_allowed_now": false,
@@ -432,60 +421,87 @@
       },
       "formal_gate_status_report_next_blocked_lane_id": "source_fresh_preflight",
       "post_plan_audit_status": "post_f02_6_plan_audit_failed",
-      "post_plan_audit_issue_count": 6,
+      "post_plan_audit_issue_count": 11,
       "remote_packet_safety_status": "remote_packet_safety_audit_failed",
-      "remote_packet_safety_issue_count": 1,
+      "remote_packet_safety_issue_count": 3,
       "missing_counts_by_category": {
         "decision": 0,
         "decision_gate": 1,
-        "regeneration": 11,
-        "gate_sequence": 7,
+        "regeneration": 0,
+        "gate_sequence": 5,
         "training": 3,
         "evaluation": 2,
         "acceptance": 3,
         "evaluation_acceptance": 2,
-        "claim_gate": 6
+        "claim_gate": 1
       },
       "closure_open_item_count": 7
     }
   ],
-  "audit_issue_count": 12,
+  "audit_issue_count": 19,
   "audit_issues": [
     {
       "scenario_id": "pending",
+      "issue_id": "decision_gate_audit_issue_count",
+      "message": "decision_gate_audit_issue_count must be zero.",
+      "observed": 1
+    },
+    {
+      "scenario_id": "pending",
       "issue_id": "post_plan_audit_issue_count",
       "message": "post_plan_audit_issue_count must be zero.",
-      "observed": 7
+      "observed": 15
     },
     {
       "scenario_id": "pending",
       "issue_id": "remote_packet_safety_issue_count",
       "message": "remote_packet_safety_issue_count must be zero.",
+      "observed": 13
+    },
+    {
+      "scenario_id": "pending",
+      "issue_id": "unexpected_decision_gate_status",
+      "message": "Decision gate status drifted.",
+      "observed": "f02_6_decision_gate_audit_failed"
+    },
+    {
+      "scenario_id": "pending",
+      "issue_id": "post_plan_audit_not_passed",
+      "message": "Post-plan audit must remain internally safe.",
+      "observed": "post_f02_6_plan_audit_failed"
+    },
+    {
+      "scenario_id": "pending",
+      "issue_id": "remote_packet_safety_not_passed",
+      "message": "Remote packet safety must remain internally safe.",
+      "observed": "remote_packet_safety_audit_failed"
+    },
+    {
+      "scenario_id": "pending",
+      "issue_id": "pending_plan_allows_training",
+      "message": "Pending post-plan must not allow training."
+    },
+    {
+      "scenario_id": "pending",
+      "issue_id": "pending_ready_stages_drift",
+      "message": "Only the human decision stage should be ready while pending.",
+      "observed": [
+        "f02_6_decision_record",
+        "gate3_remote_audit_pullback",
+        "gate3_remote_training"
+      ]
+    },
+    {
+      "scenario_id": "approved",
+      "issue_id": "post_plan_audit_issue_count",
+      "message": "post_plan_audit_issue_count must be zero.",
       "observed": 11
     },
     {
-      "scenario_id": "pending",
-      "issue_id": "post_plan_audit_not_passed",
-      "message": "Post-plan audit must remain internally safe.",
-      "observed": "post_f02_6_plan_audit_failed"
-    },
-    {
-      "scenario_id": "pending",
-      "issue_id": "remote_packet_safety_not_passed",
-      "message": "Remote packet safety must remain internally safe.",
-      "observed": "remote_packet_safety_audit_failed"
-    },
-    {
-      "scenario_id": "approved",
-      "issue_id": "post_plan_audit_issue_count",
-      "message": "post_plan_audit_issue_count must be zero.",
-      "observed": 6
-    },
-    {
       "scenario_id": "approved",
       "issue_id": "remote_packet_safety_issue_count",
       "message": "remote_packet_safety_issue_count must be zero.",
-      "observed": 1
+      "observed": 3
     },
     {
       "scenario_id": "approved",
@@ -498,18 +514,29 @@
       "issue_id": "remote_packet_safety_not_passed",
       "message": "Remote packet safety must remain internally safe.",
       "observed": "remote_packet_safety_audit_failed"
+    },
+    {
+      "scenario_id": "approved",
+      "issue_id": "approved_post_plan_wrong_status",
+      "message": "Approved scenario should advance only to local gate regeneration or remain blocked by formal gate preconditions.",
+      "observed": "ready_for_remote_training_packet_execution"
+    },
+    {
+      "scenario_id": "approved",
+      "issue_id": "approved_training_ready_too_early",
+      "message": "Approved scenario must still block formal PPO training."
     },
     {
       "scenario_id": "rejected",
       "issue_id": "post_plan_audit_issue_count",
       "message": "post_plan_audit_issue_count must be zero.",
-      "observed": 6
+      "observed": 11
     },
     {
       "scenario_id": "rejected",
       "issue_id": "remote_packet_safety_issue_count",
       "message": "remote_packet_safety_issue_count must be zero.",
-      "observed": 1
+      "observed": 3
     },
     {
       "scenario_id": "rejected",
@@ -522,6 +549,11 @@
       "issue_id": "remote_packet_safety_not_passed",
       "message": "Remote packet safety must remain internally safe.",
       "observed": "remote_packet_safety_audit_failed"
+    },
+    {
+      "scenario_id": "rejected",
+      "issue_id": "rejected_training_ready",
+      "message": "Rejected scenario must not allow warm-start formal PPO training."
     }
   ],
   "transition_invariants": [

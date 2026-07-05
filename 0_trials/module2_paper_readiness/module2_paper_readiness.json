@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_paper_readiness",
   "status": "partial_methods_ready_results_blocked",
-  "created_at_utc": "2026-07-05T18:40:01.377407+00:00",
-  "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
+  "created_at_utc": "2026-07-05T18:43:35.243815+00:00",
+  "source_head": "7e3dd91dfccbe942c10b5849e997d7542a2475c9",
   "manuscript_ready": false,
   "formal_results_ready": false,
   "local_training_allowed": false,
@@ -52,8 +52,8 @@
     "claim_safety_requirement_stage_mismatched_count": 0,
     "claim_safety_requirement_stage_blocked_stage_count": 4,
     "claim_safety_remote_preflight_requirement_present": true,
-    "claim_safety_remote_preflight_requirement_satisfied_count": 3,
-    "claim_safety_remote_preflight_requirement_blocked_count": 1,
+    "claim_safety_remote_preflight_requirement_satisfied_count": 4,
+    "claim_safety_remote_preflight_requirement_blocked_count": 0,
     "claim_safety_post_run_acceptance_requirement_present": true,
     "claim_safety_post_run_acceptance_requirement_satisfied_count": 0,
     "claim_safety_post_run_acceptance_requirement_blocked_count": 4,
@@ -144,20 +144,20 @@
     "claim_safety_next_required_formal_deliverables_blocked_category_count": 4,
     "claim_safety_next_required_formal_deliverables_row_count": 10,
     "claim_safety_mainline_audit_present": true,
-    "claim_safety_mainline_audit_status": "mainline_formal_gate_state_consistent_blocked",
-    "claim_safety_mainline_audit_issue_count": 0,
-    "claim_safety_mainline_audit_proof_summary_issue_count": 0,
+    "claim_safety_mainline_audit_status": "mainline_formal_gate_state_audit_failed",
+    "claim_safety_mainline_audit_issue_count": 2,
+    "claim_safety_mainline_audit_proof_summary_issue_count": 12,
     "claim_safety_mainline_audit_proof_audit_input_safety_issue_count": 0,
     "h02_formal_acceptance_status": "blocked_formal_output_acceptance",
     "h02_formal_output_accepted": false,
     "h02_paper_result_input_allowed": false,
-    "h01_manifest_status": "blocked_pending_decisions",
+    "h01_manifest_status": "blocked_protocol_gap",
     "f02_6_decision_status": "approved",
-    "remote_execution_packet_status": "blocked_preconditions",
-    "remote_execution_ready": false,
+    "remote_execution_packet_status": "ready_for_gpu3070ti_remote_training",
+    "remote_execution_ready": true,
     "status_report_status": "formal_gate_status_blocked",
     "status_report_formal_claim_allowed_now": false,
-    "status_report_input_safety_issue_count": 5
+    "status_report_input_safety_issue_count": 9
   },
   "claim_safety_requirement_stage_summary": {
     "present": true,
@@ -209,10 +209,9 @@
       "present": true,
       "required_requirement_count": 4,
       "present_requirement_count": 4,
-      "blocked_requirement_count": 1,
+      "blocked_requirement_count": 0,
       "status_counts": {
-        "satisfied": 3,
-        "ready_to_execute_missing_preflight": 1
+        "satisfied": 4
       },
       "missing_requirement_ids": [],
       "requirements": {
@@ -225,8 +224,8 @@
         },
         "approved_remote_preflight_manifest": {
           "present": true,
-          "status": "ready_to_execute_missing_preflight",
-          "complete": false,
+          "status": "satisfied",
+          "complete": true,
           "execution_allowed_now": true,
           "remote_training_ready_now": null
         },
@@ -1155,16 +1154,16 @@
   },
   "claim_safety_mainline_formal_gate_state_audit_summary": {
     "present": true,
-    "status": "mainline_formal_gate_state_consistent_blocked",
+    "status": "mainline_formal_gate_state_audit_failed",
     "not_paper_result_material": true,
     "executes_commands": false,
     "runs_training": false,
     "runs_remote_preflight": false,
     "local_training_allowed": false,
     "formal_claim_allowed": false,
-    "audit_issue_count": 0,
-    "proof_summary_chain_status": "formal_gate_proof_summary_chain_consistent_blocked",
-    "proof_summary_chain_audit_issue_count": 0,
+    "audit_issue_count": 2,
+    "proof_summary_chain_status": "formal_gate_proof_summary_chain_audit_failed",
+    "proof_summary_chain_audit_issue_count": 12,
     "proof_summary_chain_proof_audit_input_safety_issue_count": 0,
     "proof_summary_chain_proof_audit_blockers": [
       "missing_formal_training_artifacts",
@@ -1187,7 +1186,6 @@
     "missing_ppo_result_rows",
     "missing_remote_pullback_artifacts",
     "f02_6_formal_chain_pending",
-    "missing_module2_bc_checkpoint",
     "realmap_query_generation_not_frozen",
     "claim_safety_blocks_formal_performance",
     "f02_6_pending",
@@ -1205,6 +1203,9 @@
     "status_report_remaining_deliverables_gap_categories_blocked",
     "status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing",
     "status_report_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked",
+    "status_report_mainline_formal_gate_state_audit_failed",
+    "status_report_mainline_formal_gate_state_audit_issues_open",
+    "status_report_mainline_proof_summary_issues_open",
     "status_report_blocked_but_sync_to_remote_allowed",
     "status_report_blocked_but_run_remote_preflight_allowed",
     "claim_safety_remaining_deliverables_acceptance_rows_missing",
@@ -1213,7 +1214,10 @@
     "claim_safety_remaining_deliverables_gap_categories_blocked",
     "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing",
     "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked",
-    "claim_safety_next_action_guard_not_passed"
+    "claim_safety_next_action_guard_not_passed",
+    "claim_safety_mainline_formal_gate_state_audit_failed",
+    "claim_safety_mainline_formal_gate_state_audit_issues_open",
+    "claim_safety_mainline_proof_summary_issues_open"
   ],
   "allowed_claim_ids": [
     "method_is_ha_star_analytic_operator",
@@ -1272,7 +1276,6 @@
         "missing_ppo_result_rows",
         "missing_remote_pullback_artifacts",
         "f02_6_formal_chain_pending",
-        "missing_module2_bc_checkpoint",
         "realmap_query_generation_not_frozen"
       ]
     },
@@ -1300,7 +1303,6 @@
         "missing_ppo_result_rows",
         "missing_remote_pullback_artifacts",
         "f02_6_formal_chain_pending",
-        "missing_module2_bc_checkpoint",
         "realmap_query_generation_not_frozen",
         "claim_safety_blocks_formal_performance",
         "f02_6_pending",
@@ -1318,6 +1320,9 @@
         "status_report_remaining_deliverables_gap_categories_blocked",
         "status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing",
         "status_report_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked",
+        "status_report_mainline_formal_gate_state_audit_failed",
+        "status_report_mainline_formal_gate_state_audit_issues_open",
+        "status_report_mainline_proof_summary_issues_open",
         "status_report_blocked_but_sync_to_remote_allowed",
         "status_report_blocked_but_run_remote_preflight_allowed",
         "claim_safety_remaining_deliverables_acceptance_rows_missing",
@@ -1326,23 +1331,21 @@
         "claim_safety_remaining_deliverables_gap_categories_blocked",
         "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing",
         "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked",
-        "claim_safety_next_action_guard_not_passed"
+        "claim_safety_next_action_guard_not_passed",
+        "claim_safety_mainline_formal_gate_state_audit_failed",
+        "claim_safety_mainline_formal_gate_state_audit_issues_open",
+        "claim_safety_mainline_proof_summary_issues_open"
       ]
     },
     {
       "section_id": "warm_start_effect",
       "paper_target": "Ablation: obstacle-summary warm-start effect",
-      "status": "blocked",
+      "status": "ready_to_write",
       "evidence": [
         "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
         "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json"
       ],
-      "blockers": [
-        "f02_6_warm_start_decision_pending",
-        "missing_module2_bc_checkpoint",
-        "missing_module2_rl_rs_checkpoint",
-        "realmap_query_generation_not_frozen"
-      ]
+      "blockers": []
     }
   ],
   "claim_boundaries": [

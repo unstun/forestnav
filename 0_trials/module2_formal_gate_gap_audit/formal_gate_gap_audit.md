@@ -19,18 +19,16 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 ## Source Freshness
 
 - path: `0_trials/module2_source_freshness_audit/source_freshness_audit.json`
-- status: `source_freshness_risks_recorded_gate_still_blocked`
+- status: `source_freshness_clean_current`
 - runs_training: `False`
 - runs_remote_preflight: `False`
 - formal_claim_allowed: `False`
-- regeneration_required_before_remote_formal_execution: `True`
-- ordered_regeneration_target_count: `3`
+- regeneration_required_before_remote_formal_execution: `False`
+- ordered_regeneration_target_count: `1`
 
 ### Source Freshness Regeneration Targets
 
-- `f02_6_decision_record`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json`
 - `formal_gate_handoff_bundle`: `current_clean`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`
-- `gpu3070ti_readiness_refresh`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json`
 
 ## Missing Artifacts Inventory
 
@@ -41,7 +39,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - runs_remote_preflight: `False`
 - all_required_evidence_present: `False`
 - audit_issue_count: `3`
-- missing_counts_by_category: `{'decision': 0, 'decision_gate': 1, 'regeneration': 3, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 1}`
+- missing_counts_by_category: `{'decision': 0, 'decision_gate': 1, 'regeneration': 0, 'gate_sequence': 5, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 1}`
 
 ## Closure Checklist
 
@@ -51,7 +49,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - runs_training: `False`
 - runs_remote_preflight: `False`
 - open_item_count: `8`
-- input_safety_issue_count: `0`
+- input_safety_issue_count: `2`
 
 ## Formal Gate Status Report
 
@@ -63,7 +61,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - local_training_allowed_now: `False`
 - formal_claim_allowed_now: `False`
 - next_blocked_lane_id: `decision`
-- input_safety_issue_count: `5`
+- input_safety_issue_count: `26`
 
 ## Remaining Deliverables Ledger
 
@@ -107,9 +105,9 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - executes_commands: `False`
 - runs_training: `False`
 - runs_remote_preflight: `False`
-- packet_status: `blocked_remote_preflight_not_ready`
-- remote_training_allowed_now: `False`
-- audit_issue_count: `3`
+- packet_status: `ready_for_gpu3070ti_remote_training`
+- remote_training_allowed_now: `True`
+- audit_issue_count: `6`
 - command_index_present: `True`
 - command_index_row_count: `23`
 - command_index_missing_target_ids: `[]`
@@ -123,23 +121,16 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 
 - `local_training`: consistent=`True`, consensus_allowed_now=`False`, sources=`{'formal_gate_gap_audit': False, 'status_report': False, 'handoff_bundle': False, 'remote_packet': False}`
 - `remote_preflight`: consistent=`False`, consensus_allowed_now=`False`, sources=`{'status_report': False, 'handoff_bundle': False, 'remote_packet': True, 'remote_packet_safety': True}`
-- `remote_training`: consistent=`False`, consensus_allowed_now=`False`, sources=`{'decision_record': True, 'status_report': False, 'handoff_bundle': False, 'remote_packet': False, 'remote_packet_safety': False}`
-- `remote_audit`: consistent=`True`, consensus_allowed_now=`False`, sources=`{'handoff_bundle': False, 'remote_packet': False, 'remote_packet_safety': False}`
+- `remote_training`: consistent=`False`, consensus_allowed_now=`False`, sources=`{'decision_record': True, 'status_report': False, 'handoff_bundle': False, 'remote_packet': True, 'remote_packet_safety': True}`
+- `remote_audit`: consistent=`True`, consensus_allowed_now=`True`, sources=`{'handoff_bundle': True, 'remote_packet': True, 'remote_packet_safety': True}`
 - `formal_claim`: consistent=`True`, consensus_allowed_now=`False`, sources=`{'status_report': False, 'handoff_bundle': False}`
 
 ## Decision Gaps
 
-- `f02_6_warm_start_decision_pending`
-  - evidence: `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json`
-  - why: Gate artifact still reports decision blocker: f02_6_warm_start_decision_pending.
-  - needed: Close F02.6 first; do not bypass it by running local training or writing result claims.
+- none
 
 ## Training Artifact Gaps
 
-- `remote_training_packet_not_ready`
-  - evidence: `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json`
-  - why: Remote execution packet status is blocked_preconditions; training command is not allowed yet.
-  - needed: After F02.6 closes, regenerate approved remote preflight and require ready_to_run_remote_training=true.
 - `missing_remote_pullback_artifact`
   - evidence: `0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip`
   - why: Required remote artifact has not been pulled back: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.
@@ -176,48 +167,24 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
   - evidence: `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
   - why: PPO rows do not contain a non-empty rl_rs_checkpoint_sha256.
   - needed: Record checkpoint path and SHA-256 in every PPO/RL-RS result row.
-- `source_freshness_regeneration_required`
-  - evidence: `0_trials/module2_source_freshness_audit/source_freshness_audit.json`
-  - why: Source freshness audit reports stale or dirty gate artifacts that must be regenerated before formal execution.
-  - needed: After F02.6 closes, regenerate the listed targets before approved remote preflight, H01/H02, and formal claim gates.
 - `handoff_safety_issues_open`
   - evidence: `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`
   - why: Handoff bundle reports 3 safety issues.
   - needed: Resolve handoff safety issues before approved remote execution.
-- `handoff_step_blockers_mismatch_run_remote_training`
-  - evidence: `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`
-  - why: Handoff run_remote_training.blocked_by does not match the remote packet.
-  - needed: Regenerate handoff from the current remote execution packet blockers.
-- `handoff_step_blockers_mismatch_run_remote_audit`
-  - evidence: `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`
-  - why: Handoff run_remote_audit.blocked_by does not match the remote packet.
-  - needed: Regenerate handoff from the current remote execution packet blockers.
 - `remote_packet_safety_audit_failed`
   - evidence: `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
   - why: Remote packet safety audit status is remote_packet_safety_audit_failed.
   - needed: Fix the remote execution packet or post-plan/status cross-gates before approved remote execution.
 - `remote_packet_safety_audit_issues_open`
   - evidence: `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
-  - why: Remote packet safety audit reports 3 issues.
+  - why: Remote packet safety audit reports 6 issues.
   - needed: Resolve every remote packet safety issue before approved remote execution.
-- `remote_packet_safety_stale_status`
-  - evidence: `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
-  - why: Safety audit packet status blocked_remote_preflight_not_ready does not match remote packet blocked_preconditions.
-  - needed: Regenerate safety audit from the current remote execution packet.
-- `remote_packet_safety_blockers_mismatch_run_remote_training`
-  - evidence: `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
-  - why: Safety audit remote_training_blocked_by does not match remote packet blockers.
-  - needed: Regenerate safety audit from the current remote execution packet blockers.
-- `remote_packet_safety_blockers_mismatch_run_remote_audit`
-  - evidence: `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
-  - why: Safety audit remote_audit_blocked_by does not match remote packet blockers.
-  - needed: Regenerate safety audit from the current remote execution packet blockers.
 
 ## Evaluation Artifact Gaps
 
 - `h01_manifest_not_ready`
   - evidence: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`
-  - why: H01 manifest status is blocked_pending_decisions.
+  - why: H01 manifest status is blocked_protocol_gap.
   - needed: Regenerate H01 after F02.6 and checkpoint availability so the formal run command is unblocked.
 - `formal_main_evaluation_command_missing`
   - evidence: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`
@@ -264,15 +231,19 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
   - needed: Resolve the inventory audit issues before treating the formal gate as complete.
 - `formal_gate_missing_artifacts_open`
   - evidence: `0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json`
-  - why: Formal gate inventory still reports missing evidence counts: {'decision': 0, 'decision_gate': 1, 'regeneration': 3, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 1}.
+  - why: Formal gate inventory still reports missing evidence counts: {'decision': 0, 'decision_gate': 1, 'regeneration': 0, 'gate_sequence': 5, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 1}.
   - needed: Close every missing-artifacts group before final H02/claim readiness can pass.
+- `formal_closure_checklist_safety_issues_open`
+  - evidence: `0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json`
+  - why: Closure checklist reports 2 input safety issues.
+  - needed: Resolve checklist input safety issues before treating the formal gate as complete.
 - `formal_gate_closure_checklist_open`
   - evidence: `0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json`
   - why: Closure checklist status is formal_gate_closure_blocked; open_item_count=8.
   - needed: Close every checklist item before final H02/claim readiness can pass.
 - `formal_status_report_safety_issues_open`
   - evidence: `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`
-  - why: Status report has 5 input safety issues.
+  - why: Status report has 26 input safety issues.
   - needed: Resolve status report input safety issues before treating the formal gate as complete.
 - `formal_gate_status_report_blocked`
   - evidence: `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`
@@ -285,7 +256,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 
 ## Ordered Next Steps
 
-- `F02.6` (decision): status=`blocked`, runs_training=`False`. Close Dr Sun's obstacle-summary warm-start decision record.
+- `F02.6` (decision): status=`ready`, runs_training=`False`. Close Dr Sun's obstacle-summary warm-start decision record.
 - `remote_preflight` (training): status=`blocked`, runs_training=`False`, host=`gpu3070ti-relay`. Regenerate source-fresh gate artifacts, then approved gpu3070ti preflight and require formal_trial_ready=true.
 - `gate3_remote_training` (training): status=`blocked`, runs_training=`True`, host=`gpu3070ti-relay`. Run formal PPO Gate3 trial remotely; never on local Mac.
 - `gate3_remote_audit_pullback` (acceptance): status=`blocked`, runs_training=`False`, host=`gpu3070ti-relay`. Audit remote trial, pull back checkpoint/eval/audit artifacts, and record hashes.

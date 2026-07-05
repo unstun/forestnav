@@ -1,16 +1,13 @@
 {
   "schema_version": 1,
   "packet_name": "module2_remote_formal_execution_packet",
-  "status": "blocked_preconditions",
-  "created_at_utc": "2026-07-05T18:40:58.376078+00:00",
-  "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
-  "ready_to_run_remote_training": false,
+  "status": "ready_for_gpu3070ti_remote_training",
+  "created_at_utc": "2026-07-05T18:43:34.921313+00:00",
+  "source_head": "7e3dd91dfccbe942c10b5849e997d7542a2475c9",
+  "ready_to_run_remote_training": true,
   "local_training_allowed": false,
   "formal_claim_allowed_before_audit": false,
-  "blockers": [
-    "missing_module2_rl_rs_checkpoint",
-    "realmap_query_generation_not_frozen"
-  ],
+  "blockers": [],
   "execution_environment": {
     "gpu_alias": "gpu3070ti-relay",
     "remote_workdir": "~/ForestNav",
@@ -163,24 +160,16 @@
       "blocked_by": []
     },
     "run_remote_training": {
-      "allowed_now": false,
+      "allowed_now": true,
       "runs_training": true,
       "command": "ssh gpu3070ti-relay 'cd ~/ForestNav && PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 --seed 20260704 --device cuda --train-curriculum-preset f03 --eval-curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260704 --train-total-timesteps 100000 --train-n-envs 1 --train-n-steps 128 --train-batch-size 64 --train-n-epochs 4 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --allow-duplicate-openmp --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt'",
-      "blocked_by": [
-        "missing_module2_rl_rs_checkpoint",
-        "realmap_query_generation_not_frozen",
-        "remote_packet_not_ready"
-      ]
+      "blocked_by": []
     },
     "run_remote_audit": {
-      "allowed_now": false,
+      "allowed_now": true,
       "runs_training": false,
       "command": "ssh gpu3070ti-relay 'cd ~/ForestNav && PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.audit_rl_rs_gate3_trial --trial-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 --min-formal-episodes 64 --required-success-threshold 0.8 --required-train-curriculum f03 --required-eval-curriculum f03 --warm-start-decision approved_obstacle_summary'",
-      "blocked_by": [
-        "missing_module2_rl_rs_checkpoint",
-        "realmap_query_generation_not_frozen",
-        "remote_packet_not_ready"
-      ]
+      "blocked_by": []
     }
   },
   "post_run_pullback": {
@@ -203,7 +192,7 @@
       "phase": "pullback",
       "status": "blocked_until_remote_audit",
       "complete": false,
-      "remote_training_ready_now": false,
+      "remote_training_ready_now": true,
       "execution_allowed_now": false,
       "required_before": "local_gate3_formal_audit_review",
       "missing_artifact_ids": [],
@@ -223,7 +212,7 @@
       "phase": "pullback",
       "status": "blocked_until_remote_audit",
       "complete": false,
-      "remote_training_ready_now": false,
+      "remote_training_ready_now": true,
       "execution_allowed_now": false,
       "required_before": "h01_h02_regeneration",
       "missing_artifact_ids": [],
@@ -242,7 +231,7 @@
       "phase": "acceptance",
       "status": "blocked_until_remote_audit",
       "complete": false,
-      "remote_training_ready_now": false,
+      "remote_training_ready_now": true,
       "execution_allowed_now": false,
       "required_before": "formal_claim_gate",
       "missing_artifact_ids": [
@@ -264,7 +253,7 @@
       "phase": "evaluation_acceptance",
       "status": "blocked_until_remote_audit",
       "complete": false,
-      "remote_training_ready_now": false,
+      "remote_training_ready_now": true,
       "execution_allowed_now": false,
       "required_before": "paper_result_gate",
       "missing_artifact_ids": [],

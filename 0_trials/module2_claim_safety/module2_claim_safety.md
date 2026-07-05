@@ -18,7 +18,6 @@
 - missing_ppo_result_rows
 - missing_remote_pullback_artifacts
 - f02_6_formal_chain_pending
-- missing_module2_bc_checkpoint
 - realmap_query_generation_not_frozen
 - f02_6_pending
 - formal_gate_closure_checklist_open
@@ -35,6 +34,9 @@
 - status_report_remaining_deliverables_gap_categories_blocked
 - status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing
 - status_report_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked
+- status_report_mainline_formal_gate_state_audit_failed
+- status_report_mainline_formal_gate_state_audit_issues_open
+- status_report_mainline_proof_summary_issues_open
 - status_report_blocked_but_sync_to_remote_allowed
 - status_report_blocked_but_run_remote_preflight_allowed
 
@@ -65,7 +67,7 @@
 
 ## Status Report Mainline Formal Gate State Audit
 
-- present=`True`, status=`mainline_formal_gate_state_consistent_blocked`, audit_issue_count=`0`, proof_summary_chain_status=`formal_gate_proof_summary_chain_consistent_blocked`, proof_summary_chain_audit_issue_count=`0`, proof_summary_chain_proof_audit_input_safety_issue_count=`0`
+- present=`True`, status=`mainline_formal_gate_state_audit_failed`, audit_issue_count=`2`, proof_summary_chain_status=`formal_gate_proof_summary_chain_audit_failed`, proof_summary_chain_audit_issue_count=`12`, proof_summary_chain_proof_audit_input_safety_issue_count=`0`
 
 ## Handoff Single Next-Action Index
 
@@ -100,17 +102,17 @@
 ### remote_execution_step_summary
 - `sync_to_remote`: allowed_now=`True`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`none`
 - `run_remote_preflight`: allowed_now=`True`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`none`
-- `run_remote_training`: allowed_now=`False`, runs_training=`True`, runs_remote_preflight=`None`, host=`None`, blocked_by=`f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
-- `run_remote_audit`: allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
+- `run_remote_training`: allowed_now=`False`, runs_training=`True`, runs_remote_preflight=`None`, host=`None`, blocked_by=`f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_packet_not_ready`
+- `run_remote_audit`: allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_packet_not_ready`
 
 ## Status Report Remote Requirement Matrices
 
 ### remote_preflight_requirement_summary
 - present=`True`
-- status_counts=`{'satisfied': 3, 'ready_to_execute_missing_preflight': 1}`
-- blocked_requirement_count=`1`
+- status_counts=`{'satisfied': 4}`
+- blocked_requirement_count=`0`
 - `f02_6_decision_closed_for_preflight`: status=`satisfied`, complete=`True`, execution_allowed_now=`True`, remote_training_ready_now=`None`
-- `approved_remote_preflight_manifest`: status=`ready_to_execute_missing_preflight`, complete=`False`, execution_allowed_now=`True`, remote_training_ready_now=`None`
+- `approved_remote_preflight_manifest`: status=`satisfied`, complete=`True`, execution_allowed_now=`True`, remote_training_ready_now=`None`
 - `remote_preflight_protocol_contract`: status=`satisfied`, complete=`True`, execution_allowed_now=`True`, remote_training_ready_now=`None`
 - `remote_preflight_command_packetized`: status=`satisfied`, complete=`True`, execution_allowed_now=`True`, remote_training_ready_now=`None`
 ### post_run_acceptance_requirement_summary

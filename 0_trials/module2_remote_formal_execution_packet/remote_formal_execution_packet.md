@@ -1,13 +1,12 @@
 # Module2 Remote Formal Execution Packet
 
-- status: `blocked_preconditions`
-- ready to run remote training: `False`
+- status: `ready_for_gpu3070ti_remote_training`
+- ready to run remote training: `True`
 - local training allowed: `False`
 - GPU alias: `gpu3070ti-relay`
 
 ## Blockers
-- `missing_module2_rl_rs_checkpoint`
-- `realmap_query_generation_not_frozen`
+- none
 
 ## Remote Preflight Requirements
 
@@ -22,14 +21,14 @@
 
 ## Post-Run Acceptance Requirements
 
-- `pullback_expected_artifacts_complete` (pullback): status=`blocked_until_remote_audit`, remote_training_ready_now=`False`
+- `pullback_expected_artifacts_complete` (pullback): status=`blocked_until_remote_audit`, remote_training_ready_now=`True`
   - invalid_substitutes: `remote stdout saying files exist; partial pullback with only checkpoint or summary; local files copied from a non-gpu3070ti host`
-- `checkpoint_hash_manifest_recorded` (pullback): status=`blocked_until_remote_audit`, remote_training_ready_now=`False`
+- `checkpoint_hash_manifest_recorded` (pullback): status=`blocked_until_remote_audit`, remote_training_ready_now=`True`
   - invalid_substitutes: `checkpoint file without hash; hash written before remote pullback; hash of a smoke or no-warm checkpoint`
-- `gate3_formal_audit_accepts_remote_run` (acceptance): status=`blocked_until_remote_audit`, remote_training_ready_now=`False`
+- `gate3_formal_audit_accepts_remote_run` (acceptance): status=`blocked_until_remote_audit`, remote_training_ready_now=`True`
   - missing_artifact_ids: `gate3_formal_audit_formal_decision_pass`
   - invalid_substitutes: `audit marked not_formal, candidate, smoke, or preview; no-warm Gate3 audit reused as warm-start audit; training completion without audit`
-- `h01_h02_regenerated_from_audited_checkpoint` (evaluation_acceptance): status=`blocked_until_remote_audit`, remote_training_ready_now=`False`
+- `h01_h02_regenerated_from_audited_checkpoint` (evaluation_acceptance): status=`blocked_until_remote_audit`, remote_training_ready_now=`True`
   - invalid_substitutes: `paper table preview generated before H02 acceptance; H01/H02 generated from a smoke checkpoint; claim safety run without regenerated formal evaluation rows`
 
 ## Commands

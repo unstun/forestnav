@@ -21,8 +21,8 @@
 - record_command_template_count: `0`
 - missing_deliverable_count: `10`
 - missing_by_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
-- source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
-- source_freshness_blocking_regeneration_required: `True`
+- source_freshness_status: `source_freshness_clean_current`
+- source_freshness_blocking_regeneration_required: `False`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
 - remote_training_allowed_now: `False`
@@ -36,8 +36,8 @@
 
 - `sync_to_remote`: allowed_now=`True`, blocked_by=`none`
 - `run_remote_preflight`: allowed_now=`True`, blocked_by=`none`
-- `run_remote_training`: allowed_now=`False`, blocked_by=`f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_packet_not_ready`
-- `run_remote_audit`: allowed_now=`False`, blocked_by=`f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_packet_not_ready`
+- `run_remote_training`: allowed_now=`True`, blocked_by=`none`
+- `run_remote_audit`: allowed_now=`True`, blocked_by=`none`
 
 ## F02.6 Route Handoff
 
@@ -70,8 +70,8 @@
 
 ## Source Freshness Gate
 
-- source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
-- source_freshness_regeneration_required: `True`
+- source_freshness_status: `source_freshness_clean_current`
+- source_freshness_regeneration_required: `False`
 - source_freshness_non_self_changed_records: `0`
 - source_freshness_self_artifact_only_lag_records: `0`
 
@@ -81,10 +81,10 @@
 - 2. `regenerate_preflight_gate_artifacts`: allowed_now=`True`, blocked_by=`none`
 - 3. `approved_remote_preflight`: allowed_now=`False`, blocked_by=`source_fresh_preflight_targets_open`
 - 4. `regenerate_remote_execution_packet`: allowed_now=`False`, blocked_by=`source_fresh_preflight_targets_open`
-- 5. `gate3_remote_training`: allowed_now=`False`, blocked_by=`source_fresh_preflight_targets_open, remote_packet_not_ready`
-- 6. `gate3_remote_audit_pullback`: allowed_now=`False`, blocked_by=`source_fresh_preflight_targets_open, remote_packet_not_ready`
-- 7. `regenerate_h01_h02_formal_artifacts`: allowed_now=`False`, blocked_by=`missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
-- 8. `regenerate_claim_gate_artifacts`: allowed_now=`False`, blocked_by=`h02_formal_acceptance_not_ready, source_fresh_claim_targets_open`
+- 5. `gate3_remote_training`: allowed_now=`True`, blocked_by=`source_fresh_preflight_targets_open`
+- 6. `gate3_remote_audit_pullback`: allowed_now=`True`, blocked_by=`source_fresh_preflight_targets_open`
+- 7. `regenerate_h01_h02_formal_artifacts`: allowed_now=`False`, blocked_by=`missing_remote_audit_pullback`
+- 8. `regenerate_claim_gate_artifacts`: allowed_now=`False`, blocked_by=`h02_formal_acceptance_not_ready`
 
 ## Requirement Summary
 
@@ -106,9 +106,9 @@
 - acceptance_missing_matrix_ids: `acceptance:gate3_trial_manifest_json, acceptance:gate3_formal_audit_json, acceptance:pulled_back_checkpoint_hash_record`
 - formal_acceptance_missing_matrix_ids: `formal_acceptance:h01_ready_for_formal_run, formal_acceptance:h02_formal_output_acceptance`
 - formal gate requirements: `4`
-  - `training_remote_ppo_checkpoint`: status=`blocked_missing_outputs`, responsible_stage=`gate3_remote_training`
-  - `evaluation_gate3_episode_outputs`: status=`blocked_missing_outputs`, responsible_stage=`gate3_remote_audit_pullback`
-  - `acceptance_remote_pullback_and_audit`: status=`blocked_missing_outputs`, responsible_stage=`gate3_remote_audit_pullback`
+  - `training_remote_ppo_checkpoint`: status=`ready_to_execute_missing_outputs`, responsible_stage=`gate3_remote_training`
+  - `evaluation_gate3_episode_outputs`: status=`ready_to_execute_missing_outputs`, responsible_stage=`gate3_remote_audit_pullback`
+  - `acceptance_remote_pullback_and_audit`: status=`ready_to_execute_missing_outputs`, responsible_stage=`gate3_remote_audit_pullback`
   - `h01_h02_formal_evaluation_acceptance`: status=`blocked_missing_outputs`, responsible_stage=`regenerate_h01_h02_formal_artifacts`
 - H02 acceptance requirements: `4`
 - safety issues: `3`

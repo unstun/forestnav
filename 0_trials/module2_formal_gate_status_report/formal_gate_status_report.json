@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-05T18:40:07.029885+00:00",
-  "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
+  "created_at_utc": "2026-07-05T18:45:22.998739+00:00",
+  "source_head": "7e3dd91dfccbe942c10b5849e997d7542a2475c9",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -106,24 +106,24 @@
     "missing_artifacts_handoff_index_status": "formal_gate_requirements_open",
     "missing_artifacts_handoff_next_action": "resolve_training_remote_ppo_checkpoint",
     "missing_artifacts_handoff_open_requirement_count": 4,
-    "missing_artifacts_handoff_remote_training_allowed_now": false,
+    "missing_artifacts_handoff_remote_training_allowed_now": true,
     "missing_artifacts_handoff_formal_result_material_allowed_now": false,
     "closure_checklist_status": "formal_gate_closure_blocked",
     "closure_open_item_count": 8,
     "closure_remote_preflight_allowed_now": false,
-    "closure_remote_training_allowed_now": false,
-    "closure_remote_audit_pullback_allowed_now": false,
-    "remote_packet_status": "blocked_preconditions",
-    "ready_to_run_remote_training": false,
+    "closure_remote_training_allowed_now": true,
+    "closure_remote_audit_pullback_allowed_now": true,
+    "remote_packet_status": "ready_for_gpu3070ti_remote_training",
+    "ready_to_run_remote_training": true,
     "remote_packet_sync_allowed_now": true,
     "remote_packet_preflight_allowed_now": true,
-    "remote_packet_training_allowed_now": false,
-    "remote_packet_audit_allowed_now": false,
+    "remote_packet_training_allowed_now": true,
+    "remote_packet_audit_allowed_now": true,
     "remote_preflight_requirement_satisfied_count": 4,
     "remote_preflight_requirement_blocked_count": 0,
     "post_run_acceptance_requirement_satisfied_count": 0,
     "post_run_acceptance_requirement_blocked_count": 4,
-    "h01_status": "blocked_pending_decisions",
+    "h01_status": "blocked_protocol_gap",
     "h02_status": "blocked_formal_output_acceptance",
     "h02_formal_output_accepted": false,
     "h02_formal_acceptance_requirement_satisfied_count": 1,
@@ -142,38 +142,19 @@
     "remaining_deliverables_unlock_chain_row_count": 10,
     "remaining_deliverables_unlock_chain_blocked_row_count": 10,
     "remaining_deliverables_unlock_chain_rows_with_missing_required_blockers": 8,
-    "remaining_deliverables_unlock_chain_rows_allowed_while_missing": 0,
+    "remaining_deliverables_unlock_chain_rows_allowed_while_missing": 8,
     "remaining_deliverables_gap_total_missing_deliverable_count": 10,
     "remaining_deliverables_gap_open_category_count": 4,
     "next_required_formal_deliverable_count": 10,
-    "next_required_formal_deliverable_blocked_category_count": 4,
+    "next_required_formal_deliverable_blocked_category_count": 1,
     "remaining_deliverables_proof_plan_present": true,
     "remaining_deliverables_proof_plan_matrix_row_count": 10,
     "remaining_deliverables_proof_plan_command_count": 20,
     "remaining_deliverables_source_blocker_summary_present": true,
-    "remaining_deliverables_source_blocker_count": 18,
-    "remaining_deliverables_source_blocker_ids": [
-      "f02_6_transition_gate_audit",
-      "formal_gate_closure_checklist",
-      "formal_gate_gap_audit",
-      "formal_gate_handoff_bundle",
-      "gpu3070ti_readiness_refresh",
-      "post_f02_6_plan_audit",
-      "remote_formal_execution_packet",
-      "remote_packet_safety_audit",
-      "h01_evaluation_manifest",
-      "h02_formal_acceptance",
-      "claim_safety",
-      "formal_gate_missing_artifacts",
-      "formal_gate_proof_audit",
-      "formal_gate_proof_summary_chain_audit",
-      "formal_gate_remaining_deliverables",
-      "formal_gate_status_report",
-      "mainline_formal_gate_state_audit",
-      "paper_readiness"
-    ],
-    "remaining_deliverables_remote_readiness_blocker_count": 1,
-    "remaining_deliverables_remote_readiness_refresh_requires_external_ssh": true,
+    "remaining_deliverables_source_blocker_count": 0,
+    "remaining_deliverables_source_blocker_ids": [],
+    "remaining_deliverables_remote_readiness_blocker_count": 0,
+    "remaining_deliverables_remote_readiness_refresh_requires_external_ssh": false,
     "remaining_deliverables_remote_readiness_refresh_allowed_now": false,
     "formal_gate_proof_audit_status": "formal_gate_proof_audit_blocked",
     "formal_gate_proof_audit_command_count": 20,
@@ -187,9 +168,9 @@
     "formal_gate_proof_audit_acceptance_missing_artifact_count": 3,
     "formal_gate_proof_audit_formal_acceptance_failed_artifact_count": 2,
     "mainline_formal_gate_state_audit_status": "mainline_formal_gate_state_audit_failed",
-    "mainline_formal_gate_state_audit_issue_count": 2,
+    "mainline_formal_gate_state_audit_issue_count": 5,
     "mainline_formal_gate_state_audit_proof_summary_chain_status": "formal_gate_proof_summary_chain_audit_failed",
-    "mainline_formal_gate_state_audit_proof_summary_chain_issue_count": 12,
+    "mainline_formal_gate_state_audit_proof_summary_chain_issue_count": 14,
     "mainline_formal_gate_state_audit_proof_audit_input_safety_issue_count": 0,
     "handoff_bundle_next_action": "resolve_decision",
     "handoff_bundle_safety_issue_count": 3,
@@ -210,9 +191,9 @@
     "remote_packet_safety_proof_next_blocked_lane": "decision",
     "remote_packet_safety_proof_h02_paper_result_input_allowed": false,
     "remote_packet_safety_status_report_proof_summary_present": true,
-    "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
-    "source_freshness_regeneration_required": true,
-    "source_freshness_blocking_regeneration_required": true,
+    "source_freshness_status": "source_freshness_clean_current",
+    "source_freshness_regeneration_required": false,
+    "source_freshness_blocking_regeneration_required": false,
     "source_freshness_non_self_changed_records": 0,
     "source_freshness_self_artifact_only_lag_records": 0,
     "remote_packet_safety_command_index_present": true,
@@ -230,18 +211,18 @@
     "formal_h02_acceptance_allowed_now": false,
     "formal_claim_allowed_now": false,
     "local_training_allowed_now": false,
-    "source_freshness_ready_for_remote_preflight": false
+    "source_freshness_ready_for_remote_preflight": true
   },
   "missing_counts_by_category": {
     "decision": 0,
     "decision_gate": 1,
-    "regeneration": 18,
-    "gate_sequence": 7,
+    "regeneration": 0,
+    "gate_sequence": 5,
     "training": 3,
     "evaluation": 2,
     "acceptance": 3,
     "evaluation_acceptance": 2,
-    "claim_gate": 9
+    "claim_gate": 1
   },
   "training_artifacts_required": [
     {
@@ -318,9 +299,9 @@
       "artifact_id": "h01_ready_for_formal_run",
       "path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
       "exists": true,
-      "state": "blocked_pending_decisions",
+      "state": "blocked_protocol_gap",
       "missing": true,
-      "reason": "f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen"
+      "reason": "missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen"
     },
     {
       "artifact_id": "h02_formal_output_acceptance",
@@ -328,74 +309,10 @@
       "exists": true,
       "state": "blocked_formal_output_acceptance",
       "missing": true,
-      "reason": "h02_verdict_not_formal, h01_manifest_not_ready, f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_execution_packet_not_ready, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts"
+      "reason": "h02_verdict_not_formal, h01_manifest_not_ready, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts"
     }
   ],
   "claim_gate_artifacts_required": [
-    {
-      "artifact_id": "claim_safety",
-      "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
-      "exists": true,
-      "state": "current_dirty",
-      "missing": true,
-      "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
-    },
-    {
-      "artifact_id": "formal_gate_missing_artifacts",
-      "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
-      "exists": true,
-      "state": "current_dirty",
-      "missing": true,
-      "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
-    },
-    {
-      "artifact_id": "formal_gate_proof_audit",
-      "path": "0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json",
-      "exists": true,
-      "state": "current_dirty",
-      "missing": true,
-      "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
-    },
-    {
-      "artifact_id": "formal_gate_proof_summary_chain_audit",
-      "path": "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
-      "exists": true,
-      "state": "current_dirty",
-      "missing": true,
-      "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
-    },
-    {
-      "artifact_id": "formal_gate_remaining_deliverables",
-      "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
-      "exists": true,
-      "state": "current_dirty",
-      "missing": true,
-      "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
-    },
-    {
-      "artifact_id": "formal_gate_status_report",
-      "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
-      "exists": true,
-      "state": "current_dirty",
-      "missing": true,
-      "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
-    },
-    {
-      "artifact_id": "mainline_formal_gate_state_audit",
-      "path": "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json",
-      "exists": true,
-      "state": "current_dirty",
-      "missing": true,
-      "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
-    },
-    {
-      "artifact_id": "paper_readiness",
-      "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
-      "exists": true,
-      "state": "current_dirty",
-      "missing": true,
-      "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
-    },
     {
       "artifact_id": "h02_formal_acceptance_before_claim_gate",
       "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
@@ -419,26 +336,24 @@
     },
     "gate3_remote_training": {
       "present": true,
-      "status": "blocked",
-      "allowed_now": false,
+      "status": "ready",
+      "allowed_now": true,
       "runs_training": true,
       "runs_remote_preflight": false,
       "host": "gpu3070ti-relay",
       "blocked_by": [
-        "source_fresh_preflight_targets_open",
-        "remote_packet_not_ready"
+        "source_fresh_preflight_targets_open"
       ]
     },
     "gate3_remote_audit_pullback": {
       "present": true,
-      "status": "blocked",
-      "allowed_now": false,
+      "status": "ready",
+      "allowed_now": true,
       "runs_training": false,
       "runs_remote_preflight": false,
       "host": "gpu3070ti-relay",
       "blocked_by": [
-        "source_fresh_preflight_targets_open",
-        "remote_packet_not_ready"
+        "source_fresh_preflight_targets_open"
       ]
     }
   },
@@ -457,27 +372,15 @@
     },
     "run_remote_training": {
       "present": true,
-      "allowed_now": false,
+      "allowed_now": true,
       "runs_training": true,
-      "blocked_by": [
-        "f02_6_warm_start_decision_pending",
-        "missing_module2_bc_checkpoint",
-        "missing_module2_rl_rs_checkpoint",
-        "realmap_query_generation_not_frozen",
-        "remote_packet_not_ready"
-      ]
+      "blocked_by": []
     },
     "run_remote_audit": {
       "present": true,
-      "allowed_now": false,
+      "allowed_now": true,
       "runs_training": false,
-      "blocked_by": [
-        "f02_6_warm_start_decision_pending",
-        "missing_module2_bc_checkpoint",
-        "missing_module2_rl_rs_checkpoint",
-        "realmap_query_generation_not_frozen",
-        "remote_packet_not_ready"
-      ]
+      "blocked_by": []
     }
   },
   "remote_preflight_requirement_summary": {
@@ -560,7 +463,7 @@
         "phase": "pullback",
         "complete": false,
         "execution_allowed_now": false,
-        "remote_training_ready_now": false,
+        "remote_training_ready_now": true,
         "required_before": "local_gate3_formal_audit_review",
         "missing_artifact_ids": [],
         "blocked_by": [],
@@ -573,7 +476,7 @@
         "phase": "pullback",
         "complete": false,
         "execution_allowed_now": false,
-        "remote_training_ready_now": false,
+        "remote_training_ready_now": true,
         "required_before": "h01_h02_regeneration",
         "missing_artifact_ids": [],
         "blocked_by": [],
@@ -586,7 +489,7 @@
         "phase": "acceptance",
         "complete": false,
         "execution_allowed_now": false,
-        "remote_training_ready_now": false,
+        "remote_training_ready_now": true,
         "required_before": "formal_claim_gate",
         "missing_artifact_ids": [
           "gate3_formal_audit_formal_decision_pass"
@@ -601,7 +504,7 @@
         "phase": "evaluation_acceptance",
         "complete": false,
         "execution_allowed_now": false,
-        "remote_training_ready_now": false,
+        "remote_training_ready_now": true,
         "required_before": "paper_result_gate",
         "missing_artifact_ids": [],
         "blocked_by": [],
@@ -642,15 +545,8 @@
         "missing_artifact_ids": [
           "h02_verdict_formal_acceptance_true",
           "h01_manifest_ready",
-          "h01_blocker_f02_6_warm_start_decision_pending",
-          "h01_blocker_missing_module2_bc_checkpoint",
           "h01_blocker_missing_module2_rl_rs_checkpoint",
           "h01_blocker_realmap_query_generation_not_frozen",
-          "remote_execution_packet_ready",
-          "remote_packet_blocker_f02_6_warm_start_decision_pending",
-          "remote_packet_blocker_missing_module2_bc_checkpoint",
-          "remote_packet_blocker_missing_module2_rl_rs_checkpoint",
-          "remote_packet_blocker_realmap_query_generation_not_frozen",
           "h02_scale_satisfies_h01"
         ],
         "acceptable_evidence_count": 3,
@@ -921,7 +817,7 @@
     "present": true,
     "status": "blocked_handoff_input_safety_issues",
     "transition_gate_status": "f02_6_transition_gate_audit_failed",
-    "transition_gate_audit_issue_count": 12,
+    "transition_gate_audit_issue_count": 19,
     "next_handoff_action_id": "resolve_decision",
     "next_action_requires_dr_sun": false,
     "safety_issue_count": 3,
@@ -943,27 +839,15 @@
       },
       "run_remote_training": {
         "present": true,
-        "allowed_now": false,
+        "allowed_now": true,
         "runs_training": true,
-        "blocked_by": [
-          "f02_6_warm_start_decision_pending",
-          "missing_module2_bc_checkpoint",
-          "missing_module2_rl_rs_checkpoint",
-          "realmap_query_generation_not_frozen",
-          "remote_packet_not_ready"
-        ]
+        "blocked_by": []
       },
       "run_remote_audit": {
         "present": true,
-        "allowed_now": false,
+        "allowed_now": true,
         "runs_training": false,
-        "blocked_by": [
-          "f02_6_warm_start_decision_pending",
-          "missing_module2_bc_checkpoint",
-          "missing_module2_rl_rs_checkpoint",
-          "realmap_query_generation_not_frozen",
-          "remote_packet_not_ready"
-        ]
+        "blocked_by": []
       }
     }
   },
@@ -973,23 +857,22 @@
     "mapped_requirement_count": 4,
     "unmapped_requirement_count": 0,
     "mismatched_requirement_count": 0,
-    "blocked_stage_count": 4,
+    "blocked_stage_count": 1,
     "unmapped_requirement_ids": [],
     "mismatched_requirement_ids": [],
     "requirements": {
       "training_remote_ppo_checkpoint": {
         "present": true,
-        "status": "blocked_missing_outputs",
+        "status": "ready_to_execute_missing_outputs",
         "phase": "training",
         "complete": false,
-        "execution_allowed_now": false,
+        "execution_allowed_now": true,
         "expected_stage_id": "gate3_remote_training",
         "responsible_stage_id": "gate3_remote_training",
-        "responsible_stage_status": "blocked",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_status": "ready",
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open",
-          "remote_packet_not_ready"
+          "source_fresh_preflight_targets_open"
         ],
         "responsible_stage_evidence_paths": [
           "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
@@ -1005,17 +888,16 @@
       },
       "evaluation_gate3_episode_outputs": {
         "present": true,
-        "status": "blocked_missing_outputs",
+        "status": "ready_to_execute_missing_outputs",
         "phase": "evaluation",
         "complete": false,
-        "execution_allowed_now": false,
+        "execution_allowed_now": true,
         "expected_stage_id": "gate3_remote_audit_pullback",
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_status": "blocked",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_status": "ready",
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open",
-          "remote_packet_not_ready"
+          "source_fresh_preflight_targets_open"
         ],
         "responsible_stage_evidence_paths": [
           "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
@@ -1031,17 +913,16 @@
       },
       "acceptance_remote_pullback_and_audit": {
         "present": true,
-        "status": "blocked_missing_outputs",
+        "status": "ready_to_execute_missing_outputs",
         "phase": "acceptance",
         "complete": false,
-        "execution_allowed_now": false,
+        "execution_allowed_now": true,
         "expected_stage_id": "gate3_remote_audit_pullback",
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_status": "blocked",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_status": "ready",
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open",
-          "remote_packet_not_ready"
+          "source_fresh_preflight_targets_open"
         ],
         "responsible_stage_evidence_paths": [
           "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
@@ -1066,12 +947,9 @@
         "responsible_stage_status": "blocked",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "missing_remote_audit_pullback",
-          "source_fresh_h01_h02_targets_open"
+          "missing_remote_audit_pullback"
         ],
         "responsible_stage_evidence_paths": [
-          "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
-          "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
           "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
         ],
         "mapping_present": true,
@@ -1084,11 +962,11 @@
     "status": "formal_gate_requirements_open",
     "next_action_id": "resolve_training_remote_ppo_checkpoint",
     "next_action_requires_dr_sun": false,
-    "next_action_allowed_for_agent_now": false,
+    "next_action_allowed_for_agent_now": true,
     "requirement_count": 5,
     "open_requirement_count": 4,
     "local_training_allowed_now": false,
-    "remote_training_allowed_now": false,
+    "remote_training_allowed_now": true,
     "formal_result_material_allowed_now": false
   },
   "formal_gate_execution_veto_summary": {
@@ -1105,7 +983,7 @@
       "local_training": false,
       "remote_preflight": false,
       "remote_training": false,
-      "remote_audit": false,
+      "remote_audit": true,
       "formal_claim": false
     },
     "rows": {
@@ -1136,17 +1014,17 @@
           "decision_record": true,
           "status_report": false,
           "handoff_bundle": false,
-          "remote_packet": false,
-          "remote_packet_safety": false
+          "remote_packet": true,
+          "remote_packet_safety": true
         }
       },
       "remote_audit": {
         "consistent": true,
-        "consensus_allowed_now": false,
+        "consensus_allowed_now": true,
         "allowed_now_by_source": {
-          "handoff_bundle": false,
-          "remote_packet": false,
-          "remote_packet_safety": false
+          "handoff_bundle": true,
+          "remote_packet": true,
+          "remote_packet_safety": true
         }
       },
       "formal_claim": {
@@ -1181,8 +1059,8 @@
       "formal_h01_evaluation_allowed_now": false,
       "formal_h02_acceptance_allowed_now": false,
       "formal_claim_allowed_now": false,
-      "remote_packet_ready_to_run_remote_training": false,
-      "source_freshness_ready_for_remote_preflight": false
+      "remote_packet_ready_to_run_remote_training": true,
+      "source_freshness_ready_for_remote_preflight": true
     },
     "rows": {
       "training:train_final_model_zip": {
@@ -1194,11 +1072,10 @@
         "current_state": "missing",
         "missing": true,
         "responsible_stage_id": "gate3_remote_training",
-        "responsible_stage_status": "blocked",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_status": "ready",
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open",
-          "remote_packet_not_ready"
+          "source_fresh_preflight_targets_open"
         ],
         "acceptance_predicate_count": 5,
         "proof_command_count": 2,
@@ -1219,11 +1096,10 @@
         "current_state": "missing",
         "missing": true,
         "responsible_stage_id": "gate3_remote_training",
-        "responsible_stage_status": "blocked",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_status": "ready",
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open",
-          "remote_packet_not_ready"
+          "source_fresh_preflight_targets_open"
         ],
         "acceptance_predicate_count": 5,
         "proof_command_count": 2,
@@ -1244,11 +1120,10 @@
         "current_state": "missing",
         "missing": true,
         "responsible_stage_id": "gate3_remote_training",
-        "responsible_stage_status": "blocked",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_status": "ready",
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open",
-          "remote_packet_not_ready"
+          "source_fresh_preflight_targets_open"
         ],
         "acceptance_predicate_count": 5,
         "proof_command_count": 2,
@@ -1269,11 +1144,10 @@
         "current_state": "missing",
         "missing": true,
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_status": "blocked",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_status": "ready",
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open",
-          "remote_packet_not_ready"
+          "source_fresh_preflight_targets_open"
         ],
         "acceptance_predicate_count": 5,
         "proof_command_count": 2,
@@ -1294,11 +1168,10 @@
         "current_state": "missing",
         "missing": true,
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_status": "blocked",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_status": "ready",
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open",
-          "remote_packet_not_ready"
+          "source_fresh_preflight_targets_open"
         ],
         "acceptance_predicate_count": 5,
         "proof_command_count": 2,
@@ -1319,11 +1192,10 @@
         "current_state": "missing",
         "missing": true,
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_status": "blocked",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_status": "ready",
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open",
-          "remote_packet_not_ready"
+          "source_fresh_preflight_targets_open"
         ],
         "acceptance_predicate_count": 5,
         "proof_command_count": 2,
@@ -1344,11 +1216,10 @@
         "current_state": "missing",
         "missing": true,
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_status": "blocked",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_status": "ready",
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open",
-          "remote_packet_not_ready"
+          "source_fresh_preflight_targets_open"
         ],
         "acceptance_predicate_count": 5,
         "proof_command_count": 2,
@@ -1369,11 +1240,10 @@
         "current_state": "missing",
         "missing": true,
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_status": "blocked",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_status": "ready",
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open",
-          "remote_packet_not_ready"
+          "source_fresh_preflight_targets_open"
         ],
         "acceptance_predicate_count": 5,
         "proof_command_count": 2,
@@ -1391,14 +1261,13 @@
         "artifact_id": "h01_ready_for_formal_run",
         "expected_path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
         "current_exists": true,
-        "current_state": "blocked_pending_decisions",
+        "current_state": "blocked_protocol_gap",
         "missing": true,
         "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
         "responsible_stage_status": "blocked",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "missing_remote_audit_pullback",
-          "source_fresh_h01_h02_targets_open"
+          "missing_remote_audit_pullback"
         ],
         "acceptance_predicate_count": 5,
         "proof_command_count": 2,
@@ -1422,8 +1291,7 @@
         "responsible_stage_status": "blocked",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "missing_remote_audit_pullback",
-          "source_fresh_h01_h02_targets_open"
+          "missing_remote_audit_pullback"
         ],
         "acceptance_predicate_count": 5,
         "proof_command_count": 2,
@@ -1457,10 +1325,9 @@
         "missing_count": 3,
         "present_count": 0,
         "responsible_stage_id": "gate3_remote_training",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open",
-          "remote_packet_not_ready"
+          "source_fresh_preflight_targets_open"
         ],
         "next_required_evidence_count": 3,
         "missing_artifact_count": 3,
@@ -1528,10 +1395,9 @@
         "missing_count": 2,
         "present_count": 0,
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open",
-          "remote_packet_not_ready"
+          "source_fresh_preflight_targets_open"
         ],
         "next_required_evidence_count": 2,
         "missing_artifact_count": 2,
@@ -1582,10 +1448,9 @@
         "missing_count": 3,
         "present_count": 0,
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open",
-          "remote_packet_not_ready"
+          "source_fresh_preflight_targets_open"
         ],
         "next_required_evidence_count": 3,
         "missing_artifact_count": 3,
@@ -1655,8 +1520,7 @@
         "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "missing_remote_audit_pullback",
-          "source_fresh_h01_h02_targets_open"
+          "missing_remote_audit_pullback"
         ],
         "next_required_evidence_count": 3,
         "missing_artifact_count": 2,
@@ -1675,8 +1539,8 @@
             "matrix_id": "formal_acceptance:h01_ready_for_formal_run",
             "artifact_id": "h01_ready_for_formal_run",
             "expected_path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
-            "current_state": "blocked_pending_decisions",
-            "missing_reason": "f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen",
+            "current_state": "blocked_protocol_gap",
+            "missing_reason": "missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen",
             "acceptance_predicate_count": 5,
             "proof_command_count": 2,
             "proof_command_ids": [
@@ -1690,7 +1554,7 @@
             "artifact_id": "h02_formal_output_acceptance",
             "expected_path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
             "current_state": "blocked_formal_output_acceptance",
-            "missing_reason": "h02_verdict_not_formal, h01_manifest_not_ready, f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_execution_packet_not_ready, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts",
+            "missing_reason": "h02_verdict_not_formal, h01_manifest_not_ready, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts",
             "acceptance_predicate_count": 5,
             "proof_command_count": 2,
             "proof_command_ids": [
@@ -1712,17 +1576,17 @@
     "row_count": 10,
     "derived_row_count": 10,
     "blocked_row_count": 10,
-    "derived_blocked_row_count": 10,
+    "derived_blocked_row_count": 2,
     "rows_with_missing_required_blockers": 8,
-    "rows_allowed_while_missing": 0,
+    "rows_allowed_while_missing": 8,
     "declared_rows_with_missing_required_blockers": 8,
-    "declared_rows_allowed_while_missing": 0,
+    "declared_rows_allowed_while_missing": 8,
     "categories": {
       "training": {
         "row_count": 3,
-        "blocked_row_count": 3,
+        "blocked_row_count": 0,
         "rows_with_missing_required_blockers": 3,
-        "rows_allowed_while_missing": 0,
+        "rows_allowed_while_missing": 3,
         "required_current_blockers": [
           "f02_6_decision_not_approved",
           "remote_packet_not_ready"
@@ -1737,9 +1601,9 @@
       },
       "evaluation": {
         "row_count": 2,
-        "blocked_row_count": 2,
+        "blocked_row_count": 0,
         "rows_with_missing_required_blockers": 2,
-        "rows_allowed_while_missing": 0,
+        "rows_allowed_while_missing": 2,
         "required_current_blockers": [
           "f02_6_decision_not_approved",
           "remote_packet_not_ready"
@@ -1755,9 +1619,9 @@
       },
       "acceptance": {
         "row_count": 3,
-        "blocked_row_count": 3,
+        "blocked_row_count": 0,
         "rows_with_missing_required_blockers": 3,
-        "rows_allowed_while_missing": 0,
+        "rows_allowed_while_missing": 3,
         "required_current_blockers": [
           "f02_6_decision_not_approved",
           "remote_packet_not_ready"
@@ -1795,13 +1659,14 @@
         "current_state": "missing",
         "missing": true,
         "responsible_stage_id": "gate3_remote_training",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_allowed_now": true,
         "required_current_blockers": [
           "f02_6_decision_not_approved",
           "remote_packet_not_ready"
         ],
         "missing_required_current_blockers": [
-          "f02_6_decision_not_approved"
+          "f02_6_decision_not_approved",
+          "remote_packet_not_ready"
         ],
         "unlock_sequence_before_stage_allowed": [
           "record_f02_6_decision",
@@ -1820,13 +1685,14 @@
         "current_state": "missing",
         "missing": true,
         "responsible_stage_id": "gate3_remote_training",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_allowed_now": true,
         "required_current_blockers": [
           "f02_6_decision_not_approved",
           "remote_packet_not_ready"
         ],
         "missing_required_current_blockers": [
-          "f02_6_decision_not_approved"
+          "f02_6_decision_not_approved",
+          "remote_packet_not_ready"
         ],
         "unlock_sequence_before_stage_allowed": [
           "record_f02_6_decision",
@@ -1845,13 +1711,14 @@
         "current_state": "missing",
         "missing": true,
         "responsible_stage_id": "gate3_remote_training",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_allowed_now": true,
         "required_current_blockers": [
           "f02_6_decision_not_approved",
           "remote_packet_not_ready"
         ],
         "missing_required_current_blockers": [
-          "f02_6_decision_not_approved"
+          "f02_6_decision_not_approved",
+          "remote_packet_not_ready"
         ],
         "unlock_sequence_before_stage_allowed": [
           "record_f02_6_decision",
@@ -1870,13 +1737,14 @@
         "current_state": "missing",
         "missing": true,
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_allowed_now": true,
         "required_current_blockers": [
           "f02_6_decision_not_approved",
           "remote_packet_not_ready"
         ],
         "missing_required_current_blockers": [
-          "f02_6_decision_not_approved"
+          "f02_6_decision_not_approved",
+          "remote_packet_not_ready"
         ],
         "unlock_sequence_before_stage_allowed": [
           "record_f02_6_decision",
@@ -1896,13 +1764,14 @@
         "current_state": "missing",
         "missing": true,
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_allowed_now": true,
         "required_current_blockers": [
           "f02_6_decision_not_approved",
           "remote_packet_not_ready"
         ],
         "missing_required_current_blockers": [
-          "f02_6_decision_not_approved"
+          "f02_6_decision_not_approved",
+          "remote_packet_not_ready"
         ],
         "unlock_sequence_before_stage_allowed": [
           "record_f02_6_decision",
@@ -1922,13 +1791,14 @@
         "current_state": "missing",
         "missing": true,
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_allowed_now": true,
         "required_current_blockers": [
           "f02_6_decision_not_approved",
           "remote_packet_not_ready"
         ],
         "missing_required_current_blockers": [
-          "f02_6_decision_not_approved"
+          "f02_6_decision_not_approved",
+          "remote_packet_not_ready"
         ],
         "unlock_sequence_before_stage_allowed": [
           "record_f02_6_decision",
@@ -1948,13 +1818,14 @@
         "current_state": "missing",
         "missing": true,
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_allowed_now": true,
         "required_current_blockers": [
           "f02_6_decision_not_approved",
           "remote_packet_not_ready"
         ],
         "missing_required_current_blockers": [
-          "f02_6_decision_not_approved"
+          "f02_6_decision_not_approved",
+          "remote_packet_not_ready"
         ],
         "unlock_sequence_before_stage_allowed": [
           "record_f02_6_decision",
@@ -1974,13 +1845,14 @@
         "current_state": "missing",
         "missing": true,
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_allowed_now": true,
         "required_current_blockers": [
           "f02_6_decision_not_approved",
           "remote_packet_not_ready"
         ],
         "missing_required_current_blockers": [
-          "f02_6_decision_not_approved"
+          "f02_6_decision_not_approved",
+          "remote_packet_not_ready"
         ],
         "unlock_sequence_before_stage_allowed": [
           "record_f02_6_decision",
@@ -1997,7 +1869,7 @@
         "matrix_id": "formal_acceptance:h01_ready_for_formal_run",
         "category": "formal_acceptance",
         "artifact_id": "h01_ready_for_formal_run",
-        "current_state": "blocked_pending_decisions",
+        "current_state": "blocked_protocol_gap",
         "missing": true,
         "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
         "responsible_stage_allowed_now": false,
@@ -2042,11 +1914,8 @@
     "runs_training": false,
     "runs_remote_preflight": false,
     "total_missing_deliverables": 10,
-    "blocked_category_count": 4,
+    "blocked_category_count": 1,
     "blocked_categories": [
-      "training",
-      "evaluation",
-      "acceptance",
       "formal_acceptance"
     ],
     "category_order": [
@@ -2064,10 +1933,9 @@
         "current_state": "missing",
         "missing_reason": "required formal Gate3 training artifact",
         "responsible_stage_id": "gate3_remote_training",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open",
-          "remote_packet_not_ready"
+          "source_fresh_preflight_targets_open"
         ],
         "proof_command_ids": [
           "train_final_model_zip_exists_nonempty",
@@ -2083,10 +1951,9 @@
         "current_state": "missing",
         "missing_reason": "required formal Gate3 training artifact",
         "responsible_stage_id": "gate3_remote_training",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open",
-          "remote_packet_not_ready"
+          "source_fresh_preflight_targets_open"
         ],
         "proof_command_ids": [
           "train_summary_json_exists_nonempty",
@@ -2102,10 +1969,9 @@
         "current_state": "missing",
         "missing_reason": "required formal Gate3 training artifact",
         "responsible_stage_id": "gate3_remote_training",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open",
-          "remote_packet_not_ready"
+          "source_fresh_preflight_targets_open"
         ],
         "proof_command_ids": [
           "train_training_manifest_json_exists_nonempty",
@@ -2121,10 +1987,9 @@
         "current_state": "missing",
         "missing_reason": "required formal Gate3 evaluation artifact",
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open",
-          "remote_packet_not_ready"
+          "source_fresh_preflight_targets_open"
         ],
         "proof_command_ids": [
           "eval_gate3_eval_episodes_csv_exists_nonempty",
@@ -2140,10 +2005,9 @@
         "current_state": "missing",
         "missing_reason": "required formal Gate3 evaluation artifact",
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open",
-          "remote_packet_not_ready"
+          "source_fresh_preflight_targets_open"
         ],
         "proof_command_ids": [
           "eval_gate3_summary_json_exists_nonempty",
@@ -2159,10 +2023,9 @@
         "current_state": "missing",
         "missing_reason": "required formal Gate3 acceptance artifact",
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open",
-          "remote_packet_not_ready"
+          "source_fresh_preflight_targets_open"
         ],
         "proof_command_ids": [
           "gate3_trial_manifest_json_exists_nonempty",
@@ -2178,10 +2041,9 @@
         "current_state": "missing",
         "missing_reason": "required formal Gate3 acceptance artifact",
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open",
-          "remote_packet_not_ready"
+          "source_fresh_preflight_targets_open"
         ],
         "proof_command_ids": [
           "gate3_formal_audit_json_exists_nonempty",
@@ -2197,10 +2059,9 @@
         "current_state": "missing",
         "missing_reason": "remote packet requires checkpoint hash before any local formal claim",
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open",
-          "remote_packet_not_ready"
+          "source_fresh_preflight_targets_open"
         ],
         "proof_command_ids": [
           "pulled_back_checkpoint_hash_record_exists_nonempty",
@@ -2213,13 +2074,12 @@
         "category": "formal_acceptance",
         "artifact_id": "h01_ready_for_formal_run",
         "expected_path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
-        "current_state": "blocked_pending_decisions",
-        "missing_reason": "f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen",
+        "current_state": "blocked_protocol_gap",
+        "missing_reason": "missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen",
         "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "missing_remote_audit_pullback",
-          "source_fresh_h01_h02_targets_open"
+          "missing_remote_audit_pullback"
         ],
         "proof_command_ids": [
           "h01_ready_for_formal_run_exists_nonempty",
@@ -2233,12 +2093,11 @@
         "artifact_id": "h02_formal_output_acceptance",
         "expected_path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
         "current_state": "blocked_formal_output_acceptance",
-        "missing_reason": "h02_verdict_not_formal, h01_manifest_not_ready, f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_execution_packet_not_ready, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts",
+        "missing_reason": "h02_verdict_not_formal, h01_manifest_not_ready, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts",
         "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "missing_remote_audit_pullback",
-          "source_fresh_h01_h02_targets_open"
+          "missing_remote_audit_pullback"
         ],
         "proof_command_ids": [
           "h02_formal_output_acceptance_exists_nonempty",
@@ -2375,204 +2234,20 @@
     "summary_id": "module2_source_freshness_blocking_targets_summary",
     "execution_boundary": "read_only_no_execution",
     "not_paper_result_material": true,
-    "status": "source_freshness_risks_recorded_gate_still_blocked",
-    "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
-    "current_head": "400489e36a80db3278ce4f9fe550d133a4b6b607",
-    "blocking_regeneration_required_before_remote_formal_execution": true,
-    "blocking_target_count": 18,
-    "blocking_target_ids": [
-      "f02_6_transition_gate_audit",
-      "formal_gate_closure_checklist",
-      "formal_gate_gap_audit",
-      "formal_gate_handoff_bundle",
-      "gpu3070ti_readiness_refresh",
-      "post_f02_6_plan_audit",
-      "remote_formal_execution_packet",
-      "remote_packet_safety_audit",
-      "h01_evaluation_manifest",
-      "h02_formal_acceptance",
-      "claim_safety",
-      "formal_gate_missing_artifacts",
-      "formal_gate_proof_audit",
-      "formal_gate_proof_summary_chain_audit",
-      "formal_gate_remaining_deliverables",
-      "formal_gate_status_report",
-      "mainline_formal_gate_state_audit",
-      "paper_readiness"
-    ],
-    "remote_readiness_blocking_target_ids": [
-      "gpu3070ti_readiness_refresh"
-    ],
-    "remote_readiness_blocking_target_count": 1,
-    "remote_readiness_refresh_requires_external_ssh": true,
+    "status": "source_freshness_clean_current",
+    "source_head": "7e3dd91dfccbe942c10b5849e997d7542a2475c9",
+    "current_head": "7e3dd91dfccbe942c10b5849e997d7542a2475c9",
+    "blocking_regeneration_required_before_remote_formal_execution": false,
+    "blocking_target_count": 0,
+    "blocking_target_ids": [],
+    "remote_readiness_blocking_target_ids": [],
+    "remote_readiness_blocking_target_count": 0,
+    "remote_readiness_refresh_requires_external_ssh": false,
     "remote_readiness_refresh_allowed_now": false,
     "remote_preflight_allowed_now": false,
     "remote_training_allowed_now": false,
     "formal_claim_allowed_now": false,
-    "rows": [
-      {
-        "artifact_id": "f02_6_transition_gate_audit",
-        "path": "0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json",
-        "freshness_state": "current_dirty",
-        "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
-        "required_before": "approved_remote_preflight",
-        "commits_since_source": 0,
-        "blocking_changed_path_count_since_source": 0
-      },
-      {
-        "artifact_id": "formal_gate_closure_checklist",
-        "path": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
-        "freshness_state": "current_dirty",
-        "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
-        "required_before": "approved_remote_preflight",
-        "commits_since_source": 0,
-        "blocking_changed_path_count_since_source": 0
-      },
-      {
-        "artifact_id": "formal_gate_gap_audit",
-        "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
-        "freshness_state": "current_dirty",
-        "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
-        "required_before": "approved_remote_preflight",
-        "commits_since_source": 0,
-        "blocking_changed_path_count_since_source": 0
-      },
-      {
-        "artifact_id": "formal_gate_handoff_bundle",
-        "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
-        "freshness_state": "current_dirty",
-        "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
-        "required_before": "approved_remote_preflight",
-        "commits_since_source": 0,
-        "blocking_changed_path_count_since_source": 0
-      },
-      {
-        "artifact_id": "gpu3070ti_readiness_refresh",
-        "path": "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
-        "freshness_state": "current_dirty",
-        "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
-        "required_before": "approved_remote_preflight",
-        "commits_since_source": 0,
-        "blocking_changed_path_count_since_source": 0
-      },
-      {
-        "artifact_id": "post_f02_6_plan_audit",
-        "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
-        "freshness_state": "current_dirty",
-        "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
-        "required_before": "approved_remote_preflight",
-        "commits_since_source": 0,
-        "blocking_changed_path_count_since_source": 0
-      },
-      {
-        "artifact_id": "remote_formal_execution_packet",
-        "path": "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json",
-        "freshness_state": "current_dirty",
-        "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
-        "required_before": "approved_remote_preflight",
-        "commits_since_source": 0,
-        "blocking_changed_path_count_since_source": 0
-      },
-      {
-        "artifact_id": "remote_packet_safety_audit",
-        "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
-        "freshness_state": "current_dirty",
-        "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
-        "required_before": "approved_remote_preflight",
-        "commits_since_source": 0,
-        "blocking_changed_path_count_since_source": 0
-      },
-      {
-        "artifact_id": "h01_evaluation_manifest",
-        "path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
-        "freshness_state": "current_dirty",
-        "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
-        "required_before": "formal_h01_h02",
-        "commits_since_source": 0,
-        "blocking_changed_path_count_since_source": 0
-      },
-      {
-        "artifact_id": "h02_formal_acceptance",
-        "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
-        "freshness_state": "current_dirty",
-        "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
-        "required_before": "formal_h01_h02",
-        "commits_since_source": 0,
-        "blocking_changed_path_count_since_source": 0
-      },
-      {
-        "artifact_id": "claim_safety",
-        "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
-        "freshness_state": "current_dirty",
-        "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
-        "required_before": "formal_claim_gate",
-        "commits_since_source": 0,
-        "blocking_changed_path_count_since_source": 0
-      },
-      {
-        "artifact_id": "formal_gate_missing_artifacts",
-        "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
-        "freshness_state": "current_dirty",
-        "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
-        "required_before": "formal_claim_gate",
-        "commits_since_source": 0,
-        "blocking_changed_path_count_since_source": 0
-      },
-      {
-        "artifact_id": "formal_gate_proof_audit",
-        "path": "0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json",
-        "freshness_state": "current_dirty",
-        "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
-        "required_before": "formal_claim_gate",
-        "commits_since_source": 0,
-        "blocking_changed_path_count_since_source": 0
-      },
-      {
-        "artifact_id": "formal_gate_proof_summary_chain_audit",
-        "path": "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
-        "freshness_state": "current_dirty",
-        "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
-        "required_before": "formal_claim_gate",
-        "commits_since_source": 0,
-        "blocking_changed_path_count_since_source": 0
-      },
-      {
-        "artifact_id": "formal_gate_remaining_deliverables",
-        "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
-        "freshness_state": "current_dirty",
-        "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
-        "required_before": "formal_claim_gate",
-        "commits_since_source": 0,
-        "blocking_changed_path_count_since_source": 0
-      },
-      {
-        "artifact_id": "formal_gate_status_report",
-        "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
-        "freshness_state": "current_dirty",
-        "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
-        "required_before": "formal_claim_gate",
-        "commits_since_source": 0,
-        "blocking_changed_path_count_since_source": 0
-      },
-      {
-        "artifact_id": "mainline_formal_gate_state_audit",
-        "path": "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json",
-        "freshness_state": "current_dirty",
-        "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
-        "required_before": "formal_claim_gate",
-        "commits_since_source": 0,
-        "blocking_changed_path_count_since_source": 0
-      },
-      {
-        "artifact_id": "paper_readiness",
-        "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
-        "freshness_state": "current_dirty",
-        "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
-        "required_before": "formal_claim_gate",
-        "commits_since_source": 0,
-        "blocking_changed_path_count_since_source": 0
-      }
-    ]
+    "rows": []
   },
   "formal_gate_proof_audit_summary": {
     "present": true,
@@ -2850,7 +2525,7 @@
         ]
       },
       "next_blocked_lane": "decision",
-      "h01_status": "blocked_pending_decisions",
+      "h01_status": "blocked_protocol_gap",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
       "h02_paper_result_input_allowed": false
@@ -2917,7 +2592,7 @@
       ]
     },
     "next_blocked_lane": "decision",
-    "h01_status": "blocked_pending_decisions",
+    "h01_status": "blocked_protocol_gap",
     "h02_status": "blocked_formal_output_acceptance",
     "h02_formal_output_accepted": false,
     "h02_paper_result_input_allowed": false
@@ -3075,9 +2750,9 @@
     "runs_remote_preflight": false,
     "local_training_allowed": false,
     "formal_claim_allowed": false,
-    "audit_issue_count": 2,
+    "audit_issue_count": 5,
     "proof_summary_chain_status": "formal_gate_proof_summary_chain_audit_failed",
-    "proof_summary_chain_audit_issue_count": 12,
+    "proof_summary_chain_audit_issue_count": 14,
     "proof_summary_chain_proof_audit_input_safety_issue_count": 0,
     "proof_summary_chain_proof_audit_blockers": [
       "missing_formal_training_artifacts",
@@ -3097,12 +2772,18 @@
     "missing_artifacts_next_action_id": "resolve_training_remote_ppo_checkpoint",
     "decision_intake_next_blocked_lane": "decision",
     "all_execution_disabled_now": false,
-    "execution_leak_count": 2,
-    "remote_execution_allowed_count": 2,
-    "remote_stage_allowed_count": 0,
+    "execution_leak_count": 8,
+    "remote_execution_allowed_count": 4,
+    "remote_stage_allowed_count": 2,
     "execution_leak_surface_ids": [
+      "missing_artifacts_remote_training_allowed_now",
+      "remote_packet_ready_to_run_remote_training",
       "remote_execution_step:sync_to_remote",
-      "remote_execution_step:run_remote_preflight"
+      "remote_execution_step:run_remote_preflight",
+      "remote_execution_step:run_remote_training",
+      "remote_execution_step:run_remote_audit",
+      "closure_remote_stage:gate3_remote_training",
+      "closure_remote_stage:gate3_remote_audit_pullback"
     ],
     "execution_surfaces": [
       {
@@ -3139,7 +2820,7 @@
       },
       {
         "surface_id": "missing_artifacts_remote_training_allowed_now",
-        "allowed_now": false
+        "allowed_now": true
       },
       {
         "surface_id": "missing_artifacts_formal_result_material_allowed_now",
@@ -3147,7 +2828,7 @@
       },
       {
         "surface_id": "remote_packet_ready_to_run_remote_training",
-        "allowed_now": false
+        "allowed_now": true
       },
       {
         "surface_id": "remote_execution_step:sync_to_remote",
@@ -3159,11 +2840,11 @@
       },
       {
         "surface_id": "remote_execution_step:run_remote_training",
-        "allowed_now": false
+        "allowed_now": true
       },
       {
         "surface_id": "remote_execution_step:run_remote_audit",
-        "allowed_now": false
+        "allowed_now": true
       },
       {
         "surface_id": "closure_remote_stage:approved_remote_preflight",
@@ -3171,11 +2852,11 @@
       },
       {
         "surface_id": "closure_remote_stage:gate3_remote_training",
-        "allowed_now": false
+        "allowed_now": true
       },
       {
         "surface_id": "closure_remote_stage:gate3_remote_audit_pullback",
-        "allowed_now": false
+        "allowed_now": true
       }
     ],
     "violation_count": 0,
@@ -3201,7 +2882,7 @@
         "missing_count": 3,
         "present_count": 0,
         "responsible_stage_id": "gate3_remote_training",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [],
         "next_required_evidence_count": 0,
         "missing_artifact_count": 3,
@@ -3218,7 +2899,7 @@
         "missing_count": 2,
         "present_count": 0,
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [],
         "next_required_evidence_count": 0,
         "missing_artifact_count": 2,
@@ -3234,7 +2915,7 @@
         "missing_count": 3,
         "present_count": 0,
         "responsible_stage_id": "gate3_remote_audit_pullback",
-        "responsible_stage_allowed_now": false,
+        "responsible_stage_allowed_now": true,
         "responsible_stage_blocked_by": [],
         "next_required_evidence_count": 0,
         "missing_artifact_count": 3,
@@ -3292,7 +2973,7 @@
       ]
     },
     "next_blocked_lane": "decision",
-    "h01_status": "blocked_protocol_gap",
+    "h01_status": "blocked_pending_decisions",
     "h02_status": "blocked_formal_output_acceptance",
     "h02_formal_output_accepted": false,
     "h02_paper_result_input_allowed": false
@@ -3326,7 +3007,7 @@
       ]
     },
     "next_blocked_lane": "decision",
-    "h01_status": "blocked_protocol_gap",
+    "h01_status": "blocked_pending_decisions",
     "h02_status": "blocked_formal_output_acceptance",
     "h02_formal_output_accepted": false,
     "h02_paper_result_input_allowed": false
@@ -3380,7 +3061,6 @@
       "runs_training": false,
       "host": null,
       "blocked_by": [
-        "f02_6_warm_start_decision_pending",
         "current_decision_status_approved"
       ],
       "missing_item_count": 0,
@@ -3392,132 +3072,16 @@
       "lane_id": "source_fresh_preflight",
       "phase": "regeneration",
       "status": "blocked",
-      "primary_status": "source_freshness_risks_recorded_gate_still_blocked",
+      "primary_status": "source_freshness_clean_current",
       "runs_training": false,
       "host": null,
       "blocked_by": [
-        "source_freshness_regeneration_required",
-        "f02_6_warm_start_decision_pending",
         "handoff_safety_issues_open",
-        "handoff_step_blockers_mismatch_run_remote_training",
-        "handoff_step_blockers_mismatch_run_remote_audit",
         "remote_packet_safety_audit_failed",
-        "remote_packet_safety_audit_issues_open",
-        "remote_packet_safety_stale_status",
-        "remote_packet_safety_blockers_mismatch_run_remote_training",
-        "remote_packet_safety_blockers_mismatch_run_remote_audit"
+        "remote_packet_safety_audit_issues_open"
       ],
-      "missing_item_count": 18,
-      "missing_items": [
-        {
-          "artifact_id": "f02_6_transition_gate_audit",
-          "path": "0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json",
-          "state": "current_dirty",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "formal_gate_closure_checklist",
-          "path": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
-          "state": "current_dirty",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "formal_gate_gap_audit",
-          "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
-          "state": "current_dirty",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "formal_gate_handoff_bundle",
-          "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
-          "state": "current_dirty",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "gpu3070ti_readiness_refresh",
-          "path": "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
-          "state": "current_dirty",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "post_f02_6_plan_audit",
-          "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
-          "state": "current_dirty",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "remote_formal_execution_packet",
-          "path": "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json",
-          "state": "current_dirty",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "remote_packet_safety_audit",
-          "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
-          "state": "current_dirty",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "h01_evaluation_manifest",
-          "path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
-          "state": "current_dirty",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "h02_formal_acceptance",
-          "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
-          "state": "current_dirty",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "claim_safety",
-          "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
-          "state": "current_dirty",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "formal_gate_missing_artifacts",
-          "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
-          "state": "current_dirty",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "formal_gate_proof_audit",
-          "path": "0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json",
-          "state": "current_dirty",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "formal_gate_proof_summary_chain_audit",
-          "path": "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
-          "state": "current_dirty",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "formal_gate_remaining_deliverables",
-          "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
-          "state": "current_dirty",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "formal_gate_status_report",
-          "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
-          "state": "current_dirty",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "mainline_formal_gate_state_audit",
-          "path": "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json",
-          "state": "current_dirty",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "paper_readiness",
-          "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
-          "state": "current_dirty",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        }
-      ],
+      "missing_item_count": 0,
+      "missing_items": [],
       "completion_signal": "Source-fresh preflight targets are regenerated from the current head.",
       "action_when_blocked": "After F02.6 closes, regenerate source-fresh gate artifacts before approved preflight."
     },
@@ -3525,30 +3089,21 @@
       "lane_id": "remote_packet_preflight",
       "phase": "remote_preflight",
       "status": "blocked",
-      "primary_status": "blocked_preconditions",
+      "primary_status": "ready_for_gpu3070ti_remote_training",
       "runs_training": false,
       "host": null,
       "blocked_by": [
         "f02_6_decision_record",
         "approved_remote_preflight",
         "regenerate_remote_execution_packet",
-        "gate3_remote_training",
-        "gate3_remote_audit_pullback",
         "regenerate_h01_h02_formal_artifacts",
         "regenerate_claim_gate_artifacts",
-        "f02_6_warm_start_decision_pending",
-        "source_freshness_regeneration_required",
         "handoff_safety_issues_open",
-        "handoff_step_blockers_mismatch_run_remote_training",
-        "handoff_step_blockers_mismatch_run_remote_audit",
         "remote_packet_safety_audit_failed",
         "remote_packet_safety_audit_issues_open",
-        "remote_packet_safety_stale_status",
-        "remote_packet_safety_blockers_mismatch_run_remote_training",
-        "remote_packet_safety_blockers_mismatch_run_remote_audit",
         "source_fresh_preflight_targets_open"
       ],
-      "missing_item_count": 7,
+      "missing_item_count": 5,
       "missing_items": [
         {
           "artifact_id": "f02_6_decision_record",
@@ -3569,28 +3124,16 @@
           "reason": "source_fresh_preflight_targets_open"
         },
         {
-          "artifact_id": "gate3_remote_training",
-          "path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json",
-          "state": "blocked",
-          "reason": "source_fresh_preflight_targets_open, remote_packet_not_ready"
-        },
-        {
-          "artifact_id": "gate3_remote_audit_pullback",
-          "path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json; 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json",
-          "state": "blocked",
-          "reason": "source_fresh_preflight_targets_open, remote_packet_not_ready"
-        },
-        {
           "artifact_id": "regenerate_h01_h02_formal_artifacts",
-          "path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+          "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
           "state": "blocked",
-          "reason": "missing_remote_audit_pullback, source_fresh_h01_h02_targets_open"
+          "reason": "missing_remote_audit_pullback"
         },
         {
           "artifact_id": "regenerate_claim_gate_artifacts",
-          "path": "0_trials/module2_claim_safety/module2_claim_safety.json; 0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json; 0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json; 0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json; 0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json; 0_trials/module2_formal_gate_status_report/formal_gate_status_report.json; 0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json; 0_trials/module2_paper_readiness/module2_paper_readiness.json",
+          "path": "",
           "state": "blocked",
-          "reason": "h02_formal_acceptance_not_ready, source_fresh_claim_targets_open"
+          "reason": "h02_formal_acceptance_not_ready"
         }
       ],
       "completion_signal": "Approved gpu3070ti preflight passes and remote packet reports ready.",
@@ -3607,19 +3150,10 @@
         "train_final_model_zip",
         "train_summary_json",
         "train_training_manifest_json",
-        "f02_6_warm_start_decision_pending",
-        "source_freshness_regeneration_required",
         "handoff_safety_issues_open",
-        "handoff_step_blockers_mismatch_run_remote_training",
-        "handoff_step_blockers_mismatch_run_remote_audit",
         "remote_packet_safety_audit_failed",
         "remote_packet_safety_audit_issues_open",
-        "remote_packet_safety_stale_status",
-        "remote_packet_safety_blockers_mismatch_run_remote_training",
-        "remote_packet_safety_blockers_mismatch_run_remote_audit",
-        "remote_training_packet_not_ready",
-        "source_fresh_preflight_targets_open",
-        "remote_packet_not_ready"
+        "source_fresh_preflight_targets_open"
       ],
       "missing_item_count": 3,
       "missing_items": [
@@ -3658,22 +3192,13 @@
         "pulled_back_checkpoint_hash_record",
         "eval_gate3_eval_episodes_csv",
         "eval_gate3_summary_json",
-        "f02_6_warm_start_decision_pending",
-        "source_freshness_regeneration_required",
         "handoff_safety_issues_open",
-        "handoff_step_blockers_mismatch_run_remote_training",
-        "handoff_step_blockers_mismatch_run_remote_audit",
         "remote_packet_safety_audit_failed",
         "remote_packet_safety_audit_issues_open",
-        "remote_packet_safety_stale_status",
-        "remote_packet_safety_blockers_mismatch_run_remote_training",
-        "remote_packet_safety_blockers_mismatch_run_remote_audit",
-        "remote_training_packet_not_ready",
         "missing_remote_pullback_artifact",
         "missing_ppo_result_rows",
         "missing_ppo_checkpoint_hash",
-        "source_fresh_preflight_targets_open",
-        "remote_packet_not_ready"
+        "source_fresh_preflight_targets_open"
       ],
       "missing_item_count": 5,
       "missing_items": [
@@ -3715,23 +3240,15 @@
       "lane_id": "h01_h02_formal_evaluation",
       "phase": "evaluation_acceptance",
       "status": "blocked",
-      "primary_status": "h01=blocked_pending_decisions; h02=blocked_formal_output_acceptance",
+      "primary_status": "h01=blocked_protocol_gap; h02=blocked_formal_output_acceptance",
       "runs_training": false,
       "host": null,
       "blocked_by": [
         "h01_ready_for_formal_run",
         "h02_formal_output_acceptance",
-        "f02_6_warm_start_decision_pending",
-        "source_freshness_regeneration_required",
         "handoff_safety_issues_open",
-        "handoff_step_blockers_mismatch_run_remote_training",
-        "handoff_step_blockers_mismatch_run_remote_audit",
         "remote_packet_safety_audit_failed",
         "remote_packet_safety_audit_issues_open",
-        "remote_packet_safety_stale_status",
-        "remote_packet_safety_blockers_mismatch_run_remote_training",
-        "remote_packet_safety_blockers_mismatch_run_remote_audit",
-        "remote_training_packet_not_ready",
         "missing_remote_pullback_artifact",
         "missing_ppo_result_rows",
         "missing_ppo_checkpoint_hash",
@@ -3741,22 +3258,21 @@
         "h02_scale_below_h01_seed_count",
         "h02_scale_below_h01_queries_per_map",
         "h02_verdict_not_formal",
-        "missing_remote_audit_pullback",
-        "source_fresh_h01_h02_targets_open"
+        "missing_remote_audit_pullback"
       ],
       "missing_item_count": 2,
       "missing_items": [
         {
           "artifact_id": "h01_ready_for_formal_run",
           "path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
-          "state": "blocked_pending_decisions",
-          "reason": "f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen"
+          "state": "blocked_protocol_gap",
+          "reason": "missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen"
         },
         {
           "artifact_id": "h02_formal_output_acceptance",
           "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
           "state": "blocked_formal_output_acceptance",
-          "reason": "h02_verdict_not_formal, h01_manifest_not_ready, f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_execution_packet_not_ready, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts"
+          "reason": "h02_verdict_not_formal, h01_manifest_not_ready, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts"
         }
       ],
       "completion_signal": "H01 is ready and H02 accepts formal-scale PPO outputs.",
@@ -3770,26 +3286,10 @@
       "runs_training": false,
       "host": null,
       "blocked_by": [
-        "claim_safety",
-        "formal_gate_missing_artifacts",
-        "formal_gate_proof_audit",
-        "formal_gate_proof_summary_chain_audit",
-        "formal_gate_remaining_deliverables",
-        "formal_gate_status_report",
-        "mainline_formal_gate_state_audit",
-        "paper_readiness",
         "h02_formal_acceptance_before_claim_gate",
-        "f02_6_warm_start_decision_pending",
-        "source_freshness_regeneration_required",
         "handoff_safety_issues_open",
-        "handoff_step_blockers_mismatch_run_remote_training",
-        "handoff_step_blockers_mismatch_run_remote_audit",
         "remote_packet_safety_audit_failed",
         "remote_packet_safety_audit_issues_open",
-        "remote_packet_safety_stale_status",
-        "remote_packet_safety_blockers_mismatch_run_remote_training",
-        "remote_packet_safety_blockers_mismatch_run_remote_audit",
-        "remote_training_packet_not_ready",
         "missing_remote_pullback_artifact",
         "missing_ppo_result_rows",
         "missing_ppo_checkpoint_hash",
@@ -3805,63 +3305,15 @@
         "readiness_blocks_formal_results",
         "formal_missing_artifacts_audit_issues_open",
         "formal_gate_missing_artifacts_open",
+        "formal_closure_checklist_safety_issues_open",
         "formal_gate_closure_checklist_open",
         "formal_status_report_safety_issues_open",
         "formal_gate_status_report_blocked",
         "formal_gate_remaining_deliverables_open",
-        "h02_formal_acceptance_not_ready",
-        "source_fresh_claim_targets_open"
+        "h02_formal_acceptance_not_ready"
       ],
-      "missing_item_count": 9,
+      "missing_item_count": 1,
       "missing_items": [
-        {
-          "artifact_id": "claim_safety",
-          "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
-          "state": "current_dirty",
-          "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
-        },
-        {
-          "artifact_id": "formal_gate_missing_artifacts",
-          "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
-          "state": "current_dirty",
-          "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
-        },
-        {
-          "artifact_id": "formal_gate_proof_audit",
-          "path": "0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json",
-          "state": "current_dirty",
-          "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
-        },
-        {
-          "artifact_id": "formal_gate_proof_summary_chain_audit",
-          "path": "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
-          "state": "current_dirty",
-          "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
-        },
-        {
-          "artifact_id": "formal_gate_remaining_deliverables",
-          "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
-          "state": "current_dirty",
-          "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
-        },
-        {
-          "artifact_id": "formal_gate_status_report",
-          "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
-          "state": "current_dirty",
-          "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
-        },
-        {
-          "artifact_id": "mainline_formal_gate_state_audit",
-          "path": "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json",
-          "state": "current_dirty",
-          "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
-        },
-        {
-          "artifact_id": "paper_readiness",
-          "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
-          "state": "current_dirty",
-          "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
-        },
         {
           "artifact_id": "h02_formal_acceptance_before_claim_gate",
           "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
@@ -3878,12 +3330,35 @@
     "phase": "decision",
     "action_when_blocked": "Record Dr Sun's F02.6 decision before any formal preflight or training.",
     "blocked_by": [
-      "f02_6_warm_start_decision_pending",
       "current_decision_status_approved"
     ]
   },
-  "input_safety_issue_count": 9,
+  "input_safety_issue_count": 27,
   "input_safety_issues": [
+    {
+      "issue_id": "missing_artifacts_handoff_allows_remote_training_while_open",
+      "message": "open missing-artifacts inventory must not allow remote training."
+    },
+    {
+      "issue_id": "closure_checklist_gate3_remote_training_allowed_with_blockers",
+      "message": "allowed closure remote stage gate3_remote_training must not carry blocked_by."
+    },
+    {
+      "issue_id": "closure_checklist_gate3_remote_audit_pullback_allowed_with_blockers",
+      "message": "allowed closure remote stage gate3_remote_audit_pullback must not carry blocked_by."
+    },
+    {
+      "issue_id": "handoff_bundle_training_remote_ppo_checkpoint_stage_ready_while_requirement_blocked",
+      "message": "responsible stage for blocked requirement training_remote_ppo_checkpoint must not be ready."
+    },
+    {
+      "issue_id": "handoff_bundle_evaluation_gate3_episode_outputs_stage_ready_while_requirement_blocked",
+      "message": "responsible stage for blocked requirement evaluation_gate3_episode_outputs must not be ready."
+    },
+    {
+      "issue_id": "handoff_bundle_acceptance_remote_pullback_and_audit_stage_ready_while_requirement_blocked",
+      "message": "responsible stage for blocked requirement acceptance_remote_pullback_and_audit must not be ready."
+    },
     {
       "issue_id": "handoff_bundle_safety_issues_open",
       "message": "handoff bundle reports open safety issues."
@@ -3897,8 +3372,60 @@
       "message": "formal gate execution veto matrix reports mismatch rows."
     },
     {
+      "issue_id": "remaining_deliverables_training_train_final_model_zip_stage_allowed_while_blocked",
+      "message": "training:train_final_model_zip responsible stage cannot be allowed while remaining deliverables are blocked."
+    },
+    {
+      "issue_id": "remaining_deliverables_training_train_summary_json_stage_allowed_while_blocked",
+      "message": "training:train_summary_json responsible stage cannot be allowed while remaining deliverables are blocked."
+    },
+    {
+      "issue_id": "remaining_deliverables_training_train_training_manifest_json_stage_allowed_while_blocked",
+      "message": "training:train_training_manifest_json responsible stage cannot be allowed while remaining deliverables are blocked."
+    },
+    {
+      "issue_id": "remaining_deliverables_evaluation_eval_gate3_eval_episodes_csv_stage_allowed_while_blocked",
+      "message": "evaluation:eval_gate3_eval_episodes_csv responsible stage cannot be allowed while remaining deliverables are blocked."
+    },
+    {
+      "issue_id": "remaining_deliverables_evaluation_eval_gate3_summary_json_stage_allowed_while_blocked",
+      "message": "evaluation:eval_gate3_summary_json responsible stage cannot be allowed while remaining deliverables are blocked."
+    },
+    {
+      "issue_id": "remaining_deliverables_acceptance_gate3_trial_manifest_json_stage_allowed_while_blocked",
+      "message": "acceptance:gate3_trial_manifest_json responsible stage cannot be allowed while remaining deliverables are blocked."
+    },
+    {
+      "issue_id": "remaining_deliverables_acceptance_gate3_formal_audit_json_stage_allowed_while_blocked",
+      "message": "acceptance:gate3_formal_audit_json responsible stage cannot be allowed while remaining deliverables are blocked."
+    },
+    {
+      "issue_id": "remaining_deliverables_acceptance_pulled_back_checkpoint_hash_record_stage_allowed_while_blocked",
+      "message": "acceptance:pulled_back_checkpoint_hash_record responsible stage cannot be allowed while remaining deliverables are blocked."
+    },
+    {
+      "issue_id": "remaining_deliverables_gap_training_stage_allowed_while_blocked",
+      "message": "gap summary training stage cannot be allowed while remaining deliverables are blocked."
+    },
+    {
+      "issue_id": "remaining_deliverables_gap_evaluation_stage_allowed_while_blocked",
+      "message": "gap summary evaluation stage cannot be allowed while remaining deliverables are blocked."
+    },
+    {
+      "issue_id": "remaining_deliverables_gap_acceptance_stage_allowed_while_blocked",
+      "message": "gap summary acceptance stage cannot be allowed while remaining deliverables are blocked."
+    },
+    {
+      "issue_id": "remaining_deliverables_unlock_chain_derived_blocked_row_count_mismatch",
+      "message": "unlock chain row blockers must match acceptance matrix missing rows."
+    },
+    {
       "issue_id": "remaining_deliverables_unlock_chain_rows_missing_required_blockers",
       "message": "unlock chain rows must include all required current blockers while formal deliverables are missing."
+    },
+    {
+      "issue_id": "remaining_deliverables_unlock_chain_rows_allowed_while_missing",
+      "message": "unlock chain must not allow responsible stages while their formal deliverables are missing."
     },
     {
       "issue_id": "mainline_formal_gate_state_audit_failed",
@@ -3915,10 +3442,6 @@
     {
       "issue_id": "formal_gate_remote_packet_safety_proof_deliverables_summary_drifted_from_proof_audit",
       "message": "remote packet safety proof summary must match the local proof-audit top-level deliverable summary."
-    },
-    {
-      "issue_id": "source_freshness_blocks_remote_execution",
-      "message": "remote preflight/training cannot be allowed while source freshness requires regeneration."
     }
   ],
   "safe_work_without_f02_6_decision": [
