@@ -34,6 +34,10 @@ def test_f02_6_decision_record_defaults_to_pending_and_blocks_training(tmp_path)
     assert manifest["schema_version"] == 1
     assert manifest["record_name"] == "module2_f02_6_decision_record"
     assert manifest["status"] == "pending_human_decision"
+    assert manifest["not_paper_result_material"] is True
+    assert manifest["executes_commands"] is False
+    assert manifest["runs_training"] is False
+    assert manifest["runs_remote_preflight"] is False
     assert manifest["effective_warm_start_decision"] == "pending"
     assert manifest["decision_note_audit"] == {
         "required_for_non_pending_decision": False,
@@ -56,7 +60,43 @@ def test_f02_6_decision_record_defaults_to_pending_and_blocks_training(tmp_path)
     assert manifest["remote_preflight_allowed_now"] is False
     assert manifest["remote_training_allowed_now"] is False
     assert manifest["local_training_allowed"] is False
+    assert manifest["local_training_allowed_now"] is False
     assert manifest["formal_claim_allowed"] is False
+    assert manifest["formal_claim_allowed_now"] is False
+    assert manifest["paper_result_material_allowed_now"] is False
+    assert manifest["decision_record_is_not_training_authorization"] is True
+    assert manifest["decision_record_is_not_paper_result_material"] is True
+    auth = manifest["current_authorization"]
+    assert auth["authorization_status"] == "blocked_until_dr_sun_decision"
+    assert auth["current_allowed_action_ids"] == ["record_f02_6_decision"]
+    assert auth["current_blocked_action_ids"] == [
+        "remote_preflight",
+        "remote_training",
+        "local_training",
+        "formal_claim",
+        "paper_result_material",
+    ]
+    assert auth["post_decision_routes_are_current_authorization"] is False
+    assert auth["remote_preflight_allowed_now"] is False
+    assert auth["remote_training_allowed_now"] is False
+    assert auth["local_training_allowed_now"] is False
+    assert auth["formal_claim_allowed_now"] is False
+    assert auth["paper_result_material_allowed_now"] is False
+    assert {item["decision"] for item in manifest["record_command_templates"]} == {
+        "approve_obstacle_summary_warm_start",
+        "reject_obstacle_summary_warm_start",
+    }
+    assert all(item["allowed_for_agent_now"] is False for item in manifest["record_command_templates"])
+    assert all(item["runs_training"] is False for item in manifest["record_command_templates"])
+    assert all(item["runs_remote_preflight"] is False for item in manifest["record_command_templates"])
+    invariants = manifest["post_decision_non_authorization_invariants"]
+    assert invariants["decision_record_is_not_training_authorization"] is True
+    assert invariants["decision_record_is_not_paper_result_material"] is True
+    assert invariants["remote_preflight_allowed_now"] is False
+    assert invariants["remote_training_allowed_now"] is False
+    assert invariants["formal_claim_allowed_now"] is False
+    assert "approved_remote_preflight" in invariants["formal_training_still_requires"]
+    assert len(invariants["blocked_after_decision_record"]) == 4
     assert manifest["next_remote_preflight_status"] == "blocked_until_decision"
     assert "requires_dr_sun_approval" in manifest["blockers"]
     assert manifest["packet"]["recommendation"] == "approve_obstacle_summary_warm_start"
@@ -95,7 +135,17 @@ def test_f02_6_decision_record_approval_requires_dr_sun_and_only_unlocks_remote_
     assert record["remote_preflight_allowed_now"] is False
     assert record["remote_training_allowed_now"] is False
     assert record["local_training_allowed"] is False
+    assert record["local_training_allowed_now"] is False
     assert record["formal_claim_allowed"] is False
+    assert record["formal_claim_allowed_now"] is False
+    assert record["paper_result_material_allowed_now"] is False
+    assert record["decision_record_is_not_training_authorization"] is True
+    assert record["decision_record_is_not_paper_result_material"] is True
+    assert record["current_authorization"]["authorization_status"] == "decision_recorded_not_execution_authorization"
+    assert record["current_authorization"]["remote_preflight_allowed_now"] is False
+    assert record["current_authorization"]["remote_training_allowed_now"] is False
+    assert record["post_decision_non_authorization_invariants"]["remote_training_allowed_now"] is False
+    assert "post_f02_6_plan_audit" in record["post_decision_non_authorization_invariants"]["formal_training_still_requires"]
     assert record["blockers"] == []
     assert record["next_remote_preflight_status"] == "ready_to_regenerate_approved_warm_start_preflight"
     assert record["downstream_consumption"]["h01_manifest_decision_value"] == "approved_obstacle_summary"
@@ -162,6 +212,11 @@ def test_f02_6_decision_record_rejection_keeps_warm_start_blocked(tmp_path):
     assert record["remote_preflight_allowed_now"] is False
     assert record["remote_training_allowed_now"] is False
     assert record["formal_claim_allowed"] is False
+    assert record["decision_record_is_not_training_authorization"] is True
+    assert record["decision_record_is_not_paper_result_material"] is True
+    assert record["current_authorization"]["authorization_status"] == "decision_recorded_not_execution_authorization"
+    assert record["current_authorization"]["remote_training_allowed_now"] is False
+    assert record["post_decision_non_authorization_invariants"]["formal_claim_allowed_now"] is False
     assert "obstacle_summary_warm_start_rejected" in record["blockers"]
     assert record["downstream_consumption"]["preflight_warm_start_decision_value"] == "not_used"
     assert "stronger/full patch-CNN" in record["conditional_actions"]["if_rejected_obstacle_summary"]["next_protocol"]
