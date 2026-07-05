@@ -27,6 +27,22 @@ This read-only artifact explains how F02.6 can be closed. It does not record a d
 - current_blocked_action_ids: `remote_preflight, remote_training, local_training, formal_claim, paper_result_material`
 - post_decision_routes_are_current_authorization: `False`
 - all_execution_disabled_now: `True`
+
+## Decision Evidence Matrix
+
+- present: `True`
+- matrix_id: `module2_f02_6_decision_evidence_matrix`
+- status: `ready_for_dr_sun_decision_not_authorization`
+- route_count: `2`
+- route_decisions: `approve_obstacle_summary_warm_start, reject_obstacle_summary_warm_start`
+- required_evidence_count: `7`
+- missing_required_evidence_count: `0`
+- global_invalid_substitute_count: `4`
+- current_authorization_allowed_now: `False`
+- remote_preflight_allowed_now: `False`
+- remote_training_allowed_now: `False`
+- formal_claim_allowed_now: `False`
+- paper_result_material_allowed_now: `False`
 - `approve_obstacle_summary_warm_start`: next_lane_after_record=`source_fresh_regeneration`, remote_preflight_now=`False`, remote_training_now=`False`, formal_claim_now=`False`
 - `reject_obstacle_summary_warm_start`: next_lane_after_record=`protocol_redesign`, remote_preflight_now=`False`, remote_training_now=`False`, formal_claim_now=`False`
 

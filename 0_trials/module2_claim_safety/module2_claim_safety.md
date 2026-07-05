@@ -47,6 +47,7 @@
 ## F02.6 Decision Intake Summary
 
 - present=`True`, status=`f02_6_decision_intake_pending_clean`, record_status=`pending_human_decision`, record_decider=`None`, next_blocked_lane=`decision`, audit_issue_count=`0`, decision_owner_required=`Dr Sun`, valid_decision_count=`2`, required_record_field_count=`3`, decision_note_required=`True`, invalid_input_count=`5`, post_decision_non_authorization_count=`4`, post_decision_route_count=`2`, approved_route_next_lane=`source_fresh_regeneration`, approved_route_allows_remote_training_now=`False`, rejected_route_requires_new_protocol_contract=`True`, remote_training_allowed_now=`False`, formal_claim_allowed_now=`False`, decision_impact_present=`True`, decision_record_is_not_training_authorization=`True`, decision_record_is_not_paper_result_material=`True`, decision_impact_remote_training_allowed_now=`False`, decision_impact_formal_claim_allowed_now=`False`, decision_impact_paper_result_material_allowed_now=`False`
+- decision_evidence_matrix_status=`ready_for_dr_sun_decision_not_authorization`, route_count=`2`, required_evidence_count=`7`, missing_required_evidence_count=`0`, remote_training_allowed_now=`False`
 
 ## Status Report Next-Action Guard
 

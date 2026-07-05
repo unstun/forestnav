@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `4e88654613293ffea82c63203b47007c49cb45e9+dirty`
+- source_head: `1d03fd8b1a091b6e2e4017757ef8d9220fc6e3b9+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -50,6 +50,11 @@ This file is a read-only formal-gate status report. It does not execute commands
 - decision_intake_decision_impact_remote_training_allowed_now: `False`
 - decision_intake_decision_impact_formal_claim_allowed_now: `False`
 - decision_intake_decision_impact_paper_result_material_allowed_now: `False`
+- decision_intake_evidence_matrix_status: `ready_for_dr_sun_decision_not_authorization`
+- decision_intake_evidence_matrix_route_count: `2`
+- decision_intake_evidence_matrix_required_evidence_count: `7`
+- decision_intake_evidence_matrix_missing_required_evidence_count: `0`
+- decision_intake_evidence_matrix_remote_training_allowed_now: `False`
 - formal_gate_status: `blocked_formal_gate_gaps_open`
 - missing_artifacts_status: `formal_gate_missing_artifacts_open`
 - missing_artifacts_handoff_index_status: `blocked_until_f02_6_decision`
@@ -181,6 +186,11 @@ This file is a read-only formal-gate status report. It does not execute commands
 - decision_impact_summary_id: `module2_f02_6_formal_gate_decision_impact`
 - decision_impact_current_blocker: `decision`
 - decision_impact_missing_deliverable_count: `10`
+- decision_evidence_matrix_status: `ready_for_dr_sun_decision_not_authorization`
+- decision_evidence_matrix_route_count: `2`
+- decision_evidence_matrix_required_evidence_count: `7`
+- decision_evidence_matrix_missing_required_evidence_count: `0`
+- decision_evidence_matrix_remote_training_allowed_now: `False`
 - decision_record_is_not_training_authorization: `True`
 - decision_record_is_not_paper_result_material: `True`
 - decision_impact_remote_preflight_allowed_now: `False`

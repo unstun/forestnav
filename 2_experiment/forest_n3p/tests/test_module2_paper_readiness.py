@@ -507,6 +507,10 @@ def test_paper_readiness_rejects_claim_safety_without_clean_decision_intake_summ
     claim_safety_payload["status_report_decision_intake_summary"]["decision_note_required"] = False
     claim_safety_payload["status_report_decision_intake_summary"]["invalid_input_count"] = 0
     claim_safety_payload["status_report_decision_intake_summary"]["post_decision_non_authorization_count"] = 0
+    matrix = claim_safety_payload["status_report_decision_intake_summary"]["decision_evidence_matrix_summary"]
+    matrix["missing_required_evidence_count"] = 1
+    matrix["remote_training_allowed_now"] = True
+    matrix["global_invalid_substitute_count"] = 0
     paths["claim_safety"].write_text(json.dumps(claim_safety_payload), encoding="utf-8")
 
     manifest = builder.build_manifest(
@@ -535,6 +539,9 @@ def test_paper_readiness_rejects_claim_safety_without_clean_decision_intake_summ
     assert "claim_safety_f02_6_decision_intake_decision_note_not_required" in manifest["global_blockers"]
     assert "claim_safety_f02_6_decision_intake_invalid_inputs_missing" in manifest["global_blockers"]
     assert "claim_safety_f02_6_decision_intake_non_authorizations_missing" in manifest["global_blockers"]
+    assert "claim_safety_f02_6_decision_evidence_matrix_missing_required_evidence" in manifest["global_blockers"]
+    assert "claim_safety_f02_6_decision_evidence_matrix_allows_remote_training" in manifest["global_blockers"]
+    assert "claim_safety_f02_6_decision_evidence_matrix_invalid_substitutes_missing" in manifest["global_blockers"]
     assert manifest["input_status"]["claim_safety_decision_intake_status"] == "f02_6_decision_intake_failed"
 
 
