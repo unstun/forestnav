@@ -94,6 +94,7 @@ def build_manifest(config: FormalGateProofAuditConfig) -> dict[str, Any]:
             "workspace_root": str(config.workspace_root),
         },
         "current_state": _current_state(remaining),
+        "remaining_deliverables_top_level_summary": _remaining_deliverables_top_level_summary(remaining),
         "proof_command_plan_id": plan.get("plan_id"),
         "execution_boundary": plan.get("execution_boundary"),
         "total_matrix_rows": proof_command_summary["total_matrix_rows"],
@@ -163,6 +164,34 @@ def _current_state(remaining: dict[str, Any]) -> dict[str, Any]:
         "source_freshness_self_artifact_only_lag_records": current_gate.get(
             "source_freshness_self_artifact_only_lag_records"
         ),
+    }
+
+
+def _remaining_deliverables_top_level_summary(remaining: dict[str, Any]) -> dict[str, Any]:
+    counts = (
+        remaining.get("missing_counts_by_formal_category")
+        if isinstance(remaining.get("missing_counts_by_formal_category"), dict)
+        else {}
+    )
+    matrix_ids = (
+        remaining.get("missing_matrix_ids_by_formal_category")
+        if isinstance(remaining.get("missing_matrix_ids_by_formal_category"), dict)
+        else {}
+    )
+    return {
+        "present": bool(counts or matrix_ids),
+        "missing_counts_by_formal_category": {
+            str(category): int(count) for category, count in counts.items()
+        },
+        "missing_matrix_ids_by_formal_category": {
+            str(category): [str(item) for item in items] if isinstance(items, list) else []
+            for category, items in matrix_ids.items()
+        },
+        "next_blocked_lane": remaining.get("next_blocked_lane"),
+        "h01_status": remaining.get("h01_status"),
+        "h02_status": remaining.get("h02_status"),
+        "h02_formal_output_accepted": remaining.get("h02_formal_output_accepted"),
+        "h02_paper_result_input_allowed": remaining.get("h02_paper_result_input_allowed"),
     }
 
 
@@ -453,6 +482,18 @@ def _markdown(manifest: dict[str, Any]) -> str:
         "source_freshness_regeneration_required",
     ):
         lines.append(f"- {key}: `{current_state.get(key)}`")
+    summary = manifest["remaining_deliverables_top_level_summary"]
+    lines.extend(["", "## Remaining Deliverables Top-Level Summary", ""])
+    lines.append(f"- present: `{summary['present']}`")
+    lines.append(f"- missing_counts_by_formal_category: `{summary['missing_counts_by_formal_category']}`")
+    lines.append(f"- next_blocked_lane: `{summary['next_blocked_lane']}`")
+    lines.append(f"- h01_status: `{summary['h01_status']}`")
+    lines.append(f"- h02_status: `{summary['h02_status']}`")
+    lines.append(f"- h02_formal_output_accepted: `{summary['h02_formal_output_accepted']}`")
+    lines.append(f"- h02_paper_result_input_allowed: `{summary['h02_paper_result_input_allowed']}`")
+    for category, matrix_ids in summary["missing_matrix_ids_by_formal_category"].items():
+        joined = ", ".join(matrix_ids) if matrix_ids else "none"
+        lines.append(f"- {category}_missing_matrix_ids: `{joined}`")
     lines.extend(["", "## Missing Evidence Summary", ""])
     for category, summary in manifest["formal_gate_missing_evidence_summary"].items():
         missing = ", ".join(summary["missing_artifact_ids"]) or "none"
