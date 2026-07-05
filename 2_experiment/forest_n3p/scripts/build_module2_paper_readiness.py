@@ -1354,6 +1354,12 @@ def _extend_unique(items: list[str], values: Any) -> None:
         _append_unique(items, str(value))
 
 
+def _strings(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [str(item) for item in value if item]
+
+
 def _unique(values: Sequence[str]) -> list[str]:
     out: list[str] = []
     for value in values:
