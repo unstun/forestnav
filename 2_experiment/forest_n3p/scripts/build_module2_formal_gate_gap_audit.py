@@ -1499,13 +1499,23 @@ def _current_gate_state(
     remaining_deliverables: dict[str, Any],
     handoff_bundle: dict[str, Any],
     remote_packet_safety: dict[str, Any],
+    protocol_lane_status: dict[str, Any],
 ) -> dict[str, Any]:
     method_checks = h02.get("method_checks") if isinstance(h02.get("method_checks"), dict) else {}
     status_permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
     handoff_permissions = handoff_bundle.get("permissions_now") if isinstance(handoff_bundle.get("permissions_now"), dict) else {}
     remaining_gap = _remaining_deliverables_gap_summary(remaining_deliverables)
+    protocol_current = (
+        protocol_lane_status.get("current_status")
+        if isinstance(protocol_lane_status.get("current_status"), dict)
+        else {}
+    )
     return {
         "f02_6_decision_status": decision.get("status"),
+        "protocol_lane_status": protocol_lane_status.get("status"),
+        "protocol_lane_decision_record_status": protocol_current.get("decision_record_status"),
+        "protocol_lane_selected_lane_id": protocol_current.get("selected_lane_id"),
+        "protocol_lane_pending": _protocol_lane_pending(protocol_lane_status),
         "effective_warm_start_decision": decision.get("effective_warm_start_decision"),
         "remote_training_allowed": bool(decision.get("remote_training_allowed")),
         "h01_status": h01.get("status"),
