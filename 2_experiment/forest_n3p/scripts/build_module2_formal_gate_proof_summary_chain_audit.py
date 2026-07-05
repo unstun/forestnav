@@ -375,6 +375,7 @@ def _next_action_guard_rows(config: FormalGateProofSummaryChainAuditConfig) -> l
                 "summary_key_path": ".".join(key_path),
                 "present": summary["present"],
                 "status": summary["status"],
+                "pending_f02_6_decision": summary["pending_f02_6_decision"],
                 "expected_next_action_id": summary["expected_next_action_id"],
                 "all_execution_disabled_now": summary["all_execution_disabled_now"],
                 "execution_leak_count": summary["execution_leak_count"],
