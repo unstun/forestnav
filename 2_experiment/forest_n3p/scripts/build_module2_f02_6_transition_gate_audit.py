@@ -233,6 +233,7 @@ def _run_scenario(*, config: F026TransitionGateAuditConfig, scenario_id: str, wo
         _read_json(config.remaining_deliverables_path),
         scenario_id,
     )
+    _sync_formal_gate_remote_safety_deliverables(formal_gate, remaining_deliverables)
     formal_gate_proof_audit = _scenario_formal_gate_proof_audit(
         _read_json(config.formal_gate_proof_audit_path),
         remaining_deliverables,
@@ -818,6 +819,16 @@ def _scenario_formal_gate_proof_audit(base: dict[str, Any], remaining_deliverabl
         remaining_deliverables
     )
     return out
+
+
+def _sync_formal_gate_remote_safety_deliverables(
+    formal_gate: dict[str, Any],
+    remaining_deliverables: dict[str, Any],
+) -> None:
+    summary = _remaining_deliverables_top_level_summary(remaining_deliverables)
+    remote_safety = formal_gate.setdefault("remote_packet_safety", {})
+    remote_safety["proof_deliverables_summary"] = copy.deepcopy(summary)
+    remote_safety["status_report_proof_deliverables_summary"] = copy.deepcopy(summary)
 
 
 def _remaining_deliverables_top_level_summary(remaining_deliverables: dict[str, Any]) -> dict[str, Any]:
