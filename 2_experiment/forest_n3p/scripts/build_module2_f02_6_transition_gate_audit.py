@@ -233,6 +233,7 @@ def _run_scenario(*, config: F026TransitionGateAuditConfig, scenario_id: str, wo
         _read_json(config.remaining_deliverables_path),
         scenario_id,
     )
+    _sync_remaining_deliverables_source_blockers(remaining_deliverables, source_freshness)
     _sync_formal_gate_remote_safety_deliverables(formal_gate, remaining_deliverables)
     formal_gate_proof_audit = _scenario_formal_gate_proof_audit(
         _read_json(config.formal_gate_proof_audit_path),
@@ -657,7 +658,65 @@ def _scenario_source_freshness(base: dict[str, Any], scenario_id: str) -> dict[s
             target["blocking_regeneration_required_before_remote_formal_execution"] = True
     out["ordered_regeneration_targets"] = targets
     out["artifact_records"] = copy.deepcopy(targets)
+    out["blocking_ordered_regeneration_targets"] = [
+        copy.deepcopy(target)
+        for target in targets
+        if isinstance(target, dict)
+        and target.get("blocking_regeneration_required_before_remote_formal_execution") is True
+    ]
+    out["blocking_regeneration_target_count"] = len(out["blocking_ordered_regeneration_targets"])
     return out
+
+
+def _sync_remaining_deliverables_source_blockers(
+    remaining_deliverables: dict[str, Any],
+    source_freshness: dict[str, Any],
+) -> None:
+    targets = [
+        target
+        for target in source_freshness.get("blocking_ordered_regeneration_targets", [])
+        if isinstance(target, dict)
+    ]
+    rows: list[dict[str, Any]] = []
+    for target in targets:
+        rows.append(
+            {
+                "artifact_id": target.get("artifact_id"),
+                "path": target.get("path"),
+                "freshness_state": target.get("freshness_state"),
+                "source_head": target.get("source_head"),
+                "required_before": target.get("required_before"),
+                "commits_since_source": target.get("commits_since_source"),
+                "blocking_changed_path_count_since_source": target.get(
+                    "blocking_changed_path_count_since_source"
+                ),
+            }
+        )
+    blocking_target_ids = [str(row["artifact_id"]) for row in rows if row.get("artifact_id")]
+    remote_readiness_ids = [
+        target_id for target_id in blocking_target_ids if target_id == "gpu3070ti_readiness_refresh"
+    ]
+    remaining_deliverables["source_freshness_blocking_targets_summary"] = {
+        "summary_id": "module2_source_freshness_blocking_targets_summary",
+        "execution_boundary": "read_only_no_execution",
+        "not_paper_result_material": True,
+        "status": source_freshness.get("status"),
+        "source_head": source_freshness.get("source_head"),
+        "current_head": source_freshness.get("current_head"),
+        "blocking_regeneration_required_before_remote_formal_execution": source_freshness.get(
+            "blocking_regeneration_required_before_remote_formal_execution"
+        ),
+        "blocking_target_count": len(rows),
+        "blocking_target_ids": blocking_target_ids,
+        "remote_readiness_blocking_target_ids": remote_readiness_ids,
+        "remote_readiness_blocking_target_count": len(remote_readiness_ids),
+        "remote_readiness_refresh_requires_external_ssh": bool(remote_readiness_ids),
+        "remote_readiness_refresh_allowed_now": False,
+        "remote_preflight_allowed_now": False,
+        "remote_training_allowed_now": False,
+        "formal_claim_allowed_now": False,
+        "rows": rows,
+    }
 
 
 def _scenario_remote_packet(base: dict[str, Any], scenario_id: str) -> dict[str, Any]:
