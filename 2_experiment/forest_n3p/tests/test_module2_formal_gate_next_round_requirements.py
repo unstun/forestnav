@@ -156,6 +156,22 @@ def test_next_round_requirements_cli_writes_json_and_markdown(tmp_path):
     assert "new_or_revised_research_contract" in markdown
     assert "new_remote_ppo_checkpoint_bundle" in markdown
     assert "h02_formal_output_acceptance" in markdown
+    assert "## Permissions Now" in markdown
+    assert "new_success_training_allowed_now: `False`" in markdown
+    assert "## Missing Current Formal Acceptance Artifacts" in markdown
+    assert "h02_verdict_not_formal, gate3_formal_audit_not_passed" in markdown
+    assert "## Missing Next-Round Deliverables" in markdown
+    assert "### `training:new_remote_ppo_checkpoint_bundle`" in markdown
+    assert "remote-produced train/final_model.zip under a new attempt directory" in markdown
+    assert "local PPO training output" in markdown
+    assert "### `evaluation:new_formal_gate3_eval_bundle`" in markdown
+    assert "eval/gate3_eval_episodes.csv from the new approved formal run" in markdown
+    assert "terminal-RS success rate, collision rate, truncation rate, timing, and seed/protocol provenance are present" in markdown
+    assert "### `acceptance:new_gate3_audit_and_hash_acceptance`" in markdown
+    assert "gate3_formal_audit.json for the new attempt records formal_decision=pass" in markdown
+    assert "train/final_model.zip.sha256 or equivalent hash manifest matches the pulled-back checkpoint" in markdown
+    assert "### `formal_acceptance:h02_formal_output_acceptance`" in markdown
+    assert "formal PPO rows are present and include the accepted checkpoint hash" in markdown
 
 
 def _config(tmp_path):
