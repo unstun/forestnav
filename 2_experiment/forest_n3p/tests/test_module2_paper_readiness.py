@@ -88,11 +88,19 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert manifest["input_status"]["claim_safety_decision_intake_decision_note_required"] is True
     assert manifest["input_status"]["claim_safety_decision_intake_invalid_input_count"] == 2
     assert manifest["input_status"]["claim_safety_decision_intake_post_decision_non_authorization_count"] == 2
+    assert manifest["input_status"]["claim_safety_decision_intake_post_decision_route_count"] == 2
+    assert manifest["input_status"]["claim_safety_decision_intake_approved_route_next_lane"] == "source_fresh_regeneration"
+    assert manifest["input_status"]["claim_safety_decision_intake_approved_route_allows_remote_training_now"] is False
+    assert manifest["input_status"]["claim_safety_decision_intake_rejected_route_requires_new_protocol_contract"] is True
     assert manifest["input_status"]["claim_safety_decision_intake_next_blocked_lane"] == "decision"
     assert manifest["input_status"]["claim_safety_decision_intake_remote_preflight_allowed_now"] is False
     assert manifest["input_status"]["claim_safety_decision_intake_remote_training_allowed_now"] is False
     assert manifest["input_status"]["claim_safety_decision_intake_formal_claim_allowed_now"] is False
     assert manifest["claim_safety_decision_intake_summary"]["status"] == "f02_6_decision_intake_pending_clean"
+    assert manifest["claim_safety_decision_intake_summary"]["post_decision_route_count"] == 2
+    assert manifest["claim_safety_decision_intake_summary"]["approved_route_next_lane"] == "source_fresh_regeneration"
+    assert manifest["claim_safety_decision_intake_summary"]["approved_route_allows_remote_training_now"] is False
+    assert manifest["claim_safety_decision_intake_summary"]["rejected_route_requires_new_protocol_contract"] is True
     assert "claim_safety_f02_6_decision_intake_pending" in manifest["global_blockers"]
     assert manifest["input_status"]["claim_safety_remaining_deliverables_acceptance_present"] is True
     assert manifest["input_status"]["claim_safety_remaining_deliverables_acceptance_matrix_row_count"] == 10
@@ -183,6 +191,8 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert "f02_6_decision_intake_pending_clean" in markdown
     assert "claim_safety_decision_intake_decision_owner_required" in markdown
     assert "claim_safety_decision_intake_decision_note_required" in markdown
+    assert "claim_safety_decision_intake_approved_route_next_lane" in markdown
+    assert "claim_safety_decision_intake_rejected_route_requires_new_protocol_contract" in markdown
     assert "Claim Safety Remaining Deliverables Acceptance Matrix" in markdown
     assert "claim_safety_remaining_deliverables_acceptance_matrix_row_count" in markdown
     assert "Claim Safety Formal Gate Gap Audit Remaining Deliverables Gap Summary" in markdown
@@ -228,6 +238,9 @@ def test_paper_readiness_accepts_synthetic_complete_evidence(tmp_path):
     assert manifest["input_status"]["claim_safety_decision_intake_record_status"] == "approved"
     assert manifest["input_status"]["claim_safety_decision_intake_decision_owner_required"] == "Dr Sun"
     assert manifest["input_status"]["claim_safety_decision_intake_decision_note_required"] is True
+    assert manifest["input_status"]["claim_safety_decision_intake_approved_route_next_lane"] == "source_fresh_regeneration"
+    assert manifest["input_status"]["claim_safety_decision_intake_approved_route_allows_remote_training_now"] is False
+    assert manifest["input_status"]["claim_safety_decision_intake_rejected_route_requires_new_protocol_contract"] is True
     assert manifest["input_status"]["claim_safety_decision_intake_remote_training_allowed_now"] is True
     assert manifest["input_status"]["claim_safety_remaining_deliverables_acceptance_matrix_row_count"] == 10
     assert manifest["input_status"]["claim_safety_remaining_deliverables_acceptance_missing_row_count"] == 0
@@ -405,6 +418,45 @@ def test_paper_readiness_rejects_claim_safety_without_clean_decision_intake_summ
     assert "claim_safety_f02_6_decision_intake_invalid_inputs_missing" in manifest["global_blockers"]
     assert "claim_safety_f02_6_decision_intake_non_authorizations_missing" in manifest["global_blockers"]
     assert manifest["input_status"]["claim_safety_decision_intake_status"] == "f02_6_decision_intake_failed"
+
+
+def test_paper_readiness_rejects_claim_safety_decision_intake_route_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_paper_readiness")
+    paths = _write_inputs(tmp_path, formal=True)
+
+    claim_safety_payload = json.loads(paths["claim_safety"].read_text(encoding="utf-8"))
+    intake = claim_safety_payload["status_report_decision_intake_summary"]
+    intake["post_decision_route_count"] = 1
+    intake["post_decision_route_decisions"] = ["approve_obstacle_summary_warm_start"]
+    intake["approved_route_next_lane"] = "remote_training"
+    intake["approved_route_allows_remote_training_now"] = True
+    intake["rejected_route_next_lane"] = "remote_training"
+    intake["rejected_route_requires_new_protocol_contract"] = False
+    paths["claim_safety"].write_text(json.dumps(claim_safety_payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        builder.PaperReadinessConfig(
+            output_dir=tmp_path,
+            method_algorithms_path=paths["method_algorithms"],
+            system_diagram_path=paths["system_diagram"],
+            paper_tables_path=paths["paper_tables"],
+            claim_safety_path=paths["claim_safety"],
+            h02_formal_acceptance_path=paths["h02_acceptance"],
+            h01_manifest_path=paths["h01_manifest"],
+            f02_6_decision_record_path=paths["decision_record"],
+            remote_execution_packet_path=paths["remote_packet"],
+            status_report_path=paths["status_report"],
+        )
+    )
+
+    assert manifest["status"] == "partial_methods_ready_results_blocked"
+    assert manifest["formal_results_ready"] is False
+    assert "claim_safety_f02_6_decision_intake_route_decisions_incomplete" in manifest["global_blockers"]
+    assert "claim_safety_f02_6_decision_intake_approved_route_next_lane_invalid" in manifest["global_blockers"]
+    assert "claim_safety_f02_6_decision_intake_approved_route_allows_remote_training" in manifest["global_blockers"]
+    assert "claim_safety_f02_6_decision_intake_rejected_route_next_lane_invalid" in manifest["global_blockers"]
+    assert "claim_safety_f02_6_decision_intake_rejected_route_missing_protocol_contract" in manifest["global_blockers"]
+    assert manifest["input_status"]["claim_safety_decision_intake_approved_route_next_lane"] == "remote_training"
 
 
 def test_paper_readiness_rejects_claim_safety_without_remaining_deliverables_acceptance_matrix(tmp_path):
@@ -706,6 +758,15 @@ def _write_inputs(tmp_path, *, formal):
                 "decision_note_required": True,
                 "invalid_input_count": 2,
                 "post_decision_non_authorization_count": 2,
+                "post_decision_route_count": 2,
+                "post_decision_route_decisions": [
+                    "approve_obstacle_summary_warm_start",
+                    "reject_obstacle_summary_warm_start",
+                ],
+                "approved_route_next_lane": "source_fresh_regeneration",
+                "approved_route_allows_remote_training_now": False,
+                "rejected_route_next_lane": "protocol_redesign",
+                "rejected_route_requires_new_protocol_contract": True,
                 "remote_preflight_allowed_now": formal,
                 "remote_training_allowed_now": formal,
                 "formal_claim_allowed_now": formal,

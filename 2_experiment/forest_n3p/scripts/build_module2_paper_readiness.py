@@ -287,6 +287,18 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_decision_intake_post_decision_non_authorization_count": claim_decision_intake_summary[
             "post_decision_non_authorization_count"
         ],
+        "claim_safety_decision_intake_post_decision_route_count": claim_decision_intake_summary[
+            "post_decision_route_count"
+        ],
+        "claim_safety_decision_intake_approved_route_next_lane": claim_decision_intake_summary[
+            "approved_route_next_lane"
+        ],
+        "claim_safety_decision_intake_approved_route_allows_remote_training_now": claim_decision_intake_summary[
+            "approved_route_allows_remote_training_now"
+        ],
+        "claim_safety_decision_intake_rejected_route_requires_new_protocol_contract": claim_decision_intake_summary[
+            "rejected_route_requires_new_protocol_contract"
+        ],
         "claim_safety_decision_intake_next_blocked_lane": claim_decision_intake_summary["next_blocked_lane"],
         "claim_safety_decision_intake_remote_preflight_allowed_now": claim_decision_intake_summary[
             "remote_preflight_allowed_now"
@@ -751,6 +763,7 @@ def _claim_safety_decision_intake_summary(claim_safety: dict[str, Any]) -> dict[
     if not isinstance(summary, dict):
         summary = {}
     valid_decisions = _string_list(summary.get("valid_decisions"))
+    route_decisions = _string_list(summary.get("post_decision_route_decisions"))
     required_fields = _string_list(summary.get("required_record_fields"))
     return {
         "present": bool(summary),
@@ -767,6 +780,16 @@ def _claim_safety_decision_intake_summary(claim_safety: dict[str, Any]) -> dict[
         "decision_note_required": bool(summary.get("decision_note_required")),
         "invalid_input_count": int(summary.get("invalid_input_count") or 0),
         "post_decision_non_authorization_count": int(summary.get("post_decision_non_authorization_count") or 0),
+        "post_decision_route_count": int(summary.get("post_decision_route_count") or len(route_decisions)),
+        "post_decision_route_decisions": route_decisions,
+        "approved_route_next_lane": summary.get("approved_route_next_lane"),
+        "approved_route_allows_remote_training_now": summary.get("approved_route_allows_remote_training_now")
+        if isinstance(summary.get("approved_route_allows_remote_training_now"), bool)
+        else None,
+        "rejected_route_next_lane": summary.get("rejected_route_next_lane"),
+        "rejected_route_requires_new_protocol_contract": summary.get("rejected_route_requires_new_protocol_contract")
+        if isinstance(summary.get("rejected_route_requires_new_protocol_contract"), bool)
+        else None,
         "remote_preflight_allowed_now": summary.get("remote_preflight_allowed_now")
         if isinstance(summary.get("remote_preflight_allowed_now"), bool)
         else None,
@@ -803,6 +826,18 @@ def _claim_safety_decision_intake_blockers(claim_safety: dict[str, Any]) -> list
         blockers.append("claim_safety_f02_6_decision_intake_invalid_inputs_missing")
     if summary["post_decision_non_authorization_count"] == 0:
         blockers.append("claim_safety_f02_6_decision_intake_non_authorizations_missing")
+    if summary["post_decision_route_count"] < 2:
+        blockers.append("claim_safety_f02_6_decision_intake_route_count_incomplete")
+    if not expected_decisions.issubset(set(summary["post_decision_route_decisions"])):
+        blockers.append("claim_safety_f02_6_decision_intake_route_decisions_incomplete")
+    if summary["approved_route_next_lane"] != "source_fresh_regeneration":
+        blockers.append("claim_safety_f02_6_decision_intake_approved_route_next_lane_invalid")
+    if summary["approved_route_allows_remote_training_now"] is not False:
+        blockers.append("claim_safety_f02_6_decision_intake_approved_route_allows_remote_training")
+    if summary["rejected_route_next_lane"] != "protocol_redesign":
+        blockers.append("claim_safety_f02_6_decision_intake_rejected_route_next_lane_invalid")
+    if summary["rejected_route_requires_new_protocol_contract"] is not True:
+        blockers.append("claim_safety_f02_6_decision_intake_rejected_route_missing_protocol_contract")
     if summary["record_status"] == "pending_human_decision":
         blockers.append("claim_safety_f02_6_decision_intake_pending")
         if summary["next_blocked_lane"] != "decision":
@@ -1244,6 +1279,10 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- claim_safety_decision_intake_decision_note_required: `{input_status.get('claim_safety_decision_intake_decision_note_required')}`",
             f"- claim_safety_decision_intake_invalid_input_count: `{input_status.get('claim_safety_decision_intake_invalid_input_count')}`",
             f"- claim_safety_decision_intake_post_decision_non_authorization_count: `{input_status.get('claim_safety_decision_intake_post_decision_non_authorization_count')}`",
+            f"- claim_safety_decision_intake_post_decision_route_count: `{input_status.get('claim_safety_decision_intake_post_decision_route_count')}`",
+            f"- claim_safety_decision_intake_approved_route_next_lane: `{input_status.get('claim_safety_decision_intake_approved_route_next_lane')}`",
+            f"- claim_safety_decision_intake_approved_route_allows_remote_training_now: `{input_status.get('claim_safety_decision_intake_approved_route_allows_remote_training_now')}`",
+            f"- claim_safety_decision_intake_rejected_route_requires_new_protocol_contract: `{input_status.get('claim_safety_decision_intake_rejected_route_requires_new_protocol_contract')}`",
             f"- claim_safety_decision_intake_next_blocked_lane: `{input_status.get('claim_safety_decision_intake_next_blocked_lane')}`",
             f"- claim_safety_decision_intake_remote_preflight_allowed_now: `{input_status.get('claim_safety_decision_intake_remote_preflight_allowed_now')}`",
             f"- claim_safety_decision_intake_remote_training_allowed_now: `{input_status.get('claim_safety_decision_intake_remote_training_allowed_now')}`",
