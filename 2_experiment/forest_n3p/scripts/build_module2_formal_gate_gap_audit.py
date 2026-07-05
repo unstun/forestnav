@@ -651,6 +651,8 @@ def _remote_packet_safety_gaps(
 
     packet_summary = remote_packet_safety.get("packet_summary") if isinstance(remote_packet_safety.get("packet_summary"), dict) else {}
     command_index_summary = _remote_packet_safety_claim_gate_command_index_summary(remote_packet_safety)
+    proof_summary = _remote_packet_safety_proof_deliverables_summary(remote_packet_safety)
+    status_proof_summary = _remote_packet_safety_status_report_proof_deliverables_summary(remote_packet_safety)
     if not command_index_summary["present"]:
         gaps.append(
             _gap(
@@ -733,6 +735,51 @@ def _remote_packet_safety_gaps(
                     "Use the known builder command for claim-gate artifact regeneration.",
                 )
             )
+
+    if not proof_summary["present"]:
+        gaps.append(
+            _gap(
+                "training",
+                "remote_packet_safety_missing_proof_deliverables_summary",
+                "Remote packet safety audit does not expose post-plan proof-audit deliverables summary.",
+                str(remote_packet_safety_path),
+                "Regenerate remote packet safety audit from the current post-F02.6 plan audit.",
+            )
+        )
+    if not status_proof_summary["present"]:
+        gaps.append(
+            _gap(
+                "training",
+                "remote_packet_safety_missing_status_report_proof_deliverables_summary",
+                "Remote packet safety audit does not expose status-report proof-audit deliverables summary.",
+                str(remote_packet_safety_path),
+                "Regenerate remote packet safety audit from the current post-F02.6 plan audit and status report.",
+            )
+        )
+    if (
+        proof_summary["present"]
+        and status_proof_summary["present"]
+        and _proof_deliverables_signature(proof_summary) != _proof_deliverables_signature(status_proof_summary)
+    ):
+        gaps.append(
+            _gap(
+                "training",
+                "remote_packet_safety_proof_deliverables_summary_mismatch",
+                "Remote packet safety post-plan and status-report proof deliverable summaries disagree.",
+                str(remote_packet_safety_path),
+                "Regenerate remote packet safety audit after refreshing post-plan audit and status report.",
+            )
+        )
+    if _proof_deliverables_open(proof_summary) and proof_summary.get("h02_paper_result_input_allowed") is True:
+        gaps.append(
+            _gap(
+                "training",
+                "remote_packet_safety_proof_deliverables_allow_h02_paper_input",
+                "Remote packet safety proof summary allows H02 paper-result input while formal deliverables remain missing.",
+                str(remote_packet_safety_path),
+                "Keep H02 paper-result input blocked until the proof deliverables summary is closed.",
+            )
+        )
 
     if not packet_summary:
         gaps.append(
@@ -1611,6 +1658,8 @@ def _remote_packet_safety_record(path: Path, remote_packet_safety: dict[str, Any
         "remote_training_allowed_now": packet_summary.get("remote_training_allowed_now"),
         "remote_audit_allowed_now": packet_summary.get("remote_audit_allowed_now"),
         "claim_gate_command_index_summary": _remote_packet_safety_claim_gate_command_index_summary(remote_packet_safety),
+        "proof_deliverables_summary": _remote_packet_safety_proof_deliverables_summary(remote_packet_safety),
+        "status_report_proof_deliverables_summary": _remote_packet_safety_status_report_proof_deliverables_summary(remote_packet_safety),
     }
 
 
@@ -1643,6 +1692,70 @@ def _remote_packet_safety_claim_gate_command_index_summary(remote_packet_safety:
         "forbidden_command_ids": _strings(summary.get("forbidden_command_ids")),
         "claim_gate_rows": claim_gate_rows,
     }
+
+
+def _remote_packet_safety_proof_deliverables_summary(remote_packet_safety: dict[str, Any]) -> dict[str, Any]:
+    cross_gate = remote_packet_safety.get("cross_gate_summary") if isinstance(remote_packet_safety.get("cross_gate_summary"), dict) else {}
+    return _normalize_proof_deliverables_summary(cross_gate.get("post_plan_proof_audit_deliverables_summary"))
+
+
+def _remote_packet_safety_status_report_proof_deliverables_summary(remote_packet_safety: dict[str, Any]) -> dict[str, Any]:
+    cross_gate = remote_packet_safety.get("cross_gate_summary") if isinstance(remote_packet_safety.get("cross_gate_summary"), dict) else {}
+    return _normalize_proof_deliverables_summary(cross_gate.get("post_plan_status_report_proof_audit_deliverables_summary"))
+
+
+def _normalize_proof_deliverables_summary(raw: Any) -> dict[str, Any]:
+    summary = raw if isinstance(raw, dict) else {}
+    counts = summary.get("missing_counts_by_formal_category")
+    ids_by_category = summary.get("missing_matrix_ids_by_formal_category")
+    return {
+        "present": bool(summary),
+        "missing_counts_by_formal_category": {
+            str(category): int(count or 0)
+            for category, count in counts.items()
+            if category
+        }
+        if isinstance(counts, dict)
+        else {},
+        "missing_matrix_ids_by_formal_category": {
+            str(category): [str(item) for item in ids if item]
+            for category, ids in ids_by_category.items()
+            if category and isinstance(ids, list)
+        }
+        if isinstance(ids_by_category, dict)
+        else {},
+        "next_blocked_lane": summary.get("next_blocked_lane"),
+        "h01_status": summary.get("h01_status"),
+        "h02_status": summary.get("h02_status"),
+        "h02_formal_output_accepted": summary.get("h02_formal_output_accepted")
+        if isinstance(summary.get("h02_formal_output_accepted"), bool)
+        else None,
+        "h02_paper_result_input_allowed": summary.get("h02_paper_result_input_allowed")
+        if isinstance(summary.get("h02_paper_result_input_allowed"), bool)
+        else None,
+    }
+
+
+def _proof_deliverables_signature(summary: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "missing_counts_by_formal_category": {
+            key: summary["missing_counts_by_formal_category"].get(key)
+            for key in sorted(summary.get("missing_counts_by_formal_category", {}))
+        },
+        "missing_matrix_ids_by_formal_category": {
+            key: summary["missing_matrix_ids_by_formal_category"].get(key, [])
+            for key in sorted(summary.get("missing_matrix_ids_by_formal_category", {}))
+        },
+        "next_blocked_lane": summary.get("next_blocked_lane"),
+        "h01_status": summary.get("h01_status"),
+        "h02_status": summary.get("h02_status"),
+        "h02_formal_output_accepted": summary.get("h02_formal_output_accepted"),
+        "h02_paper_result_input_allowed": summary.get("h02_paper_result_input_allowed"),
+    }
+
+
+def _proof_deliverables_open(summary: dict[str, Any]) -> bool:
+    return sum(int(count) for count in summary.get("missing_counts_by_formal_category", {}).values()) > 0
 
 
 def _execution_veto_matrix(
@@ -1941,6 +2054,8 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- command_index_present: `{manifest['remote_packet_safety']['claim_gate_command_index_summary']['present']}`",
             f"- command_index_row_count: `{manifest['remote_packet_safety']['claim_gate_command_index_summary']['index_row_count']}`",
             f"- command_index_missing_target_ids: `{manifest['remote_packet_safety']['claim_gate_command_index_summary']['missing_target_ids']}`",
+            f"- proof_deliverables_missing_counts: `{manifest['remote_packet_safety']['proof_deliverables_summary']['missing_counts_by_formal_category']}`",
+            f"- proof_deliverables_h02_paper_result_input_allowed: `{manifest['remote_packet_safety']['proof_deliverables_summary']['h02_paper_result_input_allowed']}`",
             "",
             "## Execution Veto Matrix",
             "",
