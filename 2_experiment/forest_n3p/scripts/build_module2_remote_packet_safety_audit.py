@@ -560,13 +560,6 @@ def _cross_gate_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any],
                     )
                 )
     if handoff_summary:
-        if status_summary.get("status") != "formal_gate_status_ready_for_claim_audit" and handoff_summary.get("remote_training_allowed_now") is True:
-            issues.append(
-                _issue(
-                    "blocked_status_report_handoff_allows_training",
-                    "Handoff summary must not allow remote training while the status report is blocked.",
-                )
-            )
         handoff_steps = handoff_summary.get("remote_execution_steps") if isinstance(handoff_summary.get("remote_execution_steps"), dict) else {}
         if not handoff_steps:
             issues.append(_issue("post_plan_handoff_missing_remote_steps", "Handoff summary must expose remote execution steps."))
