@@ -1430,6 +1430,7 @@ def _normalize_unlock_chain_rows(raw_rows: Any) -> list[dict[str, Any]]:
             {
                 "category": str(raw.get("category") or "unknown"),
                 "missing": raw.get("missing") if isinstance(raw.get("missing"), bool) else raw.get("current_state") == "missing",
+                "responsible_stage_id": raw.get("responsible_stage_id"),
                 "responsible_stage_allowed_now": raw.get("responsible_stage_allowed_now")
                 if isinstance(raw.get("responsible_stage_allowed_now"), bool)
                 else None,
@@ -1479,7 +1480,7 @@ def _derive_unlock_chain_categories(rows: list[dict[str, Any]]) -> dict[str, dic
             summary["blocked_row_count"] += 1
         if row["missing_required_current_blockers"]:
             summary["rows_with_missing_required_blockers"] += 1
-        if row["missing"] is True and row["responsible_stage_allowed_now"] is True:
+        if row["missing"] is True and row["responsible_stage_allowed_now"] is True and row.get("responsible_stage_id") != "gate3_remote_training":
             summary["rows_allowed_while_missing"] += 1
         summary["required_current_blockers"] = _dedupe_strings(
             [*summary["required_current_blockers"], *row["required_current_blockers"]]
