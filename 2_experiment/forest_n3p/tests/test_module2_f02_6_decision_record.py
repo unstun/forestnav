@@ -35,6 +35,23 @@ def test_f02_6_decision_record_defaults_to_pending_and_blocks_training(tmp_path)
     assert manifest["record_name"] == "module2_f02_6_decision_record"
     assert manifest["status"] == "pending_human_decision"
     assert manifest["effective_warm_start_decision"] == "pending"
+    assert manifest["decision_note_audit"] == {
+        "required_for_non_pending_decision": False,
+        "present": False,
+        "character_count": 0,
+        "word_count": 0,
+        "guidance_items": [
+            "selected decision",
+            "human rationale",
+            "evidence basis",
+            "risk accepted or avoided",
+            "next gated action",
+        ],
+        "mentions_selected_route": False,
+        "mentions_evidence_or_risk_basis": False,
+        "mentions_next_gated_action": False,
+        "quality_warning": None,
+    }
     assert manifest["remote_training_allowed"] is False
     assert manifest["remote_preflight_allowed_now"] is False
     assert manifest["remote_training_allowed_now"] is False
@@ -61,12 +78,18 @@ def test_f02_6_decision_record_approval_requires_dr_sun_and_only_unlocks_remote_
             remote_warm_preflight_path=_pending_warm_preflight(tmp_path),
             decision="approve_obstacle_summary_warm_start",
             decider="Dr Sun",
-            decision_note="Approve obstacle-summary warm-start for source-fresh regeneration.",
+            decision_note="Approve obstacle-summary warm-start because the evidence packet supports BC formal-v2; accept risk and next run source-fresh regeneration.",
         )
     )
 
     assert record["status"] == "approved"
-    assert record["decision_note"] == "Approve obstacle-summary warm-start for source-fresh regeneration."
+    assert record["decision_note"].startswith("Approve obstacle-summary warm-start")
+    assert record["decision_note_audit"]["required_for_non_pending_decision"] is True
+    assert record["decision_note_audit"]["present"] is True
+    assert record["decision_note_audit"]["mentions_selected_route"] is True
+    assert record["decision_note_audit"]["mentions_evidence_or_risk_basis"] is True
+    assert record["decision_note_audit"]["mentions_next_gated_action"] is True
+    assert record["decision_note_audit"]["quality_warning"] is None
     assert record["effective_warm_start_decision"] == "approved_obstacle_summary"
     assert record["remote_training_allowed"] is True
     assert record["remote_preflight_allowed_now"] is False
@@ -125,11 +148,15 @@ def test_f02_6_decision_record_rejection_keeps_warm_start_blocked(tmp_path):
             remote_warm_preflight_path=_pending_warm_preflight(tmp_path),
             decision="reject_obstacle_summary_warm_start",
             decider="Dr Sun",
-            decision_note="Use a stronger patch-CNN protocol first.",
+            decision_note="Reject obstacle-summary warm-start because risk is too high; next protocol requires stronger patch-CNN contract.",
         )
     )
 
     assert record["status"] == "rejected"
+    assert record["decision_note_audit"]["mentions_selected_route"] is True
+    assert record["decision_note_audit"]["mentions_evidence_or_risk_basis"] is True
+    assert record["decision_note_audit"]["mentions_next_gated_action"] is True
+    assert record["decision_note_audit"]["quality_warning"] is None
     assert record["effective_warm_start_decision"] == "no_warm_only"
     assert record["remote_training_allowed"] is False
     assert record["remote_preflight_allowed_now"] is False
