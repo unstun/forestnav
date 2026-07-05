@@ -1326,6 +1326,43 @@ def _remote_packet_safety(tmp_path, *, ready, stale=False):
     return path
 
 
+def _protocol_lane_status_report(tmp_path, *, pending):
+    path = tmp_path / f"protocol_lane_status_{pending}.json"
+    path.write_text(
+        json.dumps(
+            {
+                "status": "protocol_lane_status_blocked_pending_lane_decision" if pending else "protocol_lane_status_clean",
+                "not_paper_result_material": True,
+                "executes_commands": False,
+                "runs_training": False,
+                "runs_remote_preflight": False,
+                "local_training_allowed": False,
+                "formal_claim_allowed": False,
+                "paper_result_material_allowed": False,
+                "remote_training_allowed_now": False,
+                "current_status": {
+                    "next_blocked_lane": "protocol_lane_decision" if pending else None,
+                    "decision_record_status": "pending_protocol_lane_decision" if pending else "selected_protocol_lane_recorded",
+                    "selected_lane_id": None if pending else "stronger_obstacle_summary_warm_start",
+                    "allowed_next_action_ids": ["record_protocol_lane_decision"] if pending else ["draft_revised_contract"],
+                    "blocked_action_ids": [
+                        "local_training",
+                        "remote_success_training",
+                        "remote_preflight_for_new_success_attempt",
+                        "formal_claim",
+                        "paper_result_material",
+                    ]
+                    if pending
+                    else [],
+                    "new_success_training_allowed_now": False,
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    return path
+
+
 def _proof_deliverables_summary(*, open_gaps):
     counts = {
         "training": 3 if open_gaps else 0,
