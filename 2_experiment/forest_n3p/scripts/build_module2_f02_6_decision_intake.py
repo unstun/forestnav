@@ -29,6 +29,20 @@ DECISION_NOTE_GUIDANCE = (
     "risk accepted or avoided",
     "next gated action",
 )
+EXECUTION_BLOCKED_ACTION_IDS = (
+    "remote_preflight",
+    "remote_training",
+    "local_training",
+    "formal_claim",
+    "paper_result_material",
+)
+POST_DECISION_STILL_REQUIRES = (
+    "source_freshness_audit",
+    "post_f02_6_regeneration_plan",
+    "post_f02_6_plan_audit",
+    "remote_formal_execution_packet_ready",
+    "approved_remote_preflight",
+)
 
 
 @dataclass(frozen=True)
@@ -165,6 +179,17 @@ def _current_state(
 ) -> dict[str, Any]:
     recommendation = packet.get("recommendation") if isinstance(packet.get("recommendation"), dict) else {}
     authorization = packet.get("current_authorization") if isinstance(packet.get("current_authorization"), dict) else {}
+    record_authorization = record.get("current_authorization") if isinstance(record.get("current_authorization"), dict) else {}
+    record_invariants = (
+        record.get("post_decision_non_authorization_invariants")
+        if isinstance(record.get("post_decision_non_authorization_invariants"), dict)
+        else {}
+    )
+    record_templates = (
+        record.get("record_command_templates")
+        if isinstance(record.get("record_command_templates"), list)
+        else []
+    )
     permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
     remaining_permissions = remaining.get("permissions_now") if isinstance(remaining.get("permissions_now"), dict) else {}
     category_counts = remaining.get("category_counts") if isinstance(remaining.get("category_counts"), dict) else {}
@@ -182,7 +207,47 @@ def _current_state(
         "record_remote_preflight_allowed_now": record.get("remote_preflight_allowed_now"),
         "record_remote_training_allowed_now": record.get("remote_training_allowed_now"),
         "record_local_training_allowed": record.get("local_training_allowed"),
+        "record_local_training_allowed_now": record.get("local_training_allowed_now"),
         "record_formal_claim_allowed": record.get("formal_claim_allowed"),
+        "record_formal_claim_allowed_now": record.get("formal_claim_allowed_now"),
+        "record_paper_result_material_allowed_now": record.get("paper_result_material_allowed_now"),
+        "record_decision_record_is_not_training_authorization": record.get(
+            "decision_record_is_not_training_authorization"
+        ),
+        "record_decision_record_is_not_paper_result_material": record.get(
+            "decision_record_is_not_paper_result_material"
+        ),
+        "record_authorization_status": record_authorization.get("authorization_status"),
+        "record_authorization_current_allowed_action_ids": list(
+            record_authorization.get("current_allowed_action_ids") or ()
+        ),
+        "record_authorization_current_blocked_action_ids": list(
+            record_authorization.get("current_blocked_action_ids") or ()
+        ),
+        "record_authorization_post_decision_routes_are_current_authorization": record_authorization.get(
+            "post_decision_routes_are_current_authorization"
+        ),
+        "record_authorization_remote_preflight_allowed_now": record_authorization.get(
+            "remote_preflight_allowed_now"
+        ),
+        "record_authorization_remote_training_allowed_now": record_authorization.get(
+            "remote_training_allowed_now"
+        ),
+        "record_authorization_local_training_allowed_now": record_authorization.get("local_training_allowed_now"),
+        "record_authorization_formal_claim_allowed_now": record_authorization.get("formal_claim_allowed_now"),
+        "record_authorization_paper_result_material_allowed_now": record_authorization.get(
+            "paper_result_material_allowed_now"
+        ),
+        "record_post_decision_non_authorization_count": len(
+            record_invariants.get("blocked_after_decision_record")
+            if isinstance(record_invariants.get("blocked_after_decision_record"), list)
+            else []
+        ),
+        "record_post_decision_formal_training_still_requires": list(
+            record_invariants.get("formal_training_still_requires") or ()
+        ),
+        "record_command_template_count": len(record_templates),
+        "record_command_templates": record_templates,
         "packet_authorization_status": authorization.get("authorization_status"),
         "packet_current_allowed_action_ids": list(authorization.get("current_allowed_action_ids") or ()),
         "packet_current_blocked_action_ids": list(authorization.get("current_blocked_action_ids") or ()),
@@ -418,6 +483,13 @@ def _formal_gate_decision_impact_summary(
         "missing_by_category": current_state.get("missing_by_category"),
         "current_allowed_action_ids": _strings(current_state.get("packet_current_allowed_action_ids")),
         "current_blocked_action_ids": _strings(current_state.get("packet_current_blocked_action_ids")),
+        "record_authorization_status": current_state.get("record_authorization_status"),
+        "record_authorization_current_blocked_action_ids": _strings(
+            current_state.get("record_authorization_current_blocked_action_ids")
+        ),
+        "record_post_decision_non_authorization_count": current_state.get(
+            "record_post_decision_non_authorization_count"
+        ),
         "decision_routes": [
             _decision_route_impact(
                 decision=APPROVE_OBSTACLE_SUMMARY,
@@ -650,8 +722,142 @@ def _audit_issues(
         issues.append(_issue("record_status_unknown", "Decision record status must be pending_human_decision, approved, or rejected.", record_status))
     if current_state["record_local_training_allowed"] is not False:
         issues.append(_issue("record_allows_local_training", "Decision record must never allow local training.", current_state["record_local_training_allowed"]))
+    if current_state["record_local_training_allowed_now"] is not False:
+        issues.append(_issue("record_allows_local_training_now", "Decision record must not allow local training now.", current_state["record_local_training_allowed_now"]))
     if current_state["record_formal_claim_allowed"] is not False:
         issues.append(_issue("record_allows_formal_claim", "Decision record must never allow formal result claims.", current_state["record_formal_claim_allowed"]))
+    if current_state["record_formal_claim_allowed_now"] is not False:
+        issues.append(_issue("record_allows_formal_claim_now", "Decision record must not allow formal result claims now.", current_state["record_formal_claim_allowed_now"]))
+    if current_state["record_paper_result_material_allowed_now"] is not False:
+        issues.append(
+            _issue(
+                "record_allows_paper_result_material_now",
+                "Decision record must not allow paper-result material.",
+                current_state["record_paper_result_material_allowed_now"],
+            )
+        )
+    if current_state["record_decision_record_is_not_training_authorization"] is not True:
+        issues.append(
+            _issue(
+                "record_missing_not_training_authorization_invariant",
+                "Decision record must explicitly state that it is not training authorization.",
+                current_state["record_decision_record_is_not_training_authorization"],
+            )
+        )
+    if current_state["record_decision_record_is_not_paper_result_material"] is not True:
+        issues.append(
+            _issue(
+                "record_missing_not_paper_result_material_invariant",
+                "Decision record must explicitly state that it is not paper result material.",
+                current_state["record_decision_record_is_not_paper_result_material"],
+            )
+        )
+    expected_record_auth_status = (
+        "blocked_until_dr_sun_decision"
+        if record_status == "pending_human_decision"
+        else "decision_recorded_not_execution_authorization"
+    )
+    if current_state["record_authorization_status"] != expected_record_auth_status:
+        issues.append(
+            _issue(
+                "record_current_authorization_status_invalid",
+                "Decision record authorization status must describe decision-record scope, not execution permission.",
+                current_state["record_authorization_status"],
+            )
+        )
+    missing_record_blocked_actions = sorted(
+        set(EXECUTION_BLOCKED_ACTION_IDS).difference(current_state["record_authorization_current_blocked_action_ids"])
+    )
+    if missing_record_blocked_actions:
+        issues.append(
+            _issue(
+                "record_current_authorization_missing_blocked_actions",
+                "Decision record authorization boundary must block every execution and result-claim path.",
+                missing_record_blocked_actions,
+            )
+        )
+    if current_state["record_authorization_post_decision_routes_are_current_authorization"] is not False:
+        issues.append(
+            _issue(
+                "record_treats_post_decision_routes_as_current_authorization",
+                "Decision record must not treat post-decision routes as current authorization.",
+                current_state["record_authorization_post_decision_routes_are_current_authorization"],
+            )
+        )
+    for field in (
+        "record_authorization_remote_preflight_allowed_now",
+        "record_authorization_remote_training_allowed_now",
+        "record_authorization_local_training_allowed_now",
+        "record_authorization_formal_claim_allowed_now",
+        "record_authorization_paper_result_material_allowed_now",
+    ):
+        if current_state[field] is not False:
+            issues.append(
+                _issue(
+                    f"{field}_not_false",
+                    "Decision record authorization boundary must not allow execution or result material.",
+                    current_state[field],
+                )
+            )
+    missing_record_requirements = sorted(
+        set(POST_DECISION_STILL_REQUIRES).difference(
+            current_state["record_post_decision_formal_training_still_requires"]
+        )
+    )
+    if missing_record_requirements:
+        issues.append(
+            _issue(
+                "record_post_decision_still_requires_incomplete",
+                "Decision record must list downstream gates still required after any F02.6 record.",
+                missing_record_requirements,
+            )
+        )
+    if int(current_state["record_post_decision_non_authorization_count"] or 0) < 4:
+        issues.append(
+            _issue(
+                "record_post_decision_non_authorizations_incomplete",
+                "Decision record must list non-authorized actions after a decision record.",
+                current_state["record_post_decision_non_authorization_count"],
+            )
+        )
+    template_decisions = {
+        str(item.get("decision"))
+        for item in current_state["record_command_templates"]
+        if isinstance(item, dict) and item.get("decision")
+    }
+    if template_decisions != {APPROVE_OBSTACLE_SUMMARY, REJECT_OBSTACLE_SUMMARY}:
+        issues.append(
+            _issue(
+                "record_command_templates_missing_decisions",
+                "Decision record must carry approve/reject local record command templates.",
+                sorted(template_decisions),
+            )
+        )
+    for template in current_state["record_command_templates"]:
+        if not isinstance(template, dict):
+            continue
+        decision = str(template.get("decision") or "unknown")
+        safe_decision = decision.replace("-", "_")
+        command = str(template.get("command") or "")
+        if "build_module2_f02_6_decision_record" not in command:
+            issues.append(_issue(f"record_command_template_{safe_decision}_wrong_command", "Record template must call only the decision-record builder."))
+        for field in (
+            "allowed_for_agent_now",
+            "runs_training",
+            "runs_remote_preflight",
+            "runs_remote_audit",
+            "runs_remote_training",
+            "formal_claim_allowed_now",
+            "paper_result_material_allowed_now",
+        ):
+            if template.get(field) is not False:
+                issues.append(
+                    _issue(
+                        f"record_command_template_{safe_decision}_{field}_not_false",
+                        "Record command templates must be local decision-record-only and not agent-executable.",
+                        template.get(field),
+                    )
+                )
     if record_status == "pending_human_decision" and current_state["record_decider"] is not None:
         issues.append(_issue("pending_record_has_decider", "Pending F02.6 record must not name a decider.", current_state["record_decider"]))
     if record_status in {"approved", "rejected"} and current_state["record_decider"] != DECISION_OWNER:
