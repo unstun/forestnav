@@ -5,7 +5,7 @@ This is a read-only formal-gate readiness refresh. It is not a training run, not
 ## Status
 
 - status: `remote_readiness_refreshed_f02_6_still_blocked`
-- source_head: `5c94254ba1c4e165f7c293bb4adc008d4eb56647`
+- source_head: `aa2d466f4bc71efa32612a3e39f1a7fcb1d472d9`
 - runs_training: `False`
 - runs_remote_preflight: `False`
 - local_training_allowed: `False`
