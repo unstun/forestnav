@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-05T05:13:03.525585+00:00",
-  "source_head": "492bb83113ece6bf851ec11896bfd39aa8101077+dirty",
+  "created_at_utc": "2026-07-05T05:18:18.000442+00:00",
+  "source_head": "2ca9fcd010ecda59254289b5b254f49d23f50bfb+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -2785,7 +2785,6 @@
         "readiness_blocks_formal_results",
         "formal_gate_missing_artifacts_open",
         "formal_gate_closure_checklist_open",
-        "formal_status_report_safety_issues_open",
         "formal_gate_status_report_blocked",
         "formal_gate_remaining_deliverables_open",
         "h02_formal_acceptance_not_ready",
@@ -2856,13 +2855,8 @@
       "requires_dr_sun_approval"
     ]
   },
-  "input_safety_issue_count": 1,
-  "input_safety_issues": [
-    {
-      "issue_id": "formal_gate_remote_packet_safety_command_index_missing_claim_safety",
-      "message": "remote packet safety command index must include claim_safety."
-    }
-  ],
+  "input_safety_issue_count": 0,
+  "input_safety_issues": [],
   "safe_work_without_f02_6_decision": [
     "Maintain or harden read-only gate artifacts.",
     "Add tests for gate ordering, artifact inventory, and claim blocking.",

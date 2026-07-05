@@ -81,7 +81,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - local_training_allowed_now: `False`
 - formal_claim_allowed_now: `False`
 - next_blocked_lane_id: `decision`
-- input_safety_issue_count: `1`
+- input_safety_issue_count: `0`
 
 ## Remaining Deliverables Ledger
 
@@ -260,10 +260,6 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
   - evidence: `0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json`
   - why: Closure checklist status is formal_gate_closure_blocked; open_item_count=8.
   - needed: Close every checklist item before final H02/claim readiness can pass.
-- `formal_status_report_safety_issues_open`
-  - evidence: `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`
-  - why: Status report has 1 input safety issues.
-  - needed: Resolve status report input safety issues before treating the formal gate as complete.
 - `formal_gate_status_report_blocked`
   - evidence: `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`
   - why: Status report status is formal_gate_status_blocked; formal_claim_allowed_now=False.
