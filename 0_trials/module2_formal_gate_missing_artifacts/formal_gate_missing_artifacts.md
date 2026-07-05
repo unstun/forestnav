@@ -83,13 +83,13 @@ This file inventories missing formal-gate evidence. It does not execute commands
 ## Missing Counts
 
 - acceptance: `0`
-- claim_gate: `6`
+- claim_gate: `8`
 - decision: `0`
 - decision_gate: `0`
 - evaluation: `0`
 - evaluation_acceptance: `1`
 - gate_sequence: `4`
-- regeneration: `19`
+- regeneration: `22`
 - training: `0`
 
 ## Formal Gate Requirements
@@ -128,6 +128,7 @@ This file inventories missing formal-gate evidence. It does not execute commands
   - missing `f02_6_transition_gate_audit`: `0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `f02_6_warm_start_decision_packet`: `0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `formal_gate_closure_checklist`: `0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json` (source freshness audit requires regeneration before the corresponding formal gate)
+  - missing `formal_gate_gap_audit`: `0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `formal_gate_handoff_bundle`: `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `gpu3070ti_readiness_refresh`: `0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `post_f02_6_plan_audit`: `0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json` (source freshness audit requires regeneration before the corresponding formal gate)
@@ -139,6 +140,8 @@ This file inventories missing formal-gate evidence. It does not execute commands
   - missing `claim_safety`: `0_trials/module2_claim_safety/module2_claim_safety.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `formal_gate_proof_audit`: `0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `formal_gate_proof_summary_chain_audit`: `0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json` (source freshness audit requires regeneration before the corresponding formal gate)
+  - missing `formal_gate_remaining_deliverables`: `0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json` (source freshness audit requires regeneration before the corresponding formal gate)
+  - missing `formal_gate_status_report`: `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `mainline_formal_gate_state_audit`: `0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `paper_readiness`: `0_trials/module2_paper_readiness/module2_paper_readiness.json` (source freshness audit requires regeneration before the corresponding formal gate)
 - `post_f02_6_ordered_stages` (gate_sequence): complete=`False`, blocked_by=`f02_6_decision_record, gate3_remote_audit_pullback, regenerate_h01_h02_formal_artifacts, regenerate_claim_gate_artifacts`
@@ -151,10 +154,12 @@ This file inventories missing formal-gate evidence. It does not execute commands
 - `gate3_acceptance_pullback` (acceptance): complete=`True`, blocked_by=``
 - `h01_h02_formal_evaluation_acceptance` (evaluation_acceptance): complete=`False`, blocked_by=`h02_formal_output_acceptance`
   - missing `h02_formal_output_acceptance`: `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json` (h02_verdict_not_formal, gate3_formal_audit_not_passed, h02_scale_below_h01_manifest, missing_ppo_result_rows)
-- `claim_gate_regeneration` (claim_gate): complete=`False`, blocked_by=`claim_safety, formal_gate_proof_audit, formal_gate_proof_summary_chain_audit, mainline_formal_gate_state_audit, paper_readiness, h02_formal_acceptance_before_claim_gate`
+- `claim_gate_regeneration` (claim_gate): complete=`False`, blocked_by=`claim_safety, formal_gate_proof_audit, formal_gate_proof_summary_chain_audit, formal_gate_remaining_deliverables, formal_gate_status_report, mainline_formal_gate_state_audit, paper_readiness, h02_formal_acceptance_before_claim_gate`
   - missing `claim_safety`: `0_trials/module2_claim_safety/module2_claim_safety.json` (claim gate artifact must be regenerated after H02 formal acceptance)
   - missing `formal_gate_proof_audit`: `0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json` (claim gate artifact must be regenerated after H02 formal acceptance)
   - missing `formal_gate_proof_summary_chain_audit`: `0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json` (claim gate artifact must be regenerated after H02 formal acceptance)
+  - missing `formal_gate_remaining_deliverables`: `0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json` (claim gate artifact must be regenerated after H02 formal acceptance)
+  - missing `formal_gate_status_report`: `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json` (claim gate artifact must be regenerated after H02 formal acceptance)
   - missing `mainline_formal_gate_state_audit`: `0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json` (claim gate artifact must be regenerated after H02 formal acceptance)
   - missing `paper_readiness`: `0_trials/module2_paper_readiness/module2_paper_readiness.json` (claim gate artifact must be regenerated after H02 formal acceptance)
   - missing `h02_formal_acceptance_before_claim_gate`: `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json` (claim gate cannot be regenerated from blocked H02 outputs)
