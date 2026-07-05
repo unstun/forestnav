@@ -4,6 +4,7 @@
 - requested decision: `pending`
 - effective warm-start decision: `pending`
 - decider: `None`
+- decision note audit: `{'required_for_non_pending_decision': False, 'present': False, 'character_count': 0, 'word_count': 0, 'guidance_items': ['selected decision', 'human rationale', 'evidence basis', 'risk accepted or avoided', 'next gated action'], 'mentions_selected_route': False, 'mentions_evidence_or_risk_basis': False, 'mentions_next_gated_action': False, 'quality_warning': None}`
 - remote training allowed: `False`
 - remote preflight allowed now: `False`
 - remote training allowed now: `False`

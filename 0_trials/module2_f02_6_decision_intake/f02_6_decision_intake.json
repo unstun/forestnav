@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_f02_6_decision_intake",
   "status": "f02_6_decision_intake_pending_clean",
-  "created_at_utc": "2026-07-05T12:36:29.050155+00:00",
-  "source_head": "818b4b347b211ccef4fbf77fd120ea2c3b48510a",
+  "created_at_utc": "2026-07-05T12:44:59.801327+00:00",
+  "source_head": "207ccd8ecc233280470dcb75958fab54195b8a53",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -210,6 +210,13 @@
       "decider": "must equal Dr Sun",
       "decision_note": "must be a human-readable Dr Sun note explaining the approval or rejection rationale"
     },
+    "decision_note_guidance": [
+      "selected decision",
+      "human rationale",
+      "evidence basis",
+      "risk accepted or avoided",
+      "next gated action"
+    ],
     "record_command_templates": [
       {
         "decision": "approve_obstacle_summary_warm_start",

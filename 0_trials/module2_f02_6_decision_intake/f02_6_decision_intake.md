@@ -54,6 +54,7 @@ This read-only artifact explains how F02.6 can be closed. It does not record a d
 - `decision`: must be one of approve_obstacle_summary_warm_start or reject_obstacle_summary_warm_start
 - `decider`: must equal Dr Sun
 - `decision_note`: must be a human-readable Dr Sun note explaining the approval or rejection rationale
+- decision_note_guidance: `selected decision, human rationale, evidence basis, risk accepted or avoided, next gated action`
 
 ## Command Templates
 
