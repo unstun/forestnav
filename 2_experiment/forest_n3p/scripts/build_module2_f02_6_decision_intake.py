@@ -81,6 +81,8 @@ def build_manifest(config: F026DecisionIntakeConfig) -> dict[str, Any]:
         remaining=remaining,
         current_state=current_state,
     )
+    decision_intake_contract = _decision_intake_contract(gate_audit)
+    post_decision_route_matrix = _post_decision_route_matrix()
     return {
         "schema_version": 1,
         "artifact_name": "module2_f02_6_decision_intake",
@@ -102,8 +104,13 @@ def build_manifest(config: F026DecisionIntakeConfig) -> dict[str, Any]:
             "remaining_deliverables": str(config.remaining_deliverables_path),
         },
         "current_state": current_state,
-        "decision_intake_contract": _decision_intake_contract(gate_audit),
-        "post_decision_route_matrix": _post_decision_route_matrix(),
+        "next_human_decision_request": _next_human_decision_request(
+            current_state=current_state,
+            decision_intake_contract=decision_intake_contract,
+            post_decision_route_matrix=post_decision_route_matrix,
+        ),
+        "decision_intake_contract": decision_intake_contract,
+        "post_decision_route_matrix": post_decision_route_matrix,
         "post_decision_non_authorizations": _post_decision_non_authorizations(),
         "invalid_inputs": _invalid_inputs(),
         "audit_issue_count": len(issues),
