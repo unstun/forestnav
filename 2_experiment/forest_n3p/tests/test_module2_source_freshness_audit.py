@@ -116,6 +116,39 @@ def test_source_freshness_audit_records_commit_lag_diagnostics(tmp_path, monkeyp
     assert target["artifact_path_changed_since_source"] is True
 
 
+def test_source_freshness_audit_documents_self_artifact_lag_policy(tmp_path, monkeypatch):
+    builder = import_module("forest_n3p.scripts.build_module2_source_freshness_audit")
+    current_head = "c" * 40
+    clean_path = _artifact(tmp_path, "clean.json", status="ready", source_head=current_head)
+
+    monkeypatch.setattr(builder, "_current_head", lambda: current_head)
+    monkeypatch.setattr(builder, "_source_head", lambda: current_head)
+    monkeypatch.setattr(builder, "_commit_exists", lambda commit: commit == current_head)
+
+    manifest = builder.build_manifest(
+        builder.SourceFreshnessAuditConfig(
+            output_dir=tmp_path,
+            manifest_out=tmp_path / "audit.json",
+            markdown_out=tmp_path / "audit.md",
+            artifacts=[
+                builder.ArtifactTarget("clean_gate", "gate", clean_path, "approved_remote_preflight"),
+            ],
+        )
+    )
+
+    policy = manifest["audit_self_reference_policy"]
+    assert policy == {
+        "source_head_scope": "generation_time_repository_head",
+        "commit_storing_this_audit_known_at_generation": False,
+        "expected_post_commit_self_lag": True,
+        "self_lag_is_formal_gate_blocker": False,
+        "manifest_path": str(tmp_path / "audit.json"),
+        "markdown_path": str(tmp_path / "audit.md"),
+    }
+    assert manifest["status"] == "source_freshness_clean_current"
+    assert manifest["regeneration_required_before_remote_formal_execution"] is False
+
+
 def test_source_freshness_audit_cli_writes_json_and_markdown(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_source_freshness_audit")
     manifest_path = tmp_path / "audit.json"
