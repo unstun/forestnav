@@ -1230,6 +1230,10 @@ def test_claim_safety_rejects_status_report_decision_intake_contract_drift(tmp_p
     intake["decision_note_required"] = False
     intake["invalid_input_count"] = 0
     intake["post_decision_non_authorization_count"] = 0
+    matrix = intake["decision_evidence_matrix_summary"]
+    matrix["missing_required_evidence_count"] = 1
+    matrix["remote_training_allowed_now"] = True
+    matrix["global_invalid_substitute_count"] = 0
     status_report = tmp_path / "status_report.json"
     status_report.write_text(json.dumps(status_payload), encoding="utf-8")
 
@@ -1253,6 +1257,9 @@ def test_claim_safety_rejects_status_report_decision_intake_contract_drift(tmp_p
     assert "status_report_f02_6_decision_intake_decision_note_not_required" in blockers
     assert "status_report_f02_6_decision_intake_invalid_inputs_missing" in blockers
     assert "status_report_f02_6_decision_intake_non_authorizations_missing" in blockers
+    assert "status_report_f02_6_decision_evidence_matrix_missing_required_evidence" in blockers
+    assert "status_report_f02_6_decision_evidence_matrix_allows_remote_training" in blockers
+    assert "status_report_f02_6_decision_evidence_matrix_invalid_substitutes_missing" in blockers
     assert manifest["status_report_decision_intake_summary"]["decision_owner_required"] == "Assistant"
 
 
