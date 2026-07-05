@@ -513,7 +513,12 @@ def _deliverable_unlock_chain(deliverable_acceptance_matrix: Sequence[dict[str, 
     for row in deliverable_acceptance_matrix:
         category = str(row.get("category") or "")
         observed_blockers = _strings(row.get("responsible_stage_blocked_by"))
-        required_blockers = list(CURRENT_BLOCKER_REQUIREMENTS_BY_CATEGORY.get(category, ()))
+        generation_stage_allowed = (
+            row.get("missing") is True
+            and row.get("responsible_stage_allowed_now") is True
+            and row.get("responsible_stage_id") == "gate3_remote_training"
+        )
+        required_blockers = [] if generation_stage_allowed else list(CURRENT_BLOCKER_REQUIREMENTS_BY_CATEGORY.get(category, ()))
         missing_required_blockers = [
             blocker
             for blocker in required_blockers
