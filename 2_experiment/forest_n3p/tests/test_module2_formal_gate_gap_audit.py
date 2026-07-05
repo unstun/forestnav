@@ -77,6 +77,24 @@ def test_formal_gate_gap_audit_blocks_current_pending_gate_and_lists_missing_art
     assert command_index["missing_target_ids"] == []
     assert command_index["claim_gate_rows"]["claim_safety"]["stage_id"] == "regenerate_claim_gate_artifacts"
     assert command_index["claim_gate_rows"]["paper_readiness"]["required_before"] == "formal_claim_gate"
+    proof_summary = manifest["remote_packet_safety"]["proof_deliverables_summary"]
+    assert proof_summary["present"] is True
+    assert proof_summary["missing_counts_by_formal_category"] == {
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 2,
+    }
+    assert proof_summary["next_blocked_lane"] == "decision"
+    assert proof_summary["h01_status"] == "blocked_pending_decisions"
+    assert proof_summary["h02_status"] == "blocked_formal_output_acceptance"
+    assert proof_summary["h02_paper_result_input_allowed"] is False
+    assert (
+        manifest["remote_packet_safety"]["status_report_proof_deliverables_summary"][
+            "missing_counts_by_formal_category"
+        ]
+        == proof_summary["missing_counts_by_formal_category"]
+    )
     assert manifest["execution_veto_matrix"]["all_rows_consistent"] is True
     assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
     assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 4
@@ -680,6 +698,109 @@ def test_formal_gate_gap_audit_requires_remote_packet_safety_claim_gate_command_
     assert "remote_packet_safety_command_index_missing_paper_readiness" in training_gap_ids
 
 
+def test_formal_gate_gap_audit_requires_remote_packet_safety_proof_deliverables_summary(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_gap_audit")
+    remote_safety = _remote_packet_safety(tmp_path, ready=True)
+    payload = json.loads(remote_safety.read_text(encoding="utf-8"))
+    payload["cross_gate_summary"].pop("post_plan_proof_audit_deliverables_summary")
+    payload["cross_gate_summary"].pop("post_plan_status_report_proof_audit_deliverables_summary")
+    remote_safety.write_text(json.dumps(payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        builder.FormalGateGapAuditConfig(
+            output_dir=tmp_path,
+            contract_path=_contract(tmp_path),
+            decision_record_path=_decision_record(tmp_path, pending=False),
+            h01_manifest_path=_h01_manifest(tmp_path, ready=True),
+            remote_packet_path=_remote_packet(tmp_path, ready=True, artifacts_present=True),
+            h02_acceptance_path=_h02_acceptance(tmp_path, accepted=True),
+            claim_safety_path=_claim_safety(tmp_path, allowed=True),
+            readiness_path=_readiness(tmp_path, ready=True),
+            remote_readiness_path=_remote_readiness(tmp_path, good=True),
+            source_freshness_path=_source_freshness(tmp_path, clean=True),
+            missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
+            closure_checklist_path=_closure_checklist(tmp_path, complete=True, deliverables_complete=True),
+            status_report_path=_status_report(tmp_path, ready=True, deliverables_complete=True),
+            remaining_deliverables_path=_remaining_deliverables(tmp_path, complete=True),
+            handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
+            remote_packet_safety_path=remote_safety,
+        )
+    )
+
+    training_gap_ids = {gap["gap_id"] for gap in manifest["missing_training_artifacts"]}
+    assert "remote_packet_safety_missing_proof_deliverables_summary" in training_gap_ids
+    assert "remote_packet_safety_missing_status_report_proof_deliverables_summary" in training_gap_ids
+
+
+def test_formal_gate_gap_audit_rejects_remote_packet_safety_proof_deliverables_summary_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_gap_audit")
+    remote_safety = _remote_packet_safety(tmp_path, ready=True)
+    payload = json.loads(remote_safety.read_text(encoding="utf-8"))
+    payload["cross_gate_summary"]["post_plan_status_report_proof_audit_deliverables_summary"][
+        "missing_counts_by_formal_category"
+    ]["training"] = 2
+    remote_safety.write_text(json.dumps(payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        builder.FormalGateGapAuditConfig(
+            output_dir=tmp_path,
+            contract_path=_contract(tmp_path),
+            decision_record_path=_decision_record(tmp_path, pending=False),
+            h01_manifest_path=_h01_manifest(tmp_path, ready=True),
+            remote_packet_path=_remote_packet(tmp_path, ready=True, artifacts_present=True),
+            h02_acceptance_path=_h02_acceptance(tmp_path, accepted=True),
+            claim_safety_path=_claim_safety(tmp_path, allowed=True),
+            readiness_path=_readiness(tmp_path, ready=True),
+            remote_readiness_path=_remote_readiness(tmp_path, good=True),
+            source_freshness_path=_source_freshness(tmp_path, clean=True),
+            missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
+            closure_checklist_path=_closure_checklist(tmp_path, complete=True, deliverables_complete=True),
+            status_report_path=_status_report(tmp_path, ready=True, deliverables_complete=True),
+            remaining_deliverables_path=_remaining_deliverables(tmp_path, complete=True),
+            handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
+            remote_packet_safety_path=remote_safety,
+        )
+    )
+
+    training_gap_ids = {gap["gap_id"] for gap in manifest["missing_training_artifacts"]}
+    assert "remote_packet_safety_proof_deliverables_summary_mismatch" in training_gap_ids
+
+
+def test_formal_gate_gap_audit_rejects_remote_packet_safety_h02_paper_input_with_missing_proof(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_gap_audit")
+    remote_safety = _remote_packet_safety(tmp_path, ready=False)
+    payload = json.loads(remote_safety.read_text(encoding="utf-8"))
+    payload["cross_gate_summary"]["post_plan_proof_audit_deliverables_summary"][
+        "h02_paper_result_input_allowed"
+    ] = True
+    remote_safety.write_text(json.dumps(payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        builder.FormalGateGapAuditConfig(
+            output_dir=tmp_path,
+            contract_path=_contract(tmp_path),
+            decision_record_path=_decision_record(tmp_path, pending=True),
+            h01_manifest_path=_h01_manifest(tmp_path, ready=False),
+            remote_packet_path=_remote_packet(tmp_path, ready=False, artifacts_present=False),
+            h02_acceptance_path=_h02_acceptance(tmp_path, accepted=False),
+            claim_safety_path=_claim_safety(tmp_path, allowed=False),
+            readiness_path=_readiness(tmp_path, ready=False),
+            remote_readiness_path=_remote_readiness(tmp_path, good=True),
+            source_freshness_path=_source_freshness(tmp_path, clean=True),
+            missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
+            closure_checklist_path=_closure_checklist(tmp_path, complete=True, deliverables_complete=False),
+            status_report_path=_status_report(tmp_path, ready=False, deliverables_complete=False),
+            remaining_deliverables_path=_remaining_deliverables(tmp_path, complete=False),
+            handoff_bundle_path=_handoff_bundle(tmp_path, ready=False, pending=True),
+            remote_packet_safety_path=remote_safety,
+        )
+    )
+
+    training_gap_ids = {gap["gap_id"] for gap in manifest["missing_training_artifacts"]}
+    assert "remote_packet_safety_proof_deliverables_summary_mismatch" in training_gap_ids
+    assert "remote_packet_safety_proof_deliverables_allow_h02_paper_input" in training_gap_ids
+
+
 def _contract(tmp_path):
     path = tmp_path / "contract.md"
     path.write_text(
@@ -1148,12 +1269,35 @@ def _remote_packet_safety(tmp_path, *, ready, stale=False):
                 },
                 "cross_gate_summary": {
                     "post_plan_source_regeneration_command_index_summary": _command_index_summary(),
+                    "post_plan_proof_audit_deliverables_summary": _proof_deliverables_summary(open_gaps=not ready),
+                    "post_plan_status_report_proof_audit_deliverables_summary": _proof_deliverables_summary(open_gaps=not ready),
                 },
             }
         ),
         encoding="utf-8",
     )
     return path
+
+
+def _proof_deliverables_summary(*, open_gaps):
+    counts = {
+        "training": 3 if open_gaps else 0,
+        "evaluation": 2 if open_gaps else 0,
+        "acceptance": 3 if open_gaps else 0,
+        "formal_acceptance": 2 if open_gaps else 0,
+    }
+    return {
+        "missing_counts_by_formal_category": counts,
+        "missing_matrix_ids_by_formal_category": {
+            category: [f"{category}:artifact_{index}" for index in range(count)]
+            for category, count in counts.items()
+        },
+        "next_blocked_lane": "decision" if open_gaps else None,
+        "h01_status": "blocked_pending_decisions" if open_gaps else "ready_for_formal_run",
+        "h02_status": "blocked_formal_output_acceptance" if open_gaps else "formal_output_accepted",
+        "h02_formal_output_accepted": not open_gaps,
+        "h02_paper_result_input_allowed": not open_gaps,
+    }
 
 
 def _command_index_summary():
