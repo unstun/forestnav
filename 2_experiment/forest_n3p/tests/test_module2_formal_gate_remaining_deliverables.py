@@ -571,6 +571,7 @@ def _remote_packet(*, complete):
         "local_training_allowed": False,
         "formal_claim_allowed": False,
         "ready_to_run_remote_training": complete,
+        "post_run_pullback": {"hash_manifest_required": True},
     }
 
 
