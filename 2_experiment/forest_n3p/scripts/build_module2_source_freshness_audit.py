@@ -23,6 +23,12 @@ class ArtifactTarget:
 
 DEFAULT_ARTIFACTS = (
     ArtifactTarget(
+        "f02_6_warm_start_decision_packet",
+        "decision",
+        Path("0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json"),
+        "approved_remote_preflight",
+    ),
+    ArtifactTarget(
         "f02_6_decision_record",
         "decision",
         Path("0_trials/module2_f02_6_decision_record/f02_6_decision_record.json"),

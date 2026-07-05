@@ -339,6 +339,8 @@ def _regeneration_command_entry(target: dict[str, Any]) -> dict[str, Any]:
             "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record "
             "--decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'"
         )
+    elif artifact_id == "f02_6_warm_start_decision_packet":
+        command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_warm_start_decision_packet"
     elif artifact_id == "f02_6_decision_intake":
         command_template = "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_intake"
     elif artifact_id == "f02_6_decision_gate_audit":

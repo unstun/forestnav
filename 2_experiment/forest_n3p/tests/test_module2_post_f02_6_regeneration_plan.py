@@ -67,6 +67,7 @@ def test_post_f02_6_regeneration_plan_allows_only_regeneration_after_approval_wh
     assert stages["regenerate_preflight_gate_artifacts"]["allowed_now"] is True
     assert stages["regenerate_preflight_gate_artifacts"]["runs_training"] is False
     joined_commands = "\n".join(stages["regenerate_preflight_gate_artifacts"]["command_templates"])
+    assert "build_module2_f02_6_warm_start_decision_packet" in joined_commands
     assert "build_module2_f02_6_decision_gate_audit" in joined_commands
     assert "build_module2_f02_6_transition_gate_audit" in joined_commands
     assert "build_module2_formal_gate_closure_checklist" in joined_commands
@@ -79,6 +80,11 @@ def test_post_f02_6_regeneration_plan_allows_only_regeneration_after_approval_wh
     assert "build_module2_post_f02_6_plan_audit" in joined_commands
     assert "manual read-only gpu3070ti readiness refresh" in joined_commands
     command_index = {entry["artifact_id"]: entry for entry in manifest["source_regeneration_command_index"]}
+    assert command_index["f02_6_warm_start_decision_packet"]["stage_id"] == "regenerate_preflight_gate_artifacts"
+    assert (
+        "build_module2_f02_6_warm_start_decision_packet"
+        in command_index["f02_6_warm_start_decision_packet"]["command_template"]
+    )
     assert command_index["f02_6_decision_intake"]["stage_id"] == "regenerate_preflight_gate_artifacts"
     assert "build_module2_f02_6_decision_intake" in command_index["f02_6_decision_intake"]["command_template"]
     assert command_index["post_f02_6_regeneration_plan"]["stage_id"] == "regenerate_preflight_gate_artifacts"
@@ -275,6 +281,12 @@ def _formal_gate(tmp_path, *, decision_status):
 def _source_freshness(tmp_path, *, required):
     path = tmp_path / f"source_freshness_{required}.json"
     targets = [
+        {
+            "artifact_id": "f02_6_warm_start_decision_packet",
+            "path": "0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json",
+            "freshness_state": "historical_dirty",
+            "required_before": "approved_remote_preflight",
+        },
         {
             "artifact_id": "f02_6_decision_record",
             "path": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
