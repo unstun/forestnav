@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_remaining_deliverables",
   "status": "formal_gate_deliverables_blocked",
-  "created_at_utc": "2026-07-05T13:10:42.142013+00:00",
-  "source_head": "aa2d466f4bc71efa32612a3e39f1a7fcb1d472d9",
+  "created_at_utc": "2026-07-05T13:24:31.567091+00:00",
+  "source_head": "c29ea09e7873197d8ed1a15f05cf5b0d0260e27b",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -33,13 +33,13 @@
     "missing_counts_by_category": {
       "decision": 1,
       "decision_gate": 0,
-      "regeneration": 17,
+      "regeneration": 0,
       "gate_sequence": 7,
       "training": 3,
       "evaluation": 2,
       "acceptance": 3,
       "evaluation_acceptance": 2,
-      "claim_gate": 3
+      "claim_gate": 1
     },
     "remote_packet_status": "blocked_until_f02_6_decision",
     "ready_to_run_remote_training": false,
