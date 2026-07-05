@@ -167,6 +167,47 @@ def test_formal_gate_gap_audit_can_be_clean_only_after_remote_artifacts_and_acce
     assert manifest["ordered_next_steps"][-1]["status"] == "ready"
 
 
+def test_formal_gate_gap_audit_protocol_lane_pending_vetoes_stale_remote_ready_packet(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_gap_audit")
+
+    manifest = builder.build_manifest(
+        builder.FormalGateGapAuditConfig(
+            output_dir=tmp_path,
+            contract_path=_contract(tmp_path),
+            decision_record_path=_decision_record(tmp_path, pending=False),
+            h01_manifest_path=_h01_manifest(tmp_path, ready=True),
+            remote_packet_path=_remote_packet(tmp_path, ready=True, artifacts_present=True),
+            h02_acceptance_path=_h02_acceptance(tmp_path, accepted=True),
+            claim_safety_path=_claim_safety(tmp_path, allowed=True),
+            readiness_path=_readiness(tmp_path, ready=True),
+            remote_readiness_path=_remote_readiness(tmp_path, good=True),
+            source_freshness_path=_source_freshness(tmp_path, clean=True),
+            missing_artifacts_path=_missing_artifacts(tmp_path, complete=True),
+            closure_checklist_path=_closure_checklist(tmp_path, complete=True),
+            status_report_path=_status_report(tmp_path, ready=True),
+            remaining_deliverables_path=_remaining_deliverables(tmp_path, complete=True),
+            handoff_bundle_path=_handoff_bundle(tmp_path, ready=True, pending=False),
+            remote_packet_safety_path=_remote_packet_safety(tmp_path, ready=True),
+            protocol_lane_status_report_path=_protocol_lane_status_report(tmp_path, pending=True),
+        )
+    )
+
+    veto = manifest["execution_veto_matrix"]
+    assert veto["protocol_lane_status"] == "protocol_lane_status_blocked_pending_lane_decision"
+    assert veto["protocol_lane_override_active"] is True
+    assert veto["all_rows_consistent"] is True
+    assert veto["mismatch_rows"] == []
+    assert {row["row_id"]: row["consensus_allowed_now"] for row in veto["rows"]} == {
+        "local_training": False,
+        "remote_preflight": False,
+        "remote_training": False,
+        "remote_audit": False,
+        "formal_claim": False,
+    }
+    remote_training = {row["row_id"]: row for row in veto["rows"]}["remote_training"]
+    assert remote_training["allowed_now_by_source"]["remote_packet_superseded_by_protocol_lane"] is None
+
+
 def test_formal_gate_gap_audit_does_not_treat_expected_training_outputs_as_training_preconditions(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_gap_audit")
 
