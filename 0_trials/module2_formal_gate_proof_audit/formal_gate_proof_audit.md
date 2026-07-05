@@ -27,6 +27,20 @@
 - source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
 - source_freshness_regeneration_required: `True`
 
+## Remaining Deliverables Top-Level Summary
+
+- present: `True`
+- missing_counts_by_formal_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
+- next_blocked_lane: `decision`
+- h01_status: `blocked_pending_decisions`
+- h02_status: `blocked_formal_output_acceptance`
+- h02_formal_output_accepted: `False`
+- h02_paper_result_input_allowed: `False`
+- training_missing_matrix_ids: `training:train_final_model_zip, training:train_summary_json, training:train_training_manifest_json`
+- evaluation_missing_matrix_ids: `evaluation:eval_gate3_eval_episodes_csv, evaluation:eval_gate3_summary_json`
+- acceptance_missing_matrix_ids: `acceptance:gate3_trial_manifest_json, acceptance:gate3_formal_audit_json, acceptance:pulled_back_checkpoint_hash_record`
+- formal_acceptance_missing_matrix_ids: `formal_acceptance:h01_ready_for_formal_run, formal_acceptance:h02_formal_output_acceptance`
+
 ## Missing Evidence Summary
 
 - `training`: missing=`train_final_model_zip, train_summary_json, train_training_manifest_json`, failed=`none`
