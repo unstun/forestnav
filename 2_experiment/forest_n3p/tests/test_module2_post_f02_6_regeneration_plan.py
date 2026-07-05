@@ -13,6 +13,7 @@ def test_post_f02_6_regeneration_plan_blocks_current_pending_decision_without_ex
             output_dir=tmp_path,
             decision_record_path=_decision_record(tmp_path, status="pending_human_decision"),
             formal_gate_path=_formal_gate(tmp_path, decision_status="pending_human_decision"),
+            status_report_path=_status_report(tmp_path, pending=True),
             source_freshness_path=_source_freshness(tmp_path, required=True),
             remote_packet_path=_remote_packet(tmp_path, ready=False),
             remaining_deliverables_path=_remaining_deliverables(tmp_path, open_gaps=True),
@@ -30,6 +31,22 @@ def test_post_f02_6_regeneration_plan_blocks_current_pending_decision_without_ex
     assert manifest["formal_claim_allowed"] is False
     assert manifest["blocking_summary"]["training_allowed_now"] is False
     assert manifest["blocking_summary"]["remote_preflight_allowed_now"] is False
+    request = manifest["f02_6_human_decision_request_summary"]
+    assert request["present"] is True
+    assert request["status"] == "awaiting_dr_sun_decision"
+    assert request["decision_owner_required"] == "Dr Sun"
+    assert request["current_allowed_action_ids"] == ["record_f02_6_decision"]
+    assert request["current_blocked_action_ids"] == [
+        "remote_preflight",
+        "remote_training",
+        "local_training",
+        "formal_claim",
+        "paper_result_material",
+    ]
+    assert request["post_decision_routes_are_current_authorization"] is False
+    assert request["all_execution_disabled_now"] is True
+    assert request["remote_training_allowed_now"] is False
+    assert request["formal_claim_allowed_now"] is False
     assert manifest["remaining_deliverables_gap_summary"]["present"] is True
     assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
     assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 4
@@ -56,6 +73,7 @@ def test_post_f02_6_regeneration_plan_allows_only_regeneration_after_approval_wh
             output_dir=tmp_path,
             decision_record_path=_decision_record(tmp_path, status="approved"),
             formal_gate_path=_formal_gate(tmp_path, decision_status="approved"),
+            status_report_path=_status_report(tmp_path, pending=False),
             source_freshness_path=_source_freshness(tmp_path, required=True),
             remote_packet_path=_remote_packet(tmp_path, ready=False),
             remaining_deliverables_path=_remaining_deliverables(tmp_path, open_gaps=True),
@@ -120,6 +138,7 @@ def test_post_f02_6_regeneration_plan_marks_remote_training_ready_only_from_read
             output_dir=tmp_path,
             decision_record_path=_decision_record(tmp_path, status="approved"),
             formal_gate_path=_formal_gate(tmp_path, decision_status="approved"),
+            status_report_path=_status_report(tmp_path, pending=False),
             source_freshness_path=_source_freshness(tmp_path, required=False),
             remote_packet_path=_remote_packet(tmp_path, ready=True),
             remaining_deliverables_path=_remaining_deliverables(tmp_path, open_gaps=False),
