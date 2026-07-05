@@ -19,17 +19,36 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 ## Source Freshness
 
 - path: `0_trials/module2_source_freshness_audit/source_freshness_audit.json`
-- status: `source_freshness_tracked_artifact_lag_only_gate_ready`
+- status: `source_freshness_risks_recorded_gate_still_blocked`
 - runs_training: `False`
 - runs_remote_preflight: `False`
 - formal_claim_allowed: `False`
 - regeneration_required_before_remote_formal_execution: `True`
-- ordered_regeneration_target_count: `2`
+- ordered_regeneration_target_count: `21`
 
 ### Source Freshness Regeneration Targets
 
+- `f02_6_decision_gate_audit`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json`
+- `f02_6_decision_intake`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json`
+- `f02_6_transition_gate_audit`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json`
 - `f02_6_warm_start_decision_packet`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json`
-- `formal_gate_handoff_bundle`: `current_clean`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`
+- `formal_gate_closure_checklist`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json`
+- `formal_gate_gap_audit`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json`
+- `formal_gate_handoff_bundle`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`
+- `post_f02_6_plan_audit`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json`
+- `post_f02_6_regeneration_plan`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json`
+- `remote_formal_execution_packet`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json`
+- `remote_packet_safety_audit`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
+- `h01_evaluation_manifest`: `historical_clean`, required before `formal_h01_h02`, path `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`
+- `h02_formal_acceptance`: `historical_clean`, required before `formal_h01_h02`, path `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
+- `claim_safety`: `historical_clean`, required before `formal_claim_gate`, path `0_trials/module2_claim_safety/module2_claim_safety.json`
+- `formal_gate_missing_artifacts`: `historical_clean`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json`
+- `formal_gate_proof_audit`: `historical_clean`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json`
+- `formal_gate_proof_summary_chain_audit`: `historical_clean`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json`
+- `formal_gate_remaining_deliverables`: `historical_clean`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json`
+- `formal_gate_status_report`: `historical_clean`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`
+- `mainline_formal_gate_state_audit`: `historical_clean`, required before `formal_claim_gate`, path `0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json`
+- `paper_readiness`: `historical_clean`, required before `formal_claim_gate`, path `0_trials/module2_paper_readiness/module2_paper_readiness.json`
 
 ## Missing Artifacts Inventory
 
@@ -40,7 +59,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - runs_remote_preflight: `False`
 - all_required_evidence_present: `False`
 - audit_issue_count: `3`
-- missing_counts_by_category: `{'decision': 0, 'decision_gate': 1, 'regeneration': 0, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 1}`
+- missing_counts_by_category: `{'decision': 0, 'decision_gate': 1, 'regeneration': 21, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 9}`
 
 ## Closure Checklist
 
@@ -128,7 +147,10 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 
 ## Decision Gaps
 
-- none
+- `f02_6_warm_start_decision_pending`
+  - evidence: `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json`
+  - why: Gate artifact still reports decision blocker: f02_6_warm_start_decision_pending.
+  - needed: Close F02.6 first; do not bypass it by running local training or writing result claims.
 
 ## Training Artifact Gaps
 
@@ -172,6 +194,10 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
   - evidence: `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
   - why: PPO rows do not contain a non-empty rl_rs_checkpoint_sha256.
   - needed: Record checkpoint path and SHA-256 in every PPO/RL-RS result row.
+- `source_freshness_regeneration_required`
+  - evidence: `0_trials/module2_source_freshness_audit/source_freshness_audit.json`
+  - why: Source freshness audit reports stale or dirty gate artifacts that must be regenerated before formal execution.
+  - needed: After F02.6 closes, regenerate the listed targets before approved remote preflight, H01/H02, and formal claim gates.
 - `handoff_safety_issues_open`
   - evidence: `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`
   - why: Handoff bundle reports 2 safety issues.
@@ -189,7 +215,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 
 - `h01_manifest_not_ready`
   - evidence: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`
-  - why: H01 manifest status is blocked_protocol_gap.
+  - why: H01 manifest status is blocked_pending_decisions.
   - needed: Regenerate H01 after F02.6 and checkpoint availability so the formal run command is unblocked.
 - `formal_main_evaluation_command_missing`
   - evidence: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`
@@ -236,7 +262,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
   - needed: Resolve the inventory audit issues before treating the formal gate as complete.
 - `formal_gate_missing_artifacts_open`
   - evidence: `0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json`
-  - why: Formal gate inventory still reports missing evidence counts: {'decision': 0, 'decision_gate': 1, 'regeneration': 0, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 1}.
+  - why: Formal gate inventory still reports missing evidence counts: {'decision': 0, 'decision_gate': 1, 'regeneration': 21, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 9}.
   - needed: Close every missing-artifacts group before final H02/claim readiness can pass.
 - `formal_gate_closure_checklist_open`
   - evidence: `0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json`
@@ -257,7 +283,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 
 ## Ordered Next Steps
 
-- `F02.6` (decision): status=`ready`, runs_training=`False`. Close Dr Sun's obstacle-summary warm-start decision record.
+- `F02.6` (decision): status=`blocked`, runs_training=`False`. Close Dr Sun's obstacle-summary warm-start decision record.
 - `remote_preflight` (training): status=`blocked`, runs_training=`False`, host=`gpu3070ti-relay`. Regenerate source-fresh gate artifacts, then approved gpu3070ti preflight and require formal_trial_ready=true.
 - `gate3_remote_training` (training): status=`blocked`, runs_training=`True`, host=`gpu3070ti-relay`. Run formal PPO Gate3 trial remotely; never on local Mac.
 - `gate3_remote_audit_pullback` (acceptance): status=`blocked`, runs_training=`False`, host=`gpu3070ti-relay`. Audit remote trial, pull back checkpoint/eval/audit artifacts, and record hashes.

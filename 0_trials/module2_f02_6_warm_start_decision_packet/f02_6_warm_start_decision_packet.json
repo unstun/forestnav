@@ -2,9 +2,9 @@
   "schema_version": 1,
   "packet_name": "module2_f02_6_warm_start_decision_packet",
   "status": "pending_human_decision",
-  "created_at_utc": "2026-07-05T18:25:30.416386+00:00",
+  "created_at_utc": "2026-07-05T18:35:44.666942+00:00",
   "execution_host": "MacBook-Pro.local",
-  "source_head": "8ef61f3b4657309273fabf649e950ab7752d9e51",
+  "source_head": "e5ba1501cecf92a9901fe718128019b0836f7302",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -197,9 +197,9 @@
       "decision_note_present": true
     },
     "decision_intake": {
-      "status": "f02_6_decision_intake_failed",
+      "status": "f02_6_decision_intake_closed_clean",
       "next_blocked_lane": "decision",
-      "audit_issue_count": 2,
+      "audit_issue_count": 0,
       "valid_decision_count": 2,
       "required_record_field_count": 3,
       "post_decision_route_count": 2,
@@ -537,12 +537,12 @@
     {
       "path": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
       "exists": true,
-      "sha256": "de10e4fc0c76b76e6859eb62e1a66e2bcf5d819f8f8227bc4a3b3fdca73023cd"
+      "sha256": "94f5cd25d3645ca5327521473bae894c4566ce049ceb65897209213dd5f8d979"
     },
     {
       "path": "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
       "exists": true,
-      "sha256": "f7057e6e4e928424f3623b501b6b94d16b4680347159dce586174c3fe418def8"
+      "sha256": "f49a5c0e69aa4382c10426eabbec09850f5c74862ca406f20338f2c783491815"
     }
   ],
   "source_integrity_summary": {

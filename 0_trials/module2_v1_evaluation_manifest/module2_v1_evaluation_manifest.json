@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "manifest_name": "module2_v1_evaluation",
-  "status": "blocked_protocol_gap",
-  "created_at_utc": "2026-07-05T18:25:34.419796+00:00",
-  "source_head": "8ef61f3b4657309273fabf649e950ab7752d9e51",
+  "status": "blocked_pending_decisions",
+  "created_at_utc": "2026-07-05T18:35:45.253007+00:00",
+  "source_head": "e5ba1501cecf92a9901fe718128019b0836f7302",
   "contract": {
     "path": ".pipeline/contracts/module2-ppo-funnel-expansion.md",
     "exists": true,
@@ -77,9 +77,11 @@
       "method_id": "bc_analytic_operator",
       "label": "BC analytic operator",
       "main_evaluation_method": "bc_analytic_operator",
-      "status": "ready",
-      "blockers": [],
-      "checkpoint": "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt"
+      "status": "blocked",
+      "blockers": [
+        "missing_module2_bc_checkpoint"
+      ],
+      "checkpoint": null
     },
     {
       "method_id": "ppo_analytic_operator",
@@ -87,7 +89,8 @@
       "main_evaluation_method": "ppo_analytic_operator",
       "status": "blocked",
       "blockers": [
-        "missing_module2_rl_rs_checkpoint"
+        "missing_module2_rl_rs_checkpoint",
+        "f02_6_warm_start_decision_pending"
       ],
       "checkpoint": null
     },
@@ -97,7 +100,8 @@
       "main_evaluation_method": "ha_rl_rs_ppo",
       "status": "blocked",
       "blockers": [
-        "missing_module2_rl_rs_checkpoint"
+        "missing_module2_rl_rs_checkpoint",
+        "f02_6_warm_start_decision_pending"
       ],
       "checkpoint": null
     }
@@ -260,19 +264,21 @@
     "path": null,
     "exists": false,
     "status": "not_provided",
-    "requested_warm_start_decision": "approved_obstacle_summary",
-    "effective_warm_start_decision": "approved_obstacle_summary",
+    "requested_warm_start_decision": "pending",
+    "effective_warm_start_decision": "pending",
     "recommendation": null,
     "blockers": []
   },
   "blockers": [
+    "f02_6_warm_start_decision_pending",
+    "missing_module2_bc_checkpoint",
     "missing_module2_rl_rs_checkpoint",
     "realmap_query_generation_not_frozen"
   ],
   "run_command": {
     "formal_main_evaluation": null,
     "blocked_reasons": [
-      "missing_module2_rl_rs_checkpoint"
+      "missing_module2_bc_checkpoint"
     ]
   },
   "claim_boundaries": [

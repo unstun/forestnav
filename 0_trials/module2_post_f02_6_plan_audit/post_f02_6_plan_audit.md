@@ -10,7 +10,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
 ## Current Blocking Summary
 
-- plan_status: `blocked_formal_gate_preconditions`
+- plan_status: `ready_to_execute_post_f02_6_regeneration_plan`
 - training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
 - ready_stage_ids: `['regenerate_preflight_gate_artifacts']`

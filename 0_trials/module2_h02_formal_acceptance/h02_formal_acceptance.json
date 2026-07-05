@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_h02_formal_acceptance",
   "status": "blocked_formal_output_acceptance",
-  "created_at_utc": "2026-07-05T18:25:34.526092+00:00",
-  "source_head": "8ef61f3b4657309273fabf649e950ab7752d9e51",
+  "created_at_utc": "2026-07-05T18:35:45.365824+00:00",
+  "source_head": "e5ba1501cecf92a9901fe718128019b0836f7302",
   "formal_output_accepted": false,
   "paper_result_input_allowed": false,
   "local_training_allowed": false,
@@ -21,6 +21,8 @@
   "blockers": [
     "h02_verdict_not_formal",
     "h01_manifest_not_ready",
+    "f02_6_warm_start_decision_pending",
+    "missing_module2_bc_checkpoint",
     "missing_module2_rl_rs_checkpoint",
     "realmap_query_generation_not_frozen",
     "remote_execution_packet_not_ready",
@@ -58,9 +60,11 @@
   "formal_checks": {
     "h02_verdict_status": "candidate_or_smoke",
     "h02_verdict_formal_acceptance": false,
-    "h01_manifest_status": "blocked_protocol_gap",
+    "h01_manifest_status": "blocked_pending_decisions",
     "h01_manifest_ready": false,
     "h01_blockers": [
+      "f02_6_warm_start_decision_pending",
+      "missing_module2_bc_checkpoint",
       "missing_module2_rl_rs_checkpoint",
       "realmap_query_generation_not_frozen"
     ],
@@ -156,6 +160,8 @@
       "missing_artifact_ids": [
         "h02_verdict_formal_acceptance_true",
         "h01_manifest_ready",
+        "h01_blocker_f02_6_warm_start_decision_pending",
+        "h01_blocker_missing_module2_bc_checkpoint",
         "h01_blocker_missing_module2_rl_rs_checkpoint",
         "h01_blocker_realmap_query_generation_not_frozen",
         "remote_execution_packet_ready",
