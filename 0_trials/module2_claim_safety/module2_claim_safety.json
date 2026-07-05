@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_claim_safety",
   "status": "blocked_formal_performance_claims",
-  "created_at_utc": "2026-07-04T22:39:42.210311+00:00",
-  "source_head": "f21eb594fdd75e125e74c729ae4a5e751ad08407",
+  "created_at_utc": "2026-07-05T00:08:06.766644+00:00",
+  "source_head": "d1e136a7e77379b15d9206f9d98c414e793c1533",
   "formal_performance_claim_allowed": false,
   "formal_performance_blockers": [
     "paper_tables_not_formal",
@@ -67,6 +67,10 @@
     "status_report_decision_intake_decision_note_required": true,
     "status_report_decision_intake_invalid_input_count": 5,
     "status_report_decision_intake_post_decision_non_authorization_count": 4,
+    "status_report_decision_intake_post_decision_route_count": 2,
+    "status_report_decision_intake_approved_route_next_lane": "source_fresh_regeneration",
+    "status_report_decision_intake_approved_route_allows_remote_training_now": false,
+    "status_report_decision_intake_rejected_route_requires_new_protocol_contract": true,
     "status_report_decision_intake_remote_training_allowed_now": false,
     "status_report_decision_intake_formal_claim_allowed_now": false,
     "status_report_handoff_status": "blocked_until_f02_6_decision",
@@ -838,6 +842,15 @@
     "decision_note_required": true,
     "invalid_input_count": 5,
     "post_decision_non_authorization_count": 4,
+    "post_decision_route_count": 2,
+    "post_decision_route_decisions": [
+      "approve_obstacle_summary_warm_start",
+      "reject_obstacle_summary_warm_start"
+    ],
+    "approved_route_next_lane": "source_fresh_regeneration",
+    "approved_route_allows_remote_training_now": false,
+    "rejected_route_next_lane": "protocol_redesign",
+    "rejected_route_requires_new_protocol_contract": true,
     "remote_preflight_allowed_now": false,
     "remote_training_allowed_now": false,
     "formal_claim_allowed_now": false
