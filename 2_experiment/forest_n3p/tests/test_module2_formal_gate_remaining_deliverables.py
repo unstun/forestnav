@@ -549,7 +549,32 @@ def test_remaining_deliverables_cli_writes_json_and_markdown(tmp_path):
     assert "invalid_substitutes" in markdown
 
 
-def _config(tmp_path, *, complete):
+def test_remaining_deliverables_protocol_lane_pending_overrides_complete_training_stage(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_remaining_deliverables")
+
+    manifest = builder.build_manifest(_config(tmp_path, complete=True, protocol_pending=True))
+
+    assert manifest["current_gate_summary"]["next_blocked_lane"] == "protocol_lane_decision"
+    assert manifest["current_gate_summary"]["protocol_lane_status"] == "protocol_lane_status_blocked_pending_lane_decision"
+    assert manifest["current_gate_summary"]["ready_to_run_remote_training"] is False
+    assert manifest["remote_training_allowed_now"] is False
+    assert manifest["permissions_now"]["protocol_lane_pending"] is True
+    assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+    gap_categories = {category["category"]: category for category in manifest["deliverable_gap_summary"]["categories"]}
+    assert gap_categories["training"]["responsible_stage_allowed_now"] is False
+    assert "protocol_lane_decision_pending" in gap_categories["training"]["responsible_stage_blocked_by"]
+    groups = {group["category"]: group for group in manifest["deliverable_groups"]}
+    assert groups["training"]["responsible_stage_allowed_now"] is False
+    assert "protocol_lane_decision_pending" in groups["training"]["responsible_stage_blocked_by"]
+    matrix = {row["matrix_id"]: row for row in manifest["deliverable_acceptance_matrix"]}
+    assert matrix["training:train_final_model_zip"]["responsible_stage_allowed_now"] is False
+    assert "protocol_lane_decision_pending" in matrix["training:train_final_model_zip"]["responsible_stage_blocked_by"]
+    chain_rows = {row["matrix_id"]: row for row in manifest["deliverable_unlock_chain"]["rows"]}
+    assert chain_rows["training:train_final_model_zip"]["responsible_stage_allowed_now"] is False
+    assert "protocol_lane_decision_pending" in chain_rows["training:train_final_model_zip"]["responsible_stage_blocked_by"]
+
+
+def _config(tmp_path, *, complete, protocol_pending=False):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_remaining_deliverables")
     return builder.FormalGateRemainingDeliverablesConfig(
         output_dir=tmp_path,
@@ -561,6 +586,10 @@ def _config(tmp_path, *, complete):
         h02_acceptance_path=_write_json(tmp_path / "h02.json", _h02(complete=complete)),
         source_freshness_path=_write_json(tmp_path / "source_freshness.json", _source_freshness(complete=complete)),
         post_f02_6_plan_path=_write_json(tmp_path / "post_plan.json", _post_plan(complete=complete)),
+        protocol_lane_status_report_path=_write_json(
+            tmp_path / "protocol_lane_status_report.json",
+            _protocol_lane_status_report(pending=protocol_pending),
+        ),
     )
 
 
