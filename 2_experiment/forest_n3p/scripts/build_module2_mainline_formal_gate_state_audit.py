@@ -144,6 +144,10 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
             "row_count": proof_chain.get("next_required_deliverables_row_count"),
             "consistent_row_count": proof_chain.get("next_required_deliverables_consistent_row_count"),
         },
+        "proof_summary_handoff_single_next_action_consistency": {
+            "row_count": proof_chain.get("handoff_single_next_action_row_count"),
+            "consistent_row_count": proof_chain.get("handoff_single_next_action_consistent_row_count"),
+        },
         "current_boundary_tokens": [
             {"token": token, "mentioned": token in current_section} for token in REQUIRED_CURRENT_BOUNDARY_TOKENS
         ],
@@ -349,6 +353,23 @@ def _proof_chain_issues(proof_chain: dict[str, Any]) -> list[dict[str, Any]]:
                 "consistent_row_count": proof_chain.get("next_required_deliverables_consistent_row_count"),
             }
         )
+    handoff_single_next_action_row_count = proof_chain.get("handoff_single_next_action_row_count")
+    handoff_single_next_action_consistent_row_count = proof_chain.get(
+        "handoff_single_next_action_consistent_row_count"
+    )
+    if (
+        not isinstance(handoff_single_next_action_row_count, int)
+        or handoff_single_next_action_row_count <= 0
+        or handoff_single_next_action_row_count != handoff_single_next_action_consistent_row_count
+    ):
+        issues.append(
+            {
+                "issue_id": "proof_summary_chain_handoff_single_next_action_inconsistent",
+                "message": "Proof-summary chain must agree on the handoff single-next-action index before mainline mirrors it.",
+                "row_count": handoff_single_next_action_row_count,
+                "consistent_row_count": handoff_single_next_action_consistent_row_count,
+            }
+        )
     if proof_chain.get("runs_training") is True or proof_chain.get("runs_remote_preflight") is True:
         issues.append(
             {
@@ -443,6 +464,8 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- total_missing_deliverables: `{manifest['total_missing_deliverables']}`",
         f"- mainline_missing_deliverable_mention_count: `{manifest['mainline_missing_deliverable_mention_count']}`",
         f"- proof_summary_chain_status: `{manifest['proof_summary_chain_status']}`",
+        "- proof_summary_handoff_single_next_action_consistency: "
+        f"`{manifest['proof_summary_handoff_single_next_action_consistency']}`",
         f"- executes_commands: `{manifest['executes_commands']}`",
         f"- runs_training: `{manifest['runs_training']}`",
         f"- runs_remote_preflight: `{manifest['runs_remote_preflight']}`",
