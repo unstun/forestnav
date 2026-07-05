@@ -615,6 +615,7 @@ def _global_blockers(
     _extend_unique(blockers, _claim_safety_remote_packet_safety_proof_deliverables_blockers(claim_safety))
     _extend_unique(blockers, _claim_safety_remote_packet_safety_claim_gate_command_index_blockers(claim_safety))
     _extend_unique(blockers, _claim_safety_next_action_guard_blockers(claim_safety))
+    _extend_unique(blockers, _claim_safety_handoff_single_next_action_index_blockers(claim_safety))
     _extend_unique(blockers, _claim_safety_next_required_formal_deliverables_blockers(claim_safety))
     _extend_unique(blockers, h01_manifest.get("blockers", []))
     if str(decision_record.get("status")) == "pending_human_decision":
@@ -1118,6 +1119,126 @@ def _claim_safety_next_action_guard_blockers(claim_safety: dict[str, Any]) -> li
         blockers.append("claim_safety_next_action_guard_remote_execution_allowed")
     if summary["remote_stage_allowed_count"] > 0:
         blockers.append("claim_safety_next_action_guard_remote_stage_allowed")
+    return blockers
+
+
+def _claim_safety_handoff_single_next_action_index_summary(claim_safety: dict[str, Any]) -> dict[str, Any]:
+    summary = claim_safety.get("handoff_single_next_action_index_summary")
+    summary = summary if isinstance(summary, dict) else {}
+    return {
+        "present": bool(summary.get("present")) or bool(summary),
+        "index_id": summary.get("index_id"),
+        "status": summary.get("status"),
+        "single_current_human_entry": summary.get("single_current_human_entry")
+        if isinstance(summary.get("single_current_human_entry"), bool)
+        else None,
+        "next_action_id": summary.get("next_action_id"),
+        "decision_owner_required": summary.get("decision_owner_required"),
+        "valid_decisions": _strings(summary.get("valid_decisions")),
+        "required_record_fields": _strings(summary.get("required_record_fields")),
+        "current_allowed_action_ids": _strings(summary.get("current_allowed_action_ids")),
+        "current_blocked_action_ids": _strings(summary.get("current_blocked_action_ids")),
+        "post_decision_routes_are_current_authorization": summary.get("post_decision_routes_are_current_authorization")
+        if isinstance(summary.get("post_decision_routes_are_current_authorization"), bool)
+        else None,
+        "all_execution_disabled_now": summary.get("all_execution_disabled_now")
+        if isinstance(summary.get("all_execution_disabled_now"), bool)
+        else None,
+        "record_command_template_count": int(summary.get("record_command_template_count") or 0),
+        "local_training_allowed_now": summary.get("local_training_allowed_now")
+        if isinstance(summary.get("local_training_allowed_now"), bool)
+        else None,
+        "remote_preflight_allowed_now": summary.get("remote_preflight_allowed_now")
+        if isinstance(summary.get("remote_preflight_allowed_now"), bool)
+        else None,
+        "remote_training_allowed_now": summary.get("remote_training_allowed_now")
+        if isinstance(summary.get("remote_training_allowed_now"), bool)
+        else None,
+        "formal_claim_allowed_now": summary.get("formal_claim_allowed_now")
+        if isinstance(summary.get("formal_claim_allowed_now"), bool)
+        else None,
+        "paper_result_material_allowed_now": summary.get("paper_result_material_allowed_now")
+        if isinstance(summary.get("paper_result_material_allowed_now"), bool)
+        else None,
+        "missing_deliverable_count": int(summary.get("missing_deliverable_count") or 0),
+        "open_category_count": int(summary.get("open_category_count") or 0),
+        "source_freshness_status": summary.get("source_freshness_status"),
+        "source_freshness_blocking_regeneration_required": summary.get(
+            "source_freshness_blocking_regeneration_required"
+        )
+        if isinstance(summary.get("source_freshness_blocking_regeneration_required"), bool)
+        else None,
+        "approved_route_next_lane": summary.get("approved_route_next_lane"),
+        "rejected_route_next_lane": summary.get("rejected_route_next_lane"),
+        "after_approval_still_requires": _strings(summary.get("after_approval_still_requires")),
+    }
+
+
+def _claim_safety_handoff_single_next_action_index_blockers(claim_safety: dict[str, Any]) -> list[str]:
+    summary = _claim_safety_handoff_single_next_action_index_summary(claim_safety)
+    blockers: list[str] = []
+    if not summary["present"]:
+        blockers.append("claim_safety_missing_handoff_single_next_action_index")
+        return blockers
+    if summary["index_id"] != "module2_formal_gate_single_next_action_index":
+        blockers.append("claim_safety_handoff_single_next_action_index_id_invalid")
+    if summary["status"] != "awaiting_dr_sun_f02_6_decision":
+        return blockers
+    expected_action = "record_f02_6_decision"
+    if summary["single_current_human_entry"] is not True:
+        blockers.append("claim_safety_handoff_single_next_action_index_not_single_human_entry")
+    if summary["next_action_id"] != expected_action:
+        blockers.append("claim_safety_handoff_single_next_action_index_next_action_not_decision")
+    if summary["decision_owner_required"] != "Dr Sun":
+        blockers.append("claim_safety_handoff_single_next_action_index_owner_not_dr_sun")
+    if sorted(summary["valid_decisions"]) != [
+        "approve_obstacle_summary_warm_start",
+        "reject_obstacle_summary_warm_start",
+    ]:
+        blockers.append("claim_safety_handoff_single_next_action_index_valid_decisions_incomplete")
+    if sorted(summary["required_record_fields"]) != ["decider", "decision", "decision_note"]:
+        blockers.append("claim_safety_handoff_single_next_action_index_required_fields_incomplete")
+    if summary["current_allowed_action_ids"] != [expected_action]:
+        blockers.append("claim_safety_handoff_single_next_action_index_allowed_actions_not_decision_only")
+    for blocked_action in (
+        "remote_preflight",
+        "remote_training",
+        "local_training",
+        "formal_claim",
+        "paper_result_material",
+    ):
+        if blocked_action not in summary["current_blocked_action_ids"]:
+            blockers.append(f"claim_safety_handoff_single_next_action_index_missing_block_{blocked_action}")
+    if summary["post_decision_routes_are_current_authorization"] is not False:
+        blockers.append("claim_safety_handoff_single_next_action_index_post_decision_routes_authorize_now")
+    if summary["all_execution_disabled_now"] is not True:
+        blockers.append("claim_safety_handoff_single_next_action_index_execution_not_disabled")
+    if summary["record_command_template_count"] != 2:
+        blockers.append("claim_safety_handoff_single_next_action_index_record_command_count_mismatch")
+    if summary["local_training_allowed_now"] is not False:
+        blockers.append("claim_safety_handoff_single_next_action_index_allows_local_training")
+    if summary["remote_preflight_allowed_now"] is not False:
+        blockers.append("claim_safety_handoff_single_next_action_index_allows_remote_preflight")
+    if summary["remote_training_allowed_now"] is not False:
+        blockers.append("claim_safety_handoff_single_next_action_index_allows_remote_training")
+    if summary["formal_claim_allowed_now"] is not False:
+        blockers.append("claim_safety_handoff_single_next_action_index_allows_formal_claim")
+    if summary["paper_result_material_allowed_now"] is not False:
+        blockers.append("claim_safety_handoff_single_next_action_index_allows_paper_result_material")
+    if summary["missing_deliverable_count"] <= 0:
+        blockers.append("claim_safety_handoff_single_next_action_index_zero_missing_deliverables_while_blocked")
+    if summary["open_category_count"] <= 0:
+        blockers.append("claim_safety_handoff_single_next_action_index_zero_open_categories_while_blocked")
+    if summary["source_freshness_status"] != "source_freshness_clean_current":
+        blockers.append("claim_safety_handoff_single_next_action_index_source_freshness_not_clean")
+    if summary["source_freshness_blocking_regeneration_required"] is not False:
+        blockers.append("claim_safety_handoff_single_next_action_index_source_freshness_blocks")
+    if summary["approved_route_next_lane"] != "source_fresh_regeneration":
+        blockers.append("claim_safety_handoff_single_next_action_index_approved_route_invalid")
+    if summary["rejected_route_next_lane"] != "protocol_redesign":
+        blockers.append("claim_safety_handoff_single_next_action_index_rejected_route_invalid")
+    if "approved_remote_preflight" not in summary["after_approval_still_requires"]:
+        blockers.append("claim_safety_handoff_single_next_action_index_approval_skips_remote_preflight")
     return blockers
 
 
