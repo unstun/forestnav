@@ -749,6 +749,12 @@ def _next_blocked_lane_id(status_report: dict[str, Any]) -> str | None:
     return None
 
 
+def _strings(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [str(item) for item in value if item]
+
+
 def _requirements(artifact: dict[str, Any], key: str) -> list[dict[str, Any]]:
     reqs = artifact.get(key) if isinstance(artifact.get(key), list) else []
     out: list[dict[str, Any]] = []
