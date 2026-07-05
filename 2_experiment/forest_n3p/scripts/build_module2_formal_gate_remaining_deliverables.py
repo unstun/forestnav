@@ -360,6 +360,51 @@ def _proof_command_plan(deliverable_acceptance_matrix: Sequence[dict[str, Any]])
     }
 
 
+def _deliverable_unlock_chain(deliverable_acceptance_matrix: Sequence[dict[str, Any]]) -> dict[str, Any]:
+    rows: list[dict[str, Any]] = []
+    for row in deliverable_acceptance_matrix:
+        category = str(row.get("category") or "")
+        observed_blockers = _strings(row.get("responsible_stage_blocked_by"))
+        required_blockers = list(CURRENT_BLOCKER_REQUIREMENTS_BY_CATEGORY.get(category, ()))
+        missing_required_blockers = [
+            blocker
+            for blocker in required_blockers
+            if row.get("missing") is True and blocker not in observed_blockers
+        ]
+        rows.append(
+            {
+                "matrix_id": row.get("matrix_id"),
+                "category": category,
+                "artifact_id": row.get("artifact_id"),
+                "missing": row.get("missing"),
+                "current_state": row.get("current_state"),
+                "responsible_stage_id": row.get("responsible_stage_id"),
+                "responsible_stage_allowed_now": row.get("responsible_stage_allowed_now"),
+                "responsible_stage_blocked_by": observed_blockers,
+                "required_current_blockers": required_blockers,
+                "missing_required_current_blockers": missing_required_blockers,
+                "unlock_sequence_before_stage_allowed": list(UNLOCK_SEQUENCE_BY_CATEGORY.get(category, ())),
+                "execution_boundary": row.get("execution_boundary"),
+            }
+        )
+    blocked_rows = [row for row in rows if row["missing"] is True]
+    return {
+        "chain_id": "module2_formal_gate_missing_deliverable_unlock_chain",
+        "status": "blocked_missing_formal_deliverables" if blocked_rows else "ready_for_claim_audit",
+        "not_paper_result_material": True,
+        "execution_boundary": "read_only_no_execution",
+        "row_count": len(rows),
+        "blocked_row_count": len(blocked_rows),
+        "rows_with_missing_required_blockers": sum(
+            1 for row in rows if row["missing_required_current_blockers"]
+        ),
+        "rows_allowed_while_missing": sum(
+            1 for row in rows if row["missing"] is True and row["responsible_stage_allowed_now"] is True
+        ),
+        "rows": rows,
+    }
+
+
 def _acceptance_predicates(*, category: str, artifact_id: str) -> list[str]:
     generic = [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
