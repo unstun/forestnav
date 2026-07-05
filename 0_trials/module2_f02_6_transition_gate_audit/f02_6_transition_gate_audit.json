@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_f02_6_transition_gate_audit",
   "status": "f02_6_transition_gate_audit_failed",
-  "created_at_utc": "2026-07-05T14:00:15.963749+00:00",
-  "source_head": "ea359304a58185dab0e1d846a67f481f11428ff2",
+  "created_at_utc": "2026-07-05T14:08:32.150008+00:00",
+  "source_head": "36233e96b930a482b4083fd5266d1242c6332613",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -151,7 +151,7 @@
       },
       "formal_gate_status_report_next_blocked_lane_id": "decision",
       "post_plan_audit_status": "post_f02_6_plan_audit_failed",
-      "post_plan_audit_issue_count": 3,
+      "post_plan_audit_issue_count": 1,
       "remote_packet_safety_status": "remote_packet_safety_audit_failed",
       "remote_packet_safety_issue_count": 1,
       "missing_counts_by_category": {
@@ -286,7 +286,7 @@
       },
       "formal_gate_status_report_next_blocked_lane_id": "source_fresh_preflight",
       "post_plan_audit_status": "post_f02_6_plan_audit_failed",
-      "post_plan_audit_issue_count": 3,
+      "post_plan_audit_issue_count": 1,
       "remote_packet_safety_status": "remote_packet_safety_audit_failed",
       "remote_packet_safety_issue_count": 1,
       "missing_counts_by_category": {
@@ -426,7 +426,7 @@
       },
       "formal_gate_status_report_next_blocked_lane_id": "source_fresh_preflight",
       "post_plan_audit_status": "post_f02_6_plan_audit_failed",
-      "post_plan_audit_issue_count": 3,
+      "post_plan_audit_issue_count": 1,
       "remote_packet_safety_status": "remote_packet_safety_audit_failed",
       "remote_packet_safety_issue_count": 1,
       "missing_counts_by_category": {
@@ -449,7 +449,7 @@
       "scenario_id": "pending",
       "issue_id": "post_plan_audit_issue_count",
       "message": "post_plan_audit_issue_count must be zero.",
-      "observed": 3
+      "observed": 1
     },
     {
       "scenario_id": "pending",
@@ -473,7 +473,7 @@
       "scenario_id": "approved",
       "issue_id": "post_plan_audit_issue_count",
       "message": "post_plan_audit_issue_count must be zero.",
-      "observed": 3
+      "observed": 1
     },
     {
       "scenario_id": "approved",
@@ -497,7 +497,7 @@
       "scenario_id": "rejected",
       "issue_id": "post_plan_audit_issue_count",
       "message": "post_plan_audit_issue_count must be zero.",
-      "observed": 3
+      "observed": 1
     },
     {
       "scenario_id": "rejected",

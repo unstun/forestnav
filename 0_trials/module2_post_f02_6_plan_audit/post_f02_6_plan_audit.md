@@ -3,7 +3,7 @@
 This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
 - status: `post_f02_6_plan_audit_failed`
-- audit_issue_count: `3`
+- audit_issue_count: `1`
 - executes_commands: `False`
 - runs_training: `False`
 - runs_remote_preflight: `False`
@@ -126,8 +126,6 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 ## Audit Issues
 
 - `missing_artifacts_inventory_has_audit_issues`: Missing-artifacts inventory reports open audit issues.
-- `formal_gate_status_report_has_input_safety_issues`: Status report reports open input safety issues.
-- `status_report_handoff_safety_issues_open`: Status report handoff summary reports open safety issues.
 
 ## Claim Boundaries
 
