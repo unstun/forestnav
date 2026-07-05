@@ -1242,6 +1242,26 @@ def _write_inputs(tmp_path, *, formal):
                     "remote_formal_execution_packet_ready",
                     "approved_remote_preflight",
                 ],
+                "decision_evidence_matrix_summary": {
+                    "present": True,
+                    "matrix_id": "module2_f02_6_decision_evidence_matrix",
+                    "status": "ready_for_dr_sun_decision_not_authorization",
+                    "route_count": 2,
+                    "route_decisions": [
+                        "approve_obstacle_summary_warm_start",
+                        "reject_obstacle_summary_warm_start",
+                    ],
+                    "required_evidence_count": 7,
+                    "satisfied_required_evidence_count": 7,
+                    "missing_required_evidence_count": 0,
+                    "global_invalid_substitute_count": 2,
+                    "current_authorization_allowed_now": False,
+                    "remote_preflight_allowed_now": False,
+                    "remote_training_allowed_now": False,
+                    "local_training_allowed_now": False,
+                    "formal_claim_allowed_now": False,
+                    "paper_result_material_allowed_now": False,
+                },
             },
             "status_report_remaining_deliverables_acceptance_summary": _claim_safety_remaining_deliverables_acceptance_summary_payload(
                 formal=formal
