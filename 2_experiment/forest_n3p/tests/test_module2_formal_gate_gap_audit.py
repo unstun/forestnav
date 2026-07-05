@@ -1325,8 +1325,8 @@ def _command_index_summary():
     }
     return {
         "present": True,
-        "index_row_count": 18,
-        "source_target_count": 18,
+        "index_row_count": 20,
+        "source_target_count": 20,
         "missing_target_ids": [],
         "unknown_manual_count": 0,
         "unknown_manual_ids": [],

@@ -286,7 +286,7 @@ def test_paper_readiness_accepts_synthetic_complete_evidence(tmp_path):
     assert manifest["claim_safety_remote_packet_safety_status_report_proof_deliverables_summary"] == manifest[
         "claim_safety_remote_packet_safety_proof_deliverables_summary"
     ]
-    assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_row_count"] == 18
+    assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_row_count"] == 20
     assert all(item["status"] != "blocked" for item in manifest["section_readiness"])
     assert "formal_performance_improvement" in manifest["conditional_claim_ids"]
 

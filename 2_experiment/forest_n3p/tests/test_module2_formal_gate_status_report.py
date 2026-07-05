@@ -439,7 +439,7 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 0
     assert manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 0
     assert manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]["open_category_count"] == 0
-    assert manifest["remote_packet_safety_claim_gate_command_index_summary"]["index_row_count"] == 18
+    assert manifest["remote_packet_safety_claim_gate_command_index_summary"]["index_row_count"] == 20
     assert all(
         category["missing_artifact_matrix_ids"] == []
         for category in manifest["remaining_deliverables_gap_summary"]["categories"].values()
