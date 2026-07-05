@@ -3263,6 +3263,60 @@ def _formal_gate_proof_audit_issues(
     return issues
 
 
+def _mainline_formal_gate_state_audit_issues(summary: dict[str, Any]) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    if not summary["present"]:
+        return [
+            _issue(
+                "mainline_formal_gate_state_audit_missing",
+                "status report must consume the mainline formal gate state audit.",
+            )
+        ]
+    if summary["status"] == "mainline_formal_gate_state_audit_failed":
+        issues.append(
+            _issue(
+                "mainline_formal_gate_state_audit_failed",
+                "mainline formal gate state audit must not be failed.",
+            )
+        )
+    if not summary["not_paper_result_material"]:
+        issues.append(
+            _issue(
+                "mainline_formal_gate_state_audit_marked_as_paper_result",
+                "mainline formal gate state audit must not be marked as paper result material.",
+            )
+        )
+    if summary["audit_issue_count"] > 0:
+        issues.append(
+            _issue(
+                "mainline_formal_gate_state_audit_issues_open",
+                "mainline formal gate state audit issues must be resolved before status reporting.",
+            )
+        )
+    if summary["proof_summary_chain_audit_issue_count"] > 0:
+        issues.append(
+            _issue(
+                "mainline_formal_gate_state_audit_proof_summary_issues_open",
+                "mainline audit must not inherit open proof-summary audit issues.",
+            )
+        )
+    if summary["proof_summary_chain_proof_audit_input_safety_issue_count"] > 0:
+        issues.append(
+            _issue(
+                "mainline_formal_gate_state_audit_proof_audit_input_safety_issues_open",
+                "mainline audit must not inherit open proof-audit input-safety issues.",
+            )
+        )
+    if "proof_audit_input_safety_issues_open" in summary["proof_summary_chain_proof_audit_blockers"]:
+        issues.append(
+            _issue(
+                "mainline_formal_gate_state_audit_proof_audit_input_safety_blocker_open",
+                "mainline audit proof-summary blockers must not include proof-audit input-safety blockers.",
+            )
+        )
+    return issues
+
+
 def _formal_gate_gap_audit_remaining_deliverables_gap_summary_issues(
     *,
     formal_gate: dict[str, Any],
