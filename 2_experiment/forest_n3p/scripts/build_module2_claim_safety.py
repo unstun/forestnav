@@ -1173,12 +1173,14 @@ def _status_report_next_action_guard_blockers(status_report: dict[str, Any]) -> 
     if not summary["present"]:
         blockers.append("status_report_missing_next_action_guard_summary")
         return blockers
-    if summary["status"] != "next_action_guard_passed":
+    pending_f02_6 = summary["pending_f02_6_decision"] is True
+    if pending_f02_6 and summary["status"] != "next_action_guard_passed":
         blockers.append("status_report_next_action_guard_not_passed")
+    elif not pending_f02_6 and summary["status"] not in {"next_action_guard_not_applicable", "next_action_guard_passed"}:
+        blockers.append("status_report_next_action_guard_invalid_after_f02_6")
     if summary["violation_count"] > 0:
         blockers.append("status_report_next_action_guard_violations_open")
-    pending = status_report.get("status") != "formal_gate_status_ready_for_claim_audit"
-    if not pending:
+    if not pending_f02_6:
         return blockers
     expected_action = "record_f02_6_decision"
     if summary["pending_f02_6_decision"] is not True:
