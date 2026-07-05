@@ -366,6 +366,51 @@ def _next_action_guard_summary():
     }
 
 
+def _handoff_single_next_action_summary():
+    return {
+        "present": True,
+        "index_id": "module2_formal_gate_single_next_action_index",
+        "status": "awaiting_dr_sun_f02_6_decision",
+        "single_current_human_entry": True,
+        "next_action_id": "record_f02_6_decision",
+        "decision_owner_required": "Dr Sun",
+        "valid_decisions": [
+            "approve_obstacle_summary_warm_start",
+            "reject_obstacle_summary_warm_start",
+        ],
+        "required_record_fields": ["decision", "decider", "decision_note"],
+        "current_allowed_action_ids": ["record_f02_6_decision"],
+        "current_blocked_action_ids": [
+            "remote_preflight",
+            "remote_training",
+            "local_training",
+            "formal_claim",
+            "paper_result_material",
+        ],
+        "post_decision_routes_are_current_authorization": False,
+        "all_execution_disabled_now": True,
+        "record_command_template_count": 2,
+        "local_training_allowed_now": False,
+        "remote_preflight_allowed_now": False,
+        "remote_training_allowed_now": False,
+        "formal_claim_allowed_now": False,
+        "paper_result_material_allowed_now": False,
+        "missing_deliverable_count": 10,
+        "open_category_count": 4,
+        "source_freshness_status": "source_freshness_clean_current",
+        "source_freshness_blocking_regeneration_required": False,
+        "approved_route_next_lane": "source_fresh_regeneration",
+        "rejected_route_next_lane": "protocol_redesign",
+        "after_approval_still_requires": [
+            "source_freshness_audit",
+            "post_f02_6_regeneration_plan",
+            "post_f02_6_plan_audit",
+            "remote_formal_execution_packet_ready",
+            "approved_remote_preflight",
+        ],
+    }
+
+
 def _next_required_deliverables_summary(*, as_list=False):
     rows = {}
     categories = {
