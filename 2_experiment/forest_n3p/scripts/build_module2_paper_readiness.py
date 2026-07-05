@@ -1367,6 +1367,64 @@ def _claim_safety_next_required_formal_deliverables_blockers(claim_safety: dict[
     return blockers
 
 
+def _claim_safety_mainline_formal_gate_state_audit_summary(claim_safety: dict[str, Any]) -> dict[str, Any]:
+    summary = claim_safety.get("status_report_mainline_formal_gate_state_audit_summary")
+    if not isinstance(summary, dict):
+        summary = {}
+    return {
+        "present": bool(summary),
+        "status": summary.get("status"),
+        "not_paper_result_material": summary.get("not_paper_result_material") is True,
+        "executes_commands": summary.get("executes_commands") is True,
+        "runs_training": summary.get("runs_training") is True,
+        "runs_remote_preflight": summary.get("runs_remote_preflight") is True,
+        "local_training_allowed": summary.get("local_training_allowed") is True,
+        "formal_claim_allowed": summary.get("formal_claim_allowed") is True,
+        "audit_issue_count": int(summary.get("audit_issue_count") or 0),
+        "proof_summary_chain_status": summary.get("proof_summary_chain_status"),
+        "proof_summary_chain_audit_issue_count": int(
+            summary.get("proof_summary_chain_audit_issue_count") or 0
+        ),
+        "proof_summary_chain_proof_audit_input_safety_issue_count": int(
+            summary.get("proof_summary_chain_proof_audit_input_safety_issue_count") or 0
+        ),
+        "proof_summary_chain_proof_audit_blockers": _strings(
+            summary.get("proof_summary_chain_proof_audit_blockers")
+        ),
+    }
+
+
+def _claim_safety_mainline_formal_gate_state_audit_blockers(claim_safety: dict[str, Any]) -> list[str]:
+    summary = _claim_safety_mainline_formal_gate_state_audit_summary(claim_safety)
+    blockers: list[str] = []
+    if not summary["present"]:
+        blockers.append("claim_safety_missing_mainline_formal_gate_state_audit_summary")
+        return blockers
+    if summary["status"] == "mainline_formal_gate_state_audit_failed":
+        blockers.append("claim_safety_mainline_formal_gate_state_audit_failed")
+    if not summary["not_paper_result_material"]:
+        blockers.append("claim_safety_mainline_formal_gate_state_audit_marked_as_paper_result")
+    if summary["executes_commands"]:
+        blockers.append("claim_safety_mainline_formal_gate_state_audit_executes_commands")
+    if summary["runs_training"]:
+        blockers.append("claim_safety_mainline_formal_gate_state_audit_runs_training")
+    if summary["runs_remote_preflight"]:
+        blockers.append("claim_safety_mainline_formal_gate_state_audit_runs_remote_preflight")
+    if summary["local_training_allowed"]:
+        blockers.append("claim_safety_mainline_formal_gate_state_audit_allows_local_training")
+    if summary["formal_claim_allowed"]:
+        blockers.append("claim_safety_mainline_formal_gate_state_audit_allows_formal_claim")
+    if summary["audit_issue_count"] > 0:
+        blockers.append("claim_safety_mainline_formal_gate_state_audit_issues_open")
+    if summary["proof_summary_chain_audit_issue_count"] > 0:
+        blockers.append("claim_safety_mainline_proof_summary_issues_open")
+    if summary["proof_summary_chain_proof_audit_input_safety_issue_count"] > 0:
+        blockers.append("claim_safety_mainline_proof_audit_input_safety_issues_open")
+    if "proof_audit_input_safety_issues_open" in summary["proof_summary_chain_proof_audit_blockers"]:
+        blockers.append("claim_safety_mainline_proof_audit_input_safety_blocker_open")
+    return blockers
+
+
 def _string_list(value: Any) -> list[str]:
     if not isinstance(value, list):
         return []
