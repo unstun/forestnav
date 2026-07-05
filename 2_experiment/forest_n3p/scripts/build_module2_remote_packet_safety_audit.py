@@ -443,6 +443,8 @@ def _cross_gate_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any],
     for artifact_id in CLAIM_GATE_REGENERATION_ARTIFACT_IDS:
         row = command_index_summary["rows"].get(artifact_id)
         if not isinstance(row, dict):
+            if artifact_id not in command_index_summary["missing_target_ids"]:
+                continue
             issues.append(
                 _issue(
                     f"post_plan_source_regeneration_command_index_missing_{artifact_id}",
