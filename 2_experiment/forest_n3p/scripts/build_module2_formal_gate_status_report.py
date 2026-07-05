@@ -183,6 +183,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     decision_intake_summary = _decision_intake_summary(decision_intake)
     remaining_deliverables_acceptance_summary = _remaining_deliverables_acceptance_summary(remaining_deliverables)
     remaining_deliverables_gap_summary = _remaining_deliverables_gap_summary(remaining_deliverables)
+    remaining_deliverables_unlock_chain_summary = _remaining_deliverables_unlock_chain_summary(remaining_deliverables)
     next_required_formal_deliverables = _next_required_formal_deliverables(
         remaining_deliverables_gap_summary
     )
@@ -247,6 +248,11 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             remaining_deliverables=remaining_deliverables,
             acceptance_summary=remaining_deliverables_acceptance_summary,
             gap_summary=remaining_deliverables_gap_summary,
+        )
+        + _remaining_deliverables_unlock_chain_issues(
+            remaining_deliverables=remaining_deliverables,
+            acceptance_summary=remaining_deliverables_acceptance_summary,
+            unlock_chain_summary=remaining_deliverables_unlock_chain_summary,
         )
         + _remaining_deliverables_proof_command_plan_issues(
             remaining_deliverables=remaining_deliverables,
@@ -470,6 +476,21 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "remaining_deliverables_acceptance_blocked_category_count": remaining_deliverables_acceptance_summary[
                 "blocked_category_count"
             ],
+            "remaining_deliverables_unlock_chain_present": remaining_deliverables_unlock_chain_summary[
+                "present"
+            ],
+            "remaining_deliverables_unlock_chain_row_count": remaining_deliverables_unlock_chain_summary[
+                "row_count"
+            ],
+            "remaining_deliverables_unlock_chain_blocked_row_count": remaining_deliverables_unlock_chain_summary[
+                "blocked_row_count"
+            ],
+            "remaining_deliverables_unlock_chain_rows_with_missing_required_blockers": remaining_deliverables_unlock_chain_summary[
+                "rows_with_missing_required_blockers"
+            ],
+            "remaining_deliverables_unlock_chain_rows_allowed_while_missing": remaining_deliverables_unlock_chain_summary[
+                "rows_allowed_while_missing"
+            ],
             "remaining_deliverables_gap_total_missing_deliverable_count": remaining_deliverables_gap_summary[
                 "total_missing_deliverables"
             ],
@@ -621,6 +642,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "formal_gate_execution_veto_summary": formal_gate_execution_veto,
         "remaining_deliverables_acceptance_summary": remaining_deliverables_acceptance_summary,
         "remaining_deliverables_gap_summary": remaining_deliverables_gap_summary,
+        "remaining_deliverables_unlock_chain_summary": remaining_deliverables_unlock_chain_summary,
         "next_required_formal_deliverables": next_required_formal_deliverables,
         "remaining_deliverables_proof_command_plan": remaining_deliverables_proof_command_plan,
         "formal_gate_proof_audit_summary": formal_gate_proof_audit_summary,
