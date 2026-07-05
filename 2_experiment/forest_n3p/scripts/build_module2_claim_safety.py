@@ -282,6 +282,21 @@ def build_manifest(
             "status_report_decision_record_is_not_paper_result_material": status_report_decision_intake_summary[
                 "decision_record_is_not_paper_result_material"
             ],
+            "status_report_decision_record_authorization_status": status_report_decision_intake_summary[
+                "record_authorization_status"
+            ],
+            "status_report_decision_record_authorization_current_blocked_action_ids": status_report_decision_intake_summary[
+                "record_authorization_current_blocked_action_ids"
+            ],
+            "status_report_decision_record_authorization_remote_training_allowed_now": status_report_decision_intake_summary[
+                "record_authorization_remote_training_allowed_now"
+            ],
+            "status_report_decision_record_authorization_formal_claim_allowed_now": status_report_decision_intake_summary[
+                "record_authorization_formal_claim_allowed_now"
+            ],
+            "status_report_decision_record_post_decision_non_authorization_count": status_report_decision_intake_summary[
+                "record_post_decision_non_authorization_count"
+            ],
             "status_report_decision_impact_remote_training_allowed_now": status_report_decision_intake_summary[
                 "decision_impact_remote_training_allowed_now"
             ],
