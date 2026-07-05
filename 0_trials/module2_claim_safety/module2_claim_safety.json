@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_claim_safety",
   "status": "blocked_formal_performance_claims",
-  "created_at_utc": "2026-07-05T09:49:59.245157+00:00",
-  "source_head": "89149db4963192bc3a407dcf78aa1fcb8ab21d3b",
+  "created_at_utc": "2026-07-05T10:08:31.473056+00:00",
+  "source_head": "6d029875b6de4cacf5d7669f74ba46fbaf49ec2d",
   "formal_performance_claim_allowed": false,
   "formal_performance_blockers": [
     "paper_tables_not_formal",
@@ -19,6 +19,8 @@
     "missing_ppo_result_rows",
     "missing_remote_pullback_artifacts",
     "f02_6_formal_chain_pending",
+    "missing_module2_bc_checkpoint",
+    "realmap_query_generation_not_frozen",
     "f02_6_pending",
     "formal_gate_closure_checklist_open",
     "formal_gate_status_report_blocked",
@@ -396,11 +398,15 @@
           "h02_verdict_formal_acceptance_true",
           "h01_manifest_ready",
           "h01_blocker_f02_6_warm_start_decision_pending",
+          "h01_blocker_missing_module2_bc_checkpoint",
           "h01_blocker_missing_module2_rl_rs_checkpoint",
+          "h01_blocker_realmap_query_generation_not_frozen",
           "remote_execution_packet_ready",
           "remote_packet_blocker_requires_dr_sun_approval",
           "remote_packet_blocker_f02_6_warm_start_decision_pending",
+          "remote_packet_blocker_missing_module2_bc_checkpoint",
           "remote_packet_blocker_missing_module2_rl_rs_checkpoint",
+          "remote_packet_blocker_realmap_query_generation_not_frozen",
           "h02_scale_satisfies_h01"
         ],
         "acceptable_evidence_count": 3,
@@ -1215,7 +1221,9 @@
         "blocked_by": [
           "requires_dr_sun_approval",
           "f02_6_warm_start_decision_pending",
+          "missing_module2_bc_checkpoint",
           "missing_module2_rl_rs_checkpoint",
+          "realmap_query_generation_not_frozen",
           "remote_packet_not_ready"
         ]
       },
@@ -1229,7 +1237,9 @@
         "blocked_by": [
           "requires_dr_sun_approval",
           "f02_6_warm_start_decision_pending",
+          "missing_module2_bc_checkpoint",
           "missing_module2_rl_rs_checkpoint",
+          "realmap_query_generation_not_frozen",
           "remote_packet_not_ready"
         ]
       }

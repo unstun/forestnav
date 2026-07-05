@@ -21,6 +21,8 @@
 - `missing_ppo_result_rows`
 - `missing_remote_pullback_artifacts`
 - `f02_6_formal_chain_pending`
+- `missing_module2_bc_checkpoint`
+- `realmap_query_generation_not_frozen`
 - `claim_safety_blocks_formal_performance`
 - `f02_6_pending`
 - `formal_gate_closure_checklist_open`
@@ -185,19 +187,19 @@
 ### main_results_table
 - target: Results: main H02 formal comparison table
 - status: `blocked`
-- blockers: `h02_verdict_not_formal`, `h02_formal_acceptance_not_accepted`, `h01_manifest_not_ready`, `f02_6_warm_start_decision_pending`, `missing_module2_rl_rs_checkpoint`, `remote_execution_packet_not_ready`, `requires_dr_sun_approval`, `missing_gate3_formal_audit`, `h02_scale_below_h01_manifest`, `missing_ppo_result_rows`, `missing_remote_pullback_artifacts`, `f02_6_formal_chain_pending`
+- blockers: `h02_verdict_not_formal`, `h02_formal_acceptance_not_accepted`, `h01_manifest_not_ready`, `f02_6_warm_start_decision_pending`, `missing_module2_rl_rs_checkpoint`, `remote_execution_packet_not_ready`, `requires_dr_sun_approval`, `missing_gate3_formal_audit`, `h02_scale_below_h01_manifest`, `missing_ppo_result_rows`, `missing_remote_pullback_artifacts`, `f02_6_formal_chain_pending`, `missing_module2_bc_checkpoint`, `realmap_query_generation_not_frozen`
 - evidence: `0_trials/module2_paper_tables/module2_paper_tables.json`, `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
 
 ### formal_results
 - target: Results: formal performance improvement claims
 - status: `blocked`
-- blockers: `paper_tables_not_formal`, `h02_verdict_not_formal`, `h02_formal_acceptance_not_accepted`, `h01_manifest_not_ready`, `f02_6_warm_start_decision_pending`, `missing_module2_rl_rs_checkpoint`, `remote_execution_packet_not_ready`, `requires_dr_sun_approval`, `missing_gate3_formal_audit`, `h02_scale_below_h01_manifest`, `missing_ppo_result_rows`, `missing_remote_pullback_artifacts`, `f02_6_formal_chain_pending`, `claim_safety_blocks_formal_performance`, `f02_6_pending`, `formal_gate_closure_checklist_open`, `formal_gate_status_report_blocked`, `status_report_remaining_deliverables_gap_rows_missing`, `status_report_remaining_deliverables_gap_categories_blocked`, `status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing`, `status_report_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked`, `claim_safety_f02_6_decision_intake_pending`, `claim_safety_remaining_deliverables_acceptance_rows_missing`, `claim_safety_remaining_deliverables_acceptance_categories_blocked`, `claim_safety_remaining_deliverables_gap_rows_missing`, `claim_safety_remaining_deliverables_gap_categories_blocked`, `claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing`, `claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked`
+- blockers: `paper_tables_not_formal`, `h02_verdict_not_formal`, `h02_formal_acceptance_not_accepted`, `h01_manifest_not_ready`, `f02_6_warm_start_decision_pending`, `missing_module2_rl_rs_checkpoint`, `remote_execution_packet_not_ready`, `requires_dr_sun_approval`, `missing_gate3_formal_audit`, `h02_scale_below_h01_manifest`, `missing_ppo_result_rows`, `missing_remote_pullback_artifacts`, `f02_6_formal_chain_pending`, `missing_module2_bc_checkpoint`, `realmap_query_generation_not_frozen`, `claim_safety_blocks_formal_performance`, `f02_6_pending`, `formal_gate_closure_checklist_open`, `formal_gate_status_report_blocked`, `status_report_remaining_deliverables_gap_rows_missing`, `status_report_remaining_deliverables_gap_categories_blocked`, `status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing`, `status_report_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked`, `claim_safety_f02_6_decision_intake_pending`, `claim_safety_remaining_deliverables_acceptance_rows_missing`, `claim_safety_remaining_deliverables_acceptance_categories_blocked`, `claim_safety_remaining_deliverables_gap_rows_missing`, `claim_safety_remaining_deliverables_gap_categories_blocked`, `claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing`, `claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked`
 - evidence: `0_trials/module2_claim_safety/module2_claim_safety.json`, `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`, `0_trials/module2_paper_tables/module2_paper_tables.json`, `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`
 
 ### warm_start_effect
 - target: Ablation: obstacle-summary warm-start effect
 - status: `blocked`
-- blockers: `f02_6_not_approved`, `requires_dr_sun_approval`, `f02_6_warm_start_decision_pending`, `missing_module2_rl_rs_checkpoint`
+- blockers: `f02_6_not_approved`, `requires_dr_sun_approval`, `f02_6_warm_start_decision_pending`, `missing_module2_bc_checkpoint`, `missing_module2_rl_rs_checkpoint`, `realmap_query_generation_not_frozen`
 - evidence: `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json`, `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json`
 
 ## Claim Boundaries

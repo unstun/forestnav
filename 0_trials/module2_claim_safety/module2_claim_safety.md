@@ -18,6 +18,8 @@
 - missing_ppo_result_rows
 - missing_remote_pullback_artifacts
 - f02_6_formal_chain_pending
+- missing_module2_bc_checkpoint
+- realmap_query_generation_not_frozen
 - f02_6_pending
 - formal_gate_closure_checklist_open
 - formal_gate_status_report_blocked
@@ -79,8 +81,8 @@
 ### remote_execution_step_summary
 - `sync_to_remote`: allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`requires_dr_sun_approval`
 - `run_remote_preflight`: allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`requires_dr_sun_approval`
-- `run_remote_training`: allowed_now=`False`, runs_training=`True`, runs_remote_preflight=`None`, host=`None`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_packet_not_ready`
-- `run_remote_audit`: allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_packet_not_ready`
+- `run_remote_training`: allowed_now=`False`, runs_training=`True`, runs_remote_preflight=`None`, host=`None`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_packet_not_ready`
+- `run_remote_audit`: allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_packet_not_ready`
 
 ## Status Report Remote Requirement Matrices
 

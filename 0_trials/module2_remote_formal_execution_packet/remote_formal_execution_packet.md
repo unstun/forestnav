@@ -8,7 +8,9 @@
 ## Blockers
 - `requires_dr_sun_approval`
 - `f02_6_warm_start_decision_pending`
+- `missing_module2_bc_checkpoint`
 - `missing_module2_rl_rs_checkpoint`
+- `realmap_query_generation_not_frozen`
 
 ## Remote Preflight Requirements
 

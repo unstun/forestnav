@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_paper_readiness",
   "status": "partial_methods_ready_results_blocked",
-  "created_at_utc": "2026-07-05T09:49:59.352376+00:00",
-  "source_head": "89149db4963192bc3a407dcf78aa1fcb8ab21d3b",
+  "created_at_utc": "2026-07-05T10:08:31.585432+00:00",
+  "source_head": "6d029875b6de4cacf5d7669f74ba46fbaf49ec2d",
   "manuscript_ready": false,
   "formal_results_ready": false,
   "local_training_allowed": false,
@@ -948,6 +948,8 @@
     "missing_ppo_result_rows",
     "missing_remote_pullback_artifacts",
     "f02_6_formal_chain_pending",
+    "missing_module2_bc_checkpoint",
+    "realmap_query_generation_not_frozen",
     "claim_safety_blocks_formal_performance",
     "f02_6_pending",
     "formal_gate_closure_checklist_open",
@@ -1020,7 +1022,9 @@
         "h02_scale_below_h01_manifest",
         "missing_ppo_result_rows",
         "missing_remote_pullback_artifacts",
-        "f02_6_formal_chain_pending"
+        "f02_6_formal_chain_pending",
+        "missing_module2_bc_checkpoint",
+        "realmap_query_generation_not_frozen"
       ]
     },
     {
@@ -1047,6 +1051,8 @@
         "missing_ppo_result_rows",
         "missing_remote_pullback_artifacts",
         "f02_6_formal_chain_pending",
+        "missing_module2_bc_checkpoint",
+        "realmap_query_generation_not_frozen",
         "claim_safety_blocks_formal_performance",
         "f02_6_pending",
         "formal_gate_closure_checklist_open",
@@ -1076,7 +1082,9 @@
         "f02_6_not_approved",
         "requires_dr_sun_approval",
         "f02_6_warm_start_decision_pending",
-        "missing_module2_rl_rs_checkpoint"
+        "missing_module2_bc_checkpoint",
+        "missing_module2_rl_rs_checkpoint",
+        "realmap_query_generation_not_frozen"
       ]
     }
   ],

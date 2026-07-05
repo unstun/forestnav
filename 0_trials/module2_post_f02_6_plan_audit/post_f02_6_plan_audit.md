@@ -33,8 +33,8 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 ## Source Regeneration Command Index
 
 - present: `True`
-- index_row_count: `23`
-- source_target_count: `23`
+- index_row_count: `11`
+- source_target_count: `11`
 - unknown_manual_count: `0`
 - stage_mismatch_count: `0`
 - command_not_in_stage_count: `0`
@@ -48,7 +48,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - runs_remote_preflight: `False`
 - all_required_evidence_present: `False`
 - audit_issue_count: `0`
-- missing_counts_by_category: `{'decision': 1, 'decision_gate': 0, 'regeneration': 23, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 9}`
+- missing_counts_by_category: `{'decision': 1, 'decision_gate': 0, 'regeneration': 11, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 8}`
 
 ## Closure Checklist
 
@@ -110,8 +110,8 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
 - `sync_to_remote`: allowed_now=`False`, runs_training=`False`, blocked_by=`requires_dr_sun_approval`
 - `run_remote_preflight`: allowed_now=`False`, runs_training=`False`, blocked_by=`requires_dr_sun_approval`
-- `run_remote_training`: allowed_now=`False`, runs_training=`True`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_packet_not_ready`
-- `run_remote_audit`: allowed_now=`False`, runs_training=`False`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_packet_not_ready`
+- `run_remote_training`: allowed_now=`False`, runs_training=`True`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_packet_not_ready`
+- `run_remote_audit`: allowed_now=`False`, runs_training=`False`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_packet_not_ready`
 
 ## Audit Issues
 

@@ -10,8 +10,8 @@
 
 - `sync_to_remote`: allowed_now=`False`, blocked_by=`requires_dr_sun_approval`
 - `run_remote_preflight`: allowed_now=`False`, blocked_by=`requires_dr_sun_approval`
-- `run_remote_training`: allowed_now=`False`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_packet_not_ready`
-- `run_remote_audit`: allowed_now=`False`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_rl_rs_checkpoint, remote_packet_not_ready`
+- `run_remote_training`: allowed_now=`False`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_packet_not_ready`
+- `run_remote_audit`: allowed_now=`False`, blocked_by=`requires_dr_sun_approval, f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_packet_not_ready`
 
 ## F02.6 Route Handoff
 
@@ -34,7 +34,7 @@
 
 - source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
 - source_freshness_regeneration_required: `True`
-- source_freshness_non_self_changed_records: `23`
+- source_freshness_non_self_changed_records: `10`
 - source_freshness_self_artifact_only_lag_records: `0`
 
 ## Handoff Stages
@@ -45,7 +45,7 @@
 - 4. `regenerate_remote_execution_packet`: allowed_now=`False`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open`
 - 5. `gate3_remote_training`: allowed_now=`False`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 - 6. `gate3_remote_audit_pullback`: allowed_now=`False`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
-- 7. `regenerate_h01_h02_formal_artifacts`: allowed_now=`False`, blocked_by=`missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
+- 7. `regenerate_h01_h02_formal_artifacts`: allowed_now=`False`, blocked_by=`missing_remote_audit_pullback`
 - 8. `regenerate_claim_gate_artifacts`: allowed_now=`False`, blocked_by=`h02_formal_acceptance_not_ready, source_fresh_claim_targets_open`
 
 ## Requirement Summary

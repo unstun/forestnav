@@ -2,15 +2,17 @@
   "schema_version": 1,
   "packet_name": "module2_remote_formal_execution_packet",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-05T09:55:16.555264+00:00",
-  "source_head": "1eb92599a626fce903d7902b74562f74eaf24b52",
+  "created_at_utc": "2026-07-05T10:06:22.544916+00:00",
+  "source_head": "6d029875b6de4cacf5d7669f74ba46fbaf49ec2d",
   "ready_to_run_remote_training": false,
   "local_training_allowed": false,
   "formal_claim_allowed_before_audit": false,
   "blockers": [
     "requires_dr_sun_approval",
     "f02_6_warm_start_decision_pending",
-    "missing_module2_rl_rs_checkpoint"
+    "missing_module2_bc_checkpoint",
+    "missing_module2_rl_rs_checkpoint",
+    "realmap_query_generation_not_frozen"
   ],
   "execution_environment": {
     "gpu_alias": "gpu3070ti-relay",
@@ -37,7 +39,9 @@
     "status": "blocked_pending_decisions",
     "blockers": [
       "f02_6_warm_start_decision_pending",
-      "missing_module2_rl_rs_checkpoint"
+      "missing_module2_bc_checkpoint",
+      "missing_module2_rl_rs_checkpoint",
+      "realmap_query_generation_not_frozen"
     ],
     "schema_checks": {
       "required_output_schema": "present",
@@ -189,7 +193,9 @@
       "blocked_by": [
         "requires_dr_sun_approval",
         "f02_6_warm_start_decision_pending",
+        "missing_module2_bc_checkpoint",
         "missing_module2_rl_rs_checkpoint",
+        "realmap_query_generation_not_frozen",
         "remote_packet_not_ready"
       ]
     },
@@ -200,7 +206,9 @@
       "blocked_by": [
         "requires_dr_sun_approval",
         "f02_6_warm_start_decision_pending",
+        "missing_module2_bc_checkpoint",
         "missing_module2_rl_rs_checkpoint",
+        "realmap_query_generation_not_frozen",
         "remote_packet_not_ready"
       ]
     }
