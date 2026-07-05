@@ -348,6 +348,53 @@ def _packet_payload():
             "formal_claim_allowed_now": False,
             "paper_result_material_allowed_now": False,
         },
+        "decision_evidence_matrix": {
+            "matrix_id": "module2_f02_6_decision_evidence_matrix",
+            "status": "ready_for_dr_sun_decision_not_authorization",
+            "route_count": 2,
+            "required_evidence_count": 7,
+            "satisfied_required_evidence_count": 7,
+            "missing_required_evidence_count": 0,
+            "missing_required_evidence_ids": [],
+            "current_authorization_allowed_now": False,
+            "remote_preflight_allowed_now": False,
+            "remote_training_allowed_now": False,
+            "local_training_allowed_now": False,
+            "formal_claim_allowed_now": False,
+            "paper_result_material_allowed_now": False,
+            "source_issue_count": 0,
+            "global_invalid_substitutes": [
+                "smoke result used as formal PPO checkpoint or Gate #3 evidence",
+                "paper appendix text used as a decision record",
+            ],
+            "routes": [
+                {
+                    "decision": "approve_obstacle_summary_warm_start",
+                    "required_evidence": [
+                        {"evidence_id": "no_warm_formal_gate3_failure"},
+                        {"evidence_id": "obstacle_summary_bc_candidate_readiness"},
+                        {"evidence_id": "bounded_candidate_comparison_against_patch_cnn"},
+                        {"evidence_id": "remote_route_guarded_until_decision"},
+                    ],
+                    "invalid_substitutes": [
+                        "remote CUDA smoke as formal evidence",
+                        "local training output",
+                    ],
+                },
+                {
+                    "decision": "reject_obstacle_summary_warm_start",
+                    "required_evidence": [
+                        {"evidence_id": "reject_route_defined_in_decision_intake"},
+                        {"evidence_id": "reject_route_does_not_relabel_no_warm_failure"},
+                        {"evidence_id": "reject_route_requires_stronger_protocol_before_training"},
+                    ],
+                    "invalid_substitutes": [
+                        "implicit rejection by inaction",
+                        "protocol redesign without revised contract",
+                    ],
+                },
+            ],
+        },
     }
 
 
