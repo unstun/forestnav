@@ -48,7 +48,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - runs_remote_preflight: `False`
 - all_required_evidence_present: `False`
 - audit_issue_count: `0`
-- missing_counts_by_category: `{'decision': 1, 'decision_gate': 0, 'regeneration': 16, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 2}`
+- missing_counts_by_category: `{'decision': 1, 'decision_gate': 0, 'regeneration': 0, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 1}`
 
 ## Closure Checklist
 
@@ -78,6 +78,16 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - ledger_open_category_count: `4`
 - status_report_total_missing_deliverables: `10`
 - status_report_open_category_count: `4`
+
+### Remaining Deliverables Unlock Chain
+
+- ledger_path: `0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json`
+- ledger_exists: `True`
+- status: `blocked_missing_formal_deliverables`
+- row_count: `10`
+- blocked_row_count: `10`
+- rows_with_missing_required_blockers: `0`
+- rows_allowed_while_missing: `0`
 
 ### Status Report Proof-Audit Deliverables Summary
 

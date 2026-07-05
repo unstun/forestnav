@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_plan_audit",
   "status": "post_f02_6_plan_audit_passed",
-  "created_at_utc": "2026-07-05T11:38:03.562424+00:00",
-  "source_head": "5a1b69d5986198e8b8b17d99a21740871ecf8a7f",
+  "created_at_utc": "2026-07-05T11:53:23.901597+00:00",
+  "source_head": "44a7333b0df0f2b7400d0dc26a9d3d5b6a8167a5",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -65,13 +65,13 @@
     "missing_counts_by_category": {
       "decision": 1,
       "decision_gate": 0,
-      "regeneration": 16,
+      "regeneration": 0,
       "gate_sequence": 7,
       "training": 3,
       "evaluation": 2,
       "acceptance": 3,
       "evaluation_acceptance": 2,
-      "claim_gate": 2
+      "claim_gate": 1
     }
   },
   "closure_checklist_summary": {
@@ -466,6 +466,88 @@
         "missing_artifact_matrix_ids": [
           "formal_acceptance:h01_ready_for_formal_run",
           "formal_acceptance:h02_formal_output_acceptance"
+        ]
+      }
+    },
+    "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
+    "exists": true
+  },
+  "remaining_deliverables_unlock_chain_summary": {
+    "present": true,
+    "chain_id": "module2_formal_gate_missing_deliverable_unlock_chain",
+    "status": "blocked_missing_formal_deliverables",
+    "execution_boundary": "read_only_no_execution",
+    "not_paper_result_material": true,
+    "row_count": 10,
+    "blocked_row_count": 10,
+    "rows_with_missing_required_blockers": 0,
+    "rows_allowed_while_missing": 0,
+    "categories": {
+      "training": {
+        "row_count": 3,
+        "blocked_row_count": 3,
+        "rows_with_missing_required_blockers": 0,
+        "rows_allowed_while_missing": 0,
+        "required_current_blockers": [
+          "f02_6_decision_not_approved",
+          "remote_packet_not_ready"
+        ],
+        "unlock_sequence_before_stage_allowed": [
+          "record_f02_6_decision",
+          "source_freshness_ready_for_remote_preflight",
+          "remote_formal_execution_packet_ready",
+          "approved_remote_preflight",
+          "gate3_remote_training"
+        ]
+      },
+      "evaluation": {
+        "row_count": 2,
+        "blocked_row_count": 2,
+        "rows_with_missing_required_blockers": 0,
+        "rows_allowed_while_missing": 0,
+        "required_current_blockers": [
+          "f02_6_decision_not_approved",
+          "remote_packet_not_ready"
+        ],
+        "unlock_sequence_before_stage_allowed": [
+          "record_f02_6_decision",
+          "source_freshness_ready_for_remote_preflight",
+          "remote_formal_execution_packet_ready",
+          "approved_remote_preflight",
+          "gate3_remote_training_complete",
+          "gate3_remote_audit_pullback"
+        ]
+      },
+      "acceptance": {
+        "row_count": 3,
+        "blocked_row_count": 3,
+        "rows_with_missing_required_blockers": 0,
+        "rows_allowed_while_missing": 0,
+        "required_current_blockers": [
+          "f02_6_decision_not_approved",
+          "remote_packet_not_ready"
+        ],
+        "unlock_sequence_before_stage_allowed": [
+          "record_f02_6_decision",
+          "source_freshness_ready_for_remote_preflight",
+          "remote_formal_execution_packet_ready",
+          "approved_remote_preflight",
+          "gate3_remote_training_complete",
+          "gate3_remote_audit_pullback"
+        ]
+      },
+      "formal_acceptance": {
+        "row_count": 2,
+        "blocked_row_count": 2,
+        "rows_with_missing_required_blockers": 0,
+        "rows_allowed_while_missing": 0,
+        "required_current_blockers": [
+          "missing_remote_audit_pullback"
+        ],
+        "unlock_sequence_before_stage_allowed": [
+          "gate3_remote_audit_pullback_complete",
+          "regenerate_h01_h02_formal_artifacts",
+          "h01_h02_formal_acceptance_audit"
         ]
       }
     },
