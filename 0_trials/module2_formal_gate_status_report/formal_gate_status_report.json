@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-05T05:30:05.621673+00:00",
-  "source_head": "c8c9a0649b7c8487821b0756cbfdc15d736fa937+dirty",
+  "created_at_utc": "2026-07-05T05:36:19.132039+00:00",
+  "source_head": "de96c52eb282f4315ac54b2f511d8a396b76fd8b+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -59,6 +59,19 @@
     "decision_intake_packet_remote_preflight_allowed_now": false,
     "decision_intake_packet_remote_training_allowed_now": false,
     "decision_intake_packet_paper_result_material_allowed_now": false,
+    "decision_intake_next_request_status": "awaiting_dr_sun_decision",
+    "decision_intake_next_request_current_allowed_action_ids": [
+      "record_f02_6_decision"
+    ],
+    "decision_intake_next_request_current_blocked_action_ids": [
+      "remote_preflight",
+      "remote_training",
+      "local_training",
+      "formal_claim",
+      "paper_result_material"
+    ],
+    "decision_intake_next_request_post_decision_routes_are_current_authorization": false,
+    "decision_intake_next_request_all_execution_disabled_now": true,
     "formal_gate_status": "blocked_formal_gate_gaps_open",
     "missing_artifacts_status": "formal_gate_missing_artifacts_open",
     "missing_artifacts_handoff_index_status": "blocked_until_f02_6_decision",
@@ -641,6 +654,29 @@
     "packet_local_training_allowed_now": false,
     "packet_formal_claim_allowed_now": false,
     "packet_paper_result_material_allowed_now": false,
+    "next_request_status": "awaiting_dr_sun_decision",
+    "next_request_decision_owner_required": "Dr Sun",
+    "next_request_valid_decisions": [
+      "approve_obstacle_summary_warm_start",
+      "reject_obstacle_summary_warm_start"
+    ],
+    "next_request_required_record_fields": [
+      "decision",
+      "decider",
+      "decision_note"
+    ],
+    "next_request_current_allowed_action_ids": [
+      "record_f02_6_decision"
+    ],
+    "next_request_current_blocked_action_ids": [
+      "remote_preflight",
+      "remote_training",
+      "local_training",
+      "formal_claim",
+      "paper_result_material"
+    ],
+    "next_request_post_decision_routes_are_current_authorization": false,
+    "next_request_all_execution_disabled_now": true,
     "decision_owner_required": "Dr Sun",
     "valid_decisions": [
       "approve_obstacle_summary_warm_start",

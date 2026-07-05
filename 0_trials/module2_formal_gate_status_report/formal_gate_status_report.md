@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `c8c9a0649b7c8487821b0756cbfdc15d736fa937+dirty`
+- source_head: `de96c52eb282f4315ac54b2f511d8a396b76fd8b+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -36,6 +36,11 @@ This file is a read-only formal-gate status report. It does not execute commands
 - decision_intake_packet_remote_preflight_allowed_now: `False`
 - decision_intake_packet_remote_training_allowed_now: `False`
 - decision_intake_packet_paper_result_material_allowed_now: `False`
+- decision_intake_next_request_status: `awaiting_dr_sun_decision`
+- decision_intake_next_request_current_allowed_action_ids: `['record_f02_6_decision']`
+- decision_intake_next_request_current_blocked_action_ids: `['remote_preflight', 'remote_training', 'local_training', 'formal_claim', 'paper_result_material']`
+- decision_intake_next_request_post_decision_routes_are_current_authorization: `False`
+- decision_intake_next_request_all_execution_disabled_now: `True`
 - formal_gate_status: `blocked_formal_gate_gaps_open`
 - missing_artifacts_status: `formal_gate_missing_artifacts_open`
 - missing_artifacts_handoff_index_status: `blocked_until_f02_6_decision`
