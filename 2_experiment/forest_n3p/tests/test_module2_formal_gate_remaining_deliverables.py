@@ -730,6 +730,36 @@ def _h02(*, complete):
     }
 
 
+def _protocol_lane_status_report(*, pending):
+    return {
+        "status": "protocol_lane_status_blocked_pending_lane_decision" if pending else "protocol_lane_status_clean",
+        "not_paper_result_material": True,
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+        "paper_result_material_allowed": False,
+        "remote_training_allowed_now": False,
+        "current_status": {
+            "next_blocked_lane": "protocol_lane_decision" if pending else None,
+            "decision_record_status": "pending_protocol_lane_decision" if pending else "selected_protocol_lane_recorded",
+            "selected_lane_id": None if pending else "stronger_obstacle_summary_warm_start",
+            "allowed_next_action_ids": ["record_protocol_lane_decision"] if pending else ["draft_revised_contract"],
+            "blocked_action_ids": [
+                "local_training",
+                "remote_success_training",
+                "remote_preflight_for_new_success_attempt",
+                "formal_claim",
+                "paper_result_material",
+            ]
+            if pending
+            else [],
+            "new_success_training_allowed_now": False,
+        },
+    }
+
+
 def _source_freshness(*, complete):
     blocking_targets = []
     if not complete:
