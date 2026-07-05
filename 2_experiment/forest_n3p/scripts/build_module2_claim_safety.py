@@ -604,6 +604,7 @@ def _status_report_decision_intake_summary(status_report: dict[str, Any]) -> dic
     valid_decisions = _string_list(summary.get("valid_decisions"))
     route_decisions = _string_list(summary.get("post_decision_route_decisions"))
     required_fields = _string_list(summary.get("required_record_fields"))
+    impact_required = _string_list(summary.get("decision_impact_formal_training_still_requires"))
     return {
         "present": bool(summary),
         "status": summary.get("status"),
@@ -638,6 +639,45 @@ def _status_report_decision_intake_summary(status_report: dict[str, Any]) -> dic
         "formal_claim_allowed_now": summary.get("formal_claim_allowed_now")
         if isinstance(summary.get("formal_claim_allowed_now"), bool)
         else None,
+        "decision_impact_present": summary.get("decision_impact_present")
+        if isinstance(summary.get("decision_impact_present"), bool)
+        else None,
+        "decision_impact_summary_id": summary.get("decision_impact_summary_id"),
+        "decision_impact_not_paper_result_material": summary.get("decision_impact_not_paper_result_material")
+        if isinstance(summary.get("decision_impact_not_paper_result_material"), bool)
+        else None,
+        "decision_impact_current_blocker": summary.get("decision_impact_current_blocker"),
+        "decision_record_is_not_training_authorization": summary.get(
+            "decision_record_is_not_training_authorization"
+        )
+        if isinstance(summary.get("decision_record_is_not_training_authorization"), bool)
+        else None,
+        "decision_record_is_not_paper_result_material": summary.get(
+            "decision_record_is_not_paper_result_material"
+        )
+        if isinstance(summary.get("decision_record_is_not_paper_result_material"), bool)
+        else None,
+        "decision_impact_remote_preflight_allowed_now": summary.get(
+            "decision_impact_remote_preflight_allowed_now"
+        )
+        if isinstance(summary.get("decision_impact_remote_preflight_allowed_now"), bool)
+        else None,
+        "decision_impact_remote_training_allowed_now": summary.get(
+            "decision_impact_remote_training_allowed_now"
+        )
+        if isinstance(summary.get("decision_impact_remote_training_allowed_now"), bool)
+        else None,
+        "decision_impact_formal_claim_allowed_now": summary.get(
+            "decision_impact_formal_claim_allowed_now"
+        )
+        if isinstance(summary.get("decision_impact_formal_claim_allowed_now"), bool)
+        else None,
+        "decision_impact_paper_result_material_allowed_now": summary.get(
+            "decision_impact_paper_result_material_allowed_now"
+        )
+        if isinstance(summary.get("decision_impact_paper_result_material_allowed_now"), bool)
+        else None,
+        "decision_impact_formal_training_still_requires": impact_required,
     }
 
 
@@ -691,6 +731,31 @@ def _status_report_decision_intake_blockers(status_report: dict[str, Any]) -> li
             blockers.append("status_report_closed_f02_6_intake_decider_not_dr_sun")
     else:
         blockers.append("status_report_f02_6_decision_intake_unknown_record_status")
+    if summary["decision_impact_present"] is not True:
+        blockers.append("status_report_f02_6_decision_intake_impact_missing")
+    if summary["decision_impact_not_paper_result_material"] is not True:
+        blockers.append("status_report_f02_6_decision_intake_impact_is_paper_result_material")
+    if summary["decision_record_is_not_training_authorization"] is not True:
+        blockers.append("status_report_f02_6_decision_record_may_authorize_training")
+    if summary["decision_record_is_not_paper_result_material"] is not True:
+        blockers.append("status_report_f02_6_decision_record_may_be_paper_result_material")
+    for field, blocker in (
+        ("decision_impact_remote_preflight_allowed_now", "status_report_f02_6_decision_impact_allows_remote_preflight"),
+        ("decision_impact_remote_training_allowed_now", "status_report_f02_6_decision_impact_allows_remote_training"),
+        ("decision_impact_formal_claim_allowed_now", "status_report_f02_6_decision_impact_allows_formal_claim"),
+        ("decision_impact_paper_result_material_allowed_now", "status_report_f02_6_decision_impact_allows_paper_result_material"),
+    ):
+        if summary[field] is not False:
+            blockers.append(blocker)
+    for required in (
+        "source_freshness_audit",
+        "post_f02_6_regeneration_plan",
+        "post_f02_6_plan_audit",
+        "remote_formal_execution_packet_ready",
+        "approved_remote_preflight",
+    ):
+        if required not in summary["decision_impact_formal_training_still_requires"]:
+            blockers.append(f"status_report_f02_6_decision_impact_missing_required_{required}")
     return blockers
 
 
