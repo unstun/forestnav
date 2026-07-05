@@ -16,6 +16,7 @@ DEFAULT_CLOSURE_CHECKLIST = Path("0_trials/module2_formal_gate_closure_checklist
 DEFAULT_REMOTE_PACKET = Path("0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json")
 DEFAULT_H01_MANIFEST = Path("0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json")
 DEFAULT_H02_ACCEPTANCE = Path("0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json")
+DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_freshness_audit.json")
 
 DELIVERABLE_CATEGORIES = (
     ("training", "training_artifacts_required"),
@@ -42,6 +43,7 @@ class FormalGateRemainingDeliverablesConfig:
     remote_packet_path: Path = DEFAULT_REMOTE_PACKET
     h01_manifest_path: Path = DEFAULT_H01_MANIFEST
     h02_acceptance_path: Path = DEFAULT_H02_ACCEPTANCE
+    source_freshness_path: Path = DEFAULT_SOURCE_FRESHNESS
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -56,6 +58,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         remote_packet_path=args.remote_packet,
         h01_manifest_path=args.h01_manifest,
         h02_acceptance_path=args.h02_acceptance,
+        source_freshness_path=args.source_freshness,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -77,6 +80,7 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
     remote_packet = _read_json(config.remote_packet_path)
     h01_manifest = _read_json(config.h01_manifest_path)
     h02_acceptance = _read_json(config.h02_acceptance_path)
+    source_freshness = _read_json(config.source_freshness_path)
 
     deliverable_groups = _deliverable_groups(
         status_report=status_report,
@@ -90,7 +94,8 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
     )
     proof_command_plan = _proof_command_plan(deliverable_acceptance_matrix)
     category_counts = _category_counts(deliverable_groups)
-    permissions_now = _permissions(status_report=status_report, remote_packet=remote_packet)
+    permissions_now = _permissions(status_report=status_report, remote_packet=remote_packet, source_freshness=source_freshness)
+    source_freshness_summary = _source_freshness_summary(source_freshness)
     current_gate_summary = {
         "status_report_status": status_report.get("status"),
         "next_blocked_lane": _next_blocked_lane_id(status_report),
@@ -103,6 +108,7 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
         "h02_status": h02_acceptance.get("status"),
         "h02_formal_output_accepted": h02_acceptance.get("formal_output_accepted"),
         "h02_paper_result_input_allowed": h02_acceptance.get("paper_result_input_allowed"),
+        **source_freshness_summary,
     }
     audit_issues = _audit_issues(
         status_report=status_report,
@@ -111,6 +117,7 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
         remote_packet=remote_packet,
         h01_manifest=h01_manifest,
         h02_acceptance=h02_acceptance,
+        source_freshness=source_freshness,
         deliverable_groups=deliverable_groups,
     )
     missing_count = sum(group["missing_count"] for group in deliverable_groups)
@@ -134,6 +141,7 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
             "remote_formal_execution_packet": str(config.remote_packet_path),
             "h01_manifest": str(config.h01_manifest_path),
             "h02_formal_acceptance": str(config.h02_acceptance_path),
+            "source_freshness_audit": str(config.source_freshness_path),
         },
         "current_gate_summary": current_gate_summary,
         "permissions_now": permissions_now,
@@ -172,6 +180,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--remote-packet", type=Path, default=DEFAULT_REMOTE_PACKET)
     parser.add_argument("--h01-manifest", type=Path, default=DEFAULT_H01_MANIFEST)
     parser.add_argument("--h02-acceptance", type=Path, default=DEFAULT_H02_ACCEPTANCE)
+    parser.add_argument("--source-freshness", type=Path, default=DEFAULT_SOURCE_FRESHNESS)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
@@ -667,16 +676,18 @@ def _plain_formal_gate_closure_checklist(
     }
 
 
-def _permissions(*, status_report: dict[str, Any], remote_packet: dict[str, Any]) -> dict[str, Any]:
+def _permissions(*, status_report: dict[str, Any], remote_packet: dict[str, Any], source_freshness: dict[str, Any]) -> dict[str, Any]:
     permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
+    source_fresh = _source_freshness_ready_for_remote_preflight(source_freshness)
     return {
         "local_training_allowed_now": False,
-        "remote_preflight_allowed_now": permissions.get("remote_preflight_allowed_now"),
-        "remote_training_allowed_now": permissions.get("remote_training_allowed_now"),
+        "remote_preflight_allowed_now": bool(permissions.get("remote_preflight_allowed_now")) and source_fresh,
+        "remote_training_allowed_now": bool(permissions.get("remote_training_allowed_now")) and source_fresh,
         "formal_h01_evaluation_allowed_now": permissions.get("formal_h01_evaluation_allowed_now"),
         "formal_h02_acceptance_allowed_now": permissions.get("formal_h02_acceptance_allowed_now"),
         "formal_claim_allowed_now": permissions.get("formal_claim_allowed_now"),
         "remote_packet_ready_to_run_remote_training": remote_packet.get("ready_to_run_remote_training"),
+        "source_freshness_ready_for_remote_preflight": source_fresh,
     }
 
 
@@ -688,6 +699,7 @@ def _audit_issues(
     remote_packet: dict[str, Any],
     h01_manifest: dict[str, Any],
     h02_acceptance: dict[str, Any],
+    source_freshness: dict[str, Any],
     deliverable_groups: Sequence[dict[str, Any]],
 ) -> list[dict[str, str]]:
     issues: list[dict[str, str]] = []
@@ -698,8 +710,18 @@ def _audit_issues(
         ("remote_packet", remote_packet),
         ("h01_manifest", h01_manifest),
         ("h02_acceptance", h02_acceptance),
+        ("source_freshness", source_freshness),
     ):
         issues.extend(_read_only_payload_issues(name, payload))
+    if _source_freshness_ready_for_remote_preflight(source_freshness) is False:
+        permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
+        if permissions.get("remote_preflight_allowed_now") is True or permissions.get("remote_training_allowed_now") is True:
+            issues.append(
+                _issue(
+                    "remote_allowed_while_source_freshness_blocked",
+                    "remote preflight/training cannot be allowed while source freshness requires regeneration.",
+                )
+            )
     categories = {str(group["category"]): group for group in deliverable_groups}
     for category, _artifact_key in DELIVERABLE_CATEGORIES:
         group = categories.get(category)
@@ -737,6 +759,33 @@ def _read_only_payload_issues(name: str, payload: dict[str, Any]) -> list[dict[s
     if payload.get("formal_claim_allowed") is True:
         issues.append(_issue(f"{name}_allows_formal_claim", f"{name} must not allow formal claims."))
     return issues
+
+
+def _source_freshness_summary(source_freshness: dict[str, Any]) -> dict[str, Any]:
+    commit_lag_summary = (
+        source_freshness.get("commit_lag_summary")
+        if isinstance(source_freshness.get("commit_lag_summary"), dict)
+        else {}
+    )
+    return {
+        "source_freshness_status": source_freshness.get("status"),
+        "source_freshness_regeneration_required": source_freshness.get(
+            "regeneration_required_before_remote_formal_execution"
+        ),
+        "source_freshness_non_self_changed_records": commit_lag_summary.get(
+            "records_with_non_self_changed_paths_since_source"
+        ),
+        "source_freshness_self_artifact_only_lag_records": commit_lag_summary.get(
+            "records_with_self_artifact_only_lag"
+        ),
+    }
+
+
+def _source_freshness_ready_for_remote_preflight(source_freshness: dict[str, Any]) -> bool:
+    return (
+        source_freshness.get("status") == "source_freshness_clean_current"
+        and source_freshness.get("regeneration_required_before_remote_formal_execution") is False
+    )
 
 
 def _next_blocked_lane_id(status_report: dict[str, Any]) -> str | None:
