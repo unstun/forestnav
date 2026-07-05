@@ -836,14 +836,17 @@ def _permissions(
     closure_ready = closure_checklist.get("status") == "formal_gate_closure_ready_for_result_audit"
     formal_gate_ready = formal_gate.get("status") == "formal_gate_ready_for_result_audit"
     source_fresh_ready = _source_freshness_ready_for_remote_preflight(source_freshness)
+    veto_remote_training = _execution_veto_consensus_allowed(formal_gate, "remote_training")
+    if veto_remote_training is None:
+        veto_remote_training = remote_training_ready
     safe = not input_safety_issues
     return {
         "f02_6_decision_closed": decision_closed,
         "warm_start_formal_chain_approved": approved,
         "remote_preflight_allowed_now": approved and source_fresh_ready and remote_preflight_ready and safe,
         "remote_training_allowed_now": approved and source_fresh_ready and remote_ready and remote_training_ready and safe,
-        "formal_h01_evaluation_allowed_now": h01_ready and remote_ready and safe,
-        "formal_h02_acceptance_allowed_now": h01_ready and h02_accepted and safe,
+        "formal_h01_evaluation_allowed_now": h01_ready and remote_ready and source_fresh_ready and veto_remote_training and safe,
+        "formal_h02_acceptance_allowed_now": h01_ready and h02_accepted and source_fresh_ready and veto_remote_training and safe,
         "formal_claim_allowed_now": (
             source_fresh_ready
             and formal_gate_ready
@@ -856,6 +859,15 @@ def _permissions(
         "local_training_allowed_now": False,
         "source_freshness_ready_for_remote_preflight": source_fresh_ready,
     }
+
+
+def _execution_veto_consensus_allowed(formal_gate: dict[str, Any], row_id: str) -> bool | None:
+    veto = formal_gate.get("execution_veto_matrix") if isinstance(formal_gate.get("execution_veto_matrix"), dict) else {}
+    rows = veto.get("rows") if isinstance(veto.get("rows"), list) else []
+    for row in rows:
+        if isinstance(row, dict) and row.get("row_id") == row_id and isinstance(row.get("consensus_allowed_now"), bool):
+            return row["consensus_allowed_now"]
+    return None
 
 
 def _lanes(
