@@ -31,6 +31,7 @@
 - status_report_remote_packet_safety_command_index_missing_mainline_formal_gate_state_audit
 - status_report_remote_packet_safety_command_index_missing_claim_safety
 - status_report_remote_packet_safety_command_index_missing_paper_readiness
+- handoff_single_next_action_index_source_freshness_not_clean
 
 ## Allowed Claims
 
@@ -58,7 +59,7 @@
 
 ## Handoff Single Next-Action Index
 
-- present=`True`, status=`awaiting_dr_sun_f02_6_decision`, next_action_id=`record_f02_6_decision`, decision_owner_required=`Dr Sun`, single_current_human_entry=`True`, all_execution_disabled_now=`True`, missing_deliverable_count=`10`, source_freshness_status=`source_freshness_clean_current`, remote_training_allowed_now=`False`, formal_claim_allowed_now=`False`, paper_result_material_allowed_now=`False`
+- present=`True`, status=`awaiting_dr_sun_f02_6_decision`, next_action_id=`record_f02_6_decision`, decision_owner_required=`Dr Sun`, single_current_human_entry=`True`, all_execution_disabled_now=`True`, missing_deliverable_count=`10`, source_freshness_status=`source_freshness_tracked_artifact_lag_only_gate_ready`, remote_training_allowed_now=`False`, formal_claim_allowed_now=`False`, paper_result_material_allowed_now=`False`
 
 ## Status Report Next Required Formal Deliverables
 

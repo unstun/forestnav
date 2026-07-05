@@ -21,7 +21,7 @@
 - record_command_template_count: `2`
 - missing_deliverable_count: `10`
 - missing_by_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
-- source_freshness_status: `source_freshness_clean_current`
+- source_freshness_status: `source_freshness_tracked_artifact_lag_only_gate_ready`
 - source_freshness_blocking_regeneration_required: `False`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -76,9 +76,9 @@ PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decisio
 
 ## Source Freshness Gate
 
-- source_freshness_status: `source_freshness_clean_current`
-- source_freshness_regeneration_required: `False`
-- source_freshness_non_self_changed_records: `0`
+- source_freshness_status: `source_freshness_tracked_artifact_lag_only_gate_ready`
+- source_freshness_regeneration_required: `True`
+- source_freshness_non_self_changed_records: `23`
 - source_freshness_self_artifact_only_lag_records: `0`
 
 ## Handoff Stages
