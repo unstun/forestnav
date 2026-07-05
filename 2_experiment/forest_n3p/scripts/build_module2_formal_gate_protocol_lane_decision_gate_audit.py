@@ -238,7 +238,13 @@ def _decision_note_issues(record: dict[str, Any]) -> list[dict[str, Any]]:
             issues.append(_issue("recorded_note_not_required", "Recorded decision must require a decision note."))
         if audit.get("present") is not True:
             issues.append(_issue("recorded_note_not_present", "Recorded decision must contain a decision note."))
-        for key in ("mentions_selected_lane", "mentions_failed_gate3", "mentions_contract_action"):
+        for key in (
+            "mentions_selected_lane",
+            "mentions_failed_gate3",
+            "mentions_contract_action",
+            "mentions_rejected_lanes",
+            "mentions_evidence_artifacts",
+        ):
             if audit.get(key) is not True:
                 issues.append(_issue(f"recorded_note_missing_{key}", f"Recorded decision note must satisfy {key}."))
         if audit.get("quality_warning") is not None:
@@ -278,6 +284,11 @@ def _decision_note_audit_summary(record: dict[str, Any]) -> dict[str, Any]:
         "gate_review_status": review_status,
         "gate_requires_note_quality": status == RECORDED_STATUS,
         "decision_note_present": bool(audit.get("present")),
+        "mentions_selected_lane": bool(audit.get("mentions_selected_lane")),
+        "mentions_failed_gate3": bool(audit.get("mentions_failed_gate3")),
+        "mentions_contract_action": bool(audit.get("mentions_contract_action")),
+        "mentions_rejected_lanes": bool(audit.get("mentions_rejected_lanes")),
+        "mentions_evidence_artifacts": bool(audit.get("mentions_evidence_artifacts")),
         "quality_warning": audit.get("quality_warning"),
     }
 
@@ -340,6 +351,11 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- gate_review_status: `{note['gate_review_status']}`",
         f"- gate_requires_note_quality: `{note['gate_requires_note_quality']}`",
         f"- decision_note_present: `{note['decision_note_present']}`",
+        f"- mentions_selected_lane: `{note['mentions_selected_lane']}`",
+        f"- mentions_failed_gate3: `{note['mentions_failed_gate3']}`",
+        f"- mentions_contract_action: `{note['mentions_contract_action']}`",
+        f"- mentions_rejected_lanes: `{note['mentions_rejected_lanes']}`",
+        f"- mentions_evidence_artifacts: `{note['mentions_evidence_artifacts']}`",
         f"- quality_warning: `{note['quality_warning']}`",
         "",
         "## Allowed Next Human Actions",
