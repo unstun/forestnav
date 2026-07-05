@@ -173,6 +173,8 @@ def test_post_f02_6_regeneration_plan_cli_writes_json_and_markdown(tmp_path):
             str(_decision_record(tmp_path, status="pending_human_decision")),
             "--formal-gate",
             str(_formal_gate(tmp_path, decision_status="pending_human_decision")),
+            "--status-report",
+            str(_status_report(tmp_path, pending=True)),
             "--source-freshness-audit",
             str(_source_freshness(tmp_path, required=True)),
             "--remote-packet",
@@ -188,6 +190,8 @@ def test_post_f02_6_regeneration_plan_cli_writes_json_and_markdown(tmp_path):
     assert manifest["artifact_name"] == "module2_post_f02_6_regeneration_plan"
     assert manifest["status"] == "blocked_until_f02_6_decision"
     assert "Module2 Post-F02.6 Regeneration Plan" in markdown
+    assert "F02.6 Human Decision Request" in markdown
+    assert "record_f02_6_decision" in markdown
     assert "Source Regeneration Command Index" in markdown
     assert "Remaining Deliverables Gap Summary" in markdown
     assert "build_module2_f02_6_decision_intake" in markdown
