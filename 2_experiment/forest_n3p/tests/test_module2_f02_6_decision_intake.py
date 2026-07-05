@@ -246,6 +246,33 @@ def test_f02_6_decision_intake_catches_packet_current_authorization_leak(tmp_pat
     assert "packet_status_report_remote_preflight_permission_mismatch" in issue_ids
 
 
+def test_f02_6_decision_intake_catches_decision_evidence_matrix_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_f02_6_decision_intake")
+    packet = _packet_payload()
+    matrix = packet["decision_evidence_matrix"]
+    matrix["missing_required_evidence_count"] = 1
+    matrix["missing_required_evidence_ids"] = ["remote_route_guarded_until_decision"]
+    matrix["remote_training_allowed_now"] = True
+    matrix["routes"][0]["invalid_substitutes"] = []
+
+    manifest = builder.build_manifest(
+        builder.F026DecisionIntakeConfig(
+            output_dir=tmp_path,
+            packet_path=_json(tmp_path, "packet.json", packet),
+            decision_record_path=_json(tmp_path, "record.json", _record_payload()),
+            decision_gate_audit_path=_json(tmp_path, "gate.json", _gate_audit_payload()),
+            status_report_path=_json(tmp_path, "status.json", _status_report_payload()),
+            remaining_deliverables_path=_json(tmp_path, "remaining.json", _remaining_payload()),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "f02_6_decision_intake_failed"
+    assert "decision_evidence_matrix_missing_required_evidence" in issue_ids
+    assert "decision_evidence_matrix_remote_training_allowed_now_not_false" in issue_ids
+    assert "decision_evidence_matrix_approve_obstacle_summary_warm_start_missing_invalid_substitutes" in issue_ids
+
+
 def test_f02_6_decision_intake_cli_writes_json_and_markdown(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_f02_6_decision_intake")
     manifest_path = tmp_path / "intake.json"
