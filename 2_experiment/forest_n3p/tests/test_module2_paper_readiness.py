@@ -1023,6 +1023,56 @@ def test_paper_readiness_rejects_claim_safety_next_required_formal_deliverables_
     assert manifest["input_status"]["claim_safety_next_required_formal_deliverables_row_count"] == 9
 
 
+def test_paper_readiness_rejects_claim_safety_mainline_audit_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_paper_readiness")
+    paths = _write_inputs(tmp_path, formal=True)
+
+    claim_safety_payload = json.loads(paths["claim_safety"].read_text(encoding="utf-8"))
+    summary = claim_safety_payload["status_report_mainline_formal_gate_state_audit_summary"]
+    summary["status"] = "mainline_formal_gate_state_audit_failed"
+    summary["not_paper_result_material"] = False
+    summary["executes_commands"] = True
+    summary["runs_training"] = True
+    summary["runs_remote_preflight"] = True
+    summary["local_training_allowed"] = True
+    summary["formal_claim_allowed"] = True
+    summary["audit_issue_count"] = 1
+    summary["proof_summary_chain_audit_issue_count"] = 1
+    summary["proof_summary_chain_proof_audit_input_safety_issue_count"] = 1
+    summary["proof_summary_chain_proof_audit_blockers"] = ["proof_audit_input_safety_issues_open"]
+    paths["claim_safety"].write_text(json.dumps(claim_safety_payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        builder.PaperReadinessConfig(
+            output_dir=tmp_path,
+            method_algorithms_path=paths["method_algorithms"],
+            system_diagram_path=paths["system_diagram"],
+            paper_tables_path=paths["paper_tables"],
+            claim_safety_path=paths["claim_safety"],
+            h02_formal_acceptance_path=paths["h02_acceptance"],
+            h01_manifest_path=paths["h01_manifest"],
+            f02_6_decision_record_path=paths["decision_record"],
+            remote_execution_packet_path=paths["remote_packet"],
+            status_report_path=paths["status_report"],
+        )
+    )
+
+    blockers = set(manifest["global_blockers"])
+    assert manifest["status"] == "partial_methods_ready_results_blocked"
+    assert "claim_safety_mainline_formal_gate_state_audit_failed" in blockers
+    assert "claim_safety_mainline_formal_gate_state_audit_marked_as_paper_result" in blockers
+    assert "claim_safety_mainline_formal_gate_state_audit_executes_commands" in blockers
+    assert "claim_safety_mainline_formal_gate_state_audit_runs_training" in blockers
+    assert "claim_safety_mainline_formal_gate_state_audit_runs_remote_preflight" in blockers
+    assert "claim_safety_mainline_formal_gate_state_audit_allows_local_training" in blockers
+    assert "claim_safety_mainline_formal_gate_state_audit_allows_formal_claim" in blockers
+    assert "claim_safety_mainline_formal_gate_state_audit_issues_open" in blockers
+    assert "claim_safety_mainline_proof_summary_issues_open" in blockers
+    assert "claim_safety_mainline_proof_audit_input_safety_issues_open" in blockers
+    assert "claim_safety_mainline_proof_audit_input_safety_blocker_open" in blockers
+    assert manifest["input_status"]["claim_safety_mainline_audit_issue_count"] == 1
+
+
 def test_paper_readiness_rejects_missing_claim_safety_remote_safety_proof_summary(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_paper_readiness")
     paths = _write_inputs(tmp_path, formal=True)
