@@ -13,6 +13,7 @@ from forest_n3p.scripts._module2_source_head import source_head as module2_sourc
 
 DEFAULT_OUTPUT_DIR = Path("0_trials/module2_formal_gate_handoff_bundle")
 DEFAULT_DECISION_RECORD = Path("0_trials/module2_f02_6_decision_record/f02_6_decision_record.json")
+DEFAULT_DECISION_INTAKE = Path("0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json")
 DEFAULT_TRANSITION_GATE_AUDIT = Path("0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json")
 DEFAULT_POST_PLAN = Path("0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json")
 DEFAULT_STATUS_REPORT = Path("0_trials/module2_formal_gate_status_report/formal_gate_status_report.json")
@@ -39,6 +40,7 @@ class FormalGateHandoffBundleConfig:
     manifest_out: Path | None = None
     markdown_out: Path | None = None
     decision_record_path: Path = DEFAULT_DECISION_RECORD
+    decision_intake_path: Path = DEFAULT_DECISION_INTAKE
     transition_gate_audit_path: Path = DEFAULT_TRANSITION_GATE_AUDIT
     post_plan_path: Path = DEFAULT_POST_PLAN
     status_report_path: Path = DEFAULT_STATUS_REPORT
@@ -55,6 +57,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         manifest_out=args.manifest_out,
         markdown_out=args.markdown_out,
         decision_record_path=args.decision_record,
+        decision_intake_path=args.decision_intake,
         transition_gate_audit_path=args.transition_gate_audit,
         post_plan_path=args.post_plan,
         status_report_path=args.status_report,
@@ -84,6 +87,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
     decision = _read_json(config.decision_record_path)
+    decision_intake = _read_json(config.decision_intake_path)
     transition_gate = _read_json(config.transition_gate_audit_path)
     post_plan = _read_json(config.post_plan_path)
     status_report = _read_json(config.status_report_path)
@@ -96,8 +100,19 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
     remote_steps = _remote_steps(remote_packet)
     route_summary = _f02_6_route_handoff_summary(status_report)
     source_freshness_summary = _source_freshness_summary(source_freshness)
+    permissions = _permissions(status_report, source_freshness=source_freshness)
+    remaining_gap = _remaining_deliverables_gap_summary(status_report)
+    single_next_action_index = _single_next_action_index(
+        decision=decision,
+        decision_intake=decision_intake,
+        permissions=permissions,
+        remaining_gap=remaining_gap,
+        route_summary=route_summary,
+        source_freshness_summary=source_freshness_summary,
+    )
     safety_issues = _safety_issues(
         decision=decision,
+        decision_intake=decision_intake,
         transition_gate=transition_gate,
         post_plan=post_plan,
         status_report=status_report,
@@ -108,8 +123,8 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
         stages=stages,
         remote_steps=remote_steps,
         route_summary=route_summary,
+        single_next_action_index=single_next_action_index,
     )
-    permissions = _permissions(status_report, source_freshness=source_freshness)
     status = _status(
         decision=decision,
         permissions=permissions,
@@ -130,6 +145,7 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
         "formal_claim_allowed": False,
         "inputs": {
             "decision_record": str(config.decision_record_path),
+            "decision_intake": str(config.decision_intake_path),
             "f02_6_transition_gate_audit": str(config.transition_gate_audit_path),
             "post_f02_6_regeneration_plan": str(config.post_plan_path),
             "formal_gate_status_report": str(config.status_report_path),
@@ -156,8 +172,9 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
         },
         "permissions_now": permissions,
         "next_handoff_action": _next_handoff_action(decision=decision, status_report=status_report),
+        "single_next_action_index": single_next_action_index,
         "f02_6_route_handoff_summary": route_summary,
-        "remaining_deliverables_gap_summary": _remaining_deliverables_gap_summary(status_report),
+        "remaining_deliverables_gap_summary": remaining_gap,
         "status_report_proof_audit_deliverables_summary": _status_report_proof_audit_deliverables_summary(
             status_report
         ),
@@ -184,6 +201,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--manifest-out", type=Path, default=None)
     parser.add_argument("--markdown-out", type=Path, default=None)
     parser.add_argument("--decision-record", type=Path, default=DEFAULT_DECISION_RECORD)
+    parser.add_argument("--decision-intake", type=Path, default=DEFAULT_DECISION_INTAKE)
     parser.add_argument("--transition-gate-audit", type=Path, default=DEFAULT_TRANSITION_GATE_AUDIT)
     parser.add_argument("--post-plan", type=Path, default=DEFAULT_POST_PLAN)
     parser.add_argument("--status-report", type=Path, default=DEFAULT_STATUS_REPORT)
