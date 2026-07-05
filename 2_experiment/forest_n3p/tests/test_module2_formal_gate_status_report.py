@@ -1122,6 +1122,7 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
     assert "Formal Gate Execution Veto Matrix" in markdown
     assert "Remote Packet Safety Claim-Gate Command Index" in markdown
     assert "Remaining Deliverables Acceptance Matrix" in markdown
+    assert "Next Required Formal Deliverables" in markdown
     assert "Formal Gate Proof Audit" in markdown
     assert "Formal Gate Proof Audit Gap Summary" in markdown
     assert "source_freshness_status" in markdown
