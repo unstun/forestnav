@@ -22,13 +22,20 @@
 - approved_route_allows_remote_training_now: `False`
 - rejected_route_next_lane: `protocol_redesign`
 - rejected_route_requires_new_protocol_contract: `True`
+- decision_impact_present: `True`
+- decision_record_is_not_training_authorization: `True`
+- decision_record_is_not_paper_result_material: `True`
+- decision_impact_remote_training_allowed_now: `False`
+- decision_impact_formal_claim_allowed_now: `False`
+- decision_impact_paper_result_material_allowed_now: `False`
+- decision_impact_formal_training_still_requires: `source_freshness_audit, post_f02_6_regeneration_plan, post_f02_6_plan_audit, remote_formal_execution_packet_ready, approved_remote_preflight`
 
 ## Source Freshness Gate
 
 - source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
 - source_freshness_regeneration_required: `True`
-- source_freshness_non_self_changed_records: `18`
-- source_freshness_self_artifact_only_lag_records: `1`
+- source_freshness_non_self_changed_records: `23`
+- source_freshness_self_artifact_only_lag_records: `0`
 
 ## Handoff Stages
 

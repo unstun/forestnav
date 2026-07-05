@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_handoff_bundle",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-05T02:33:54.469496+00:00",
-  "source_head": "2c81a650271875c04a628ef21a367cc878787bb0",
+  "created_at_utc": "2026-07-05T09:41:16.900867+00:00",
+  "source_head": "e6a35d1b1d62e0089c447b53fccc558bbe846216",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -36,8 +36,9 @@
     "next_blocked_lane": "decision",
     "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
     "source_freshness_regeneration_required": true,
-    "source_freshness_non_self_changed_records": 18,
-    "source_freshness_self_artifact_only_lag_records": 1
+    "source_freshness_blocking_regeneration_required": true,
+    "source_freshness_non_self_changed_records": 23,
+    "source_freshness_self_artifact_only_lag_records": 0
   },
   "permissions_now": {
     "f02_6_decision_closed": false,
@@ -66,7 +67,21 @@
     "approved_route_next_lane": "source_fresh_regeneration",
     "approved_route_allows_remote_training_now": false,
     "rejected_route_next_lane": "protocol_redesign",
-    "rejected_route_requires_new_protocol_contract": true
+    "rejected_route_requires_new_protocol_contract": true,
+    "decision_impact_present": true,
+    "decision_record_is_not_training_authorization": true,
+    "decision_record_is_not_paper_result_material": true,
+    "decision_impact_remote_preflight_allowed_now": false,
+    "decision_impact_remote_training_allowed_now": false,
+    "decision_impact_formal_claim_allowed_now": false,
+    "decision_impact_paper_result_material_allowed_now": false,
+    "decision_impact_formal_training_still_requires": [
+      "source_freshness_audit",
+      "post_f02_6_regeneration_plan",
+      "post_f02_6_plan_audit",
+      "remote_formal_execution_packet_ready",
+      "approved_remote_preflight"
+    ]
   },
   "remaining_deliverables_gap_summary": {
     "present": true,
@@ -548,11 +563,13 @@
         "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
         "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
         "0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json",
+        "0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json",
         "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
         "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
         "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
         "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
         "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
+        "0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json",
         "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json",
         "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json"
       ],
@@ -561,11 +578,13 @@
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_intake",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_transition_gate_audit",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_warm_start_decision_packet",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_closure_checklist",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_gap_audit",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_handoff_bundle",
         "manual read-only gpu3070ti readiness refresh; no local training, no approved preflight",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_plan_audit",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_regeneration_plan",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_formal_execution_packet",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_packet_safety_audit"
       ]
@@ -705,8 +724,10 @@
         "0_trials/module2_claim_safety/module2_claim_safety.json",
         "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
         "0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json",
+        "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
         "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
         "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
+        "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json",
         "0_trials/module2_paper_readiness/module2_paper_readiness.json"
       ],
       "command_templates": [
@@ -714,8 +735,10 @@
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_paper_readiness",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_missing_artifacts_audit",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_audit",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_remaining_deliverables",
-        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_status_report"
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_status_report",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit"
       ]
     }
   ],
