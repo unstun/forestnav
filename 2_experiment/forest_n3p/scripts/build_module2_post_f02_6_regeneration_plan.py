@@ -389,6 +389,14 @@ def _targets_required_before(targets: Sequence[dict[str, Any]], gate: str) -> li
     return [target for target in targets if str(target.get("required_before")) == gate]
 
 
+def _blocking_targets(targets: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        target
+        for target in targets
+        if target.get("blocking_regeneration_required_before_remote_formal_execution", True) is not False
+    ]
+
+
 def _targets_by_gate(targets: Sequence[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
     out: dict[str, list[dict[str, Any]]] = {}
     for target in targets:
