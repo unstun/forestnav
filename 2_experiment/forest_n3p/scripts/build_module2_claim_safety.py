@@ -957,6 +957,32 @@ def _status_report_decision_intake_blockers(status_report: dict[str, Any]) -> li
     ):
         if required not in summary["decision_impact_formal_training_still_requires"]:
             blockers.append(f"status_report_f02_6_decision_impact_missing_required_{required}")
+    if summary["decision_evidence_matrix_present"] is not True:
+        blockers.append("status_report_f02_6_decision_evidence_matrix_missing")
+    if summary["decision_evidence_matrix_id"] != "module2_f02_6_decision_evidence_matrix":
+        blockers.append("status_report_f02_6_decision_evidence_matrix_id_invalid")
+    if summary["decision_evidence_matrix_status"] != "ready_for_dr_sun_decision_not_authorization":
+        blockers.append("status_report_f02_6_decision_evidence_matrix_status_invalid")
+    if summary["decision_evidence_matrix_route_count"] != 2:
+        blockers.append("status_report_f02_6_decision_evidence_matrix_route_count_invalid")
+    if not expected_decisions.issubset(set(summary["decision_evidence_matrix_route_decisions"])):
+        blockers.append("status_report_f02_6_decision_evidence_matrix_routes_incomplete")
+    if summary["decision_evidence_matrix_required_evidence_count"] < 7:
+        blockers.append("status_report_f02_6_decision_evidence_matrix_required_evidence_incomplete")
+    if summary["decision_evidence_matrix_missing_required_evidence_count"] != 0:
+        blockers.append("status_report_f02_6_decision_evidence_matrix_missing_required_evidence")
+    if summary["decision_evidence_matrix_global_invalid_substitute_count"] == 0:
+        blockers.append("status_report_f02_6_decision_evidence_matrix_invalid_substitutes_missing")
+    for field, blocker in (
+        ("decision_evidence_matrix_current_authorization_allowed_now", "status_report_f02_6_decision_evidence_matrix_authorizes_now"),
+        ("decision_evidence_matrix_remote_preflight_allowed_now", "status_report_f02_6_decision_evidence_matrix_allows_remote_preflight"),
+        ("decision_evidence_matrix_remote_training_allowed_now", "status_report_f02_6_decision_evidence_matrix_allows_remote_training"),
+        ("decision_evidence_matrix_local_training_allowed_now", "status_report_f02_6_decision_evidence_matrix_allows_local_training"),
+        ("decision_evidence_matrix_formal_claim_allowed_now", "status_report_f02_6_decision_evidence_matrix_allows_formal_claim"),
+        ("decision_evidence_matrix_paper_result_material_allowed_now", "status_report_f02_6_decision_evidence_matrix_allows_paper_result_material"),
+    ):
+        if summary[field] is not False:
+            blockers.append(blocker)
     return blockers
 
 
