@@ -108,10 +108,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         h01_manifest_path=args.h01_manifest,
         h02_acceptance_path=args.h02_acceptance,
         claim_safety_path=args.claim_safety,
-        paper_readiness_path=args.paper_readiness,
-        handoff_bundle_path=args.handoff_bundle,
-        decision_intake_path=args.decision_intake,
-    )
+            paper_readiness_path=args.paper_readiness,
+            handoff_bundle_path=args.handoff_bundle,
+            decision_intake_path=args.decision_intake,
+            formal_gate_proof_audit_path=args.formal_gate_proof_audit,
+        )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -163,6 +164,7 @@ def build_manifest(config: F026TransitionGateAuditConfig) -> dict[str, Any]:
             "claim_safety": str(config.claim_safety_path),
             "paper_readiness": str(config.paper_readiness_path),
             "formal_gate_handoff_bundle": str(config.handoff_bundle_path),
+            "formal_gate_proof_audit": str(config.formal_gate_proof_audit_path),
         },
         "synthetic_inputs_persisted": False,
         "scenario_count": len(scenario_summaries),
