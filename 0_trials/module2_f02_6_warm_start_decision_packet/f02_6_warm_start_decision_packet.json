@@ -2,9 +2,9 @@
   "schema_version": 1,
   "packet_name": "module2_f02_6_warm_start_decision_packet",
   "status": "pending_human_decision",
-  "created_at_utc": "2026-07-05T04:55:11.968769+00:00",
+  "created_at_utc": "2026-07-05T04:58:07.811310+00:00",
   "execution_host": "MacBook-Pro.local",
-  "source_head": "faef7f1e404a67a014afec874d6cfc680cf45f05+dirty",
+  "source_head": "d660065ee07319f803425e6948d91d9bd7901a27+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -292,7 +292,7 @@
     {
       "path": "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
       "exists": true,
-      "sha256": "0f93dd75ec8f07590642aea947adad7d4b975a548058494eb5d4f007c4cc7b19"
+      "sha256": "8d57077e64669b487383cac8328fa1c2b210ce3ec29994ae561d2679db313d89"
     }
   ],
   "source_integrity_summary": {

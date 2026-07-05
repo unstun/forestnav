@@ -24,11 +24,10 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - runs_remote_preflight: `False`
 - formal_claim_allowed: `False`
 - regeneration_required_before_remote_formal_execution: `True`
-- ordered_regeneration_target_count: `22`
+- ordered_regeneration_target_count: `21`
 
 ### Source Freshness Regeneration Targets
 
-- `f02_6_decision_gate_audit`: `current_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json`
 - `f02_6_decision_intake`: `current_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json`
 - `f02_6_decision_record`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json`
 - `f02_6_transition_gate_audit`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json`
@@ -130,7 +129,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - remote_training_allowed_now: `False`
 - audit_issue_count: `0`
 - command_index_present: `True`
-- command_index_row_count: `22`
+- command_index_row_count: `21`
 - command_index_missing_target_ids: `[]`
 - proof_deliverables_missing_counts: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
 - proof_deliverables_h02_paper_result_input_allowed: `False`

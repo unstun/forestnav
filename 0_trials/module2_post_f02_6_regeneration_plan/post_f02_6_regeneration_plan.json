@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_regeneration_plan",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-05T04:55:31.927854+00:00",
-  "source_head": "faef7f1e404a67a014afec874d6cfc680cf45f05+dirty",
+  "created_at_utc": "2026-07-05T04:58:17.278948+00:00",
+  "source_head": "d660065ee07319f803425e6948d91d9bd7901a27+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -112,11 +112,6 @@
   },
   "source_regeneration_targets_by_gate": {
     "approved_remote_preflight": [
-      {
-        "artifact_id": "f02_6_decision_gate_audit",
-        "path": "0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json",
-        "freshness_state": "current_dirty"
-      },
       {
         "artifact_id": "f02_6_decision_intake",
         "path": "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
@@ -229,15 +224,6 @@
     ]
   },
   "source_regeneration_command_index": [
-    {
-      "artifact_id": "f02_6_decision_gate_audit",
-      "required_before": "approved_remote_preflight",
-      "freshness_state": "current_dirty",
-      "path": "0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json",
-      "stage_id": "regenerate_preflight_gate_artifacts",
-      "command_kind": "known_builder",
-      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_gate_audit"
-    },
     {
       "artifact_id": "f02_6_decision_intake",
       "required_before": "approved_remote_preflight",
@@ -461,7 +447,6 @@
       "requires_human_input": false,
       "action": "Regenerate source-stale artifacts required before approved remote preflight.",
       "evidence_paths": [
-        "0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json",
         "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
         "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
         "0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json",
@@ -476,7 +461,6 @@
         "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json"
       ],
       "command_templates": [
-        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_gate_audit",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_intake",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_transition_gate_audit",
