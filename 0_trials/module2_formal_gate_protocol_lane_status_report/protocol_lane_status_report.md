@@ -11,6 +11,16 @@ This file summarizes protocol-lane gates; it is not paper result material.
 - remote_training_allowed_now: `False`
 - formal_claim_allowed_now: `False`
 
+## Safety Flags
+
+- local_training_allowed_now: `False`
+- remote_training_allowed_now: `False`
+- formal_claim_allowed_now: `False`
+- paper_result_material_allowed_now: `False`
+- new_success_training_allowed_now: `False`
+- contract_approval_allowed_now: `False`
+- draft_contract_allows_training: `False`
+
 ## Allowed Next Actions
 - `record_protocol_lane_decision`
 
@@ -20,6 +30,12 @@ This file summarizes protocol-lane gates; it is not paper result material.
 - `remote_preflight_for_new_success_attempt`
 - `formal_claim`
 - `paper_result_material`
+
+## Claim Boundaries
+- This report summarizes protocol-lane gates; it does not record a lane decision.
+- The old remote execution packet may remain ready, but it is not authorization for a new success attempt.
+- Current allowed actions do not include local training, remote training, formal claims, or paper result material.
+- New success training still requires a recorded protocol lane decision and an approved/frozen new or revised contract.
 
 ## Audit
 
