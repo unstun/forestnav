@@ -557,6 +557,47 @@ def test_paper_readiness_rejects_claim_safety_without_clean_decision_intake_summ
     assert manifest["input_status"]["claim_safety_decision_intake_status"] == "f02_6_decision_intake_failed"
 
 
+def test_paper_readiness_rejects_claim_safety_handoff_decision_evidence_matrix_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_paper_readiness")
+    paths = _write_inputs(tmp_path, formal=True)
+
+    claim_safety_payload = json.loads(paths["claim_safety"].read_text(encoding="utf-8"))
+    matrix = claim_safety_payload["handoff_f02_6_decision_evidence_matrix_summary"]
+    matrix["missing_required_evidence_count"] = 1
+    matrix["source_issue_count"] = 1
+    matrix["remote_training_allowed_now"] = True
+    matrix["global_invalid_substitute_count"] = 0
+    matrix["invalid_substitute_counts_by_route"]["approve_obstacle_summary_warm_start"] = 0
+    paths["claim_safety"].write_text(json.dumps(claim_safety_payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        builder.PaperReadinessConfig(
+            output_dir=tmp_path,
+            method_algorithms_path=paths["method_algorithms"],
+            system_diagram_path=paths["system_diagram"],
+            paper_tables_path=paths["paper_tables"],
+            claim_safety_path=paths["claim_safety"],
+            h02_formal_acceptance_path=paths["h02_acceptance"],
+            h01_manifest_path=paths["h01_manifest"],
+            f02_6_decision_record_path=paths["decision_record"],
+            remote_execution_packet_path=paths["remote_packet"],
+            status_report_path=paths["status_report"],
+        )
+    )
+
+    blockers = set(manifest["global_blockers"])
+    assert "claim_safety_handoff_f02_6_decision_evidence_matrix_missing_required_evidence" in blockers
+    assert "claim_safety_handoff_f02_6_decision_evidence_matrix_source_issues_open" in blockers
+    assert "claim_safety_handoff_f02_6_decision_evidence_matrix_allows_remote_training" in blockers
+    assert "claim_safety_handoff_f02_6_decision_evidence_matrix_invalid_substitutes_missing" in blockers
+    assert (
+        "claim_safety_handoff_f02_6_decision_evidence_matrix_approve_obstacle_summary_warm_start_invalid_substitutes_missing"
+        in blockers
+    )
+    assert "claim_safety_handoff_f02_6_decision_evidence_matrix_claim_safety_mismatch" in blockers
+    assert manifest["input_status"]["claim_safety_handoff_decision_evidence_matrix_missing_required_evidence_count"] == 1
+
+
 def test_paper_readiness_rejects_claim_safety_decision_intake_route_drift(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_paper_readiness")
     paths = _write_inputs(tmp_path, formal=True)
