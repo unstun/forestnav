@@ -129,6 +129,8 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - command_index_present: `True`
 - command_index_row_count: `19`
 - command_index_missing_target_ids: `[]`
+- proof_deliverables_missing_counts: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
+- proof_deliverables_h02_paper_result_input_allowed: `False`
 
 ## Execution Veto Matrix
 
