@@ -772,11 +772,14 @@ def _handoff_single_next_action_issues(*, rows: Sequence[dict[str, Any]]) -> lis
                     "path": row["path"],
                 }
             )
-        for flag in (
+        blocked_flags = [
             "local_training_allowed_now",
             "formal_claim_allowed_now",
             "paper_result_material_allowed_now",
-        ):
+        ]
+        if pending_f02_6:
+            blocked_flags.extend(["remote_preflight_allowed_now", "remote_training_allowed_now"])
+        for flag in blocked_flags:
             if row[flag] is True:
                 issues.append(
                     {
