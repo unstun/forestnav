@@ -104,6 +104,30 @@ def test_proof_summary_chain_audit_fails_h02_paper_input_allowed_while_open(tmp_
     assert "formal_gate_status_report_proof_summary_allows_h02_paper_input_while_proof_open" in issue_ids
 
 
+def test_proof_summary_chain_audit_fails_proof_audit_input_safety_open(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit")
+    paths = _write_chain_inputs(tmp_path)
+    proof = json.loads(paths["proof"].read_text(encoding="utf-8"))
+    proof["input_safety_issue_count"] = 1
+    proof["input_safety_issues"] = [
+        {
+            "issue_id": "acceptance_matrix_training_wrong_artifact_identity_mismatch",
+            "observed": {"matrix_id": "training:wrong_artifact"},
+        }
+    ]
+    proof["blockers"] = ["proof_audit_input_safety_issues_open"]
+    paths["proof"].write_text(json.dumps(proof), encoding="utf-8")
+
+    manifest = builder.build_manifest(_config(builder, tmp_path, paths))
+
+    assert manifest["status"] == "formal_gate_proof_summary_chain_audit_failed"
+    assert manifest["proof_audit_input_safety_issue_count"] == 1
+    assert manifest["proof_audit_blockers"] == ["proof_audit_input_safety_issues_open"]
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "formal_gate_proof_audit_input_safety_issues_open" in issue_ids
+    assert "formal_gate_proof_audit_input_safety_blocker_open" in issue_ids
+
+
 def test_proof_summary_chain_audit_fails_next_action_guard_drift(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit")
     paths = _write_chain_inputs(tmp_path)
