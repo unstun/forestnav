@@ -105,6 +105,14 @@ def test_contract_authoring_gate_cli_writes_json_and_markdown(tmp_path):
     assert "Module2 Formal Gate Contract Authoring Gate Audit" in markdown
     assert "not paper result material" in markdown
     assert "contract_drafting_allowed_now: `False`" in markdown
+    assert "allowed_next_action_ids" in markdown
+    assert "record_protocol_lane_decision" in markdown
+    assert "blocked_action_ids" in markdown
+    assert "remote_success_training" in markdown
+    assert "Required Contract Sections" in markdown
+    assert "failure_signal" in markdown
+    assert "Claim Boundaries" in markdown
+    assert "A recorded lane decision can only open contract drafting, not training" in markdown
 
 
 def _config(tmp_path, *, recorded):
