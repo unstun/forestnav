@@ -1378,7 +1378,13 @@ def _ordered_next_steps(
             "missing_ppo_checkpoint_hash",
         },
     )
-    training_precondition_gaps = list(decision_gaps) + remote_readiness_gaps + source_freshness_gaps + remote_preflight_gaps
+    training_precondition_gaps = (
+        list(decision_gaps)
+        + remote_readiness_gaps
+        + source_freshness_gaps
+        + execution_veto_gaps
+        + remote_preflight_gaps
+    )
     audit_precondition_gaps = training_precondition_gaps + execution_veto_gaps + post_training_output_gaps
     evaluation_precondition_gaps = audit_precondition_gaps + list(evaluation_gaps)
     claim_precondition_gaps = evaluation_precondition_gaps + list(acceptance_gaps)
@@ -1397,8 +1403,8 @@ def _ordered_next_steps(
         {
             "step_id": "remote_preflight",
             "phase": "training",
-            "status": "blocked" if decision_gaps or remote_readiness_gaps or source_freshness_gaps else "pending_execution",
-            "blocked_by": _gap_ids(list(decision_gaps) + remote_readiness_gaps + source_freshness_gaps),
+            "status": "blocked" if decision_gaps or remote_readiness_gaps or source_freshness_gaps or execution_veto_gaps else "pending_execution",
+            "blocked_by": _gap_ids(list(decision_gaps) + remote_readiness_gaps + source_freshness_gaps + execution_veto_gaps),
             "runs_training": False,
             "host": _remote_training_resource(remote),
             "action": "Regenerate source-fresh gate artifacts, then approved gpu3070ti preflight and require formal_trial_ready=true.",
