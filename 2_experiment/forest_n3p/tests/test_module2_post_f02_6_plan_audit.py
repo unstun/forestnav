@@ -62,6 +62,18 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
     assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
     assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 4
     assert manifest["status_report_summary"]["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
+    proof_deliverables = manifest["status_report_proof_audit_deliverables_summary"]
+    assert proof_deliverables["present"] is True
+    assert proof_deliverables["missing_counts_by_formal_category"] == {
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 2,
+    }
+    assert proof_deliverables["next_blocked_lane"] == "decision"
+    assert proof_deliverables["h01_status"] == "blocked_pending_decisions"
+    assert proof_deliverables["h02_status"] == "blocked_formal_output_acceptance"
+    assert proof_deliverables["h02_paper_result_input_allowed"] is False
     steps = manifest["status_report_summary"]["remote_execution_step_summary"]
     assert steps["sync_to_remote"]["allowed_now"] is False
     assert steps["sync_to_remote"]["blocked_by"] == ["requires_dr_sun_approval"]
@@ -534,6 +546,62 @@ def test_post_f02_6_plan_audit_rejects_remaining_deliverables_gap_summary_drift(
     assert "status_report_remaining_deliverables_gap_summary_mismatch" in issue_ids
 
 
+def test_post_f02_6_plan_audit_rejects_proof_audit_deliverables_summary_drift(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
+    status_report = _status_report_payload(ready=False)
+    status_report["formal_gate_proof_audit_remaining_deliverables_top_level_summary"][
+        "missing_counts_by_formal_category"
+    ]["training"] = 2
+
+    manifest = auditor.build_manifest(
+        auditor.PostF026PlanAuditConfig(
+            output_dir=tmp_path,
+            plan_path=_json(tmp_path, "plan.json", _plan_payload()),
+            formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate_payload()),
+            source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
+            missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
+            closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
+            status_report_path=_json(tmp_path, "status_report.json", status_report),
+            remaining_deliverables_path=_json(
+                tmp_path,
+                "remaining_deliverables.json",
+                _remaining_deliverables_payload(open_gaps=True),
+            ),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "post_f02_6_plan_audit_failed"
+    assert "status_report_proof_audit_deliverables_summary_mismatch" in issue_ids
+
+
+def test_post_f02_6_plan_audit_requires_proof_audit_deliverables_summary(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
+    status_report = _status_report_payload(ready=False)
+    status_report.pop("formal_gate_proof_audit_remaining_deliverables_top_level_summary")
+
+    manifest = auditor.build_manifest(
+        auditor.PostF026PlanAuditConfig(
+            output_dir=tmp_path,
+            plan_path=_json(tmp_path, "plan.json", _plan_payload()),
+            formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate_payload()),
+            source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
+            missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
+            closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
+            status_report_path=_json(tmp_path, "status_report.json", status_report),
+            remaining_deliverables_path=_json(
+                tmp_path,
+                "remaining_deliverables.json",
+                _remaining_deliverables_payload(open_gaps=True),
+            ),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "post_f02_6_plan_audit_failed"
+    assert "status_report_missing_proof_audit_deliverables_summary" in issue_ids
+
+
 def test_post_f02_6_plan_audit_cli_writes_json_and_markdown(tmp_path):
     auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
     manifest_path = tmp_path / "audit.json"
@@ -891,13 +959,36 @@ def _status_report_payload(*, ready, invalid=False):
             "formal_claim_allowed_now": ready,
         },
         "remaining_deliverables_gap_summary": _gap_summary(open_gaps=not ready),
+        "formal_gate_proof_audit_remaining_deliverables_top_level_summary": _deliverables_top_level_summary(open_gaps=not ready),
         "formal_gate_execution_veto_summary": _execution_veto_summary(ready=ready),
     }
 
 
 def _remaining_deliverables_payload(*, open_gaps):
     return {
+        **_deliverables_top_level_summary(open_gaps=open_gaps),
         "deliverable_gap_summary": _gap_summary(open_gaps=open_gaps),
+    }
+
+
+def _deliverables_top_level_summary(*, open_gaps):
+    counts = {
+        "training": 3 if open_gaps else 0,
+        "evaluation": 2 if open_gaps else 0,
+        "acceptance": 3 if open_gaps else 0,
+        "formal_acceptance": 2 if open_gaps else 0,
+    }
+    return {
+        "missing_counts_by_formal_category": counts,
+        "missing_matrix_ids_by_formal_category": {
+            category: [f"{category}:artifact_{index}" for index in range(count)]
+            for category, count in counts.items()
+        },
+        "next_blocked_lane": "decision" if open_gaps else None,
+        "h01_status": "blocked_pending_decisions" if open_gaps else "ready_for_formal_run",
+        "h02_status": "blocked_formal_output_acceptance" if open_gaps else "formal_output_accepted",
+        "h02_formal_output_accepted": not open_gaps,
+        "h02_paper_result_input_allowed": not open_gaps,
     }
 
 
