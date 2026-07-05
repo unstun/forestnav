@@ -3153,6 +3153,27 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.append(f"- total_missing_deliverables: `{formal_gate_gap['total_missing_deliverables']}`")
     lines.append(f"- open_category_count: `{formal_gate_gap['open_category_count']}`")
     lines.append(f"- matches_ledger_signature: `{_gap_signature(formal_gate_gap) == _gap_signature(gap)}`")
+    remote_proof = manifest["remote_packet_safety_proof_deliverables_summary"]
+    remote_status_proof = manifest["remote_packet_safety_status_report_proof_deliverables_summary"]
+    lines.extend(["", "## Remote Packet Safety Proof Deliverables Summary", ""])
+    lines.append(f"- proof_summary_present: `{remote_proof['present']}`")
+    lines.append(f"- proof_missing_counts_by_formal_category: `{remote_proof['missing_counts_by_formal_category']}`")
+    lines.append(f"- proof_next_blocked_lane: `{remote_proof['next_blocked_lane']}`")
+    lines.append(f"- proof_h01_status: `{remote_proof['h01_status']}`")
+    lines.append(f"- proof_h02_status: `{remote_proof['h02_status']}`")
+    lines.append(f"- proof_h02_paper_result_input_allowed: `{remote_proof['h02_paper_result_input_allowed']}`")
+    lines.append(f"- status_report_proof_summary_present: `{remote_status_proof['present']}`")
+    lines.append(
+        "- status_report_proof_matches_remote_proof: "
+        f"`{_proof_deliverables_signature(remote_status_proof) == _proof_deliverables_signature(remote_proof)}`"
+    )
+    lines.append(
+        "- remote_proof_matches_proof_audit: "
+        f"`{_proof_deliverables_signature(remote_proof) == _proof_deliverables_signature(proof_deliverables)}`"
+    )
+    for category, matrix_ids in remote_proof["missing_matrix_ids_by_formal_category"].items():
+        joined = ", ".join(matrix_ids) if matrix_ids else "none"
+        lines.append(f"- remote_proof_{category}_missing_matrix_ids: `{joined}`")
     command_index = manifest["remote_packet_safety_claim_gate_command_index_summary"]
     lines.extend(["", "## Remote Packet Safety Claim-Gate Command Index", ""])
     lines.append(f"- present: `{command_index['present']}`")
