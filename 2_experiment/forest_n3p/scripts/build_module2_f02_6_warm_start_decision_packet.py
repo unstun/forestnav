@@ -313,7 +313,7 @@ def _current_authorization(*, decision_record: dict[str, Any], decision_intake: 
             "paper_result_material",
         ],
         "post_decision_routes_are_current_authorization": False,
-        "remote_preflight_allowed_now": bool(decision_record.get("remote_preflight_allowed_now")),
+        "remote_preflight_allowed_now": False,
         "remote_training_allowed_now": False,
         "local_training_allowed_now": False,
         "formal_claim_allowed_now": False,
