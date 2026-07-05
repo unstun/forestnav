@@ -11,8 +11,44 @@ This file audits the protocol-lane decision gate; it is not paper result materia
 - remote_training_allowed_now: `False`
 - formal_claim_allowed_now: `False`
 
+## Decision Note Audit
+
+- gate_review_status: `not_required_while_pending`
+- gate_requires_note_quality: `False`
+- decision_note_present: `False`
+- quality_warning: `None`
+
 ## Allowed Next Human Actions
 - `record_protocol_lane_decision`
+  - requires_dr_sun: `True`
+  - runs_training: `False`
+  - runs_remote_preflight: `False`
+  - valid_lane_ids:
+    - `stronger_obstacle_summary_warm_start`
+    - `full_patch_cnn_policy`
+    - `hybrid_ppo_analytic_fallback`
+    - `stop_or_reframe_module2_claim`
+
+## Post-Decision Gate Requirements
+
+- new_or_revised_contract_required: `False`
+- contract_status_required_before_training: `approved, frozen`
+- draft_contract_allows_training: `False`
+- formal_training_still_requires:
+  - approved_or_frozen_contract
+  - source_freshness_audit_after_contract
+  - remote_execution_packet_for_selected_lane
+  - approved_remote_preflight_for_selected_lane
+- paper_result_still_requires:
+  - new_gate3_formal_audit_pass
+  - h02_formal_output_accepted_true
+  - paper_result_input_allowed_true
+
+## Claim Boundaries
+- This audit validates the protocol-lane decision gate; it does not select a lane.
+- A clean pending audit is not training authorization.
+- A recorded lane decision can only unlock new/revised contract drafting, not remote execution.
+- Formal claims and paper result material remain blocked until new formal acceptance passes.
 
 ## Audit
 
