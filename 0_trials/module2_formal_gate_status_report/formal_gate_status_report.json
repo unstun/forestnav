@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-05T11:32:29.599472+00:00",
-  "source_head": "b8b395c63e8d0d801f36067fa137a14c8033906e",
+  "created_at_utc": "2026-07-05T11:38:22.344142+00:00",
+  "source_head": "5a1b69d5986198e8b8b17d99a21740871ecf8a7f",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -161,8 +161,8 @@
     "source_freshness_non_self_changed_records": 0,
     "source_freshness_self_artifact_only_lag_records": 0,
     "remote_packet_safety_command_index_present": true,
-    "remote_packet_safety_command_index_row_count": 16,
-    "remote_packet_safety_command_index_source_target_count": 16,
+    "remote_packet_safety_command_index_row_count": 1,
+    "remote_packet_safety_command_index_source_target_count": 1,
     "remote_packet_safety_command_index_missing_target_count": 0,
     "next_action_guard_status": "next_action_guard_passed"
   },
@@ -180,13 +180,13 @@
   "missing_counts_by_category": {
     "decision": 1,
     "decision_gate": 0,
-    "regeneration": 16,
+    "regeneration": 0,
     "gate_sequence": 7,
     "training": 3,
     "evaluation": 2,
     "acceptance": 3,
     "evaluation_acceptance": 2,
-    "claim_gate": 2
+    "claim_gate": 1
   },
   "training_artifacts_required": [
     {
@@ -277,6 +277,14 @@
     }
   ],
   "claim_gate_artifacts_required": [
+    {
+      "artifact_id": "formal_gate_missing_artifacts",
+      "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
+      "exists": true,
+      "state": "historical_clean",
+      "missing": true,
+      "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
+    },
     {
       "artifact_id": "h02_formal_acceptance_before_claim_gate",
       "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
@@ -874,12 +882,9 @@
         "responsible_stage_status": "blocked",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "missing_remote_audit_pullback",
-          "source_fresh_h01_h02_targets_open"
+          "missing_remote_audit_pullback"
         ],
         "responsible_stage_evidence_paths": [
-          "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
-          "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
           "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
         ],
         "mapping_present": true,
@@ -1210,8 +1215,7 @@
         "responsible_stage_status": "blocked",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "missing_remote_audit_pullback",
-          "source_fresh_h01_h02_targets_open"
+          "missing_remote_audit_pullback"
         ],
         "acceptance_predicate_count": 5,
         "proof_command_count": 2,
@@ -1235,8 +1239,7 @@
         "responsible_stage_status": "blocked",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "missing_remote_audit_pullback",
-          "source_fresh_h01_h02_targets_open"
+          "missing_remote_audit_pullback"
         ],
         "acceptance_predicate_count": 5,
         "proof_command_count": 2,
@@ -1471,8 +1474,7 @@
         "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "missing_remote_audit_pullback",
-          "source_fresh_h01_h02_targets_open"
+          "missing_remote_audit_pullback"
         ],
         "next_required_evidence_count": 3,
         "missing_artifact_count": 2,
@@ -1711,8 +1713,7 @@
         "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "missing_remote_audit_pullback",
-          "source_fresh_h01_h02_targets_open"
+          "missing_remote_audit_pullback"
         ],
         "proof_command_ids": [
           "h01_ready_for_formal_run_exists_nonempty",
@@ -1730,8 +1731,7 @@
         "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "missing_remote_audit_pullback",
-          "source_fresh_h01_h02_targets_open"
+          "missing_remote_audit_pullback"
         ],
         "proof_command_ids": [
           "h02_formal_output_acceptance_exists_nonempty",
@@ -2599,8 +2599,8 @@
   },
   "remote_packet_safety_claim_gate_command_index_summary": {
     "present": true,
-    "index_row_count": 16,
-    "source_target_count": 16,
+    "index_row_count": 1,
+    "source_target_count": 1,
     "missing_target_ids": [],
     "unknown_manual_count": 0,
     "unknown_manual_ids": [],
@@ -2666,118 +2666,21 @@
       "lane_id": "source_fresh_preflight",
       "phase": "regeneration",
       "status": "blocked",
-      "primary_status": "source_freshness_risks_recorded_gate_still_blocked",
+      "primary_status": "source_freshness_clean_current",
       "runs_training": false,
       "host": null,
       "blocked_by": [
-        "source_freshness_regeneration_required",
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
         "remote_packet_safety_command_index_missing_formal_gate_proof_summary_chain_audit",
         "remote_packet_safety_command_index_missing_mainline_formal_gate_state_audit",
         "remote_packet_safety_command_index_missing_claim_safety",
         "remote_packet_safety_command_index_missing_paper_readiness",
+        "source_freshness_regeneration_required",
         "f02_6_decision_not_approved"
       ],
-      "missing_item_count": 16,
-      "missing_items": [
-        {
-          "artifact_id": "f02_6_decision_gate_audit",
-          "path": "0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json",
-          "state": "historical_clean",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "f02_6_decision_intake",
-          "path": "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
-          "state": "historical_clean",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "f02_6_decision_record",
-          "path": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
-          "state": "historical_clean",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "f02_6_transition_gate_audit",
-          "path": "0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json",
-          "state": "historical_clean",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "f02_6_warm_start_decision_packet",
-          "path": "0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json",
-          "state": "historical_clean",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "formal_gate_closure_checklist",
-          "path": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
-          "state": "historical_clean",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "formal_gate_gap_audit",
-          "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
-          "state": "historical_clean",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "formal_gate_handoff_bundle",
-          "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
-          "state": "current_clean",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "gpu3070ti_readiness_refresh",
-          "path": "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
-          "state": "historical_clean",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "post_f02_6_plan_audit",
-          "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
-          "state": "historical_clean",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "post_f02_6_regeneration_plan",
-          "path": "0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json",
-          "state": "historical_clean",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "remote_formal_execution_packet",
-          "path": "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json",
-          "state": "historical_clean",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "remote_packet_safety_audit",
-          "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
-          "state": "historical_clean",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "h01_evaluation_manifest",
-          "path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
-          "state": "historical_clean",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "h02_formal_acceptance",
-          "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
-          "state": "historical_clean",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        },
-        {
-          "artifact_id": "formal_gate_missing_artifacts",
-          "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
-          "state": "historical_clean",
-          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
-        }
-      ],
+      "missing_item_count": 0,
+      "missing_items": [],
       "completion_signal": "Source-fresh preflight targets are regenerated from the current head.",
       "action_when_blocked": "After F02.6 closes, regenerate source-fresh gate artifacts before approved preflight."
     },
@@ -2798,11 +2701,11 @@
         "regenerate_claim_gate_artifacts",
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
-        "source_freshness_regeneration_required",
         "remote_packet_safety_command_index_missing_formal_gate_proof_summary_chain_audit",
         "remote_packet_safety_command_index_missing_mainline_formal_gate_state_audit",
         "remote_packet_safety_command_index_missing_claim_safety",
         "remote_packet_safety_command_index_missing_paper_readiness",
+        "source_freshness_regeneration_required",
         "f02_6_decision_not_approved",
         "source_fresh_preflight_targets_open"
       ],
@@ -2810,7 +2713,7 @@
       "missing_items": [
         {
           "artifact_id": "regenerate_preflight_gate_artifacts",
-          "path": "0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json; 0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json; 0_trials/module2_f02_6_decision_record/f02_6_decision_record.json; 0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json; 0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json; 0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json; 0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json; 0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json; 0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json; 0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json; 0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json; 0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json; 0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
+          "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
           "state": "blocked",
           "reason": "f02_6_decision_not_approved"
         },
@@ -2840,15 +2743,15 @@
         },
         {
           "artifact_id": "regenerate_h01_h02_formal_artifacts",
-          "path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+          "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
           "state": "blocked",
-          "reason": "missing_remote_audit_pullback, source_fresh_h01_h02_targets_open"
+          "reason": "missing_remote_audit_pullback"
         },
         {
           "artifact_id": "regenerate_claim_gate_artifacts",
-          "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
+          "path": "",
           "state": "blocked",
-          "reason": "h02_formal_acceptance_not_ready, source_fresh_claim_targets_open"
+          "reason": "h02_formal_acceptance_not_ready"
         }
       ],
       "completion_signal": "Approved gpu3070ti preflight passes and remote packet reports ready.",
@@ -2867,12 +2770,12 @@
         "train_training_manifest_json",
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
-        "source_freshness_regeneration_required",
         "remote_packet_safety_command_index_missing_formal_gate_proof_summary_chain_audit",
         "remote_packet_safety_command_index_missing_mainline_formal_gate_state_audit",
         "remote_packet_safety_command_index_missing_claim_safety",
         "remote_packet_safety_command_index_missing_paper_readiness",
         "remote_training_packet_not_ready",
+        "source_freshness_regeneration_required",
         "f02_6_decision_not_approved",
         "source_fresh_preflight_targets_open",
         "remote_packet_not_ready"
@@ -2916,7 +2819,6 @@
         "eval_gate3_summary_json",
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
-        "source_freshness_regeneration_required",
         "remote_packet_safety_command_index_missing_formal_gate_proof_summary_chain_audit",
         "remote_packet_safety_command_index_missing_mainline_formal_gate_state_audit",
         "remote_packet_safety_command_index_missing_claim_safety",
@@ -2925,6 +2827,7 @@
         "missing_remote_pullback_artifact",
         "missing_ppo_result_rows",
         "missing_ppo_checkpoint_hash",
+        "source_freshness_regeneration_required",
         "f02_6_decision_not_approved",
         "source_fresh_preflight_targets_open",
         "remote_packet_not_ready"
@@ -2977,7 +2880,6 @@
         "h02_formal_output_acceptance",
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
-        "source_freshness_regeneration_required",
         "remote_packet_safety_command_index_missing_formal_gate_proof_summary_chain_audit",
         "remote_packet_safety_command_index_missing_mainline_formal_gate_state_audit",
         "remote_packet_safety_command_index_missing_claim_safety",
@@ -2992,8 +2894,8 @@
         "h02_scale_below_h01_seed_count",
         "h02_scale_below_h01_queries_per_map",
         "h02_verdict_not_formal",
-        "missing_remote_audit_pullback",
-        "source_fresh_h01_h02_targets_open"
+        "source_freshness_regeneration_required",
+        "missing_remote_audit_pullback"
       ],
       "missing_item_count": 2,
       "missing_items": [
@@ -3021,11 +2923,9 @@
       "runs_training": false,
       "host": null,
       "blocked_by": [
-        "formal_gate_missing_artifacts",
         "h02_formal_acceptance_before_claim_gate",
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
-        "source_freshness_regeneration_required",
         "remote_packet_safety_command_index_missing_formal_gate_proof_summary_chain_audit",
         "remote_packet_safety_command_index_missing_mainline_formal_gate_state_audit",
         "remote_packet_safety_command_index_missing_claim_safety",
@@ -3048,17 +2948,12 @@
         "formal_gate_closure_checklist_open",
         "formal_gate_status_report_blocked",
         "formal_gate_remaining_deliverables_open",
-        "h02_formal_acceptance_not_ready",
-        "source_fresh_claim_targets_open"
+        "formal_gate_missing_artifacts",
+        "source_freshness_regeneration_required",
+        "h02_formal_acceptance_not_ready"
       ],
-      "missing_item_count": 2,
+      "missing_item_count": 1,
       "missing_items": [
-        {
-          "artifact_id": "formal_gate_missing_artifacts",
-          "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
-          "state": "historical_clean",
-          "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
-        },
         {
           "artifact_id": "h02_formal_acceptance_before_claim_gate",
           "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",

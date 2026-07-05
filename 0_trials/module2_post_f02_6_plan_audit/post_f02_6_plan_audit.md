@@ -33,8 +33,8 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 ## Source Regeneration Command Index
 
 - present: `True`
-- index_row_count: `16`
-- source_target_count: `16`
+- index_row_count: `1`
+- source_target_count: `1`
 - unknown_manual_count: `0`
 - stage_mismatch_count: `0`
 - command_not_in_stage_count: `0`
@@ -48,7 +48,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - runs_remote_preflight: `False`
 - all_required_evidence_present: `False`
 - audit_issue_count: `0`
-- missing_counts_by_category: `{'decision': 1, 'decision_gate': 0, 'regeneration': 0, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 1}`
+- missing_counts_by_category: `{'decision': 1, 'decision_gate': 0, 'regeneration': 16, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 2}`
 
 ## Closure Checklist
 

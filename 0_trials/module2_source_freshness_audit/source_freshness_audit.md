@@ -3,7 +3,7 @@
 This file records gate artifact source-head freshness. It is not a training run, remote preflight, paper table, or result claim.
 
 - status: `source_freshness_clean_current`
-- current_head: `b8b395c63e8d0d801f36067fa137a14c8033906e`
+- current_head: `5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
 - runs_training: `False`
 - runs_remote_preflight: `False`
 - formal_claim_allowed: `False`
@@ -43,33 +43,33 @@ This file records gate artifact source-head freshness. It is not a training run,
 
 ## Regeneration Targets
 
-- `formal_gate_handoff_bundle`: `current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`, current_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`, dirty=`False`, commit_exists=`True`, commits_since_source=`0`, changed_paths_since_source=`0`, non_self_changed_paths_since_source=`0`, blocking_changed_paths_since_source=`0`, self_artifact_only_lag=`False`, tracked_artifact_only_lag=`False`, blocking_regeneration=`False`, artifact_path_changed=`False`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`
+- `formal_gate_handoff_bundle`: `current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`, current_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`, dirty=`False`, commit_exists=`True`, commits_since_source=`0`, changed_paths_since_source=`0`, non_self_changed_paths_since_source=`0`, blocking_changed_paths_since_source=`0`, self_artifact_only_lag=`False`, tracked_artifact_only_lag=`False`, blocking_regeneration=`False`, artifact_path_changed=`False`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`
 
 ## Artifact Records
 
-- `f02_6_warm_start_decision_packet`: status=`pending_human_decision`, freshness=`current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`
-- `f02_6_decision_record`: status=`pending_human_decision`, freshness=`current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`
-- `f02_6_decision_intake`: status=`f02_6_decision_intake_pending_clean`, freshness=`current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`
-- `f02_6_decision_gate_audit`: status=`f02_6_decision_gate_pending_clean`, freshness=`current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`
-- `f02_6_transition_gate_audit`: status=`f02_6_transition_gate_audit_passed`, freshness=`current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`
-- `remote_formal_execution_packet`: status=`blocked_until_f02_6_decision`, freshness=`current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`
-- `h01_evaluation_manifest`: status=`blocked_pending_decisions`, freshness=`current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`
-- `h02_formal_acceptance`: status=`blocked_formal_output_acceptance`, freshness=`current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`
-- `claim_safety`: status=`blocked_formal_performance_claims`, freshness=`current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`
-- `paper_readiness`: status=`partial_methods_ready_results_blocked`, freshness=`current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`
-- `formal_gate_gap_audit`: status=`blocked_formal_gate_gaps_open`, freshness=`current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`
-- `post_f02_6_regeneration_plan`: status=`blocked_until_f02_6_decision`, freshness=`current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`
-- `post_f02_6_plan_audit`: status=`post_f02_6_plan_audit_passed`, freshness=`current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`
-- `remote_packet_safety_audit`: status=`remote_packet_safety_audit_passed`, freshness=`current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`
-- `formal_gate_closure_checklist`: status=`formal_gate_closure_blocked`, freshness=`current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`
-- `gpu3070ti_readiness_refresh`: status=`remote_readiness_refreshed_f02_6_still_blocked`, freshness=`current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`
-- `formal_gate_missing_artifacts`: status=`formal_gate_missing_artifacts_open`, freshness=`current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`
-- `formal_gate_status_report`: status=`formal_gate_status_blocked`, freshness=`current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`
-- `formal_gate_remaining_deliverables`: status=`formal_gate_deliverables_blocked`, freshness=`current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`
-- `formal_gate_proof_audit`: status=`formal_gate_proof_audit_blocked`, freshness=`current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`
-- `formal_gate_proof_summary_chain_audit`: status=`formal_gate_proof_summary_chain_audit_failed`, freshness=`current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`
-- `mainline_formal_gate_state_audit`: status=`mainline_formal_gate_state_audit_failed`, freshness=`current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`
-- `formal_gate_handoff_bundle`: status=`blocked_until_f02_6_decision`, freshness=`current_clean`, source_head=`b8b395c63e8d0d801f36067fa137a14c8033906e`
+- `f02_6_warm_start_decision_packet`: status=`pending_human_decision`, freshness=`current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
+- `f02_6_decision_record`: status=`pending_human_decision`, freshness=`current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
+- `f02_6_decision_intake`: status=`f02_6_decision_intake_pending_clean`, freshness=`current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
+- `f02_6_decision_gate_audit`: status=`f02_6_decision_gate_pending_clean`, freshness=`current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
+- `f02_6_transition_gate_audit`: status=`f02_6_transition_gate_audit_passed`, freshness=`current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
+- `remote_formal_execution_packet`: status=`blocked_until_f02_6_decision`, freshness=`current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
+- `h01_evaluation_manifest`: status=`blocked_pending_decisions`, freshness=`current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
+- `h02_formal_acceptance`: status=`blocked_formal_output_acceptance`, freshness=`current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
+- `claim_safety`: status=`blocked_formal_performance_claims`, freshness=`current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
+- `paper_readiness`: status=`partial_methods_ready_results_blocked`, freshness=`current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
+- `formal_gate_gap_audit`: status=`blocked_formal_gate_gaps_open`, freshness=`current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
+- `post_f02_6_regeneration_plan`: status=`blocked_until_f02_6_decision`, freshness=`current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
+- `post_f02_6_plan_audit`: status=`post_f02_6_plan_audit_passed`, freshness=`current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
+- `remote_packet_safety_audit`: status=`remote_packet_safety_audit_passed`, freshness=`current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
+- `formal_gate_closure_checklist`: status=`formal_gate_closure_blocked`, freshness=`current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
+- `gpu3070ti_readiness_refresh`: status=`remote_readiness_refreshed_f02_6_still_blocked`, freshness=`current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
+- `formal_gate_missing_artifacts`: status=`formal_gate_missing_artifacts_open`, freshness=`current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
+- `formal_gate_status_report`: status=`formal_gate_status_blocked`, freshness=`current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
+- `formal_gate_remaining_deliverables`: status=`formal_gate_deliverables_blocked`, freshness=`current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
+- `formal_gate_proof_audit`: status=`formal_gate_proof_audit_blocked`, freshness=`current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
+- `formal_gate_proof_summary_chain_audit`: status=`formal_gate_proof_summary_chain_consistent_blocked`, freshness=`current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
+- `mainline_formal_gate_state_audit`: status=`mainline_formal_gate_state_consistent_blocked`, freshness=`current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
+- `formal_gate_handoff_bundle`: status=`blocked_until_f02_6_decision`, freshness=`current_clean`, source_head=`5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
 
 ## Claim Boundaries
 
