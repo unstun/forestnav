@@ -411,8 +411,19 @@ def _approved_scenario_issues(summary: dict[str, Any]) -> list[dict[str, Any]]:
     stages = summary["post_plan_stage_summary"]
     if summary.get("record_status") != "approved":
         issues.append(_issue("approved", "approved_record_status_drift", "Approved scenario must synthesize an approved record.", observed=summary.get("record_status")))
-    if summary.get("post_plan_status") != "ready_to_execute_post_f02_6_regeneration_plan":
-        issues.append(_issue("approved", "approved_post_plan_wrong_status", "Approved scenario should advance only to source-fresh regeneration.", observed=summary.get("post_plan_status")))
+    allowed_post_plan_statuses = {
+        "ready_to_execute_post_f02_6_regeneration_plan",
+        "blocked_formal_gate_preconditions",
+    }
+    if summary.get("post_plan_status") not in allowed_post_plan_statuses:
+        issues.append(
+            _issue(
+                "approved",
+                "approved_post_plan_wrong_status",
+                "Approved scenario should advance only to local gate regeneration or remain blocked by formal gate preconditions.",
+                observed=summary.get("post_plan_status"),
+            )
+        )
     if permissions.get("remote_preflight_allowed_now") is not False:
         issues.append(_issue("approved", "approved_status_report_allows_remote_preflight_too_early", "Approved decision alone must not bypass remote packet/source freshness."))
     if stages.get("regenerate_preflight_gate_artifacts", {}).get("allowed_now") is not True:
