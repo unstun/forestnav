@@ -175,6 +175,7 @@ def build_manifest(
     status_report_decision_intake_summary = _status_report_decision_intake_summary(status_report)
     status_report_next_action_guard_summary = _status_report_next_action_guard_summary(status_report)
     handoff_single_next_action_index_summary = _handoff_single_next_action_index_summary(handoff_bundle or {})
+    handoff_decision_evidence_matrix_summary = _handoff_decision_evidence_matrix_summary(handoff_bundle or {})
     status_report_next_required_formal_deliverables = _status_report_next_required_formal_deliverables(status_report)
     status_report_mainline_formal_gate_state_audit_summary = (
         _status_report_mainline_formal_gate_state_audit_summary(status_report)
@@ -350,6 +351,18 @@ def build_manifest(
             ],
             "handoff_single_next_action_index_paper_result_material_allowed_now": handoff_single_next_action_index_summary[
                 "paper_result_material_allowed_now"
+            ],
+            "handoff_decision_evidence_matrix_present": handoff_decision_evidence_matrix_summary["present"],
+            "handoff_decision_evidence_matrix_status": handoff_decision_evidence_matrix_summary["status"],
+            "handoff_decision_evidence_matrix_route_count": handoff_decision_evidence_matrix_summary["route_count"],
+            "handoff_decision_evidence_matrix_required_evidence_count": handoff_decision_evidence_matrix_summary[
+                "required_evidence_count"
+            ],
+            "handoff_decision_evidence_matrix_missing_required_evidence_count": handoff_decision_evidence_matrix_summary[
+                "missing_required_evidence_count"
+            ],
+            "handoff_decision_evidence_matrix_remote_training_allowed_now": handoff_decision_evidence_matrix_summary[
+                "remote_training_allowed_now"
             ],
             "status_report_next_required_formal_deliverables_present": status_report_next_required_formal_deliverables[
                 "present"
@@ -557,6 +570,7 @@ def build_manifest(
         ],
         "status_report_next_action_guard_summary": status_report_next_action_guard_summary,
         "handoff_single_next_action_index_summary": handoff_single_next_action_index_summary,
+        "handoff_f02_6_decision_evidence_matrix_summary": handoff_decision_evidence_matrix_summary,
         "status_report_next_required_formal_deliverables": status_report_next_required_formal_deliverables,
         "status_report_mainline_formal_gate_state_audit_summary": (
             status_report_mainline_formal_gate_state_audit_summary
@@ -671,6 +685,7 @@ def _formal_performance_blockers(
     blockers.extend(_status_report_next_action_guard_blockers(status_report))
     if handoff_bundle is not None:
         blockers.extend(_handoff_single_next_action_index_blockers(handoff_bundle))
+        blockers.extend(_handoff_decision_evidence_matrix_blockers(handoff_bundle, status_report=status_report))
     blockers.extend(_status_report_next_required_formal_deliverables_blockers(status_report))
     blockers.extend(_status_report_mainline_formal_gate_state_audit_blockers(status_report))
     blockers.extend(_status_report_remote_summary_blockers(status_report))
