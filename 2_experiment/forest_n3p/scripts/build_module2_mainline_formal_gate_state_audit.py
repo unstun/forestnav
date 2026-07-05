@@ -639,8 +639,8 @@ def _normalize_decision_evidence_matrix_summary(raw: Any) -> dict[str, Any]:
     authorization_flags = {key: raw.get(key) for key in DECISION_EVIDENCE_MATRIX_ALLOWED_KEYS}
     return {
         "present": bool(raw.get("present")) if "present" in raw else bool(raw),
-        "matrix_id": raw.get("matrix_id"),
-        "status": raw.get("status"),
+        "matrix_id": str(raw.get("matrix_id") or ""),
+        "status": str(raw.get("status") or ""),
         "route_count": int(raw.get("route_count") or 0),
         "route_decisions": _strings(raw.get("route_decisions")),
         "required_evidence_count": int(raw.get("required_evidence_count") or 0),
