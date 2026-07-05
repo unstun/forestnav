@@ -15,6 +15,7 @@ from forest_n3p.scripts.build_module2_formal_gate_gap_audit import (
     _execution_veto_matrix,
 )
 from forest_n3p.scripts.build_module2_formal_gate_remaining_deliverables import (
+    _deliverable_unlock_chain,
     _production_plan_safety_issues,
     _unlock_chain_safety_issues,
 )
@@ -26,12 +27,14 @@ from forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit impo
 )
 from forest_n3p.scripts.build_module2_post_f02_6_plan_audit import (
     _cross_artifact_issues,
+    _handoff_coverage_issues,
     _status_report_issues,
 )
 from forest_n3p.scripts.build_module2_claim_safety import (
     _status_report_next_action_guard_blockers,
 )
 from forest_n3p.scripts.build_module2_remote_packet_safety_audit import (
+    _cross_gate_issues as _remote_packet_cross_gate_issues,
     _status_report_execution_veto_issues,
 )
 from forest_n3p.scripts.build_module2_remote_formal_execution_packet import (
@@ -439,7 +442,7 @@ def test_status_report_allows_training_stage_in_remaining_deliverables_summary()
             "missing_expected_matrix_ids": [],
             "permissions_now": {
                 "local_training_allowed_now": False,
-                "remote_training_allowed_now": False,
+                "remote_training_allowed_now": True,
                 "formal_claim_allowed_now": False,
             },
             "rows": {
@@ -457,6 +460,86 @@ def test_status_report_allows_training_stage_in_remaining_deliverables_summary()
     )
 
     assert "remaining_deliverables_training_train_final_model_zip_stage_allowed_while_blocked" not in {
+        issue["issue_id"] for issue in issues
+    }
+    assert "remaining_deliverables_allows_remote_training_while_blocked" not in {
+        issue["issue_id"] for issue in issues
+    }
+
+
+def test_evaluation_unlock_chain_waits_for_remote_training_completion() -> None:
+    chain = _deliverable_unlock_chain(
+        [
+            {
+                "matrix_id": "evaluation:eval_gate3_summary_json",
+                "category": "evaluation",
+                "artifact_id": "eval_gate3_summary_json",
+                "missing": True,
+                "current_state": "missing",
+                "responsible_stage_id": "gate3_remote_audit_pullback",
+                "responsible_stage_allowed_now": False,
+                "responsible_stage_blocked_by": ["remote_training_not_completed"],
+                "execution_boundary": "read_only_no_execution",
+            }
+        ]
+    )
+
+    row = chain["rows"][0]
+    assert row["required_current_blockers"] == ["remote_training_not_completed"]
+    assert row["missing_required_current_blockers"] == []
+
+
+def test_handoff_remote_training_generation_is_allowed_while_status_blocked() -> None:
+    issues = _handoff_coverage_issues(
+        plan={
+            "source_regeneration_targets_by_gate": {
+                "approved_remote_preflight": [
+                    {"artifact_id": "formal_gate_handoff_bundle"},
+                ]
+            },
+            "ordered_stages": [
+                {
+                    "stage_id": "regenerate_preflight_gate_artifacts",
+                    "command_templates": [
+                        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_handoff_bundle"
+                    ],
+                }
+            ],
+        },
+        source_freshness={
+            "ordered_regeneration_targets": [
+                {
+                    "artifact_id": "formal_gate_handoff_bundle",
+                    "required_before": "approved_remote_preflight",
+                }
+            ]
+        },
+        status_report={
+            "status": "formal_gate_status_blocked",
+            "formal_gate_handoff_summary": {"remote_training_allowed_now": True},
+        },
+    )
+
+    assert "status_report_handoff_training_allowed_while_blocked" not in {
+        issue["issue_id"] for issue in issues
+    }
+
+
+def test_remote_packet_safety_allows_handoff_training_generation_while_status_blocked() -> None:
+    issues = _remote_packet_cross_gate_issues(
+        packet={"execution_steps": {"run_remote_training": {"allowed_now": True}}},
+        decision_gate={"decision_state": {"training_allowed_now": True}},
+        plan_audit={
+            "inputs": {"formal_gate_status_report": "status.json"},
+            "current_blocking_summary": {"training_allowed_now": True},
+            "status_report_summary": {
+                "status": "formal_gate_status_blocked",
+                "formal_gate_handoff_summary": {"remote_training_allowed_now": True},
+            },
+        },
+    )
+
+    assert "blocked_status_report_handoff_allows_training" not in {
         issue["issue_id"] for issue in issues
     }
 
