@@ -3,12 +3,12 @@
 This ledger is read-only. It lists remaining formal training, evaluation, and acceptance deliverables; it does not execute commands or write paper results.
 
 - status: `formal_gate_deliverables_blocked`
-- source_head: `c4ed43a51c8553ded144ce3946ac4917c1fd8aa6`
-- missing_deliverable_count: `10`
-- open_category_count: `4`
-- missing_counts_by_formal_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
-- next_blocked_lane: `decision`
-- h01_status: `blocked_protocol_gap`
+- source_head: `e7b6289d8b71421681c110f01542be8b2c334456`
+- missing_deliverable_count: `1`
+- open_category_count: `1`
+- missing_counts_by_formal_category: `{'training': 0, 'evaluation': 0, 'acceptance': 0, 'formal_acceptance': 1}`
+- next_blocked_lane: `source_fresh_preflight`
+- h01_status: `ready_for_formal_run`
 - h02_status: `blocked_formal_output_acceptance`
 - h02_formal_output_accepted: `False`
 - h02_paper_result_input_allowed: `False`
@@ -18,39 +18,39 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `True`
 - remote_training_allowed_now: `True`
-- formal_h01_evaluation_allowed_now: `False`
+- formal_h01_evaluation_allowed_now: `True`
 - formal_h02_acceptance_allowed_now: `False`
 - formal_claim_allowed_now: `False`
 - paper_result_material_allowed_now: `False`
 
 ## Human-Readable Gate Closure Checklist
 
-- next_blocked_lane: `decision`
-- total_missing_deliverables: `10`
-- open_category_count: `4`
+- next_blocked_lane: `source_fresh_preflight`
+- total_missing_deliverables: `1`
+- open_category_count: `1`
 - local_training_allowed_now: `False`
 - remote_training_allowed_now: `True`
 - formal_claim_allowed_now: `False`
-- `training`: missing=`3`, stage=`gate3_remote_training`, stage_allowed_now=`True`, missing_artifacts=`training:train_final_model_zip, training:train_summary_json, training:train_training_manifest_json`, proof_commands=`train_final_model_zip_exists_nonempty, train_final_model_zip_valid_zip, train_summary_json_exists_nonempty, train_summary_json_formal_warm_start_metadata, train_training_manifest_json_exists_nonempty, train_training_manifest_json_provenance`, blocked_by=`none`
-- `evaluation`: missing=`2`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`evaluation:eval_gate3_eval_episodes_csv, evaluation:eval_gate3_summary_json`, proof_commands=`eval_gate3_eval_episodes_csv_exists_nonempty, eval_gate3_eval_episodes_csv_schema, eval_gate3_summary_json_exists_nonempty, eval_gate3_summary_json_formal_scope`, blocked_by=`remote_training_not_completed`
-- `acceptance`: missing=`3`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`acceptance:gate3_trial_manifest_json, acceptance:gate3_formal_audit_json, acceptance:pulled_back_checkpoint_hash_record`, proof_commands=`gate3_trial_manifest_json_exists_nonempty, gate3_trial_manifest_json_formal_warm_start_scope, gate3_formal_audit_json_exists_nonempty, gate3_formal_audit_json_accepts_formal_scope, pulled_back_checkpoint_hash_record_exists_nonempty, pulled_back_checkpoint_hash_record_matches_model`, blocked_by=`remote_training_not_completed`
-- `formal_acceptance`: missing=`2`, stage=`regenerate_h01_h02_formal_artifacts`, stage_allowed_now=`False`, missing_artifacts=`formal_acceptance:h01_ready_for_formal_run, formal_acceptance:h02_formal_output_acceptance`, proof_commands=`h01_ready_for_formal_run_exists_nonempty, h01_ready_for_formal_run_status, h02_formal_output_acceptance_exists_nonempty, h02_formal_output_acceptance_status`, blocked_by=`missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
+- `training`: missing=`0`, stage=`gate3_remote_training`, stage_allowed_now=`True`, missing_artifacts=`none`, proof_commands=`none`, blocked_by=`none`
+- `evaluation`: missing=`0`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`none`, proof_commands=`none`, blocked_by=`remote_training_not_completed`
+- `acceptance`: missing=`0`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`none`, proof_commands=`none`, blocked_by=`remote_training_not_completed`
+- `formal_acceptance`: missing=`1`, stage=`regenerate_h01_h02_formal_artifacts`, stage_allowed_now=`False`, missing_artifacts=`formal_acceptance:h02_formal_output_acceptance`, proof_commands=`h02_formal_output_acceptance_exists_nonempty, h02_formal_output_acceptance_status`, blocked_by=`missing_remote_audit_pullback`
 
 ## Current Gate Summary
 
 - status_report_status: `formal_gate_status_blocked`
-- next_blocked_lane: `decision`
-- missing_counts_by_category: `{'decision': 0, 'decision_gate': 1, 'regeneration': 0, 'gate_sequence': 4, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 9}`
+- next_blocked_lane: `source_fresh_preflight`
+- missing_counts_by_category: `{'decision': 0, 'decision_gate': 0, 'regeneration': 0, 'gate_sequence': 4, 'training': 0, 'evaluation': 0, 'acceptance': 0, 'evaluation_acceptance': 1, 'claim_gate': 1}`
 - remote_packet_status: `ready_for_gpu3070ti_remote_training`
 - ready_to_run_remote_training: `True`
-- h01_status: `blocked_protocol_gap`
+- h01_status: `ready_for_formal_run`
 - h02_status: `blocked_formal_output_acceptance`
 - h02_formal_output_accepted: `False`
 - h02_paper_result_input_allowed: `False`
-- source_freshness_status: `source_freshness_tracked_artifact_lag_only_gate_ready`
-- source_freshness_regeneration_required: `True`
+- source_freshness_status: `source_freshness_clean_current`
+- source_freshness_regeneration_required: `False`
 - source_freshness_blocking_regeneration_required: `False`
-- source_freshness_non_self_changed_records: `23`
+- source_freshness_non_self_changed_records: `0`
 - source_freshness_self_artifact_only_lag_records: `0`
 - source_freshness_blocking_target_count: `0`
 - source_freshness_blocking_target_ids: `[]`
@@ -58,7 +58,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 ## Source-Freshness Blocking Targets
 
 - summary_id: `module2_source_freshness_blocking_targets_summary`
-- status: `source_freshness_tracked_artifact_lag_only_gate_ready`
+- status: `source_freshness_clean_current`
 - blocking_target_count: `0`
 - remote_readiness_blocking_target_count: `0`
 - remote_readiness_refresh_requires_external_ssh: `False`
@@ -68,42 +68,36 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 ## Formal Gate Gap Summary
 
 - summary_id: `module2_formal_gate_missing_training_eval_acceptance_summary`
-- total_missing_deliverables: `10`
-- open_category_count: `4`
+- total_missing_deliverables: `1`
+- open_category_count: `1`
 - execution_boundary: `read_only_no_execution`
 ### gap:training
-- missing_count: `3`
+- missing_count: `0`
 - responsible_stage_id: `gate3_remote_training`
 - responsible_stage_allowed_now: `True`
 - responsible_stage_blocked_by: `none`
 - missing_artifacts:
-  - `training:train_final_model_zip`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip`, acceptance_predicate_count=`5`, proof_command_count=`2`
-  - `training:train_summary_json`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json`, acceptance_predicate_count=`5`, proof_command_count=`2`
-  - `training:train_training_manifest_json`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json`, acceptance_predicate_count=`5`, proof_command_count=`2`
+  - none
 ### gap:evaluation
-- missing_count: `2`
+- missing_count: `0`
 - responsible_stage_id: `gate3_remote_audit_pullback`
 - responsible_stage_allowed_now: `False`
 - responsible_stage_blocked_by: `remote_training_not_completed`
 - missing_artifacts:
-  - `evaluation:eval_gate3_eval_episodes_csv`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv`, acceptance_predicate_count=`5`, proof_command_count=`2`
-  - `evaluation:eval_gate3_summary_json`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json`, acceptance_predicate_count=`5`, proof_command_count=`2`
+  - none
 ### gap:acceptance
-- missing_count: `3`
+- missing_count: `0`
 - responsible_stage_id: `gate3_remote_audit_pullback`
 - responsible_stage_allowed_now: `False`
 - responsible_stage_blocked_by: `remote_training_not_completed`
 - missing_artifacts:
-  - `acceptance:gate3_trial_manifest_json`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json`, acceptance_predicate_count=`5`, proof_command_count=`2`
-  - `acceptance:gate3_formal_audit_json`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json`, acceptance_predicate_count=`5`, proof_command_count=`2`
-  - `acceptance:pulled_back_checkpoint_hash_record`: state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json`, acceptance_predicate_count=`5`, proof_command_count=`2`
+  - none
 ### gap:formal_acceptance
-- missing_count: `2`
+- missing_count: `1`
 - responsible_stage_id: `regenerate_h01_h02_formal_artifacts`
 - responsible_stage_allowed_now: `False`
-- responsible_stage_blocked_by: `missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
+- responsible_stage_blocked_by: `missing_remote_audit_pullback`
 - missing_artifacts:
-  - `formal_acceptance:h01_ready_for_formal_run`: state=`blocked_protocol_gap`, path=`0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`, acceptance_predicate_count=`5`, proof_command_count=`2`
   - `formal_acceptance:h02_formal_output_acceptance`: state=`blocked_formal_output_acceptance`, path=`0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`, acceptance_predicate_count=`5`, proof_command_count=`2`
 
 ## Proof Command Plan
@@ -141,7 +135,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - `acceptance:gate3_trial_manifest_json`: generation_stage=`gate3_remote_training`, generation_allowed_now=`True`, materialization_stage=`gate3_remote_audit_pullback`, materialization_allowed_now=`False`, host=`gpu3070ti-relay`, generation_evidence_path_listed=`True`, materialization_evidence_path_listed=`True`
 - `acceptance:gate3_formal_audit_json`: generation_stage=`gate3_remote_audit_pullback`, generation_allowed_now=`False`, materialization_stage=`gate3_remote_audit_pullback`, materialization_allowed_now=`False`, host=`gpu3070ti-relay`, generation_evidence_path_listed=`True`, materialization_evidence_path_listed=`True`
 - `acceptance:pulled_back_checkpoint_hash_record`: generation_stage=`gate3_remote_audit_pullback`, generation_allowed_now=`False`, materialization_stage=`gate3_remote_audit_pullback`, materialization_allowed_now=`False`, host=`gpu3070ti-relay`, generation_evidence_path_listed=`False`, materialization_evidence_path_listed=`False`
-- `formal_acceptance:h01_ready_for_formal_run`: generation_stage=`regenerate_h01_h02_formal_artifacts`, generation_allowed_now=`False`, materialization_stage=`regenerate_h01_h02_formal_artifacts`, materialization_allowed_now=`False`, host=`None`, generation_evidence_path_listed=`True`, materialization_evidence_path_listed=`True`
+- `formal_acceptance:h01_ready_for_formal_run`: generation_stage=`regenerate_h01_h02_formal_artifacts`, generation_allowed_now=`False`, materialization_stage=`regenerate_h01_h02_formal_artifacts`, materialization_allowed_now=`False`, host=`None`, generation_evidence_path_listed=`False`, materialization_evidence_path_listed=`False`
 - `formal_acceptance:h02_formal_output_acceptance`: generation_stage=`regenerate_h01_h02_formal_artifacts`, generation_allowed_now=`False`, materialization_stage=`regenerate_h01_h02_formal_artifacts`, materialization_allowed_now=`False`, host=`None`, generation_evidence_path_listed=`True`, materialization_evidence_path_listed=`True`
 
 ## Deliverable Unlock Chain
@@ -149,32 +143,32 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - chain_id: `module2_formal_gate_missing_deliverable_unlock_chain`
 - status: `blocked_missing_formal_deliverables`
 - row_count: `10`
-- blocked_row_count: `10`
+- blocked_row_count: `1`
 - rows_with_missing_required_blockers: `0`
 - rows_allowed_while_missing: `0`
-- `training:train_final_model_zip`: missing=`True`, stage_allowed_now=`True`, required_current_blockers=`none`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training`
-- `training:train_summary_json`: missing=`True`, stage_allowed_now=`True`, required_current_blockers=`none`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training`
-- `training:train_training_manifest_json`: missing=`True`, stage_allowed_now=`True`, required_current_blockers=`none`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training`
-- `evaluation:eval_gate3_eval_episodes_csv`: missing=`True`, stage_allowed_now=`False`, required_current_blockers=`remote_training_not_completed`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
-- `evaluation:eval_gate3_summary_json`: missing=`True`, stage_allowed_now=`False`, required_current_blockers=`remote_training_not_completed`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
-- `acceptance:gate3_trial_manifest_json`: missing=`True`, stage_allowed_now=`False`, required_current_blockers=`remote_training_not_completed`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
-- `acceptance:gate3_formal_audit_json`: missing=`True`, stage_allowed_now=`False`, required_current_blockers=`remote_training_not_completed`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
-- `acceptance:pulled_back_checkpoint_hash_record`: missing=`True`, stage_allowed_now=`False`, required_current_blockers=`remote_training_not_completed`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
-- `formal_acceptance:h01_ready_for_formal_run`: missing=`True`, stage_allowed_now=`False`, required_current_blockers=`missing_remote_audit_pullback`, missing_required_current_blockers=`none`, unlock_sequence=`gate3_remote_audit_pullback_complete -> regenerate_h01_h02_formal_artifacts -> h01_h02_formal_acceptance_audit`
+- `training:train_final_model_zip`: missing=`False`, stage_allowed_now=`True`, required_current_blockers=`f02_6_decision_not_approved, remote_packet_not_ready`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training`
+- `training:train_summary_json`: missing=`False`, stage_allowed_now=`True`, required_current_blockers=`f02_6_decision_not_approved, remote_packet_not_ready`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training`
+- `training:train_training_manifest_json`: missing=`False`, stage_allowed_now=`True`, required_current_blockers=`f02_6_decision_not_approved, remote_packet_not_ready`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training`
+- `evaluation:eval_gate3_eval_episodes_csv`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`remote_training_not_completed`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
+- `evaluation:eval_gate3_summary_json`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`remote_training_not_completed`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
+- `acceptance:gate3_trial_manifest_json`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`remote_training_not_completed`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
+- `acceptance:gate3_formal_audit_json`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`remote_training_not_completed`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
+- `acceptance:pulled_back_checkpoint_hash_record`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`remote_training_not_completed`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
+- `formal_acceptance:h01_ready_for_formal_run`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`missing_remote_audit_pullback`, missing_required_current_blockers=`none`, unlock_sequence=`gate3_remote_audit_pullback_complete -> regenerate_h01_h02_formal_artifacts -> h01_h02_formal_acceptance_audit`
 - `formal_acceptance:h02_formal_output_acceptance`: missing=`True`, stage_allowed_now=`False`, required_current_blockers=`missing_remote_audit_pullback`, missing_required_current_blockers=`none`, unlock_sequence=`gate3_remote_audit_pullback_complete -> regenerate_h01_h02_formal_artifacts -> h01_h02_formal_acceptance_audit`
 
 ## Deliverable Groups
 
 ### training
-- status: `blocked`
-- missing_count: `3`
+- status: `complete`
+- missing_count: `0`
 - responsible_stage_id: `gate3_remote_training`
 - responsible_stage_allowed_now: `True`
 - responsible_stage_blocked_by: `none`
 - items:
-  - `train_final_model_zip`: missing=`True`, exists=`False`, state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip`
-  - `train_summary_json`: missing=`True`, exists=`False`, state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json`
-  - `train_training_manifest_json`: missing=`True`, exists=`False`, state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json`
+  - `train_final_model_zip`: missing=`False`, exists=`True`, state=`present`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip`
+  - `train_summary_json`: missing=`False`, exists=`True`, state=`present`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json`
+  - `train_training_manifest_json`: missing=`False`, exists=`True`, state=`present`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json`
 - acceptable_evidence:
   - remote-produced train/final_model.zip pulled back to the local formal Gate3 trial directory
   - train/summary.json with PPO run metadata and terminal-RS training signals
@@ -185,14 +179,14 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
   - no-warm Gate3 failed checkpoint
   - stdout without pulled-back checkpoint and manifest
 ### evaluation
-- status: `blocked`
-- missing_count: `2`
+- status: `complete`
+- missing_count: `0`
 - responsible_stage_id: `gate3_remote_audit_pullback`
 - responsible_stage_allowed_now: `False`
 - responsible_stage_blocked_by: `remote_training_not_completed`
 - items:
-  - `eval_gate3_eval_episodes_csv`: missing=`True`, exists=`False`, state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv`
-  - `eval_gate3_summary_json`: missing=`True`, exists=`False`, state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json`
+  - `eval_gate3_eval_episodes_csv`: missing=`False`, exists=`True`, state=`present`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv`
+  - `eval_gate3_summary_json`: missing=`False`, exists=`True`, state=`present`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json`
 - acceptable_evidence:
   - eval/gate3_eval_episodes.csv from the approved formal remote run
   - eval/gate3_summary.json with formal terminal-RS success, collision, truncation, and timing fields
@@ -201,15 +195,15 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
   - paper table preview
   - no-warm formal failure eval reused as warm-start evidence
 ### acceptance
-- status: `blocked`
-- missing_count: `3`
+- status: `complete`
+- missing_count: `0`
 - responsible_stage_id: `gate3_remote_audit_pullback`
 - responsible_stage_allowed_now: `False`
 - responsible_stage_blocked_by: `remote_training_not_completed`
 - items:
-  - `gate3_trial_manifest_json`: missing=`True`, exists=`False`, state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json`
-  - `gate3_formal_audit_json`: missing=`True`, exists=`False`, state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json`
-  - `pulled_back_checkpoint_hash_record`: missing=`True`, exists=`False`, state=`missing`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json`
+  - `gate3_trial_manifest_json`: missing=`False`, exists=`True`, state=`present`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json`
+  - `gate3_formal_audit_json`: missing=`False`, exists=`True`, state=`present`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json`
+  - `pulled_back_checkpoint_hash_record`: missing=`False`, exists=`True`, state=`present`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json`
 - acceptable_evidence:
   - gate3_trial_manifest.json copied back from the formal remote run
   - gate3_formal_audit.json marking the run formal, scoped, and non-smoke
@@ -220,12 +214,12 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
   - audit marked candidate, smoke, preview, or not_formal
 ### formal_acceptance
 - status: `blocked`
-- missing_count: `2`
+- missing_count: `1`
 - responsible_stage_id: `regenerate_h01_h02_formal_artifacts`
 - responsible_stage_allowed_now: `False`
-- responsible_stage_blocked_by: `missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
+- responsible_stage_blocked_by: `missing_remote_audit_pullback`
 - items:
-  - `h01_ready_for_formal_run`: missing=`True`, exists=`True`, state=`blocked_protocol_gap`, path=`0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`
+  - `h01_ready_for_formal_run`: missing=`False`, exists=`True`, state=`ready_for_formal_run`, path=`0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`
   - `h02_formal_output_acceptance`: missing=`True`, exists=`True`, state=`blocked_formal_output_acceptance`, path=`0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
 - acceptable_evidence:
   - H01 manifest status ready_for_formal_run or ready_for_formal_evaluation after F02.6 is closed
@@ -240,8 +234,8 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 
 ### training:train_final_model_zip
 - expected_path: `0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip`
-- missing: `True`
-- current_state: `missing`
+- missing: `False`
+- current_state: `present`
 - responsible_stage_id: `gate3_remote_training`
 - responsible_stage_allowed_now: `True`
 - responsible_stage_blocked_by: `none`
@@ -263,8 +257,8 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
   - stdout without pulled-back checkpoint and manifest
 ### training:train_summary_json
 - expected_path: `0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json`
-- missing: `True`
-- current_state: `missing`
+- missing: `False`
+- current_state: `present`
 - responsible_stage_id: `gate3_remote_training`
 - responsible_stage_allowed_now: `True`
 - responsible_stage_blocked_by: `none`
@@ -286,8 +280,8 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
   - stdout without pulled-back checkpoint and manifest
 ### training:train_training_manifest_json
 - expected_path: `0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json`
-- missing: `True`
-- current_state: `missing`
+- missing: `False`
+- current_state: `present`
 - responsible_stage_id: `gate3_remote_training`
 - responsible_stage_allowed_now: `True`
 - responsible_stage_blocked_by: `none`
@@ -309,8 +303,8 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
   - stdout without pulled-back checkpoint and manifest
 ### evaluation:eval_gate3_eval_episodes_csv
 - expected_path: `0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv`
-- missing: `True`
-- current_state: `missing`
+- missing: `False`
+- current_state: `present`
 - responsible_stage_id: `gate3_remote_audit_pullback`
 - responsible_stage_allowed_now: `False`
 - responsible_stage_blocked_by: `remote_training_not_completed`
@@ -331,8 +325,8 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
   - no-warm formal failure eval reused as warm-start evidence
 ### evaluation:eval_gate3_summary_json
 - expected_path: `0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json`
-- missing: `True`
-- current_state: `missing`
+- missing: `False`
+- current_state: `present`
 - responsible_stage_id: `gate3_remote_audit_pullback`
 - responsible_stage_allowed_now: `False`
 - responsible_stage_blocked_by: `remote_training_not_completed`
@@ -353,8 +347,8 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
   - no-warm formal failure eval reused as warm-start evidence
 ### acceptance:gate3_trial_manifest_json
 - expected_path: `0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json`
-- missing: `True`
-- current_state: `missing`
+- missing: `False`
+- current_state: `present`
 - responsible_stage_id: `gate3_remote_audit_pullback`
 - responsible_stage_allowed_now: `False`
 - responsible_stage_blocked_by: `remote_training_not_completed`
@@ -375,8 +369,8 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
   - audit marked candidate, smoke, preview, or not_formal
 ### acceptance:gate3_formal_audit_json
 - expected_path: `0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json`
-- missing: `True`
-- current_state: `missing`
+- missing: `False`
+- current_state: `present`
 - responsible_stage_id: `gate3_remote_audit_pullback`
 - responsible_stage_allowed_now: `False`
 - responsible_stage_blocked_by: `remote_training_not_completed`
@@ -397,8 +391,8 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
   - audit marked candidate, smoke, preview, or not_formal
 ### acceptance:pulled_back_checkpoint_hash_record
 - expected_path: `0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json`
-- missing: `True`
-- current_state: `missing`
+- missing: `False`
+- current_state: `present`
 - responsible_stage_id: `gate3_remote_audit_pullback`
 - responsible_stage_allowed_now: `False`
 - responsible_stage_blocked_by: `remote_training_not_completed`
@@ -419,11 +413,11 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
   - audit marked candidate, smoke, preview, or not_formal
 ### formal_acceptance:h01_ready_for_formal_run
 - expected_path: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`
-- missing: `True`
-- current_state: `blocked_protocol_gap`
+- missing: `False`
+- current_state: `ready_for_formal_run`
 - responsible_stage_id: `regenerate_h01_h02_formal_artifacts`
 - responsible_stage_allowed_now: `False`
-- responsible_stage_blocked_by: `missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
+- responsible_stage_blocked_by: `missing_remote_audit_pullback`
 - acceptance_predicates:
   - expected_path exists in the local pulled-back formal Gate3 artifact tree
   - artifact state is not missing, blocked, smoke, preview, or candidate
@@ -445,7 +439,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - current_state: `blocked_formal_output_acceptance`
 - responsible_stage_id: `regenerate_h01_h02_formal_artifacts`
 - responsible_stage_allowed_now: `False`
-- responsible_stage_blocked_by: `missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
+- responsible_stage_blocked_by: `missing_remote_audit_pullback`
 - acceptance_predicates:
   - expected_path exists in the local pulled-back formal Gate3 artifact tree
   - artifact state is not missing, blocked, smoke, preview, or candidate

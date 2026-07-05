@@ -2,9 +2,9 @@
   "schema_version": 1,
   "record_name": "module2_f02_6_decision_record",
   "status": "approved",
-  "created_at_utc": "2026-07-05T18:50:28.199309+00:00",
+  "created_at_utc": "2026-07-05T19:40:27.693339+00:00",
   "execution_host": "MacBook-Pro.local",
-  "source_head": "dc0f60fc13e12cdef36ee4d5305f5fd0237b8817",
+  "source_head": "e7b6289d8b71421681c110f01542be8b2c334456",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -41,7 +41,7 @@
       "requires_dr_sun_approval"
     ],
     "formal_claim_allowed": false,
-    "source_head": "7e3dd91dfccbe942c10b5849e997d7542a2475c9"
+    "source_head": "dc0f60fc13e12cdef36ee4d5305f5fd0237b8817"
   },
   "decision_mapping": {
     "approve_obstacle_summary_warm_start": {
@@ -155,22 +155,20 @@
   "next_remote_preflight_status": "ready_to_regenerate_approved_warm_start_preflight",
   "blockers": [],
   "remote_preflight_observed": {
-    "path": "0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_pending_remote_v1/gate3_preflight_manifest.json",
+    "path": "0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_v1/gate3_preflight_manifest.json",
     "exists": true,
-    "preflight_status": "blocked",
-    "formal_trial_ready": false,
-    "warm_start_decision": "pending",
-    "blocker_codes": [
-      "warm_start_decision_pending"
-    ],
-    "runner_command": "python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir 0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_pending_remote_v1 --seed 20260704 --device cuda --train-curriculum-preset f03 --eval-curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260704 --train-total-timesteps 100000 --train-n-envs 1 --train-n-steps 128 --train-batch-size 64 --train-n-epochs 4 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --allow-duplicate-openmp --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt",
-    "audit_command": "python -m forest_n3p.scripts.audit_rl_rs_gate3_trial --trial-dir 0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_pending_remote_v1 --min-formal-episodes 64 --required-success-threshold 0.8 --required-train-curriculum f03 --required-eval-curriculum f03 --warm-start-decision pending"
+    "preflight_status": "ready",
+    "formal_trial_ready": true,
+    "warm_start_decision": "approved_obstacle_summary",
+    "blocker_codes": [],
+    "runner_command": "python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir 0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_v1 --seed 20260704 --device cuda --train-curriculum-preset f03 --eval-curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260704 --train-total-timesteps 100000 --train-n-envs 1 --train-n-steps 128 --train-batch-size 64 --train-n-epochs 4 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt",
+    "audit_command": "python -m forest_n3p.scripts.audit_rl_rs_gate3_trial --trial-dir 0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_v1 --min-formal-episodes 64 --required-success-threshold 0.8 --required-train-curriculum f03 --required-eval-curriculum f03 --warm-start-decision approved_obstacle_summary"
   },
   "conditional_actions": {
     "if_pending": {
       "allowed_now": false,
       "reason": "Dr Sun has not approved or rejected F02.6.",
-      "observed_remote_preflight_status": "blocked"
+      "observed_remote_preflight_status": "ready"
     },
     "if_approved_obstacle_summary": {
       "host": "gpu3070ti-relay",

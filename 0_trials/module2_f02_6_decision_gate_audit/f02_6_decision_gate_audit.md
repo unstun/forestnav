@@ -7,7 +7,7 @@ This file audits the human decision gate. It does not record a decision, train, 
 - record_status: `approved`
 - packet_recommendation: `approve_obstacle_summary_warm_start`
 - training_allowed_now: `True`
-- remote_preflight_allowed_now: `False`
+- remote_preflight_allowed_now: `True`
 - decision_note_gate_review_status: `closed_decision_note_audit_complete`
 
 ## Decision Note Audit

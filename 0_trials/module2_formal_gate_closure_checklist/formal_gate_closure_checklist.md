@@ -4,7 +4,7 @@ This file is a formal-gate closure checklist. It does not execute commands, trai
 
 - status: `formal_gate_closure_blocked`
 - closure_item_count: `8`
-- open_item_count: `6`
+- open_item_count: `5`
 - input_safety_issue_count: `0`
 - runs_training: `False`
 - runs_remote_preflight: `False`
@@ -15,22 +15,22 @@ This file is a formal-gate closure checklist. It does not execute commands, trai
 - formal_gate_status: `blocked_formal_gate_gaps_open`
 - missing_artifacts_status: `formal_gate_missing_artifacts_open`
 - post_plan_status: `ready_for_remote_training_packet_execution`
-- source_freshness_status: `source_freshness_tracked_artifact_lag_only_gate_ready`
-- missing_counts_by_category: `{'decision': 0, 'decision_gate': 1, 'regeneration': 0, 'gate_sequence': 4, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 9}`
+- source_freshness_status: `source_freshness_clean_current`
+- missing_counts_by_category: `{'decision': 0, 'decision_gate': 0, 'regeneration': 0, 'gate_sequence': 4, 'training': 0, 'evaluation': 0, 'acceptance': 0, 'evaluation_acceptance': 1, 'claim_gate': 1}`
 - formal_ordered_next_step_count: `6`
 - post_plan_blocked_stage_ids: `['f02_6_decision_record', 'gate3_remote_audit_pullback', 'regenerate_h01_h02_formal_artifacts', 'regenerate_claim_gate_artifacts']`
-- source_regeneration_target_count: `23`
-- remaining_deliverables_gap_total_missing: `10`
-- remaining_deliverables_gap_open_category_count: `4`
+- source_regeneration_target_count: `1`
+- remaining_deliverables_gap_total_missing: `1`
+- remaining_deliverables_gap_open_category_count: `1`
 
 ## Remaining Deliverables Gap Summary
 
-- total_missing_deliverables: `10`
-- open_category_count: `4`
-- `training`: missing=`3`, responsible_stage=`gate3_remote_training`
-- `evaluation`: missing=`2`, responsible_stage=`gate3_remote_audit_pullback`
-- `acceptance`: missing=`3`, responsible_stage=`gate3_remote_audit_pullback`
-- `formal_acceptance`: missing=`2`, responsible_stage=`regenerate_h01_h02_formal_artifacts`
+- total_missing_deliverables: `1`
+- open_category_count: `1`
+- `training`: missing=`0`, responsible_stage=`gate3_remote_training`
+- `evaluation`: missing=`0`, responsible_stage=`gate3_remote_audit_pullback`
+- `acceptance`: missing=`0`, responsible_stage=`gate3_remote_audit_pullback`
+- `formal_acceptance`: missing=`1`, responsible_stage=`regenerate_h01_h02_formal_artifacts`
 
 ## Closure Checklist
 
@@ -44,43 +44,42 @@ This file is a formal-gate closure checklist. It does not execute commands, trai
   - blocked_by: `f02_6_decision_record, gate3_remote_audit_pullback, regenerate_h01_h02_formal_artifacts, regenerate_claim_gate_artifacts`
   - completion_signal: Approved gpu3070ti preflight passes and the remote execution packet becomes ready.
   - next_action: Run only the approved remote preflight path; do not train locally.
-- `gate3_remote_training_outputs` (training): status=`blocked`, missing=`3`, runs_training=`True`, host=`gpu3070ti-relay`
-  - blocked_by: `train_final_model_zip, train_summary_json, train_training_manifest_json`
+- `gate3_remote_training_outputs` (training): status=`complete`, missing=`0`, runs_training=`True`, host=`gpu3070ti-relay`
   - completion_signal: Remote formal Gate3 PPO training returns final_model.zip, summary.json, and training_manifest.json.
   - next_action: Run formal PPO only on gpu3070ti-relay after the packet reports ready.
-- `gate3_formal_eval_outputs` (evaluation): status=`blocked`, missing=`2`, runs_training=`False`
-  - blocked_by: `eval_gate3_eval_episodes_csv, eval_gate3_summary_json, handoff_safety_issues_open, missing_remote_pullback_artifact, missing_ppo_result_rows, missing_ppo_checkpoint_hash, remote_training_not_completed`
+- `gate3_formal_eval_outputs` (evaluation): status=`blocked`, missing=`0`, runs_training=`False`
+  - blocked_by: `remote_packet_safety_audit_failed, remote_packet_safety_audit_issues_open, missing_ppo_result_rows, missing_ppo_checkpoint_hash, remote_training_not_completed`
   - completion_signal: Formal Gate3 eval CSV and summary are present in the pulled-back trial directory.
   - next_action: Audit and pull back evaluation outputs with the remote formal trial.
-- `gate3_audit_pullback_hashes` (acceptance): status=`blocked`, missing=`3`, runs_training=`False`
-  - blocked_by: `gate3_trial_manifest_json, gate3_formal_audit_json, pulled_back_checkpoint_hash_record, handoff_safety_issues_open, missing_remote_pullback_artifact, missing_ppo_result_rows, missing_ppo_checkpoint_hash, remote_training_not_completed`
+- `gate3_audit_pullback_hashes` (acceptance): status=`blocked`, missing=`0`, runs_training=`False`
+  - blocked_by: `remote_packet_safety_audit_failed, remote_packet_safety_audit_issues_open, missing_ppo_result_rows, missing_ppo_checkpoint_hash, remote_training_not_completed`
   - completion_signal: Trial manifest, formal audit, and checkpoint SHA-256 record are present.
   - next_action: Record pullback hashes before any H01/H02 or claim gate regeneration.
-- `h01_h02_formal_acceptance` (evaluation_acceptance): status=`blocked`, missing=`2`, runs_training=`False`
-  - blocked_by: `h01_ready_for_formal_run, h02_formal_output_acceptance, handoff_safety_issues_open, missing_remote_pullback_artifact, missing_ppo_result_rows, missing_ppo_checkpoint_hash, h01_manifest_not_ready, formal_main_evaluation_command_missing, h02_scale_below_h01_queries_per_bucket, h02_scale_below_h01_seed_count, h02_scale_below_h01_queries_per_map, h02_verdict_not_formal, missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
+- `h01_h02_formal_acceptance` (evaluation_acceptance): status=`blocked`, missing=`1`, runs_training=`False`
+  - blocked_by: `h02_formal_output_acceptance, remote_packet_safety_audit_failed, remote_packet_safety_audit_issues_open, missing_ppo_result_rows, missing_ppo_checkpoint_hash, h02_scale_below_h01_queries_per_bucket, h02_scale_below_h01_seed_count, h02_scale_below_h01_queries_per_map, h02_verdict_not_formal, missing_remote_audit_pullback`
   - completion_signal: H01 exposes the formal run command and H02 accepts formal-scale PPO outputs.
   - next_action: Regenerate H01/H02 after audited checkpoint pullback, not before.
-- `claim_gate_regeneration` (claim_gate): status=`blocked`, missing=`9`, runs_training=`False`
-  - blocked_by: `claim_safety, formal_gate_missing_artifacts, formal_gate_proof_audit, formal_gate_proof_summary_chain_audit, formal_gate_remaining_deliverables, formal_gate_status_report, mainline_formal_gate_state_audit, paper_readiness, h02_formal_acceptance_before_claim_gate, handoff_safety_issues_open, missing_remote_pullback_artifact, missing_ppo_result_rows, missing_ppo_checkpoint_hash, h01_manifest_not_ready, formal_main_evaluation_command_missing, h02_scale_below_h01_queries_per_bucket, h02_scale_below_h01_seed_count, h02_scale_below_h01_queries_per_map, h02_verdict_not_formal, missing_or_failed_gate3_formal_audit, h02_formal_output_not_accepted, claim_safety_blocks_formal_performance, readiness_blocks_formal_results, formal_missing_artifacts_audit_issues_open, formal_gate_missing_artifacts_open, formal_closure_checklist_safety_issues_open, formal_gate_closure_checklist_open, formal_status_report_safety_issues_open, formal_gate_status_report_blocked, formal_gate_remaining_deliverables_open, h02_formal_acceptance_not_ready, source_fresh_claim_targets_open`
+- `claim_gate_regeneration` (claim_gate): status=`blocked`, missing=`1`, runs_training=`False`
+  - blocked_by: `h02_formal_acceptance_before_claim_gate, remote_packet_safety_audit_failed, remote_packet_safety_audit_issues_open, missing_ppo_result_rows, missing_ppo_checkpoint_hash, h02_scale_below_h01_queries_per_bucket, h02_scale_below_h01_seed_count, h02_scale_below_h01_queries_per_map, h02_verdict_not_formal, missing_or_failed_gate3_formal_audit, h02_formal_output_not_accepted, claim_safety_blocks_formal_performance, readiness_blocks_formal_results, formal_missing_artifacts_audit_issues_open, formal_gate_missing_artifacts_open, formal_gate_closure_checklist_open, formal_status_report_safety_issues_open, formal_gate_status_report_blocked, formal_gate_remaining_deliverables_open, h02_formal_acceptance_not_ready`
   - completion_signal: Claim safety, missing-artifacts inventory, and paper readiness are regenerated after H02 acceptance.
   - next_action: Only then can formal result writing be considered; this checklist itself does not allow claims.
 
 ## Required Training Artifacts
 
-- `train_final_model_zip`: missing=`True`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip`
-- `train_summary_json`: missing=`True`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json`
-- `train_training_manifest_json`: missing=`True`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json`
+- `train_final_model_zip`: missing=`False`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip`
+- `train_summary_json`: missing=`False`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json`
+- `train_training_manifest_json`: missing=`False`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json`
 
 ## Required Evaluation Artifacts
 
-- `eval_gate3_eval_episodes_csv`: missing=`True`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv`
-- `eval_gate3_summary_json`: missing=`True`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json`
+- `eval_gate3_eval_episodes_csv`: missing=`False`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv`
+- `eval_gate3_summary_json`: missing=`False`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json`
 
 ## Required Acceptance Artifacts
 
-- `gate3_trial_manifest_json`: missing=`True`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json`
-- `gate3_formal_audit_json`: missing=`True`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json`
-- `pulled_back_checkpoint_hash_record`: missing=`True`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json`
+- `gate3_trial_manifest_json`: missing=`False`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json`
+- `gate3_formal_audit_json`: missing=`False`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json`
+- `pulled_back_checkpoint_hash_record`: missing=`False`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json`
 
 ## Post-Plan Remote Stages
 

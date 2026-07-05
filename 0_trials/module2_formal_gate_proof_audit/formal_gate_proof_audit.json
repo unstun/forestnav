@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_proof_audit",
   "status": "formal_gate_proof_audit_blocked",
-  "created_at_utc": "2026-07-05T19:18:23.404466+00:00",
-  "source_head": "c4ed43a51c8553ded144ce3946ac4917c1fd8aa6",
+  "created_at_utc": "2026-07-05T19:43:57.402965+00:00",
+  "source_head": "e7b6289d8b71421681c110f01542be8b2c334456",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -16,44 +16,32 @@
   },
   "current_state": {
     "remaining_deliverables_status": "formal_gate_deliverables_blocked",
-    "remaining_missing_deliverable_count": 10,
-    "remaining_open_category_count": 4,
+    "remaining_missing_deliverable_count": 1,
+    "remaining_open_category_count": 1,
     "source_freshness_ready_for_remote_preflight": true,
-    "source_freshness_status": "source_freshness_tracked_artifact_lag_only_gate_ready",
-    "source_freshness_regeneration_required": true,
-    "source_freshness_non_self_changed_records": 23,
+    "source_freshness_status": "source_freshness_clean_current",
+    "source_freshness_regeneration_required": false,
+    "source_freshness_non_self_changed_records": 0,
     "source_freshness_self_artifact_only_lag_records": 0
   },
   "remaining_deliverables_top_level_summary": {
     "present": true,
     "missing_counts_by_formal_category": {
-      "training": 3,
-      "evaluation": 2,
-      "acceptance": 3,
-      "formal_acceptance": 2
+      "training": 0,
+      "evaluation": 0,
+      "acceptance": 0,
+      "formal_acceptance": 1
     },
     "missing_matrix_ids_by_formal_category": {
-      "training": [
-        "training:train_final_model_zip",
-        "training:train_summary_json",
-        "training:train_training_manifest_json"
-      ],
-      "evaluation": [
-        "evaluation:eval_gate3_eval_episodes_csv",
-        "evaluation:eval_gate3_summary_json"
-      ],
-      "acceptance": [
-        "acceptance:gate3_trial_manifest_json",
-        "acceptance:gate3_formal_audit_json",
-        "acceptance:pulled_back_checkpoint_hash_record"
-      ],
+      "training": [],
+      "evaluation": [],
+      "acceptance": [],
       "formal_acceptance": [
-        "formal_acceptance:h01_ready_for_formal_run",
         "formal_acceptance:h02_formal_output_acceptance"
       ]
     },
-    "next_blocked_lane": "decision",
-    "h01_status": "blocked_protocol_gap",
+    "next_blocked_lane": "source_fresh_preflight",
+    "h01_status": "ready_for_formal_run",
     "h02_status": "blocked_formal_output_acceptance",
     "h02_formal_output_accepted": false,
     "h02_paper_result_input_allowed": false
@@ -63,82 +51,67 @@
   "total_matrix_rows": 10,
   "total_proof_command_count": 20,
   "declared_total_proof_command_count": 20,
-  "passed_proof_command_count": 2,
-  "failed_proof_command_count": 2,
-  "blocked_proof_command_count": 16,
+  "passed_proof_command_count": 19,
+  "failed_proof_command_count": 1,
+  "blocked_proof_command_count": 0,
   "proof_command_summary": {
     "total_matrix_rows": 10,
     "total_proof_command_count": 20,
-    "passed_proof_command_count": 2,
-    "failed_proof_command_count": 2,
-    "blocked_proof_command_count": 16
+    "passed_proof_command_count": 19,
+    "failed_proof_command_count": 1,
+    "blocked_proof_command_count": 0
   },
   "formal_gate_missing_evidence_summary": {
     "training": {
-      "missing_artifact_ids": [
-        "train_final_model_zip",
-        "train_summary_json",
-        "train_training_manifest_json"
-      ],
+      "missing_artifact_ids": [],
       "failed_artifact_ids": []
     },
     "evaluation": {
-      "missing_artifact_ids": [
-        "eval_gate3_eval_episodes_csv",
-        "eval_gate3_summary_json"
-      ],
+      "missing_artifact_ids": [],
       "failed_artifact_ids": []
     },
     "acceptance": {
-      "missing_artifact_ids": [
-        "gate3_trial_manifest_json",
-        "gate3_formal_audit_json",
-        "pulled_back_checkpoint_hash_record"
-      ],
+      "missing_artifact_ids": [],
       "failed_artifact_ids": []
     },
     "formal_acceptance": {
       "missing_artifact_ids": [],
       "failed_artifact_ids": [
-        "h01_ready_for_formal_run",
         "h02_formal_output_acceptance"
       ]
     }
   },
   "category_status_counts": {
     "training": {
-      "passed": 0,
+      "passed": 6,
       "failed": 0,
-      "blocked_missing_artifact": 6
+      "blocked_missing_artifact": 0
     },
     "evaluation": {
-      "passed": 0,
+      "passed": 4,
       "failed": 0,
-      "blocked_missing_artifact": 4
+      "blocked_missing_artifact": 0
     },
     "acceptance": {
-      "passed": 0,
+      "passed": 6,
       "failed": 0,
-      "blocked_missing_artifact": 6
+      "blocked_missing_artifact": 0
     },
     "formal_acceptance": {
-      "passed": 2,
-      "failed": 2,
+      "passed": 3,
+      "failed": 1,
       "blocked_missing_artifact": 0
     }
   },
   "blockers": [
-    "missing_formal_training_artifacts",
-    "missing_formal_evaluation_artifacts",
-    "missing_formal_acceptance_artifacts",
     "failed_formal_h01_h02_acceptance_artifacts"
   ],
   "input_safety_issue_count": 0,
   "input_safety_issues": [],
   "proof_command_results": [
     {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
+      "status": "passed",
+      "diagnostic": "train_final_model_zip_exists_nonempty passed",
       "matrix_id": "training:train_final_model_zip",
       "category": "training",
       "artifact_id": "train_final_model_zip",
@@ -151,8 +124,8 @@
       "command_was_executed": false
     },
     {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
+      "status": "passed",
+      "diagnostic": "train_final_model_zip_valid_zip passed",
       "matrix_id": "training:train_final_model_zip",
       "category": "training",
       "artifact_id": "train_final_model_zip",
@@ -165,8 +138,8 @@
       "command_was_executed": false
     },
     {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
+      "status": "passed",
+      "diagnostic": "train_summary_json_exists_nonempty passed",
       "matrix_id": "training:train_summary_json",
       "category": "training",
       "artifact_id": "train_summary_json",
@@ -179,8 +152,8 @@
       "command_was_executed": false
     },
     {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
+      "status": "passed",
+      "diagnostic": "train_summary_json_formal_warm_start_metadata passed",
       "matrix_id": "training:train_summary_json",
       "category": "training",
       "artifact_id": "train_summary_json",
@@ -193,8 +166,8 @@
       "command_was_executed": false
     },
     {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json",
+      "status": "passed",
+      "diagnostic": "train_training_manifest_json_exists_nonempty passed",
       "matrix_id": "training:train_training_manifest_json",
       "category": "training",
       "artifact_id": "train_training_manifest_json",
@@ -207,8 +180,8 @@
       "command_was_executed": false
     },
     {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json",
+      "status": "passed",
+      "diagnostic": "train_training_manifest_json_provenance passed",
       "matrix_id": "training:train_training_manifest_json",
       "category": "training",
       "artifact_id": "train_training_manifest_json",
@@ -221,8 +194,8 @@
       "command_was_executed": false
     },
     {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv",
+      "status": "passed",
+      "diagnostic": "eval_gate3_eval_episodes_csv_exists_nonempty passed",
       "matrix_id": "evaluation:eval_gate3_eval_episodes_csv",
       "category": "evaluation",
       "artifact_id": "eval_gate3_eval_episodes_csv",
@@ -235,8 +208,8 @@
       "command_was_executed": false
     },
     {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv",
+      "status": "passed",
+      "diagnostic": "eval_gate3_eval_episodes_csv_schema passed",
       "matrix_id": "evaluation:eval_gate3_eval_episodes_csv",
       "category": "evaluation",
       "artifact_id": "eval_gate3_eval_episodes_csv",
@@ -249,8 +222,8 @@
       "command_was_executed": false
     },
     {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json",
+      "status": "passed",
+      "diagnostic": "eval_gate3_summary_json_exists_nonempty passed",
       "matrix_id": "evaluation:eval_gate3_summary_json",
       "category": "evaluation",
       "artifact_id": "eval_gate3_summary_json",
@@ -263,8 +236,8 @@
       "command_was_executed": false
     },
     {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json",
+      "status": "passed",
+      "diagnostic": "eval_gate3_summary_json_formal_scope passed",
       "matrix_id": "evaluation:eval_gate3_summary_json",
       "category": "evaluation",
       "artifact_id": "eval_gate3_summary_json",
@@ -277,8 +250,8 @@
       "command_was_executed": false
     },
     {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json",
+      "status": "passed",
+      "diagnostic": "gate3_trial_manifest_json_exists_nonempty passed",
       "matrix_id": "acceptance:gate3_trial_manifest_json",
       "category": "acceptance",
       "artifact_id": "gate3_trial_manifest_json",
@@ -291,8 +264,8 @@
       "command_was_executed": false
     },
     {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json",
+      "status": "passed",
+      "diagnostic": "gate3_trial_manifest_json_formal_warm_start_scope passed",
       "matrix_id": "acceptance:gate3_trial_manifest_json",
       "category": "acceptance",
       "artifact_id": "gate3_trial_manifest_json",
@@ -305,8 +278,8 @@
       "command_was_executed": false
     },
     {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json",
+      "status": "passed",
+      "diagnostic": "gate3_formal_audit_json_exists_nonempty passed",
       "matrix_id": "acceptance:gate3_formal_audit_json",
       "category": "acceptance",
       "artifact_id": "gate3_formal_audit_json",
@@ -319,8 +292,8 @@
       "command_was_executed": false
     },
     {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json",
+      "status": "passed",
+      "diagnostic": "gate3_formal_audit_json_accepts_formal_scope passed",
       "matrix_id": "acceptance:gate3_formal_audit_json",
       "category": "acceptance",
       "artifact_id": "gate3_formal_audit_json",
@@ -333,8 +306,8 @@
       "command_was_executed": false
     },
     {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json",
+      "status": "passed",
+      "diagnostic": "pulled_back_checkpoint_hash_record_exists_nonempty passed",
       "matrix_id": "acceptance:pulled_back_checkpoint_hash_record",
       "category": "acceptance",
       "artifact_id": "pulled_back_checkpoint_hash_record",
@@ -347,8 +320,8 @@
       "command_was_executed": false
     },
     {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json",
+      "status": "passed",
+      "diagnostic": "pulled_back_checkpoint_hash_record_matches_model passed",
       "matrix_id": "acceptance:pulled_back_checkpoint_hash_record",
       "category": "acceptance",
       "artifact_id": "pulled_back_checkpoint_hash_record",
@@ -375,8 +348,8 @@
       "command_was_executed": false
     },
     {
-      "status": "failed",
-      "diagnostic": "h01_ready_for_formal_run_status failed: ; expected H01 status is ready_for_formal_run or ready_for_formal_evaluation",
+      "status": "passed",
+      "diagnostic": "h01_ready_for_formal_run_status passed",
       "matrix_id": "formal_acceptance:h01_ready_for_formal_run",
       "category": "formal_acceptance",
       "artifact_id": "h01_ready_for_formal_run",
@@ -419,8 +392,8 @@
   ],
   "proof_command_results_by_id": {
     "train_final_model_zip_exists_nonempty": {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
+      "status": "passed",
+      "diagnostic": "train_final_model_zip_exists_nonempty passed",
       "matrix_id": "training:train_final_model_zip",
       "category": "training",
       "artifact_id": "train_final_model_zip",
@@ -433,8 +406,8 @@
       "command_was_executed": false
     },
     "train_final_model_zip_valid_zip": {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
+      "status": "passed",
+      "diagnostic": "train_final_model_zip_valid_zip passed",
       "matrix_id": "training:train_final_model_zip",
       "category": "training",
       "artifact_id": "train_final_model_zip",
@@ -447,8 +420,8 @@
       "command_was_executed": false
     },
     "train_summary_json_exists_nonempty": {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
+      "status": "passed",
+      "diagnostic": "train_summary_json_exists_nonempty passed",
       "matrix_id": "training:train_summary_json",
       "category": "training",
       "artifact_id": "train_summary_json",
@@ -461,8 +434,8 @@
       "command_was_executed": false
     },
     "train_summary_json_formal_warm_start_metadata": {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
+      "status": "passed",
+      "diagnostic": "train_summary_json_formal_warm_start_metadata passed",
       "matrix_id": "training:train_summary_json",
       "category": "training",
       "artifact_id": "train_summary_json",
@@ -475,8 +448,8 @@
       "command_was_executed": false
     },
     "train_training_manifest_json_exists_nonempty": {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json",
+      "status": "passed",
+      "diagnostic": "train_training_manifest_json_exists_nonempty passed",
       "matrix_id": "training:train_training_manifest_json",
       "category": "training",
       "artifact_id": "train_training_manifest_json",
@@ -489,8 +462,8 @@
       "command_was_executed": false
     },
     "train_training_manifest_json_provenance": {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json",
+      "status": "passed",
+      "diagnostic": "train_training_manifest_json_provenance passed",
       "matrix_id": "training:train_training_manifest_json",
       "category": "training",
       "artifact_id": "train_training_manifest_json",
@@ -503,8 +476,8 @@
       "command_was_executed": false
     },
     "eval_gate3_eval_episodes_csv_exists_nonempty": {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv",
+      "status": "passed",
+      "diagnostic": "eval_gate3_eval_episodes_csv_exists_nonempty passed",
       "matrix_id": "evaluation:eval_gate3_eval_episodes_csv",
       "category": "evaluation",
       "artifact_id": "eval_gate3_eval_episodes_csv",
@@ -517,8 +490,8 @@
       "command_was_executed": false
     },
     "eval_gate3_eval_episodes_csv_schema": {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv",
+      "status": "passed",
+      "diagnostic": "eval_gate3_eval_episodes_csv_schema passed",
       "matrix_id": "evaluation:eval_gate3_eval_episodes_csv",
       "category": "evaluation",
       "artifact_id": "eval_gate3_eval_episodes_csv",
@@ -531,8 +504,8 @@
       "command_was_executed": false
     },
     "eval_gate3_summary_json_exists_nonempty": {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json",
+      "status": "passed",
+      "diagnostic": "eval_gate3_summary_json_exists_nonempty passed",
       "matrix_id": "evaluation:eval_gate3_summary_json",
       "category": "evaluation",
       "artifact_id": "eval_gate3_summary_json",
@@ -545,8 +518,8 @@
       "command_was_executed": false
     },
     "eval_gate3_summary_json_formal_scope": {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json",
+      "status": "passed",
+      "diagnostic": "eval_gate3_summary_json_formal_scope passed",
       "matrix_id": "evaluation:eval_gate3_summary_json",
       "category": "evaluation",
       "artifact_id": "eval_gate3_summary_json",
@@ -559,8 +532,8 @@
       "command_was_executed": false
     },
     "gate3_trial_manifest_json_exists_nonempty": {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json",
+      "status": "passed",
+      "diagnostic": "gate3_trial_manifest_json_exists_nonempty passed",
       "matrix_id": "acceptance:gate3_trial_manifest_json",
       "category": "acceptance",
       "artifact_id": "gate3_trial_manifest_json",
@@ -573,8 +546,8 @@
       "command_was_executed": false
     },
     "gate3_trial_manifest_json_formal_warm_start_scope": {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json",
+      "status": "passed",
+      "diagnostic": "gate3_trial_manifest_json_formal_warm_start_scope passed",
       "matrix_id": "acceptance:gate3_trial_manifest_json",
       "category": "acceptance",
       "artifact_id": "gate3_trial_manifest_json",
@@ -587,8 +560,8 @@
       "command_was_executed": false
     },
     "gate3_formal_audit_json_exists_nonempty": {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json",
+      "status": "passed",
+      "diagnostic": "gate3_formal_audit_json_exists_nonempty passed",
       "matrix_id": "acceptance:gate3_formal_audit_json",
       "category": "acceptance",
       "artifact_id": "gate3_formal_audit_json",
@@ -601,8 +574,8 @@
       "command_was_executed": false
     },
     "gate3_formal_audit_json_accepts_formal_scope": {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json",
+      "status": "passed",
+      "diagnostic": "gate3_formal_audit_json_accepts_formal_scope passed",
       "matrix_id": "acceptance:gate3_formal_audit_json",
       "category": "acceptance",
       "artifact_id": "gate3_formal_audit_json",
@@ -615,8 +588,8 @@
       "command_was_executed": false
     },
     "pulled_back_checkpoint_hash_record_exists_nonempty": {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json",
+      "status": "passed",
+      "diagnostic": "pulled_back_checkpoint_hash_record_exists_nonempty passed",
       "matrix_id": "acceptance:pulled_back_checkpoint_hash_record",
       "category": "acceptance",
       "artifact_id": "pulled_back_checkpoint_hash_record",
@@ -629,8 +602,8 @@
       "command_was_executed": false
     },
     "pulled_back_checkpoint_hash_record_matches_model": {
-      "status": "blocked_missing_artifact",
-      "diagnostic": "expected artifact is missing: 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json",
+      "status": "passed",
+      "diagnostic": "pulled_back_checkpoint_hash_record_matches_model passed",
       "matrix_id": "acceptance:pulled_back_checkpoint_hash_record",
       "category": "acceptance",
       "artifact_id": "pulled_back_checkpoint_hash_record",
@@ -657,8 +630,8 @@
       "command_was_executed": false
     },
     "h01_ready_for_formal_run_status": {
-      "status": "failed",
-      "diagnostic": "h01_ready_for_formal_run_status failed: ; expected H01 status is ready_for_formal_run or ready_for_formal_evaluation",
+      "status": "passed",
+      "diagnostic": "h01_ready_for_formal_run_status passed",
       "matrix_id": "formal_acceptance:h01_ready_for_formal_run",
       "category": "formal_acceptance",
       "artifact_id": "h01_ready_for_formal_run",

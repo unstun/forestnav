@@ -4,7 +4,7 @@
 - executes commands: `False`
 - runs training: `False`
 - local training allowed: `False`
-- next action: `resolve_remote_packet_preflight`
+- next action: `resolve_source_fresh_preflight`
 
 ## Single Next Action Index
 
@@ -19,9 +19,9 @@
 - current_blocked_action_ids: `remote_preflight, remote_training, local_training, formal_claim, paper_result_material`
 - all_execution_disabled_now: `False`
 - record_command_template_count: `0`
-- missing_deliverable_count: `10`
-- missing_by_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
-- source_freshness_status: `source_freshness_tracked_artifact_lag_only_gate_ready`
+- missing_deliverable_count: `1`
+- missing_by_category: `{'training': 0, 'evaluation': 0, 'acceptance': 0, 'formal_acceptance': 1}`
+- source_freshness_status: `source_freshness_clean_current`
 - source_freshness_blocking_regeneration_required: `False`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `True`
@@ -70,9 +70,9 @@
 
 ## Source Freshness Gate
 
-- source_freshness_status: `source_freshness_tracked_artifact_lag_only_gate_ready`
-- source_freshness_regeneration_required: `True`
-- source_freshness_non_self_changed_records: `23`
+- source_freshness_status: `source_freshness_clean_current`
+- source_freshness_regeneration_required: `False`
+- source_freshness_non_self_changed_records: `0`
 - source_freshness_self_artifact_only_lag_records: `0`
 
 ## Handoff Stages
@@ -83,32 +83,32 @@
 - 4. `regenerate_remote_execution_packet`: allowed_now=`True`, blocked_by=`none`
 - 5. `gate3_remote_training`: allowed_now=`True`, blocked_by=`none`
 - 6. `gate3_remote_audit_pullback`: allowed_now=`False`, blocked_by=`remote_training_not_completed`
-- 7. `regenerate_h01_h02_formal_artifacts`: allowed_now=`False`, blocked_by=`missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
-- 8. `regenerate_claim_gate_artifacts`: allowed_now=`False`, blocked_by=`h02_formal_acceptance_not_ready, source_fresh_claim_targets_open`
+- 7. `regenerate_h01_h02_formal_artifacts`: allowed_now=`False`, blocked_by=`missing_remote_audit_pullback`
+- 8. `regenerate_claim_gate_artifacts`: allowed_now=`False`, blocked_by=`h02_formal_acceptance_not_ready`
 
 ## Requirement Summary
 
-- remaining deliverables gap: total_missing=`10`, open_categories=`4`
-  - `training`: missing=`3`, responsible_stage=`gate3_remote_training`
-  - `evaluation`: missing=`2`, responsible_stage=`gate3_remote_audit_pullback`
-  - `acceptance`: missing=`3`, responsible_stage=`gate3_remote_audit_pullback`
-  - `formal_acceptance`: missing=`2`, responsible_stage=`regenerate_h01_h02_formal_artifacts`
+- remaining deliverables gap: total_missing=`1`, open_categories=`1`
+  - `training`: missing=`0`, responsible_stage=`gate3_remote_training`
+  - `evaluation`: missing=`0`, responsible_stage=`gate3_remote_audit_pullback`
+  - `acceptance`: missing=`0`, responsible_stage=`gate3_remote_audit_pullback`
+  - `formal_acceptance`: missing=`1`, responsible_stage=`regenerate_h01_h02_formal_artifacts`
 
 ## Status Report Proof-Audit Deliverables Summary
 
 - present: `True`
-- missing_counts_by_formal_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
-- next_blocked_lane: `decision`
-- h01_status: `blocked_protocol_gap`
+- missing_counts_by_formal_category: `{'training': 0, 'evaluation': 0, 'acceptance': 0, 'formal_acceptance': 1}`
+- next_blocked_lane: `source_fresh_preflight`
+- h01_status: `ready_for_formal_run`
 - h02_status: `blocked_formal_output_acceptance`
-- training_missing_matrix_ids: `training:train_final_model_zip, training:train_summary_json, training:train_training_manifest_json`
-- evaluation_missing_matrix_ids: `evaluation:eval_gate3_eval_episodes_csv, evaluation:eval_gate3_summary_json`
-- acceptance_missing_matrix_ids: `acceptance:gate3_trial_manifest_json, acceptance:gate3_formal_audit_json, acceptance:pulled_back_checkpoint_hash_record`
-- formal_acceptance_missing_matrix_ids: `formal_acceptance:h01_ready_for_formal_run, formal_acceptance:h02_formal_output_acceptance`
+- training_missing_matrix_ids: `none`
+- evaluation_missing_matrix_ids: `none`
+- acceptance_missing_matrix_ids: `none`
+- formal_acceptance_missing_matrix_ids: `formal_acceptance:h02_formal_output_acceptance`
 - formal gate requirements: `4`
-  - `training_remote_ppo_checkpoint`: status=`ready_to_execute_missing_outputs`, responsible_stage=`gate3_remote_training`
-  - `evaluation_gate3_episode_outputs`: status=`ready_to_execute_missing_outputs`, responsible_stage=`gate3_remote_audit_pullback`
-  - `acceptance_remote_pullback_and_audit`: status=`ready_to_execute_missing_outputs`, responsible_stage=`gate3_remote_audit_pullback`
+  - `training_remote_ppo_checkpoint`: status=`satisfied`, responsible_stage=`gate3_remote_training`
+  - `evaluation_gate3_episode_outputs`: status=`satisfied`, responsible_stage=`gate3_remote_audit_pullback`
+  - `acceptance_remote_pullback_and_audit`: status=`satisfied`, responsible_stage=`gate3_remote_audit_pullback`
   - `h01_h02_formal_evaluation_acceptance`: status=`blocked_missing_outputs`, responsible_stage=`regenerate_h01_h02_formal_artifacts`
 - H02 acceptance requirements: `4`
 - safety issues: `0`

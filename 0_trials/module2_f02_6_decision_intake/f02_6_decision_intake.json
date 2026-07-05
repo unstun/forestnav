@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_f02_6_decision_intake",
   "status": "f02_6_decision_intake_closed_clean",
-  "created_at_utc": "2026-07-05T18:50:28.464995+00:00",
-  "source_head": "dc0f60fc13e12cdef36ee4d5305f5fd0237b8817",
+  "created_at_utc": "2026-07-05T19:40:39.436303+00:00",
+  "source_head": "e7b6289d8b71421681c110f01542be8b2c334456",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -111,23 +111,23 @@
     "decision_gate_status": "f02_6_decision_gate_audit_passed",
     "decision_gate_issue_count": 0,
     "status_report_status": "formal_gate_status_blocked",
-    "next_blocked_lane": "decision",
+    "next_blocked_lane": "source_fresh_preflight",
     "status_report_local_training_allowed_now": false,
     "status_report_remote_preflight_allowed_now": false,
     "status_report_remote_training_allowed_now": false,
     "status_report_formal_claim_allowed_now": false,
     "remaining_deliverables_status": "formal_gate_deliverables_blocked",
-    "missing_deliverable_count": 10,
-    "open_category_count": 4,
+    "missing_deliverable_count": 1,
+    "open_category_count": 1,
     "remaining_local_training_allowed_now": false,
     "remaining_remote_preflight_allowed_now": false,
     "remaining_remote_training_allowed_now": false,
     "remaining_formal_claim_allowed_now": false,
     "missing_by_category": {
-      "training": 3,
-      "evaluation": 2,
-      "acceptance": 3,
-      "formal_acceptance": 2
+      "training": 0,
+      "evaluation": 0,
+      "acceptance": 0,
+      "formal_acceptance": 1
     }
   },
   "decision_evidence_matrix_summary": {
@@ -213,14 +213,14 @@
     "summary_id": "module2_f02_6_formal_gate_decision_impact",
     "purpose": "make the human F02.6 decision effect explicit before any formal gate execution",
     "not_paper_result_material": true,
-    "current_blocker": "decision",
+    "current_blocker": "source_fresh_preflight",
     "current_record_status": "approved",
-    "missing_deliverable_count": 10,
+    "missing_deliverable_count": 1,
     "missing_by_category": {
-      "training": 3,
-      "evaluation": 2,
-      "acceptance": 3,
-      "formal_acceptance": 2
+      "training": 0,
+      "evaluation": 0,
+      "acceptance": 0,
+      "formal_acceptance": 1
     },
     "current_allowed_action_ids": [
       "record_f02_6_decision"

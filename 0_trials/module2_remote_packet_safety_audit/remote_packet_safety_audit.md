@@ -8,8 +8,8 @@ This file audits the remote formal execution packet. It does not execute any com
 - remote_training_allowed_now: `True`
 - pullback_artifact_count: `7`
 - post_plan_status_report_status: `formal_gate_status_blocked`
-- post_plan_status_report_next_blocked_lane_id: `decision`
-- post_plan_handoff_status: `blocked_handoff_input_safety_issues`
+- post_plan_status_report_next_blocked_lane_id: `source_fresh_preflight`
+- post_plan_handoff_status: `ready_for_manual_remote_execution_review`
 - post_plan_handoff_remote_training_allowed_now: `True`
 - post_plan_execution_veto_present: `True`
 - post_plan_execution_veto_all_rows_consistent: `True`
@@ -20,10 +20,10 @@ This file audits the remote formal execution packet. It does not execute any com
 - post_plan_command_index_missing_target_ids: `[]`
 - post_plan_command_index_unknown_manual_count: `0`
 - post_plan_command_index_forbidden_command_count: `0`
-- post_plan_remaining_deliverables_gap_total_missing: `10`
-- post_plan_status_report_gap_total_missing: `10`
+- post_plan_remaining_deliverables_gap_total_missing: `1`
+- post_plan_status_report_gap_total_missing: `1`
 - post_plan_proof_deliverables_present: `True`
-- post_plan_proof_deliverables_missing_counts: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
+- post_plan_proof_deliverables_missing_counts: `{'training': 0, 'evaluation': 0, 'acceptance': 0, 'formal_acceptance': 1}`
 - post_plan_proof_deliverables_h02_paper_result_input_allowed: `False`
 
 ## Audit Issues

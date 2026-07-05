@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_mainline_formal_gate_state_audit",
-  "status": "mainline_formal_gate_state_audit_failed",
-  "created_at_utc": "2026-07-05T19:18:23.641786+00:00",
-  "source_head": "c4ed43a51c8553ded144ce3946ac4917c1fd8aa6",
+  "status": "mainline_formal_gate_state_consistent_blocked",
+  "created_at_utc": "2026-07-05T19:43:57.620142+00:00",
+  "source_head": "e7b6289d8b71421681c110f01542be8b2c334456",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -21,8 +21,8 @@
   "all_execution_disabled_now": false,
   "execution_leak_count": 9,
   "next_required_formal_deliverables_status": "blocked_missing_formal_deliverables",
-  "total_missing_deliverables": 10,
-  "blocked_category_count": 3,
+  "total_missing_deliverables": 1,
+  "blocked_category_count": 1,
   "f02_6_decision_evidence_matrix_summary": {
     "present": true,
     "matrix_id": "module2_f02_6_decision_evidence_matrix",
@@ -70,96 +70,6 @@
   "mainline_missing_deliverable_mention_count": 0,
   "deliverable_rows": [
     {
-      "matrix_id": "training:train_final_model_zip",
-      "safe_matrix_id": "training_train_final_model_zip",
-      "category": "training",
-      "artifact_id": "train_final_model_zip",
-      "mentioned": true,
-      "mentioned_in_current_section": true,
-      "responsible_stage_id": "gate3_remote_training",
-      "responsible_stage_allowed_now": true
-    },
-    {
-      "matrix_id": "training:train_summary_json",
-      "safe_matrix_id": "training_train_summary_json",
-      "category": "training",
-      "artifact_id": "train_summary_json",
-      "mentioned": true,
-      "mentioned_in_current_section": true,
-      "responsible_stage_id": "gate3_remote_training",
-      "responsible_stage_allowed_now": true
-    },
-    {
-      "matrix_id": "training:train_training_manifest_json",
-      "safe_matrix_id": "training_train_training_manifest_json",
-      "category": "training",
-      "artifact_id": "train_training_manifest_json",
-      "mentioned": true,
-      "mentioned_in_current_section": true,
-      "responsible_stage_id": "gate3_remote_training",
-      "responsible_stage_allowed_now": true
-    },
-    {
-      "matrix_id": "evaluation:eval_gate3_eval_episodes_csv",
-      "safe_matrix_id": "evaluation_eval_gate3_eval_episodes_csv",
-      "category": "evaluation",
-      "artifact_id": "eval_gate3_eval_episodes_csv",
-      "mentioned": true,
-      "mentioned_in_current_section": true,
-      "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_allowed_now": false
-    },
-    {
-      "matrix_id": "evaluation:eval_gate3_summary_json",
-      "safe_matrix_id": "evaluation_eval_gate3_summary_json",
-      "category": "evaluation",
-      "artifact_id": "eval_gate3_summary_json",
-      "mentioned": true,
-      "mentioned_in_current_section": true,
-      "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_allowed_now": false
-    },
-    {
-      "matrix_id": "acceptance:gate3_trial_manifest_json",
-      "safe_matrix_id": "acceptance_gate3_trial_manifest_json",
-      "category": "acceptance",
-      "artifact_id": "gate3_trial_manifest_json",
-      "mentioned": true,
-      "mentioned_in_current_section": true,
-      "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_allowed_now": false
-    },
-    {
-      "matrix_id": "acceptance:gate3_formal_audit_json",
-      "safe_matrix_id": "acceptance_gate3_formal_audit_json",
-      "category": "acceptance",
-      "artifact_id": "gate3_formal_audit_json",
-      "mentioned": true,
-      "mentioned_in_current_section": true,
-      "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_allowed_now": false
-    },
-    {
-      "matrix_id": "acceptance:pulled_back_checkpoint_hash_record",
-      "safe_matrix_id": "acceptance_pulled_back_checkpoint_hash_record",
-      "category": "acceptance",
-      "artifact_id": "pulled_back_checkpoint_hash_record",
-      "mentioned": true,
-      "mentioned_in_current_section": true,
-      "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_allowed_now": false
-    },
-    {
-      "matrix_id": "formal_acceptance:h01_ready_for_formal_run",
-      "safe_matrix_id": "formal_acceptance_h01_ready_for_formal_run",
-      "category": "formal_acceptance",
-      "artifact_id": "h01_ready_for_formal_run",
-      "mentioned": true,
-      "mentioned_in_current_section": true,
-      "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
-      "responsible_stage_allowed_now": false
-    },
-    {
       "matrix_id": "formal_acceptance:h02_formal_output_acceptance",
       "safe_matrix_id": "formal_acceptance_h02_formal_output_acceptance",
       "category": "formal_acceptance",
@@ -171,96 +81,6 @@
     }
   ],
   "deliverable_rows_by_matrix_id": {
-    "training:train_final_model_zip": {
-      "matrix_id": "training:train_final_model_zip",
-      "safe_matrix_id": "training_train_final_model_zip",
-      "category": "training",
-      "artifact_id": "train_final_model_zip",
-      "mentioned": true,
-      "mentioned_in_current_section": true,
-      "responsible_stage_id": "gate3_remote_training",
-      "responsible_stage_allowed_now": true
-    },
-    "training:train_summary_json": {
-      "matrix_id": "training:train_summary_json",
-      "safe_matrix_id": "training_train_summary_json",
-      "category": "training",
-      "artifact_id": "train_summary_json",
-      "mentioned": true,
-      "mentioned_in_current_section": true,
-      "responsible_stage_id": "gate3_remote_training",
-      "responsible_stage_allowed_now": true
-    },
-    "training:train_training_manifest_json": {
-      "matrix_id": "training:train_training_manifest_json",
-      "safe_matrix_id": "training_train_training_manifest_json",
-      "category": "training",
-      "artifact_id": "train_training_manifest_json",
-      "mentioned": true,
-      "mentioned_in_current_section": true,
-      "responsible_stage_id": "gate3_remote_training",
-      "responsible_stage_allowed_now": true
-    },
-    "evaluation:eval_gate3_eval_episodes_csv": {
-      "matrix_id": "evaluation:eval_gate3_eval_episodes_csv",
-      "safe_matrix_id": "evaluation_eval_gate3_eval_episodes_csv",
-      "category": "evaluation",
-      "artifact_id": "eval_gate3_eval_episodes_csv",
-      "mentioned": true,
-      "mentioned_in_current_section": true,
-      "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_allowed_now": false
-    },
-    "evaluation:eval_gate3_summary_json": {
-      "matrix_id": "evaluation:eval_gate3_summary_json",
-      "safe_matrix_id": "evaluation_eval_gate3_summary_json",
-      "category": "evaluation",
-      "artifact_id": "eval_gate3_summary_json",
-      "mentioned": true,
-      "mentioned_in_current_section": true,
-      "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_allowed_now": false
-    },
-    "acceptance:gate3_trial_manifest_json": {
-      "matrix_id": "acceptance:gate3_trial_manifest_json",
-      "safe_matrix_id": "acceptance_gate3_trial_manifest_json",
-      "category": "acceptance",
-      "artifact_id": "gate3_trial_manifest_json",
-      "mentioned": true,
-      "mentioned_in_current_section": true,
-      "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_allowed_now": false
-    },
-    "acceptance:gate3_formal_audit_json": {
-      "matrix_id": "acceptance:gate3_formal_audit_json",
-      "safe_matrix_id": "acceptance_gate3_formal_audit_json",
-      "category": "acceptance",
-      "artifact_id": "gate3_formal_audit_json",
-      "mentioned": true,
-      "mentioned_in_current_section": true,
-      "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_allowed_now": false
-    },
-    "acceptance:pulled_back_checkpoint_hash_record": {
-      "matrix_id": "acceptance:pulled_back_checkpoint_hash_record",
-      "safe_matrix_id": "acceptance_pulled_back_checkpoint_hash_record",
-      "category": "acceptance",
-      "artifact_id": "pulled_back_checkpoint_hash_record",
-      "mentioned": true,
-      "mentioned_in_current_section": true,
-      "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_allowed_now": false
-    },
-    "formal_acceptance:h01_ready_for_formal_run": {
-      "matrix_id": "formal_acceptance:h01_ready_for_formal_run",
-      "safe_matrix_id": "formal_acceptance_h01_ready_for_formal_run",
-      "category": "formal_acceptance",
-      "artifact_id": "h01_ready_for_formal_run",
-      "mentioned": true,
-      "mentioned_in_current_section": true,
-      "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
-      "responsible_stage_allowed_now": false
-    },
     "formal_acceptance:h02_formal_output_acceptance": {
       "matrix_id": "formal_acceptance:h02_formal_output_acceptance",
       "safe_matrix_id": "formal_acceptance_h02_formal_output_acceptance",
@@ -272,26 +92,23 @@
       "responsible_stage_allowed_now": false
     }
   },
-  "proof_summary_chain_status": "formal_gate_proof_summary_chain_audit_failed",
-  "proof_summary_chain_audit_issue_count": 10,
+  "proof_summary_chain_status": "formal_gate_proof_summary_chain_consistent_blocked",
+  "proof_summary_chain_audit_issue_count": 0,
   "proof_summary_chain_proof_audit_input_safety_issue_count": 0,
   "proof_summary_chain_proof_audit_blockers": [
-    "missing_formal_training_artifacts",
-    "missing_formal_evaluation_artifacts",
-    "missing_formal_acceptance_artifacts",
     "failed_formal_h01_h02_acceptance_artifacts"
   ],
   "proof_summary_next_action_guard_consistency": {
     "row_count": 3,
-    "consistent_row_count": 1
+    "consistent_row_count": 3
   },
   "proof_summary_next_required_deliverables_consistency": {
     "row_count": 3,
-    "consistent_row_count": 1
+    "consistent_row_count": 3
   },
   "proof_summary_handoff_single_next_action_consistency": {
     "row_count": 3,
-    "consistent_row_count": 1
+    "consistent_row_count": 3
   },
   "current_boundary_tokens": [
     {
@@ -345,37 +162,8 @@
       "mentioned": false
     }
   ],
-  "audit_issue_count": 5,
-  "audit_issues": [
-    {
-      "issue_id": "mainline_missing_proof_chain_status",
-      "message": "Mainline task book must mention the current proof-summary chain status.",
-      "proof_summary_chain_status": "formal_gate_proof_summary_chain_audit_failed"
-    },
-    {
-      "issue_id": "proof_summary_chain_has_audit_issues",
-      "message": "Mainline task-book state should only mirror a clean proof-summary chain.",
-      "audit_issue_count": 10
-    },
-    {
-      "issue_id": "proof_summary_chain_next_action_guard_inconsistent",
-      "message": "Proof-summary chain must agree on the next-action guard before mainline mirrors it.",
-      "row_count": 3,
-      "consistent_row_count": 1
-    },
-    {
-      "issue_id": "proof_summary_chain_next_required_deliverables_inconsistent",
-      "message": "Proof-summary chain must agree on next required formal deliverables before mainline mirrors them.",
-      "row_count": 3,
-      "consistent_row_count": 1
-    },
-    {
-      "issue_id": "proof_summary_chain_handoff_single_next_action_inconsistent",
-      "message": "Proof-summary chain must agree on the handoff single-next-action index before mainline mirrors it.",
-      "row_count": 3,
-      "consistent_row_count": 1
-    }
-  ],
+  "audit_issue_count": 0,
+  "audit_issues": [],
   "claim_boundaries": [
     "This audit only checks that the long-term mainline task book mirrors the current formal-gate state.",
     "It does not execute commands, run local training, run remote preflight, run remote PPO training, evaluate PPO, pull back artifacts, or write paper results.",

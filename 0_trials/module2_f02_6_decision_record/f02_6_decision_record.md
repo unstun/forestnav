@@ -38,7 +38,7 @@
 
 ## Remote Preflight Intent
 - host: `gpu3070ti-relay`
-- observed pending preflight: `blocked`
+- observed pending preflight: `ready`
 
 ```bash
 python -m forest_n3p.scripts.preflight_rl_rs_gate3_formal_trial --output-dir 0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1 --manifest-out 0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1/gate3_preflight_manifest.json --warm-start-decision approved_obstacle_summary --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt --device cuda --allow-duplicate-openmp --allow-existing-output-dir

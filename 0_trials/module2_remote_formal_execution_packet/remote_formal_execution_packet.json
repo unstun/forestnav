@@ -2,8 +2,8 @@
   "schema_version": 1,
   "packet_name": "module2_remote_formal_execution_packet",
   "status": "ready_for_gpu3070ti_remote_training",
-  "created_at_utc": "2026-07-05T18:50:28.787891+00:00",
-  "source_head": "dc0f60fc13e12cdef36ee4d5305f5fd0237b8817",
+  "created_at_utc": "2026-07-05T19:41:18.736302+00:00",
+  "source_head": "e7b6289d8b71421681c110f01542be8b2c334456",
   "ready_to_run_remote_training": true,
   "local_training_allowed": false,
   "formal_claim_allowed_before_audit": false,
@@ -28,11 +28,8 @@
   "h01_manifest": {
     "path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
     "exists": true,
-    "status": "blocked_protocol_gap",
-    "blockers": [
-      "missing_module2_rl_rs_checkpoint",
-      "realmap_query_generation_not_frozen"
-    ],
+    "status": "ready_for_formal_run",
+    "blockers": [],
     "schema_checks": {
       "required_output_schema": "present",
       "schema_status": "frozen_for_module2_v1",

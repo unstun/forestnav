@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "manifest_name": "module2_v1_evaluation",
-  "status": "blocked_protocol_gap",
-  "created_at_utc": "2026-07-05T18:50:28.685069+00:00",
-  "source_head": "dc0f60fc13e12cdef36ee4d5305f5fd0237b8817",
+  "status": "ready_for_formal_run",
+  "created_at_utc": "2026-07-05T19:41:16.644268+00:00",
+  "source_head": "e7b6289d8b71421681c110f01542be8b2c334456",
   "contract": {
     "path": ".pipeline/contracts/module2-ppo-funnel-expansion.md",
     "exists": true,
@@ -85,21 +85,17 @@
       "method_id": "ppo_analytic_operator",
       "label": "PPO analytic operator without terminal RS",
       "main_evaluation_method": "ppo_analytic_operator",
-      "status": "blocked",
-      "blockers": [
-        "missing_module2_rl_rs_checkpoint"
-      ],
-      "checkpoint": null
+      "status": "ready",
+      "blockers": [],
+      "checkpoint": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip"
     },
     {
       "method_id": "ppo_rs_funnel",
       "label": "PPO + terminal RS funnel analytic operator",
       "main_evaluation_method": "ha_rl_rs_ppo",
-      "status": "blocked",
-      "blockers": [
-        "missing_module2_rl_rs_checkpoint"
-      ],
-      "checkpoint": null
+      "status": "ready",
+      "blockers": [],
+      "checkpoint": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip"
     }
   ],
   "metrics": [
@@ -251,16 +247,24 @@
     "status": "inventory_available"
   },
   "realmap_query_protocol": {
-    "path": null,
-    "status": "missing",
-    "frozen": false,
-    "endpoint_audit_pass": false
+    "path": "0_trials/module2_realmap_query_protocol/module2_realmap_query_protocol.json",
+    "status": "frozen",
+    "frozen": true,
+    "endpoint_audit_pass": true,
+    "query_count": 10,
+    "query_count_by_map": {
+      "dqn_realmap_a": 5,
+      "willow_garage_0p10": 5
+    },
+    "queries_csv": "0_trials/module2_realmap_query_protocol/module2_realmap_queries.csv",
+    "queries_csv_sha256": "36f80e9e69cd41d3658d4d9858b04aee874c93933c85188254c7731565764b59",
+    "query_rows_sha256": "47a85142114fb03d4ac29ca479f44821e1896f0e23c03705a992387a1b9aaa41"
   },
   "f02_6_decision_packet": {
     "path": "0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json",
     "exists": true,
     "status": "pending_human_decision",
-    "requested_warm_start_decision": "approved_obstacle_summary",
+    "requested_warm_start_decision": "pending",
     "effective_warm_start_decision": "approved_obstacle_summary",
     "recommendation": "approve_obstacle_summary_warm_start",
     "packet_blockers": [
@@ -276,15 +280,11 @@
     },
     "blockers": []
   },
-  "blockers": [
-    "missing_module2_rl_rs_checkpoint",
-    "realmap_query_generation_not_frozen"
-  ],
+  "blockers": [],
   "run_command": {
-    "formal_main_evaluation": null,
-    "blocked_reasons": [
-      "missing_module2_rl_rs_checkpoint"
-    ]
+    "formal_main_evaluation": "python -m forest_n3p.scripts.run_main_evaluation --output-dir 0_trials/module2_v1_evaluation/formal_run --methods ha_no_analytic,ha_single_rs,ha_dang_multi_rs,mlp,bc_analytic_operator,ppo_analytic_operator,ha_rl_rs_ppo --module2-bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt --module2-rl-rs-checkpoint 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip --queries-per-bucket 100 --seed-count 5 --queries-per-map 5 --density-profile-buckets validation_t06 --distance-bins 8:12,12:16,16:20,20: --contract-path .pipeline/contracts/module2-ppo-funnel-expansion.md --cutpoint-supplement-path .pipeline/contracts/v9-forest-n3p-t06-calibration-supplement.md --bootstrap-resamples 10000",
+    "blocked_reasons": [],
+    "note": "This command covers implemented procedural-map methods only; real-map evaluation remains a separate protocol item."
   },
   "claim_boundaries": [
     "manifest is a protocol artifact, not an experiment result",

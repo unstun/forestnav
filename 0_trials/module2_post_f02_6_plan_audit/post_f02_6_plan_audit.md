@@ -25,8 +25,8 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - current_blocked_action_ids: `['remote_preflight', 'remote_training', 'local_training', 'formal_claim', 'paper_result_material']`
 - post_decision_routes_are_current_authorization: `False`
 - all_execution_disabled_now: `True`
-- remote_preflight_allowed_now: `True`
-- remote_training_allowed_now: `True`
+- remote_preflight_allowed_now: `False`
+- remote_training_allowed_now: `False`
 - formal_claim_allowed_now: `False`
 - local_training_allowed_now: `False`
 
@@ -47,8 +47,8 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - runs_training: `False`
 - runs_remote_preflight: `False`
 - all_required_evidence_present: `False`
-- audit_issue_count: `2`
-- missing_counts_by_category: `{'decision': 0, 'decision_gate': 1, 'regeneration': 0, 'gate_sequence': 4, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 9}`
+- audit_issue_count: `0`
+- missing_counts_by_category: `{'decision': 0, 'decision_gate': 0, 'regeneration': 0, 'gate_sequence': 4, 'training': 0, 'evaluation': 0, 'acceptance': 0, 'evaluation_acceptance': 1, 'claim_gate': 1}`
 
 ## Closure Checklist
 
@@ -56,7 +56,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - status: `formal_gate_closure_blocked`
 - runs_training: `False`
 - runs_remote_preflight: `False`
-- open_item_count: `6`
+- open_item_count: `5`
 - input_safety_issue_count: `0`
 
 ## Formal Gate Status Report
@@ -67,17 +67,17 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - runs_remote_preflight: `False`
 - formal_claim_allowed_now: `False`
 - local_training_allowed_now: `False`
-- input_safety_issue_count: `3`
-- next_blocked_lane_id: `remote_packet_preflight`
+- input_safety_issue_count: `0`
+- next_blocked_lane_id: `source_fresh_preflight`
 
 ### Remaining Deliverables Gap Summary
 
 - ledger_path: `0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json`
 - ledger_exists: `True`
-- ledger_total_missing_deliverables: `10`
-- ledger_open_category_count: `4`
-- status_report_total_missing_deliverables: `10`
-- status_report_open_category_count: `4`
+- ledger_total_missing_deliverables: `1`
+- ledger_open_category_count: `1`
+- status_report_total_missing_deliverables: `1`
+- status_report_open_category_count: `1`
 
 ### Remaining Deliverables Unlock Chain
 
@@ -85,16 +85,16 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - ledger_exists: `True`
 - status: `blocked_missing_formal_deliverables`
 - row_count: `10`
-- blocked_row_count: `10`
+- blocked_row_count: `1`
 - rows_with_missing_required_blockers: `0`
 - rows_allowed_while_missing: `0`
 
 ### Status Report Proof-Audit Deliverables Summary
 
 - present: `True`
-- missing_counts_by_formal_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
-- next_blocked_lane: `decision`
-- h01_status: `blocked_protocol_gap`
+- missing_counts_by_formal_category: `{'training': 0, 'evaluation': 0, 'acceptance': 0, 'formal_acceptance': 1}`
+- next_blocked_lane: `source_fresh_preflight`
+- h01_status: `ready_for_formal_run`
 - h02_status: `blocked_formal_output_acceptance`
 - h02_paper_result_input_allowed: `False`
 

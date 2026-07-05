@@ -8,13 +8,9 @@
 ## Blockers
 
 - `h02_verdict_not_formal`
-- `h01_manifest_not_ready`
-- `missing_module2_rl_rs_checkpoint`
-- `realmap_query_generation_not_frozen`
-- `missing_gate3_formal_audit`
+- `gate3_formal_audit_not_passed`
 - `h02_scale_below_h01_manifest`
 - `missing_ppo_result_rows`
-- `missing_remote_pullback_artifacts`
 
 ## Schema Checks
 
@@ -25,22 +21,22 @@
 ## Formal Checks
 
 - H02 verdict formal: `False`
-- H01 ready: `False`
+- H01 ready: `True`
 - remote packet ready: `True`
 - Gate3 audit passed: `False`
 - scale satisfies H01: `False`
 - PPO result rows: `0`
-- pullback artifacts present: `False`
+- pullback artifacts present: `True`
 
 ## Formal Acceptance Requirements
 
 - `h01_schema_and_h02_output_schema_match` (schema_acceptance): status=`satisfied`, paper_result_input_allowed_now=`False`
   - invalid_substitutes: `CSV files with extra columns but missing required telemetry; paper table preview generated before H02 acceptance; summary JSON missing paired tests or bootstrap CI sections`
 - `h02_formal_scope_and_scale_match_h01` (formal_scope): status=`blocked_formal_acceptance`, paper_result_input_allowed_now=`False`
-  - missing_artifact_ids: `h02_verdict_formal_acceptance_true, h01_manifest_ready, h01_blocker_missing_module2_rl_rs_checkpoint, h01_blocker_realmap_query_generation_not_frozen, h02_scale_satisfies_h01`
+  - missing_artifact_ids: `h02_verdict_formal_acceptance_true, h02_scale_satisfies_h01`
   - invalid_substitutes: `candidate_or_smoke verdict; available-subset smoke scale; blocked H01 manifest with pending F02.6 or missing checkpoint blockers`
 - `gate3_audit_and_pullback_acceptance` (remote_acceptance): status=`blocked_formal_acceptance`, paper_result_input_allowed_now=`False`
-  - missing_artifact_ids: `gate3_formal_audit_json, remote_pullback_artifacts, pullback_missing_1, pullback_missing_2, pullback_missing_3, pullback_missing_4, pullback_missing_5, pullback_missing_6, pullback_missing_7`
+  - missing_artifact_ids: `gate3_formal_audit_pass`
   - invalid_substitutes: `remote stdout without local pullback; not_formal, candidate, smoke, preview, or no-warm Gate3 audit; partial pullback without train/eval/audit artifacts`
 - `ppo_rows_and_checkpoint_hash_present` (result_rows): status=`blocked_formal_acceptance`, paper_result_input_allowed_now=`False`
   - missing_artifact_ids: `ppo_result_rows`

@@ -10,8 +10,8 @@ This read-only artifact explains how F02.6 can be closed. It does not record a d
 - packet_authorization_status: `blocked_until_dr_sun_decision`
 - packet_allowed_now: `record_f02_6_decision`
 - packet_blocked_now: `remote_preflight, remote_training, local_training, formal_claim, paper_result_material`
-- next_blocked_lane: `decision`
-- missing_deliverable_count: `10`
+- next_blocked_lane: `source_fresh_preflight`
+- missing_deliverable_count: `1`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
 - remote_training_allowed_now: `False`
@@ -48,10 +48,10 @@ This read-only artifact explains how F02.6 can be closed. It does not record a d
 
 ## Formal Gate Decision Impact
 
-- current_blocker: `decision`
+- current_blocker: `source_fresh_preflight`
 - current_record_status: `approved`
-- missing_deliverable_count: `10`
-- missing_by_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
+- missing_deliverable_count: `1`
+- missing_by_category: `{'training': 0, 'evaluation': 0, 'acceptance': 0, 'formal_acceptance': 1}`
 - current_allowed_action_ids: `record_f02_6_decision`
 - current_blocked_action_ids: `remote_preflight, remote_training, local_training, formal_claim, paper_result_material`
 - `approve_obstacle_summary_warm_start`: next_lane_after_record=`source_fresh_regeneration`, requires_new_protocol_contract=`False`, remote_training_now=`False`, formal_claim_now=`False`
