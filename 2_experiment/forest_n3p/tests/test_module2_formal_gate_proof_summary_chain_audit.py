@@ -30,6 +30,8 @@ def test_proof_summary_chain_audit_accepts_consistent_blocked_chain(tmp_path):
     assert manifest["next_action_guard_consistent_row_count"] == 3
     assert manifest["next_required_deliverables_row_count"] == 3
     assert manifest["next_required_deliverables_consistent_row_count"] == 3
+    assert manifest["handoff_single_next_action_row_count"] == 3
+    assert manifest["handoff_single_next_action_consistent_row_count"] == 3
     assert manifest["audit_issue_count"] == 0
     assert manifest["h02_paper_result_input_allowed"] is False
     assert manifest["baseline_summary"]["missing_counts_by_formal_category"] == {
@@ -47,6 +49,9 @@ def test_proof_summary_chain_audit_accepts_consistent_blocked_chain(tmp_path):
     ] is True
     assert manifest["next_required_deliverables_rows_by_id"][
         "paper_readiness_claim_safety_next_required_formal_deliverables"
+    ]["signature_matches_baseline"] is True
+    assert manifest["handoff_single_next_action_rows_by_id"][
+        "paper_readiness_claim_safety_handoff_single_next_action_index"
     ]["signature_matches_baseline"] is True
 
 
@@ -134,6 +139,28 @@ def test_proof_summary_chain_audit_fails_next_required_deliverables_drift(tmp_pa
     assert "claim_safety_status_report_next_required_formal_deliverables_runs_training" in issue_ids
 
 
+def test_proof_summary_chain_audit_fails_handoff_single_next_action_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit")
+    paths = _write_chain_inputs(tmp_path)
+    paper = json.loads(paths["paper"].read_text(encoding="utf-8"))
+    summary = paper["claim_safety_handoff_single_next_action_index_summary"]
+    summary["next_action_id"] = "run_remote_training"
+    summary["current_allowed_action_ids"] = ["run_remote_training"]
+    summary["remote_training_allowed_now"] = True
+    summary["all_execution_disabled_now"] = False
+    paths["paper"].write_text(json.dumps(paper), encoding="utf-8")
+
+    manifest = builder.build_manifest(_config(builder, tmp_path, paths))
+
+    assert manifest["status"] == "formal_gate_proof_summary_chain_audit_failed"
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "paper_readiness_claim_safety_handoff_single_next_action_index_summary_mismatch" in issue_ids
+    assert "paper_readiness_claim_safety_handoff_single_next_action_index_unexpected_next_action" in issue_ids
+    assert "paper_readiness_claim_safety_handoff_single_next_action_index_unexpected_allowed_actions" in issue_ids
+    assert "paper_readiness_claim_safety_handoff_single_next_action_index_execution_not_disabled" in issue_ids
+    assert "paper_readiness_claim_safety_handoff_single_next_action_index_remote_training_allowed_now" in issue_ids
+
+
 def test_proof_summary_chain_audit_cli_writes_json_and_markdown(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit")
     paths = _write_chain_inputs(tmp_path)
@@ -160,6 +187,8 @@ def test_proof_summary_chain_audit_cli_writes_json_and_markdown(tmp_path):
             str(paths["remote_safety"]),
             "--formal-gate-gap-audit",
             str(paths["gap"]),
+            "--formal-gate-handoff-bundle",
+            str(paths["handoff"]),
             "--claim-safety",
             str(paths["claim"]),
             "--paper-readiness",
@@ -179,6 +208,8 @@ def test_proof_summary_chain_audit_cli_writes_json_and_markdown(tmp_path):
     assert "paper_readiness_claim_safety_next_action_guard" in markdown
     assert "Next Required Formal Deliverables Chain Rows" in markdown
     assert "paper_readiness_claim_safety_next_required_formal_deliverables" in markdown
+    assert "Handoff Single Next-Action Chain Rows" in markdown
+    assert "paper_readiness_claim_safety_handoff_single_next_action_index" in markdown
 
 
 def _config(builder, tmp_path, paths):
@@ -190,6 +221,7 @@ def _config(builder, tmp_path, paths):
         post_f02_6_plan_audit_path=paths["post_plan"],
         remote_packet_safety_audit_path=paths["remote_safety"],
         formal_gate_gap_audit_path=paths["gap"],
+        formal_gate_handoff_bundle_path=paths["handoff"],
         claim_safety_path=paths["claim"],
         paper_readiness_path=paths["paper"],
     )
@@ -199,6 +231,7 @@ def _write_chain_inputs(tmp_path):
     summary = _summary()
     next_action_guard = _next_action_guard_summary()
     next_required_deliverables = _next_required_deliverables_summary()
+    handoff_single_next_action = _handoff_single_next_action_summary()
     paths = {
         "remaining": tmp_path / "remaining.json",
         "proof": tmp_path / "proof.json",
@@ -206,6 +239,7 @@ def _write_chain_inputs(tmp_path):
         "post_plan": tmp_path / "post_plan.json",
         "remote_safety": tmp_path / "remote_safety.json",
         "gap": tmp_path / "gap.json",
+        "handoff": tmp_path / "handoff.json",
         "claim": tmp_path / "claim.json",
         "paper": tmp_path / "paper.json",
     }
@@ -251,6 +285,7 @@ def _write_chain_inputs(tmp_path):
             }
         },
     )
+    _write_json(paths["handoff"], {"single_next_action_index": handoff_single_next_action})
     _write_json(
         paths["claim"],
         {
@@ -258,6 +293,7 @@ def _write_chain_inputs(tmp_path):
             "status_report_remote_packet_safety_status_report_proof_deliverables_summary": summary,
             "status_report_next_action_guard_summary": next_action_guard,
             "status_report_next_required_formal_deliverables": next_required_deliverables,
+            "handoff_single_next_action_index_summary": handoff_single_next_action,
         },
     )
     _write_json(
@@ -267,6 +303,7 @@ def _write_chain_inputs(tmp_path):
             "claim_safety_remote_packet_safety_status_report_proof_deliverables_summary": summary,
             "claim_safety_next_action_guard_summary": next_action_guard,
             "claim_safety_next_required_formal_deliverables": next_required_deliverables,
+            "claim_safety_handoff_single_next_action_index_summary": handoff_single_next_action,
         },
     )
     return paths
