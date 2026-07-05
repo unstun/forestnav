@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_regeneration_plan",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-05T14:28:58.456437+00:00",
-  "source_head": "181860fa90c7f5f35dfb9bc224ca84c849a60d8a",
+  "created_at_utc": "2026-07-05T14:45:58.803939+00:00",
+  "source_head": "35ccf9ed2e1fe52cde81c260b031113f15319efa",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -223,6 +223,204 @@
   },
   "source_regeneration_command_index": [
     {
+      "artifact_id": "f02_6_warm_start_decision_packet",
+      "required_before": "approved_remote_preflight",
+      "freshness_state": "current_clean",
+      "path": "0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json",
+      "stage_id": "regenerate_preflight_gate_artifacts",
+      "command_kind": "known_builder",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_warm_start_decision_packet"
+    },
+    {
+      "artifact_id": "f02_6_decision_record",
+      "required_before": "approved_remote_preflight",
+      "freshness_state": "current_clean",
+      "path": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+      "stage_id": "regenerate_preflight_gate_artifacts",
+      "command_kind": "human_decision_record",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'"
+    },
+    {
+      "artifact_id": "f02_6_decision_intake",
+      "required_before": "approved_remote_preflight",
+      "freshness_state": "current_clean",
+      "path": "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
+      "stage_id": "regenerate_preflight_gate_artifacts",
+      "command_kind": "known_builder",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_intake"
+    },
+    {
+      "artifact_id": "f02_6_decision_gate_audit",
+      "required_before": "approved_remote_preflight",
+      "freshness_state": "current_clean",
+      "path": "0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json",
+      "stage_id": "regenerate_preflight_gate_artifacts",
+      "command_kind": "known_builder",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_gate_audit"
+    },
+    {
+      "artifact_id": "f02_6_transition_gate_audit",
+      "required_before": "approved_remote_preflight",
+      "freshness_state": "current_clean",
+      "path": "0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json",
+      "stage_id": "regenerate_preflight_gate_artifacts",
+      "command_kind": "known_builder",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_transition_gate_audit"
+    },
+    {
+      "artifact_id": "remote_formal_execution_packet",
+      "required_before": "approved_remote_preflight",
+      "freshness_state": "current_clean",
+      "path": "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json",
+      "stage_id": "regenerate_preflight_gate_artifacts",
+      "command_kind": "known_builder",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_formal_execution_packet"
+    },
+    {
+      "artifact_id": "h01_evaluation_manifest",
+      "required_before": "formal_h01_h02",
+      "freshness_state": "current_clean",
+      "path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
+      "stage_id": "regenerate_h01_h02_formal_artifacts",
+      "command_kind": "known_builder",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_evaluation_manifest --module2-rl-rs-checkpoint <pulled-back-final_model.zip>"
+    },
+    {
+      "artifact_id": "h02_formal_acceptance",
+      "required_before": "formal_h01_h02",
+      "freshness_state": "current_clean",
+      "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+      "stage_id": "regenerate_h01_h02_formal_artifacts",
+      "command_kind": "known_builder",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_h02_formal_acceptance"
+    },
+    {
+      "artifact_id": "claim_safety",
+      "required_before": "formal_claim_gate",
+      "freshness_state": "current_clean",
+      "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
+      "stage_id": "regenerate_claim_gate_artifacts",
+      "command_kind": "known_builder",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety"
+    },
+    {
+      "artifact_id": "paper_readiness",
+      "required_before": "formal_claim_gate",
+      "freshness_state": "current_clean",
+      "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
+      "stage_id": "regenerate_claim_gate_artifacts",
+      "command_kind": "known_builder",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_paper_readiness"
+    },
+    {
+      "artifact_id": "formal_gate_gap_audit",
+      "required_before": "approved_remote_preflight",
+      "freshness_state": "current_clean",
+      "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
+      "stage_id": "regenerate_preflight_gate_artifacts",
+      "command_kind": "known_builder",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_gap_audit"
+    },
+    {
+      "artifact_id": "post_f02_6_regeneration_plan",
+      "required_before": "approved_remote_preflight",
+      "freshness_state": "current_clean",
+      "path": "0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json",
+      "stage_id": "regenerate_preflight_gate_artifacts",
+      "command_kind": "known_builder",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_regeneration_plan"
+    },
+    {
+      "artifact_id": "post_f02_6_plan_audit",
+      "required_before": "approved_remote_preflight",
+      "freshness_state": "current_clean",
+      "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
+      "stage_id": "regenerate_preflight_gate_artifacts",
+      "command_kind": "known_builder",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_plan_audit"
+    },
+    {
+      "artifact_id": "remote_packet_safety_audit",
+      "required_before": "approved_remote_preflight",
+      "freshness_state": "current_clean",
+      "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
+      "stage_id": "regenerate_preflight_gate_artifacts",
+      "command_kind": "known_builder",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_packet_safety_audit"
+    },
+    {
+      "artifact_id": "formal_gate_closure_checklist",
+      "required_before": "approved_remote_preflight",
+      "freshness_state": "current_clean",
+      "path": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
+      "stage_id": "regenerate_preflight_gate_artifacts",
+      "command_kind": "known_builder",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_closure_checklist"
+    },
+    {
+      "artifact_id": "gpu3070ti_readiness_refresh",
+      "required_before": "approved_remote_preflight",
+      "freshness_state": "current_clean",
+      "path": "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
+      "stage_id": "regenerate_preflight_gate_artifacts",
+      "command_kind": "read_only_remote_resource_check",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_gpu3070ti_readiness_refresh"
+    },
+    {
+      "artifact_id": "formal_gate_missing_artifacts",
+      "required_before": "formal_claim_gate",
+      "freshness_state": "current_clean",
+      "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
+      "stage_id": "regenerate_claim_gate_artifacts",
+      "command_kind": "known_builder",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_missing_artifacts_audit"
+    },
+    {
+      "artifact_id": "formal_gate_status_report",
+      "required_before": "formal_claim_gate",
+      "freshness_state": "current_clean",
+      "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
+      "stage_id": "regenerate_claim_gate_artifacts",
+      "command_kind": "known_builder",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_status_report"
+    },
+    {
+      "artifact_id": "formal_gate_remaining_deliverables",
+      "required_before": "formal_claim_gate",
+      "freshness_state": "current_clean",
+      "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
+      "stage_id": "regenerate_claim_gate_artifacts",
+      "command_kind": "known_builder",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_remaining_deliverables"
+    },
+    {
+      "artifact_id": "formal_gate_proof_audit",
+      "required_before": "formal_claim_gate",
+      "freshness_state": "current_clean",
+      "path": "0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json",
+      "stage_id": "regenerate_claim_gate_artifacts",
+      "command_kind": "known_builder",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_audit"
+    },
+    {
+      "artifact_id": "formal_gate_proof_summary_chain_audit",
+      "required_before": "formal_claim_gate",
+      "freshness_state": "current_clean",
+      "path": "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
+      "stage_id": "regenerate_claim_gate_artifacts",
+      "command_kind": "known_builder",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit"
+    },
+    {
+      "artifact_id": "mainline_formal_gate_state_audit",
+      "required_before": "formal_claim_gate",
+      "freshness_state": "current_clean",
+      "path": "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json",
+      "stage_id": "regenerate_claim_gate_artifacts",
+      "command_kind": "known_builder",
+      "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit"
+    },
+    {
       "artifact_id": "formal_gate_handoff_bundle",
       "required_before": "approved_remote_preflight",
       "freshness_state": "current_clean",
@@ -268,6 +466,18 @@
         "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json"
       ],
       "command_templates": [
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_warm_start_decision_packet",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_intake",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_gate_audit",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_transition_gate_audit",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_formal_execution_packet",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_gap_audit",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_regeneration_plan",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_plan_audit",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_packet_safety_audit",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_closure_checklist",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_gpu3070ti_readiness_refresh",
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_handoff_bundle"
       ]
     },
@@ -425,7 +635,13 @@
       "evidence_paths": [],
       "command_templates": [
         "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety",
-        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_paper_readiness"
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_paper_readiness",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_missing_artifacts_audit",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_status_report",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_remaining_deliverables",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_audit",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit",
+        "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit"
       ]
     }
   ],

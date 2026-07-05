@@ -27,10 +27,6 @@
 - status_report_remaining_deliverables_gap_categories_blocked
 - status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing
 - status_report_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked
-- status_report_remote_packet_safety_command_index_missing_formal_gate_proof_summary_chain_audit
-- status_report_remote_packet_safety_command_index_missing_mainline_formal_gate_state_audit
-- status_report_remote_packet_safety_command_index_missing_claim_safety
-- status_report_remote_packet_safety_command_index_missing_paper_readiness
 
 ## Allowed Claims
 
@@ -201,15 +197,15 @@
 ## Status Report Remote-Safety Claim-Gate Command Index
 
 - present=`True`
-- index_row_count=`1`
-- source_target_count=`1`
+- index_row_count=`23`
+- source_target_count=`23`
 - missing_target_ids=`[]`
 - unknown_manual_count=`0`
 - forbidden_command_count=`0`
-- `formal_gate_proof_summary_chain_audit`: present=`False`, stage=`None`, required_before=`None`, command_kind=`None`
-- `mainline_formal_gate_state_audit`: present=`False`, stage=`None`, required_before=`None`, command_kind=`None`
-- `claim_safety`: present=`False`, stage=`None`, required_before=`None`, command_kind=`None`
-- `paper_readiness`: present=`False`, stage=`None`, required_before=`None`, command_kind=`None`
+- `formal_gate_proof_summary_chain_audit`: present=`True`, stage=`regenerate_claim_gate_artifacts`, required_before=`formal_claim_gate`, command_kind=`known_builder`
+- `mainline_formal_gate_state_audit`: present=`True`, stage=`regenerate_claim_gate_artifacts`, required_before=`formal_claim_gate`, command_kind=`known_builder`
+- `claim_safety`: present=`True`, stage=`regenerate_claim_gate_artifacts`, required_before=`formal_claim_gate`, command_kind=`known_builder`
+- `paper_readiness`: present=`True`, stage=`regenerate_claim_gate_artifacts`, required_before=`formal_claim_gate`, command_kind=`known_builder`
 
 ## Prohibited Claims
 

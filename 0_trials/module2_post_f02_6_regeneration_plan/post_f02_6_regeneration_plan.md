@@ -81,6 +81,50 @@ This file is an ordered plan. It does not execute commands, train, preflight, au
 
 ## Source Regeneration Command Index
 
+- `f02_6_warm_start_decision_packet` -> `regenerate_preflight_gate_artifacts` kind=`known_builder`, required_before=`approved_remote_preflight`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_warm_start_decision_packet`
+- `f02_6_decision_record` -> `regenerate_preflight_gate_artifacts` kind=`human_decision_record`, required_before=`approved_remote_preflight`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'`
+- `f02_6_decision_intake` -> `regenerate_preflight_gate_artifacts` kind=`known_builder`, required_before=`approved_remote_preflight`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_intake`
+- `f02_6_decision_gate_audit` -> `regenerate_preflight_gate_artifacts` kind=`known_builder`, required_before=`approved_remote_preflight`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_gate_audit`
+- `f02_6_transition_gate_audit` -> `regenerate_preflight_gate_artifacts` kind=`known_builder`, required_before=`approved_remote_preflight`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_transition_gate_audit`
+- `remote_formal_execution_packet` -> `regenerate_preflight_gate_artifacts` kind=`known_builder`, required_before=`approved_remote_preflight`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_formal_execution_packet`
+- `h01_evaluation_manifest` -> `regenerate_h01_h02_formal_artifacts` kind=`known_builder`, required_before=`formal_h01_h02`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_evaluation_manifest --module2-rl-rs-checkpoint <pulled-back-final_model.zip>`
+- `h02_formal_acceptance` -> `regenerate_h01_h02_formal_artifacts` kind=`known_builder`, required_before=`formal_h01_h02`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_h02_formal_acceptance`
+- `claim_safety` -> `regenerate_claim_gate_artifacts` kind=`known_builder`, required_before=`formal_claim_gate`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety`
+- `paper_readiness` -> `regenerate_claim_gate_artifacts` kind=`known_builder`, required_before=`formal_claim_gate`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_paper_readiness`
+- `formal_gate_gap_audit` -> `regenerate_preflight_gate_artifacts` kind=`known_builder`, required_before=`approved_remote_preflight`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_gap_audit`
+- `post_f02_6_regeneration_plan` -> `regenerate_preflight_gate_artifacts` kind=`known_builder`, required_before=`approved_remote_preflight`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_regeneration_plan`
+- `post_f02_6_plan_audit` -> `regenerate_preflight_gate_artifacts` kind=`known_builder`, required_before=`approved_remote_preflight`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_plan_audit`
+- `remote_packet_safety_audit` -> `regenerate_preflight_gate_artifacts` kind=`known_builder`, required_before=`approved_remote_preflight`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_packet_safety_audit`
+- `formal_gate_closure_checklist` -> `regenerate_preflight_gate_artifacts` kind=`known_builder`, required_before=`approved_remote_preflight`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_closure_checklist`
+- `gpu3070ti_readiness_refresh` -> `regenerate_preflight_gate_artifacts` kind=`read_only_remote_resource_check`, required_before=`approved_remote_preflight`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_gpu3070ti_readiness_refresh`
+- `formal_gate_missing_artifacts` -> `regenerate_claim_gate_artifacts` kind=`known_builder`, required_before=`formal_claim_gate`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_missing_artifacts_audit`
+- `formal_gate_status_report` -> `regenerate_claim_gate_artifacts` kind=`known_builder`, required_before=`formal_claim_gate`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_status_report`
+- `formal_gate_remaining_deliverables` -> `regenerate_claim_gate_artifacts` kind=`known_builder`, required_before=`formal_claim_gate`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_remaining_deliverables`
+- `formal_gate_proof_audit` -> `regenerate_claim_gate_artifacts` kind=`known_builder`, required_before=`formal_claim_gate`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_audit`
+- `formal_gate_proof_summary_chain_audit` -> `regenerate_claim_gate_artifacts` kind=`known_builder`, required_before=`formal_claim_gate`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit`
+- `mainline_formal_gate_state_audit` -> `regenerate_claim_gate_artifacts` kind=`known_builder`, required_before=`formal_claim_gate`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit`
 - `formal_gate_handoff_bundle` -> `regenerate_preflight_gate_artifacts` kind=`known_builder`, required_before=`approved_remote_preflight`
   - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_handoff_bundle`
 
