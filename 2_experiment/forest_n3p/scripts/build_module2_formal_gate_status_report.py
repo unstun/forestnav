@@ -944,6 +944,11 @@ def _decision_intake_summary(decision_intake: dict[str, Any]) -> dict[str, Any]:
         if isinstance(decision_intake.get("decision_intake_contract"), dict)
         else {}
     )
+    request = (
+        decision_intake.get("next_human_decision_request")
+        if isinstance(decision_intake.get("next_human_decision_request"), dict)
+        else {}
+    )
     valid_decisions = _string_list(contract.get("valid_decisions"))
     required_fields = _string_list(contract.get("required_record_fields_for_non_pending_decision"))
     command_templates = (
@@ -1020,6 +1025,16 @@ def _decision_intake_summary(decision_intake: dict[str, Any]) -> dict[str, Any]:
         "packet_paper_result_material_allowed_now": current_state.get("packet_paper_result_material_allowed_now")
         if isinstance(current_state.get("packet_paper_result_material_allowed_now"), bool)
         else None,
+        "next_request_status": request.get("status"),
+        "next_request_decision_owner_required": request.get("decision_owner_required"),
+        "next_request_valid_decisions": _string_list(request.get("valid_decisions")),
+        "next_request_required_record_fields": _string_list(request.get("required_record_fields")),
+        "next_request_current_allowed_action_ids": _string_list(request.get("current_allowed_action_ids")),
+        "next_request_current_blocked_action_ids": _string_list(request.get("current_blocked_action_ids")),
+        "next_request_post_decision_routes_are_current_authorization": request.get(
+            "post_decision_routes_are_current_authorization"
+        ),
+        "next_request_all_execution_disabled_now": request.get("all_execution_disabled_now"),
         "decision_owner_required": contract.get("decision_owner_required"),
         "valid_decisions": valid_decisions,
         "valid_decision_count": len(valid_decisions),
