@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_remaining_deliverables",
   "status": "formal_gate_deliverables_blocked",
-  "created_at_utc": "2026-07-05T12:24:32.965062+00:00",
-  "source_head": "7ed00f0967f72f24c8827bb6c19773bbdbf1ea23",
+  "created_at_utc": "2026-07-05T12:36:31.818428+00:00",
+  "source_head": "818b4b347b211ccef4fbf77fd120ea2c3b48510a",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -24,7 +24,8 @@
     "remote_formal_execution_packet": "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json",
     "h01_manifest": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
     "h02_formal_acceptance": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
-    "source_freshness_audit": "0_trials/module2_source_freshness_audit/source_freshness_audit.json"
+    "source_freshness_audit": "0_trials/module2_source_freshness_audit/source_freshness_audit.json",
+    "post_f02_6_regeneration_plan": "0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json"
   },
   "current_gate_summary": {
     "status_report_status": "formal_gate_status_blocked",
@@ -32,13 +33,13 @@
     "missing_counts_by_category": {
       "decision": 1,
       "decision_gate": 0,
-      "regeneration": 0,
+      "regeneration": 20,
       "gate_sequence": 7,
       "training": 3,
       "evaluation": 2,
       "acceptance": 3,
       "evaluation_acceptance": 2,
-      "claim_gate": 1
+      "claim_gate": 6
     },
     "remote_packet_status": "blocked_until_f02_6_decision",
     "ready_to_run_remote_training": false,
@@ -342,7 +343,8 @@
         "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "missing_remote_audit_pullback"
+          "missing_remote_audit_pullback",
+          "source_fresh_h01_h02_targets_open"
         ],
         "next_required_evidence": [
           "H01 manifest status ready_for_formal_run or ready_for_formal_evaluation after F02.6 is closed",
@@ -508,6 +510,483 @@
           "h02_formal_output_acceptance_exists_nonempty",
           "h02_formal_output_acceptance_status"
         ]
+      }
+    ]
+  },
+  "deliverable_production_plan": {
+    "plan_id": "module2_formal_gate_deliverable_production_plan",
+    "source_plan": "post_f02_6_regeneration_plan",
+    "post_plan_status": "blocked_until_f02_6_decision",
+    "execution_boundary": "reference_only_no_execution",
+    "not_paper_result_material": true,
+    "runs_training": false,
+    "runs_remote_preflight": false,
+    "row_count": 10,
+    "rows_missing_production_stage": 0,
+    "rows_missing_materialization_stage": 0,
+    "rows_allowed_while_missing": 0,
+    "rows": [
+      {
+        "matrix_id": "training:train_final_model_zip",
+        "category": "training",
+        "artifact_id": "train_final_model_zip",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
+        "current_missing": true,
+        "remote_generation_stage_id": "gate3_remote_training",
+        "local_materialization_stage_id": "gate3_remote_audit_pullback",
+        "remote_generation_stage": {
+          "stage_id": "gate3_remote_training",
+          "phase": "training",
+          "status": "blocked",
+          "allowed_now": false,
+          "blocked_by": [
+            "f02_6_decision_not_approved",
+            "source_fresh_preflight_targets_open",
+            "remote_packet_not_ready"
+          ],
+          "runs_training": true,
+          "runs_remote_preflight": false,
+          "host": "gpu3070ti-relay",
+          "command_template_count": 1,
+          "evidence_path_count": 7
+        },
+        "local_materialization_stage": {
+          "stage_id": "gate3_remote_audit_pullback",
+          "phase": "acceptance",
+          "status": "blocked",
+          "allowed_now": false,
+          "blocked_by": [
+            "f02_6_decision_not_approved",
+            "source_fresh_preflight_targets_open",
+            "remote_packet_not_ready"
+          ],
+          "runs_training": false,
+          "runs_remote_preflight": false,
+          "host": "gpu3070ti-relay",
+          "command_template_count": 2,
+          "evidence_path_count": 7
+        },
+        "expected_path_listed_in_remote_generation_stage": true,
+        "expected_path_listed_in_local_materialization_stage": true,
+        "hash_manifest_required_by_remote_packet": true,
+        "post_plan_input_status": "blocked_until_f02_6_decision",
+        "execution_boundary": "reference_only_no_execution",
+        "not_paper_result_material": true
+      },
+      {
+        "matrix_id": "training:train_summary_json",
+        "category": "training",
+        "artifact_id": "train_summary_json",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
+        "current_missing": true,
+        "remote_generation_stage_id": "gate3_remote_training",
+        "local_materialization_stage_id": "gate3_remote_audit_pullback",
+        "remote_generation_stage": {
+          "stage_id": "gate3_remote_training",
+          "phase": "training",
+          "status": "blocked",
+          "allowed_now": false,
+          "blocked_by": [
+            "f02_6_decision_not_approved",
+            "source_fresh_preflight_targets_open",
+            "remote_packet_not_ready"
+          ],
+          "runs_training": true,
+          "runs_remote_preflight": false,
+          "host": "gpu3070ti-relay",
+          "command_template_count": 1,
+          "evidence_path_count": 7
+        },
+        "local_materialization_stage": {
+          "stage_id": "gate3_remote_audit_pullback",
+          "phase": "acceptance",
+          "status": "blocked",
+          "allowed_now": false,
+          "blocked_by": [
+            "f02_6_decision_not_approved",
+            "source_fresh_preflight_targets_open",
+            "remote_packet_not_ready"
+          ],
+          "runs_training": false,
+          "runs_remote_preflight": false,
+          "host": "gpu3070ti-relay",
+          "command_template_count": 2,
+          "evidence_path_count": 7
+        },
+        "expected_path_listed_in_remote_generation_stage": true,
+        "expected_path_listed_in_local_materialization_stage": true,
+        "hash_manifest_required_by_remote_packet": true,
+        "post_plan_input_status": "blocked_until_f02_6_decision",
+        "execution_boundary": "reference_only_no_execution",
+        "not_paper_result_material": true
+      },
+      {
+        "matrix_id": "training:train_training_manifest_json",
+        "category": "training",
+        "artifact_id": "train_training_manifest_json",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json",
+        "current_missing": true,
+        "remote_generation_stage_id": "gate3_remote_training",
+        "local_materialization_stage_id": "gate3_remote_audit_pullback",
+        "remote_generation_stage": {
+          "stage_id": "gate3_remote_training",
+          "phase": "training",
+          "status": "blocked",
+          "allowed_now": false,
+          "blocked_by": [
+            "f02_6_decision_not_approved",
+            "source_fresh_preflight_targets_open",
+            "remote_packet_not_ready"
+          ],
+          "runs_training": true,
+          "runs_remote_preflight": false,
+          "host": "gpu3070ti-relay",
+          "command_template_count": 1,
+          "evidence_path_count": 7
+        },
+        "local_materialization_stage": {
+          "stage_id": "gate3_remote_audit_pullback",
+          "phase": "acceptance",
+          "status": "blocked",
+          "allowed_now": false,
+          "blocked_by": [
+            "f02_6_decision_not_approved",
+            "source_fresh_preflight_targets_open",
+            "remote_packet_not_ready"
+          ],
+          "runs_training": false,
+          "runs_remote_preflight": false,
+          "host": "gpu3070ti-relay",
+          "command_template_count": 2,
+          "evidence_path_count": 7
+        },
+        "expected_path_listed_in_remote_generation_stage": true,
+        "expected_path_listed_in_local_materialization_stage": true,
+        "hash_manifest_required_by_remote_packet": true,
+        "post_plan_input_status": "blocked_until_f02_6_decision",
+        "execution_boundary": "reference_only_no_execution",
+        "not_paper_result_material": true
+      },
+      {
+        "matrix_id": "evaluation:eval_gate3_eval_episodes_csv",
+        "category": "evaluation",
+        "artifact_id": "eval_gate3_eval_episodes_csv",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv",
+        "current_missing": true,
+        "remote_generation_stage_id": "gate3_remote_training",
+        "local_materialization_stage_id": "gate3_remote_audit_pullback",
+        "remote_generation_stage": {
+          "stage_id": "gate3_remote_training",
+          "phase": "training",
+          "status": "blocked",
+          "allowed_now": false,
+          "blocked_by": [
+            "f02_6_decision_not_approved",
+            "source_fresh_preflight_targets_open",
+            "remote_packet_not_ready"
+          ],
+          "runs_training": true,
+          "runs_remote_preflight": false,
+          "host": "gpu3070ti-relay",
+          "command_template_count": 1,
+          "evidence_path_count": 7
+        },
+        "local_materialization_stage": {
+          "stage_id": "gate3_remote_audit_pullback",
+          "phase": "acceptance",
+          "status": "blocked",
+          "allowed_now": false,
+          "blocked_by": [
+            "f02_6_decision_not_approved",
+            "source_fresh_preflight_targets_open",
+            "remote_packet_not_ready"
+          ],
+          "runs_training": false,
+          "runs_remote_preflight": false,
+          "host": "gpu3070ti-relay",
+          "command_template_count": 2,
+          "evidence_path_count": 7
+        },
+        "expected_path_listed_in_remote_generation_stage": true,
+        "expected_path_listed_in_local_materialization_stage": true,
+        "hash_manifest_required_by_remote_packet": true,
+        "post_plan_input_status": "blocked_until_f02_6_decision",
+        "execution_boundary": "reference_only_no_execution",
+        "not_paper_result_material": true
+      },
+      {
+        "matrix_id": "evaluation:eval_gate3_summary_json",
+        "category": "evaluation",
+        "artifact_id": "eval_gate3_summary_json",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json",
+        "current_missing": true,
+        "remote_generation_stage_id": "gate3_remote_training",
+        "local_materialization_stage_id": "gate3_remote_audit_pullback",
+        "remote_generation_stage": {
+          "stage_id": "gate3_remote_training",
+          "phase": "training",
+          "status": "blocked",
+          "allowed_now": false,
+          "blocked_by": [
+            "f02_6_decision_not_approved",
+            "source_fresh_preflight_targets_open",
+            "remote_packet_not_ready"
+          ],
+          "runs_training": true,
+          "runs_remote_preflight": false,
+          "host": "gpu3070ti-relay",
+          "command_template_count": 1,
+          "evidence_path_count": 7
+        },
+        "local_materialization_stage": {
+          "stage_id": "gate3_remote_audit_pullback",
+          "phase": "acceptance",
+          "status": "blocked",
+          "allowed_now": false,
+          "blocked_by": [
+            "f02_6_decision_not_approved",
+            "source_fresh_preflight_targets_open",
+            "remote_packet_not_ready"
+          ],
+          "runs_training": false,
+          "runs_remote_preflight": false,
+          "host": "gpu3070ti-relay",
+          "command_template_count": 2,
+          "evidence_path_count": 7
+        },
+        "expected_path_listed_in_remote_generation_stage": true,
+        "expected_path_listed_in_local_materialization_stage": true,
+        "hash_manifest_required_by_remote_packet": true,
+        "post_plan_input_status": "blocked_until_f02_6_decision",
+        "execution_boundary": "reference_only_no_execution",
+        "not_paper_result_material": true
+      },
+      {
+        "matrix_id": "acceptance:gate3_trial_manifest_json",
+        "category": "acceptance",
+        "artifact_id": "gate3_trial_manifest_json",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json",
+        "current_missing": true,
+        "remote_generation_stage_id": "gate3_remote_training",
+        "local_materialization_stage_id": "gate3_remote_audit_pullback",
+        "remote_generation_stage": {
+          "stage_id": "gate3_remote_training",
+          "phase": "training",
+          "status": "blocked",
+          "allowed_now": false,
+          "blocked_by": [
+            "f02_6_decision_not_approved",
+            "source_fresh_preflight_targets_open",
+            "remote_packet_not_ready"
+          ],
+          "runs_training": true,
+          "runs_remote_preflight": false,
+          "host": "gpu3070ti-relay",
+          "command_template_count": 1,
+          "evidence_path_count": 7
+        },
+        "local_materialization_stage": {
+          "stage_id": "gate3_remote_audit_pullback",
+          "phase": "acceptance",
+          "status": "blocked",
+          "allowed_now": false,
+          "blocked_by": [
+            "f02_6_decision_not_approved",
+            "source_fresh_preflight_targets_open",
+            "remote_packet_not_ready"
+          ],
+          "runs_training": false,
+          "runs_remote_preflight": false,
+          "host": "gpu3070ti-relay",
+          "command_template_count": 2,
+          "evidence_path_count": 7
+        },
+        "expected_path_listed_in_remote_generation_stage": true,
+        "expected_path_listed_in_local_materialization_stage": true,
+        "hash_manifest_required_by_remote_packet": true,
+        "post_plan_input_status": "blocked_until_f02_6_decision",
+        "execution_boundary": "reference_only_no_execution",
+        "not_paper_result_material": true
+      },
+      {
+        "matrix_id": "acceptance:gate3_formal_audit_json",
+        "category": "acceptance",
+        "artifact_id": "gate3_formal_audit_json",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json",
+        "current_missing": true,
+        "remote_generation_stage_id": "gate3_remote_audit_pullback",
+        "local_materialization_stage_id": "gate3_remote_audit_pullback",
+        "remote_generation_stage": {
+          "stage_id": "gate3_remote_audit_pullback",
+          "phase": "acceptance",
+          "status": "blocked",
+          "allowed_now": false,
+          "blocked_by": [
+            "f02_6_decision_not_approved",
+            "source_fresh_preflight_targets_open",
+            "remote_packet_not_ready"
+          ],
+          "runs_training": false,
+          "runs_remote_preflight": false,
+          "host": "gpu3070ti-relay",
+          "command_template_count": 2,
+          "evidence_path_count": 7
+        },
+        "local_materialization_stage": {
+          "stage_id": "gate3_remote_audit_pullback",
+          "phase": "acceptance",
+          "status": "blocked",
+          "allowed_now": false,
+          "blocked_by": [
+            "f02_6_decision_not_approved",
+            "source_fresh_preflight_targets_open",
+            "remote_packet_not_ready"
+          ],
+          "runs_training": false,
+          "runs_remote_preflight": false,
+          "host": "gpu3070ti-relay",
+          "command_template_count": 2,
+          "evidence_path_count": 7
+        },
+        "expected_path_listed_in_remote_generation_stage": true,
+        "expected_path_listed_in_local_materialization_stage": true,
+        "hash_manifest_required_by_remote_packet": true,
+        "post_plan_input_status": "blocked_until_f02_6_decision",
+        "execution_boundary": "reference_only_no_execution",
+        "not_paper_result_material": true
+      },
+      {
+        "matrix_id": "acceptance:pulled_back_checkpoint_hash_record",
+        "category": "acceptance",
+        "artifact_id": "pulled_back_checkpoint_hash_record",
+        "expected_path": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json",
+        "current_missing": true,
+        "remote_generation_stage_id": "gate3_remote_audit_pullback",
+        "local_materialization_stage_id": "gate3_remote_audit_pullback",
+        "remote_generation_stage": {
+          "stage_id": "gate3_remote_audit_pullback",
+          "phase": "acceptance",
+          "status": "blocked",
+          "allowed_now": false,
+          "blocked_by": [
+            "f02_6_decision_not_approved",
+            "source_fresh_preflight_targets_open",
+            "remote_packet_not_ready"
+          ],
+          "runs_training": false,
+          "runs_remote_preflight": false,
+          "host": "gpu3070ti-relay",
+          "command_template_count": 2,
+          "evidence_path_count": 7
+        },
+        "local_materialization_stage": {
+          "stage_id": "gate3_remote_audit_pullback",
+          "phase": "acceptance",
+          "status": "blocked",
+          "allowed_now": false,
+          "blocked_by": [
+            "f02_6_decision_not_approved",
+            "source_fresh_preflight_targets_open",
+            "remote_packet_not_ready"
+          ],
+          "runs_training": false,
+          "runs_remote_preflight": false,
+          "host": "gpu3070ti-relay",
+          "command_template_count": 2,
+          "evidence_path_count": 7
+        },
+        "expected_path_listed_in_remote_generation_stage": false,
+        "expected_path_listed_in_local_materialization_stage": false,
+        "hash_manifest_required_by_remote_packet": true,
+        "post_plan_input_status": "blocked_until_f02_6_decision",
+        "execution_boundary": "reference_only_no_execution",
+        "not_paper_result_material": true
+      },
+      {
+        "matrix_id": "formal_acceptance:h01_ready_for_formal_run",
+        "category": "formal_acceptance",
+        "artifact_id": "h01_ready_for_formal_run",
+        "expected_path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
+        "current_missing": true,
+        "remote_generation_stage_id": "regenerate_h01_h02_formal_artifacts",
+        "local_materialization_stage_id": "regenerate_h01_h02_formal_artifacts",
+        "remote_generation_stage": {
+          "stage_id": "regenerate_h01_h02_formal_artifacts",
+          "phase": "evaluation",
+          "status": "blocked",
+          "allowed_now": false,
+          "blocked_by": [
+            "missing_remote_audit_pullback"
+          ],
+          "runs_training": false,
+          "runs_remote_preflight": false,
+          "host": null,
+          "command_template_count": 2,
+          "evidence_path_count": 1
+        },
+        "local_materialization_stage": {
+          "stage_id": "regenerate_h01_h02_formal_artifacts",
+          "phase": "evaluation",
+          "status": "blocked",
+          "allowed_now": false,
+          "blocked_by": [
+            "missing_remote_audit_pullback"
+          ],
+          "runs_training": false,
+          "runs_remote_preflight": false,
+          "host": null,
+          "command_template_count": 2,
+          "evidence_path_count": 1
+        },
+        "expected_path_listed_in_remote_generation_stage": false,
+        "expected_path_listed_in_local_materialization_stage": false,
+        "hash_manifest_required_by_remote_packet": true,
+        "post_plan_input_status": "blocked_until_f02_6_decision",
+        "execution_boundary": "reference_only_no_execution",
+        "not_paper_result_material": true
+      },
+      {
+        "matrix_id": "formal_acceptance:h02_formal_output_acceptance",
+        "category": "formal_acceptance",
+        "artifact_id": "h02_formal_output_acceptance",
+        "expected_path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+        "current_missing": true,
+        "remote_generation_stage_id": "regenerate_h01_h02_formal_artifacts",
+        "local_materialization_stage_id": "regenerate_h01_h02_formal_artifacts",
+        "remote_generation_stage": {
+          "stage_id": "regenerate_h01_h02_formal_artifacts",
+          "phase": "evaluation",
+          "status": "blocked",
+          "allowed_now": false,
+          "blocked_by": [
+            "missing_remote_audit_pullback"
+          ],
+          "runs_training": false,
+          "runs_remote_preflight": false,
+          "host": null,
+          "command_template_count": 2,
+          "evidence_path_count": 1
+        },
+        "local_materialization_stage": {
+          "stage_id": "regenerate_h01_h02_formal_artifacts",
+          "phase": "evaluation",
+          "status": "blocked",
+          "allowed_now": false,
+          "blocked_by": [
+            "missing_remote_audit_pullback"
+          ],
+          "runs_training": false,
+          "runs_remote_preflight": false,
+          "host": null,
+          "command_template_count": 2,
+          "evidence_path_count": 1
+        },
+        "expected_path_listed_in_remote_generation_stage": true,
+        "expected_path_listed_in_local_materialization_stage": true,
+        "hash_manifest_required_by_remote_packet": true,
+        "post_plan_input_status": "blocked_until_f02_6_decision",
+        "execution_boundary": "reference_only_no_execution",
+        "not_paper_result_material": true
       }
     ]
   },
@@ -751,7 +1230,8 @@
         "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "missing_remote_audit_pullback"
+          "missing_remote_audit_pullback",
+          "source_fresh_h01_h02_targets_open"
         ],
         "required_current_blockers": [
           "missing_remote_audit_pullback"
@@ -773,7 +1253,8 @@
         "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "missing_remote_audit_pullback"
+          "missing_remote_audit_pullback",
+          "source_fresh_h01_h02_targets_open"
         ],
         "required_current_blockers": [
           "missing_remote_audit_pullback"
@@ -904,7 +1385,8 @@
         "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "missing_remote_audit_pullback"
+          "missing_remote_audit_pullback",
+          "source_fresh_h01_h02_targets_open"
         ],
         "missing_matrix_ids": [
           "formal_acceptance:h01_ready_for_formal_run",
@@ -1084,7 +1566,8 @@
       "responsible_stage_status": "blocked",
       "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
-        "missing_remote_audit_pullback"
+        "missing_remote_audit_pullback",
+        "source_fresh_h01_h02_targets_open"
       ],
       "acceptable_evidence": [
         "H01 manifest status ready_for_formal_run or ready_for_formal_evaluation after F02.6 is closed",
@@ -1555,7 +2038,8 @@
       "responsible_stage_status": "blocked",
       "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
-        "missing_remote_audit_pullback"
+        "missing_remote_audit_pullback",
+        "source_fresh_h01_h02_targets_open"
       ],
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
@@ -1606,7 +2090,8 @@
       "responsible_stage_status": "blocked",
       "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
-        "missing_remote_audit_pullback"
+        "missing_remote_audit_pullback",
+        "source_fresh_h01_h02_targets_open"
       ],
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",

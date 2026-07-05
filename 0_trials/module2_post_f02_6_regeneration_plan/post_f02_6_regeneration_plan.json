@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_regeneration_plan",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-05T12:24:32.624318+00:00",
-  "source_head": "7ed00f0967f72f24c8827bb6c19773bbdbf1ea23",
+  "created_at_utc": "2026-07-05T12:36:31.436117+00:00",
+  "source_head": "818b4b347b211ccef4fbf77fd120ea2c3b48510a",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -123,8 +123,7 @@
         "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "missing_remote_audit_pullback",
-          "source_fresh_h01_h02_targets_open"
+          "missing_remote_audit_pullback"
         ],
         "missing_artifact_matrix_ids": [
           "formal_acceptance:h01_ready_for_formal_run",
@@ -295,6 +294,10 @@
       "formal_gate_blockers_snapshot": [
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
+        "remote_packet_safety_command_index_missing_formal_gate_proof_summary_chain_audit",
+        "remote_packet_safety_command_index_missing_mainline_formal_gate_state_audit",
+        "remote_packet_safety_command_index_missing_claim_safety",
+        "remote_packet_safety_command_index_missing_paper_readiness",
         "remote_training_packet_not_ready"
       ]
     },
@@ -349,6 +352,10 @@
       "formal_gate_blockers_snapshot": [
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
+        "remote_packet_safety_command_index_missing_formal_gate_proof_summary_chain_audit",
+        "remote_packet_safety_command_index_missing_mainline_formal_gate_state_audit",
+        "remote_packet_safety_command_index_missing_claim_safety",
+        "remote_packet_safety_command_index_missing_paper_readiness",
         "remote_training_packet_not_ready"
       ]
     },

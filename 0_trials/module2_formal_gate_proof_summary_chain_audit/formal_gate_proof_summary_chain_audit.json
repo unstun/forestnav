@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_proof_summary_chain_audit",
-  "status": "formal_gate_proof_summary_chain_audit_failed",
-  "created_at_utc": "2026-07-05T12:24:33.626069+00:00",
-  "source_head": "7ed00f0967f72f24c8827bb6c19773bbdbf1ea23",
+  "status": "formal_gate_proof_summary_chain_consistent_blocked",
+  "created_at_utc": "2026-07-05T12:37:58.736775+00:00",
+  "source_head": "818b4b347b211ccef4fbf77fd120ea2c3b48510a",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -98,116 +98,10 @@
   "next_required_deliverables_row_count": 3,
   "next_required_deliverables_consistent_row_count": 3,
   "handoff_single_next_action_row_count": 3,
-  "handoff_single_next_action_consistent_row_count": 2,
+  "handoff_single_next_action_consistent_row_count": 3,
   "h02_paper_result_input_allowed": false,
-  "audit_issue_count": 2,
-  "audit_issues": [
-    {
-      "issue_id": "paper_readiness_claim_safety_handoff_single_next_action_index_summary_mismatch",
-      "message": "Downstream handoff single-next-action summary does not match the handoff-bundle baseline.",
-      "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
-      "summary_key_path": "claim_safety_handoff_single_next_action_index_summary",
-      "observed_signature": {
-        "index_id": "module2_formal_gate_single_next_action_index",
-        "status": "awaiting_dr_sun_f02_6_decision",
-        "single_current_human_entry": true,
-        "next_action_id": "record_f02_6_decision",
-        "decision_owner_required": "Dr Sun",
-        "valid_decisions": [
-          "approve_obstacle_summary_warm_start",
-          "reject_obstacle_summary_warm_start"
-        ],
-        "required_record_fields": [
-          "decider",
-          "decision",
-          "decision_note"
-        ],
-        "current_allowed_action_ids": [
-          "record_f02_6_decision"
-        ],
-        "current_blocked_action_ids": [
-          "formal_claim",
-          "local_training",
-          "paper_result_material",
-          "remote_preflight",
-          "remote_training"
-        ],
-        "post_decision_routes_are_current_authorization": false,
-        "all_execution_disabled_now": true,
-        "record_command_template_count": 2,
-        "local_training_allowed_now": false,
-        "remote_preflight_allowed_now": false,
-        "remote_training_allowed_now": false,
-        "formal_claim_allowed_now": false,
-        "paper_result_material_allowed_now": false,
-        "missing_deliverable_count": 10,
-        "open_category_count": 4,
-        "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
-        "source_freshness_blocking_regeneration_required": true,
-        "approved_route_next_lane": "source_fresh_regeneration",
-        "rejected_route_next_lane": "protocol_redesign",
-        "after_approval_still_requires": [
-          "approved_remote_preflight",
-          "post_f02_6_plan_audit",
-          "post_f02_6_regeneration_plan",
-          "remote_formal_execution_packet_ready",
-          "source_freshness_audit"
-        ]
-      },
-      "expected_signature": {
-        "index_id": "module2_formal_gate_single_next_action_index",
-        "status": "awaiting_dr_sun_f02_6_decision",
-        "single_current_human_entry": true,
-        "next_action_id": "record_f02_6_decision",
-        "decision_owner_required": "Dr Sun",
-        "valid_decisions": [
-          "approve_obstacle_summary_warm_start",
-          "reject_obstacle_summary_warm_start"
-        ],
-        "required_record_fields": [
-          "decider",
-          "decision",
-          "decision_note"
-        ],
-        "current_allowed_action_ids": [
-          "record_f02_6_decision"
-        ],
-        "current_blocked_action_ids": [
-          "formal_claim",
-          "local_training",
-          "paper_result_material",
-          "remote_preflight",
-          "remote_training"
-        ],
-        "post_decision_routes_are_current_authorization": false,
-        "all_execution_disabled_now": true,
-        "record_command_template_count": 2,
-        "local_training_allowed_now": false,
-        "remote_preflight_allowed_now": false,
-        "remote_training_allowed_now": false,
-        "formal_claim_allowed_now": false,
-        "paper_result_material_allowed_now": false,
-        "missing_deliverable_count": 10,
-        "open_category_count": 4,
-        "source_freshness_status": "source_freshness_clean_current",
-        "source_freshness_blocking_regeneration_required": false,
-        "approved_route_next_lane": "source_fresh_regeneration",
-        "rejected_route_next_lane": "protocol_redesign",
-        "after_approval_still_requires": [
-          "approved_remote_preflight",
-          "post_f02_6_plan_audit",
-          "post_f02_6_regeneration_plan",
-          "remote_formal_execution_packet_ready",
-          "source_freshness_audit"
-        ]
-      }
-    },
-    {
-      "issue_id": "paper_readiness_claim_safety_handoff_single_next_action_index_source_freshness_blocks",
-      "message": "Single-next-action handoff must not hide a blocking source-freshness regeneration requirement.",
-      "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json"
-    }
-  ],
+  "audit_issue_count": 0,
+  "audit_issues": [],
   "chain_rows": [
     {
       "row_id": "remaining_deliverables_top_level",
@@ -3662,7 +3556,7 @@
       "remote_training_allowed_now": false,
       "formal_claim_allowed_now": false,
       "paper_result_material_allowed_now": false,
-      "source_freshness_blocking_regeneration_required": true,
+      "source_freshness_blocking_regeneration_required": false,
       "approved_route_next_lane": "source_fresh_regeneration",
       "after_approval_still_requires": [
         "source_freshness_audit",
@@ -3706,8 +3600,8 @@
         "paper_result_material_allowed_now": false,
         "missing_deliverable_count": 10,
         "open_category_count": 4,
-        "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
-        "source_freshness_blocking_regeneration_required": true,
+        "source_freshness_status": "source_freshness_clean_current",
+        "source_freshness_blocking_regeneration_required": false,
         "approved_route_next_lane": "source_fresh_regeneration",
         "rejected_route_next_lane": "protocol_redesign",
         "after_approval_still_requires": [
@@ -3718,7 +3612,7 @@
           "source_freshness_audit"
         ]
       },
-      "signature_matches_baseline": false
+      "signature_matches_baseline": true
     }
   ],
   "handoff_single_next_action_rows_by_id": {
@@ -3916,7 +3810,7 @@
       "remote_training_allowed_now": false,
       "formal_claim_allowed_now": false,
       "paper_result_material_allowed_now": false,
-      "source_freshness_blocking_regeneration_required": true,
+      "source_freshness_blocking_regeneration_required": false,
       "approved_route_next_lane": "source_fresh_regeneration",
       "after_approval_still_requires": [
         "source_freshness_audit",
@@ -3960,8 +3854,8 @@
         "paper_result_material_allowed_now": false,
         "missing_deliverable_count": 10,
         "open_category_count": 4,
-        "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
-        "source_freshness_blocking_regeneration_required": true,
+        "source_freshness_status": "source_freshness_clean_current",
+        "source_freshness_blocking_regeneration_required": false,
         "approved_route_next_lane": "source_fresh_regeneration",
         "rejected_route_next_lane": "protocol_redesign",
         "after_approval_still_requires": [
@@ -3972,7 +3866,7 @@
           "source_freshness_audit"
         ]
       },
-      "signature_matches_baseline": false
+      "signature_matches_baseline": true
     }
   },
   "claim_boundaries": [

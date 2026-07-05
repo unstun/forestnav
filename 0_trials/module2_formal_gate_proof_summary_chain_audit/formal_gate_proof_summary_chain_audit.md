@@ -2,8 +2,8 @@
 
 This file checks that formal-gate proof-deliverables summaries remain consistent across downstream gate artifacts. It is not a training run, evaluation, remote preflight, paper table, or paper result.
 
-- status: `formal_gate_proof_summary_chain_audit_failed`
-- audit_issue_count: `2`
+- status: `formal_gate_proof_summary_chain_consistent_blocked`
+- audit_issue_count: `0`
 - proof_open: `True`
 - row_count: `14`
 - consistent_row_count: `14`
@@ -14,7 +14,7 @@ This file checks that formal-gate proof-deliverables summaries remain consistent
 - next_required_deliverables_row_count: `3`
 - next_required_deliverables_consistent_row_count: `3`
 - handoff_single_next_action_row_count: `3`
-- handoff_single_next_action_consistent_row_count: `2`
+- handoff_single_next_action_consistent_row_count: `3`
 - executes_commands: `False`
 - runs_training: `False`
 - runs_remote_preflight: `False`
@@ -31,8 +31,7 @@ This file checks that formal-gate proof-deliverables summaries remain consistent
 
 ## Audit Issues
 
-- `paper_readiness_claim_safety_handoff_single_next_action_index_summary_mismatch`: Downstream handoff single-next-action summary does not match the handoff-bundle baseline.
-- `paper_readiness_claim_safety_handoff_single_next_action_index_source_freshness_blocks`: Single-next-action handoff must not hide a blocking source-freshness regeneration requirement.
+- none
 
 ## Chain Rows
 
@@ -67,7 +66,7 @@ This file checks that formal-gate proof-deliverables summaries remain consistent
 
 - `handoff_bundle_single_next_action_index`: present=`True`, matches=`True`, next_action_id=`record_f02_6_decision`, decision_owner_required=`Dr Sun`, all_execution_disabled_now=`True`, remote_training_allowed_now=`False`, path=`0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`, key=`single_next_action_index`
 - `claim_safety_handoff_single_next_action_index`: present=`True`, matches=`True`, next_action_id=`record_f02_6_decision`, decision_owner_required=`Dr Sun`, all_execution_disabled_now=`True`, remote_training_allowed_now=`False`, path=`0_trials/module2_claim_safety/module2_claim_safety.json`, key=`handoff_single_next_action_index_summary`
-- `paper_readiness_claim_safety_handoff_single_next_action_index`: present=`True`, matches=`False`, next_action_id=`record_f02_6_decision`, decision_owner_required=`Dr Sun`, all_execution_disabled_now=`True`, remote_training_allowed_now=`False`, path=`0_trials/module2_paper_readiness/module2_paper_readiness.json`, key=`claim_safety_handoff_single_next_action_index_summary`
+- `paper_readiness_claim_safety_handoff_single_next_action_index`: present=`True`, matches=`True`, next_action_id=`record_f02_6_decision`, decision_owner_required=`Dr Sun`, all_execution_disabled_now=`True`, remote_training_allowed_now=`False`, path=`0_trials/module2_paper_readiness/module2_paper_readiness.json`, key=`claim_safety_handoff_single_next_action_index_summary`
 
 ## Claim Boundaries
 

@@ -109,7 +109,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - remote_training_allowed_now: `False`
 - audit_issue_count: `0`
 - command_index_present: `True`
-- command_index_row_count: `22`
+- command_index_row_count: `1`
 - command_index_missing_target_ids: `[]`
 - proof_deliverables_missing_counts: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
 - proof_deliverables_h02_paper_result_input_allowed: `False`
@@ -178,6 +178,22 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
   - evidence: `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
   - why: PPO rows do not contain a non-empty rl_rs_checkpoint_sha256.
   - needed: Record checkpoint path and SHA-256 in every PPO/RL-RS result row.
+- `remote_packet_safety_command_index_missing_formal_gate_proof_summary_chain_audit`
+  - evidence: `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
+  - why: Remote packet safety command index does not include formal_gate_proof_summary_chain_audit.
+  - needed: Regenerate post-F02.6 plan and safety audit so claim-gate artifacts stay source-fresh before formal claims.
+- `remote_packet_safety_command_index_missing_mainline_formal_gate_state_audit`
+  - evidence: `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
+  - why: Remote packet safety command index does not include mainline_formal_gate_state_audit.
+  - needed: Regenerate post-F02.6 plan and safety audit so claim-gate artifacts stay source-fresh before formal claims.
+- `remote_packet_safety_command_index_missing_claim_safety`
+  - evidence: `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
+  - why: Remote packet safety command index does not include claim_safety.
+  - needed: Regenerate post-F02.6 plan and safety audit so claim-gate artifacts stay source-fresh before formal claims.
+- `remote_packet_safety_command_index_missing_paper_readiness`
+  - evidence: `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
+  - why: Remote packet safety command index does not include paper_readiness.
+  - needed: Regenerate post-F02.6 plan and safety audit so claim-gate artifacts stay source-fresh before formal claims.
 
 ## Evaluation Artifact Gaps
 
