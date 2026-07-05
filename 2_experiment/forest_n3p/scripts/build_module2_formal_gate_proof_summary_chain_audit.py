@@ -105,7 +105,17 @@ def build_manifest(config: FormalGateProofSummaryChainAuditConfig) -> dict[str, 
     for source in _sources(config):
         rows.append(_row(source=source, baseline_signature=baseline_signature))
 
-    issues = _audit_issues(rows=rows, baseline_summary=baseline_summary)
+    next_action_guard_rows = _next_action_guard_rows(config)
+    next_action_guard_baseline_signature = next_action_guard_rows[0]["signature"] if next_action_guard_rows else {}
+    next_required_deliverables_rows = _next_required_deliverables_rows(config)
+    next_required_deliverables_baseline_signature = (
+        next_required_deliverables_rows[0]["signature"] if next_required_deliverables_rows else {}
+    )
+    issues = (
+        _audit_issues(rows=rows, baseline_summary=baseline_summary)
+        + _next_action_guard_issues(rows=next_action_guard_rows)
+        + _next_required_deliverables_issues(rows=next_required_deliverables_rows)
+    )
     proof_open = _proof_open(baseline_summary)
     if issues:
         status = "formal_gate_proof_summary_chain_audit_failed"
@@ -143,15 +153,30 @@ def build_manifest(config: FormalGateProofSummaryChainAuditConfig) -> dict[str, 
         "consistent_row_count": sum(1 for row in rows if row["signature_matches_baseline"]),
         "missing_row_count": sum(1 for row in rows if not row["present"]),
         "mismatch_row_count": sum(1 for row in rows if row["present"] and not row["signature_matches_baseline"]),
+        "next_action_guard_row_count": len(next_action_guard_rows),
+        "next_action_guard_consistent_row_count": sum(
+            1 for row in next_action_guard_rows if row["signature_matches_baseline"]
+        ),
+        "next_required_deliverables_row_count": len(next_required_deliverables_rows),
+        "next_required_deliverables_consistent_row_count": sum(
+            1 for row in next_required_deliverables_rows if row["signature_matches_baseline"]
+        ),
         "h02_paper_result_input_allowed": baseline_summary["h02_paper_result_input_allowed"],
         "audit_issue_count": len(issues),
         "audit_issues": issues,
         "chain_rows": rows,
         "chain_rows_by_id": {row["row_id"]: row for row in rows},
+        "next_action_guard_baseline_signature": next_action_guard_baseline_signature,
+        "next_action_guard_rows": next_action_guard_rows,
+        "next_action_guard_rows_by_id": {row["row_id"]: row for row in next_action_guard_rows},
+        "next_required_deliverables_baseline_signature": next_required_deliverables_baseline_signature,
+        "next_required_deliverables_rows": next_required_deliverables_rows,
+        "next_required_deliverables_rows_by_id": {row["row_id"]: row for row in next_required_deliverables_rows},
         "claim_boundaries": [
             "This audit is a local read-only consistency check over existing formal-gate summary fields.",
             "It does not execute proof commands, run training, run remote preflight, evaluate PPO, pull back artifacts, or write paper results.",
             "A consistent blocked chain only proves the downstream artifacts agree that the formal gate is still blocked.",
+            "Next-action and next-required-deliverable consistency does not authorize the next action; it only checks that the artifacts agree on the current blocked lane.",
             "Formal PPO-vs-RS performance claims still require the missing training, evaluation, acceptance, and H01/H02 artifacts to be produced and audited.",
         ],
     }
@@ -285,6 +310,95 @@ def _row_from_summary(
     }
 
 
+def _next_action_guard_rows(config: FormalGateProofSummaryChainAuditConfig) -> list[dict[str, Any]]:
+    sources = [
+        (
+            "status_report_next_action_guard",
+            config.formal_gate_status_report_path,
+            ("next_action_guard_summary",),
+        ),
+        (
+            "claim_safety_status_report_next_action_guard",
+            config.claim_safety_path,
+            ("status_report_next_action_guard_summary",),
+        ),
+        (
+            "paper_readiness_claim_safety_next_action_guard",
+            config.paper_readiness_path,
+            ("claim_safety_next_action_guard_summary",),
+        ),
+    ]
+    baseline_signature: dict[str, Any] | None = None
+    rows: list[dict[str, Any]] = []
+    for row_id, path, key_path in sources:
+        summary = _normalize_next_action_guard(_get_nested(_read_json(path), key_path))
+        signature = _next_action_guard_signature(summary)
+        if baseline_signature is None:
+            baseline_signature = signature
+        rows.append(
+            {
+                "row_id": row_id,
+                "path": str(path),
+                "summary_key_path": ".".join(key_path),
+                "present": summary["present"],
+                "status": summary["status"],
+                "expected_next_action_id": summary["expected_next_action_id"],
+                "all_execution_disabled_now": summary["all_execution_disabled_now"],
+                "execution_leak_count": summary["execution_leak_count"],
+                "remote_execution_allowed_count": summary["remote_execution_allowed_count"],
+                "remote_stage_allowed_count": summary["remote_stage_allowed_count"],
+                "signature": signature,
+                "signature_matches_baseline": summary["present"] and signature == baseline_signature,
+            }
+        )
+    return rows
+
+
+def _next_required_deliverables_rows(config: FormalGateProofSummaryChainAuditConfig) -> list[dict[str, Any]]:
+    sources = [
+        (
+            "status_report_next_required_formal_deliverables",
+            config.formal_gate_status_report_path,
+            ("next_required_formal_deliverables",),
+        ),
+        (
+            "claim_safety_status_report_next_required_formal_deliverables",
+            config.claim_safety_path,
+            ("status_report_next_required_formal_deliverables",),
+        ),
+        (
+            "paper_readiness_claim_safety_next_required_formal_deliverables",
+            config.paper_readiness_path,
+            ("claim_safety_next_required_formal_deliverables",),
+        ),
+    ]
+    baseline_signature: dict[str, Any] | None = None
+    rows: list[dict[str, Any]] = []
+    for row_id, path, key_path in sources:
+        summary = _normalize_next_required_deliverables(_get_nested(_read_json(path), key_path))
+        signature = _next_required_deliverables_signature(summary)
+        if baseline_signature is None:
+            baseline_signature = signature
+        rows.append(
+            {
+                "row_id": row_id,
+                "path": str(path),
+                "summary_key_path": ".".join(key_path),
+                "present": summary["present"],
+                "status": summary["status"],
+                "not_paper_result_material": summary["not_paper_result_material"],
+                "runs_training": summary["runs_training"],
+                "runs_remote_preflight": summary["runs_remote_preflight"],
+                "total_missing_deliverables": summary["total_missing_deliverables"],
+                "blocked_category_count": summary["blocked_category_count"],
+                "row_count": summary["row_count"],
+                "signature": signature,
+                "signature_matches_baseline": summary["present"] and signature == baseline_signature,
+            }
+        )
+    return rows
+
+
 def _audit_issues(*, rows: Sequence[dict[str, Any]], baseline_summary: dict[str, Any]) -> list[dict[str, Any]]:
     issues: list[dict[str, Any]] = []
     if not baseline_summary["present"]:
@@ -337,6 +451,102 @@ def _audit_issues(*, rows: Sequence[dict[str, Any]], baseline_summary: dict[str,
     return _unique_issues(issues)
 
 
+def _next_action_guard_issues(*, rows: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    for row in rows:
+        row_id = row["row_id"]
+        if not row["present"]:
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_missing_summary",
+                    "message": "Downstream artifact is missing the propagated next-action guard summary.",
+                    "path": row["path"],
+                    "summary_key_path": row["summary_key_path"],
+                }
+            )
+            continue
+        if not row["signature_matches_baseline"]:
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_summary_mismatch",
+                    "message": "Downstream next-action guard summary does not match the status-report baseline.",
+                    "path": row["path"],
+                    "summary_key_path": row["summary_key_path"],
+                    "observed_signature": row["signature"],
+                    "expected_signature": rows[0]["signature"] if rows else {},
+                }
+            )
+        if row["status"] != "next_action_guard_passed":
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_not_passed",
+                    "message": "Next-action guard must remain passed before downstream formal-claim artifacts can rely on it.",
+                    "path": row["path"],
+                }
+            )
+        if row["execution_leak_count"] > 0 or row["remote_execution_allowed_count"] > 0 or row["remote_stage_allowed_count"] > 0:
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_execution_leak",
+                    "message": "Next-action guard reports execution leakage while F02.6 is pending.",
+                    "path": row["path"],
+                }
+            )
+    return _unique_issues(issues)
+
+
+def _next_required_deliverables_issues(*, rows: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    for row in rows:
+        row_id = row["row_id"]
+        if not row["present"]:
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_missing_summary",
+                    "message": "Downstream artifact is missing the propagated next-required formal deliverables summary.",
+                    "path": row["path"],
+                    "summary_key_path": row["summary_key_path"],
+                }
+            )
+            continue
+        if not row["signature_matches_baseline"]:
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_summary_mismatch",
+                    "message": "Downstream next-required formal deliverables summary does not match the status-report baseline.",
+                    "path": row["path"],
+                    "summary_key_path": row["summary_key_path"],
+                    "observed_signature": row["signature"],
+                    "expected_signature": rows[0]["signature"] if rows else {},
+                }
+            )
+        if row["not_paper_result_material"] is not True:
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_marked_as_paper_result",
+                    "message": "Next-required deliverables summary must remain non-result audit material.",
+                    "path": row["path"],
+                }
+            )
+        if row["runs_training"] is True:
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_runs_training",
+                    "message": "Next-required deliverables summary must not run or authorize training.",
+                    "path": row["path"],
+                }
+            )
+        if row["runs_remote_preflight"] is True:
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_runs_remote_preflight",
+                    "message": "Next-required deliverables summary must not run or authorize remote preflight.",
+                    "path": row["path"],
+                }
+            )
+    return _unique_issues(issues)
+
+
 def _remaining_deliverables_summary(payload: dict[str, Any]) -> dict[str, Any]:
     return _normalize_summary(
         {
@@ -353,6 +563,131 @@ def _remaining_deliverables_summary(payload: dict[str, Any]) -> dict[str, Any]:
             "h02_paper_result_input_allowed": payload.get("h02_paper_result_input_allowed"),
         }
     )
+
+
+def _normalize_next_action_guard(raw: Any) -> dict[str, Any]:
+    summary = raw if isinstance(raw, dict) else {}
+    return {
+        "present": bool(summary.get("present")) or bool(summary),
+        "status": summary.get("status"),
+        "pending_f02_6_decision": summary.get("pending_f02_6_decision")
+        if isinstance(summary.get("pending_f02_6_decision"), bool)
+        else None,
+        "next_blocked_lane_id": summary.get("next_blocked_lane_id"),
+        "expected_next_action_id": summary.get("expected_next_action_id"),
+        "handoff_next_action_id": summary.get("handoff_next_action_id"),
+        "handoff_next_action_requires_dr_sun": summary.get("handoff_next_action_requires_dr_sun")
+        if isinstance(summary.get("handoff_next_action_requires_dr_sun"), bool)
+        else None,
+        "missing_artifacts_next_action_id": summary.get("missing_artifacts_next_action_id"),
+        "decision_intake_next_blocked_lane": summary.get("decision_intake_next_blocked_lane"),
+        "all_execution_disabled_now": summary.get("all_execution_disabled_now")
+        if isinstance(summary.get("all_execution_disabled_now"), bool)
+        else None,
+        "execution_leak_count": int(summary.get("execution_leak_count") or 0),
+        "remote_execution_allowed_count": int(summary.get("remote_execution_allowed_count") or 0),
+        "remote_stage_allowed_count": int(summary.get("remote_stage_allowed_count") or 0),
+        "violation_count": int(summary.get("violation_count") or 0),
+        "execution_leak_surface_ids": _strings(summary.get("execution_leak_surface_ids")),
+    }
+
+
+def _next_action_guard_signature(summary: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "status": summary["status"],
+        "pending_f02_6_decision": summary["pending_f02_6_decision"],
+        "next_blocked_lane_id": summary["next_blocked_lane_id"],
+        "expected_next_action_id": summary["expected_next_action_id"],
+        "handoff_next_action_id": summary["handoff_next_action_id"],
+        "handoff_next_action_requires_dr_sun": summary["handoff_next_action_requires_dr_sun"],
+        "missing_artifacts_next_action_id": summary["missing_artifacts_next_action_id"],
+        "decision_intake_next_blocked_lane": summary["decision_intake_next_blocked_lane"],
+        "all_execution_disabled_now": summary["all_execution_disabled_now"],
+        "execution_leak_count": summary["execution_leak_count"],
+        "remote_execution_allowed_count": summary["remote_execution_allowed_count"],
+        "remote_stage_allowed_count": summary["remote_stage_allowed_count"],
+        "violation_count": summary["violation_count"],
+        "execution_leak_surface_ids": sorted(summary["execution_leak_surface_ids"]),
+    }
+
+
+def _normalize_next_required_deliverables(raw: Any) -> dict[str, Any]:
+    summary = raw if isinstance(raw, dict) else {}
+    rows = _normalize_deliverable_rows(summary.get("rows"))
+    return {
+        "present": bool(summary.get("present")) or bool(summary),
+        "status": summary.get("status"),
+        "execution_boundary": summary.get("execution_boundary"),
+        "not_paper_result_material": summary.get("not_paper_result_material")
+        if isinstance(summary.get("not_paper_result_material"), bool)
+        else None,
+        "runs_training": summary.get("runs_training") if isinstance(summary.get("runs_training"), bool) else None,
+        "runs_remote_preflight": summary.get("runs_remote_preflight")
+        if isinstance(summary.get("runs_remote_preflight"), bool)
+        else None,
+        "total_missing_deliverables": int(summary.get("total_missing_deliverables") or 0),
+        "blocked_category_count": int(summary.get("blocked_category_count") or 0),
+        "blocked_categories": _strings(summary.get("blocked_categories")),
+        "category_order": _strings(summary.get("category_order")),
+        "row_count": len(rows),
+        "rows": rows,
+    }
+
+
+def _normalize_deliverable_rows(raw_rows: Any) -> dict[str, dict[str, Any]]:
+    if isinstance(raw_rows, dict):
+        iterable_rows = (
+            dict(raw_row, matrix_id=matrix_id) if isinstance(raw_row, dict) and "matrix_id" not in raw_row else raw_row
+            for matrix_id, raw_row in raw_rows.items()
+        )
+    elif isinstance(raw_rows, list):
+        iterable_rows = (raw_row for raw_row in raw_rows if isinstance(raw_row, dict))
+    else:
+        iterable_rows = ()
+    rows: dict[str, dict[str, Any]] = {}
+    for raw_row in iterable_rows:
+        if not isinstance(raw_row, dict):
+            continue
+        matrix_id = raw_row.get("matrix_id")
+        if not matrix_id:
+            continue
+        rows[str(matrix_id)] = {
+            "category": raw_row.get("category"),
+            "current_state": raw_row.get("current_state"),
+            "responsible_stage_id": raw_row.get("responsible_stage_id"),
+            "responsible_stage_allowed_now": raw_row.get("responsible_stage_allowed_now")
+            if isinstance(raw_row.get("responsible_stage_allowed_now"), bool)
+            else None,
+            "proof_command_ids": _strings(raw_row.get("proof_command_ids")),
+            "invalid_substitute_count": int(raw_row.get("invalid_substitute_count") or 0),
+        }
+    return rows
+
+
+def _next_required_deliverables_signature(summary: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "status": summary["status"],
+        "execution_boundary": summary["execution_boundary"],
+        "not_paper_result_material": summary["not_paper_result_material"],
+        "runs_training": summary["runs_training"],
+        "runs_remote_preflight": summary["runs_remote_preflight"],
+        "total_missing_deliverables": summary["total_missing_deliverables"],
+        "blocked_category_count": summary["blocked_category_count"],
+        "blocked_categories": summary["blocked_categories"],
+        "category_order": summary["category_order"],
+        "row_count": summary["row_count"],
+        "rows": {
+            matrix_id: {
+                "category": row["category"],
+                "current_state": row["current_state"],
+                "responsible_stage_id": row["responsible_stage_id"],
+                "responsible_stage_allowed_now": row["responsible_stage_allowed_now"],
+                "proof_command_ids": sorted(row["proof_command_ids"]),
+                "invalid_substitute_count": row["invalid_substitute_count"],
+            }
+            for matrix_id, row in sorted(summary["rows"].items())
+        },
+    }
 
 
 def _normalize_summary(raw: Any) -> dict[str, Any]:
@@ -413,6 +748,12 @@ def _get_nested(payload: dict[str, Any], key_path: Sequence[str]) -> Any:
     return current
 
 
+def _strings(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [str(item) for item in value if item]
+
+
 def _unique_issues(issues: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
     seen: set[str] = set()
     out: list[dict[str, Any]] = []
@@ -439,6 +780,10 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- consistent_row_count: `{manifest['consistent_row_count']}`",
         f"- missing_row_count: `{manifest['missing_row_count']}`",
         f"- mismatch_row_count: `{manifest['mismatch_row_count']}`",
+        f"- next_action_guard_row_count: `{manifest['next_action_guard_row_count']}`",
+        f"- next_action_guard_consistent_row_count: `{manifest['next_action_guard_consistent_row_count']}`",
+        f"- next_required_deliverables_row_count: `{manifest['next_required_deliverables_row_count']}`",
+        f"- next_required_deliverables_consistent_row_count: `{manifest['next_required_deliverables_consistent_row_count']}`",
         f"- executes_commands: `{manifest['executes_commands']}`",
         f"- runs_training: `{manifest['runs_training']}`",
         f"- runs_remote_preflight: `{manifest['runs_remote_preflight']}`",
@@ -466,6 +811,25 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- `{row['row_id']}`: present=`{row['present']}`, "
             f"matches=`{row['signature_matches_baseline']}`, "
             f"h02_paper_result_input_allowed=`{row['h02_paper_result_input_allowed']}`, "
+            f"path=`{row['path']}`, key=`{row['summary_key_path']}`"
+        )
+    lines.extend(["", "## Next-Action Guard Chain Rows", ""])
+    for row in manifest["next_action_guard_rows"]:
+        lines.append(
+            f"- `{row['row_id']}`: present=`{row['present']}`, "
+            f"matches=`{row['signature_matches_baseline']}`, "
+            f"expected_next_action_id=`{row['expected_next_action_id']}`, "
+            f"execution_leak_count=`{row['execution_leak_count']}`, "
+            f"path=`{row['path']}`, key=`{row['summary_key_path']}`"
+        )
+    lines.extend(["", "## Next Required Formal Deliverables Chain Rows", ""])
+    for row in manifest["next_required_deliverables_rows"]:
+        lines.append(
+            f"- `{row['row_id']}`: present=`{row['present']}`, "
+            f"matches=`{row['signature_matches_baseline']}`, "
+            f"total_missing_deliverables=`{row['total_missing_deliverables']}`, "
+            f"row_count=`{row['row_count']}`, "
+            f"runs_training=`{row['runs_training']}`, "
             f"path=`{row['path']}`, key=`{row['summary_key_path']}`"
         )
     lines.extend(["", "## Claim Boundaries", ""])

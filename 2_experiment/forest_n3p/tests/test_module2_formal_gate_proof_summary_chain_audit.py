@@ -26,6 +26,10 @@ def test_proof_summary_chain_audit_accepts_consistent_blocked_chain(tmp_path):
     assert manifest["consistent_row_count"] == 14
     assert manifest["missing_row_count"] == 0
     assert manifest["mismatch_row_count"] == 0
+    assert manifest["next_action_guard_row_count"] == 3
+    assert manifest["next_action_guard_consistent_row_count"] == 3
+    assert manifest["next_required_deliverables_row_count"] == 3
+    assert manifest["next_required_deliverables_consistent_row_count"] == 3
     assert manifest["audit_issue_count"] == 0
     assert manifest["h02_paper_result_input_allowed"] is False
     assert manifest["baseline_summary"]["missing_counts_by_formal_category"] == {
@@ -38,6 +42,12 @@ def test_proof_summary_chain_audit_accepts_consistent_blocked_chain(tmp_path):
     assert manifest["chain_rows_by_id"]["paper_readiness_remote_safety_proof_summary"][
         "signature_matches_baseline"
     ] is True
+    assert manifest["next_action_guard_rows_by_id"]["paper_readiness_claim_safety_next_action_guard"][
+        "signature_matches_baseline"
+    ] is True
+    assert manifest["next_required_deliverables_rows_by_id"][
+        "paper_readiness_claim_safety_next_required_formal_deliverables"
+    ]["signature_matches_baseline"] is True
 
 
 def test_proof_summary_chain_audit_fails_missing_downstream_summary(tmp_path):
@@ -89,6 +99,41 @@ def test_proof_summary_chain_audit_fails_h02_paper_input_allowed_while_open(tmp_
     assert "formal_gate_status_report_proof_summary_allows_h02_paper_input_while_proof_open" in issue_ids
 
 
+def test_proof_summary_chain_audit_fails_next_action_guard_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit")
+    paths = _write_chain_inputs(tmp_path)
+    paper = json.loads(paths["paper"].read_text(encoding="utf-8"))
+    paper["claim_safety_next_action_guard_summary"]["expected_next_action_id"] = "run_remote_training"
+    paper["claim_safety_next_action_guard_summary"]["execution_leak_count"] = 1
+    paths["paper"].write_text(json.dumps(paper), encoding="utf-8")
+
+    manifest = builder.build_manifest(_config(builder, tmp_path, paths))
+
+    assert manifest["status"] == "formal_gate_proof_summary_chain_audit_failed"
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "paper_readiness_claim_safety_next_action_guard_summary_mismatch" in issue_ids
+    assert "paper_readiness_claim_safety_next_action_guard_execution_leak" in issue_ids
+
+
+def test_proof_summary_chain_audit_fails_next_required_deliverables_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit")
+    paths = _write_chain_inputs(tmp_path)
+    claim = json.loads(paths["claim"].read_text(encoding="utf-8"))
+    deliverables = claim["status_report_next_required_formal_deliverables"]
+    deliverables["not_paper_result_material"] = False
+    deliverables["runs_training"] = True
+    deliverables["rows"].pop("formal_acceptance:h02_formal_output_acceptance")
+    paths["claim"].write_text(json.dumps(claim), encoding="utf-8")
+
+    manifest = builder.build_manifest(_config(builder, tmp_path, paths))
+
+    assert manifest["status"] == "formal_gate_proof_summary_chain_audit_failed"
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "claim_safety_status_report_next_required_formal_deliverables_summary_mismatch" in issue_ids
+    assert "claim_safety_status_report_next_required_formal_deliverables_marked_as_paper_result" in issue_ids
+    assert "claim_safety_status_report_next_required_formal_deliverables_runs_training" in issue_ids
+
+
 def test_proof_summary_chain_audit_cli_writes_json_and_markdown(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit")
     paths = _write_chain_inputs(tmp_path)
@@ -130,6 +175,10 @@ def test_proof_summary_chain_audit_cli_writes_json_and_markdown(tmp_path):
     assert "not a training run" in markdown
     assert "paper_readiness_remote_safety_proof_summary" in markdown
     assert "h02_paper_result_input_allowed" in markdown
+    assert "Next-Action Guard Chain Rows" in markdown
+    assert "paper_readiness_claim_safety_next_action_guard" in markdown
+    assert "Next Required Formal Deliverables Chain Rows" in markdown
+    assert "paper_readiness_claim_safety_next_required_formal_deliverables" in markdown
 
 
 def _config(builder, tmp_path, paths):
@@ -148,6 +197,8 @@ def _config(builder, tmp_path, paths):
 
 def _write_chain_inputs(tmp_path):
     summary = _summary()
+    next_action_guard = _next_action_guard_summary()
+    next_required_deliverables = _next_required_deliverables_summary()
     paths = {
         "remaining": tmp_path / "remaining.json",
         "proof": tmp_path / "proof.json",
@@ -177,6 +228,8 @@ def _write_chain_inputs(tmp_path):
             "formal_gate_proof_audit_remaining_deliverables_top_level_summary": summary,
             "remote_packet_safety_proof_deliverables_summary": summary,
             "remote_packet_safety_status_report_proof_deliverables_summary": summary,
+            "next_action_guard_summary": next_action_guard,
+            "next_required_formal_deliverables": _next_required_deliverables_summary(as_list=True),
         },
     )
     _write_json(paths["post_plan"], {"status_report_proof_audit_deliverables_summary": summary})
@@ -203,6 +256,8 @@ def _write_chain_inputs(tmp_path):
         {
             "status_report_remote_packet_safety_proof_deliverables_summary": summary,
             "status_report_remote_packet_safety_status_report_proof_deliverables_summary": summary,
+            "status_report_next_action_guard_summary": next_action_guard,
+            "status_report_next_required_formal_deliverables": next_required_deliverables,
         },
     )
     _write_json(
@@ -210,6 +265,8 @@ def _write_chain_inputs(tmp_path):
         {
             "claim_safety_remote_packet_safety_proof_deliverables_summary": summary,
             "claim_safety_remote_packet_safety_status_report_proof_deliverables_summary": summary,
+            "claim_safety_next_action_guard_summary": next_action_guard,
+            "claim_safety_next_required_formal_deliverables": next_required_deliverables,
         },
     )
     return paths
@@ -249,6 +306,81 @@ def _summary():
         "h02_status": "blocked_formal_output_acceptance",
         "h02_formal_output_accepted": False,
         "h02_paper_result_input_allowed": False,
+    }
+
+
+def _next_action_guard_summary():
+    return {
+        "present": True,
+        "status": "next_action_guard_passed",
+        "pending_f02_6_decision": True,
+        "next_blocked_lane_id": "decision",
+        "expected_next_action_id": "record_f02_6_decision",
+        "handoff_next_action_id": "record_f02_6_decision",
+        "handoff_next_action_requires_dr_sun": True,
+        "missing_artifacts_next_action_id": "record_f02_6_decision",
+        "decision_intake_next_blocked_lane": "decision",
+        "all_execution_disabled_now": True,
+        "execution_leak_count": 0,
+        "remote_execution_allowed_count": 0,
+        "remote_stage_allowed_count": 0,
+        "violation_count": 0,
+        "execution_leak_surface_ids": [],
+    }
+
+
+def _next_required_deliverables_summary(*, as_list=False):
+    rows = {}
+    categories = {
+        "training": [
+            "training:train_final_model_zip",
+            "training:train_summary_json",
+            "training:train_training_manifest_json",
+        ],
+        "evaluation": [
+            "evaluation:eval_gate3_eval_episodes_csv",
+            "evaluation:eval_gate3_summary_json",
+        ],
+        "acceptance": [
+            "acceptance:gate3_trial_manifest_json",
+            "acceptance:gate3_formal_audit_json",
+            "acceptance:pulled_back_checkpoint_hash_record",
+        ],
+        "formal_acceptance": [
+            "formal_acceptance:h01_ready_for_formal_run",
+            "formal_acceptance:h02_formal_output_acceptance",
+        ],
+    }
+    for category, matrix_ids in categories.items():
+        for matrix_id in matrix_ids:
+            artifact_id = matrix_id.split(":", 1)[1]
+            rows[matrix_id] = {
+                "present": True,
+                "matrix_id": matrix_id,
+                "category": category,
+                "artifact_id": artifact_id,
+                "current_state": "missing",
+                "responsible_stage_id": "gate3_remote_training"
+                if category == "training"
+                else "regenerate_h01_h02_formal_artifacts"
+                if category == "formal_acceptance"
+                else "gate3_remote_audit_pullback",
+                "responsible_stage_allowed_now": False,
+                "proof_command_ids": [f"{artifact_id}_exists", f"{artifact_id}_schema"],
+                "invalid_substitute_count": 1,
+            }
+    return {
+        "present": True,
+        "status": "blocked_missing_formal_deliverables",
+        "execution_boundary": "read_only_no_execution",
+        "not_paper_result_material": True,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "total_missing_deliverables": 10,
+        "blocked_category_count": 4,
+        "blocked_categories": list(categories),
+        "category_order": list(categories),
+        "rows": list(rows.values()) if as_list else rows,
     }
 
 
