@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_plan_audit",
   "status": "post_f02_6_plan_audit_passed",
-  "created_at_utc": "2026-07-05T09:04:08.980077+00:00",
-  "source_head": "52259b91424d11c535d7cdf8fe3053359a675baf",
+  "created_at_utc": "2026-07-05T09:55:16.435160+00:00",
+  "source_head": "1eb92599a626fce903d7902b74562f74eaf24b52",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -54,7 +54,7 @@
       "f02_6_decision_intake": {
         "artifact_id": "f02_6_decision_intake",
         "required_before": "approved_remote_preflight",
-        "freshness_state": "historical_dirty",
+        "freshness_state": "historical_clean",
         "path": "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
         "stage_id": "regenerate_preflight_gate_artifacts",
         "command_kind": "known_builder",
@@ -189,7 +189,7 @@
       "formal_gate_missing_artifacts": {
         "artifact_id": "formal_gate_missing_artifacts",
         "required_before": "formal_claim_gate",
-        "freshness_state": "historical_dirty",
+        "freshness_state": "historical_clean",
         "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
         "stage_id": "regenerate_claim_gate_artifacts",
         "command_kind": "known_builder",
@@ -198,7 +198,7 @@
       "formal_gate_proof_audit": {
         "artifact_id": "formal_gate_proof_audit",
         "required_before": "formal_claim_gate",
-        "freshness_state": "historical_dirty",
+        "freshness_state": "historical_clean",
         "path": "0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json",
         "stage_id": "regenerate_claim_gate_artifacts",
         "command_kind": "known_builder",
@@ -207,7 +207,7 @@
       "formal_gate_proof_summary_chain_audit": {
         "artifact_id": "formal_gate_proof_summary_chain_audit",
         "required_before": "formal_claim_gate",
-        "freshness_state": "historical_dirty",
+        "freshness_state": "historical_clean",
         "path": "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
         "stage_id": "regenerate_claim_gate_artifacts",
         "command_kind": "known_builder",
@@ -234,7 +234,7 @@
       "mainline_formal_gate_state_audit": {
         "artifact_id": "mainline_formal_gate_state_audit",
         "required_before": "formal_claim_gate",
-        "freshness_state": "historical_dirty",
+        "freshness_state": "historical_clean",
         "path": "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json",
         "stage_id": "regenerate_claim_gate_artifacts",
         "command_kind": "known_builder",
@@ -265,13 +265,13 @@
     "missing_counts_by_category": {
       "decision": 1,
       "decision_gate": 0,
-      "regeneration": 21,
+      "regeneration": 23,
       "gate_sequence": 7,
       "training": 3,
       "evaluation": 2,
       "acceptance": 3,
       "evaluation_acceptance": 2,
-      "claim_gate": 8
+      "claim_gate": 9
     }
   },
   "closure_checklist_summary": {

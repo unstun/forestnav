@@ -2,8 +2,8 @@
   "schema_version": 1,
   "manifest_name": "module2_v1_evaluation",
   "status": "blocked_pending_decisions",
-  "created_at_utc": "2026-07-05T01:47:49.079194+00:00",
-  "source_head": "92bf7f431a61fbe7e7818b8a58092ab30c64850d",
+  "created_at_utc": "2026-07-05T09:55:25.017757+00:00",
+  "source_head": "1eb92599a626fce903d7902b74562f74eaf24b52",
   "contract": {
     "path": ".pipeline/contracts/module2-ppo-funnel-expansion.md",
     "exists": true,
@@ -77,9 +77,11 @@
       "method_id": "bc_analytic_operator",
       "label": "BC analytic operator",
       "main_evaluation_method": "bc_analytic_operator",
-      "status": "ready",
-      "blockers": [],
-      "checkpoint": "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt"
+      "status": "blocked",
+      "blockers": [
+        "missing_module2_bc_checkpoint"
+      ],
+      "checkpoint": null
     },
     {
       "method_id": "ppo_analytic_operator",
@@ -88,9 +90,7 @@
       "status": "blocked",
       "blockers": [
         "missing_module2_rl_rs_checkpoint",
-        "f02_6_warm_start_decision_pending",
-        "requires_dr_sun_approval",
-        "f02_6_decision_record_pending"
+        "f02_6_warm_start_decision_pending"
       ],
       "checkpoint": null
     },
@@ -101,9 +101,7 @@
       "status": "blocked",
       "blockers": [
         "missing_module2_rl_rs_checkpoint",
-        "f02_6_warm_start_decision_pending",
-        "requires_dr_sun_approval",
-        "f02_6_decision_record_pending"
+        "f02_6_warm_start_decision_pending"
       ],
       "checkpoint": null
     }
@@ -257,55 +255,30 @@
     "status": "inventory_available"
   },
   "realmap_query_protocol": {
-    "path": "0_trials/module2_realmap_query_protocol/module2_realmap_query_protocol.json",
-    "status": "frozen",
-    "frozen": true,
-    "endpoint_audit_pass": true,
-    "query_count": 10,
-    "query_count_by_map": {
-      "dqn_realmap_a": 5,
-      "willow_garage_0p10": 5
-    },
-    "queries_csv": "0_trials/module2_realmap_query_protocol/module2_realmap_queries.csv",
-    "queries_csv_sha256": "36f80e9e69cd41d3658d4d9858b04aee874c93933c85188254c7731565764b59",
-    "query_rows_sha256": "47a85142114fb03d4ac29ca479f44821e1896f0e23c03705a992387a1b9aaa41"
+    "path": null,
+    "status": "missing",
+    "frozen": false,
+    "endpoint_audit_pass": false
   },
   "f02_6_decision_packet": {
-    "path": "0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json",
-    "exists": true,
-    "status": "pending_human_decision",
+    "path": null,
+    "exists": false,
+    "status": "not_provided",
     "requested_warm_start_decision": "pending",
     "effective_warm_start_decision": "pending",
-    "recommendation": "approve_obstacle_summary_warm_start",
-    "packet_blockers": [
-      "requires_dr_sun_approval"
-    ],
-    "decision_record": {
-      "path": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
-      "exists": true,
-      "status": "pending_human_decision",
-      "effective_warm_start_decision": "pending",
-      "decider": null,
-      "blockers": [
-        "requires_dr_sun_approval"
-      ]
-    },
-    "blockers": [
-      "requires_dr_sun_approval",
-      "f02_6_decision_record_pending"
-    ]
+    "recommendation": null,
+    "blockers": []
   },
   "blockers": [
     "f02_6_warm_start_decision_pending",
-    "missing_module2_rl_rs_checkpoint"
+    "missing_module2_bc_checkpoint",
+    "missing_module2_rl_rs_checkpoint",
+    "realmap_query_generation_not_frozen"
   ],
   "run_command": {
     "formal_main_evaluation": null,
     "blocked_reasons": [
-      "missing_module2_rl_rs_checkpoint",
-      "f02_6_warm_start_decision_pending",
-      "requires_dr_sun_approval",
-      "f02_6_decision_record_pending"
+      "missing_module2_bc_checkpoint"
     ]
   },
   "claim_boundaries": [
