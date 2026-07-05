@@ -2318,10 +2318,14 @@ def _remaining_deliverables(*, complete):
         ),
         "deliverable_unlock_chain": _remaining_deliverable_unlock_chain(matrix, complete=complete),
         "proof_command_plan": _remaining_deliverable_proof_command_plan(matrix),
+        "source_freshness_blocking_targets_summary": _remaining_deliverable_source_blocker_summary(
+            complete=complete
+        ),
     }
 
 
 def _source_freshness(*, complete):
+    blocking_targets = [] if complete else [_source_freshness_blocking_target()]
     return {
         "status": "source_freshness_clean_current" if complete else "source_freshness_risks_recorded_gate_still_blocked",
         "not_paper_result_material": True,
@@ -2336,6 +2340,44 @@ def _source_freshness(*, complete):
             "records_with_non_self_changed_paths_since_source": 0 if complete else 19,
             "records_with_self_artifact_only_lag": 0,
         },
+        "blocking_ordered_regeneration_targets": blocking_targets,
+    }
+
+
+def _remaining_deliverable_source_blocker_summary(*, complete):
+    target_ids = [] if complete else ["gpu3070ti_readiness_refresh"]
+    return {
+        "summary_id": "module2_source_freshness_blocking_targets_summary",
+        "execution_boundary": "read_only_no_execution",
+        "not_paper_result_material": True,
+        "status": "source_freshness_clean_current" if complete else "source_freshness_risks_recorded_gate_still_blocked",
+        "source_head": "current-head",
+        "current_head": "current-head",
+        "blocking_regeneration_required_before_remote_formal_execution": not complete,
+        "blocking_target_count": len(target_ids),
+        "blocking_target_ids": target_ids,
+        "remote_readiness_blocking_target_ids": target_ids,
+        "remote_readiness_blocking_target_count": len(target_ids),
+        "remote_readiness_refresh_requires_external_ssh": bool(target_ids),
+        "remote_readiness_refresh_allowed_now": False,
+        "remote_preflight_allowed_now": False,
+        "remote_training_allowed_now": False,
+        "formal_claim_allowed_now": False,
+        "rows": [] if complete else [_source_freshness_blocking_target()],
+    }
+
+
+def _source_freshness_blocking_target():
+    return {
+        "artifact_id": "gpu3070ti_readiness_refresh",
+        "path": "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
+        "freshness_state": "historical_clean",
+        "source_head": "old-head",
+        "current_head": "current-head",
+        "required_before": "approved_remote_preflight",
+        "commits_since_source": 12,
+        "blocking_changed_path_count_since_source": 3,
+        "blocking_regeneration_required_before_remote_formal_execution": True,
     }
 
 
