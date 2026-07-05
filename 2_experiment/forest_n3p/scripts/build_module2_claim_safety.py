@@ -532,6 +532,7 @@ def _formal_performance_blockers(
     blockers.extend(_status_report_remaining_deliverables_gap_blockers(status_report))
     blockers.extend(_status_report_formal_gate_gap_audit_remaining_deliverables_gap_blockers(status_report))
     blockers.extend(_status_report_remaining_deliverables_proof_command_plan_blockers(status_report))
+    blockers.extend(_status_report_remote_packet_safety_proof_deliverables_blockers(status_report))
     blockers.extend(_status_report_remote_packet_safety_claim_gate_command_index_blockers(status_report))
     blockers.extend(_status_report_decision_intake_blockers(status_report))
     blockers.extend(_status_report_remote_summary_blockers(status_report))
