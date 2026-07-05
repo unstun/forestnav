@@ -3627,6 +3627,22 @@ def _remaining_deliverables_unlock_chain_issues(
     return issues
 
 
+def _expected_unlock_chain_derived_blocked_row_count(acceptance_summary: dict[str, Any]) -> int:
+    rows = acceptance_summary.get("rows") if isinstance(acceptance_summary.get("rows"), dict) else {}
+    count = 0
+    for row in rows.values():
+        if not isinstance(row, dict):
+            continue
+        missing = row.get("current_state") == "missing" or row.get("missing") is True
+        training_generation_allowed = (
+            row.get("responsible_stage_id") == "gate3_remote_training"
+            and row.get("responsible_stage_allowed_now") is True
+        )
+        if missing and not training_generation_allowed:
+            count += 1
+    return count
+
+
 def _formal_gate_proof_audit_issues(
     *,
     proof_audit: dict[str, Any],
