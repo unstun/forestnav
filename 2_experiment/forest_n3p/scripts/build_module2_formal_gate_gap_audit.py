@@ -1833,7 +1833,7 @@ def _execution_veto_matrix(
                 "remote_training",
                 {
                     "protocol_lane_status": False,
-                    "decision_record": decision.get("remote_training_allowed"),
+                    "decision_record_superseded_by_protocol_lane": None,
                     "status_report": False,
                     "handoff_bundle": False,
                     "remote_packet_superseded_by_protocol_lane": None,
