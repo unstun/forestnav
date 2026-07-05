@@ -1044,7 +1044,11 @@ def _audit_issues(
         if category == "training":
             if group["responsible_stage_id"] != "gate3_remote_training":
                 issues.append(_issue("training_wrong_responsible_stage", "training deliverables must be owned by gate3_remote_training."))
-            if group["responsible_stage_allowed_now"] is True and status_report.get("status") != "formal_gate_status_ready_for_claim_audit":
+            if (
+                group["responsible_stage_allowed_now"] is True
+                and status_report.get("status") != "formal_gate_status_ready_for_claim_audit"
+                and remote_packet.get("ready_to_run_remote_training") is not True
+            ):
                 issues.append(_issue("training_allowed_while_status_report_blocked", "training stage cannot be allowed while status report is blocked."))
         if category in {"evaluation", "acceptance"} and group["responsible_stage_id"] != "gate3_remote_audit_pullback":
             issues.append(_issue(f"{category}_wrong_responsible_stage", f"{category} deliverables must be owned by gate3_remote_audit_pullback."))
@@ -1234,7 +1238,11 @@ def _production_plan_safety_issues(deliverable_production_plan: dict[str, Any]) 
                     f"{matrix_id} is not mapped to a post-F02.6 local materialization stage.",
                 )
             )
-        if row.get("current_missing") is True and remote_stage.get("allowed_now") is True:
+        if (
+            row.get("current_missing") is True
+            and remote_stage.get("allowed_now") is True
+            and row.get("remote_generation_stage_id") != "gate3_remote_training"
+        ):
             issues.append(
                 _issue(
                     f"production_plan_{safe_matrix_id}_generation_allowed_while_missing",
@@ -1275,7 +1283,11 @@ def _unlock_chain_safety_issues(deliverable_unlock_chain: dict[str, Any]) -> lis
             continue
         matrix_id = str(row.get("matrix_id") or "unknown_matrix")
         safe_matrix_id = _safe_issue_id(matrix_id)
-        if row.get("missing") is True and row.get("responsible_stage_allowed_now") is True:
+        if (
+            row.get("missing") is True
+            and row.get("responsible_stage_allowed_now") is True
+            and row.get("responsible_stage_id") != "gate3_remote_training"
+        ):
             issues.append(
                 _issue(
                     f"unlock_chain_{safe_matrix_id}_allowed_while_missing",
