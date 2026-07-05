@@ -1102,6 +1102,9 @@ def _write_inputs(tmp_path, *, formal):
             "status_report_next_action_guard_summary": _claim_safety_next_action_guard_summary_payload(
                 formal=formal
             ),
+            "handoff_single_next_action_index_summary": _claim_safety_handoff_single_next_action_index_payload(
+                formal=formal
+            ),
             "status_report_next_required_formal_deliverables": _claim_safety_next_required_formal_deliverables_payload(
                 formal=formal
             ),
