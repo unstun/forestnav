@@ -60,6 +60,7 @@ def test_contract_intake_requires_dr_sun_decisions_before_new_training(tmp_path)
     assert output["required_location_pattern"] == ".pipeline/contracts/module2-*.md"
     assert output["allowed_status_before_training"] == ["approved", "frozen"]
     assert output["draft_status_allows_training"] is False
+    assert "protocol_lane" in output["required_sections"]
     assert "failure_signal" in output["required_sections"]
     assert "H02 formal output acceptance" in output["post_contract_next_artifacts"]
 
