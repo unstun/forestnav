@@ -854,6 +854,46 @@ def _status_report_decision_intake_summary(status_report: dict[str, Any]) -> dic
         if isinstance(summary.get("decision_impact_paper_result_material_allowed_now"), bool)
         else None,
         "decision_impact_formal_training_still_requires": impact_required,
+        "record_authorization_status": summary.get("record_authorization_status"),
+        "record_authorization_current_blocked_action_ids": _string_list(
+            summary.get("record_authorization_current_blocked_action_ids")
+        ),
+        "record_authorization_post_decision_routes_are_current_authorization": summary.get(
+            "record_authorization_post_decision_routes_are_current_authorization"
+        )
+        if isinstance(summary.get("record_authorization_post_decision_routes_are_current_authorization"), bool)
+        else None,
+        "record_authorization_remote_preflight_allowed_now": summary.get(
+            "record_authorization_remote_preflight_allowed_now"
+        )
+        if isinstance(summary.get("record_authorization_remote_preflight_allowed_now"), bool)
+        else None,
+        "record_authorization_remote_training_allowed_now": summary.get(
+            "record_authorization_remote_training_allowed_now"
+        )
+        if isinstance(summary.get("record_authorization_remote_training_allowed_now"), bool)
+        else None,
+        "record_authorization_local_training_allowed_now": summary.get(
+            "record_authorization_local_training_allowed_now"
+        )
+        if isinstance(summary.get("record_authorization_local_training_allowed_now"), bool)
+        else None,
+        "record_authorization_formal_claim_allowed_now": summary.get(
+            "record_authorization_formal_claim_allowed_now"
+        )
+        if isinstance(summary.get("record_authorization_formal_claim_allowed_now"), bool)
+        else None,
+        "record_authorization_paper_result_material_allowed_now": summary.get(
+            "record_authorization_paper_result_material_allowed_now"
+        )
+        if isinstance(summary.get("record_authorization_paper_result_material_allowed_now"), bool)
+        else None,
+        "record_post_decision_non_authorization_count": int(
+            summary.get("record_post_decision_non_authorization_count") or 0
+        ),
+        "record_post_decision_formal_training_still_requires": _string_list(
+            summary.get("record_post_decision_formal_training_still_requires")
+        ),
         "decision_evidence_matrix_summary": evidence_matrix,
         "decision_evidence_matrix_present": evidence_matrix["present"],
         "decision_evidence_matrix_id": evidence_matrix["matrix_id"],
@@ -964,6 +1004,38 @@ def _status_report_decision_intake_blockers(status_report: dict[str, Any]) -> li
         blockers.append("status_report_f02_6_decision_intake_invalid_inputs_missing")
     if summary["post_decision_non_authorization_count"] == 0:
         blockers.append("status_report_f02_6_decision_intake_non_authorizations_missing")
+    expected_record_authorization_status = (
+        "blocked_until_dr_sun_decision"
+        if summary["record_status"] == "pending_human_decision"
+        else "decision_recorded_not_execution_authorization"
+    )
+    if summary["record_authorization_status"] != expected_record_authorization_status:
+        blockers.append("status_report_f02_6_record_authorization_status_invalid")
+    required_blocked_actions = {
+        "remote_preflight",
+        "remote_training",
+        "local_training",
+        "formal_claim",
+        "paper_result_material",
+    }
+    if required_blocked_actions.difference(summary["record_authorization_current_blocked_action_ids"]):
+        blockers.append("status_report_f02_6_record_authorization_missing_blocked_actions")
+    if summary["record_authorization_post_decision_routes_are_current_authorization"] is not False:
+        blockers.append("status_report_f02_6_record_authorization_treats_routes_as_current_authorization")
+    for field, blocker in (
+        ("record_authorization_remote_preflight_allowed_now", "status_report_f02_6_record_authorization_allows_remote_preflight"),
+        ("record_authorization_remote_training_allowed_now", "status_report_f02_6_record_authorization_allows_remote_training"),
+        ("record_authorization_local_training_allowed_now", "status_report_f02_6_record_authorization_allows_local_training"),
+        ("record_authorization_formal_claim_allowed_now", "status_report_f02_6_record_authorization_allows_formal_claim"),
+        (
+            "record_authorization_paper_result_material_allowed_now",
+            "status_report_f02_6_record_authorization_allows_paper_result_material",
+        ),
+    ):
+        if summary[field] is not False:
+            blockers.append(blocker)
+    if summary["record_post_decision_non_authorization_count"] < 4:
+        blockers.append("status_report_f02_6_record_non_authorizations_incomplete")
     if summary["post_decision_route_count"] < 2:
         blockers.append("status_report_f02_6_decision_intake_route_count_incomplete")
     if not expected_decisions.issubset(set(summary["post_decision_route_decisions"])):
@@ -1013,6 +1085,8 @@ def _status_report_decision_intake_blockers(status_report: dict[str, Any]) -> li
         "remote_formal_execution_packet_ready",
         "approved_remote_preflight",
     ):
+        if required not in summary["record_post_decision_formal_training_still_requires"]:
+            blockers.append(f"status_report_f02_6_record_non_authorization_missing_required_{required}")
         if required not in summary["decision_impact_formal_training_still_requires"]:
             blockers.append(f"status_report_f02_6_decision_impact_missing_required_{required}")
     if summary["decision_evidence_matrix_present"] is not True:
