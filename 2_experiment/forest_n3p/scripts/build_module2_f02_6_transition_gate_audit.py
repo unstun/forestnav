@@ -37,6 +37,7 @@ DEFAULT_H02_ACCEPTANCE = Path("0_trials/module2_h02_formal_acceptance/h02_formal
 DEFAULT_CLAIM_SAFETY = Path("0_trials/module2_claim_safety/module2_claim_safety.json")
 DEFAULT_PAPER_READINESS = Path("0_trials/module2_paper_readiness/module2_paper_readiness.json")
 DEFAULT_HANDOFF_BUNDLE = Path("0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json")
+DEFAULT_DECISION_INTAKE = Path("0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json")
 APPROVE_OBSTACLE_SUMMARY = "approve_obstacle_summary_warm_start"
 REJECT_OBSTACLE_SUMMARY = "reject_obstacle_summary_warm_start"
 DECISION_OWNER = "Dr Sun"
@@ -78,6 +79,7 @@ class F026TransitionGateAuditConfig:
     claim_safety_path: Path = DEFAULT_CLAIM_SAFETY
     paper_readiness_path: Path = DEFAULT_PAPER_READINESS
     handoff_bundle_path: Path = DEFAULT_HANDOFF_BUNDLE
+    decision_intake_path: Path = DEFAULT_DECISION_INTAKE
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -99,6 +101,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         claim_safety_path=args.claim_safety,
         paper_readiness_path=args.paper_readiness,
         handoff_bundle_path=args.handoff_bundle,
+        decision_intake_path=args.decision_intake,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -189,6 +192,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--claim-safety", type=Path, default=DEFAULT_CLAIM_SAFETY)
     parser.add_argument("--paper-readiness", type=Path, default=DEFAULT_PAPER_READINESS)
     parser.add_argument("--handoff-bundle", type=Path, default=DEFAULT_HANDOFF_BUNDLE)
+    parser.add_argument("--decision-intake", type=Path, default=DEFAULT_DECISION_INTAKE)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
@@ -209,21 +213,11 @@ def _run_scenario(*, config: F026TransitionGateAuditConfig, scenario_id: str, wo
     formal_gate = _scenario_formal_gate(_read_json(config.formal_gate_path), scenario_id, record)
     missing_artifacts = _scenario_missing_artifacts(_read_json(config.missing_artifacts_path), scenario_id, record)
     closure_checklist = _scenario_closure_checklist(_read_json(config.closure_checklist_path), scenario_id, record)
+    decision_intake = _scenario_decision_intake(_read_json(config.decision_intake_path), scenario_id, record)
     formal_gate_path = _write_json(work_root / "formal_gate_gap_audit.json", formal_gate)
     missing_artifacts_path = _write_json(work_root / "formal_gate_missing_artifacts.json", missing_artifacts)
     closure_checklist_path = _write_json(work_root / "formal_gate_closure_checklist.json", closure_checklist)
-
-    plan = post_plan_builder.build_manifest(
-        post_plan_builder.PostF026RegenerationPlanConfig(
-            output_dir=work_root,
-            decision_record_path=record_path,
-            formal_gate_path=formal_gate_path,
-            source_freshness_path=config.source_freshness_path,
-            remote_packet_path=config.remote_packet_path,
-            remaining_deliverables_path=config.remaining_deliverables_path,
-        )
-    )
-    plan_path = _write_json(work_root / "post_f02_6_regeneration_plan.json", plan)
+    decision_intake_path = _write_json(work_root / "f02_6_decision_intake.json", decision_intake)
 
     status_report = status_report_builder.build_manifest(
         status_report_builder.FormalGateStatusReportConfig(
@@ -232,6 +226,7 @@ def _run_scenario(*, config: F026TransitionGateAuditConfig, scenario_id: str, wo
             missing_artifacts_path=missing_artifacts_path,
             closure_checklist_path=closure_checklist_path,
             decision_record_path=record_path,
+            decision_intake_path=decision_intake_path,
             remote_packet_path=config.remote_packet_path,
             h01_manifest_path=config.h01_manifest_path,
             h02_acceptance_path=config.h02_acceptance_path,
@@ -241,6 +236,19 @@ def _run_scenario(*, config: F026TransitionGateAuditConfig, scenario_id: str, wo
         )
     )
     status_report_path = _write_json(work_root / "formal_gate_status_report.json", status_report)
+
+    plan = post_plan_builder.build_manifest(
+        post_plan_builder.PostF026RegenerationPlanConfig(
+            output_dir=work_root,
+            decision_record_path=record_path,
+            formal_gate_path=formal_gate_path,
+            status_report_path=status_report_path,
+            source_freshness_path=config.source_freshness_path,
+            remote_packet_path=config.remote_packet_path,
+            remaining_deliverables_path=config.remaining_deliverables_path,
+        )
+    )
+    plan_path = _write_json(work_root / "post_f02_6_regeneration_plan.json", plan)
 
     decision_gate = decision_gate_builder.build_manifest(
         decision_gate_builder.F026DecisionGateAuditConfig(
@@ -383,7 +391,7 @@ def _common_scenario_issues(summary: dict[str, Any]) -> list[dict[str, Any]]:
         issues.append(_issue(scenario_id, "record_allows_remote_training_now", "Synthetic decision record alone must never allow remote training now."))
     if permissions.get("local_training_allowed_now") is not False:
         issues.append(_issue(scenario_id, "status_report_allows_local_training", "Status report must keep local training blocked."))
-    if scenario_id != "approved" and permissions.get("remote_training_allowed_now") is not False:
+    if permissions.get("remote_training_allowed_now") is not False:
         issues.append(_issue(scenario_id, "status_report_allows_remote_training", "Synthetic transition must not directly allow formal PPO training."))
     if permissions.get("formal_claim_allowed_now") is not False:
         issues.append(_issue(scenario_id, "status_report_allows_formal_claim", "Synthetic transition must not directly allow formal claims."))
@@ -562,6 +570,77 @@ def _scenario_closure_checklist(base: dict[str, Any], scenario_id: str, record: 
             if isinstance(required, dict):
                 required["reason"] = _scenario_reason(str(required.get("reason") or ""), rejected=rejected)
     out["open_item_count"] = sum(1 for item in out.get("closure_checklist", []) if isinstance(item, dict) and item.get("complete") is not True)
+    return out
+
+
+def _scenario_decision_intake(base: dict[str, Any], scenario_id: str, record: dict[str, Any]) -> dict[str, Any]:
+    out = copy.deepcopy(base)
+    current = out.setdefault("current_state", {})
+    current["record_status"] = record.get("status")
+    current["record_requested_decision"] = record.get("requested_decision")
+    current["record_decider"] = record.get("decider")
+    current["effective_warm_start_decision"] = record.get("effective_warm_start_decision")
+    current["record_remote_training_allowed"] = record.get("remote_training_allowed")
+    current["record_remote_preflight_allowed_now"] = record.get("remote_preflight_allowed_now")
+    current["record_remote_training_allowed_now"] = record.get("remote_training_allowed_now")
+    current["record_local_training_allowed"] = record.get("local_training_allowed")
+    current["record_formal_claim_allowed"] = record.get("formal_claim_allowed")
+    current["record_authorization_status"] = record.get("current_authorization", {}).get("authorization_status")
+    current["record_authorization_current_allowed_action_ids"] = list(
+        record.get("current_authorization", {}).get("current_allowed_action_ids") or []
+    )
+    current["record_authorization_current_blocked_action_ids"] = list(
+        record.get("current_authorization", {}).get("current_blocked_action_ids") or []
+    )
+    current["record_authorization_post_decision_routes_are_current_authorization"] = record.get(
+        "current_authorization", {}
+    ).get("post_decision_routes_are_current_authorization")
+    current["record_authorization_remote_preflight_allowed_now"] = record.get("current_authorization", {}).get(
+        "remote_preflight_allowed_now"
+    )
+    current["record_authorization_remote_training_allowed_now"] = record.get("current_authorization", {}).get(
+        "remote_training_allowed_now"
+    )
+    current["record_authorization_formal_claim_allowed_now"] = record.get("current_authorization", {}).get(
+        "formal_claim_allowed_now"
+    )
+    current["record_authorization_paper_result_material_allowed_now"] = record.get("current_authorization", {}).get(
+        "paper_result_material_allowed_now"
+    )
+    current["status_report_local_training_allowed_now"] = False
+    current["status_report_formal_claim_allowed_now"] = False
+    if scenario_id == "pending":
+        out["status"] = "f02_6_decision_intake_pending_clean"
+        current["next_blocked_lane"] = "decision"
+        current["status_report_remote_preflight_allowed_now"] = False
+        current["status_report_remote_training_allowed_now"] = False
+        current["missing_deliverable_count"] = 10
+        request = out.setdefault("next_human_decision_request", {})
+        request["status"] = "awaiting_dr_sun_decision"
+        request["all_execution_disabled_now"] = True
+        request["current_allowed_action_ids"] = ["record_f02_6_decision"]
+        request["current_blocked_action_ids"] = list(REQUIRED_F02_6_BLOCKED_ACTION_IDS)
+        request["post_decision_routes_are_current_authorization"] = False
+    elif scenario_id == "approved":
+        out["status"] = "f02_6_decision_intake_closed_clean"
+        current["next_blocked_lane"] = "source_fresh_preflight"
+        current["status_report_remote_preflight_allowed_now"] = False
+        current["status_report_remote_training_allowed_now"] = False
+        current["missing_deliverable_count"] = 10
+        request = out.setdefault("next_human_decision_request", {})
+        request["status"] = "decision_recorded"
+        request["all_execution_disabled_now"] = False
+    else:
+        out["status"] = "f02_6_decision_intake_closed_clean"
+        current["next_blocked_lane"] = "protocol_redesign"
+        current["status_report_remote_preflight_allowed_now"] = False
+        current["status_report_remote_training_allowed_now"] = False
+        current["missing_deliverable_count"] = 10
+        request = out.setdefault("next_human_decision_request", {})
+        request["status"] = "decision_recorded"
+        request["all_execution_disabled_now"] = False
+    out["audit_issue_count"] = 0
+    out["audit_issues"] = []
     return out
 
 
