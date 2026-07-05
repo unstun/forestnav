@@ -59,7 +59,11 @@ def test_formal_gate_gap_audit_blocks_current_pending_gate_and_lists_missing_art
     assert manifest["artifact_name"] == "module2_formal_gate_gap_audit"
     assert manifest["status"] == "blocked_formal_gate_gaps_open"
     assert manifest["not_paper_result_material"] is True
+    assert manifest["executes_commands"] is False
+    assert manifest["runs_training"] is False
+    assert manifest["runs_remote_preflight"] is False
     assert manifest["local_training_allowed"] is False
+    assert manifest["formal_claim_allowed"] is False
     assert manifest["remote_training_resource"] == "gpu3070ti-relay"
     assert manifest["current_gate_state"]["formal_performance_claim_allowed"] is False
     assert manifest["remote_readiness"]["oracle_connector_results_match"] is True
