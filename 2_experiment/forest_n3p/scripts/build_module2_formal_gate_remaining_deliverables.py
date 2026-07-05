@@ -106,7 +106,7 @@ class FormalGateRemainingDeliverablesConfig:
     h02_acceptance_path: Path = DEFAULT_H02_ACCEPTANCE
     source_freshness_path: Path = DEFAULT_SOURCE_FRESHNESS
     post_f02_6_plan_path: Path = DEFAULT_POST_F02_6_PLAN
-    protocol_lane_status_report_path: Path = DEFAULT_PROTOCOL_LANE_STATUS_REPORT
+    protocol_lane_status_report_path: Path | None = None
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -147,7 +147,7 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
     h02_acceptance = _read_json(config.h02_acceptance_path)
     source_freshness = _read_json(config.source_freshness_path)
     post_f02_6_plan = _read_json(config.post_f02_6_plan_path)
-    protocol_lane_status = _read_json(config.protocol_lane_status_report_path)
+    protocol_lane_status = _read_json(config.protocol_lane_status_report_path) if config.protocol_lane_status_report_path else {}
 
     deliverable_groups = _deliverable_groups(
         status_report=status_report,
@@ -242,7 +242,7 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
             "h02_formal_acceptance": str(config.h02_acceptance_path),
             "source_freshness_audit": str(config.source_freshness_path),
             "post_f02_6_regeneration_plan": str(config.post_f02_6_plan_path),
-            "protocol_lane_status_report": str(config.protocol_lane_status_report_path),
+            "protocol_lane_status_report": str(config.protocol_lane_status_report_path or ""),
         },
         "current_gate_summary": current_gate_summary,
         "permissions_now": permissions_now,
