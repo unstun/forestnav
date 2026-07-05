@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_paper_readiness",
   "status": "partial_methods_ready_results_blocked",
-  "created_at_utc": "2026-07-05T17:43:56.713227+00:00",
-  "source_head": "d235f7df03161acea839807276917a6e15d7bf2a",
+  "created_at_utc": "2026-07-05T17:50:16.519183+00:00",
+  "source_head": "4ace5b5771452d3d6f50fc783fbefff97b3bbd09",
   "manuscript_ready": false,
   "formal_results_ready": false,
   "local_training_allowed": false,
@@ -157,7 +157,7 @@
     "remote_execution_ready": false,
     "status_report_status": "formal_gate_status_blocked",
     "status_report_formal_claim_allowed_now": false,
-    "status_report_input_safety_issue_count": 1
+    "status_report_input_safety_issue_count": 0
   },
   "claim_safety_requirement_stage_summary": {
     "present": true,
@@ -1190,7 +1190,6 @@
     "f02_6_pending",
     "formal_gate_closure_checklist_open",
     "formal_gate_status_report_blocked",
-    "status_report_input_safety_issues_open",
     "status_report_remaining_deliverables_gap_rows_missing",
     "status_report_remaining_deliverables_gap_categories_blocked",
     "status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing",
@@ -1298,7 +1297,6 @@
         "f02_6_pending",
         "formal_gate_closure_checklist_open",
         "formal_gate_status_report_blocked",
-        "status_report_input_safety_issues_open",
         "status_report_remaining_deliverables_gap_rows_missing",
         "status_report_remaining_deliverables_gap_categories_blocked",
         "status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing",

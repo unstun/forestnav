@@ -3,8 +3,8 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `d235f7df03161acea839807276917a6e15d7bf2a`
-- input_safety_issue_count: `1`
+- source_head: `4ace5b5771452d3d6f50fc783fbefff97b3bbd09`
+- input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
 - remote_training_allowed_now: `False`
@@ -113,9 +113,9 @@ This file is a read-only formal-gate status report. It does not execute commands
 - remaining_deliverables_proof_plan_matrix_row_count: `10`
 - remaining_deliverables_proof_plan_command_count: `20`
 - remaining_deliverables_source_blocker_summary_present: `True`
-- remaining_deliverables_source_blocker_count: `20`
-- remaining_deliverables_source_blocker_ids: `['f02_6_decision_gate_audit', 'f02_6_decision_intake', 'f02_6_decision_record', 'f02_6_transition_gate_audit', 'f02_6_warm_start_decision_packet', 'formal_gate_closure_checklist', 'formal_gate_gap_audit', 'formal_gate_handoff_bundle', 'gpu3070ti_readiness_refresh', 'post_f02_6_plan_audit', 'post_f02_6_regeneration_plan', 'remote_formal_execution_packet', 'remote_packet_safety_audit', 'h01_evaluation_manifest', 'h02_formal_acceptance', 'claim_safety', 'formal_gate_missing_artifacts', 'formal_gate_remaining_deliverables', 'formal_gate_status_report', 'paper_readiness']`
-- remaining_deliverables_remote_readiness_blocker_count: `2`
+- remaining_deliverables_source_blocker_count: `23`
+- remaining_deliverables_source_blocker_ids: `['f02_6_decision_gate_audit', 'f02_6_decision_intake', 'f02_6_decision_record', 'f02_6_transition_gate_audit', 'f02_6_warm_start_decision_packet', 'formal_gate_closure_checklist', 'formal_gate_gap_audit', 'formal_gate_handoff_bundle', 'gpu3070ti_readiness_refresh', 'post_f02_6_plan_audit', 'post_f02_6_regeneration_plan', 'remote_formal_execution_packet', 'remote_packet_safety_audit', 'h01_evaluation_manifest', 'h02_formal_acceptance', 'claim_safety', 'formal_gate_missing_artifacts', 'formal_gate_proof_audit', 'formal_gate_proof_summary_chain_audit', 'formal_gate_remaining_deliverables', 'formal_gate_status_report', 'mainline_formal_gate_state_audit', 'paper_readiness']`
+- remaining_deliverables_remote_readiness_blocker_count: `1`
 - remaining_deliverables_remote_readiness_refresh_requires_external_ssh: `True`
 - remaining_deliverables_remote_readiness_refresh_allowed_now: `False`
 - formal_gate_proof_audit_status: `formal_gate_proof_audit_blocked`
@@ -383,9 +383,9 @@ This file is a read-only formal-gate status report. It does not execute commands
 
 - present: `True`
 - summary_id: `module2_source_freshness_blocking_targets_summary`
-- blocking_target_count: `20`
-- blocking_target_ids: `f02_6_decision_gate_audit, f02_6_decision_intake, f02_6_decision_record, f02_6_transition_gate_audit, f02_6_warm_start_decision_packet, formal_gate_closure_checklist, formal_gate_gap_audit, formal_gate_handoff_bundle, gpu3070ti_readiness_refresh, post_f02_6_plan_audit, post_f02_6_regeneration_plan, remote_formal_execution_packet, remote_packet_safety_audit, h01_evaluation_manifest, h02_formal_acceptance, claim_safety, formal_gate_missing_artifacts, formal_gate_remaining_deliverables, formal_gate_status_report, paper_readiness`
-- remote_readiness_blocking_target_count: `2`
+- blocking_target_count: `23`
+- blocking_target_ids: `f02_6_decision_gate_audit, f02_6_decision_intake, f02_6_decision_record, f02_6_transition_gate_audit, f02_6_warm_start_decision_packet, formal_gate_closure_checklist, formal_gate_gap_audit, formal_gate_handoff_bundle, gpu3070ti_readiness_refresh, post_f02_6_plan_audit, post_f02_6_regeneration_plan, remote_formal_execution_packet, remote_packet_safety_audit, h01_evaluation_manifest, h02_formal_acceptance, claim_safety, formal_gate_missing_artifacts, formal_gate_proof_audit, formal_gate_proof_summary_chain_audit, formal_gate_remaining_deliverables, formal_gate_status_report, mainline_formal_gate_state_audit, paper_readiness`
+- remote_readiness_blocking_target_count: `1`
 - remote_readiness_refresh_requires_external_ssh: `True`
 - remote_readiness_refresh_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -397,19 +397,22 @@ This file is a read-only formal-gate status report. It does not execute commands
 - `f02_6_transition_gate_audit`: path=`0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`11`
 - `f02_6_warm_start_decision_packet`: path=`0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`11`
 - `formal_gate_closure_checklist`: path=`0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`11`
-- `formal_gate_gap_audit`: path=`0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`2`
+- `formal_gate_gap_audit`: path=`0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`4`
 - `formal_gate_handoff_bundle`: path=`0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`2`
 - `gpu3070ti_readiness_refresh`: path=`0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`42`
-- `post_f02_6_plan_audit`: path=`0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`3`
-- `post_f02_6_regeneration_plan`: path=`0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`3`
+- `post_f02_6_plan_audit`: path=`0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`5`
+- `post_f02_6_regeneration_plan`: path=`0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`5`
 - `remote_formal_execution_packet`: path=`0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`11`
-- `remote_packet_safety_audit`: path=`0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`2`
+- `remote_packet_safety_audit`: path=`0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`4`
 - `h01_evaluation_manifest`: path=`0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`, freshness_state=`historical_clean`, required_before=`formal_h01_h02`, blocking_changed_path_count_since_source=`11`
 - `h02_formal_acceptance`: path=`0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`, freshness_state=`historical_clean`, required_before=`formal_h01_h02`, blocking_changed_path_count_since_source=`11`
 - `claim_safety`: path=`0_trials/module2_claim_safety/module2_claim_safety.json`, freshness_state=`historical_clean`, required_before=`formal_claim_gate`, blocking_changed_path_count_since_source=`2`
 - `formal_gate_missing_artifacts`: path=`0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json`, freshness_state=`historical_clean`, required_before=`formal_claim_gate`, blocking_changed_path_count_since_source=`11`
-- `formal_gate_remaining_deliverables`: path=`0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json`, freshness_state=`historical_clean`, required_before=`formal_claim_gate`, blocking_changed_path_count_since_source=`4`
+- `formal_gate_proof_audit`: path=`0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json`, freshness_state=`historical_clean`, required_before=`formal_claim_gate`, blocking_changed_path_count_since_source=`2`
+- `formal_gate_proof_summary_chain_audit`: path=`0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json`, freshness_state=`historical_clean`, required_before=`formal_claim_gate`, blocking_changed_path_count_since_source=`2`
+- `formal_gate_remaining_deliverables`: path=`0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json`, freshness_state=`historical_clean`, required_before=`formal_claim_gate`, blocking_changed_path_count_since_source=`2`
 - `formal_gate_status_report`: path=`0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`, freshness_state=`historical_clean`, required_before=`formal_claim_gate`, blocking_changed_path_count_since_source=`2`
+- `mainline_formal_gate_state_audit`: path=`0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json`, freshness_state=`historical_clean`, required_before=`formal_claim_gate`, blocking_changed_path_count_since_source=`2`
 - `paper_readiness`: path=`0_trials/module2_paper_readiness/module2_paper_readiness.json`, freshness_state=`historical_clean`, required_before=`formal_claim_gate`, blocking_changed_path_count_since_source=`2`
 
 ## Formal Gate Proof Audit Gap Summary
@@ -578,7 +581,7 @@ This file is a read-only formal-gate status report. It does not execute commands
 
 ## Input Safety Issues
 
-- `remaining_deliverables_source_blocker_summary_remote_readiness_ids_mismatch`: remote-readiness blocker ids must match source-freshness readiness blockers.
+- none
 
 ## Safe Work Without F02.6 Decision
 
