@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_regeneration_plan",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-05T06:06:56.673083+00:00",
-  "source_head": "ee0cf8c511530272906684efad827e92583410cb+dirty",
+  "created_at_utc": "2026-07-05T06:30:51.649519+00:00",
+  "source_head": "57dfeaa0f85ead7259bdcb3a15d3e8c60e177964+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -182,7 +182,7 @@
       {
         "artifact_id": "post_f02_6_plan_audit",
         "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
-        "freshness_state": "historical_clean"
+        "freshness_state": "historical_dirty"
       },
       {
         "artifact_id": "post_f02_6_regeneration_plan",
@@ -231,7 +231,7 @@
       {
         "artifact_id": "formal_gate_proof_summary_chain_audit",
         "path": "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
-        "freshness_state": "historical_dirty"
+        "freshness_state": "historical_clean"
       },
       {
         "artifact_id": "formal_gate_remaining_deliverables",
@@ -246,7 +246,7 @@
       {
         "artifact_id": "paper_readiness",
         "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
-        "freshness_state": "historical_dirty"
+        "freshness_state": "historical_clean"
       }
     ]
   },
@@ -335,7 +335,7 @@
     {
       "artifact_id": "post_f02_6_plan_audit",
       "required_before": "approved_remote_preflight",
-      "freshness_state": "historical_clean",
+      "freshness_state": "historical_dirty",
       "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
       "stage_id": "regenerate_preflight_gate_artifacts",
       "command_kind": "known_builder",
@@ -416,7 +416,7 @@
     {
       "artifact_id": "formal_gate_proof_summary_chain_audit",
       "required_before": "formal_claim_gate",
-      "freshness_state": "historical_dirty",
+      "freshness_state": "historical_clean",
       "path": "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
       "stage_id": "regenerate_claim_gate_artifacts",
       "command_kind": "known_builder",
@@ -443,7 +443,7 @@
     {
       "artifact_id": "paper_readiness",
       "required_before": "formal_claim_gate",
-      "freshness_state": "historical_dirty",
+      "freshness_state": "historical_clean",
       "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
       "stage_id": "regenerate_claim_gate_artifacts",
       "command_kind": "known_builder",
@@ -537,7 +537,6 @@
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
         "source_freshness_regeneration_required",
-        "remote_packet_safety_command_index_missing_claim_safety",
         "remote_training_packet_not_ready"
       ]
     },
@@ -593,7 +592,6 @@
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
         "source_freshness_regeneration_required",
-        "remote_packet_safety_command_index_missing_claim_safety",
         "remote_training_packet_not_ready"
       ]
     },
