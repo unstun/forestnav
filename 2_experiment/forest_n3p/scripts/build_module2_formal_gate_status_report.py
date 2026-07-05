@@ -2983,6 +2983,136 @@ def _remaining_deliverables_proof_command_plan_issues(
     return issues
 
 
+def _remaining_deliverables_unlock_chain_issues(
+    *,
+    remaining_deliverables: dict[str, Any],
+    acceptance_summary: dict[str, Any],
+    unlock_chain_summary: dict[str, Any],
+) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    if not remaining_deliverables:
+        return []
+    if not unlock_chain_summary["present"]:
+        return [
+            _issue(
+                "remaining_deliverables_unlock_chain_missing",
+                "remaining-deliverables ledger must expose deliverable_unlock_chain.",
+            )
+        ]
+    if unlock_chain_summary["chain_id"] != "module2_formal_gate_missing_deliverable_unlock_chain":
+        issues.append(
+            _issue(
+                "remaining_deliverables_unlock_chain_id_invalid",
+                "unlock chain id must match the formal gate contract.",
+            )
+        )
+    if unlock_chain_summary["execution_boundary"] != "read_only_no_execution":
+        issues.append(
+            _issue(
+                "remaining_deliverables_unlock_chain_boundary_invalid",
+                "unlock chain must be read-only.",
+            )
+        )
+    if not unlock_chain_summary["not_paper_result_material"]:
+        issues.append(
+            _issue(
+                "remaining_deliverables_unlock_chain_marked_as_paper_result",
+                "unlock chain must not be paper result material.",
+            )
+        )
+    if unlock_chain_summary["row_count"] != acceptance_summary["matrix_row_count"]:
+        issues.append(
+            _issue(
+                "remaining_deliverables_unlock_chain_row_count_mismatch",
+                "unlock chain row count must match the acceptance matrix row count.",
+            )
+        )
+    if unlock_chain_summary["derived_row_count"] != acceptance_summary["matrix_row_count"]:
+        issues.append(
+            _issue(
+                "remaining_deliverables_unlock_chain_rows_missing",
+                "unlock chain rows must cover every acceptance matrix row.",
+            )
+        )
+    if unlock_chain_summary["blocked_row_count"] != acceptance_summary["missing_row_count"]:
+        issues.append(
+            _issue(
+                "remaining_deliverables_unlock_chain_blocked_row_count_mismatch",
+                "unlock chain blocked row count must match acceptance matrix missing row count.",
+            )
+        )
+    if unlock_chain_summary["derived_blocked_row_count"] != acceptance_summary["missing_row_count"]:
+        issues.append(
+            _issue(
+                "remaining_deliverables_unlock_chain_derived_blocked_row_count_mismatch",
+                "unlock chain row blockers must match acceptance matrix missing rows.",
+            )
+        )
+    if unlock_chain_summary["rows_with_missing_required_blockers"] > 0:
+        issues.append(
+            _issue(
+                "remaining_deliverables_unlock_chain_rows_missing_required_blockers",
+                "unlock chain rows must include all required current blockers while formal deliverables are missing.",
+            )
+        )
+    if unlock_chain_summary["rows_allowed_while_missing"] > 0:
+        issues.append(
+            _issue(
+                "remaining_deliverables_unlock_chain_rows_allowed_while_missing",
+                "unlock chain must not allow responsible stages while their formal deliverables are missing.",
+            )
+        )
+    if unlock_chain_summary["declared_rows_with_missing_required_blockers"] != unlock_chain_summary["rows_with_missing_required_blockers"]:
+        issues.append(
+            _issue(
+                "remaining_deliverables_unlock_chain_missing_blocker_count_mismatch",
+                "unlock chain declared missing-blocker count must match derived row count.",
+            )
+        )
+    if unlock_chain_summary["declared_rows_allowed_while_missing"] != unlock_chain_summary["rows_allowed_while_missing"]:
+        issues.append(
+            _issue(
+                "remaining_deliverables_unlock_chain_allowed_while_missing_count_mismatch",
+                "unlock chain declared allowed-while-missing count must match derived row count.",
+            )
+        )
+    for matrix_id, acceptance_row in acceptance_summary["rows"].items():
+        if not acceptance_row["present"]:
+            continue
+        safe_matrix_id = matrix_id.replace(":", "_")
+        chain_row = unlock_chain_summary["rows"].get(matrix_id)
+        if not chain_row:
+            issues.append(
+                _issue(
+                    f"remaining_deliverables_unlock_chain_missing_{safe_matrix_id}",
+                    f"unlock chain must include {matrix_id}.",
+                )
+            )
+            continue
+        if chain_row["missing"] != acceptance_row["missing"]:
+            issues.append(
+                _issue(
+                    f"remaining_deliverables_unlock_chain_{safe_matrix_id}_missing_mismatch",
+                    f"unlock chain missing flag for {matrix_id} must match the acceptance matrix.",
+                )
+            )
+        if chain_row["responsible_stage_id"] != acceptance_row["responsible_stage_id"]:
+            issues.append(
+                _issue(
+                    f"remaining_deliverables_unlock_chain_{safe_matrix_id}_stage_mismatch",
+                    f"unlock chain responsible stage for {matrix_id} must match the acceptance matrix.",
+                )
+            )
+        if chain_row["execution_boundary"] != "read_only_no_execution":
+            issues.append(
+                _issue(
+                    f"remaining_deliverables_unlock_chain_{safe_matrix_id}_boundary_invalid",
+                    f"unlock chain row {matrix_id} must be read-only.",
+                )
+            )
+    return issues
+
+
 def _formal_gate_proof_audit_issues(
     *,
     proof_audit: dict[str, Any],
