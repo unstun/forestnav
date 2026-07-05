@@ -2244,6 +2244,30 @@ def _formal_gate_proof_audit_summary(proof_audit: dict[str, Any]) -> dict[str, A
     }
 
 
+def _mainline_formal_gate_state_audit_summary(mainline_audit: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "present": bool(mainline_audit),
+        "status": mainline_audit.get("status"),
+        "not_paper_result_material": mainline_audit.get("not_paper_result_material") is True,
+        "executes_commands": mainline_audit.get("executes_commands") is True,
+        "runs_training": mainline_audit.get("runs_training") is True,
+        "runs_remote_preflight": mainline_audit.get("runs_remote_preflight") is True,
+        "local_training_allowed": mainline_audit.get("local_training_allowed") is True,
+        "formal_claim_allowed": mainline_audit.get("formal_claim_allowed") is True,
+        "audit_issue_count": int(mainline_audit.get("audit_issue_count") or 0),
+        "proof_summary_chain_status": mainline_audit.get("proof_summary_chain_status"),
+        "proof_summary_chain_audit_issue_count": int(
+            mainline_audit.get("proof_summary_chain_audit_issue_count") or 0
+        ),
+        "proof_summary_chain_proof_audit_input_safety_issue_count": int(
+            mainline_audit.get("proof_summary_chain_proof_audit_input_safety_issue_count") or 0
+        ),
+        "proof_summary_chain_proof_audit_blockers": _strings(
+            mainline_audit.get("proof_summary_chain_proof_audit_blockers")
+        ),
+    }
+
+
 def _proof_audit_remaining_deliverables_top_level_summary(proof_audit: dict[str, Any]) -> dict[str, Any]:
     return _normalize_proof_deliverables_summary(proof_audit.get("remaining_deliverables_top_level_summary"))
 
