@@ -2366,6 +2366,66 @@ def _remaining_deliverables_proof_command_plan(remaining_deliverables: dict[str,
     }
 
 
+def _remaining_deliverables_source_blocker_summary(remaining_deliverables: dict[str, Any]) -> dict[str, Any]:
+    raw = remaining_deliverables.get("source_freshness_blocking_targets_summary")
+    raw = raw if isinstance(raw, dict) else {}
+    raw_rows = raw.get("rows")
+    raw_rows = raw_rows if isinstance(raw_rows, list) else []
+    rows = []
+    for item in raw_rows:
+        if not isinstance(item, dict):
+            continue
+        rows.append(
+            {
+                "artifact_id": item.get("artifact_id"),
+                "path": item.get("path"),
+                "freshness_state": item.get("freshness_state"),
+                "source_head": item.get("source_head"),
+                "required_before": item.get("required_before"),
+                "commits_since_source": item.get("commits_since_source"),
+                "blocking_changed_path_count_since_source": item.get(
+                    "blocking_changed_path_count_since_source"
+                ),
+            }
+        )
+    return {
+        "present": bool(raw),
+        "summary_id": raw.get("summary_id"),
+        "execution_boundary": raw.get("execution_boundary"),
+        "not_paper_result_material": raw.get("not_paper_result_material") is True,
+        "status": raw.get("status"),
+        "source_head": raw.get("source_head"),
+        "current_head": raw.get("current_head"),
+        "blocking_regeneration_required_before_remote_formal_execution": raw.get(
+            "blocking_regeneration_required_before_remote_formal_execution"
+        )
+        if isinstance(raw.get("blocking_regeneration_required_before_remote_formal_execution"), bool)
+        else None,
+        "blocking_target_count": int(raw.get("blocking_target_count") or 0),
+        "blocking_target_ids": _strings(raw.get("blocking_target_ids")),
+        "remote_readiness_blocking_target_ids": _strings(raw.get("remote_readiness_blocking_target_ids")),
+        "remote_readiness_blocking_target_count": int(raw.get("remote_readiness_blocking_target_count") or 0),
+        "remote_readiness_refresh_requires_external_ssh": raw.get(
+            "remote_readiness_refresh_requires_external_ssh"
+        )
+        if isinstance(raw.get("remote_readiness_refresh_requires_external_ssh"), bool)
+        else None,
+        "remote_readiness_refresh_allowed_now": raw.get("remote_readiness_refresh_allowed_now")
+        if isinstance(raw.get("remote_readiness_refresh_allowed_now"), bool)
+        else None,
+        "remote_preflight_allowed_now": raw.get("remote_preflight_allowed_now")
+        if isinstance(raw.get("remote_preflight_allowed_now"), bool)
+        else None,
+        "remote_training_allowed_now": raw.get("remote_training_allowed_now")
+        if isinstance(raw.get("remote_training_allowed_now"), bool)
+        else None,
+        "formal_claim_allowed_now": raw.get("formal_claim_allowed_now")
+        if isinstance(raw.get("formal_claim_allowed_now"), bool)
+        else None,
+        "rows": rows,
+    }
+
+
 def _remaining_deliverables_unlock_chain_summary(remaining_deliverables: dict[str, Any]) -> dict[str, Any]:
     raw_chain = remaining_deliverables.get("deliverable_unlock_chain")
     raw_chain = raw_chain if isinstance(raw_chain, dict) else {}
