@@ -579,7 +579,10 @@ def _formal_gate_handoff_index(
     for requirement in formal_requirements:
         requirements.append(_formal_requirement_handoff_row(requirement=requirement, inputs=inputs))
     unresolved = [item for item in requirements if item["status"] != "satisfied"]
-    if unresolved and not decision_closed:
+    protocol_lane_pending = _protocol_lane_pending(current_gate_summary)
+    if protocol_lane_pending:
+        status = "blocked_until_protocol_lane_decision"
+    elif unresolved and not decision_closed:
         status = "blocked_until_f02_6_decision"
     elif unresolved:
         status = "formal_gate_requirements_open"
@@ -588,7 +591,7 @@ def _formal_gate_handoff_index(
     next_item = unresolved[0] if unresolved else None
     return {
         "status": status,
-        "next_action": _next_handoff_action(next_item),
+        "next_action": _next_handoff_action(next_item, protocol_lane_pending=protocol_lane_pending),
         "local_training_allowed_now": False,
         "remote_training_allowed_now": remote_training_allowed_now,
         "formal_result_material_allowed_now": False,
@@ -603,6 +606,7 @@ def _formal_gate_handoff_index(
             "formal_missing_artifacts_inventory": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
             "h01_manifest": inputs["h01_manifest"],
             "h02_formal_acceptance": inputs["h02_formal_acceptance"],
+            "protocol_lane_status_report": inputs["protocol_lane_status_report"],
         },
         "claim_boundary": "This handoff index is a gate-navigation aid; it is not a training command, evaluation command, result table, or paper-result source.",
     }
@@ -699,7 +703,14 @@ def _handoff_order(requirement_id: str) -> int:
     return order.get(requirement_id, 99)
 
 
-def _next_handoff_action(next_item: dict[str, Any] | None) -> dict[str, Any]:
+def _next_handoff_action(next_item: dict[str, Any] | None, *, protocol_lane_pending: bool = False) -> dict[str, Any]:
+    if protocol_lane_pending:
+        return {
+            "action_id": "record_protocol_lane_decision",
+            "allowed_for_agent_now": False,
+            "requires_dr_sun": True,
+            "description": "Dr Sun must select the protocol lane before any new success training, preflight, audit, or result material.",
+        }
     if next_item is None:
         return {
             "action_id": "no_open_formal_gate_handoff_requirements",
