@@ -18,6 +18,38 @@ def test_mainline_formal_gate_state_audit_accepts_current_blocked_state(tmp_path
     assert manifest["formal_claim_allowed"] is False
     assert manifest["expected_next_action_id"] == "record_f02_6_decision"
     assert manifest["expected_next_action_mentioned"] is True
+    protocol = manifest["protocol_lane_status_summary"]
+    assert protocol["status"] == "protocol_lane_status_blocked_pending_lane_decision"
+    assert protocol["audit_issue_count"] == 0
+    assert protocol["next_blocked_lane"] == "protocol_lane_decision"
+    assert protocol["decision_record_status"] == "pending_protocol_lane_decision"
+    assert protocol["selected_lane_id"] is None
+    assert protocol["lane_count"] == 4
+    assert protocol["allowed_next_action_ids"] == ["record_protocol_lane_decision"]
+    assert protocol["blocked_action_ids"] == [
+        "local_training",
+        "remote_success_training",
+        "remote_preflight_for_new_success_attempt",
+        "formal_claim",
+        "paper_result_material",
+    ]
+    assert manifest["protocol_lane_status_mentioned"] is True
+    assert manifest["protocol_lane_next_blocked_mentioned"] is True
+    assert manifest["protocol_lane_next_action_mentioned"] is True
+    assert manifest["protocol_lane_decision_record_status_mentioned"] is True
+    assert manifest["protocol_lane_lane_mentions"] == [
+        {"lane_id": "stronger_obstacle_summary_warm_start", "mentioned": True},
+        {"lane_id": "full_patch_cnn_policy", "mentioned": True},
+        {"lane_id": "hybrid_ppo_analytic_fallback", "mentioned": True},
+        {"lane_id": "stop_or_reframe_module2_claim", "mentioned": True},
+    ]
+    assert manifest["protocol_lane_blocked_action_mentions"] == [
+        {"action_id": "local_training", "mentioned": True},
+        {"action_id": "remote_success_training", "mentioned": True},
+        {"action_id": "remote_preflight_for_new_success_attempt", "mentioned": True},
+        {"action_id": "formal_claim", "mentioned": True},
+        {"action_id": "paper_result_material", "mentioned": True},
+    ]
     assert manifest["total_missing_deliverables"] == 10
     assert manifest["mainline_missing_deliverable_mention_count"] == 0
     matrix = manifest["f02_6_decision_evidence_matrix_summary"]
@@ -104,6 +136,41 @@ def test_mainline_formal_gate_state_audit_fails_missing_decision_matrix_mainline
     assert "mainline_current_section_missing_invalid_substitutes_boundary" in issue_ids
 
 
+def test_mainline_formal_gate_state_audit_fails_missing_protocol_lane_mainline_boundary(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit")
+    paths = _write_inputs(tmp_path, omit_protocol_lane_boundary=True)
+
+    manifest = builder.build_manifest(_config(builder, tmp_path, paths))
+
+    assert manifest["status"] == "mainline_formal_gate_state_audit_failed"
+    assert manifest["protocol_lane_status_mentioned"] is False
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "mainline_current_section_missing_protocol_lane_status" in issue_ids
+    assert "mainline_current_section_missing_protocol_lane_next_blocked" in issue_ids
+    assert "mainline_current_section_missing_protocol_lane_next_action" in issue_ids
+    assert "mainline_current_section_missing_protocol_lane_full_patch_cnn_policy" in issue_ids
+
+
+def test_mainline_formal_gate_state_audit_fails_protocol_lane_authorization_leak(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit")
+    paths = _write_inputs(tmp_path)
+    protocol = json.loads(paths["protocol"].read_text(encoding="utf-8"))
+    protocol["current_status"]["remote_training_allowed_now"] = True
+    protocol["current_status"]["allowed_next_action_ids"] = [
+        "record_protocol_lane_decision",
+        "remote_success_training",
+    ]
+    paths["protocol"].write_text(json.dumps(protocol), encoding="utf-8")
+
+    manifest = builder.build_manifest(_config(builder, tmp_path, paths))
+
+    assert manifest["status"] == "mainline_formal_gate_state_audit_failed"
+    assert manifest["protocol_lane_status_summary"]["remote_training_allowed_now"] is True
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "protocol_lane_status_authorization_leak" in issue_ids
+    assert "protocol_lane_status_allowed_actions_drift" in issue_ids
+
+
 def test_mainline_formal_gate_state_audit_fails_current_section_allowed_token(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit")
     paths = _write_inputs(tmp_path, extra_current_text=" remote_training_allowed=true")
@@ -169,6 +236,8 @@ def test_mainline_formal_gate_state_audit_cli_writes_json_and_markdown(tmp_path)
             str(paths["status"]),
             "--proof-summary-chain-audit",
             str(paths["proof"]),
+            "--protocol-lane-status-report",
+            str(paths["protocol"]),
         ]
     )
 
@@ -184,6 +253,10 @@ def test_mainline_formal_gate_state_audit_cli_writes_json_and_markdown(tmp_path)
     assert "F02.6 Decision Evidence Matrix" in markdown
     assert "module2_f02_6_decision_evidence_matrix" in markdown
     assert "ready_for_dr_sun_decision_not_authorization" in markdown
+    assert "Protocol Lane Status" in markdown
+    assert "protocol_lane_status_blocked_pending_lane_decision" in markdown
+    assert "record_protocol_lane_decision" in markdown
+    assert "full_patch_cnn_policy" in markdown
 
 
 def _config(builder, tmp_path, paths):
@@ -192,17 +265,42 @@ def _config(builder, tmp_path, paths):
         mainline_path=paths["mainline"],
         formal_gate_status_report_path=paths["status"],
         proof_summary_chain_audit_path=paths["proof"],
+        protocol_lane_status_report_path=paths["protocol"],
     )
 
 
-def _write_inputs(tmp_path, *, omit_artifact_id=None, extra_current_text="", omit_decision_matrix_boundary=False):
+def _write_inputs(
+    tmp_path,
+    *,
+    omit_artifact_id=None,
+    extra_current_text="",
+    omit_decision_matrix_boundary=False,
+    omit_protocol_lane_boundary=False,
+):
     paths = {
         "mainline": tmp_path / "mainline.md",
         "status": tmp_path / "status.json",
         "proof": tmp_path / "proof.json",
+        "protocol": tmp_path / "protocol.json",
     }
     rows = _deliverable_rows()
     artifact_ids = [row["artifact_id"] for row in rows if row["artifact_id"] != omit_artifact_id]
+    protocol_lane_text = (
+        ""
+        if omit_protocol_lane_boundary
+        else (
+            "Protocol-lane status report 当前为 "
+            "`protocol_lane_status_blocked_pending_lane_decision`, "
+            "`next_blocked_lane=protocol_lane_decision`, "
+            "`decision_record_status=pending_protocol_lane_decision`, "
+            "唯一允许动作是 `record_protocol_lane_decision`; "
+            "候选 lane 为 `stronger_obstacle_summary_warm_start`, `full_patch_cnn_policy`, "
+            "`hybrid_ppo_analytic_fallback`, `stop_or_reframe_module2_claim`; "
+            "blocked_action_ids 包括 `local_training`, `remote_success_training`, "
+            "`remote_preflight_for_new_success_attempt`, `formal_claim`, `paper_result_material`; "
+            "selected_lane_id 仍为 None, lane_count=4。"
+        )
+    )
     current_line = (
         "- 2026-07-05: 当前 formal gate 下一步清单已同步到主任务书。"
         "唯一允许动作仍是 `record_f02_6_decision`; "
@@ -220,6 +318,7 @@ def _write_inputs(tmp_path, *, omit_artifact_id=None, extra_current_text="", omi
                 "并列出 invalid substitutes; matrix 不是训练、远端预检、claim 或论文结果授权。"
             )
         )
+        + protocol_lane_text
         + f"{extra_current_text}"
     )
     paths["mainline"].write_text("# mainline\n\n" + current_line + "\n", encoding="utf-8")
@@ -297,6 +396,7 @@ def _write_inputs(tmp_path, *, omit_artifact_id=None, extra_current_text="", omi
         ),
         encoding="utf-8",
     )
+    paths["protocol"].write_text(json.dumps(_protocol_lane_status()), encoding="utf-8")
     return paths
 
 
@@ -322,4 +422,39 @@ def _row(category, artifact_id):
         "artifact_id": artifact_id,
         "responsible_stage_id": "gate3_remote_training",
         "responsible_stage_allowed_now": False,
+    }
+
+
+def _protocol_lane_status():
+    return {
+        "status": "protocol_lane_status_blocked_pending_lane_decision",
+        "audit_issue_count": 0,
+        "current_status": {
+            "next_blocked_lane": "protocol_lane_decision",
+            "decision_packet_status": "formal_gate_protocol_lane_decision_packet_ready_for_dr_sun",
+            "decision_record_status": "pending_protocol_lane_decision",
+            "decision_gate_status": "protocol_lane_decision_gate_pending_clean",
+            "contract_authoring_gate_status": "contract_authoring_gate_blocked_pending_lane_decision",
+            "lane_matrix_status": "formal_gate_protocol_lane_matrix_ready",
+            "lane_count": 4,
+            "next_round_requirements_status": "formal_gate_next_round_requirements_ready",
+            "selected_lane_id": None,
+            "contract_action": "none",
+            "contract_drafting_allowed_now": False,
+            "contract_approval_allowed_now": False,
+            "draft_contract_allows_training": False,
+            "allowed_next_action_ids": ["record_protocol_lane_decision"],
+            "blocked_action_ids": [
+                "local_training",
+                "remote_success_training",
+                "remote_preflight_for_new_success_attempt",
+                "formal_claim",
+                "paper_result_material",
+            ],
+            "local_training_allowed_now": False,
+            "remote_training_allowed_now": False,
+            "formal_claim_allowed_now": False,
+            "paper_result_material_allowed_now": False,
+            "new_success_training_allowed_now": False,
+        },
     }
