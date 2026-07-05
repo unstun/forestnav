@@ -3,7 +3,7 @@
 This file records gate artifact source-head freshness. It is not a training run, remote preflight, paper table, or result claim.
 
 - status: `source_freshness_risks_recorded_gate_still_blocked`
-- current_head: `ee2708b90c38cde889f5155537ec60dbc2a0f5a4`
+- current_head: `09f891a785015a417c3c953b38536ed94aadfc07`
 - runs_training: `False`
 - runs_remote_preflight: `False`
 - formal_claim_allowed: `False`
@@ -11,30 +11,39 @@ This file records gate artifact source-head freshness. It is not a training run,
 
 ## Risk Counts
 
-- `historical_clean`: `4`
-- `historical_dirty`: `15`
+- `historical_clean`: `8`
+- `historical_dirty`: `11`
+
+## Commit Lag Diagnostics
+
+- `records_with_commit_lag`: `19`
+- `records_with_unknown_commit_lag`: `0`
+- `records_with_changed_paths_since_source`: `19`
+- `records_with_artifact_path_changed_since_source`: `19`
+- `max_commits_since_source`: `643`
+- `changed_path_sample_limit`: `12`
 
 ## Regeneration Targets
 
-- `f02_6_decision_gate_audit`: `historical_dirty`, source_head=`849c39867a5e867d9f78579c176e3b61d04d7556+dirty`, current_head=`ee2708b90c38cde889f5155537ec60dbc2a0f5a4`, dirty=`True`, commit_exists=`True`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json`
-- `f02_6_decision_intake`: `historical_dirty`, source_head=`858ece7f044510d35900ae0fa133b33e375e3dcf+dirty`, current_head=`ee2708b90c38cde889f5155537ec60dbc2a0f5a4`, dirty=`True`, commit_exists=`True`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json`
-- `f02_6_decision_record`: `historical_dirty`, source_head=`849c39867a5e867d9f78579c176e3b61d04d7556+dirty`, current_head=`ee2708b90c38cde889f5155537ec60dbc2a0f5a4`, dirty=`True`, commit_exists=`True`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json`
-- `f02_6_transition_gate_audit`: `historical_dirty`, source_head=`849c39867a5e867d9f78579c176e3b61d04d7556+dirty`, current_head=`ee2708b90c38cde889f5155537ec60dbc2a0f5a4`, dirty=`True`, commit_exists=`True`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json`
-- `formal_gate_closure_checklist`: `historical_dirty`, source_head=`858ece7f044510d35900ae0fa133b33e375e3dcf+dirty`, current_head=`ee2708b90c38cde889f5155537ec60dbc2a0f5a4`, dirty=`True`, commit_exists=`True`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json`
-- `formal_gate_gap_audit`: `historical_dirty`, source_head=`aa814ebef2258443346712aebec65994deb80e8e+dirty`, current_head=`ee2708b90c38cde889f5155537ec60dbc2a0f5a4`, dirty=`True`, commit_exists=`True`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json`
-- `formal_gate_handoff_bundle`: `historical_clean`, source_head=`86bf7aaccb1e49aecf5ad3b249b63ac4c555dab4`, current_head=`ee2708b90c38cde889f5155537ec60dbc2a0f5a4`, dirty=`False`, commit_exists=`True`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`
-- `gpu3070ti_readiness_refresh`: `historical_clean`, source_head=`033356f27e5255c60d64a78753054b86ef2a0428`, current_head=`ee2708b90c38cde889f5155537ec60dbc2a0f5a4`, dirty=`False`, commit_exists=`True`, required before `approved_remote_preflight`, path `0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json`
-- `post_f02_6_plan_audit`: `historical_dirty`, source_head=`aa814ebef2258443346712aebec65994deb80e8e+dirty`, current_head=`ee2708b90c38cde889f5155537ec60dbc2a0f5a4`, dirty=`True`, commit_exists=`True`, required before `approved_remote_preflight`, path `0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json`
-- `remote_formal_execution_packet`: `historical_dirty`, source_head=`01c57e4da7473cff42e2aafbd62431772eae0bb6+dirty`, current_head=`ee2708b90c38cde889f5155537ec60dbc2a0f5a4`, dirty=`True`, commit_exists=`True`, required before `approved_remote_preflight`, path `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json`
-- `remote_packet_safety_audit`: `historical_dirty`, source_head=`cec3317d5977577bfe1014aaecdf4bcd8b501aae+dirty`, current_head=`ee2708b90c38cde889f5155537ec60dbc2a0f5a4`, dirty=`True`, commit_exists=`True`, required before `approved_remote_preflight`, path `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
-- `h01_evaluation_manifest`: `historical_dirty`, source_head=`4887f66ce6b4d32ce269d9da7d4a691e0ba5e5f6+dirty`, current_head=`ee2708b90c38cde889f5155537ec60dbc2a0f5a4`, dirty=`True`, commit_exists=`True`, required before `formal_h01_h02`, path `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`
-- `h02_formal_acceptance`: `historical_dirty`, source_head=`5c4bf4a43c55f74b14f893e8f64dec84eb9d66ad+dirty`, current_head=`ee2708b90c38cde889f5155537ec60dbc2a0f5a4`, dirty=`True`, commit_exists=`True`, required before `formal_h01_h02`, path `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
-- `claim_safety`: `historical_clean`, source_head=`d1e136a7e77379b15d9206f9d98c414e793c1533`, current_head=`ee2708b90c38cde889f5155537ec60dbc2a0f5a4`, dirty=`False`, commit_exists=`True`, required before `formal_claim_gate`, path `0_trials/module2_claim_safety/module2_claim_safety.json`
-- `formal_gate_missing_artifacts`: `historical_dirty`, source_head=`4e88777f45f83989bc9fc74090404c86a034ee79+dirty`, current_head=`ee2708b90c38cde889f5155537ec60dbc2a0f5a4`, dirty=`True`, commit_exists=`True`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json`
-- `formal_gate_proof_audit`: `historical_dirty`, source_head=`4e88777f45f83989bc9fc74090404c86a034ee79+dirty`, current_head=`ee2708b90c38cde889f5155537ec60dbc2a0f5a4`, dirty=`True`, commit_exists=`True`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json`
-- `formal_gate_remaining_deliverables`: `historical_dirty`, source_head=`4e88777f45f83989bc9fc74090404c86a034ee79+dirty`, current_head=`ee2708b90c38cde889f5155537ec60dbc2a0f5a4`, dirty=`True`, commit_exists=`True`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json`
-- `formal_gate_status_report`: `historical_dirty`, source_head=`86bf7aaccb1e49aecf5ad3b249b63ac4c555dab4+dirty`, current_head=`ee2708b90c38cde889f5155537ec60dbc2a0f5a4`, dirty=`True`, commit_exists=`True`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`
-- `paper_readiness`: `historical_clean`, source_head=`21905c71383680b02db6c383db664025a0794300`, current_head=`ee2708b90c38cde889f5155537ec60dbc2a0f5a4`, dirty=`False`, commit_exists=`True`, required before `formal_claim_gate`, path `0_trials/module2_paper_readiness/module2_paper_readiness.json`
+- `f02_6_decision_gate_audit`: `historical_dirty`, source_head=`849c39867a5e867d9f78579c176e3b61d04d7556+dirty`, current_head=`09f891a785015a417c3c953b38536ed94aadfc07`, dirty=`True`, commit_exists=`True`, commits_since_source=`207`, changed_paths_since_source=`86`, artifact_path_changed=`True`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json`
+- `f02_6_decision_intake`: `historical_dirty`, source_head=`858ece7f044510d35900ae0fa133b33e375e3dcf+dirty`, current_head=`09f891a785015a417c3c953b38536ed94aadfc07`, dirty=`True`, commit_exists=`True`, commits_since_source=`15`, changed_paths_since_source=`35`, artifact_path_changed=`True`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json`
+- `f02_6_decision_record`: `historical_dirty`, source_head=`849c39867a5e867d9f78579c176e3b61d04d7556+dirty`, current_head=`09f891a785015a417c3c953b38536ed94aadfc07`, dirty=`True`, commit_exists=`True`, commits_since_source=`207`, changed_paths_since_source=`86`, artifact_path_changed=`True`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json`
+- `f02_6_transition_gate_audit`: `historical_dirty`, source_head=`849c39867a5e867d9f78579c176e3b61d04d7556+dirty`, current_head=`09f891a785015a417c3c953b38536ed94aadfc07`, dirty=`True`, commit_exists=`True`, commits_since_source=`207`, changed_paths_since_source=`86`, artifact_path_changed=`True`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json`
+- `formal_gate_closure_checklist`: `historical_dirty`, source_head=`72da37c56a2009311b02bff57685ef1efcdd6dc3+dirty`, current_head=`09f891a785015a417c3c953b38536ed94aadfc07`, dirty=`True`, commit_exists=`True`, commits_since_source=`4`, changed_paths_since_source=`12`, artifact_path_changed=`True`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json`
+- `formal_gate_gap_audit`: `historical_clean`, source_head=`9949fa4b4797c875818487289ddf378efc141402`, current_head=`09f891a785015a417c3c953b38536ed94aadfc07`, dirty=`False`, commit_exists=`True`, commits_since_source=`3`, changed_paths_since_source=`7`, artifact_path_changed=`True`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json`
+- `formal_gate_handoff_bundle`: `historical_clean`, source_head=`9949fa4b4797c875818487289ddf378efc141402`, current_head=`09f891a785015a417c3c953b38536ed94aadfc07`, dirty=`False`, commit_exists=`True`, commits_since_source=`3`, changed_paths_since_source=`7`, artifact_path_changed=`True`, required before `approved_remote_preflight`, path `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json`
+- `gpu3070ti_readiness_refresh`: `historical_clean`, source_head=`033356f27e5255c60d64a78753054b86ef2a0428`, current_head=`09f891a785015a417c3c953b38536ed94aadfc07`, dirty=`False`, commit_exists=`True`, commits_since_source=`588`, changed_paths_since_source=`170`, artifact_path_changed=`True`, required before `approved_remote_preflight`, path `0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json`
+- `post_f02_6_plan_audit`: `historical_clean`, source_head=`1b3a75f45e2992ccca370c24d1db4532ecff5887`, current_head=`09f891a785015a417c3c953b38536ed94aadfc07`, dirty=`False`, commit_exists=`True`, commits_since_source=`6`, changed_paths_since_source=`15`, artifact_path_changed=`True`, required before `approved_remote_preflight`, path `0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json`
+- `remote_formal_execution_packet`: `historical_dirty`, source_head=`01c57e4da7473cff42e2aafbd62431772eae0bb6+dirty`, current_head=`09f891a785015a417c3c953b38536ed94aadfc07`, dirty=`True`, commit_exists=`True`, commits_since_source=`431`, changed_paths_since_source=`131`, artifact_path_changed=`True`, required before `approved_remote_preflight`, path `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json`
+- `remote_packet_safety_audit`: `historical_clean`, source_head=`4ca06623749ce1942ec92a671b5c71693cee6fdc`, current_head=`09f891a785015a417c3c953b38536ed94aadfc07`, dirty=`False`, commit_exists=`True`, commits_since_source=`5`, changed_paths_since_source=`14`, artifact_path_changed=`True`, required before `approved_remote_preflight`, path `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`
+- `h01_evaluation_manifest`: `historical_dirty`, source_head=`4887f66ce6b4d32ce269d9da7d4a691e0ba5e5f6+dirty`, current_head=`09f891a785015a417c3c953b38536ed94aadfc07`, dirty=`True`, commit_exists=`True`, commits_since_source=`643`, changed_paths_since_source=`208`, artifact_path_changed=`True`, required before `formal_h01_h02`, path `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`
+- `h02_formal_acceptance`: `historical_dirty`, source_head=`5c4bf4a43c55f74b14f893e8f64dec84eb9d66ad+dirty`, current_head=`09f891a785015a417c3c953b38536ed94aadfc07`, dirty=`True`, commit_exists=`True`, commits_since_source=`426`, changed_paths_since_source=`125`, artifact_path_changed=`True`, required before `formal_h01_h02`, path `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
+- `claim_safety`: `historical_clean`, source_head=`d1e136a7e77379b15d9206f9d98c414e793c1533`, current_head=`09f891a785015a417c3c953b38536ed94aadfc07`, dirty=`False`, commit_exists=`True`, commits_since_source=`11`, changed_paths_since_source=`22`, artifact_path_changed=`True`, required before `formal_claim_gate`, path `0_trials/module2_claim_safety/module2_claim_safety.json`
+- `formal_gate_missing_artifacts`: `historical_clean`, source_head=`72da37c56a2009311b02bff57685ef1efcdd6dc3`, current_head=`09f891a785015a417c3c953b38536ed94aadfc07`, dirty=`False`, commit_exists=`True`, commits_since_source=`4`, changed_paths_since_source=`12`, artifact_path_changed=`True`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json`
+- `formal_gate_proof_audit`: `historical_dirty`, source_head=`72da37c56a2009311b02bff57685ef1efcdd6dc3+dirty`, current_head=`09f891a785015a417c3c953b38536ed94aadfc07`, dirty=`True`, commit_exists=`True`, commits_since_source=`4`, changed_paths_since_source=`12`, artifact_path_changed=`True`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json`
+- `formal_gate_remaining_deliverables`: `historical_dirty`, source_head=`72da37c56a2009311b02bff57685ef1efcdd6dc3+dirty`, current_head=`09f891a785015a417c3c953b38536ed94aadfc07`, dirty=`True`, commit_exists=`True`, commits_since_source=`4`, changed_paths_since_source=`12`, artifact_path_changed=`True`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json`
+- `formal_gate_status_report`: `historical_dirty`, source_head=`9949fa4b4797c875818487289ddf378efc141402+dirty`, current_head=`09f891a785015a417c3c953b38536ed94aadfc07`, dirty=`True`, commit_exists=`True`, commits_since_source=`3`, changed_paths_since_source=`7`, artifact_path_changed=`True`, required before `formal_claim_gate`, path `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`
+- `paper_readiness`: `historical_clean`, source_head=`21905c71383680b02db6c383db664025a0794300`, current_head=`09f891a785015a417c3c953b38536ed94aadfc07`, dirty=`False`, commit_exists=`True`, commits_since_source=`10`, changed_paths_since_source=`20`, artifact_path_changed=`True`, required before `formal_claim_gate`, path `0_trials/module2_paper_readiness/module2_paper_readiness.json`
 
 ## Artifact Records
 
@@ -47,16 +56,16 @@ This file records gate artifact source-head freshness. It is not a training run,
 - `h02_formal_acceptance`: status=`blocked_formal_output_acceptance`, freshness=`historical_dirty`, source_head=`5c4bf4a43c55f74b14f893e8f64dec84eb9d66ad+dirty`
 - `claim_safety`: status=`blocked_formal_performance_claims`, freshness=`historical_clean`, source_head=`d1e136a7e77379b15d9206f9d98c414e793c1533`
 - `paper_readiness`: status=`partial_methods_ready_results_blocked`, freshness=`historical_clean`, source_head=`21905c71383680b02db6c383db664025a0794300`
-- `formal_gate_gap_audit`: status=`blocked_formal_gate_gaps_open`, freshness=`historical_dirty`, source_head=`aa814ebef2258443346712aebec65994deb80e8e+dirty`
-- `post_f02_6_plan_audit`: status=`post_f02_6_plan_audit_passed`, freshness=`historical_dirty`, source_head=`aa814ebef2258443346712aebec65994deb80e8e+dirty`
-- `remote_packet_safety_audit`: status=`remote_packet_safety_audit_passed`, freshness=`historical_dirty`, source_head=`cec3317d5977577bfe1014aaecdf4bcd8b501aae+dirty`
-- `formal_gate_closure_checklist`: status=`formal_gate_closure_blocked`, freshness=`historical_dirty`, source_head=`858ece7f044510d35900ae0fa133b33e375e3dcf+dirty`
+- `formal_gate_gap_audit`: status=`blocked_formal_gate_gaps_open`, freshness=`historical_clean`, source_head=`9949fa4b4797c875818487289ddf378efc141402`
+- `post_f02_6_plan_audit`: status=`post_f02_6_plan_audit_passed`, freshness=`historical_clean`, source_head=`1b3a75f45e2992ccca370c24d1db4532ecff5887`
+- `remote_packet_safety_audit`: status=`remote_packet_safety_audit_passed`, freshness=`historical_clean`, source_head=`4ca06623749ce1942ec92a671b5c71693cee6fdc`
+- `formal_gate_closure_checklist`: status=`formal_gate_closure_blocked`, freshness=`historical_dirty`, source_head=`72da37c56a2009311b02bff57685ef1efcdd6dc3+dirty`
 - `gpu3070ti_readiness_refresh`: status=`remote_readiness_refreshed_f02_6_still_blocked`, freshness=`historical_clean`, source_head=`033356f27e5255c60d64a78753054b86ef2a0428`
-- `formal_gate_missing_artifacts`: status=`formal_gate_missing_artifacts_open`, freshness=`historical_dirty`, source_head=`4e88777f45f83989bc9fc74090404c86a034ee79+dirty`
-- `formal_gate_status_report`: status=`formal_gate_status_blocked`, freshness=`historical_dirty`, source_head=`86bf7aaccb1e49aecf5ad3b249b63ac4c555dab4+dirty`
-- `formal_gate_remaining_deliverables`: status=`formal_gate_deliverables_blocked`, freshness=`historical_dirty`, source_head=`4e88777f45f83989bc9fc74090404c86a034ee79+dirty`
-- `formal_gate_proof_audit`: status=`formal_gate_proof_audit_blocked`, freshness=`historical_dirty`, source_head=`4e88777f45f83989bc9fc74090404c86a034ee79+dirty`
-- `formal_gate_handoff_bundle`: status=`blocked_until_f02_6_decision`, freshness=`historical_clean`, source_head=`86bf7aaccb1e49aecf5ad3b249b63ac4c555dab4`
+- `formal_gate_missing_artifacts`: status=`formal_gate_missing_artifacts_open`, freshness=`historical_clean`, source_head=`72da37c56a2009311b02bff57685ef1efcdd6dc3`
+- `formal_gate_status_report`: status=`formal_gate_status_blocked`, freshness=`historical_dirty`, source_head=`9949fa4b4797c875818487289ddf378efc141402+dirty`
+- `formal_gate_remaining_deliverables`: status=`formal_gate_deliverables_blocked`, freshness=`historical_dirty`, source_head=`72da37c56a2009311b02bff57685ef1efcdd6dc3+dirty`
+- `formal_gate_proof_audit`: status=`formal_gate_proof_audit_blocked`, freshness=`historical_dirty`, source_head=`72da37c56a2009311b02bff57685ef1efcdd6dc3+dirty`
+- `formal_gate_handoff_bundle`: status=`blocked_until_f02_6_decision`, freshness=`historical_clean`, source_head=`9949fa4b4797c875818487289ddf378efc141402`
 
 ## Claim Boundaries
 
