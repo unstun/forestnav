@@ -57,6 +57,17 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["current_state"]["decision_intake_packet_remote_preflight_allowed_now"] is False
     assert manifest["current_state"]["decision_intake_packet_remote_training_allowed_now"] is False
     assert manifest["current_state"]["decision_intake_packet_paper_result_material_allowed_now"] is False
+    assert manifest["current_state"]["decision_intake_record_authorization_status"] == "blocked_until_dr_sun_decision"
+    assert manifest["current_state"]["decision_intake_record_authorization_current_blocked_action_ids"] == [
+        "remote_preflight",
+        "remote_training",
+        "local_training",
+        "formal_claim",
+        "paper_result_material",
+    ]
+    assert manifest["current_state"]["decision_intake_record_authorization_remote_training_allowed_now"] is False
+    assert manifest["current_state"]["decision_intake_record_authorization_formal_claim_allowed_now"] is False
+    assert manifest["current_state"]["decision_intake_record_post_decision_non_authorization_count"] == 4
     assert manifest["current_state"]["decision_intake_next_request_status"] == "awaiting_dr_sun_decision"
     assert manifest["current_state"]["decision_intake_next_request_current_allowed_action_ids"] == [
         "record_f02_6_decision"
@@ -816,6 +827,33 @@ def test_formal_gate_status_report_requires_decision_intake_impact_summary(tmp_p
     assert manifest["f02_6_decision_intake_summary"]["decision_impact_present"] is False
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
     assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
+
+
+def test_formal_gate_status_report_requires_decision_record_authorization_boundary(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    intake = json.loads(config.decision_intake_path.read_text(encoding="utf-8"))
+    state = intake["current_state"]
+    state["record_authorization_status"] = "remote_execution_authorized"
+    state["record_authorization_current_blocked_action_ids"] = ["remote_training"]
+    state["record_authorization_post_decision_routes_are_current_authorization"] = True
+    state["record_authorization_remote_preflight_allowed_now"] = True
+    state["record_authorization_formal_claim_allowed_now"] = True
+    state["record_post_decision_non_authorization_count"] = 0
+    state["record_post_decision_formal_training_still_requires"] = []
+    config.decision_intake_path.write_text(json.dumps(intake), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert "decision_intake_record_authorization_status_invalid" in issue_ids
+    assert "decision_intake_record_authorization_missing_blocked_actions" in issue_ids
+    assert "decision_intake_record_authorization_treats_routes_as_current_authorization" in issue_ids
+    assert "decision_intake_record_authorization_allows_remote_preflight" in issue_ids
+    assert "decision_intake_record_authorization_allows_formal_claim" in issue_ids
+    assert "decision_intake_record_non_authorizations_incomplete" in issue_ids
+    assert "decision_intake_record_non_authorization_missing_required_approved_remote_preflight" in issue_ids
+    assert manifest["permissions_now"]["remote_training_allowed_now"] is False
 
 
 def test_formal_gate_status_report_requires_missing_artifacts_handoff_index(tmp_path):
