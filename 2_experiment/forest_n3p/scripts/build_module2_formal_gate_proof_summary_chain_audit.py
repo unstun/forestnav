@@ -754,11 +754,14 @@ def _handoff_single_next_action_issues(*, rows: Sequence[dict[str, Any]]) -> lis
                         "path": row["path"],
                     }
                 )
-        if row["source_freshness_blocking_regeneration_required"] is True:
+        if (
+            row["source_freshness_blocking_regeneration_required"] is True
+            and "source_freshness_audit" not in row["after_approval_still_requires"]
+        ):
             issues.append(
                 {
                     "issue_id": f"{row_id}_source_freshness_blocks",
-                    "message": "Single-next-action handoff must not hide a blocking source-freshness regeneration requirement.",
+                    "message": "Single-next-action handoff must list source-freshness audit when source freshness is blocking.",
                     "path": row["path"],
                 }
             )
