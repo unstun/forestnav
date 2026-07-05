@@ -31,6 +31,21 @@ def test_f02_6_decision_intake_pending_clean_lists_required_human_fields(tmp_pat
     state = manifest["current_state"]
     assert state["record_status"] == "pending_human_decision"
     assert state["next_blocked_lane"] == "decision"
+    assert state["packet_authorization_status"] == "blocked_until_dr_sun_decision"
+    assert state["packet_current_allowed_action_ids"] == ["record_f02_6_decision"]
+    assert state["packet_current_blocked_action_ids"] == [
+        "remote_preflight",
+        "remote_training",
+        "local_training",
+        "formal_claim",
+        "paper_result_material",
+    ]
+    assert state["packet_post_decision_routes_are_current_authorization"] is False
+    assert state["packet_remote_preflight_allowed_now"] is False
+    assert state["packet_remote_training_allowed_now"] is False
+    assert state["packet_local_training_allowed_now"] is False
+    assert state["packet_formal_claim_allowed_now"] is False
+    assert state["packet_paper_result_material_allowed_now"] is False
     assert state["missing_deliverable_count"] == 10
     assert state["missing_by_category"] == {
         "training": 3,
@@ -116,6 +131,43 @@ def test_f02_6_decision_intake_catches_invalid_decider_and_gate_issues(tmp_path)
     assert "decision_gate_failed" in issue_ids
 
 
+def test_f02_6_decision_intake_catches_packet_current_authorization_leak(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_f02_6_decision_intake")
+    packet = _packet_payload()
+    packet["current_authorization"]["current_allowed_action_ids"] = [
+        "record_f02_6_decision",
+        "remote_preflight",
+    ]
+    packet["current_authorization"]["current_blocked_action_ids"] = [
+        "remote_training",
+        "local_training",
+        "formal_claim",
+    ]
+    packet["current_authorization"]["post_decision_routes_are_current_authorization"] = True
+    packet["current_authorization"]["remote_preflight_allowed_now"] = True
+    packet["current_authorization"]["paper_result_material_allowed_now"] = True
+
+    manifest = builder.build_manifest(
+        builder.F026DecisionIntakeConfig(
+            output_dir=tmp_path,
+            packet_path=_json(tmp_path, "packet.json", packet),
+            decision_record_path=_json(tmp_path, "record.json", _record_payload()),
+            decision_gate_audit_path=_json(tmp_path, "gate.json", _gate_audit_payload()),
+            status_report_path=_json(tmp_path, "status.json", _status_report_payload()),
+            remaining_deliverables_path=_json(tmp_path, "remaining.json", _remaining_payload()),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "f02_6_decision_intake_failed"
+    assert "packet_current_allowed_actions_not_decision_only" in issue_ids
+    assert "packet_current_authorization_missing_blocked_actions" in issue_ids
+    assert "packet_treats_post_decision_routes_as_current_authorization" in issue_ids
+    assert "packet_remote_preflight_allowed_now_not_false" in issue_ids
+    assert "packet_paper_result_material_allowed_now_not_false" in issue_ids
+    assert "packet_status_report_remote_preflight_permission_mismatch" in issue_ids
+
+
 def test_f02_6_decision_intake_cli_writes_json_and_markdown(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_f02_6_decision_intake")
     manifest_path = tmp_path / "intake.json"
@@ -148,6 +200,7 @@ def test_f02_6_decision_intake_cli_writes_json_and_markdown(tmp_path):
     assert manifest["status"] == "f02_6_decision_intake_pending_clean"
     assert "Module2 F02.6 Decision Intake" in markdown
     assert "does not record a decision" in markdown
+    assert "packet_authorization_status" in markdown
     assert "decision_note" in markdown
 
 
@@ -165,6 +218,23 @@ def _packet_payload():
             "decision_owner": "Dr Sun",
             "formal_claim_allowed": False,
         },
+        "current_authorization": {
+            "authorization_status": "blocked_until_dr_sun_decision",
+            "current_allowed_action_ids": ["record_f02_6_decision"],
+            "current_blocked_action_ids": [
+                "remote_preflight",
+                "remote_training",
+                "local_training",
+                "formal_claim",
+                "paper_result_material",
+            ],
+            "post_decision_routes_are_current_authorization": False,
+            "remote_preflight_allowed_now": False,
+            "remote_training_allowed_now": False,
+            "local_training_allowed_now": False,
+            "formal_claim_allowed_now": False,
+            "paper_result_material_allowed_now": False,
+        },
     }
 
 
@@ -175,6 +245,8 @@ def _record_payload():
         "decider": None,
         "effective_warm_start_decision": "pending",
         "remote_training_allowed": False,
+        "remote_preflight_allowed_now": False,
+        "remote_training_allowed_now": False,
         "local_training_allowed": False,
         "formal_claim_allowed": False,
     }

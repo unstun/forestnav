@@ -7,6 +7,9 @@ This read-only artifact explains how F02.6 can be closed. It does not record a d
 - record_status: `pending_human_decision`
 - effective_warm_start_decision: `pending`
 - packet_recommendation: `approve_obstacle_summary_warm_start`
+- packet_authorization_status: `blocked_until_dr_sun_decision`
+- packet_allowed_now: `record_f02_6_decision`
+- packet_blocked_now: `remote_preflight, remote_training, local_training, formal_claim, paper_result_material`
 - next_blocked_lane: `decision`
 - missing_deliverable_count: `10`
 - local_training_allowed_now: `False`
