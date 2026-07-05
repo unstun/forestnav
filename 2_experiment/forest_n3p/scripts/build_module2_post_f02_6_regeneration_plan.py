@@ -163,6 +163,9 @@ def _ordered_stages(
     preflight_blockers = _preflight_blockers(approved=approved, preflight_targets=preflight_targets)
     remote_packet_blockers = [] if remote_packet.get("ready_to_run_remote_training") is True else ["remote_packet_not_ready"]
     remote_execution_blockers = _unique(preflight_blockers + remote_packet_blockers)
+    remote_audit_step = packet_steps.get("run_remote_audit") if isinstance(packet_steps.get("run_remote_audit"), dict) else {}
+    remote_audit_allowed = remote_audit_step.get("allowed_now") is True
+    remote_audit_blockers = _strings(remote_audit_step.get("blocked_by")) or remote_execution_blockers
     stages = [
         _stage(
             "f02_6_decision_record",
@@ -222,8 +225,8 @@ def _ordered_stages(
             "gate3_remote_audit_pullback",
             "acceptance",
             "Audit the remote trial and pull back all required artifacts with hashes.",
-            allowed_now=remote_packet.get("ready_to_run_remote_training") is True,
-            blocked_by=remote_execution_blockers,
+            allowed_now=remote_audit_allowed,
+            blocked_by=remote_audit_blockers,
             host=_remote_host(remote_packet),
             evidence_paths=_expected_pullback_artifacts(remote_packet),
             command_templates=[
