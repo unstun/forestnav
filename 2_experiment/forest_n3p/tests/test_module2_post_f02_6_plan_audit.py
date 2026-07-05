@@ -79,6 +79,18 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
     assert manifest["status_report_summary"]["formal_gate_execution_veto_summary"]["row_consensus"]["formal_claim"] is False
     assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
     assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 4
+    unlock_chain = manifest["remaining_deliverables_unlock_chain_summary"]
+    assert unlock_chain["present"] is True
+    assert unlock_chain["status"] == "blocked_missing_formal_deliverables"
+    assert unlock_chain["row_count"] == 10
+    assert unlock_chain["blocked_row_count"] == 10
+    assert unlock_chain["rows_with_missing_required_blockers"] == 0
+    assert unlock_chain["rows_allowed_while_missing"] == 0
+    assert unlock_chain["categories"]["training"]["row_count"] == 3
+    assert unlock_chain["categories"]["training"]["required_current_blockers"] == [
+        "f02_6_decision_not_approved",
+        "remote_packet_not_ready",
+    ]
     assert manifest["status_report_summary"]["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
     proof_deliverables = manifest["status_report_proof_audit_deliverables_summary"]
     assert proof_deliverables["present"] is True
@@ -605,6 +617,37 @@ def test_post_f02_6_plan_audit_rejects_remaining_deliverables_gap_summary_drift(
     assert "status_report_remaining_deliverables_gap_summary_mismatch" in issue_ids
 
 
+def test_post_f02_6_plan_audit_rejects_remaining_deliverables_unlock_chain_drift(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
+    plan = _plan_payload()
+    plan["remaining_deliverables_unlock_chain_summary"]["rows_allowed_while_missing"] = 1
+    remaining_deliverables = _remaining_deliverables_payload(open_gaps=True)
+    remaining_deliverables["deliverable_unlock_chain"]["rows"][0]["missing_required_current_blockers"] = [
+        "f02_6_decision_not_approved"
+    ]
+    remaining_deliverables["deliverable_unlock_chain"]["rows"][1]["responsible_stage_allowed_now"] = True
+
+    manifest = auditor.build_manifest(
+        auditor.PostF026PlanAuditConfig(
+            output_dir=tmp_path,
+            plan_path=_json(tmp_path, "plan.json", plan),
+            formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate_payload()),
+            source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
+            missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
+            closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
+            status_report_path=_json(tmp_path, "status_report.json", _status_report_payload(ready=False)),
+            remaining_deliverables_path=_json(tmp_path, "remaining_deliverables.json", remaining_deliverables),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "post_f02_6_plan_audit_failed"
+    assert "plan_remaining_deliverables_unlock_chain_summary_mismatch" in issue_ids
+    assert "plan_remaining_deliverables_unlock_chain_rows_allowed_while_missing" in issue_ids
+    assert "remaining_deliverables_unlock_chain_rows_missing_required_blockers" in issue_ids
+    assert "remaining_deliverables_unlock_chain_rows_allowed_while_missing" in issue_ids
+
+
 def test_post_f02_6_plan_audit_rejects_proof_audit_deliverables_summary_drift(tmp_path):
     auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
     status_report = _status_report_payload(ready=False)
@@ -700,6 +743,7 @@ def test_post_f02_6_plan_audit_cli_writes_json_and_markdown(tmp_path):
     assert "record_f02_6_decision" in markdown
     assert "Source Regeneration Command Index" in markdown
     assert "Remaining Deliverables Gap Summary" in markdown
+    assert "Remaining Deliverables Unlock Chain" in markdown
     assert "Status Report Remote Execution Steps" in markdown
     assert "Status Report Execution Veto Matrix" in markdown
     assert "does not execute the plan" in markdown
@@ -744,6 +788,7 @@ def _plan_payload():
             "local_training_allowed_now": False,
         },
         "remaining_deliverables_gap_summary": _gap_summary(open_gaps=True),
+        "remaining_deliverables_unlock_chain_summary": _unlock_chain_summary(open_gaps=True),
         "source_regeneration_targets_by_gate": {
             "approved_remote_preflight": [
                 {
@@ -1120,6 +1165,7 @@ def _remaining_deliverables_payload(*, open_gaps):
     return {
         **_deliverables_top_level_summary(open_gaps=open_gaps),
         "deliverable_gap_summary": _gap_summary(open_gaps=open_gaps),
+        "deliverable_unlock_chain": _unlock_chain_ledger(open_gaps=open_gaps),
     }
 
 
@@ -1174,6 +1220,119 @@ def _gap_category(category, missing_count, stage_id, *, open_gaps):
         "responsible_stage_allowed_now": not open_gaps,
         "missing_artifact_matrix_ids": [f"{category}:artifact_{index}" for index in range(missing_count)],
     }
+
+
+def _unlock_chain_summary(*, open_gaps):
+    categories = {
+        category: _unlock_chain_category(category, count, open_gaps=open_gaps)
+        for category, count in _formal_category_counts().items()
+    }
+    return {
+        "present": True,
+        "chain_id": "module2_formal_gate_missing_deliverable_unlock_chain",
+        "status": "blocked_missing_formal_deliverables" if open_gaps else "formal_deliverables_complete",
+        "execution_boundary": "read_only_no_execution",
+        "not_paper_result_material": True,
+        "row_count": sum(_formal_category_counts().values()),
+        "blocked_row_count": sum(_formal_category_counts().values()) if open_gaps else 0,
+        "rows_with_missing_required_blockers": 0,
+        "rows_allowed_while_missing": 0,
+        "categories": categories,
+    }
+
+
+def _unlock_chain_ledger(*, open_gaps):
+    rows = [
+        _unlock_chain_row(category, index, open_gaps=open_gaps)
+        for category, count in _formal_category_counts().items()
+        for index in range(count)
+    ]
+    return {
+        "chain_id": "module2_formal_gate_missing_deliverable_unlock_chain",
+        "status": "blocked_missing_formal_deliverables" if open_gaps else "formal_deliverables_complete",
+        "not_paper_result_material": True,
+        "execution_boundary": "read_only_no_execution",
+        "row_count": len(rows),
+        "blocked_row_count": len(rows) if open_gaps else 0,
+        "rows_with_missing_required_blockers": 0,
+        "rows_allowed_while_missing": 0,
+        "rows": rows,
+    }
+
+
+def _formal_category_counts():
+    return {
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 2,
+    }
+
+
+def _unlock_chain_category(category, row_count, *, open_gaps):
+    return {
+        "row_count": row_count,
+        "blocked_row_count": row_count if open_gaps else 0,
+        "rows_with_missing_required_blockers": 0,
+        "rows_allowed_while_missing": 0,
+        "required_current_blockers": _unlock_required_blockers(category),
+        "unlock_sequence_before_stage_allowed": _unlock_sequence(category),
+    }
+
+
+def _unlock_chain_row(category, index, *, open_gaps):
+    return {
+        "matrix_id": f"{category}:artifact_{index}",
+        "category": category,
+        "artifact_id": f"{category}_artifact_{index}",
+        "current_state": "missing" if open_gaps else "present",
+        "missing": open_gaps,
+        "responsible_stage_id": _unlock_responsible_stage(category),
+        "responsible_stage_allowed_now": not open_gaps,
+        "required_current_blockers": _unlock_required_blockers(category),
+        "missing_required_current_blockers": [],
+        "unlock_sequence_before_stage_allowed": _unlock_sequence(category),
+        "execution_boundary": "read_only_no_execution",
+    }
+
+
+def _unlock_responsible_stage(category):
+    if category == "training":
+        return "gate3_remote_training"
+    if category in {"evaluation", "acceptance"}:
+        return "gate3_remote_audit_pullback"
+    return "regenerate_h01_h02_formal_artifacts"
+
+
+def _unlock_required_blockers(category):
+    if category == "formal_acceptance":
+        return ["missing_remote_audit_pullback"]
+    return ["f02_6_decision_not_approved", "remote_packet_not_ready"]
+
+
+def _unlock_sequence(category):
+    if category == "training":
+        return [
+            "record_f02_6_decision",
+            "source_freshness_ready_for_remote_preflight",
+            "remote_formal_execution_packet_ready",
+            "approved_remote_preflight",
+            "gate3_remote_training",
+        ]
+    if category in {"evaluation", "acceptance"}:
+        return [
+            "record_f02_6_decision",
+            "source_freshness_ready_for_remote_preflight",
+            "remote_formal_execution_packet_ready",
+            "approved_remote_preflight",
+            "gate3_remote_training_complete",
+            "gate3_remote_audit_pullback",
+        ]
+    return [
+        "gate3_remote_audit_pullback_complete",
+        "regenerate_h01_h02_formal_artifacts",
+        "h01_h02_formal_acceptance_audit",
+    ]
 
 
 def _execution_veto_summary(*, ready):
