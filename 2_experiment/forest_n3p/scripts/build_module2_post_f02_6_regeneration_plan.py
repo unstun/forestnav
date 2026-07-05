@@ -12,6 +12,7 @@ from typing import Any, Sequence
 DEFAULT_OUTPUT_DIR = Path("0_trials/module2_post_f02_6_regeneration_plan")
 DEFAULT_DECISION_RECORD = Path("0_trials/module2_f02_6_decision_record/f02_6_decision_record.json")
 DEFAULT_FORMAL_GATE = Path("0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json")
+DEFAULT_STATUS_REPORT = Path("0_trials/module2_formal_gate_status_report/formal_gate_status_report.json")
 DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_freshness_audit.json")
 DEFAULT_REMOTE_PACKET = Path("0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json")
 DEFAULT_REMAINING_DELIVERABLES = Path(
@@ -26,6 +27,7 @@ class PostF026RegenerationPlanConfig:
     markdown_out: Path | None = None
     decision_record_path: Path = DEFAULT_DECISION_RECORD
     formal_gate_path: Path = DEFAULT_FORMAL_GATE
+    status_report_path: Path = DEFAULT_STATUS_REPORT
     source_freshness_path: Path = DEFAULT_SOURCE_FRESHNESS
     remote_packet_path: Path = DEFAULT_REMOTE_PACKET
     remaining_deliverables_path: Path = DEFAULT_REMAINING_DELIVERABLES
@@ -39,6 +41,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         markdown_out=args.markdown_out,
         decision_record_path=args.decision_record,
         formal_gate_path=args.formal_gate,
+        status_report_path=args.status_report,
         source_freshness_path=args.source_freshness_audit,
         remote_packet_path=args.remote_packet,
         remaining_deliverables_path=args.remaining_deliverables,
@@ -59,6 +62,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 def build_manifest(config: PostF026RegenerationPlanConfig) -> dict[str, Any]:
     decision = _read_json(config.decision_record_path)
     formal_gate = _read_json(config.formal_gate_path)
+    status_report = _read_json(config.status_report_path)
     source_freshness = _read_json(config.source_freshness_path)
     remote_packet = _read_json(config.remote_packet_path)
     remaining_deliverables = _read_json(config.remaining_deliverables_path)
@@ -87,6 +91,7 @@ def build_manifest(config: PostF026RegenerationPlanConfig) -> dict[str, Any]:
         "inputs": {
             "decision_record": str(config.decision_record_path),
             "formal_gate_gap_audit": str(config.formal_gate_path),
+            "formal_gate_status_report": str(config.status_report_path),
             "source_freshness_audit": str(config.source_freshness_path),
             "remote_formal_execution_packet": str(config.remote_packet_path),
             "formal_gate_remaining_deliverables": str(config.remaining_deliverables_path),
@@ -99,6 +104,7 @@ def build_manifest(config: PostF026RegenerationPlanConfig) -> dict[str, Any]:
             "remote_packet_status": remote_packet.get("status"),
             "ready_to_run_remote_training": bool(remote_packet.get("ready_to_run_remote_training")),
         },
+        "f02_6_human_decision_request_summary": _f02_6_human_decision_request_summary(status_report),
         "remaining_deliverables_gap_summary": _remaining_deliverables_gap_summary(remaining_deliverables),
         "source_regeneration_targets_by_gate": _targets_by_gate(source_targets),
         "source_regeneration_command_index": _source_regeneration_command_index(source_targets),
@@ -121,6 +127,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--markdown-out", type=Path, default=None)
     parser.add_argument("--decision-record", type=Path, default=DEFAULT_DECISION_RECORD)
     parser.add_argument("--formal-gate", type=Path, default=DEFAULT_FORMAL_GATE)
+    parser.add_argument("--status-report", type=Path, default=DEFAULT_STATUS_REPORT)
     parser.add_argument("--source-freshness-audit", type=Path, default=DEFAULT_SOURCE_FRESHNESS)
     parser.add_argument("--remote-packet", type=Path, default=DEFAULT_REMOTE_PACKET)
     parser.add_argument("--remaining-deliverables", type=Path, default=DEFAULT_REMAINING_DELIVERABLES)
