@@ -20,6 +20,7 @@ DEFAULT_METHOD_ALGORITHMS = Path("0_trials/module2_method_algorithms/module2_met
 DEFAULT_SYSTEM_DIAGRAM = Path("0_trials/module2_system_diagram/module2_system_diagram.json")
 DEFAULT_CLOSURE_CHECKLIST = Path("0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json")
 DEFAULT_STATUS_REPORT = Path("0_trials/module2_formal_gate_status_report/formal_gate_status_report.json")
+DEFAULT_HANDOFF_BUNDLE = Path("0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json")
 STATUS_REPORT_CLOSURE_STAGE_IDS = (
     "approved_remote_preflight",
     "gate3_remote_training",
@@ -95,6 +96,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         system_diagram_path=args.system_diagram,
         closure_checklist_path=args.closure_checklist,
         status_report_path=args.status_report,
+        handoff_bundle_path=args.handoff_bundle,
         draft_text_path=args.draft_text,
     )
 
@@ -122,6 +124,7 @@ def build_manifest(
     system_diagram_path: Path,
     closure_checklist_path: Path = DEFAULT_CLOSURE_CHECKLIST,
     status_report_path: Path = DEFAULT_STATUS_REPORT,
+    handoff_bundle_path: Path | None = None,
     draft_text_path: Path | None = None,
 ) -> dict[str, Any]:
     paper_tables = _read_json(paper_tables_path)
@@ -133,6 +136,7 @@ def build_manifest(
     system_diagram = _read_json(system_diagram_path)
     closure_checklist = _read_json(closure_checklist_path)
     status_report = _read_json(status_report_path)
+    handoff_bundle = _read_json(handoff_bundle_path) if handoff_bundle_path is not None else None
 
     formal_blockers = _formal_performance_blockers(
         paper_tables=paper_tables,
@@ -141,6 +145,7 @@ def build_manifest(
         f02_6_packet=f02_6_packet,
         closure_checklist=closure_checklist,
         status_report=status_report,
+        handoff_bundle=handoff_bundle,
     )
     status_report_remote_gate_summary = _status_report_remote_gate_summary(status_report)
     status_report_handoff_summary = _status_report_handoff_summary(status_report)
@@ -169,6 +174,7 @@ def build_manifest(
     )
     status_report_decision_intake_summary = _status_report_decision_intake_summary(status_report)
     status_report_next_action_guard_summary = _status_report_next_action_guard_summary(status_report)
+    handoff_single_next_action_index_summary = _handoff_single_next_action_index_summary(handoff_bundle or {})
     status_report_next_required_formal_deliverables = _status_report_next_required_formal_deliverables(status_report)
     formal_allowed = not formal_blockers
     prohibited = _prohibited_claims()
@@ -196,6 +202,7 @@ def build_manifest(
             "system_diagram": str(system_diagram_path),
             "formal_gate_closure_checklist": str(closure_checklist_path),
             "formal_gate_status_report": str(status_report_path),
+            "formal_gate_handoff_bundle": None if handoff_bundle_path is None else str(handoff_bundle_path),
             "draft_text": None if draft_text_path is None else str(draft_text_path),
         },
         "input_status": {
@@ -293,6 +300,38 @@ def build_manifest(
             ],
             "status_report_next_action_guard_execution_leak_count": status_report_next_action_guard_summary[
                 "execution_leak_count"
+            ],
+            "handoff_single_next_action_index_present": handoff_single_next_action_index_summary["present"],
+            "handoff_single_next_action_index_status": handoff_single_next_action_index_summary["status"],
+            "handoff_single_next_action_index_next_action_id": handoff_single_next_action_index_summary[
+                "next_action_id"
+            ],
+            "handoff_single_next_action_index_decision_owner_required": handoff_single_next_action_index_summary[
+                "decision_owner_required"
+            ],
+            "handoff_single_next_action_index_single_current_human_entry": handoff_single_next_action_index_summary[
+                "single_current_human_entry"
+            ],
+            "handoff_single_next_action_index_record_command_template_count": handoff_single_next_action_index_summary[
+                "record_command_template_count"
+            ],
+            "handoff_single_next_action_index_missing_deliverable_count": handoff_single_next_action_index_summary[
+                "missing_deliverable_count"
+            ],
+            "handoff_single_next_action_index_source_freshness_status": handoff_single_next_action_index_summary[
+                "source_freshness_status"
+            ],
+            "handoff_single_next_action_index_all_execution_disabled_now": handoff_single_next_action_index_summary[
+                "all_execution_disabled_now"
+            ],
+            "handoff_single_next_action_index_remote_training_allowed_now": handoff_single_next_action_index_summary[
+                "remote_training_allowed_now"
+            ],
+            "handoff_single_next_action_index_formal_claim_allowed_now": handoff_single_next_action_index_summary[
+                "formal_claim_allowed_now"
+            ],
+            "handoff_single_next_action_index_paper_result_material_allowed_now": handoff_single_next_action_index_summary[
+                "paper_result_material_allowed_now"
             ],
             "status_report_next_required_formal_deliverables_present": status_report_next_required_formal_deliverables[
                 "present"
@@ -481,6 +520,7 @@ def build_manifest(
         ),
         "status_report_decision_intake_summary": status_report_decision_intake_summary,
         "status_report_next_action_guard_summary": status_report_next_action_guard_summary,
+        "handoff_single_next_action_index_summary": handoff_single_next_action_index_summary,
         "status_report_next_required_formal_deliverables": status_report_next_required_formal_deliverables,
         "status_report_remote_gate_summary": status_report_remote_gate_summary,
         "allowed_claims": allowed,
