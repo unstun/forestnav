@@ -1047,10 +1047,113 @@ def _audit_issues(
             issues.append(_issue("formal_acceptance_wrong_responsible_stage", "formal acceptance must be owned by regenerate_h01_h02_formal_artifacts."))
         if group["missing_count"] > 0 and not group["invalid_substitutes"]:
             issues.append(_issue(f"{category}_missing_invalid_substitutes", f"{category} group must list invalid substitutes while blocked."))
+    issues.extend(
+        _acceptance_matrix_integrity_issues(
+            deliverable_groups=deliverable_groups,
+            deliverable_acceptance_matrix=deliverable_acceptance_matrix,
+        )
+    )
     issues.extend(_proof_command_safety_issues(deliverable_acceptance_matrix))
     issues.extend(_production_plan_safety_issues(deliverable_production_plan))
     issues.extend(_unlock_chain_safety_issues(deliverable_unlock_chain))
     return _unique_issues(issues)
+
+
+def _acceptance_matrix_integrity_issues(
+    *,
+    deliverable_groups: Sequence[dict[str, Any]],
+    deliverable_acceptance_matrix: Sequence[dict[str, Any]],
+) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    expected_row_count = sum(int(group.get("item_count") or 0) for group in deliverable_groups if isinstance(group, dict))
+    if len(deliverable_acceptance_matrix) != expected_row_count:
+        issues.append(
+            _issue(
+                "acceptance_matrix_row_count_mismatch",
+                "Acceptance matrix row count must match the deliverable group item count.",
+            )
+        )
+    expected_missing_counts = {
+        str(group.get("category")): int(group.get("missing_count") or 0)
+        for group in deliverable_groups
+        if isinstance(group, dict) and group.get("category")
+    }
+    actual_missing_counts = {category: 0 for category in expected_missing_counts}
+    seen_matrix_ids: set[str] = set()
+    seen_category_artifacts: set[tuple[str, str]] = set()
+    for index, row in enumerate(deliverable_acceptance_matrix):
+        if not isinstance(row, dict):
+            issues.append(_issue(f"acceptance_matrix_row_{index}_malformed", "Acceptance matrix rows must be objects."))
+            continue
+        matrix_id = str(row.get("matrix_id") or "")
+        category = str(row.get("category") or "")
+        artifact_id = str(row.get("artifact_id") or "")
+        safe_matrix_id = _safe_issue_id(matrix_id or f"row_{index}")
+        if not matrix_id:
+            issues.append(_issue(f"acceptance_matrix_row_{index}_missing_matrix_id", "Acceptance matrix row is missing matrix_id."))
+        elif matrix_id in seen_matrix_ids:
+            issues.append(
+                _issue(
+                    f"acceptance_matrix_{safe_matrix_id}_duplicate_matrix_id",
+                    f"{matrix_id} appears more than once in the acceptance matrix.",
+                )
+            )
+        seen_matrix_ids.add(matrix_id)
+        if not category:
+            issues.append(_issue(f"acceptance_matrix_{safe_matrix_id}_missing_category", f"{matrix_id} is missing category."))
+        elif category not in expected_missing_counts:
+            issues.append(
+                _issue(
+                    f"acceptance_matrix_{safe_matrix_id}_unknown_category",
+                    f"{matrix_id} uses category {category}, which is not in deliverable groups.",
+                )
+            )
+        if not artifact_id:
+            issues.append(_issue(f"acceptance_matrix_{safe_matrix_id}_missing_artifact_id", f"{matrix_id} is missing artifact_id."))
+        if category and artifact_id:
+            expected_matrix_id = f"{category}:{artifact_id}"
+            if matrix_id != expected_matrix_id:
+                issues.append(
+                    _issue(
+                        f"acceptance_matrix_{safe_matrix_id}_identity_mismatch",
+                        f"{matrix_id} must equal {expected_matrix_id}.",
+                    )
+                )
+            category_artifact = (category, artifact_id)
+            if category_artifact in seen_category_artifacts:
+                issues.append(
+                    _issue(
+                        f"acceptance_matrix_{_safe_issue_id(expected_matrix_id)}_duplicate_category_artifact",
+                        f"{expected_matrix_id} appears more than once in the acceptance matrix.",
+                    )
+                )
+            seen_category_artifacts.add(category_artifact)
+        if row.get("missing") is True:
+            actual_missing_counts[category] = actual_missing_counts.get(category, 0) + 1
+            if not _strings(row.get("invalid_substitutes")):
+                issues.append(
+                    _issue(
+                        f"acceptance_matrix_{safe_matrix_id}_missing_invalid_substitutes",
+                        f"{matrix_id} must list invalid substitutes while the deliverable is missing.",
+                    )
+                )
+        if row.get("execution_boundary") != "read_only_no_execution":
+            issues.append(
+                _issue(
+                    f"acceptance_matrix_{safe_matrix_id}_wrong_boundary",
+                    f"{matrix_id} must remain read_only_no_execution.",
+                )
+            )
+    for category, expected_count in expected_missing_counts.items():
+        actual_count = actual_missing_counts.get(category, 0)
+        if actual_count != expected_count:
+            issues.append(
+                _issue(
+                    f"acceptance_matrix_{_safe_issue_id(category)}_missing_count_mismatch",
+                    f"{category} acceptance matrix missing count must match deliverable group missing count.",
+                )
+            )
+    return issues
 
 
 def _production_plan_safety_issues(deliverable_production_plan: dict[str, Any]) -> list[dict[str, str]]:
