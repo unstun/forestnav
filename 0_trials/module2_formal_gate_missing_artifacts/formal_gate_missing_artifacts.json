@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_missing_artifacts_audit",
   "status": "formal_gate_missing_artifacts_open",
-  "created_at_utc": "2026-07-05T14:08:30.435722+00:00",
-  "source_head": "36233e96b930a482b4083fd5266d1242c6332613",
+  "created_at_utc": "2026-07-05T14:11:03.947688+00:00",
+  "source_head": "ce3cc78c3d943d26af628e1d13046ee78b266d3f",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -24,8 +24,8 @@
   "current_gate_summary": {
     "f02_6_decision_record_status": "pending_human_decision",
     "f02_6_decision_gate_status": "f02_6_decision_gate_pending_clean",
-    "f02_6_transition_gate_status": "f02_6_transition_gate_audit_failed",
-    "f02_6_transition_gate_audit_issue_count": 12,
+    "f02_6_transition_gate_status": "f02_6_transition_gate_audit_passed",
+    "f02_6_transition_gate_audit_issue_count": 0,
     "post_f02_6_plan_status": "blocked_until_f02_6_decision",
     "post_plan_training_allowed_now": false,
     "post_plan_remote_preflight_allowed_now": false,
@@ -34,7 +34,7 @@
     "source_freshness_blocking_regeneration_required": false,
     "remote_packet_status": "blocked_until_f02_6_decision",
     "ready_to_run_remote_training": false,
-    "remote_packet_safety_audit_status": "remote_packet_safety_audit_failed",
+    "remote_packet_safety_audit_status": "remote_packet_safety_audit_passed",
     "h01_manifest_status": "blocked_pending_decisions",
     "h01_blockers": [
       "f02_6_warm_start_decision_pending",
@@ -316,7 +316,7 @@
   },
   "missing_counts_by_category": {
     "decision": 1,
-    "decision_gate": 1,
+    "decision_gate": 0,
     "regeneration": 0,
     "gate_sequence": 7,
     "training": 3,
@@ -350,18 +350,15 @@
       "group_id": "f02_6_transition_gate_audit",
       "category": "decision_gate",
       "required_before": "source_fresh_regeneration",
-      "complete": false,
-      "blocked_by": [
-        "f02_6_transition_gate_audit_not_passed",
-        "f02_6_transition_gate_audit_issues_open"
-      ],
+      "complete": true,
+      "blocked_by": [],
       "items": [
         {
           "artifact_id": "f02_6_transition_gate_audit",
           "path": "0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json",
           "exists": true,
-          "state": "f02_6_transition_gate_audit_failed",
-          "missing": true,
+          "state": "f02_6_transition_gate_audit_passed",
+          "missing": false,
           "reason": "transition audit must pass before the missing-artifacts inventory can represent the formal gate chain"
         }
       ]
@@ -806,21 +803,8 @@
   "formal_gate_requirement_counts": {
     "blocked_missing_outputs": 4
   },
-  "audit_issue_count": 3,
-  "audit_issues": [
-    {
-      "issue_id": "transition_gate_audit_not_passed",
-      "message": "F02.6 transition gate audit must pass before listing downstream formal artifacts as executable."
-    },
-    {
-      "issue_id": "transition_gate_audit_issues_open",
-      "message": "F02.6 transition gate audit reports open issues."
-    },
-    {
-      "issue_id": "remote_packet_safety_audit_not_passed",
-      "message": "Remote packet safety audit must pass before formal execution."
-    }
-  ],
+  "audit_issue_count": 0,
+  "audit_issues": [],
   "claim_boundaries": [
     "This audit lists missing formal-gate evidence; it does not run training, preflight, sync, audit, pullback, or evaluation.",
     "A complete file list is still not a paper claim unless Gate3 audit passes, hashes are recorded, H01 is ready, and H02 accepts formal outputs.",

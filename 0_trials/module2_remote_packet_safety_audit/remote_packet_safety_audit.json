@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_remote_packet_safety_audit",
-  "status": "remote_packet_safety_audit_failed",
-  "created_at_utc": "2026-07-05T14:08:32.493328+00:00",
-  "source_head": "36233e96b930a482b4083fd5266d1242c6332613",
+  "status": "remote_packet_safety_audit_passed",
+  "created_at_utc": "2026-07-05T14:11:05.962618+00:00",
+  "source_head": "ce3cc78c3d943d26af628e1d13046ee78b266d3f",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -63,7 +63,7 @@
     "decision_gate_status": "f02_6_decision_gate_pending_clean",
     "f02_6_record_status": "pending_human_decision",
     "decision_training_allowed_now": false,
-    "post_plan_audit_status": "post_f02_6_plan_audit_failed",
+    "post_plan_audit_status": "post_f02_6_plan_audit_passed",
     "post_plan_training_allowed_now": false,
     "post_plan_remote_preflight_allowed_now": false,
     "post_plan_status_report_status": "formal_gate_status_blocked",
@@ -116,12 +116,12 @@
     },
     "post_plan_status_report_handoff_summary": {
       "present": true,
-      "status": "blocked_handoff_input_safety_issues",
-      "transition_gate_status": "f02_6_transition_gate_audit_failed",
-      "transition_gate_audit_issue_count": 12,
+      "status": "blocked_until_f02_6_decision",
+      "transition_gate_status": "f02_6_transition_gate_audit_passed",
+      "transition_gate_audit_issue_count": 0,
       "next_handoff_action_id": "record_f02_6_decision",
       "next_action_requires_dr_sun": true,
-      "safety_issue_count": 2,
+      "safety_issue_count": 0,
       "remote_training_allowed_now": false,
       "remote_preflight_allowed_now": false,
       "formal_claim_allowed_now": false,
@@ -425,13 +425,8 @@
       "h02_paper_result_input_allowed": false
     }
   },
-  "audit_issue_count": 1,
-  "audit_issues": [
-    {
-      "issue_id": "post_plan_handoff_safety_issues_open",
-      "message": "Post-F02.6 plan audit reports handoff safety issues."
-    }
-  ],
+  "audit_issue_count": 0,
+  "audit_issues": [],
   "expected_pullback_suffixes": [
     "train/final_model.zip",
     "train/summary.json",
