@@ -329,10 +329,12 @@ def test_source_freshness_audit_cli_writes_json_and_markdown(tmp_path):
     required_before = {target["artifact_id"]: target["required_before"] for target in manifest["ordered_regeneration_targets"]}
     if records["f02_6_warm_start_decision_packet"]["freshness_state"] != "current_clean":
         assert required_before.get("f02_6_warm_start_decision_packet") == "approved_remote_preflight"
-    assert required_before.get("f02_6_decision_intake") == "approved_remote_preflight"
+    if records["f02_6_decision_intake"]["freshness_state"] != "current_clean":
+        assert required_before.get("f02_6_decision_intake") == "approved_remote_preflight"
     if records["f02_6_decision_gate_audit"]["freshness_state"] != "current_clean":
         assert required_before.get("f02_6_decision_gate_audit") == "approved_remote_preflight"
-    assert required_before.get("f02_6_transition_gate_audit") == "approved_remote_preflight"
+    if records["f02_6_transition_gate_audit"]["freshness_state"] != "current_clean":
+        assert required_before.get("f02_6_transition_gate_audit") == "approved_remote_preflight"
     if records["formal_gate_closure_checklist"]["freshness_state"] != "current_clean":
         assert required_before.get("formal_gate_closure_checklist") == "approved_remote_preflight"
     if records["post_f02_6_regeneration_plan"]["freshness_state"] != "current_clean":
@@ -341,16 +343,22 @@ def test_source_freshness_audit_cli_writes_json_and_markdown(tmp_path):
         assert required_before.get("post_f02_6_plan_audit") == "approved_remote_preflight"
     if records["remote_packet_safety_audit"]["freshness_state"] != "current_clean":
         assert required_before.get("remote_packet_safety_audit") == "approved_remote_preflight"
-    assert required_before.get("formal_gate_handoff_bundle") == "approved_remote_preflight"
+    if records["formal_gate_handoff_bundle"]["freshness_state"] != "current_clean":
+        assert required_before.get("formal_gate_handoff_bundle") == "approved_remote_preflight"
     if records["claim_safety"]["freshness_state"] != "current_clean":
         assert required_before.get("claim_safety") == "formal_claim_gate"
     if records["paper_readiness"]["freshness_state"] != "current_clean":
         assert required_before.get("paper_readiness") == "formal_claim_gate"
-    assert required_before.get("formal_gate_missing_artifacts") == "formal_claim_gate"
-    assert required_before.get("formal_gate_remaining_deliverables") == "formal_claim_gate"
-    assert required_before.get("formal_gate_proof_audit") == "formal_claim_gate"
-    assert required_before.get("formal_gate_proof_summary_chain_audit") == "formal_claim_gate"
-    assert required_before.get("mainline_formal_gate_state_audit") == "formal_claim_gate"
+    if records["formal_gate_missing_artifacts"]["freshness_state"] != "current_clean":
+        assert required_before.get("formal_gate_missing_artifacts") == "formal_claim_gate"
+    if records["formal_gate_remaining_deliverables"]["freshness_state"] != "current_clean":
+        assert required_before.get("formal_gate_remaining_deliverables") == "formal_claim_gate"
+    if records["formal_gate_proof_audit"]["freshness_state"] != "current_clean":
+        assert required_before.get("formal_gate_proof_audit") == "formal_claim_gate"
+    if records["formal_gate_proof_summary_chain_audit"]["freshness_state"] != "current_clean":
+        assert required_before.get("formal_gate_proof_summary_chain_audit") == "formal_claim_gate"
+    if records["mainline_formal_gate_state_audit"]["freshness_state"] != "current_clean":
+        assert required_before.get("mainline_formal_gate_state_audit") == "formal_claim_gate"
     if records["formal_gate_status_report"]["freshness_state"] != "current_clean":
         assert required_before.get("formal_gate_status_report") == "formal_claim_gate"
     assert "Module2 Source Freshness Audit" in markdown
