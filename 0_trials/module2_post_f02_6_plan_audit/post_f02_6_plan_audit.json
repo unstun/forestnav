@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_plan_audit",
   "status": "post_f02_6_plan_audit_failed",
-  "created_at_utc": "2026-07-05T18:50:50.245565+00:00",
-  "source_head": "dc0f60fc13e12cdef36ee4d5305f5fd0237b8817",
+  "created_at_utc": "2026-07-05T18:55:44.918991+00:00",
+  "source_head": "7d4c119d42b501b41b1bfb6ad6fdc3990984c141",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -265,13 +265,13 @@
     "missing_counts_by_category": {
       "decision": 0,
       "decision_gate": 1,
-      "regeneration": 9,
+      "regeneration": 0,
       "gate_sequence": 6,
       "training": 3,
       "evaluation": 2,
       "acceptance": 3,
       "evaluation_acceptance": 2,
-      "claim_gate": 4
+      "claim_gate": 1
     }
   },
   "closure_checklist_summary": {
@@ -298,7 +298,7 @@
     "formal_claim_allowed": false,
     "formal_claim_allowed_now": false,
     "local_training_allowed_now": false,
-    "input_safety_issue_count": 14,
+    "input_safety_issue_count": 13,
     "next_blocked_lane_id": "decision",
     "remote_execution_step_summary": {
       "sync_to_remote": {
@@ -332,7 +332,7 @@
       "present": true,
       "status": "blocked_handoff_input_safety_issues",
       "transition_gate_status": "f02_6_transition_gate_audit_failed",
-      "transition_gate_audit_issue_count": 18,
+      "transition_gate_audit_issue_count": 21,
       "next_handoff_action_id": "resolve_decision",
       "next_action_requires_dr_sun": false,
       "safety_issue_count": 4,
@@ -726,6 +726,20 @@
   "audit_issue_count": 13,
   "audit_issues": [
     {
+      "issue_id": "plan_source_regeneration_target_counts_mismatch",
+      "message": "Plan target counts by gate do not match source freshness audit.",
+      "observed": {
+        "plan": {
+          "approved_remote_preflight": 1
+        },
+        "source_freshness": {
+          "approved_remote_preflight": 13,
+          "formal_claim_gate": 8,
+          "formal_h01_h02": 2
+        }
+      }
+    },
+    {
       "issue_id": "missing_artifacts_inventory_has_audit_issues",
       "message": "Missing-artifacts inventory reports open audit issues."
     },
@@ -738,24 +752,28 @@
       "message": "Status report reports open input safety issues."
     },
     {
-      "issue_id": "formal_gate_status_report_sync_allowed_without_remote_permission",
-      "message": "Status report may surface remote sync only when a remote preflight/training lane is allowed."
-    },
-    {
-      "issue_id": "formal_gate_status_report_preflight_step_permission_mismatch",
-      "message": "Status report remote preflight step must match remote_preflight_allowed_now."
-    },
-    {
-      "issue_id": "formal_gate_status_report_training_step_permission_mismatch",
-      "message": "Status report remote training step must match remote_training_allowed_now."
-    },
-    {
       "issue_id": "formal_gate_status_report_execution_veto_inconsistent",
       "message": "Status report execution veto matrix must have all_rows_consistent=true."
     },
     {
       "issue_id": "formal_gate_status_report_execution_veto_mismatch_rows_open",
       "message": "Status report execution veto matrix reports mismatch rows."
+    },
+    {
+      "issue_id": "formal_gate_status_report_execution_veto_permission_mismatch_remote_preflight",
+      "message": "Status report execution veto consensus must match permissions_now.",
+      "observed": {
+        "row_consensus": false,
+        "remote_preflight_allowed_now": true
+      }
+    },
+    {
+      "issue_id": "formal_gate_status_report_execution_veto_permission_mismatch_remote_training",
+      "message": "Status report execution veto consensus must match permissions_now.",
+      "observed": {
+        "row_consensus": false,
+        "remote_training_allowed_now": true
+      }
     },
     {
       "issue_id": "remaining_deliverables_unlock_chain_rows_missing_required_blockers",
