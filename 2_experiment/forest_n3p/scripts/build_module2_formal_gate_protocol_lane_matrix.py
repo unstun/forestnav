@@ -385,6 +385,32 @@ def _markdown(manifest: dict[str, Any]) -> str:
     ]
     for row in manifest["protocol_lane_evidence_matrix"]:
         lines.append(f"| `{row['lane_id']}` | {row['claim_scope']} | `{row['training_allowed_now']}` |")
+    lines.extend(["", "## Lane Evidence Details"])
+    for row in manifest["protocol_lane_evidence_matrix"]:
+        lines.extend(
+            [
+                "",
+                f"### `{row['lane_id']}`",
+                "",
+                f"- status: `{row['status']}`",
+                f"- requires_new_or_revised_contract: `{row['requires_new_or_revised_contract']}`",
+                f"- paper_result_material_allowed_now: `{row['paper_result_material_allowed_now']}`",
+                f"- what_changes: {row['what_changes']}",
+                "- must_justify:",
+            ]
+        )
+        for item in row["must_justify"]:
+            lines.append(f"  - {item}")
+        for field in (
+            "required_contract_deltas",
+            "required_training_evidence",
+            "required_evaluation_evidence",
+            "required_acceptance_evidence",
+            "invalid_substitutes",
+        ):
+            lines.append(f"- {field}:")
+            for item in row[field]:
+                lines.append(f"  - {item}")
     lines.extend(["", "## Cross-Lane Invariants"])
     for invariant in manifest["cross_lane_invariants"]:
         lines.append(f"- `{invariant['invariant_id']}`: {invariant['rule']}")
