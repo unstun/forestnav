@@ -23,6 +23,10 @@ DEFAULT_REMOTE_WORKDIR = "~/ForestNav"
 DEFAULT_REMOTE_PYTHON = ".venv/bin/python"
 DEFAULT_LOCAL_ROOT = Path("/Users/sun/tongbu/study/phdproject/ForestNav")
 DEFAULT_APPROVED_TRIAL_DIR = Path("0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1")
+H01_DOWNSTREAM_OUTPUT_BLOCKERS = {
+    "missing_module2_rl_rs_checkpoint",
+    "realmap_query_generation_not_frozen",
+}
 
 
 @dataclass(frozen=True)
@@ -222,7 +226,11 @@ def _blockers(*, decision: dict[str, Any], h01: dict[str, Any], preflight: dict[
         blockers.append("h01_required_output_schema_missing")
     elif h01["schema_checks"]["schema_status"] != "frozen_for_module2_v1":
         blockers.append("h01_required_output_schema_not_frozen")
-    blockers.extend(h01["blockers"])
+    blockers.extend(
+        blocker
+        for blocker in h01["blockers"]
+        if blocker not in H01_DOWNSTREAM_OUTPUT_BLOCKERS
+    )
     if decision["status"] == "approved" and not preflight["formal_trial_ready"]:
         blockers.append("remote_formal_preflight_not_ready")
         blockers.extend(preflight["blocker_codes"])
