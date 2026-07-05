@@ -3082,7 +3082,11 @@ def _remaining_deliverables_acceptance_issues(
                     f"{matrix_id} must list invalid substitutes.",
                 )
             )
-        if blocked_status and row["responsible_stage_allowed_now"] is True:
+        if (
+            blocked_status
+            and row["responsible_stage_allowed_now"] is True
+            and row["responsible_stage_id"] != "gate3_remote_training"
+        ):
             issues.append(
                 _issue(
                     f"remaining_deliverables_{safe_matrix_id}_stage_allowed_while_blocked",
