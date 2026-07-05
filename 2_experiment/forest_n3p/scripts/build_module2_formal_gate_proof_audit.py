@@ -284,7 +284,103 @@ def _input_safety_issues(*, remaining: dict[str, Any], plan: dict[str, Any], mat
                 "observed": {"declared_rows": len(plan_rows), "actual_matrix_rows": len(matrix)},
             }
         )
+    issues.extend(_acceptance_matrix_input_safety_issues(remaining=remaining, matrix=matrix))
     issues.extend(_proof_command_input_safety_issues(matrix))
+    return issues
+
+
+def _acceptance_matrix_input_safety_issues(*, remaining: dict[str, Any], matrix: Sequence[Any]) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    expected_counts = (
+        remaining.get("missing_counts_by_formal_category")
+        if isinstance(remaining.get("missing_counts_by_formal_category"), dict)
+        else {}
+    )
+    expected_missing_ids = (
+        remaining.get("missing_matrix_ids_by_formal_category")
+        if isinstance(remaining.get("missing_matrix_ids_by_formal_category"), dict)
+        else {}
+    )
+    normalized_expected_counts = {str(category): _int_or_none(count) for category, count in expected_counts.items()}
+    normalized_expected_ids = {
+        str(category): [str(item) for item in items] if isinstance(items, list) else []
+        for category, items in expected_missing_ids.items()
+    }
+    observed_missing_ids: dict[str, list[str]] = {
+        category: [] for category in set(normalized_expected_counts) | set(normalized_expected_ids)
+    }
+    seen_matrix_ids: set[str] = set()
+    seen_category_artifacts: set[tuple[str, str]] = set()
+    for index, raw_row in enumerate(matrix):
+        if not isinstance(raw_row, dict):
+            issues.append({"issue_id": f"acceptance_matrix_row_{index}_malformed"})
+            continue
+        matrix_id = str(raw_row.get("matrix_id") or "")
+        category = str(raw_row.get("category") or "")
+        artifact_id = str(raw_row.get("artifact_id") or "")
+        safe_matrix_id = _safe_issue_id(matrix_id or f"row_{index}")
+        if not matrix_id:
+            issues.append({"issue_id": f"acceptance_matrix_row_{index}_missing_matrix_id"})
+        elif matrix_id in seen_matrix_ids:
+            issues.append({"issue_id": f"acceptance_matrix_{safe_matrix_id}_duplicate_matrix_id", "observed": matrix_id})
+        seen_matrix_ids.add(matrix_id)
+        if not category:
+            issues.append({"issue_id": f"acceptance_matrix_{safe_matrix_id}_missing_category", "observed": matrix_id})
+        elif normalized_expected_counts and category not in normalized_expected_counts:
+            issues.append({"issue_id": f"acceptance_matrix_{safe_matrix_id}_unknown_category", "observed": category})
+        if not artifact_id:
+            issues.append({"issue_id": f"acceptance_matrix_{safe_matrix_id}_missing_artifact_id", "observed": matrix_id})
+        if category and artifact_id:
+            expected_matrix_id = f"{category}:{artifact_id}"
+            if matrix_id != expected_matrix_id:
+                issues.append(
+                    {
+                        "issue_id": f"acceptance_matrix_{safe_matrix_id}_identity_mismatch",
+                        "observed": {"matrix_id": matrix_id, "expected": expected_matrix_id},
+                    }
+                )
+            category_artifact = (category, artifact_id)
+            if category_artifact in seen_category_artifacts:
+                issues.append(
+                    {
+                        "issue_id": f"acceptance_matrix_{_safe_issue_id(expected_matrix_id)}_duplicate_category_artifact",
+                        "observed": expected_matrix_id,
+                    }
+                )
+            seen_category_artifacts.add(category_artifact)
+        if raw_row.get("missing") is True:
+            observed_missing_ids.setdefault(category, []).append(matrix_id)
+            if not _strings(raw_row.get("invalid_substitutes")):
+                issues.append(
+                    {
+                        "issue_id": f"acceptance_matrix_{safe_matrix_id}_missing_invalid_substitutes",
+                        "observed": matrix_id,
+                    }
+                )
+        if raw_row.get("execution_boundary") != "read_only_no_execution":
+            issues.append(
+                {
+                    "issue_id": f"acceptance_matrix_{safe_matrix_id}_wrong_boundary",
+                    "observed": raw_row.get("execution_boundary"),
+                }
+            )
+    for category, expected_ids in normalized_expected_ids.items():
+        expected_count = normalized_expected_counts.get(category)
+        if expected_count is not None and expected_count != len(expected_ids):
+            issues.append(
+                {
+                    "issue_id": f"acceptance_matrix_{_safe_issue_id(category)}_declared_missing_count_mismatch",
+                    "observed": {"missing_count": expected_count, "missing_matrix_ids": len(expected_ids)},
+                }
+            )
+        actual_ids = observed_missing_ids.get(category, [])
+        if actual_ids != expected_ids:
+            issues.append(
+                {
+                    "issue_id": f"acceptance_matrix_{_safe_issue_id(category)}_missing_matrix_ids_mismatch",
+                    "observed": {"expected": expected_ids, "actual": actual_ids},
+                }
+            )
     return issues
 
 
@@ -375,6 +471,12 @@ def _proof_command_input_safety_issues(matrix: Sequence[Any]) -> list[dict[str, 
                     }
                 )
     return issues
+
+
+def _strings(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [str(item) for item in value if item]
 
 
 def _proof_command_results(*, matrix: Sequence[Any], workspace_root: Path) -> list[dict[str, Any]]:
