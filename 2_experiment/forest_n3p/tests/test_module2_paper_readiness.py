@@ -1192,6 +1192,26 @@ def _claim_safety_remaining_deliverables_proof_command_plan_payload():
     }
 
 
+def _claim_safety_remote_safety_proof_summary_payload(*, formal):
+    gap = _claim_safety_remaining_deliverables_gap_summary_payload(formal=formal)
+    return {
+        "present": True,
+        "missing_counts_by_formal_category": {
+            category: payload["missing_count"]
+            for category, payload in gap["categories"].items()
+        },
+        "missing_matrix_ids_by_formal_category": {
+            category: list(payload["missing_artifact_matrix_ids"])
+            for category, payload in gap["categories"].items()
+        },
+        "next_blocked_lane": None if formal else "decision",
+        "h01_status": "ready_for_formal_run" if formal else "blocked_pending_decisions",
+        "h02_status": "formal_output_accepted" if formal else "blocked_formal_output_acceptance",
+        "h02_formal_output_accepted": bool(formal),
+        "h02_paper_result_input_allowed": bool(formal),
+    }
+
+
 def _claim_safety_command_index_summary_payload():
     rows = {
         f"source_target_{index}": {
