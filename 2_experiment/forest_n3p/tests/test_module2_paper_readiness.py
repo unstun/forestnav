@@ -157,9 +157,12 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
         "formal_acceptance": 2,
     }
     assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_present"] is True
-    assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_row_count"] == 18
-    assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_source_target_count"] == 18
+    assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_row_count"] == 20
+    assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_source_target_count"] == 20
     assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_missing_target_count"] == 0
+    assert manifest["claim_safety_remote_packet_safety_claim_gate_command_index_summary"]["claim_gate_rows"][
+        "formal_gate_proof_summary_chain_audit"
+    ]["stage_id"] == "regenerate_claim_gate_artifacts"
     assert manifest["claim_safety_remote_packet_safety_claim_gate_command_index_summary"]["claim_gate_rows"][
         "claim_safety"
     ]["stage_id"] == "regenerate_claim_gate_artifacts"
@@ -1333,14 +1336,21 @@ def _claim_safety_command_index_summary_payload():
     }
     return {
         "present": True,
-        "index_row_count": 18,
-        "source_target_count": 18,
+        "index_row_count": 20,
+        "source_target_count": 20,
         "missing_target_ids": [],
         "unknown_manual_count": 0,
         "unknown_manual_ids": [],
         "forbidden_command_count": 0,
         "forbidden_command_ids": [],
         "claim_gate_rows": {
+            "formal_gate_proof_summary_chain_audit": {
+                "present": True,
+                "stage_id": rows["formal_gate_proof_summary_chain_audit"]["stage_id"],
+                "required_before": rows["formal_gate_proof_summary_chain_audit"]["required_before"],
+                "command_kind": rows["formal_gate_proof_summary_chain_audit"]["command_kind"],
+                "command_template": rows["formal_gate_proof_summary_chain_audit"]["command_template"],
+            },
             "claim_safety": {
                 "present": True,
                 "stage_id": rows["claim_safety"]["stage_id"],
