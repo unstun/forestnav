@@ -32,6 +32,42 @@ FORMAL_REQUIREMENT_PHASE_BY_CATEGORY = {
     "acceptance": "acceptance",
     "formal_acceptance": "evaluation_acceptance",
 }
+CURRENT_BLOCKER_REQUIREMENTS_BY_CATEGORY = {
+    "training": ("f02_6_decision_not_approved", "remote_packet_not_ready"),
+    "evaluation": ("f02_6_decision_not_approved", "remote_packet_not_ready"),
+    "acceptance": ("f02_6_decision_not_approved", "remote_packet_not_ready"),
+    "formal_acceptance": ("missing_remote_audit_pullback",),
+}
+UNLOCK_SEQUENCE_BY_CATEGORY = {
+    "training": (
+        "record_f02_6_decision",
+        "source_freshness_ready_for_remote_preflight",
+        "remote_formal_execution_packet_ready",
+        "approved_remote_preflight",
+        "gate3_remote_training",
+    ),
+    "evaluation": (
+        "record_f02_6_decision",
+        "source_freshness_ready_for_remote_preflight",
+        "remote_formal_execution_packet_ready",
+        "approved_remote_preflight",
+        "gate3_remote_training_complete",
+        "gate3_remote_audit_pullback",
+    ),
+    "acceptance": (
+        "record_f02_6_decision",
+        "source_freshness_ready_for_remote_preflight",
+        "remote_formal_execution_packet_ready",
+        "approved_remote_preflight",
+        "gate3_remote_training_complete",
+        "gate3_remote_audit_pullback",
+    ),
+    "formal_acceptance": (
+        "gate3_remote_audit_pullback_complete",
+        "regenerate_h01_h02_formal_artifacts",
+        "h01_h02_formal_acceptance_audit",
+    ),
+}
 
 
 @dataclass(frozen=True)
@@ -95,6 +131,7 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
         deliverable_acceptance_matrix=deliverable_acceptance_matrix,
     )
     proof_command_plan = _proof_command_plan(deliverable_acceptance_matrix)
+    deliverable_unlock_chain = _deliverable_unlock_chain(deliverable_acceptance_matrix)
     category_counts = _category_counts(deliverable_groups)
     missing_counts_by_formal_category = {
         category: counts["missing_count"] for category, counts in category_counts.items()
@@ -125,6 +162,7 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
         source_freshness=source_freshness,
         deliverable_groups=deliverable_groups,
         deliverable_acceptance_matrix=deliverable_acceptance_matrix,
+        deliverable_unlock_chain=deliverable_unlock_chain,
     )
     missing_count = sum(group["missing_count"] for group in deliverable_groups)
     ready = missing_count == 0 and not audit_issues and status_report.get("status") == "formal_gate_status_ready_for_claim_audit"
@@ -169,6 +207,7 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
         "h02_paper_result_input_allowed": current_gate_summary["h02_paper_result_input_allowed"],
         "deliverable_gap_summary": deliverable_gap_summary,
         "proof_command_plan": proof_command_plan,
+        "deliverable_unlock_chain": deliverable_unlock_chain,
         "plain_formal_gate_closure_checklist": _plain_formal_gate_closure_checklist(
             current_gate_summary=current_gate_summary,
             permissions_now=permissions_now,
