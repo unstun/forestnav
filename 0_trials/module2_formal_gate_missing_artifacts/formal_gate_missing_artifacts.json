@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_missing_artifacts_audit",
   "status": "formal_gate_missing_artifacts_open",
-  "created_at_utc": "2026-07-05T12:45:01.917665+00:00",
-  "source_head": "207ccd8ecc233280470dcb75958fab54195b8a53",
+  "created_at_utc": "2026-07-05T13:00:40.969226+00:00",
+  "source_head": "5c94254ba1c4e165f7c293bb4adc008d4eb56647",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -286,12 +286,9 @@
         "responsible_stage_status": "blocked",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "missing_remote_audit_pullback",
-          "source_fresh_h01_h02_targets_open"
+          "missing_remote_audit_pullback"
         ],
         "responsible_stage_evidence_paths": [
-          "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
-          "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
           "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
         ],
         "acceptable_evidence": [
@@ -409,7 +406,7 @@
         },
         {
           "artifact_id": "regenerate_preflight_gate_artifacts",
-          "path": "0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json; 0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json; 0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json; 0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json; 0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json; 0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json; 0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json; 0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json; 0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
+          "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
           "exists": true,
           "state": "blocked",
           "missing": true,
@@ -449,19 +446,19 @@
         },
         {
           "artifact_id": "regenerate_h01_h02_formal_artifacts",
-          "path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+          "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
           "exists": true,
           "state": "blocked",
           "missing": true,
-          "reason": "missing_remote_audit_pullback, source_fresh_h01_h02_targets_open"
+          "reason": "missing_remote_audit_pullback"
         },
         {
           "artifact_id": "regenerate_claim_gate_artifacts",
-          "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json; 0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json; 0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
+          "path": "",
           "exists": true,
           "state": "blocked",
           "missing": true,
-          "reason": "h02_formal_acceptance_not_ready, source_fresh_claim_targets_open"
+          "reason": "h02_formal_acceptance_not_ready"
         }
       ]
     },
@@ -786,12 +783,9 @@
       "responsible_stage_status": "blocked",
       "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
-        "missing_remote_audit_pullback",
-        "source_fresh_h01_h02_targets_open"
+        "missing_remote_audit_pullback"
       ],
       "responsible_stage_evidence_paths": [
-        "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
-        "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
         "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
       ],
       "acceptable_evidence": [
