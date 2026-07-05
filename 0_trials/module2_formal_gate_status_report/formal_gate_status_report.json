@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-05T23:15:17.586349+00:00",
-  "source_head": "2cd4e13da6aff82d096cbf7cd11595f859ec4d05",
+  "created_at_utc": "2026-07-05T23:28:14.120159+00:00",
+  "source_head": "414970cfb79086679983d3110e202642abc63f8d",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -132,7 +132,7 @@
     "claim_safety_formal_performance_claim_allowed": false,
     "paper_readiness_status": "partial_methods_ready_results_blocked",
     "paper_readiness_formal_results_ready": false,
-    "handoff_bundle_status": "ready_for_manual_remote_execution_review",
+    "handoff_bundle_status": "blocked_until_protocol_lane_decision",
     "remaining_deliverables_status": "formal_gate_deliverables_blocked",
     "remaining_deliverables_missing_deliverable_count": 1,
     "remaining_deliverables_acceptance_matrix_count": 10,
@@ -172,9 +172,9 @@
     "mainline_formal_gate_state_audit_proof_summary_chain_status": "formal_gate_proof_summary_chain_consistent_blocked",
     "mainline_formal_gate_state_audit_proof_summary_chain_issue_count": 0,
     "mainline_formal_gate_state_audit_proof_audit_input_safety_issue_count": 0,
-    "handoff_bundle_next_action": "resolve_source_fresh_preflight",
+    "handoff_bundle_next_action": "record_protocol_lane_decision",
     "handoff_bundle_safety_issue_count": 0,
-    "handoff_bundle_remote_training_allowed_now": true,
+    "handoff_bundle_remote_training_allowed_now": false,
     "handoff_requirement_stage_mapped_count": 4,
     "handoff_requirement_stage_unmapped_count": 0,
     "formal_gate_execution_veto_present": true,
@@ -191,10 +191,10 @@
     "remote_packet_safety_proof_next_blocked_lane": "source_fresh_preflight",
     "remote_packet_safety_proof_h02_paper_result_input_allowed": false,
     "remote_packet_safety_status_report_proof_summary_present": true,
-    "source_freshness_status": "source_freshness_clean_current",
-    "source_freshness_regeneration_required": false,
-    "source_freshness_blocking_regeneration_required": false,
-    "source_freshness_non_self_changed_records": 0,
+    "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
+    "source_freshness_regeneration_required": true,
+    "source_freshness_blocking_regeneration_required": true,
+    "source_freshness_non_self_changed_records": 22,
     "source_freshness_self_artifact_only_lag_records": 0,
     "remote_packet_safety_command_index_present": true,
     "remote_packet_safety_command_index_row_count": 23,
@@ -211,7 +211,7 @@
     "formal_h02_acceptance_allowed_now": false,
     "formal_claim_allowed_now": false,
     "local_training_allowed_now": false,
-    "source_freshness_ready_for_remote_preflight": true
+    "source_freshness_ready_for_remote_preflight": false
   },
   "missing_counts_by_category": {
     "decision": 0,
@@ -802,40 +802,47 @@
   },
   "formal_gate_handoff_summary": {
     "present": true,
-    "status": "ready_for_manual_remote_execution_review",
+    "status": "blocked_until_protocol_lane_decision",
     "transition_gate_status": "f02_6_transition_gate_audit_passed",
     "transition_gate_audit_issue_count": 0,
-    "next_handoff_action_id": "resolve_source_fresh_preflight",
-    "next_action_requires_dr_sun": false,
+    "next_handoff_action_id": "record_protocol_lane_decision",
+    "next_action_requires_dr_sun": true,
     "safety_issue_count": 0,
-    "remote_training_allowed_now": true,
-    "remote_preflight_allowed_now": true,
+    "remote_training_allowed_now": false,
+    "remote_preflight_allowed_now": false,
     "formal_claim_allowed_now": false,
     "remote_execution_steps": {
       "sync_to_remote": {
         "present": true,
-        "allowed_now": true,
+        "allowed_now": false,
         "runs_training": false,
-        "blocked_by": []
+        "blocked_by": [
+          "protocol_lane_decision_pending"
+        ]
       },
       "run_remote_preflight": {
         "present": true,
-        "allowed_now": true,
+        "allowed_now": false,
         "runs_training": false,
-        "blocked_by": []
+        "blocked_by": [
+          "protocol_lane_decision_pending"
+        ]
       },
       "run_remote_training": {
         "present": true,
-        "allowed_now": true,
+        "allowed_now": false,
         "runs_training": true,
-        "blocked_by": []
+        "blocked_by": [
+          "protocol_lane_decision_pending"
+        ]
       },
       "run_remote_audit": {
         "present": true,
         "allowed_now": false,
         "runs_training": false,
         "blocked_by": [
-          "remote_training_not_completed"
+          "remote_training_not_completed",
+          "protocol_lane_decision_pending"
         ]
       }
     }
@@ -2283,19 +2290,17 @@
     "pending_f02_6_decision": false,
     "next_blocked_lane_id": "remote_packet_preflight",
     "expected_next_action_id": null,
-    "handoff_next_action_id": "resolve_source_fresh_preflight",
-    "handoff_next_action_requires_dr_sun": false,
+    "handoff_next_action_id": "record_protocol_lane_decision",
+    "handoff_next_action_requires_dr_sun": true,
     "missing_artifacts_next_action_id": "resolve_h01_h02_formal_evaluation_acceptance",
     "decision_intake_next_blocked_lane": "remote_packet_preflight",
     "all_execution_disabled_now": false,
-    "execution_leak_count": 11,
+    "execution_leak_count": 9,
     "remote_execution_allowed_count": 3,
     "remote_stage_allowed_count": 2,
     "execution_leak_surface_ids": [
       "decision_intake_remote_preflight_allowed_now",
       "decision_intake_remote_training_allowed_now",
-      "handoff_remote_preflight_allowed_now",
-      "handoff_remote_training_allowed_now",
       "missing_artifacts_remote_training_allowed_now",
       "remote_packet_ready_to_run_remote_training",
       "remote_execution_step:sync_to_remote",
@@ -2327,11 +2332,11 @@
       },
       {
         "surface_id": "handoff_remote_preflight_allowed_now",
-        "allowed_now": true
+        "allowed_now": false
       },
       {
         "surface_id": "handoff_remote_training_allowed_now",
-        "allowed_now": true
+        "allowed_now": false
       },
       {
         "surface_id": "handoff_formal_claim_allowed_now",
@@ -2722,7 +2727,7 @@
       "source_freshness_regeneration_required"
     ]
   },
-  "input_safety_issue_count": 6,
+  "input_safety_issue_count": 9,
   "input_safety_issues": [
     {
       "issue_id": "missing_artifacts_handoff_allows_remote_training_while_open",
@@ -2747,6 +2752,18 @@
     {
       "issue_id": "remaining_deliverables_gap_training_stage_allowed_while_blocked",
       "message": "gap summary training stage cannot be allowed while remaining deliverables are blocked."
+    },
+    {
+      "issue_id": "remaining_deliverables_source_blocker_summary_remote_readiness_ids_mismatch",
+      "message": "remote-readiness blocker ids must match source-freshness readiness blockers."
+    },
+    {
+      "issue_id": "remaining_deliverables_source_blocker_summary_missing_ssh_boundary",
+      "message": "remote-readiness source blockers must record that refresh requires external SSH."
+    },
+    {
+      "issue_id": "source_freshness_blocks_remote_execution",
+      "message": "remote preflight/training cannot be allowed while source freshness requires regeneration."
     }
   ],
   "safe_work_without_f02_6_decision": [

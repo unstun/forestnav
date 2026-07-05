@@ -3,8 +3,8 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `2cd4e13da6aff82d096cbf7cd11595f859ec4d05`
-- input_safety_issue_count: `6`
+- source_head: `414970cfb79086679983d3110e202642abc63f8d`
+- input_safety_issue_count: `9`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
 - remote_training_allowed_now: `False`
@@ -94,7 +94,7 @@ This file is a read-only formal-gate status report. It does not execute commands
 - claim_safety_formal_performance_claim_allowed: `False`
 - paper_readiness_status: `partial_methods_ready_results_blocked`
 - paper_readiness_formal_results_ready: `False`
-- handoff_bundle_status: `ready_for_manual_remote_execution_review`
+- handoff_bundle_status: `blocked_until_protocol_lane_decision`
 - remaining_deliverables_status: `formal_gate_deliverables_blocked`
 - remaining_deliverables_missing_deliverable_count: `1`
 - remaining_deliverables_acceptance_matrix_count: `10`
@@ -134,9 +134,9 @@ This file is a read-only formal-gate status report. It does not execute commands
 - mainline_formal_gate_state_audit_proof_summary_chain_status: `formal_gate_proof_summary_chain_consistent_blocked`
 - mainline_formal_gate_state_audit_proof_summary_chain_issue_count: `0`
 - mainline_formal_gate_state_audit_proof_audit_input_safety_issue_count: `0`
-- handoff_bundle_next_action: `resolve_source_fresh_preflight`
+- handoff_bundle_next_action: `record_protocol_lane_decision`
 - handoff_bundle_safety_issue_count: `0`
-- handoff_bundle_remote_training_allowed_now: `True`
+- handoff_bundle_remote_training_allowed_now: `False`
 - handoff_requirement_stage_mapped_count: `4`
 - handoff_requirement_stage_unmapped_count: `0`
 - formal_gate_execution_veto_present: `True`
@@ -153,10 +153,10 @@ This file is a read-only formal-gate status report. It does not execute commands
 - remote_packet_safety_proof_next_blocked_lane: `source_fresh_preflight`
 - remote_packet_safety_proof_h02_paper_result_input_allowed: `False`
 - remote_packet_safety_status_report_proof_summary_present: `True`
-- source_freshness_status: `source_freshness_clean_current`
-- source_freshness_regeneration_required: `False`
-- source_freshness_blocking_regeneration_required: `False`
-- source_freshness_non_self_changed_records: `0`
+- source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
+- source_freshness_regeneration_required: `True`
+- source_freshness_blocking_regeneration_required: `True`
+- source_freshness_non_self_changed_records: `22`
 - source_freshness_self_artifact_only_lag_records: `0`
 - remote_packet_safety_command_index_present: `True`
 - remote_packet_safety_command_index_row_count: `23`
@@ -219,10 +219,10 @@ This file is a read-only formal-gate status report. It does not execute commands
 - status: `next_action_guard_not_applicable`
 - pending_f02_6_decision: `False`
 - expected_next_action_id: `None`
-- handoff_next_action_id: `resolve_source_fresh_preflight`
+- handoff_next_action_id: `record_protocol_lane_decision`
 - missing_artifacts_next_action_id: `resolve_h01_h02_formal_evaluation_acceptance`
 - all_execution_disabled_now: `False`
-- execution_leak_count: `11`
+- execution_leak_count: `9`
 - remote_execution_allowed_count: `3`
 - remote_stage_allowed_count: `2`
 - violations: `none`
@@ -499,14 +499,14 @@ This file is a read-only formal-gate status report. It does not execute commands
 ## Formal Gate Handoff Bundle
 
 - present: `True`
-- status: `ready_for_manual_remote_execution_review`
-- next_handoff_action: `resolve_source_fresh_preflight`
+- status: `blocked_until_protocol_lane_decision`
+- next_handoff_action: `record_protocol_lane_decision`
 - safety_issue_count: `0`
-- remote_training_allowed_now: `True`
-- `sync_to_remote`: present=`True`, allowed_now=`True`, runs_training=`False`, blocked_by=`none`
-- `run_remote_preflight`: present=`True`, allowed_now=`True`, runs_training=`False`, blocked_by=`none`
-- `run_remote_training`: present=`True`, allowed_now=`True`, runs_training=`True`, blocked_by=`none`
-- `run_remote_audit`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`remote_training_not_completed`
+- remote_training_allowed_now: `False`
+- `sync_to_remote`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`protocol_lane_decision_pending`
+- `run_remote_preflight`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`protocol_lane_decision_pending`
+- `run_remote_training`: present=`True`, allowed_now=`False`, runs_training=`True`, blocked_by=`protocol_lane_decision_pending`
+- `run_remote_audit`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`remote_training_not_completed, protocol_lane_decision_pending`
 
 ## Formal Gate Requirement Stage Summary
 
@@ -554,6 +554,9 @@ This file is a read-only formal-gate status report. It does not execute commands
 - `remaining_deliverables_training_train_summary_json_stage_allowed_while_blocked`: training:train_summary_json responsible stage cannot be allowed while remaining deliverables are blocked.
 - `remaining_deliverables_training_train_training_manifest_json_stage_allowed_while_blocked`: training:train_training_manifest_json responsible stage cannot be allowed while remaining deliverables are blocked.
 - `remaining_deliverables_gap_training_stage_allowed_while_blocked`: gap summary training stage cannot be allowed while remaining deliverables are blocked.
+- `remaining_deliverables_source_blocker_summary_remote_readiness_ids_mismatch`: remote-readiness blocker ids must match source-freshness readiness blockers.
+- `remaining_deliverables_source_blocker_summary_missing_ssh_boundary`: remote-readiness source blockers must record that refresh requires external SSH.
+- `source_freshness_blocks_remote_execution`: remote preflight/training cannot be allowed while source freshness requires regeneration.
 
 ## Safe Work Without F02.6 Decision
 
