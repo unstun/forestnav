@@ -202,6 +202,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--remote-packet-audit", type=Path, default=DEFAULT_REMOTE_PACKET_AUDIT)
     parser.add_argument("--h01-manifest", type=Path, default=DEFAULT_H01_MANIFEST)
     parser.add_argument("--h02-acceptance", type=Path, default=DEFAULT_H02_ACCEPTANCE)
+    parser.add_argument("--protocol-lane-status-report", type=Path, default=DEFAULT_PROTOCOL_LANE_STATUS_REPORT)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
