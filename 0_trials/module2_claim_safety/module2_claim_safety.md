@@ -25,7 +25,6 @@
 - status_report_remaining_deliverables_gap_categories_blocked
 - status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing
 - status_report_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked
-- status_report_remote_packet_safety_command_index_missing_claim_safety
 
 ## Allowed Claims
 
@@ -46,6 +45,14 @@
 ## F02.6 Decision Intake Summary
 
 - present=`True`, status=`f02_6_decision_intake_pending_clean`, record_status=`pending_human_decision`, record_decider=`None`, next_blocked_lane=`decision`, audit_issue_count=`0`, decision_owner_required=`Dr Sun`, valid_decision_count=`2`, required_record_field_count=`3`, decision_note_required=`True`, invalid_input_count=`5`, post_decision_non_authorization_count=`4`, post_decision_route_count=`2`, approved_route_next_lane=`source_fresh_regeneration`, approved_route_allows_remote_training_now=`False`, rejected_route_requires_new_protocol_contract=`True`, remote_training_allowed_now=`False`, formal_claim_allowed_now=`False`
+
+## Status Report Next-Action Guard
+
+- present=`True`, status=`next_action_guard_passed`, pending_f02_6_decision=`True`, expected_next_action_id=`record_f02_6_decision`, all_execution_disabled_now=`True`, execution_leak_count=`0`
+
+## Status Report Next Required Formal Deliverables
+
+- present=`True`, status=`blocked_missing_formal_deliverables`, total_missing_deliverables=`10`, blocked_category_count=`4`, row_count=`10`, not_paper_result_material=`True`
 
 ## Status Report Missing-Artifacts Handoff Index
 
@@ -180,13 +187,13 @@
 ## Status Report Remote-Safety Claim-Gate Command Index
 
 - present=`True`
-- index_row_count=`21`
-- source_target_count=`21`
+- index_row_count=`22`
+- source_target_count=`22`
 - missing_target_ids=`[]`
 - unknown_manual_count=`0`
 - forbidden_command_count=`0`
 - `formal_gate_proof_summary_chain_audit`: present=`True`, stage=`regenerate_claim_gate_artifacts`, required_before=`formal_claim_gate`, command_kind=`known_builder`
-- `claim_safety`: present=`False`, stage=`None`, required_before=`None`, command_kind=`None`
+- `claim_safety`: present=`True`, stage=`regenerate_claim_gate_artifacts`, required_before=`formal_claim_gate`, command_kind=`known_builder`
 - `paper_readiness`: present=`True`, stage=`regenerate_claim_gate_artifacts`, required_before=`formal_claim_gate`, command_kind=`known_builder`
 
 ## Prohibited Claims

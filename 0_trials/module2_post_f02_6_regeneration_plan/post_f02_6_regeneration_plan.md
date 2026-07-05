@@ -62,7 +62,7 @@ This file is an ordered plan. It does not execute commands, train, preflight, au
   - evidence: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
 - `regenerate_claim_gate_artifacts` (claim_gate): status=`blocked`, allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`False`
   - blocked_by: `h02_formal_acceptance_not_ready, source_fresh_claim_targets_open`
-  - evidence: `0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json; 0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json; 0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json; 0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json; 0_trials/module2_formal_gate_status_report/formal_gate_status_report.json; 0_trials/module2_paper_readiness/module2_paper_readiness.json`
+  - evidence: `0_trials/module2_claim_safety/module2_claim_safety.json; 0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json; 0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json; 0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json; 0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json; 0_trials/module2_formal_gate_status_report/formal_gate_status_report.json; 0_trials/module2_paper_readiness/module2_paper_readiness.json`
 
 ## Source Regeneration Command Index
 
@@ -96,6 +96,8 @@ This file is an ordered plan. It does not execute commands, train, preflight, au
   - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_evaluation_manifest --module2-rl-rs-checkpoint <pulled-back-final_model.zip>`
 - `h02_formal_acceptance` -> `regenerate_h01_h02_formal_artifacts` kind=`known_builder`, required_before=`formal_h01_h02`
   - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_h02_formal_acceptance`
+- `claim_safety` -> `regenerate_claim_gate_artifacts` kind=`known_builder`, required_before=`formal_claim_gate`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety`
 - `formal_gate_missing_artifacts` -> `regenerate_claim_gate_artifacts` kind=`known_builder`, required_before=`formal_claim_gate`
   - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_missing_artifacts_audit`
 - `formal_gate_proof_audit` -> `regenerate_claim_gate_artifacts` kind=`known_builder`, required_before=`formal_claim_gate`

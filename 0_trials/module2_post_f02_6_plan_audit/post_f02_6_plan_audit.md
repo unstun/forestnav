@@ -33,8 +33,8 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 ## Source Regeneration Command Index
 
 - present: `True`
-- index_row_count: `21`
-- source_target_count: `21`
+- index_row_count: `22`
+- source_target_count: `22`
 - unknown_manual_count: `0`
 - stage_mismatch_count: `0`
 - command_not_in_stage_count: `0`

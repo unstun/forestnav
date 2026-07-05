@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_paper_readiness",
   "status": "partial_methods_ready_results_blocked",
-  "created_at_utc": "2026-07-05T05:55:30.406670+00:00",
-  "source_head": "e04e0ac9af81001ccfbafb9026ebb3ed2a59bbcb+dirty",
+  "created_at_utc": "2026-07-05T06:06:57.108568+00:00",
+  "source_head": "ee0cf8c511530272906684efad827e92583410cb+dirty",
   "manuscript_ready": false,
   "formal_results_ready": false,
   "local_training_allowed": false,
@@ -89,8 +89,8 @@
     "claim_safety_remote_packet_safety_proof_h02_paper_result_input_allowed": false,
     "claim_safety_remote_packet_safety_status_report_proof_summary_present": true,
     "claim_safety_remote_packet_safety_command_index_present": true,
-    "claim_safety_remote_packet_safety_command_index_row_count": 21,
-    "claim_safety_remote_packet_safety_command_index_source_target_count": 21,
+    "claim_safety_remote_packet_safety_command_index_row_count": 22,
+    "claim_safety_remote_packet_safety_command_index_source_target_count": 22,
     "claim_safety_remote_packet_safety_command_index_missing_target_count": 0,
     "h02_formal_acceptance_status": "blocked_formal_output_acceptance",
     "h02_formal_output_accepted": false,
@@ -701,8 +701,8 @@
   },
   "claim_safety_remote_packet_safety_claim_gate_command_index_summary": {
     "present": true,
-    "index_row_count": 21,
-    "source_target_count": 21,
+    "index_row_count": 22,
+    "source_target_count": 22,
     "missing_target_ids": [],
     "unknown_manual_count": 0,
     "unknown_manual_ids": [],
@@ -717,11 +717,11 @@
         "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit"
       },
       "claim_safety": {
-        "present": false,
-        "stage_id": null,
-        "required_before": null,
-        "command_kind": null,
-        "command_template": null
+        "present": true,
+        "stage_id": "regenerate_claim_gate_artifacts",
+        "required_before": "formal_claim_gate",
+        "command_kind": "known_builder",
+        "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety"
       },
       "paper_readiness": {
         "present": true,
@@ -754,15 +754,13 @@
     "status_report_remaining_deliverables_gap_categories_blocked",
     "status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing",
     "status_report_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked",
-    "status_report_remote_packet_safety_command_index_missing_claim_safety",
     "claim_safety_f02_6_decision_intake_pending",
     "claim_safety_remaining_deliverables_acceptance_rows_missing",
     "claim_safety_remaining_deliverables_acceptance_categories_blocked",
     "claim_safety_remaining_deliverables_gap_rows_missing",
     "claim_safety_remaining_deliverables_gap_categories_blocked",
     "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing",
-    "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked",
-    "claim_safety_remote_packet_safety_command_index_missing_claim_safety"
+    "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked"
   ],
   "allowed_claim_ids": [
     "method_is_ha_star_analytic_operator",
@@ -855,15 +853,13 @@
         "status_report_remaining_deliverables_gap_categories_blocked",
         "status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing",
         "status_report_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked",
-        "status_report_remote_packet_safety_command_index_missing_claim_safety",
         "claim_safety_f02_6_decision_intake_pending",
         "claim_safety_remaining_deliverables_acceptance_rows_missing",
         "claim_safety_remaining_deliverables_acceptance_categories_blocked",
         "claim_safety_remaining_deliverables_gap_rows_missing",
         "claim_safety_remaining_deliverables_gap_categories_blocked",
         "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing",
-        "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked",
-        "claim_safety_remote_packet_safety_command_index_missing_claim_safety"
+        "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked"
       ]
     },
     {
