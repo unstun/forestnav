@@ -59,6 +59,13 @@ F02_PENDING_BLOCKERS = {
     "requires_dr_sun_approval",
     "f02_6_decision_not_approved",
 }
+REQUIRED_F02_6_BLOCKED_ACTION_IDS = (
+    "remote_preflight",
+    "remote_training",
+    "local_training",
+    "formal_claim",
+    "paper_result_material",
+)
 
 
 @dataclass(frozen=True)
