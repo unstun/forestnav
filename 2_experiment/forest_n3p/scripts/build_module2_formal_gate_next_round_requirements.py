@@ -376,6 +376,7 @@ def _markdown(manifest: dict[str, Any]) -> str:
     failure = manifest["current_failed_run"]
     artifacts = manifest["current_run_artifacts"]
     h02 = manifest["blocked_formal_acceptance"]
+    permissions = manifest["permissions_now"]
     lines = [
         "# Module2 Formal Gate Next-Round Requirements",
         "",
@@ -404,15 +405,61 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- paper_result_input_allowed: `{h02['paper_result_input_allowed']}`",
         f"- blockers: `{', '.join(h02['blockers'])}`",
         "",
+        "## Permissions Now",
+        "",
+        f"- local_training_allowed_now: `{permissions['local_training_allowed_now']}`",
+        f"- remote_preflight_allowed_now: `{permissions['remote_preflight_allowed_now']}`",
+        f"- remote_training_allowed_now_for_existing_packet: `{permissions['remote_training_allowed_now_for_existing_packet']}`",
+        f"- formal_h01_evaluation_allowed_now: `{permissions['formal_h01_evaluation_allowed_now']}`",
+        f"- formal_h02_acceptance_allowed_now: `{permissions['formal_h02_acceptance_allowed_now']}`",
+        f"- formal_claim_allowed_now: `{permissions['formal_claim_allowed_now']}`",
+        f"- new_success_training_allowed_now: `{permissions['new_success_training_allowed_now']}`",
+        f"- new_or_revised_contract_required_before_new_success_training: `{permissions['new_or_revised_contract_required_before_new_success_training']}`",
+        f"- failure_triage_next_gate_status: `{permissions['failure_triage_next_gate_status']}`",
+        "",
+        "## Missing Current Formal Acceptance Artifacts",
+        "",
+    ]
+    missing_artifacts = h02.get("missing_artifacts") or []
+    if missing_artifacts:
+        for row in missing_artifacts:
+            lines.append(
+                "- "
+                f"`{row.get('matrix_id')}`: artifact_id=`{row.get('artifact_id')}`, "
+                f"expected_path=`{row.get('expected_path')}`, missing_reason=`{row.get('missing_reason')}`"
+            )
+    else:
+        lines.append("- none")
+    lines.extend(
+        [
+            "",
         "## Next-Round Requirements",
         "",
         "| category | requirement | status | required_before |",
         "|---|---|---|---|",
-    ]
+        ]
+    )
     for row in manifest["next_round_requirements"]["rows"]:
         lines.append(
             f"| `{row['category']}` | `{row['requirement_id']}` | `{row['status']}` | `{row['required_before']}` |"
         )
+    lines.extend(["", "## Missing Next-Round Deliverables"])
+    for row in manifest["next_round_requirements"]["rows"]:
+        lines.extend(
+            [
+                "",
+                f"### `{row['category']}:{row['requirement_id']}`",
+                "",
+                f"- status: `{row['status']}`",
+                f"- required_before: `{row['required_before']}`",
+                "- acceptable_evidence:",
+            ]
+        )
+        for item in row["acceptable_evidence"]:
+            lines.append(f"  - {item}")
+        lines.append("- invalid_substitutes:")
+        for item in row["invalid_substitutes"]:
+            lines.append(f"  - {item}")
     lines.extend(
         [
             "",
