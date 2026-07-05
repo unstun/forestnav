@@ -38,6 +38,7 @@ DEFAULT_CLAIM_SAFETY = Path("0_trials/module2_claim_safety/module2_claim_safety.
 DEFAULT_PAPER_READINESS = Path("0_trials/module2_paper_readiness/module2_paper_readiness.json")
 DEFAULT_HANDOFF_BUNDLE = Path("0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json")
 DEFAULT_DECISION_INTAKE = Path("0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json")
+DEFAULT_FORMAL_GATE_PROOF_AUDIT = Path("0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json")
 APPROVE_OBSTACLE_SUMMARY = "approve_obstacle_summary_warm_start"
 REJECT_OBSTACLE_SUMMARY = "reject_obstacle_summary_warm_start"
 DECISION_OWNER = "Dr Sun"
@@ -87,6 +88,7 @@ class F026TransitionGateAuditConfig:
     paper_readiness_path: Path = DEFAULT_PAPER_READINESS
     handoff_bundle_path: Path = DEFAULT_HANDOFF_BUNDLE
     decision_intake_path: Path = DEFAULT_DECISION_INTAKE
+    formal_gate_proof_audit_path: Path = DEFAULT_FORMAL_GATE_PROOF_AUDIT
 
 
 def main(argv: Sequence[str] | None = None) -> int:
