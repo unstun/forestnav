@@ -792,6 +792,27 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- post_decision_routes_are_current_authorization: `{request['post_decision_routes_are_current_authorization']}`"
     )
     lines.append(f"- all_execution_disabled_now: `{request['all_execution_disabled_now']}`")
+    matrix = manifest["decision_evidence_matrix_summary"]
+    lines.extend(
+        [
+            "",
+            "## Decision Evidence Matrix",
+            "",
+            f"- present: `{matrix['present']}`",
+            f"- matrix_id: `{matrix['matrix_id']}`",
+            f"- status: `{matrix['status']}`",
+            f"- route_count: `{matrix['route_count']}`",
+            f"- route_decisions: `{', '.join(matrix['route_decisions'])}`",
+            f"- required_evidence_count: `{matrix['required_evidence_count']}`",
+            f"- missing_required_evidence_count: `{matrix['missing_required_evidence_count']}`",
+            f"- global_invalid_substitute_count: `{matrix['global_invalid_substitute_count']}`",
+            f"- current_authorization_allowed_now: `{matrix['current_authorization_allowed_now']}`",
+            f"- remote_preflight_allowed_now: `{matrix['remote_preflight_allowed_now']}`",
+            f"- remote_training_allowed_now: `{matrix['remote_training_allowed_now']}`",
+            f"- formal_claim_allowed_now: `{matrix['formal_claim_allowed_now']}`",
+            f"- paper_result_material_allowed_now: `{matrix['paper_result_material_allowed_now']}`",
+        ]
+    )
     for decision, route in request["route_effects"].items():
         lines.append(
             f"- `{decision}`: next_lane_after_record=`{route['next_lane_after_record']}`, "
