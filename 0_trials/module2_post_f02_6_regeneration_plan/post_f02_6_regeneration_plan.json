@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_regeneration_plan",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-05T07:53:47.112145+00:00",
-  "source_head": "429271d516bc45bb9d823b7092e70c80fd7ab584+dirty",
+  "created_at_utc": "2026-07-05T08:32:20.065020+00:00",
+  "source_head": "cd50821ab8cf8ffdd5a7d88a22a315bef10ccfc1",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -23,6 +23,7 @@
     "formal_gate_status": "blocked_formal_gate_gaps_open",
     "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
     "source_freshness_regeneration_required": true,
+    "source_freshness_blocking_regeneration_required": true,
     "remote_packet_status": "blocked_until_f02_6_decision",
     "ready_to_run_remote_training": false
   },
@@ -226,7 +227,7 @@
       {
         "artifact_id": "formal_gate_proof_audit",
         "path": "0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json",
-        "freshness_state": "current_dirty"
+        "freshness_state": "historical_dirty"
       },
       {
         "artifact_id": "formal_gate_proof_summary_chain_audit",
@@ -236,7 +237,7 @@
       {
         "artifact_id": "formal_gate_remaining_deliverables",
         "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
-        "freshness_state": "current_dirty"
+        "freshness_state": "historical_clean"
       },
       {
         "artifact_id": "formal_gate_status_report",
@@ -412,7 +413,7 @@
     {
       "artifact_id": "formal_gate_proof_audit",
       "required_before": "formal_claim_gate",
-      "freshness_state": "current_dirty",
+      "freshness_state": "historical_dirty",
       "path": "0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json",
       "stage_id": "regenerate_claim_gate_artifacts",
       "command_kind": "known_builder",
@@ -430,7 +431,7 @@
     {
       "artifact_id": "formal_gate_remaining_deliverables",
       "required_before": "formal_claim_gate",
-      "freshness_state": "current_dirty",
+      "freshness_state": "historical_clean",
       "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
       "stage_id": "regenerate_claim_gate_artifacts",
       "command_kind": "known_builder",

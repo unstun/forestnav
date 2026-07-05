@@ -15,6 +15,7 @@ This file is an ordered plan. It does not execute commands, train, preflight, au
 - formal_gate_status: `blocked_formal_gate_gaps_open`
 - source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
 - source_freshness_regeneration_required: `True`
+- source_freshness_blocking_regeneration_required: `True`
 - remote_packet_status: `blocked_until_f02_6_decision`
 - ready_to_run_remote_training: `False`
 
