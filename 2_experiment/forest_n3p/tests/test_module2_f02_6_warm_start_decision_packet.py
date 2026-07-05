@@ -33,6 +33,7 @@ def test_f02_6_decision_packet_builds_evidence_bound_recommendation(tmp_path):
     assert manifest["runs_training"] is False
     assert manifest["runs_remote_preflight"] is False
     assert manifest["local_training_allowed"] is False
+    assert manifest["remote_preflight_allowed"] is False
     assert manifest["remote_training_allowed"] is False
     assert manifest["formal_claim_allowed"] is False
     assert manifest["recommendation"]["decision"] == "approve_obstacle_summary_warm_start"
@@ -71,5 +72,6 @@ def test_f02_6_decision_packet_builds_evidence_bound_recommendation(tmp_path):
     assert "# Module2 F02.6 Warm-Start Decision Packet" in markdown
     assert "pending_human_decision" in markdown
     assert "approve_obstacle_summary_warm_start" in markdown
+    assert "remote preflight allowed now: `False`" in markdown
     assert "remote training allowed now: `False`" in markdown
     assert "Source Integrity" in markdown

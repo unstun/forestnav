@@ -3,6 +3,7 @@
 - status: `pending_human_decision`
 - recommendation: `approve_obstacle_summary_warm_start`
 - decision owner: `Dr Sun`
+- remote preflight allowed now: `False`
 - remote training allowed now: `False`
 
 ## Key Evidence
@@ -35,6 +36,6 @@ python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir 0_trials/module2
 - This packet is decision support, not a formal experiment result.
 - It does not close F02.6; Dr Sun must explicitly approve or reject the recommendation.
 - Remote smoke artifacts prove executable CUDA plumbing only; they are not Gate #3 evidence.
-- The listed remote command is a post-approval route, not current authorization to train.
+- The listed remote command is a post-approval route, not current authorization to preflight or train.
 - No-warm formal failure cannot be relabeled as obstacle-summary warm-start failure.
 - The obstacle-summary checkpoint is a warm-start initializer candidate, not a finished planner checkpoint.
