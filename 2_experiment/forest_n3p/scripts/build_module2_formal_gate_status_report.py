@@ -305,6 +305,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             source_freshness=source_freshness,
             remote_packet=remote_packet,
             closure_checklist=closure_checklist,
+            formal_gate_execution_veto=formal_gate_execution_veto,
         )
         + _next_action_guard_issues(next_action_guard_summary)
     )
@@ -1078,6 +1079,7 @@ def _source_freshness_execution_issues(
     source_freshness: dict[str, Any],
     remote_packet: dict[str, Any],
     closure_checklist: dict[str, Any],
+    formal_gate_execution_veto: dict[str, Any],
 ) -> list[dict[str, str]]:
     if _source_freshness_ready_for_remote_preflight(source_freshness):
         return []
@@ -1086,6 +1088,12 @@ def _source_freshness_execution_issues(
     remote_allowed = any(bool(step.get("allowed_now")) for step in remote_steps.values()) or any(
         bool(stage.get("allowed_now")) for stage in closure_stages.values()
     )
+    if remote_allowed and formal_gate_execution_veto["present"]:
+        row_consensus = formal_gate_execution_veto["row_consensus"]
+        remote_allowed = any(
+            row_consensus.get(row_id) is True
+            for row_id in ("remote_preflight", "remote_training", "remote_audit")
+        )
     if not remote_allowed:
         return []
     return [
