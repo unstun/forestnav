@@ -883,6 +883,31 @@ def _normalize_decision_evidence_matrix_summary(raw: Any) -> dict[str, Any]:
     }
 
 
+def _normalize_protocol_lane_status_report(raw: Any) -> dict[str, Any]:
+    raw = raw if isinstance(raw, dict) else {}
+    current = raw.get("current_status") if isinstance(raw.get("current_status"), dict) else {}
+    normalized = {
+        "present": bool(raw),
+        "status": str(raw.get("status") or ""),
+        "audit_issue_count": int(raw.get("audit_issue_count") or 0),
+        "next_blocked_lane": str(current.get("next_blocked_lane") or ""),
+        "decision_packet_status": str(current.get("decision_packet_status") or ""),
+        "decision_record_status": str(current.get("decision_record_status") or ""),
+        "decision_gate_status": str(current.get("decision_gate_status") or ""),
+        "contract_authoring_gate_status": str(current.get("contract_authoring_gate_status") or ""),
+        "lane_matrix_status": str(current.get("lane_matrix_status") or ""),
+        "lane_count": int(current.get("lane_count") or 0),
+        "next_round_requirements_status": str(current.get("next_round_requirements_status") or ""),
+        "selected_lane_id": current.get("selected_lane_id"),
+        "contract_action": str(current.get("contract_action") or ""),
+        "allowed_next_action_ids": _strings(current.get("allowed_next_action_ids")),
+        "blocked_action_ids": _strings(current.get("blocked_action_ids")),
+    }
+    for key in PROTOCOL_LANE_FALSE_FLAGS:
+        normalized[key] = bool(current.get(key))
+    return normalized
+
+
 def _strings(value: Any) -> list[str]:
     if not isinstance(value, list):
         return []
@@ -907,6 +932,11 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"`{manifest['f02_6_decision_evidence_matrix_mentioned']}`",
         "- f02_6_decision_evidence_matrix_status_mentioned: "
         f"`{manifest['f02_6_decision_evidence_matrix_status_mentioned']}`",
+        "- protocol_lane_status_summary: "
+        f"`{manifest['protocol_lane_status_summary']}`",
+        f"- protocol_lane_status_mentioned: `{manifest['protocol_lane_status_mentioned']}`",
+        f"- protocol_lane_next_blocked_mentioned: `{manifest['protocol_lane_next_blocked_mentioned']}`",
+        f"- protocol_lane_next_action_mentioned: `{manifest['protocol_lane_next_action_mentioned']}`",
         f"- proof_summary_chain_status: `{manifest['proof_summary_chain_status']}`",
         "- proof_summary_handoff_single_next_action_consistency: "
         f"`{manifest['proof_summary_handoff_single_next_action_consistency']}`",
@@ -941,6 +971,23 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- authorization_flags: `{decision_matrix['authorization_flags']}`",
         ]
     )
+    lines.extend(["", "## Protocol Lane Status", ""])
+    protocol_lane = manifest["protocol_lane_status_summary"]
+    lines.extend(
+        [
+            f"- status: `{protocol_lane['status']}`",
+            f"- next_blocked_lane: `{protocol_lane['next_blocked_lane']}`",
+            f"- decision_record_status: `{protocol_lane['decision_record_status']}`",
+            f"- selected_lane_id: `{protocol_lane['selected_lane_id']}`",
+            f"- lane_count: `{protocol_lane['lane_count']}`",
+            f"- allowed_next_action_ids: `{protocol_lane['allowed_next_action_ids']}`",
+            f"- blocked_action_ids: `{protocol_lane['blocked_action_ids']}`",
+        ]
+    )
+    for row in manifest["protocol_lane_lane_mentions"]:
+        lines.append(f"- lane `{row['lane_id']}`: mentioned=`{row['mentioned']}`")
+    for row in manifest["protocol_lane_blocked_action_mentions"]:
+        lines.append(f"- blocked action `{row['action_id']}`: mentioned=`{row['mentioned']}`")
     lines.extend(["", "## Current Boundary Tokens", ""])
     for row in manifest["current_boundary_tokens"]:
         lines.append(f"- `{row['token']}`: mentioned=`{row['mentioned']}`")
