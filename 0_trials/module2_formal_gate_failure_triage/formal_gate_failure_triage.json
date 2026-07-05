@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "artifact_name": "module2_formal_gate_failure_triage",
+  "status": "formal_gate_failure_triage_ready",
+  "created_at_utc": "2026-07-05T20:06:35.897817+00:00",
+  "source_head": "59aa24087c3fcde295ece76694977b3c12e064fa",
+  "not_paper_result_material": true,
+  "executes_commands": false,
+  "runs_training": false,
+  "runs_remote_preflight": false,
+  "runs_remote_audit": false,
+  "local_training_allowed": false,
+  "formal_claim_allowed": false,
+  "paper_result_material_allowed": false,
+  "inputs": {
+    "gate3_formal_audit": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json",
+    "gate3_eval_summary": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json",
+    "remaining_deliverables": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
+    "h02_formal_acceptance": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+    "formal_gate_status_report": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
+    "remote_packet_safety_audit": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
+    "source_freshness_audit": "0_trials/module2_source_freshness_audit/source_freshness_audit.json"
+  },
+  "formal_gate_failure": {
+    "gate3_audit_name": "module2_f03_gate3_formal_audit",
+    "formal_decision": "fail",
+    "evaluator_decision": "fail",
+    "failure_mode": "threshold_failure",
+    "episodes": 64,
+    "terminal_rs_success_rate": 0.53125,
+    "required_success_threshold": 0.8,
+    "threshold_deficit": 0.26875,
+    "warm_start_status": "applied_obstacle_summary_bc",
+    "warm_start_decision": "approved_obstacle_summary",
+    "formal_blockers": [],
+    "formal_claim_allowed_field": true,
+    "paper_success_claim_allowed": false
+  },
+  "training_evaluation_acceptance_artifacts": {
+    "status": "formal_gate_deliverables_blocked",
+    "audit_issue_count": 0,
+    "total_missing_deliverables": 1,
+    "open_category_count": 1,
+    "categories": [
+      {
+        "category": "training",
+        "status": "complete",
+        "missing_count": 0,
+        "present_count": 3,
+        "responsible_stage_id": "gate3_remote_training",
+        "responsible_stage_allowed_now": true,
+        "responsible_stage_blocked_by": []
+      },
+      {
+        "category": "evaluation",
+        "status": "complete",
+        "missing_count": 0,
+        "present_count": 2,
+        "responsible_stage_id": "gate3_remote_audit_pullback",
+        "responsible_stage_allowed_now": false,
+        "responsible_stage_blocked_by": [
+          "remote_training_not_completed"
+        ]
+      },
+      {
+        "category": "acceptance",
+        "status": "complete",
+        "missing_count": 0,
+        "present_count": 3,
+        "responsible_stage_id": "gate3_remote_audit_pullback",
+        "responsible_stage_allowed_now": false,
+        "responsible_stage_blocked_by": [
+          "remote_training_not_completed"
+        ]
+      },
+      {
+        "category": "formal_acceptance",
+        "status": "blocked",
+        "missing_count": 1,
+        "present_count": 1,
+        "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
+        "responsible_stage_allowed_now": false,
+        "responsible_stage_blocked_by": [
+          "missing_remote_audit_pullback"
+        ]
+      }
+    ],
+    "missing_counts_by_category": {
+      "training": 0,
+      "evaluation": 0,
+      "acceptance": 0,
+      "formal_acceptance": 1
+    },
+    "present_counts_by_category": {
+      "training": 3,
+      "evaluation": 2,
+      "acceptance": 3,
+      "formal_acceptance": 1
+    },
+    "missing_artifacts": [
+      {
+        "category": "formal_acceptance",
+        "artifact_id": "h02_formal_output_acceptance",
+        "expected_path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+        "missing_reason": "h02_verdict_not_formal, gate3_formal_audit_not_passed, h02_scale_below_h01_manifest, missing_ppo_result_rows"
+      }
+    ],
+    "training_complete": true,
+    "evaluation_complete": true,
+    "acceptance_complete": true,
+    "formal_acceptance_complete": false
+  },
+  "h02_formal_acceptance_summary": {
+    "status": "blocked_formal_output_acceptance",
+    "formal_output_accepted": false,
+    "paper_result_input_allowed": false,
+    "blockers": [
+      "h02_verdict_not_formal",
+      "gate3_formal_audit_not_passed",
+      "h02_scale_below_h01_manifest",
+      "missing_ppo_result_rows"
+    ],
+    "gate3_formal_decision": "fail",
+    "gate3_formal_audit_passed": false,
+    "remote_pullback_artifacts_present": true
+  },
+  "permissions_now": {
+    "local_training_allowed_now": false,
+    "remote_preflight_allowed_now": true,
+    "remote_training_allowed_now": true,
+    "formal_h01_evaluation_allowed_now": true,
+    "formal_h02_acceptance_allowed_now": false,
+    "formal_claim_allowed_now": false,
+    "source_freshness_ready_for_remote_preflight": true
+  },
+  "next_gate": {
+    "status": "requires_protocol_decision_before_new_success_attempt",
+    "current_failure_can_be_recorded_as_negative_formal_evidence": true,
+    "same_contract_success_rerun_allowed": false,
+    "new_or_revised_contract_required_before_new_training": true,
+    "read_only_actions_allowed_now": [
+      "record this warm-start Gate3 threshold failure in experiment ledger",
+      "draft v2 protocol options without changing the current formal result",
+      "audit failure modes from existing eval CSV/logs without training"
+    ],
+    "actions_requiring_new_or_revised_contract": [
+      "change success threshold, reward, curriculum, architecture, observation, or training budget",
+      "train a new PPO checkpoint intended to replace the failed checkpoint",
+      "rerun formal Gate3 as a new success attempt"
+    ],
+    "explicitly_disallowed_now": [
+      "local PPO training",
+      "paper success claim that PPO replaces RS",
+      "threshold or protocol reinterpretation after seeing this failure",
+      "using H02/paper tables as formal result input while H02 acceptance is blocked"
+    ],
+    "remaining_formal_blocker": {
+      "artifact_id": "h02_formal_output_acceptance",
+      "missing": true,
+      "h02_status": "blocked_formal_output_acceptance",
+      "h02_blockers": [
+        "h02_verdict_not_formal",
+        "gate3_formal_audit_not_passed",
+        "h02_scale_below_h01_manifest",
+        "missing_ppo_result_rows"
+      ]
+    }
+  },
+  "audit_issue_count": 0,
+  "audit_issues": [],
+  "claim_boundaries": [
+    "This triage is a formal-gate operations artifact, not a paper result table, appendix, or success claim.",
+    "The current warm-start PPO Gate3 run is a threshold failure and must not be reframed as PPO replacing RS successfully.",
+    "New training intended to overturn this failure requires a new or revised Research Contract before execution.",
+    "Local PPO training remains disallowed; remote-only evidence must keep checkpoint, eval, audit, and hash provenance."
+  ]
+}
