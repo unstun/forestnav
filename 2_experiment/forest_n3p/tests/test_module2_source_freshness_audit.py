@@ -182,6 +182,34 @@ def test_source_freshness_audit_allows_tracked_artifact_batch_lag(tmp_path, monk
         assert record["blocking_regeneration_required_before_remote_formal_execution"] is False
 
 
+def test_source_freshness_audit_treats_known_module2_gate_artifacts_as_tracked_lag(tmp_path, monkeypatch):
+    builder = import_module("forest_n3p.scripts.build_module2_source_freshness_audit")
+    stale_head = "a" * 40
+    current_head = "b" * 40
+    artifact_path = _artifact(tmp_path, "audit.json", status="blocked", source_head=stale_head)
+    known_gate_artifact = "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json"
+
+    monkeypatch.setattr(builder, "_current_head", lambda: current_head)
+    monkeypatch.setattr(builder, "_commit_exists", lambda commit: commit in {stale_head, current_head})
+    monkeypatch.setattr(builder, "_commits_since_source", lambda source, current: 1, raising=False)
+    monkeypatch.setattr(builder, "_changed_paths_since_source", lambda source, current: [known_gate_artifact], raising=False)
+
+    manifest = builder.build_manifest(
+        builder.SourceFreshnessAuditConfig(
+            output_dir=tmp_path,
+            artifacts=[
+                builder.ArtifactTarget("custom_audit", "gate", artifact_path, "approved_remote_preflight"),
+            ],
+        )
+    )
+
+    record = manifest["artifact_records"][0]
+    assert record["tracked_artifact_only_lag"] is True
+    assert record["blocking_changed_path_count_since_source"] == 0
+    assert record["blocking_regeneration_required_before_remote_formal_execution"] is False
+    assert manifest["blocking_regeneration_target_count"] == 0
+
+
 def test_source_freshness_audit_separates_self_artifact_write_lag(tmp_path, monkeypatch):
     builder = import_module("forest_n3p.scripts.build_module2_source_freshness_audit")
     stale_head = "a" * 40
