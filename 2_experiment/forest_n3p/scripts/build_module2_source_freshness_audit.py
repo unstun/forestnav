@@ -238,7 +238,11 @@ def _artifact_record(target: ArtifactTarget, *, current_head: str) -> dict[str, 
         "commits_since_source": lag_info["commits_since_source"],
         "changed_path_count_since_source": lag_info["changed_path_count_since_source"],
         "artifact_path_changed_since_source": lag_info["artifact_path_changed_since_source"],
+        "self_artifact_changed_path_count_since_source": lag_info["self_artifact_changed_path_count_since_source"],
+        "non_self_changed_path_count_since_source": lag_info["non_self_changed_path_count_since_source"],
+        "self_artifact_only_lag": lag_info["self_artifact_only_lag"],
         "changed_paths_since_source_sample": lag_info["changed_paths_since_source_sample"],
+        "non_self_changed_paths_since_source_sample": lag_info["non_self_changed_paths_since_source_sample"],
         "required_before": target.required_before,
         "regenerate_before_formal_execution": source_info["freshness_state"] != "current_clean",
     }
@@ -286,7 +290,11 @@ def _source_lag_info(source_info: dict[str, Any], *, artifact_path: Path, curren
             "commits_since_source": 0,
             "changed_path_count_since_source": 0,
             "artifact_path_changed_since_source": False,
+            "self_artifact_changed_path_count_since_source": 0,
+            "non_self_changed_path_count_since_source": 0,
+            "self_artifact_only_lag": False,
             "changed_paths_since_source_sample": [],
+            "non_self_changed_paths_since_source_sample": [],
         }
 
     commits_since_source = _commits_since_source(str(source_commit), current_head)
@@ -294,13 +302,19 @@ def _source_lag_info(source_info: dict[str, Any], *, artifact_path: Path, curren
     if commits_since_source is None or changed_paths is None:
         return _unknown_lag_info()
 
-    normalized_artifact_path = artifact_path.as_posix()
+    self_artifact_paths = _self_artifact_paths(artifact_path)
     changed_path_set = set(changed_paths)
+    self_changed_paths = [path for path in changed_paths if path in self_artifact_paths]
+    non_self_changed_paths = [path for path in changed_paths if path not in self_artifact_paths]
     return {
         "commits_since_source": commits_since_source,
         "changed_path_count_since_source": len(changed_paths),
-        "artifact_path_changed_since_source": normalized_artifact_path in changed_path_set,
+        "artifact_path_changed_since_source": artifact_path.as_posix() in changed_path_set,
+        "self_artifact_changed_path_count_since_source": len(self_changed_paths),
+        "non_self_changed_path_count_since_source": len(non_self_changed_paths),
+        "self_artifact_only_lag": commits_since_source > 0 and bool(self_changed_paths) and not non_self_changed_paths,
         "changed_paths_since_source_sample": changed_paths[:CHANGED_PATH_SAMPLE_LIMIT],
+        "non_self_changed_paths_since_source_sample": non_self_changed_paths[:CHANGED_PATH_SAMPLE_LIMIT],
     }
 
 
@@ -309,8 +323,19 @@ def _unknown_lag_info() -> dict[str, Any]:
         "commits_since_source": None,
         "changed_path_count_since_source": None,
         "artifact_path_changed_since_source": None,
+        "self_artifact_changed_path_count_since_source": None,
+        "non_self_changed_path_count_since_source": None,
+        "self_artifact_only_lag": None,
         "changed_paths_since_source_sample": [],
+        "non_self_changed_paths_since_source_sample": [],
     }
+
+
+def _self_artifact_paths(artifact_path: Path) -> set[str]:
+    paths = {artifact_path.as_posix()}
+    if artifact_path.suffix == ".json":
+        paths.add(artifact_path.with_suffix(".md").as_posix())
+    return paths
 
 
 def _risk_counts(records: Sequence[dict[str, Any]]) -> dict[str, int]:
@@ -323,6 +348,11 @@ def _risk_counts(records: Sequence[dict[str, Any]]) -> dict[str, int]:
 
 def _commit_lag_summary(records: Sequence[dict[str, Any]]) -> dict[str, Any]:
     known_commit_lags = [record["commits_since_source"] for record in records if record["commits_since_source"] is not None]
+    known_non_self_counts = [
+        record["non_self_changed_path_count_since_source"]
+        for record in records
+        if record["non_self_changed_path_count_since_source"] is not None
+    ]
     return {
         "records_with_commit_lag": sum(1 for record in records if _positive_int(record["commits_since_source"])),
         "records_with_unknown_commit_lag": sum(1 for record in records if record["commits_since_source"] is None),
@@ -332,7 +362,12 @@ def _commit_lag_summary(records: Sequence[dict[str, Any]]) -> dict[str, Any]:
         "records_with_artifact_path_changed_since_source": sum(
             1 for record in records if record["artifact_path_changed_since_source"] is True
         ),
+        "records_with_non_self_changed_paths_since_source": sum(
+            1 for record in records if _positive_int(record["non_self_changed_path_count_since_source"])
+        ),
+        "records_with_self_artifact_only_lag": sum(1 for record in records if record["self_artifact_only_lag"] is True),
         "max_commits_since_source": max(known_commit_lags) if known_commit_lags else None,
+        "max_non_self_changed_path_count_since_source": max(known_non_self_counts) if known_non_self_counts else None,
         "changed_path_sample_limit": CHANGED_PATH_SAMPLE_LIMIT,
     }
 
@@ -370,6 +405,8 @@ def _ordered_regeneration_targets(records: Sequence[dict[str, Any]]) -> list[dic
             "commits_since_source": record["commits_since_source"],
             "changed_path_count_since_source": record["changed_path_count_since_source"],
             "artifact_path_changed_since_source": record["artifact_path_changed_since_source"],
+            "non_self_changed_path_count_since_source": record["non_self_changed_path_count_since_source"],
+            "self_artifact_only_lag": record["self_artifact_only_lag"],
             "required_before": record["required_before"],
         }
         for record in records
@@ -411,6 +448,8 @@ def _markdown(manifest: dict[str, Any]) -> str:
                 f"dirty=`{target['source_head_dirty']}`, commit_exists=`{target['source_commit_exists']}`, "
                 f"commits_since_source=`{target['commits_since_source']}`, "
                 f"changed_paths_since_source=`{target['changed_path_count_since_source']}`, "
+                f"non_self_changed_paths_since_source=`{target['non_self_changed_path_count_since_source']}`, "
+                f"self_artifact_only_lag=`{target['self_artifact_only_lag']}`, "
                 f"artifact_path_changed=`{target['artifact_path_changed_since_source']}`, "
                 f"required before `{target['required_before']}`, path `{target['path']}`"
             )
