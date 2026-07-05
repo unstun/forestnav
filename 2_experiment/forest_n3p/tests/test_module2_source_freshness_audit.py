@@ -71,6 +71,51 @@ def test_source_freshness_audit_is_clean_only_when_all_sources_match_current_hea
     assert manifest["regeneration_required_before_remote_formal_execution"] is False
 
 
+def test_source_freshness_audit_records_commit_lag_diagnostics(tmp_path, monkeypatch):
+    builder = import_module("forest_n3p.scripts.build_module2_source_freshness_audit")
+    stale_head = "a" * 40
+    current_head = "b" * 40
+    stale_path = _artifact(tmp_path, "stale.json", status="blocked", source_head=stale_head)
+
+    monkeypatch.setattr(builder, "_current_head", lambda: current_head)
+    monkeypatch.setattr(builder, "_commit_exists", lambda commit: commit in {stale_head, current_head})
+    monkeypatch.setattr(builder, "_commits_since_source", lambda source, current: 3, raising=False)
+    monkeypatch.setattr(
+        builder,
+        "_changed_paths_since_source",
+        lambda source, current: [str(stale_path), "2_experiment/forest_n3p/example.py"],
+        raising=False,
+    )
+
+    manifest = builder.build_manifest(
+        builder.SourceFreshnessAuditConfig(
+            output_dir=tmp_path,
+            artifacts=[
+                builder.ArtifactTarget("stale_gate", "gate", stale_path, "approved_remote_preflight"),
+            ],
+        )
+    )
+
+    assert manifest["commit_lag_summary"] == {
+        "records_with_commit_lag": 1,
+        "records_with_unknown_commit_lag": 0,
+        "records_with_changed_paths_since_source": 1,
+        "records_with_artifact_path_changed_since_source": 1,
+        "max_commits_since_source": 3,
+        "changed_path_sample_limit": 12,
+    }
+    record = manifest["artifact_records"][0]
+    assert record["freshness_state"] == "historical_clean"
+    assert record["commits_since_source"] == 3
+    assert record["changed_path_count_since_source"] == 2
+    assert record["artifact_path_changed_since_source"] is True
+    assert record["changed_paths_since_source_sample"] == [str(stale_path), "2_experiment/forest_n3p/example.py"]
+    target = manifest["ordered_regeneration_targets"][0]
+    assert target["commits_since_source"] == 3
+    assert target["changed_path_count_since_source"] == 2
+    assert target["artifact_path_changed_since_source"] is True
+
+
 def test_source_freshness_audit_cli_writes_json_and_markdown(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_source_freshness_audit")
     manifest_path = tmp_path / "audit.json"
