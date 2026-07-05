@@ -558,6 +558,26 @@ def test_post_f02_6_plan_ignores_nonblocking_source_freshness_lag_for_remote_ent
     assert by_id["gate3_remote_training"]["blocked_by"] == []
 
 
+def test_post_f02_6_plan_blocks_training_when_decision_is_pending() -> None:
+    stages = _post_f02_6_ordered_stages(
+        decision={},
+        decision_status="pending_human_decision",
+        formal_gate={},
+        source_targets=[],
+        command_index_targets=[],
+        remote_packet={
+            "ready_to_run_remote_training": True,
+            "execution_steps": {
+                "run_remote_training": {"command": "train", "allowed_now": True, "blocked_by": []},
+            },
+        },
+    )
+
+    training = {stage["stage_id"]: stage for stage in stages}["gate3_remote_training"]
+    assert training["allowed_now"] is False
+    assert training["blocked_by"] == ["f02_6_decision_not_approved"]
+
+
 def test_remote_packet_safety_allows_handoff_training_generation_while_status_blocked() -> None:
     issues = _remote_packet_cross_gate_issues(
         packet={"execution_steps": {"run_remote_training": {"allowed_now": True}}},
