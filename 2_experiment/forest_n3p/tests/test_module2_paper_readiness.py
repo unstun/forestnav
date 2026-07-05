@@ -141,6 +141,21 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
         ]["proof_command_ids"]
         == ["train_final_model_zip_exists_nonempty", "train_final_model_zip_valid_zip"]
     )
+    assert manifest["input_status"]["claim_safety_remote_packet_safety_proof_summary_present"] is True
+    assert manifest["input_status"]["claim_safety_remote_packet_safety_proof_training_missing_count"] == 3
+    assert manifest["input_status"]["claim_safety_remote_packet_safety_proof_evaluation_missing_count"] == 2
+    assert manifest["input_status"]["claim_safety_remote_packet_safety_proof_acceptance_missing_count"] == 3
+    assert manifest["input_status"]["claim_safety_remote_packet_safety_proof_formal_acceptance_missing_count"] == 2
+    assert manifest["input_status"]["claim_safety_remote_packet_safety_proof_next_blocked_lane"] == "decision"
+    assert manifest["input_status"]["claim_safety_remote_packet_safety_proof_h02_paper_result_input_allowed"] is False
+    assert manifest["claim_safety_remote_packet_safety_proof_deliverables_summary"][
+        "missing_counts_by_formal_category"
+    ] == {
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 2,
+    }
     assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_present"] is True
     assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_row_count"] == 18
     assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_source_target_count"] == 18
@@ -199,6 +214,9 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_total_missing_deliverables" in markdown
     assert "Claim Safety Remaining Deliverables Proof Command Plan" in markdown
     assert "claim_safety_remaining_deliverables_proof_command_plan_command_count" in markdown
+    assert "Claim Safety Remote-Safety Proof Deliverables Summary" in markdown
+    assert "claim_safety_remote_packet_safety_proof_training_missing_count" in markdown
+    assert "claim_safety_remote_packet_safety_proof_h02_paper_result_input_allowed" in markdown
     assert "Claim Safety Remote-Safety Claim-Gate Command Index" in markdown
     assert "claim_safety_remote_packet_safety_command_index_row_count" in markdown
 
