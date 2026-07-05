@@ -204,6 +204,8 @@ def test_formal_gate_handoff_bundle_cli_writes_json_and_markdown(tmp_path):
             str(config.missing_artifacts_path),
             "--h02-acceptance",
             str(config.h02_acceptance_path),
+            "--source-freshness",
+            str(config.source_freshness_path),
         ]
     )
 
@@ -215,6 +217,7 @@ def test_formal_gate_handoff_bundle_cli_writes_json_and_markdown(tmp_path):
     assert "Remote Steps" in markdown
     assert "Handoff Stages" in markdown
     assert "F02.6 Route Handoff" in markdown
+    assert "source_freshness_status" in markdown
     assert "remaining deliverables gap" in markdown
     assert "responsible_stage=`gate3_remote_training`" in markdown
     assert "does not execute commands" in markdown
@@ -231,6 +234,7 @@ def _config(tmp_path, *, complete):
         remote_packet_path=_json(tmp_path, "remote_packet.json", _remote_packet(complete=complete)),
         missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts(complete=complete)),
         h02_acceptance_path=_json(tmp_path, "h02.json", _h02(complete=complete)),
+        source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness(complete=complete)),
     )
 
 
