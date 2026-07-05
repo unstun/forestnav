@@ -165,6 +165,7 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
     }
     permissions_now = _permissions(status_report=status_report, remote_packet=remote_packet, source_freshness=source_freshness)
     source_freshness_summary = _source_freshness_summary(source_freshness)
+    source_freshness_blocking_targets_summary = _source_freshness_blocking_targets_summary(source_freshness)
     current_gate_summary = {
         "status_report_status": status_report.get("status"),
         "next_blocked_lane": _next_blocked_lane_id(status_report),
@@ -178,6 +179,8 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
         "h02_formal_output_accepted": h02_acceptance.get("formal_output_accepted"),
         "h02_paper_result_input_allowed": h02_acceptance.get("paper_result_input_allowed"),
         **source_freshness_summary,
+        "source_freshness_blocking_target_count": source_freshness_blocking_targets_summary["blocking_target_count"],
+        "source_freshness_blocking_target_ids": source_freshness_blocking_targets_summary["blocking_target_ids"],
     }
     audit_issues = _audit_issues(
         status_report=status_report,
@@ -236,6 +239,7 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
         "h02_formal_output_accepted": current_gate_summary["h02_formal_output_accepted"],
         "h02_paper_result_input_allowed": current_gate_summary["h02_paper_result_input_allowed"],
         "deliverable_gap_summary": deliverable_gap_summary,
+        "source_freshness_blocking_targets_summary": source_freshness_blocking_targets_summary,
         "proof_command_plan": proof_command_plan,
         "deliverable_production_plan": deliverable_production_plan,
         "deliverable_unlock_chain": deliverable_unlock_chain,
