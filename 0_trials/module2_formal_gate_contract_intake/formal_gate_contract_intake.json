@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "artifact_name": "module2_formal_gate_contract_intake",
+  "status": "formal_gate_contract_intake_ready_for_dr_sun",
+  "created_at_utc": "2026-07-05T20:17:33.649000+00:00",
+  "source_head": "ff041f1755ed4c4a3f04259b41b9c682f53f7c6a",
+  "not_paper_result_material": true,
+  "executes_commands": false,
+  "runs_training": false,
+  "runs_remote_preflight": false,
+  "runs_remote_audit": false,
+  "local_training_allowed": false,
+  "remote_training_allowed_now": false,
+  "formal_claim_allowed": false,
+  "paper_result_material_allowed": false,
+  "contract_status_required_before_training": [
+    "approved",
+    "frozen"
+  ],
+  "contract_draft_is_not_execution_authorization": true,
+  "inputs": {
+    "next_round_requirements": "0_trials/module2_formal_gate_next_round_requirements/formal_gate_next_round_requirements.json",
+    "failure_triage": "0_trials/module2_formal_gate_failure_triage/formal_gate_failure_triage.json",
+    "h02_formal_acceptance": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
+  },
+  "current_failed_run": {
+    "failure_triage_status": "formal_gate_failure_triage_ready",
+    "next_round_status": "formal_gate_next_round_requirements_ready",
+    "formal_decision": "fail",
+    "failure_mode": "threshold_failure",
+    "episodes": 64,
+    "terminal_rs_success_rate": 0.53125,
+    "required_success_threshold": 0.8,
+    "threshold_deficit": 0.26875,
+    "negative_formal_evidence_recorded": true
+  },
+  "current_gate": {
+    "new_success_training_allowed_now": false,
+    "local_training_allowed_now": false,
+    "formal_claim_allowed_now": false,
+    "new_or_revised_contract_required_before_new_success_training": true,
+    "h02_status": "blocked_formal_output_acceptance",
+    "formal_output_accepted": false,
+    "paper_result_input_allowed": false,
+    "h02_blockers": [
+      "h02_verdict_not_formal",
+      "gate3_formal_audit_not_passed",
+      "h02_scale_below_h01_manifest",
+      "missing_ppo_result_rows"
+    ]
+  },
+  "decision_fields_required_for_contract": [
+    {
+      "field_id": "protocol_lane",
+      "status": "awaiting_dr_sun_decision",
+      "prompt": "Choose the next protocol lane: stronger warm-start, full patch-CNN policy, hybrid PPO+analytic fallback, or abandon PPO replacement.",
+      "required_evidence": [
+        "explicit lane name",
+        "reason for changing or preserving the previous protocol after observing the failed run",
+        "which prior failure evidence the lane is intended to address"
+      ],
+      "invalid_substitutes": [
+        "chat summary without committed contract",
+        "post-hoc explanation written after new training",
+        "paper prose or appendix text"
+      ]
+    },
+    {
+      "field_id": "hypothesis",
+      "status": "awaiting_dr_sun_decision",
+      "prompt": "Lock the next-round hypothesis before training.",
+      "required_evidence": [
+        "one falsifiable hypothesis",
+        "expected mechanism, not just expected metric increase",
+        "scope statement for whether this is PPO replacing RS or PPO assisting RS"
+      ],
+      "invalid_substitutes": [
+        "chat summary without committed contract",
+        "post-hoc explanation written after new training",
+        "paper prose or appendix text"
+      ]
+    },
+    {
+      "field_id": "success_signal",
+      "status": "awaiting_dr_sun_decision",
+      "prompt": "Lock the success signal before training.",
+      "required_evidence": [
+        "terminal-RS success threshold",
+        "minimum evaluation episode count",
+        "allowed comparison baseline and paired-test rule"
+      ],
+      "invalid_substitutes": [
+        "chat summary without committed contract",
+        "post-hoc explanation written after new training",
+        "paper prose or appendix text"
+      ]
+    },
+    {
+      "field_id": "failure_signal",
+      "status": "awaiting_dr_sun_decision",
+      "prompt": "Lock a failure signal that is not merely the negation of success.",
+      "required_evidence": [
+        "collapse or unsafe-behavior criterion",
+        "collision/truncation/timeout criterion",
+        "criteria for stopping rather than extending budget after seeing weak results"
+      ],
+      "invalid_substitutes": [
+        "chat summary without committed contract",
+        "post-hoc explanation written after new training",
+        "paper prose or appendix text"
+      ]
+    },
+    {
+      "field_id": "training_budget_and_seed_policy",
+      "status": "awaiting_dr_sun_decision",
+      "prompt": "Lock budget and seed policy before training.",
+      "required_evidence": [
+        "remote host",
+        "total timesteps or wall-clock budget",
+        "seed count and retry policy",
+        "checkpoint cadence and retention rule"
+      ],
+      "invalid_substitutes": [
+        "chat summary without committed contract",
+        "post-hoc explanation written after new training",
+        "paper prose or appendix text"
+      ]
+    },
+    {
+      "field_id": "protocol_delta",
+      "status": "awaiting_dr_sun_decision",
+      "prompt": "Lock every protocol delta from the failed warm-start run.",
+      "required_evidence": [
+        "reward changes",
+        "curriculum changes",
+        "observation or architecture changes",
+        "warm-start source and admissible initialization"
+      ],
+      "invalid_substitutes": [
+        "chat summary without committed contract",
+        "post-hoc explanation written after new training",
+        "paper prose or appendix text"
+      ]
+    },
+    {
+      "field_id": "h01_h02_acceptance_plan",
+      "status": "awaiting_dr_sun_decision",
+      "prompt": "Lock how the next run will become paper-eligible if it passes.",
+      "required_evidence": [
+        "H01 manifest scale",
+        "H02 formal output schema",
+        "PPO row naming and checkpoint hash fields",
+        "paper-result gate condition"
+      ],
+      "invalid_substitutes": [
+        "chat summary without committed contract",
+        "post-hoc explanation written after new training",
+        "paper prose or appendix text"
+      ]
+    }
+  ],
+  "required_field_count": 7,
+  "required_fields_missing": [],
+  "candidate_protocol_lanes": [
+    {
+      "lane_id": "stronger_obstacle_summary_warm_start",
+      "status": "candidate_requires_contract",
+      "what_changes": "keep compact obstacle-summary policy family but strengthen warm-start dataset, curriculum, or PPO stabilization protocol",
+      "must_justify": [
+        "why the 0.53125 formal success rate is expected to improve",
+        "which failure modes are addressed without changing the meaning of PPO-vs-RS"
+      ]
+    },
+    {
+      "lane_id": "full_patch_cnn_policy",
+      "status": "candidate_requires_contract",
+      "what_changes": "move from compact summary features toward a spatial patch/CNN observation policy",
+      "must_justify": [
+        "why spatial structure is necessary for the formal gate",
+        "how observation and architecture changes preserve a fair RS replacement claim"
+      ]
+    },
+    {
+      "lane_id": "hybrid_ppo_analytic_fallback",
+      "status": "candidate_requires_contract",
+      "what_changes": "treat PPO as a learned selector or recovery layer instead of direct RS replacement",
+      "must_justify": [
+        "whether the claim changes from replacement to hybrid assistance",
+        "how hybrid control is evaluated without hiding RS usage"
+      ]
+    },
+    {
+      "lane_id": "stop_or_reframe_module2_claim",
+      "status": "candidate_requires_contract",
+      "what_changes": "record the formal failure and stop pursuing PPO replacement under the current module2 claim",
+      "must_justify": [
+        "which negative evidence is sufficient to stop",
+        "what paper claim remains defensible without formal PPO success"
+      ]
+    }
+  ],
+  "contract_output_requirements": {
+    "required_location_pattern": ".pipeline/contracts/module2-*.md",
+    "allowed_status_before_training": [
+      "approved",
+      "frozen"
+    ],
+    "draft_status_allows_training": false,
+    "required_sections": [
+      "hypothesis",
+      "success_signal",
+      "failure_signal",
+      "protocol_delta_from_failed_run",
+      "training_budget_and_seed_policy",
+      "evaluation_and_acceptance_plan",
+      "paper_claim_boundary"
+    ],
+    "post_contract_next_artifacts": [
+      "remote execution packet for the selected protocol",
+      "source freshness audit after the contract commit",
+      "remote-only training checkpoint bundle",
+      "formal Gate3 eval CSV/summary",
+      "Gate3 formal audit and checkpoint hash acceptance",
+      "H02 formal output acceptance"
+    ]
+  },
+  "invalid_shortcuts": [
+    "start another PPO success attempt from the failed checkpoint without a new or revised contract",
+    "change reward, curriculum, architecture, observations, budget, seed policy, or threshold in code without pre-registration",
+    "treat blocked H02 smoke rows as formal PPO result rows",
+    "use local PPO training output as formal gate evidence",
+    "write a paper success table before H02 formal_output_accepted=true"
+  ],
+  "audit_issue_count": 0,
+  "audit_issues": []
+}
