@@ -1416,6 +1416,95 @@ def test_claim_safety_rejects_status_report_next_action_and_required_deliverable
     assert "status_report_next_required_formal_deliverables_training_train_final_model_zip_stage_allowed_while_blocked" in blockers
 
 
+def test_claim_safety_rejects_handoff_single_next_action_index_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_claim_safety")
+    paper_tables = tmp_path / "paper_tables.json"
+    paper_tables.write_text(json.dumps({"status": "formal_ready", "formal_claim_allowed": True, "blockers": []}), encoding="utf-8")
+    h02_formal_acceptance = tmp_path / "h02_formal_acceptance.json"
+    h02_formal_acceptance.write_text(json.dumps({"status": "formal_output_accepted", "formal_output_accepted": True, "paper_result_input_allowed": True, "blockers": []}), encoding="utf-8")
+    h01_manifest = tmp_path / "h01.json"
+    h01_manifest.write_text(json.dumps({"status": "ready_for_formal_evaluation", "blockers": []}), encoding="utf-8")
+    f02_6_packet = tmp_path / "f02_6.json"
+    f02_6_packet.write_text(json.dumps({"status": "approved", "blockers": []}), encoding="utf-8")
+    gate3_audit = tmp_path / "gate3_audit.json"
+    gate3_audit.write_text(json.dumps({"formal_decision": "pass", "formal_claim_allowed": True}), encoding="utf-8")
+    method_algorithms = tmp_path / "method_algorithms.json"
+    method_algorithms.write_text(json.dumps({"status": "code_anchored"}), encoding="utf-8")
+    system_diagram = tmp_path / "system_diagram.json"
+    system_diagram.write_text(json.dumps({"status": "code_anchored_drawio"}), encoding="utf-8")
+    closure_checklist = tmp_path / "closure_checklist.json"
+    closure_checklist.write_text(json.dumps(_closure_checklist_payload(open_checklist=False)), encoding="utf-8")
+    status_report = tmp_path / "status_report.json"
+    status_report.write_text(json.dumps(_status_report_payload(ready=False)), encoding="utf-8")
+
+    handoff_payload = _handoff_bundle_payload(ready=False)
+    single = handoff_payload["single_next_action_index"]
+    single["index_id"] = "wrong_index"
+    single["single_current_human_entry"] = False
+    single["next_action_id"] = "run_remote_training"
+    single["decision_owner_required"] = "Assistant"
+    single["valid_decisions"] = ["approve_obstacle_summary_warm_start"]
+    single["required_record_fields"] = ["decision"]
+    single["current_allowed_action_ids"] = ["run_remote_training"]
+    single["current_blocked_action_ids"] = ["formal_claim"]
+    single["post_decision_routes_are_current_authorization"] = True
+    single["all_execution_disabled_now"] = False
+    single["record_command_template_count"] = 1
+    single["local_training_allowed_now"] = True
+    single["remote_preflight_allowed_now"] = True
+    single["remote_training_allowed_now"] = True
+    single["formal_claim_allowed_now"] = True
+    single["paper_result_material_allowed_now"] = True
+    single["missing_deliverable_count"] = 0
+    single["open_category_count"] = 0
+    single["source_freshness_status"] = "source_freshness_stale"
+    single["source_freshness_blocking_regeneration_required"] = True
+    single["approved_route_next_lane"] = "run_remote_training"
+    single["rejected_route_next_lane"] = "continue_anyway"
+    single["after_approval_still_requires"] = []
+    handoff_bundle = tmp_path / "handoff_bundle.json"
+    handoff_bundle.write_text(json.dumps(handoff_payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        repo_root=builder._repo_root(),
+        paper_tables_path=paper_tables,
+        h02_formal_acceptance_path=h02_formal_acceptance,
+        h01_manifest_path=h01_manifest,
+        f02_6_packet_path=f02_6_packet,
+        gate3_audit_path=gate3_audit,
+        method_algorithms_path=method_algorithms,
+        system_diagram_path=system_diagram,
+        closure_checklist_path=closure_checklist,
+        status_report_path=status_report,
+        handoff_bundle_path=handoff_bundle,
+    )
+
+    blockers = set(manifest["formal_performance_blockers"])
+    assert "handoff_single_next_action_index_id_invalid" in blockers
+    assert "handoff_single_next_action_index_not_single_human_entry" in blockers
+    assert "handoff_single_next_action_index_next_action_not_decision" in blockers
+    assert "handoff_single_next_action_index_owner_not_dr_sun" in blockers
+    assert "handoff_single_next_action_index_valid_decisions_incomplete" in blockers
+    assert "handoff_single_next_action_index_required_fields_incomplete" in blockers
+    assert "handoff_single_next_action_index_allowed_actions_not_decision_only" in blockers
+    assert "handoff_single_next_action_index_missing_block_remote_preflight" in blockers
+    assert "handoff_single_next_action_index_post_decision_routes_authorize_now" in blockers
+    assert "handoff_single_next_action_index_execution_not_disabled" in blockers
+    assert "handoff_single_next_action_index_record_command_count_mismatch" in blockers
+    assert "handoff_single_next_action_index_allows_local_training" in blockers
+    assert "handoff_single_next_action_index_allows_remote_preflight" in blockers
+    assert "handoff_single_next_action_index_allows_remote_training" in blockers
+    assert "handoff_single_next_action_index_allows_formal_claim" in blockers
+    assert "handoff_single_next_action_index_allows_paper_result_material" in blockers
+    assert "handoff_single_next_action_index_zero_missing_deliverables_while_blocked" in blockers
+    assert "handoff_single_next_action_index_zero_open_categories_while_blocked" in blockers
+    assert "handoff_single_next_action_index_source_freshness_not_clean" in blockers
+    assert "handoff_single_next_action_index_source_freshness_blocks" in blockers
+    assert "handoff_single_next_action_index_approved_route_invalid" in blockers
+    assert "handoff_single_next_action_index_rejected_route_invalid" in blockers
+    assert "handoff_single_next_action_index_approval_skips_remote_preflight" in blockers
+
+
 def test_claim_safety_rejects_status_report_that_runs_or_claims(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_claim_safety")
     paper_tables = tmp_path / "paper_tables.json"
