@@ -165,6 +165,8 @@ def build_manifest(
         _status_report_remote_packet_safety_claim_gate_command_index_summary(status_report)
     )
     status_report_decision_intake_summary = _status_report_decision_intake_summary(status_report)
+    status_report_next_action_guard_summary = _status_report_next_action_guard_summary(status_report)
+    status_report_next_required_formal_deliverables = _status_report_next_required_formal_deliverables(status_report)
     formal_allowed = not formal_blockers
     prohibited = _prohibited_claims()
     allowed = _allowed_claims(
@@ -256,6 +258,32 @@ def build_manifest(
             ],
             "status_report_decision_intake_formal_claim_allowed_now": status_report_decision_intake_summary[
                 "formal_claim_allowed_now"
+            ],
+            "status_report_next_action_guard_present": status_report_next_action_guard_summary["present"],
+            "status_report_next_action_guard_status": status_report_next_action_guard_summary["status"],
+            "status_report_next_action_guard_pending_f02_6_decision": status_report_next_action_guard_summary[
+                "pending_f02_6_decision"
+            ],
+            "status_report_next_action_guard_expected_next_action_id": status_report_next_action_guard_summary[
+                "expected_next_action_id"
+            ],
+            "status_report_next_action_guard_all_execution_disabled_now": status_report_next_action_guard_summary[
+                "all_execution_disabled_now"
+            ],
+            "status_report_next_action_guard_execution_leak_count": status_report_next_action_guard_summary[
+                "execution_leak_count"
+            ],
+            "status_report_next_required_formal_deliverables_present": status_report_next_required_formal_deliverables[
+                "present"
+            ],
+            "status_report_next_required_formal_deliverables_total_missing": status_report_next_required_formal_deliverables[
+                "total_missing_deliverables"
+            ],
+            "status_report_next_required_formal_deliverables_blocked_category_count": status_report_next_required_formal_deliverables[
+                "blocked_category_count"
+            ],
+            "status_report_next_required_formal_deliverables_row_count": status_report_next_required_formal_deliverables[
+                "row_count"
             ],
             "status_report_handoff_status": status_report_handoff_summary["status"],
             "status_report_transition_gate_status": status_report_handoff_summary["transition_gate_status"],
@@ -431,6 +459,8 @@ def build_manifest(
             status_report_remote_packet_safety_claim_gate_command_index_summary
         ),
         "status_report_decision_intake_summary": status_report_decision_intake_summary,
+        "status_report_next_action_guard_summary": status_report_next_action_guard_summary,
+        "status_report_next_required_formal_deliverables": status_report_next_required_formal_deliverables,
         "status_report_remote_gate_summary": status_report_remote_gate_summary,
         "allowed_claims": allowed,
         "conditional_claims": _conditional_claims(),
@@ -536,6 +566,8 @@ def _formal_performance_blockers(
     blockers.extend(_status_report_remote_packet_safety_proof_deliverables_blockers(status_report))
     blockers.extend(_status_report_remote_packet_safety_claim_gate_command_index_blockers(status_report))
     blockers.extend(_status_report_decision_intake_blockers(status_report))
+    blockers.extend(_status_report_next_action_guard_blockers(status_report))
+    blockers.extend(_status_report_next_required_formal_deliverables_blockers(status_report))
     blockers.extend(_status_report_remote_summary_blockers(status_report))
     return blockers
 
@@ -663,6 +695,170 @@ def _string_list(value: Any) -> list[str]:
     if not isinstance(value, list):
         return []
     return [str(item) for item in value if isinstance(item, str)]
+
+
+def _status_report_next_action_guard_summary(status_report: dict[str, Any]) -> dict[str, Any]:
+    summary = status_report.get("next_action_guard_summary")
+    summary = summary if isinstance(summary, dict) else {}
+    return {
+        "present": bool(summary.get("present")) or bool(summary),
+        "status": summary.get("status"),
+        "pending_f02_6_decision": summary.get("pending_f02_6_decision")
+        if isinstance(summary.get("pending_f02_6_decision"), bool)
+        else None,
+        "next_blocked_lane_id": summary.get("next_blocked_lane_id"),
+        "expected_next_action_id": summary.get("expected_next_action_id"),
+        "handoff_next_action_id": summary.get("handoff_next_action_id"),
+        "handoff_next_action_requires_dr_sun": summary.get("handoff_next_action_requires_dr_sun")
+        if isinstance(summary.get("handoff_next_action_requires_dr_sun"), bool)
+        else None,
+        "missing_artifacts_next_action_id": summary.get("missing_artifacts_next_action_id"),
+        "decision_intake_next_blocked_lane": summary.get("decision_intake_next_blocked_lane"),
+        "all_execution_disabled_now": summary.get("all_execution_disabled_now")
+        if isinstance(summary.get("all_execution_disabled_now"), bool)
+        else None,
+        "execution_leak_count": int(summary.get("execution_leak_count") or 0),
+        "remote_execution_allowed_count": int(summary.get("remote_execution_allowed_count") or 0),
+        "remote_stage_allowed_count": int(summary.get("remote_stage_allowed_count") or 0),
+        "violation_count": int(summary.get("violation_count") or 0),
+        "execution_leak_surface_ids": _strings(summary.get("execution_leak_surface_ids")),
+    }
+
+
+def _status_report_next_action_guard_blockers(status_report: dict[str, Any]) -> list[str]:
+    summary = _status_report_next_action_guard_summary(status_report)
+    blockers: list[str] = []
+    if not summary["present"]:
+        blockers.append("status_report_missing_next_action_guard_summary")
+        return blockers
+    if summary["status"] != "next_action_guard_passed":
+        blockers.append("status_report_next_action_guard_not_passed")
+    if summary["violation_count"] > 0:
+        blockers.append("status_report_next_action_guard_violations_open")
+    pending = status_report.get("status") != "formal_gate_status_ready_for_claim_audit"
+    if not pending:
+        return blockers
+    expected_action = "record_f02_6_decision"
+    if summary["pending_f02_6_decision"] is not True:
+        blockers.append("status_report_next_action_guard_not_pending_f02_6")
+    if summary["next_blocked_lane_id"] != "decision":
+        blockers.append("status_report_next_action_guard_lane_not_decision")
+    if summary["expected_next_action_id"] != expected_action:
+        blockers.append("status_report_next_action_guard_next_action_not_decision")
+    if summary["handoff_next_action_id"] != expected_action:
+        blockers.append("status_report_next_action_guard_handoff_action_not_decision")
+    if summary["missing_artifacts_next_action_id"] != expected_action:
+        blockers.append("status_report_next_action_guard_missing_artifacts_action_not_decision")
+    if summary["decision_intake_next_blocked_lane"] != "decision":
+        blockers.append("status_report_next_action_guard_intake_lane_not_decision")
+    if summary["handoff_next_action_requires_dr_sun"] is not True:
+        blockers.append("status_report_next_action_guard_handoff_not_gated_by_dr_sun")
+    if summary["all_execution_disabled_now"] is not True:
+        blockers.append("status_report_next_action_guard_execution_not_disabled")
+    if summary["execution_leak_count"] > 0:
+        blockers.append("status_report_next_action_guard_execution_leaks_open")
+    if summary["remote_execution_allowed_count"] > 0:
+        blockers.append("status_report_next_action_guard_remote_execution_allowed")
+    if summary["remote_stage_allowed_count"] > 0:
+        blockers.append("status_report_next_action_guard_remote_stage_allowed")
+    return blockers
+
+
+def _status_report_next_required_formal_deliverables(status_report: dict[str, Any]) -> dict[str, Any]:
+    summary = status_report.get("next_required_formal_deliverables")
+    summary = summary if isinstance(summary, dict) else {}
+    raw_rows = summary.get("rows") if isinstance(summary.get("rows"), list) else []
+    rows: dict[str, dict[str, Any]] = {}
+    for raw_row in raw_rows:
+        if not isinstance(raw_row, dict):
+            continue
+        matrix_id = raw_row.get("matrix_id")
+        if not matrix_id:
+            continue
+        rows[str(matrix_id)] = {
+            "present": True,
+            "category": raw_row.get("category"),
+            "current_state": raw_row.get("current_state"),
+            "responsible_stage_id": raw_row.get("responsible_stage_id"),
+            "responsible_stage_allowed_now": raw_row.get("responsible_stage_allowed_now")
+            if isinstance(raw_row.get("responsible_stage_allowed_now"), bool)
+            else None,
+            "proof_command_ids": _strings(raw_row.get("proof_command_ids")),
+            "invalid_substitute_count": int(raw_row.get("invalid_substitute_count") or 0),
+        }
+    return {
+        "present": bool(summary.get("present")) or bool(summary),
+        "status": summary.get("status"),
+        "execution_boundary": summary.get("execution_boundary"),
+        "not_paper_result_material": summary.get("not_paper_result_material") is True,
+        "runs_training": summary.get("runs_training") is True,
+        "runs_remote_preflight": summary.get("runs_remote_preflight") is True,
+        "total_missing_deliverables": int(summary.get("total_missing_deliverables") or 0),
+        "blocked_category_count": int(summary.get("blocked_category_count") or 0),
+        "blocked_categories": _strings(summary.get("blocked_categories")),
+        "category_order": _strings(summary.get("category_order")),
+        "row_count": len(rows),
+        "missing_matrix_ids": [
+            matrix_id for matrix_id in STATUS_REPORT_REMAINING_DELIVERABLE_MATRIX_IDS if matrix_id not in rows
+        ],
+        "rows": rows,
+    }
+
+
+def _status_report_next_required_formal_deliverables_blockers(status_report: dict[str, Any]) -> list[str]:
+    summary = _status_report_next_required_formal_deliverables(status_report)
+    blockers: list[str] = []
+    if not summary["present"]:
+        blockers.append("status_report_missing_next_required_formal_deliverables")
+        return blockers
+    if not summary["not_paper_result_material"]:
+        blockers.append("status_report_next_required_formal_deliverables_marked_as_paper_result")
+    if summary["runs_training"]:
+        blockers.append("status_report_next_required_formal_deliverables_runs_training")
+    if summary["runs_remote_preflight"]:
+        blockers.append("status_report_next_required_formal_deliverables_runs_remote_preflight")
+    if summary["category_order"] != list(STATUS_REPORT_REMAINING_DELIVERABLE_CATEGORY_IDS):
+        blockers.append("status_report_next_required_formal_deliverables_category_order_mismatch")
+    if summary["row_count"] != len(STATUS_REPORT_REMAINING_DELIVERABLE_MATRIX_IDS):
+        blockers.append("status_report_next_required_formal_deliverables_row_count_mismatch")
+    for matrix_id in summary["missing_matrix_ids"]:
+        _append_unique(
+            blockers,
+            f"status_report_next_required_formal_deliverables_missing_{matrix_id.replace(':', '_')}",
+        )
+    pending = status_report.get("status") != "formal_gate_status_ready_for_claim_audit"
+    if pending:
+        if summary["status"] != "blocked_missing_formal_deliverables":
+            blockers.append("status_report_next_required_formal_deliverables_status_not_blocked")
+        if summary["total_missing_deliverables"] <= 0:
+            blockers.append("status_report_next_required_formal_deliverables_zero_missing_while_blocked")
+        if summary["blocked_category_count"] <= 0:
+            blockers.append("status_report_next_required_formal_deliverables_zero_blocked_categories_while_blocked")
+        if summary["blocked_categories"] != list(STATUS_REPORT_REMAINING_DELIVERABLE_CATEGORY_IDS):
+            blockers.append("status_report_next_required_formal_deliverables_blocked_categories_mismatch")
+    else:
+        if summary["total_missing_deliverables"] > 0:
+            blockers.append("status_report_next_required_formal_deliverables_missing_while_status_ready")
+        if summary["blocked_category_count"] > 0:
+            blockers.append("status_report_next_required_formal_deliverables_categories_blocked_while_status_ready")
+    for matrix_id, row in summary["rows"].items():
+        safe_matrix_id = matrix_id.replace(":", "_")
+        if not row["proof_command_ids"]:
+            _append_unique(
+                blockers,
+                f"status_report_next_required_formal_deliverables_{safe_matrix_id}_missing_proof_commands",
+            )
+        if row["invalid_substitute_count"] <= 0:
+            _append_unique(
+                blockers,
+                f"status_report_next_required_formal_deliverables_{safe_matrix_id}_missing_invalid_substitutes",
+            )
+        if pending and row["responsible_stage_allowed_now"] is True:
+            _append_unique(
+                blockers,
+                f"status_report_next_required_formal_deliverables_{safe_matrix_id}_stage_allowed_while_blocked",
+            )
+    return blockers
 
 
 def _status_report_handoff_blockers(status_report: dict[str, Any]) -> list[str]:
@@ -1712,6 +1908,24 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"rejected_route_requires_new_protocol_contract=`{intake['rejected_route_requires_new_protocol_contract']}`, "
         f"remote_training_allowed_now=`{intake['remote_training_allowed_now']}`, "
         f"formal_claim_allowed_now=`{intake['formal_claim_allowed_now']}`"
+    )
+    lines.extend(["", "## Status Report Next-Action Guard", ""])
+    next_action = manifest["status_report_next_action_guard_summary"]
+    lines.append(
+        f"- present=`{next_action['present']}`, status=`{next_action['status']}`, "
+        f"pending_f02_6_decision=`{next_action['pending_f02_6_decision']}`, "
+        f"expected_next_action_id=`{next_action['expected_next_action_id']}`, "
+        f"all_execution_disabled_now=`{next_action['all_execution_disabled_now']}`, "
+        f"execution_leak_count=`{next_action['execution_leak_count']}`"
+    )
+    lines.extend(["", "## Status Report Next Required Formal Deliverables", ""])
+    next_deliverables = manifest["status_report_next_required_formal_deliverables"]
+    lines.append(
+        f"- present=`{next_deliverables['present']}`, status=`{next_deliverables['status']}`, "
+        f"total_missing_deliverables=`{next_deliverables['total_missing_deliverables']}`, "
+        f"blocked_category_count=`{next_deliverables['blocked_category_count']}`, "
+        f"row_count=`{next_deliverables['row_count']}`, "
+        f"not_paper_result_material=`{next_deliverables['not_paper_result_material']}`"
     )
     lines.extend(["", "## Status Report Missing-Artifacts Handoff Index", ""])
     missing_handoff = manifest["status_report_missing_artifacts_handoff_summary"]
