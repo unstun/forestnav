@@ -356,6 +356,15 @@ def _status_report(*, complete):
             "remote_training_allowed_now": complete,
             "formal_claim_allowed_now": complete,
             "local_training_allowed_now": False,
+            "source_freshness_ready_for_remote_preflight": complete,
+        },
+        "current_state": {
+            "source_freshness_status": "source_freshness_clean_current"
+            if complete
+            else "source_freshness_risks_recorded_gate_still_blocked",
+            "source_freshness_regeneration_required": not complete,
+            "source_freshness_non_self_changed_records": 0 if complete else 18,
+            "source_freshness_self_artifact_only_lag_records": 0 if complete else 1,
         },
         "next_blocked_lane": None if complete else {"lane_id": "decision"},
         "remaining_deliverables_gap_summary": _gap_summary(open_gaps=not complete),
@@ -370,6 +379,23 @@ def _status_report(*, complete):
             "approved_route_allows_remote_training_now": False,
             "rejected_route_next_lane": "protocol_redesign",
             "rejected_route_requires_new_protocol_contract": True,
+        },
+    }
+
+
+def _source_freshness(*, complete):
+    return {
+        "status": "source_freshness_clean_current" if complete else "source_freshness_risks_recorded_gate_still_blocked",
+        "not_paper_result_material": True,
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+        "regeneration_required_before_remote_formal_execution": not complete,
+        "commit_lag_summary": {
+            "records_with_non_self_changed_paths_since_source": 0 if complete else 18,
+            "records_with_self_artifact_only_lag": 0 if complete else 1,
         },
     }
 
