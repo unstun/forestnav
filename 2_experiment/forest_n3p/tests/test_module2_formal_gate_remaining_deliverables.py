@@ -36,7 +36,24 @@ def test_remaining_deliverables_blocks_pending_formal_gate(tmp_path):
     assert manifest["current_gate_summary"]["source_freshness_regeneration_required"] is True
     assert manifest["current_gate_summary"]["source_freshness_non_self_changed_records"] == 19
     assert manifest["current_gate_summary"]["source_freshness_self_artifact_only_lag_records"] == 0
+    assert manifest["current_gate_summary"]["source_freshness_blocking_target_count"] == 1
+    assert manifest["current_gate_summary"]["source_freshness_blocking_target_ids"] == [
+        "gpu3070ti_readiness_refresh"
+    ]
     assert manifest["current_gate_summary"]["h02_status"] == "blocked_formal_output_acceptance"
+    source_blockers = manifest["source_freshness_blocking_targets_summary"]
+    assert source_blockers["summary_id"] == "module2_source_freshness_blocking_targets_summary"
+    assert source_blockers["execution_boundary"] == "read_only_no_execution"
+    assert source_blockers["not_paper_result_material"] is True
+    assert source_blockers["blocking_target_count"] == 1
+    assert source_blockers["blocking_target_ids"] == ["gpu3070ti_readiness_refresh"]
+    assert source_blockers["remote_readiness_blocking_target_ids"] == ["gpu3070ti_readiness_refresh"]
+    assert source_blockers["remote_readiness_refresh_requires_external_ssh"] is True
+    assert source_blockers["remote_readiness_refresh_allowed_now"] is False
+    assert source_blockers["remote_preflight_allowed_now"] is False
+    assert source_blockers["remote_training_allowed_now"] is False
+    assert source_blockers["formal_claim_allowed_now"] is False
+    assert source_blockers["rows"][0]["path"].endswith("readiness_refresh.json")
     assert manifest["missing_deliverable_count"] == 10
     assert manifest["open_category_count"] == 4
     assert manifest["category_counts"]["training"] == {"item_count": 3, "missing_count": 3, "present_count": 0}
@@ -642,6 +659,21 @@ def _h02(*, complete):
 
 
 def _source_freshness(*, complete):
+    blocking_targets = []
+    if not complete:
+        blocking_targets = [
+            {
+                "artifact_id": "gpu3070ti_readiness_refresh",
+                "path": "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
+                "freshness_state": "historical_clean",
+                "source_head": "old-head",
+                "current_head": "current-head",
+                "required_before": "approved_remote_preflight",
+                "commits_since_source": 12,
+                "blocking_changed_path_count_since_source": 3,
+                "blocking_regeneration_required_before_remote_formal_execution": True,
+            }
+        ]
     return {
         "status": "source_freshness_clean_current" if complete else "source_freshness_risks_recorded_gate_still_blocked",
         "executes_commands": False,
@@ -654,6 +686,9 @@ def _source_freshness(*, complete):
             "records_with_non_self_changed_paths_since_source": 0 if complete else 19,
             "records_with_self_artifact_only_lag": 0,
         },
+        "blocking_regeneration_required_before_remote_formal_execution": not complete,
+        "blocking_regeneration_target_count": len(blocking_targets),
+        "blocking_ordered_regeneration_targets": blocking_targets,
     }
 
 

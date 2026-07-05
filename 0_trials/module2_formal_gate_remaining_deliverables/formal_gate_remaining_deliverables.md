@@ -3,7 +3,7 @@
 This ledger is read-only. It lists remaining formal training, evaluation, and acceptance deliverables; it does not execute commands or write paper results.
 
 - status: `formal_gate_deliverables_blocked`
-- source_head: `365d6f4ba4f90c6dc748e3de84dc667e4d2b7ca5`
+- source_head: `eb5c764b187d1e01e076572f5ca3924926079f97+dirty`
 - missing_deliverable_count: `10`
 - open_category_count: `4`
 - missing_counts_by_formal_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
@@ -52,6 +52,18 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - source_freshness_blocking_regeneration_required: `True`
 - source_freshness_non_self_changed_records: `1`
 - source_freshness_self_artifact_only_lag_records: `0`
+- source_freshness_blocking_target_count: `1`
+- source_freshness_blocking_target_ids: `['gpu3070ti_readiness_refresh']`
+
+## Source-Freshness Blocking Targets
+
+- summary_id: `module2_source_freshness_blocking_targets_summary`
+- status: `source_freshness_risks_recorded_gate_still_blocked`
+- blocking_target_count: `1`
+- remote_readiness_blocking_target_count: `1`
+- remote_readiness_refresh_requires_external_ssh: `True`
+- remote_readiness_refresh_allowed_now: `False`
+- `gpu3070ti_readiness_refresh`: path=`0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`34`
 
 ## Formal Gate Gap Summary
 
