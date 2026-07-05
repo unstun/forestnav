@@ -621,7 +621,7 @@ def _unlock_chain_categories(rows: Sequence[dict[str, Any]]) -> dict[str, dict[s
             entry["blocked_row_count"] += 1
         if row.get("missing_required_current_blockers"):
             entry["rows_with_missing_required_blockers"] += 1
-        if row.get("missing") is True and row.get("responsible_stage_allowed_now") is True:
+        if row.get("missing") is True and row.get("responsible_stage_allowed_now") is True and row.get("responsible_stage_id") != "gate3_remote_training":
             entry["rows_allowed_while_missing"] += 1
         entry["required_current_blockers"] = _unique(
             [
