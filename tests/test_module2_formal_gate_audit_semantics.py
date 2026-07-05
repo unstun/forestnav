@@ -23,8 +23,10 @@ from forest_n3p.scripts.build_module2_remote_packet_safety_audit import (
     _status_report_execution_veto_issues,
 )
 from forest_n3p.scripts.build_module2_remote_formal_execution_packet import (
+    RemoteFormalExecutionPacketConfig,
     _blockers as _remote_packet_blockers,
     _status as _remote_packet_status,
+    build_packet as _build_remote_packet,
 )
 
 
@@ -196,6 +198,80 @@ def test_remote_packet_training_still_blocks_unfrozen_h01_schema() -> None:
 
     assert blockers == ["h01_required_output_schema_not_frozen"]
     assert _remote_packet_status(decision=decision, blockers=blockers, preflight=preflight) == "blocked_preconditions"
+
+
+def test_remote_packet_ready_stage_does_not_allow_audit_before_training(tmp_path: Path) -> None:
+    decision_path = tmp_path / "decision.json"
+    h01_path = tmp_path / "h01.json"
+    preflight_path = tmp_path / "preflight.json"
+    decision_path.write_text(
+        json.dumps(
+            {
+                "status": "approved",
+                "effective_warm_start_decision": "approved_obstacle_summary",
+                "remote_training_allowed": True,
+                "local_training_allowed": False,
+                "formal_claim_allowed": False,
+                "blockers": [],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    h01_path.write_text(
+        json.dumps(
+            {
+                "status": "blocked_protocol_gap",
+                "blockers": ["missing_module2_rl_rs_checkpoint"],
+                "required_output_schema": {
+                    "schema_status": "frozen_for_module2_v1",
+                    "records_csv_required_columns": ["query_id"],
+                    "summary_by_method_bucket_required_columns": ["method"],
+                    "summary_json_required_sections": ["record_count"],
+                },
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    preflight_path.write_text(
+        json.dumps(
+            {
+                "preflight_status": "ready",
+                "formal_trial_ready": True,
+                "warm_start_decision": "approved_obstacle_summary",
+                "formal_blockers": [],
+                "protocol": {
+                    "device": "cuda",
+                    "smoke": False,
+                    "formal_audit_required": True,
+                    "train_total_timesteps": 100000,
+                    "eval_min_episodes": 64,
+                    "eval_success_threshold": 0.8,
+                },
+                "runner_command": "python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir trial",
+                "audit_command": "python -m forest_n3p.scripts.audit_rl_rs_gate3_trial --trial-dir trial",
+                "expected_artifacts": ["trial/train/final_model.zip"],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    packet = _build_remote_packet(
+        RemoteFormalExecutionPacketConfig(
+            output_dir=tmp_path,
+            decision_record_path=decision_path,
+            h01_manifest_path=h01_path,
+            remote_preflight_path=preflight_path,
+        )
+    )
+
+    steps = packet["execution_steps"]
+    assert packet["ready_to_run_remote_training"] is True
+    assert steps["run_remote_training"]["allowed_now"] is True
+    assert steps["run_remote_audit"]["allowed_now"] is False
+    assert steps["run_remote_audit"]["blocked_by"] == ["remote_training_not_completed"]
 
 
 def test_status_report_execution_veto_blocks_only_local_and_claim_when_result_gate_blocked() -> None:
