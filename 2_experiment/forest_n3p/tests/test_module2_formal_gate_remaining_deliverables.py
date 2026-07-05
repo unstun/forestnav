@@ -310,6 +310,12 @@ def test_remaining_deliverables_catches_unsafe_or_incomplete_inputs(tmp_path):
             requirement["responsible_stage_blocked_by"] = []
             requirement["invalid_substitutes"] = []
     config.missing_artifacts_path.write_text(json.dumps(missing_artifacts), encoding="utf-8")
+    post_plan = json.loads(config.post_f02_6_plan_path.read_text(encoding="utf-8"))
+    for stage in post_plan["ordered_stages"]:
+        if stage["stage_id"] in {"gate3_remote_training", "gate3_remote_audit_pullback"}:
+            stage["allowed_now"] = True
+            stage["blocked_by"] = []
+    config.post_f02_6_plan_path.write_text(json.dumps(post_plan), encoding="utf-8")
 
     manifest = builder.build_manifest(config)
 
