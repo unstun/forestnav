@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_proof_audit",
   "status": "formal_gate_proof_audit_blocked",
-  "created_at_utc": "2026-07-05T19:04:25.170414+00:00",
-  "source_head": "bc71d8fa820d1a2de675c82bcb9d2049d228e4de",
+  "created_at_utc": "2026-07-05T19:09:40.035160+00:00",
+  "source_head": "9e655abe45912003394f524ca7cbd02d7cc80206",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -19,9 +19,9 @@
     "remaining_missing_deliverable_count": 10,
     "remaining_open_category_count": 4,
     "source_freshness_ready_for_remote_preflight": true,
-    "source_freshness_status": "source_freshness_clean_current",
-    "source_freshness_regeneration_required": false,
-    "source_freshness_non_self_changed_records": 0,
+    "source_freshness_status": "source_freshness_tracked_artifact_lag_only_gate_ready",
+    "source_freshness_regeneration_required": true,
+    "source_freshness_non_self_changed_records": 23,
     "source_freshness_self_artifact_only_lag_records": 0
   },
   "remaining_deliverables_top_level_summary": {

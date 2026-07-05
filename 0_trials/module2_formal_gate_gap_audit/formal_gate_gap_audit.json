@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_gap_audit",
   "status": "blocked_formal_gate_gaps_open",
-  "created_at_utc": "2026-07-05T19:04:23.175464+00:00",
-  "source_head": "bc71d8fa820d1a2de675c82bcb9d2049d228e4de",
+  "created_at_utc": "2026-07-05T19:09:40.383782+00:00",
+  "source_head": "9e655abe45912003394f524ca7cbd02d7cc80206",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -527,7 +527,7 @@
       "evaluation": 2,
       "acceptance": 3,
       "evaluation_acceptance": 2,
-      "claim_gate": 1
+      "claim_gate": 9
     }
   },
   "closure_checklist": {
@@ -540,7 +540,7 @@
     "local_training_allowed": false,
     "formal_claim_allowed": false,
     "closure_item_count": 8,
-    "open_item_count": 8,
+    "open_item_count": 7,
     "input_safety_issue_count": 1
   },
   "formal_gate_status_report": {
@@ -555,7 +555,7 @@
     "formal_claim_allowed_now": false,
     "local_training_allowed_now": false,
     "next_blocked_lane_id": "decision",
-    "input_safety_issue_count": 13
+    "input_safety_issue_count": 7
   },
   "remaining_deliverables_ledger": {
     "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
@@ -759,9 +759,9 @@
     "remaining_deliverables_gap_open_category_count": 4,
     "formal_gate_handoff_status": "blocked_handoff_input_safety_issues",
     "formal_gate_handoff_safety_issue_count": 4,
-    "formal_gate_handoff_remote_training_allowed_now": false,
-    "remote_packet_safety_status": "remote_packet_safety_audit_failed",
-    "remote_packet_safety_audit_issue_count": 4
+    "formal_gate_handoff_remote_training_allowed_now": true,
+    "remote_packet_safety_status": "remote_packet_safety_audit_passed",
+    "remote_packet_safety_audit_issue_count": 0
   },
   "missing_decision_items": [],
   "missing_training_artifacts": [
@@ -834,20 +834,6 @@
       "why_missing": "Handoff bundle reports 4 safety issues.",
       "evidence_path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
       "required_next_artifact": "Resolve handoff safety issues before approved remote execution."
-    },
-    {
-      "category": "training",
-      "gap_id": "remote_packet_safety_audit_failed",
-      "why_missing": "Remote packet safety audit status is remote_packet_safety_audit_failed.",
-      "evidence_path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
-      "required_next_artifact": "Fix the remote execution packet or post-plan/status cross-gates before approved remote execution."
-    },
-    {
-      "category": "training",
-      "gap_id": "remote_packet_safety_audit_issues_open",
-      "why_missing": "Remote packet safety audit reports 4 issues.",
-      "evidence_path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
-      "required_next_artifact": "Resolve every remote packet safety issue before approved remote execution."
     }
   ],
   "missing_evaluation_artifacts": [
@@ -933,7 +919,7 @@
     {
       "category": "acceptance",
       "gap_id": "formal_gate_missing_artifacts_open",
-      "why_missing": "Formal gate inventory still reports missing evidence counts: {'decision': 0, 'decision_gate': 1, 'regeneration': 0, 'gate_sequence': 6, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 1}.",
+      "why_missing": "Formal gate inventory still reports missing evidence counts: {'decision': 0, 'decision_gate': 1, 'regeneration': 0, 'gate_sequence': 6, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 9}.",
       "evidence_path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
       "required_next_artifact": "Close every missing-artifacts group before final H02/claim readiness can pass."
     },
@@ -947,14 +933,14 @@
     {
       "category": "acceptance",
       "gap_id": "formal_gate_closure_checklist_open",
-      "why_missing": "Closure checklist status is formal_gate_closure_blocked; open_item_count=8.",
+      "why_missing": "Closure checklist status is formal_gate_closure_blocked; open_item_count=7.",
       "evidence_path": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
       "required_next_artifact": "Close every checklist item before final H02/claim readiness can pass."
     },
     {
       "category": "acceptance",
       "gap_id": "formal_status_report_safety_issues_open",
-      "why_missing": "Status report has 13 input safety issues.",
+      "why_missing": "Status report has 7 input safety issues.",
       "evidence_path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
       "required_next_artifact": "Resolve status report input safety issues before treating the formal gate as complete."
     },
@@ -984,8 +970,8 @@
     "formal_claim_allowed": false,
     "safety_issue_count": 4,
     "next_handoff_action_id": "resolve_decision",
-    "remote_preflight_allowed_now": false,
-    "remote_training_allowed_now": false,
+    "remote_preflight_allowed_now": true,
+    "remote_training_allowed_now": true,
     "formal_claim_allowed_now": false,
     "remote_execution_steps": {
       "sync_to_remote": {
@@ -1019,13 +1005,13 @@
   "remote_packet_safety": {
     "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
     "exists": true,
-    "status": "remote_packet_safety_audit_failed",
+    "status": "remote_packet_safety_audit_passed",
     "executes_commands": false,
     "runs_training": false,
     "runs_remote_preflight": false,
     "local_training_allowed": false,
     "formal_claim_allowed": false,
-    "audit_issue_count": 4,
+    "audit_issue_count": 0,
     "packet_status": "ready_for_gpu3070ti_remote_training",
     "remote_preflight_allowed_now": true,
     "remote_training_allowed_now": true,
@@ -1232,8 +1218,6 @@
       "status": "blocked",
       "blocked_by": [
         "handoff_safety_issues_open",
-        "remote_packet_safety_audit_failed",
-        "remote_packet_safety_audit_issues_open",
         "missing_remote_pullback_artifact",
         "missing_ppo_result_rows",
         "missing_ppo_checkpoint_hash"
@@ -1249,8 +1233,6 @@
       "status": "blocked",
       "blocked_by": [
         "handoff_safety_issues_open",
-        "remote_packet_safety_audit_failed",
-        "remote_packet_safety_audit_issues_open",
         "missing_remote_pullback_artifact",
         "missing_ppo_result_rows",
         "missing_ppo_checkpoint_hash",
@@ -1271,8 +1253,6 @@
       "status": "blocked",
       "blocked_by": [
         "handoff_safety_issues_open",
-        "remote_packet_safety_audit_failed",
-        "remote_packet_safety_audit_issues_open",
         "missing_remote_pullback_artifact",
         "missing_ppo_result_rows",
         "missing_ppo_checkpoint_hash",

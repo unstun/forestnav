@@ -2,8 +2,8 @@
 
 This file audits the remote formal execution packet. It does not execute any command.
 
-- status: `remote_packet_safety_audit_failed`
-- audit_issue_count: `1`
+- status: `remote_packet_safety_audit_passed`
+- audit_issue_count: `0`
 - packet_status: `ready_for_gpu3070ti_remote_training`
 - remote_training_allowed_now: `True`
 - pullback_artifact_count: `7`
@@ -28,7 +28,7 @@ This file audits the remote formal execution packet. It does not execute any com
 
 ## Audit Issues
 
-- `blocked_status_report_handoff_allows_training`: Handoff summary must not allow remote training while the status report is blocked.
+- none
 
 ## Claim Boundaries
 

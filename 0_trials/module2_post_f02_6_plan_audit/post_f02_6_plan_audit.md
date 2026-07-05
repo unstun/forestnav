@@ -3,7 +3,7 @@
 This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
 - status: `post_f02_6_plan_audit_failed`
-- audit_issue_count: `10`
+- audit_issue_count: `4`
 - executes_commands: `False`
 - runs_training: `False`
 - runs_remote_preflight: `False`
@@ -25,8 +25,8 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - current_blocked_action_ids: `['remote_preflight', 'remote_training', 'local_training', 'formal_claim', 'paper_result_material']`
 - post_decision_routes_are_current_authorization: `False`
 - all_execution_disabled_now: `True`
-- remote_preflight_allowed_now: `False`
-- remote_training_allowed_now: `False`
+- remote_preflight_allowed_now: `True`
+- remote_training_allowed_now: `True`
 - formal_claim_allowed_now: `False`
 - local_training_allowed_now: `False`
 
@@ -48,7 +48,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - runs_remote_preflight: `False`
 - all_required_evidence_present: `False`
 - audit_issue_count: `3`
-- missing_counts_by_category: `{'decision': 0, 'decision_gate': 1, 'regeneration': 0, 'gate_sequence': 6, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 1}`
+- missing_counts_by_category: `{'decision': 0, 'decision_gate': 1, 'regeneration': 0, 'gate_sequence': 6, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 9}`
 
 ## Closure Checklist
 
@@ -67,7 +67,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - runs_remote_preflight: `False`
 - formal_claim_allowed_now: `False`
 - local_training_allowed_now: `False`
-- input_safety_issue_count: `12`
+- input_safety_issue_count: `7`
 - next_blocked_lane_id: `decision`
 
 ### Remaining Deliverables Gap Summary
@@ -86,8 +86,8 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - status: `blocked_missing_formal_deliverables`
 - row_count: `10`
 - blocked_row_count: `10`
-- rows_with_missing_required_blockers: `5`
-- rows_allowed_while_missing: `3`
+- rows_with_missing_required_blockers: `0`
+- rows_allowed_while_missing: `0`
 
 ### Status Report Proof-Audit Deliverables Summary
 
@@ -125,16 +125,10 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
 ## Audit Issues
 
-- `plan_source_regeneration_target_counts_mismatch`: Plan target counts by gate do not match source freshness audit.
 - `missing_artifacts_inventory_has_audit_issues`: Missing-artifacts inventory reports open audit issues.
 - `closure_checklist_has_input_safety_issues`: Closure checklist reports open input safety issues.
 - `formal_gate_status_report_has_input_safety_issues`: Status report reports open input safety issues.
-- `remaining_deliverables_unlock_chain_rows_missing_required_blockers`: Unlock chain rows must include every required current blocker while formal deliverables are missing.
-- `remaining_deliverables_unlock_chain_rows_allowed_while_missing`: Unlock chain must not allow responsible stages while their formal deliverables are missing.
-- `plan_remaining_deliverables_unlock_chain_rows_missing_required_blockers`: Unlock chain rows must include every required current blocker while formal deliverables are missing.
-- `plan_remaining_deliverables_unlock_chain_rows_allowed_while_missing`: Unlock chain must not allow responsible stages while their formal deliverables are missing.
 - `plan_remaining_deliverables_unlock_chain_summary_mismatch`: Plan unlock-chain summary must match the remaining-deliverables ledger.
-- `status_report_handoff_training_allowed_while_blocked`: Status report must not show handoff remote training allowed while the formal gate is blocked.
 
 ## Claim Boundaries
 
