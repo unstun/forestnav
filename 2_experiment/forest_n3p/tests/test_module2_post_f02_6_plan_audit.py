@@ -56,14 +56,14 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
     assert decision_request["local_training_allowed_now"] is False
     command_index = manifest["source_regeneration_command_index_summary"]
     assert command_index["present"] is True
-    assert command_index["index_row_count"] == 9
-    assert command_index["source_target_count"] == 9
+    assert command_index["index_row_count"] == 10
+    assert command_index["source_target_count"] == 10
     assert command_index["unknown_manual_count"] == 0
     assert command_index["stage_mismatch_count"] == 0
     assert command_index["command_not_in_stage_count"] == 0
     assert command_index["forbidden_command_count"] == 0
     assert command_index["stage_counts"] == {
-        "regenerate_claim_gate_artifacts": 3,
+        "regenerate_claim_gate_artifacts": 4,
         "regenerate_h01_h02_formal_artifacts": 1,
         "regenerate_preflight_gate_artifacts": 5,
     }
@@ -775,6 +775,11 @@ def _plan_payload():
                     "freshness_state": "historical_dirty",
                 },
                 {
+                    "artifact_id": "mainline_formal_gate_state_audit",
+                    "path": "mainline_formal_gate_state_audit.json",
+                    "freshness_state": "historical_dirty",
+                },
+                {
                     "artifact_id": "paper_readiness",
                     "path": "paper_readiness.json",
                     "freshness_state": "historical_dirty",
@@ -837,6 +842,13 @@ def _plan_payload():
                 "proof_summary_chain.json",
                 "known_builder",
                 "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit",
+            ),
+            _command_index_row(
+                "mainline_formal_gate_state_audit",
+                "formal_claim_gate",
+                "mainline_formal_gate_state_audit.json",
+                "known_builder",
+                "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit",
             ),
             _command_index_row(
                 "paper_readiness",
@@ -908,6 +920,7 @@ def _plan_payload():
                 commands=[
                     "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety",
                     "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit",
+                    "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit",
                     "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_paper_readiness",
                 ],
             ),
@@ -1001,6 +1014,11 @@ def _source_freshness_payload():
             {
                 "artifact_id": "formal_gate_proof_summary_chain_audit",
                 "path": "proof_summary_chain.json",
+                "required_before": "formal_claim_gate",
+            },
+            {
+                "artifact_id": "mainline_formal_gate_state_audit",
+                "path": "mainline_formal_gate_state_audit.json",
                 "required_before": "formal_claim_gate",
             },
             {

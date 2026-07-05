@@ -118,6 +118,11 @@ def test_post_f02_6_regeneration_plan_allows_only_regeneration_after_approval_wh
         "build_module2_formal_gate_proof_summary_chain_audit"
         in command_index["formal_gate_proof_summary_chain_audit"]["command_template"]
     )
+    assert command_index["mainline_formal_gate_state_audit"]["stage_id"] == "regenerate_claim_gate_artifacts"
+    assert (
+        "build_module2_mainline_formal_gate_state_audit"
+        in command_index["mainline_formal_gate_state_audit"]["command_template"]
+    )
     assert command_index["h02_formal_acceptance"]["stage_id"] == "regenerate_h01_h02_formal_artifacts"
     assert "build_module2_h02_formal_acceptance" in command_index["h02_formal_acceptance"]["command_template"]
     assert command_index["paper_readiness"]["stage_id"] == "regenerate_claim_gate_artifacts"
@@ -465,6 +470,12 @@ def _source_freshness(tmp_path, *, required):
         {
             "artifact_id": "formal_gate_proof_summary_chain_audit",
             "path": "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
+            "freshness_state": "historical_dirty",
+            "required_before": "formal_claim_gate",
+        },
+        {
+            "artifact_id": "mainline_formal_gate_state_audit",
+            "path": "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json",
             "freshness_state": "historical_dirty",
             "required_before": "formal_claim_gate",
         },
