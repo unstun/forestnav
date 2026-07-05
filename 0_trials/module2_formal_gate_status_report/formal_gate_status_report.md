@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `c9458a7d71db09e5dea8b07df2d6a8fd2409eabb+dirty`
+- source_head: `d9b433f209c7519154690c67cb6bffe1088529e1`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -36,6 +36,14 @@ This file is a read-only formal-gate status report. It does not execute commands
 - decision_intake_packet_remote_preflight_allowed_now: `False`
 - decision_intake_packet_remote_training_allowed_now: `False`
 - decision_intake_packet_paper_result_material_allowed_now: `False`
+- decision_intake_record_authorization_status: `blocked_until_dr_sun_decision`
+- decision_intake_record_authorization_current_blocked_action_ids: `['remote_preflight', 'remote_training', 'local_training', 'formal_claim', 'paper_result_material']`
+- decision_intake_record_authorization_post_decision_routes_are_current_authorization: `False`
+- decision_intake_record_authorization_remote_preflight_allowed_now: `False`
+- decision_intake_record_authorization_remote_training_allowed_now: `False`
+- decision_intake_record_authorization_formal_claim_allowed_now: `False`
+- decision_intake_record_authorization_paper_result_material_allowed_now: `False`
+- decision_intake_record_post_decision_non_authorization_count: `4`
 - decision_intake_next_request_status: `awaiting_dr_sun_decision`
 - decision_intake_next_request_current_allowed_action_ids: `['record_f02_6_decision']`
 - decision_intake_next_request_current_blocked_action_ids: `['remote_preflight', 'remote_training', 'local_training', 'formal_claim', 'paper_result_material']`

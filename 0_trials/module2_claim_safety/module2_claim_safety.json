@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_claim_safety",
   "status": "blocked_formal_performance_claims",
-  "created_at_utc": "2026-07-05T16:31:34.008546+00:00",
-  "source_head": "c9458a7d71db09e5dea8b07df2d6a8fd2409eabb+dirty",
+  "created_at_utc": "2026-07-05T16:50:47.241935+00:00",
+  "source_head": "d9b433f209c7519154690c67cb6bffe1088529e1",
   "formal_performance_claim_allowed": false,
   "formal_performance_blockers": [
     "paper_tables_not_formal",
@@ -81,6 +81,17 @@
     "status_report_decision_intake_impact_present": true,
     "status_report_decision_record_is_not_training_authorization": true,
     "status_report_decision_record_is_not_paper_result_material": true,
+    "status_report_decision_record_authorization_status": "blocked_until_dr_sun_decision",
+    "status_report_decision_record_authorization_current_blocked_action_ids": [
+      "remote_preflight",
+      "remote_training",
+      "local_training",
+      "formal_claim",
+      "paper_result_material"
+    ],
+    "status_report_decision_record_authorization_remote_training_allowed_now": false,
+    "status_report_decision_record_authorization_formal_claim_allowed_now": false,
+    "status_report_decision_record_post_decision_non_authorization_count": 4,
     "status_report_decision_impact_remote_training_allowed_now": false,
     "status_report_decision_impact_formal_claim_allowed_now": false,
     "status_report_decision_impact_paper_result_material_allowed_now": false,
@@ -1008,6 +1019,28 @@
     "decision_impact_formal_claim_allowed_now": false,
     "decision_impact_paper_result_material_allowed_now": false,
     "decision_impact_formal_training_still_requires": [
+      "source_freshness_audit",
+      "post_f02_6_regeneration_plan",
+      "post_f02_6_plan_audit",
+      "remote_formal_execution_packet_ready",
+      "approved_remote_preflight"
+    ],
+    "record_authorization_status": "blocked_until_dr_sun_decision",
+    "record_authorization_current_blocked_action_ids": [
+      "remote_preflight",
+      "remote_training",
+      "local_training",
+      "formal_claim",
+      "paper_result_material"
+    ],
+    "record_authorization_post_decision_routes_are_current_authorization": false,
+    "record_authorization_remote_preflight_allowed_now": false,
+    "record_authorization_remote_training_allowed_now": false,
+    "record_authorization_local_training_allowed_now": false,
+    "record_authorization_formal_claim_allowed_now": false,
+    "record_authorization_paper_result_material_allowed_now": false,
+    "record_post_decision_non_authorization_count": 4,
+    "record_post_decision_formal_training_still_requires": [
       "source_freshness_audit",
       "post_f02_6_regeneration_plan",
       "post_f02_6_plan_audit",
