@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_closure_checklist",
   "status": "formal_gate_closure_blocked",
-  "created_at_utc": "2026-07-05T11:38:03.780611+00:00",
-  "source_head": "5a1b69d5986198e8b8b17d99a21740871ecf8a7f",
+  "created_at_utc": "2026-07-05T12:15:50.133086+00:00",
+  "source_head": "232f39e3187597a33ce7052dfbfd9b255f5b918a",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -21,17 +21,17 @@
     "formal_gate_status": "blocked_formal_gate_gaps_open",
     "missing_artifacts_status": "formal_gate_missing_artifacts_open",
     "post_plan_status": "blocked_until_f02_6_decision",
-    "source_freshness_status": "source_freshness_clean_current",
+    "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
     "missing_counts_by_category": {
       "decision": 1,
       "decision_gate": 0,
-      "regeneration": 16,
+      "regeneration": 22,
       "gate_sequence": 7,
       "training": 3,
       "evaluation": 2,
       "acceptance": 3,
       "evaluation_acceptance": 2,
-      "claim_gate": 2
+      "claim_gate": 8
     },
     "formal_ordered_next_step_count": 6,
     "post_plan_blocked_stage_ids": [
@@ -43,7 +43,7 @@
       "regenerate_h01_h02_formal_artifacts",
       "regenerate_claim_gate_artifacts"
     ],
-    "source_regeneration_target_count": 1,
+    "source_regeneration_target_count": 22,
     "remaining_deliverables_gap_total_missing": 10,
     "remaining_deliverables_gap_open_category_count": 4
   },
@@ -139,8 +139,56 @@
   ],
   "claim_gate_artifacts_required": [
     {
+      "artifact_id": "claim_safety",
+      "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
+      "exists": true,
+      "state": "historical_clean",
+      "missing": true,
+      "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
+    },
+    {
       "artifact_id": "formal_gate_missing_artifacts",
       "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
+      "exists": true,
+      "state": "historical_clean",
+      "missing": true,
+      "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
+    },
+    {
+      "artifact_id": "formal_gate_proof_audit",
+      "path": "0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json",
+      "exists": true,
+      "state": "historical_clean",
+      "missing": true,
+      "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
+    },
+    {
+      "artifact_id": "formal_gate_proof_summary_chain_audit",
+      "path": "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
+      "exists": true,
+      "state": "historical_clean",
+      "missing": true,
+      "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
+    },
+    {
+      "artifact_id": "formal_gate_remaining_deliverables",
+      "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
+      "exists": true,
+      "state": "historical_clean",
+      "missing": true,
+      "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
+    },
+    {
+      "artifact_id": "mainline_formal_gate_state_audit",
+      "path": "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json",
+      "exists": true,
+      "state": "historical_clean",
+      "missing": true,
+      "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
+    },
+    {
+      "artifact_id": "paper_readiness",
+      "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
       "exists": true,
       "state": "historical_clean",
       "missing": true,
@@ -353,7 +401,7 @@
         "remote_packet_safety_command_index_missing_paper_readiness",
         "f02_6_decision_not_approved"
       ],
-      "missing_item_count": 16,
+      "missing_item_count": 22,
       "required_items": [
         {
           "artifact_id": "f02_6_decision_gate_audit",
@@ -415,7 +463,7 @@
           "artifact_id": "formal_gate_handoff_bundle",
           "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
           "exists": true,
-          "state": "current_clean",
+          "state": "historical_clean",
           "missing": true,
           "reason": "source freshness audit requires regeneration before the corresponding formal gate"
         },
@@ -476,8 +524,56 @@
           "reason": "source freshness audit requires regeneration before the corresponding formal gate"
         },
         {
+          "artifact_id": "claim_safety",
+          "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
+          "exists": true,
+          "state": "historical_clean",
+          "missing": true,
+          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
+        },
+        {
           "artifact_id": "formal_gate_missing_artifacts",
           "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
+          "exists": true,
+          "state": "historical_clean",
+          "missing": true,
+          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
+        },
+        {
+          "artifact_id": "formal_gate_proof_audit",
+          "path": "0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json",
+          "exists": true,
+          "state": "historical_clean",
+          "missing": true,
+          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
+        },
+        {
+          "artifact_id": "formal_gate_proof_summary_chain_audit",
+          "path": "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
+          "exists": true,
+          "state": "historical_clean",
+          "missing": true,
+          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
+        },
+        {
+          "artifact_id": "formal_gate_remaining_deliverables",
+          "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
+          "exists": true,
+          "state": "historical_clean",
+          "missing": true,
+          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
+        },
+        {
+          "artifact_id": "mainline_formal_gate_state_audit",
+          "path": "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json",
+          "exists": true,
+          "state": "historical_clean",
+          "missing": true,
+          "reason": "source freshness audit requires regeneration before the corresponding formal gate"
+        },
+        {
+          "artifact_id": "paper_readiness",
+          "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
           "exists": true,
           "state": "historical_clean",
           "missing": true,
@@ -527,7 +623,7 @@
         },
         {
           "artifact_id": "regenerate_preflight_gate_artifacts",
-          "path": "0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json; 0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json; 0_trials/module2_f02_6_decision_record/f02_6_decision_record.json; 0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json; 0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json; 0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json; 0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json; 0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json; 0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json; 0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json; 0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json; 0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json; 0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
+          "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
           "exists": true,
           "state": "blocked",
           "missing": true,
@@ -567,19 +663,19 @@
         },
         {
           "artifact_id": "regenerate_h01_h02_formal_artifacts",
-          "path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json; 0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+          "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
           "exists": true,
           "state": "blocked",
           "missing": true,
-          "reason": "missing_remote_audit_pullback, source_fresh_h01_h02_targets_open"
+          "reason": "missing_remote_audit_pullback"
         },
         {
           "artifact_id": "regenerate_claim_gate_artifacts",
-          "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
+          "path": "",
           "exists": true,
           "state": "blocked",
           "missing": true,
-          "reason": "h02_formal_acceptance_not_ready, source_fresh_claim_targets_open"
+          "reason": "h02_formal_acceptance_not_ready"
         }
       ],
       "completion_signal": "Approved gpu3070ti preflight passes and the remote execution packet becomes ready.",
@@ -780,7 +876,8 @@
         "h02_scale_below_h01_seed_count",
         "h02_scale_below_h01_queries_per_map",
         "h02_verdict_not_formal",
-        "missing_remote_audit_pullback"
+        "missing_remote_audit_pullback",
+        "source_fresh_h01_h02_targets_open"
       ],
       "missing_item_count": 2,
       "required_items": [
@@ -815,7 +912,13 @@
       "formal_step_status": "blocked",
       "post_plan_stage_status": "blocked",
       "blocked_by": [
+        "claim_safety",
         "formal_gate_missing_artifacts",
+        "formal_gate_proof_audit",
+        "formal_gate_proof_summary_chain_audit",
+        "formal_gate_remaining_deliverables",
+        "mainline_formal_gate_state_audit",
+        "paper_readiness",
         "h02_formal_acceptance_before_claim_gate",
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
@@ -842,13 +945,62 @@
         "formal_gate_closure_checklist_open",
         "formal_gate_status_report_blocked",
         "formal_gate_remaining_deliverables_open",
-        "h02_formal_acceptance_not_ready"
+        "h02_formal_acceptance_not_ready",
+        "source_fresh_claim_targets_open"
       ],
-      "missing_item_count": 2,
+      "missing_item_count": 8,
       "required_items": [
+        {
+          "artifact_id": "claim_safety",
+          "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
+          "exists": true,
+          "state": "historical_clean",
+          "missing": true,
+          "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
+        },
         {
           "artifact_id": "formal_gate_missing_artifacts",
           "path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
+          "exists": true,
+          "state": "historical_clean",
+          "missing": true,
+          "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
+        },
+        {
+          "artifact_id": "formal_gate_proof_audit",
+          "path": "0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json",
+          "exists": true,
+          "state": "historical_clean",
+          "missing": true,
+          "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
+        },
+        {
+          "artifact_id": "formal_gate_proof_summary_chain_audit",
+          "path": "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
+          "exists": true,
+          "state": "historical_clean",
+          "missing": true,
+          "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
+        },
+        {
+          "artifact_id": "formal_gate_remaining_deliverables",
+          "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
+          "exists": true,
+          "state": "historical_clean",
+          "missing": true,
+          "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
+        },
+        {
+          "artifact_id": "mainline_formal_gate_state_audit",
+          "path": "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json",
+          "exists": true,
+          "state": "historical_clean",
+          "missing": true,
+          "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
+        },
+        {
+          "artifact_id": "paper_readiness",
+          "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
           "exists": true,
           "state": "historical_clean",
           "missing": true,

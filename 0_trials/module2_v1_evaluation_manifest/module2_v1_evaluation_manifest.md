@@ -11,8 +11,8 @@
 - `f_n3p_knn`: ready_if_preflight_passes (blockers: none)
 - `mlp`: ready (blockers: none)
 - `bc_analytic_operator`: blocked (blockers: missing_module2_bc_checkpoint)
-- `ppo_analytic_operator`: blocked (blockers: missing_module2_rl_rs_checkpoint, f02_6_warm_start_decision_pending, requires_dr_sun_approval, f02_6_decision_record_pending)
-- `ppo_rs_funnel`: blocked (blockers: missing_module2_rl_rs_checkpoint, f02_6_warm_start_decision_pending, requires_dr_sun_approval, f02_6_decision_record_pending)
+- `ppo_analytic_operator`: blocked (blockers: missing_module2_rl_rs_checkpoint, f02_6_warm_start_decision_pending)
+- `ppo_rs_funnel`: blocked (blockers: missing_module2_rl_rs_checkpoint, f02_6_warm_start_decision_pending)
 
 ## Blockers
 - `f02_6_warm_start_decision_pending`
@@ -21,8 +21,8 @@
 - `realmap_query_generation_not_frozen`
 
 ## F02.6 Decision Packet
-- path: `0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json`
-- status: `pending_human_decision`
+- path: `None`
+- status: `not_provided`
 - effective decision: `pending`
 
 ## Required Output Schema

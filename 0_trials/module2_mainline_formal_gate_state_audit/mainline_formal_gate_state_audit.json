@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_mainline_formal_gate_state_audit",
-  "status": "mainline_formal_gate_state_consistent_blocked",
-  "created_at_utc": "2026-07-05T11:38:22.908315+00:00",
-  "source_head": "5a1b69d5986198e8b8b17d99a21740871ecf8a7f",
+  "status": "mainline_formal_gate_state_audit_failed",
+  "created_at_utc": "2026-07-05T12:15:51.025103+00:00",
+  "source_head": "232f39e3187597a33ce7052dfbfd9b255f5b918a",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -228,8 +228,8 @@
       "responsible_stage_allowed_now": false
     }
   },
-  "proof_summary_chain_status": "formal_gate_proof_summary_chain_consistent_blocked",
-  "proof_summary_chain_audit_issue_count": 0,
+  "proof_summary_chain_status": "formal_gate_proof_summary_chain_audit_failed",
+  "proof_summary_chain_audit_issue_count": 3,
   "proof_summary_next_action_guard_consistency": {
     "row_count": 3,
     "consistent_row_count": 3
@@ -240,7 +240,7 @@
   },
   "proof_summary_handoff_single_next_action_consistency": {
     "row_count": 3,
-    "consistent_row_count": 3
+    "consistent_row_count": 1
   },
   "current_boundary_tokens": [
     {
@@ -294,8 +294,25 @@
       "mentioned": false
     }
   ],
-  "audit_issue_count": 0,
-  "audit_issues": [],
+  "audit_issue_count": 3,
+  "audit_issues": [
+    {
+      "issue_id": "mainline_missing_proof_chain_status",
+      "message": "Mainline task book must mention the current proof-summary chain status.",
+      "proof_summary_chain_status": "formal_gate_proof_summary_chain_audit_failed"
+    },
+    {
+      "issue_id": "proof_summary_chain_has_audit_issues",
+      "message": "Mainline task-book state should only mirror a clean proof-summary chain.",
+      "audit_issue_count": 3
+    },
+    {
+      "issue_id": "proof_summary_chain_handoff_single_next_action_inconsistent",
+      "message": "Proof-summary chain must agree on the handoff single-next-action index before mainline mirrors it.",
+      "row_count": 3,
+      "consistent_row_count": 1
+    }
+  ],
   "claim_boundaries": [
     "This audit only checks that the long-term mainline task book mirrors the current formal-gate state.",
     "It does not execute commands, run local training, run remote preflight, run remote PPO training, evaluate PPO, pull back artifacts, or write paper results.",
