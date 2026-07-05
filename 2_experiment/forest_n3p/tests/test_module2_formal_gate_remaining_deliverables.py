@@ -151,6 +151,29 @@ def test_remaining_deliverables_blocks_pending_formal_gate(tmp_path):
     assert proof_plan["runs_remote_preflight"] is False
     assert proof_plan["total_matrix_rows"] == 10
     assert proof_plan["total_proof_command_count"] == sum(row["proof_command_count"] for row in matrix.values())
+    unlock_chain = manifest["deliverable_unlock_chain"]
+    assert unlock_chain["chain_id"] == "module2_formal_gate_missing_deliverable_unlock_chain"
+    assert unlock_chain["execution_boundary"] == "read_only_no_execution"
+    assert unlock_chain["row_count"] == 10
+    assert unlock_chain["blocked_row_count"] == 10
+    assert unlock_chain["rows_with_missing_required_blockers"] == 0
+    assert unlock_chain["rows_allowed_while_missing"] == 0
+    unlock_rows = {row["matrix_id"]: row for row in unlock_chain["rows"]}
+    assert unlock_rows["training:train_final_model_zip"]["required_current_blockers"] == [
+        "f02_6_decision_not_approved",
+        "remote_packet_not_ready",
+    ]
+    assert unlock_rows["training:train_final_model_zip"]["missing_required_current_blockers"] == []
+    assert unlock_rows["training:train_final_model_zip"]["unlock_sequence_before_stage_allowed"] == [
+        "record_f02_6_decision",
+        "source_freshness_ready_for_remote_preflight",
+        "remote_formal_execution_packet_ready",
+        "approved_remote_preflight",
+        "gate3_remote_training",
+    ]
+    assert unlock_rows["formal_acceptance:h02_formal_output_acceptance"]["required_current_blockers"] == [
+        "missing_remote_audit_pullback"
+    ]
     assert matrix["train_final_model_zip"]["matrix_id"] == "training:train_final_model_zip"
     assert matrix["train_final_model_zip"]["execution_boundary"] == "read_only_no_execution"
     assert matrix["train_final_model_zip"]["responsible_stage_id"] == "gate3_remote_training"
@@ -223,6 +246,9 @@ def test_remaining_deliverables_accepts_synthetic_complete_gate(tmp_path):
     assert manifest["proof_command_plan"]["total_proof_command_count"] == sum(
         row["proof_command_count"] for row in manifest["deliverable_acceptance_matrix"]
     )
+    assert manifest["deliverable_unlock_chain"]["blocked_row_count"] == 0
+    assert manifest["deliverable_unlock_chain"]["rows_with_missing_required_blockers"] == 0
+    assert manifest["deliverable_unlock_chain"]["rows_allowed_while_missing"] == 0
     assert manifest["permissions_now"]["remote_training_allowed_now"] is True
     assert manifest["permissions_now"]["source_freshness_ready_for_remote_preflight"] is True
     assert manifest["permissions_now"]["formal_claim_allowed_now"] is True
@@ -244,6 +270,7 @@ def test_remaining_deliverables_catches_unsafe_or_incomplete_inputs(tmp_path):
     for requirement in missing_artifacts["formal_gate_requirements"]:
         if requirement["phase"] == "training":
             requirement["responsible_stage_allowed_now"] = True
+            requirement["responsible_stage_blocked_by"] = []
             requirement["invalid_substitutes"] = []
     config.missing_artifacts_path.write_text(json.dumps(missing_artifacts), encoding="utf-8")
 
@@ -254,6 +281,8 @@ def test_remaining_deliverables_catches_unsafe_or_incomplete_inputs(tmp_path):
     assert "missing_artifacts_allows_formal_claim" in issue_ids
     assert "training_allowed_while_status_report_blocked" in issue_ids
     assert "training_missing_invalid_substitutes" in issue_ids
+    assert "unlock_chain_training_train_summary_json_allowed_while_missing" in issue_ids
+    assert "unlock_chain_training_train_summary_json_missing_current_blockers" in issue_ids
     assert (
         "proof_command_training_train_final_model_zip_train_final_model_zip_exists_nonempty_raw_or_path"
         in issue_ids
@@ -349,6 +378,9 @@ def test_remaining_deliverables_cli_writes_json_and_markdown(tmp_path):
     assert "Formal Gate Gap Summary" in markdown
     assert "source_freshness_status" in markdown
     assert "Proof Command Plan" in markdown
+    assert "Deliverable Unlock Chain" in markdown
+    assert "required_current_blockers" in markdown
+    assert "record_f02_6_decision -> source_freshness_ready_for_remote_preflight" in markdown
     assert "total_missing_deliverables" in markdown
     assert "total_proof_command_count" in markdown
     assert "remote_preflight_allowed_now" in markdown
@@ -542,6 +574,12 @@ def _artifact(artifact_id, path, *, complete, state):
 
 
 def _requirement(requirement_id, phase, *, stage_id, complete, invalid_substitutes):
+    blocked_by = {
+        "training": ["f02_6_decision_not_approved", "source_fresh_preflight_targets_open", "remote_packet_not_ready"],
+        "evaluation": ["f02_6_decision_not_approved", "source_fresh_preflight_targets_open", "remote_packet_not_ready"],
+        "acceptance": ["f02_6_decision_not_approved", "source_fresh_preflight_targets_open", "remote_packet_not_ready"],
+        "evaluation_acceptance": ["missing_remote_audit_pullback"],
+    }
     return {
         "requirement_id": requirement_id,
         "phase": phase,
@@ -549,7 +587,7 @@ def _requirement(requirement_id, phase, *, stage_id, complete, invalid_substitut
         "responsible_stage_id": stage_id,
         "responsible_stage_status": "ready" if complete else "blocked",
         "responsible_stage_allowed_now": complete,
-        "responsible_stage_blocked_by": [] if complete else ["remote_packet_not_ready"],
+        "responsible_stage_blocked_by": [] if complete else blocked_by.get(phase, ["remote_packet_not_ready"]),
         "acceptable_evidence": [f"{requirement_id}_acceptable_evidence"],
         "invalid_substitutes": invalid_substitutes,
     }
