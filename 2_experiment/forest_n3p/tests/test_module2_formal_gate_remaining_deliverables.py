@@ -382,7 +382,9 @@ def test_remaining_deliverables_catches_unsafe_or_incomplete_inputs(tmp_path):
     assert "missing_artifacts_allows_formal_claim" in issue_ids
     assert "training_allowed_while_status_report_blocked" in issue_ids
     assert "training_missing_invalid_substitutes" in issue_ids
-    assert "unlock_chain_training_train_summary_json_allowed_while_missing" in issue_ids
+    assert "unlock_chain_training_train_summary_json_allowed_while_missing" not in issue_ids
+    assert "production_plan_training_train_summary_json_materialization_allowed_while_missing" in issue_ids
+    assert "unlock_chain_evaluation_eval_gate3_eval_episodes_csv_missing_current_blockers" in issue_ids
     assert "unlock_chain_training_train_summary_json_missing_current_blockers" in issue_ids
     assert (
         "proof_command_training_train_final_model_zip_train_final_model_zip_exists_nonempty_raw_or_path"
