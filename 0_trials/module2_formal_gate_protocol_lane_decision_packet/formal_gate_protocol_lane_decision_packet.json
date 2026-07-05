@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_protocol_lane_decision_packet",
   "status": "formal_gate_protocol_lane_decision_packet_ready_for_dr_sun",
-  "created_at_utc": "2026-07-05T22:50:37.853971+00:00",
-  "source_head": "e366abf8139c9a8ff268a3f63ad37c7c7437f629",
+  "created_at_utc": "2026-07-05T22:56:37.907343+00:00",
+  "source_head": "643c4225c4035d01abf24bf336bd8354908b00a0",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -214,6 +214,8 @@
       "selected_lane_id",
       "decision_summary",
       "justification_against_failed_gate3",
+      "rejected_lane_rationale",
+      "evidence_artifact_basis",
       "claim_scope_after_decision",
       "contract_action",
       "training_authorization"
@@ -229,12 +231,21 @@
       "draft_revised_contract",
       "stop_success_attempts_and_record_negative_evidence"
     ],
+    "decision_note_must_cover": [
+      "selected_lane",
+      "failed_gate3_basis",
+      "contract_action",
+      "rejected_lanes",
+      "evidence_artifact_basis"
+    ],
     "training_authorization_must_be": "not_authorized_by_this_decision_packet",
     "invalid_records": [
       "selected_lane_id outside valid_lane_ids",
       "training_authorization that starts local or remote training directly",
       "decision_summary that rewrites the failed Gate3 result as success",
-      "claim_scope_after_decision that hides hybrid fallback usage"
+      "claim_scope_after_decision that hides hybrid fallback usage",
+      "decision note that omits rejected-lane rationale",
+      "decision note that omits the evidence artifact basis"
     ]
   },
   "current_allowed_actions": [

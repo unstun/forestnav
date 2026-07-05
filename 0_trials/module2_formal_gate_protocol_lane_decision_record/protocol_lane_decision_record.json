@@ -2,8 +2,8 @@
   "schema_version": 1,
   "record_name": "module2_formal_gate_protocol_lane_decision_record",
   "status": "pending_protocol_lane_decision",
-  "created_at_utc": "2026-07-05T22:50:40.829416+00:00",
-  "source_head": "e366abf8139c9a8ff268a3f63ad37c7c7437f629",
+  "created_at_utc": "2026-07-05T22:56:43.633992+00:00",
+  "source_head": "643c4225c4035d01abf24bf336bd8354908b00a0",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -31,9 +31,12 @@
     "present": false,
     "character_count": 0,
     "word_count": 0,
+    "rejected_lane_ids_required": [],
     "mentions_selected_lane": true,
     "mentions_failed_gate3": true,
     "mentions_contract_action": true,
+    "mentions_rejected_lanes": true,
+    "mentions_evidence_artifacts": true,
     "quality_warning": null
   },
   "contract_action": "none",
@@ -109,7 +112,7 @@
       "requires_dr_sun_decision": true,
       "runs_training": false,
       "runs_remote_preflight": false,
-      "template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record --selected-lane stronger_obstacle_summary_warm_start --decider 'Dr Sun' --contract-action <action> --decision-note '<Dr Sun rationale>'"
+      "template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record --selected-lane stronger_obstacle_summary_warm_start --decider 'Dr Sun' --contract-action <action> --decision-note '<Dr Sun rationale: selected lane, failed Gate3 basis, rejected lanes, evidence artifacts, contract action>'"
     },
     {
       "selected_lane": "full_patch_cnn_policy",
@@ -117,7 +120,7 @@
       "requires_dr_sun_decision": true,
       "runs_training": false,
       "runs_remote_preflight": false,
-      "template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record --selected-lane full_patch_cnn_policy --decider 'Dr Sun' --contract-action <action> --decision-note '<Dr Sun rationale>'"
+      "template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record --selected-lane full_patch_cnn_policy --decider 'Dr Sun' --contract-action <action> --decision-note '<Dr Sun rationale: selected lane, failed Gate3 basis, rejected lanes, evidence artifacts, contract action>'"
     },
     {
       "selected_lane": "hybrid_ppo_analytic_fallback",
@@ -125,7 +128,7 @@
       "requires_dr_sun_decision": true,
       "runs_training": false,
       "runs_remote_preflight": false,
-      "template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record --selected-lane hybrid_ppo_analytic_fallback --decider 'Dr Sun' --contract-action <action> --decision-note '<Dr Sun rationale>'"
+      "template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record --selected-lane hybrid_ppo_analytic_fallback --decider 'Dr Sun' --contract-action <action> --decision-note '<Dr Sun rationale: selected lane, failed Gate3 basis, rejected lanes, evidence artifacts, contract action>'"
     },
     {
       "selected_lane": "stop_or_reframe_module2_claim",
@@ -133,7 +136,7 @@
       "requires_dr_sun_decision": true,
       "runs_training": false,
       "runs_remote_preflight": false,
-      "template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record --selected-lane stop_or_reframe_module2_claim --decider 'Dr Sun' --contract-action <action> --decision-note '<Dr Sun rationale>'"
+      "template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record --selected-lane stop_or_reframe_module2_claim --decider 'Dr Sun' --contract-action <action> --decision-note '<Dr Sun rationale: selected lane, failed Gate3 basis, rejected lanes, evidence artifacts, contract action>'"
     }
   ],
   "audit_issue_count": 0,

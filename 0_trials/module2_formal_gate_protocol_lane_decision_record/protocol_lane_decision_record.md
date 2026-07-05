@@ -31,22 +31,22 @@ This file records the lane-decision state; it is not paper result material.
   - allowed_for_agent_now: `False`
   - runs_training: `False`
   - runs_remote_preflight: `False`
-  - template: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record --selected-lane stronger_obstacle_summary_warm_start --decider 'Dr Sun' --contract-action <action> --decision-note '<Dr Sun rationale>'`
+  - template: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record --selected-lane stronger_obstacle_summary_warm_start --decider 'Dr Sun' --contract-action <action> --decision-note '<Dr Sun rationale: selected lane, failed Gate3 basis, rejected lanes, evidence artifacts, contract action>'`
 - selected_lane: `full_patch_cnn_policy`
   - allowed_for_agent_now: `False`
   - runs_training: `False`
   - runs_remote_preflight: `False`
-  - template: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record --selected-lane full_patch_cnn_policy --decider 'Dr Sun' --contract-action <action> --decision-note '<Dr Sun rationale>'`
+  - template: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record --selected-lane full_patch_cnn_policy --decider 'Dr Sun' --contract-action <action> --decision-note '<Dr Sun rationale: selected lane, failed Gate3 basis, rejected lanes, evidence artifacts, contract action>'`
 - selected_lane: `hybrid_ppo_analytic_fallback`
   - allowed_for_agent_now: `False`
   - runs_training: `False`
   - runs_remote_preflight: `False`
-  - template: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record --selected-lane hybrid_ppo_analytic_fallback --decider 'Dr Sun' --contract-action <action> --decision-note '<Dr Sun rationale>'`
+  - template: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record --selected-lane hybrid_ppo_analytic_fallback --decider 'Dr Sun' --contract-action <action> --decision-note '<Dr Sun rationale: selected lane, failed Gate3 basis, rejected lanes, evidence artifacts, contract action>'`
 - selected_lane: `stop_or_reframe_module2_claim`
   - allowed_for_agent_now: `False`
   - runs_training: `False`
   - runs_remote_preflight: `False`
-  - template: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record --selected-lane stop_or_reframe_module2_claim --decider 'Dr Sun' --contract-action <action> --decision-note '<Dr Sun rationale>'`
+  - template: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record --selected-lane stop_or_reframe_module2_claim --decider 'Dr Sun' --contract-action <action> --decision-note '<Dr Sun rationale: selected lane, failed Gate3 basis, rejected lanes, evidence artifacts, contract action>'`
 
 ## Post-Decision Requirements
 

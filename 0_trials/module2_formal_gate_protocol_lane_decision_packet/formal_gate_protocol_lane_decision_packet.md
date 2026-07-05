@@ -149,7 +149,8 @@ This file is a formal-gate decision packet, not paper result material.
 
 ## Decision Record Schema
 
-- required_fields: `decider, decision_timestamp_utc, selected_lane_id, decision_summary, justification_against_failed_gate3, claim_scope_after_decision, contract_action, training_authorization`
+- required_fields: `decider, decision_timestamp_utc, selected_lane_id, decision_summary, justification_against_failed_gate3, rejected_lane_rationale, evidence_artifact_basis, claim_scope_after_decision, contract_action, training_authorization`
+- decision_note_must_cover: `selected_lane, failed_gate3_basis, contract_action, rejected_lanes, evidence_artifact_basis`
 - training_authorization_must_be: `not_authorized_by_this_decision_packet`
 
 ## Current Blocked Actions

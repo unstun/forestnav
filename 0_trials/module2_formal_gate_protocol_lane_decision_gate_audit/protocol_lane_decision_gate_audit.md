@@ -16,6 +16,11 @@ This file audits the protocol-lane decision gate; it is not paper result materia
 - gate_review_status: `not_required_while_pending`
 - gate_requires_note_quality: `False`
 - decision_note_present: `False`
+- mentions_selected_lane: `True`
+- mentions_failed_gate3: `True`
+- mentions_contract_action: `True`
+- mentions_rejected_lanes: `True`
+- mentions_evidence_artifacts: `True`
 - quality_warning: `None`
 
 ## Allowed Next Human Actions
