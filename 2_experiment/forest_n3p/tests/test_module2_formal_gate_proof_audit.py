@@ -220,6 +220,9 @@ def test_formal_gate_proof_audit_rejects_unsafe_upstream_proof_commands(tmp_path
     rows["eval_gate3_eval_episodes_csv"]["proof_commands"][0]["command"] = (
         "ssh gpu3070ti-relay 'python audit.py'"
     )
+    rows["gate3_formal_audit_json"]["proof_commands"][1]["command_id"] = (
+        rows["gate3_formal_audit_json"]["proof_commands"][0]["command_id"]
+    )
     remaining_path = _write_json(tmp_path / "remaining_deliverables.json", remaining)
 
     manifest = builder.build_manifest(
@@ -243,6 +246,10 @@ def test_formal_gate_proof_audit_rejects_unsafe_upstream_proof_commands(tmp_path
     )
     assert (
         "proof_command_evaluation_eval_gate3_eval_episodes_csv_eval_gate3_eval_episodes_csv_exists_nonempty_forbidden_execution_token"
+        in issue_ids
+    )
+    assert (
+        "proof_command_acceptance_gate3_formal_audit_json_gate3_formal_audit_json_exists_nonempty_duplicate_id"
         in issue_ids
     )
     assert all(result["command_was_executed"] is False for result in manifest["proof_command_results"])

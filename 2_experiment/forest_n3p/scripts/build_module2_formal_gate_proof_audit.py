@@ -276,6 +276,7 @@ def _proof_command_input_safety_issues(matrix: Sequence[Any]) -> list[dict[str, 
                     "observed": raw_row.get("proof_command_count"),
                 }
             )
+        seen_command_ids: set[str] = set()
         for raw_command in commands:
             if not isinstance(raw_command, dict):
                 issues.append({"issue_id": f"proof_command_{safe_matrix_id}_malformed"})
@@ -283,6 +284,21 @@ def _proof_command_input_safety_issues(matrix: Sequence[Any]) -> list[dict[str, 
             command_id = str(raw_command.get("command_id") or "unknown_command")
             safe_command_id = _safe_issue_id(command_id)
             command_text = str(raw_command.get("command") or "")
+            if command_id == "unknown_command":
+                issues.append(
+                    {
+                        "issue_id": f"proof_command_{safe_matrix_id}_missing_id",
+                        "observed": raw_command.get("command_id"),
+                    }
+                )
+            elif command_id in seen_command_ids:
+                issues.append(
+                    {
+                        "issue_id": f"proof_command_{safe_matrix_id}_{safe_command_id}_duplicate_id",
+                        "observed": command_id,
+                    }
+                )
+            seen_command_ids.add(command_id)
             if raw_command.get("execution_boundary") != "local_read_only_after_formal_remote_pullback":
                 issues.append(
                     {

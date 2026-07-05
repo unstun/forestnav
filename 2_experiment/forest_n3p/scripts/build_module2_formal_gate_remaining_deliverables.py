@@ -830,6 +830,7 @@ def _proof_command_safety_issues(deliverable_acceptance_matrix: Sequence[dict[st
             continue
         if int(row.get("proof_command_count") or 0) != len(proof_commands):
             issues.append(_issue(f"proof_command_{safe_matrix_id}_count_mismatch", f"{matrix_id} proof command count must match commands."))
+        seen_command_ids: set[str] = set()
         for command in proof_commands:
             if not isinstance(command, dict):
                 issues.append(_issue(f"proof_command_{safe_matrix_id}_malformed", f"{matrix_id} proof command row must be an object."))
@@ -839,6 +840,14 @@ def _proof_command_safety_issues(deliverable_acceptance_matrix: Sequence[dict[st
             command_text = str(command.get("command") or "")
             if command_id == "unknown_command":
                 issues.append(_issue(f"proof_command_{safe_matrix_id}_missing_id", f"{matrix_id} proof command is missing command_id."))
+            elif command_id in seen_command_ids:
+                issues.append(
+                    _issue(
+                        f"proof_command_{safe_matrix_id}_{safe_command_id}_duplicate_id",
+                        f"{matrix_id}:{command_id} must be unique within the proof command plan.",
+                    )
+                )
+            seen_command_ids.add(command_id)
             if command.get("execution_boundary") != "local_read_only_after_formal_remote_pullback":
                 issues.append(
                     _issue(

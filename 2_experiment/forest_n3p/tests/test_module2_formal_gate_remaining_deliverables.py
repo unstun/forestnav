@@ -252,6 +252,37 @@ def test_remaining_deliverables_catches_unsafe_or_incomplete_inputs(tmp_path):
     assert manifest["category_counts"]["training"]["missing_count"] == 2
 
 
+def test_remaining_deliverables_rejects_duplicate_generated_proof_command_ids():
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_remaining_deliverables")
+
+    issues = builder._proof_command_safety_issues(
+        [
+            {
+                "matrix_id": "acceptance:gate3_formal_audit_json",
+                "proof_command_count": 2,
+                "proof_commands": [
+                    {
+                        "command_id": "gate3_formal_audit_json_exists_nonempty",
+                        "command": "python -c \"print('exists')\"",
+                        "execution_boundary": "local_read_only_after_formal_remote_pullback",
+                    },
+                    {
+                        "command_id": "gate3_formal_audit_json_exists_nonempty",
+                        "command": "python -c \"print('duplicate')\"",
+                        "execution_boundary": "local_read_only_after_formal_remote_pullback",
+                    },
+                ],
+            }
+        ]
+    )
+
+    issue_ids = {issue["issue_id"] for issue in issues}
+    assert (
+        "proof_command_acceptance_gate3_formal_audit_json_gate3_formal_audit_json_exists_nonempty_duplicate_id"
+        in issue_ids
+    )
+
+
 def test_remaining_deliverables_cli_writes_json_and_markdown(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_remaining_deliverables")
     config = _config(tmp_path, complete=False)
