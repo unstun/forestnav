@@ -215,7 +215,7 @@ def _ordered_stages(
             "gate3_remote_training",
             "training",
             "Run the formal PPO Gate3 trial remotely only after the packet reports ready.",
-            allowed_now=remote_packet.get("ready_to_run_remote_training") is True,
+            allowed_now=approved and remote_packet.get("ready_to_run_remote_training") is True and not remote_execution_blockers,
             blocked_by=remote_execution_blockers,
             runs_training=True,
             host=_remote_host(remote_packet),
