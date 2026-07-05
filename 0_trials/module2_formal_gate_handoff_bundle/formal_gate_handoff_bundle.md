@@ -111,6 +111,6 @@
   - `acceptance_remote_pullback_and_audit`: status=`ready_to_execute_missing_outputs`, responsible_stage=`gate3_remote_audit_pullback`
   - `h01_h02_formal_evaluation_acceptance`: status=`blocked_missing_outputs`, responsible_stage=`regenerate_h01_h02_formal_artifacts`
 - H02 acceptance requirements: `4`
-- safety issues: `5`
+- safety issues: `2`
 
 This artifact is read-only and does not execute commands.

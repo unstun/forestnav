@@ -3,7 +3,7 @@
 This file audits synthetic pending/approved/rejected F02.6 gate transitions. It does not record a decision, run preflight, train, audit, pull back artifacts, or write paper results.
 
 - status: `f02_6_transition_gate_audit_failed`
-- audit_issue_count: `17`
+- audit_issue_count: `12`
 - scenario_count: `3`
 - synthetic_inputs_persisted: `False`
 
@@ -14,7 +14,7 @@ This file audits synthetic pending/approved/rejected F02.6 gate transitions. It 
 - record_status: `pending_human_decision`
 - post_plan_status: `blocked_until_f02_6_decision`
 - status_report_status: `formal_gate_status_blocked`
-- decision_gate_status: `f02_6_decision_gate_audit_failed`
+- decision_gate_status: `f02_6_decision_gate_pending_clean`
 - post_plan_audit_status: `post_f02_6_plan_audit_failed`
 - remote_packet_safety_status: `remote_packet_safety_audit_failed`
 - next_blocked_lane_id: `decision`
@@ -23,7 +23,7 @@ This file audits synthetic pending/approved/rejected F02.6 gate transitions. It 
 - formal_claim_allowed_now: `False`
 - regenerate_preflight_gate_artifacts_allowed: `False`
 - approved_remote_preflight_allowed: `False`
-- gate3_remote_training_allowed: `True`
+- gate3_remote_training_allowed: `False`
 
 ### approved
 
@@ -55,18 +55,14 @@ This file audits synthetic pending/approved/rejected F02.6 gate transitions. It 
 - formal_claim_allowed_now: `False`
 - regenerate_preflight_gate_artifacts_allowed: `False`
 - approved_remote_preflight_allowed: `False`
-- gate3_remote_training_allowed: `True`
+- gate3_remote_training_allowed: `False`
 
 ## Audit Issues
 
-- `pending.decision_gate_audit_issue_count`: decision_gate_audit_issue_count must be zero.
 - `pending.post_plan_audit_issue_count`: post_plan_audit_issue_count must be zero.
 - `pending.remote_packet_safety_issue_count`: remote_packet_safety_issue_count must be zero.
-- `pending.unexpected_decision_gate_status`: Decision gate status drifted.
 - `pending.post_plan_audit_not_passed`: Post-plan audit must remain internally safe.
 - `pending.remote_packet_safety_not_passed`: Remote packet safety must remain internally safe.
-- `pending.pending_plan_allows_training`: Pending post-plan must not allow training.
-- `pending.pending_ready_stages_drift`: Only the human decision stage should be ready while pending.
 - `approved.post_plan_audit_issue_count`: post_plan_audit_issue_count must be zero.
 - `approved.remote_packet_safety_issue_count`: remote_packet_safety_issue_count must be zero.
 - `approved.post_plan_audit_not_passed`: Post-plan audit must remain internally safe.
@@ -75,7 +71,6 @@ This file audits synthetic pending/approved/rejected F02.6 gate transitions. It 
 - `rejected.remote_packet_safety_issue_count`: remote_packet_safety_issue_count must be zero.
 - `rejected.post_plan_audit_not_passed`: Post-plan audit must remain internally safe.
 - `rejected.remote_packet_safety_not_passed`: Remote packet safety must remain internally safe.
-- `rejected.rejected_training_ready`: Rejected scenario must not allow warm-start formal PPO training.
 
 ## Claim Boundaries
 

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-05T19:14:44.051674+00:00",
-  "source_head": "e5b928b371d18ec3d2c70d7cd81774a0f7d9badb",
+  "created_at_utc": "2026-07-05T19:16:51.703934+00:00",
+  "source_head": "134eaa53d15d640ce22395693ee08f67e1f0641c",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -173,7 +173,7 @@
     "mainline_formal_gate_state_audit_proof_summary_chain_issue_count": 10,
     "mainline_formal_gate_state_audit_proof_audit_input_safety_issue_count": 0,
     "handoff_bundle_next_action": "resolve_decision",
-    "handoff_bundle_safety_issue_count": 5,
+    "handoff_bundle_safety_issue_count": 2,
     "handoff_bundle_remote_training_allowed_now": true,
     "handoff_requirement_stage_mapped_count": 4,
     "handoff_requirement_stage_unmapped_count": 0,
@@ -882,7 +882,7 @@
     "transition_gate_audit_issue_count": 17,
     "next_handoff_action_id": "resolve_decision",
     "next_action_requires_dr_sun": false,
-    "safety_issue_count": 5,
+    "safety_issue_count": 2,
     "remote_training_allowed_now": true,
     "remote_preflight_allowed_now": true,
     "formal_claim_allowed_now": false,
@@ -3377,12 +3377,8 @@
       "current_decision_status_approved"
     ]
   },
-  "input_safety_issue_count": 5,
+  "input_safety_issue_count": 4,
   "input_safety_issues": [
-    {
-      "issue_id": "handoff_bundle_training_remote_ppo_checkpoint_stage_ready_while_requirement_blocked",
-      "message": "responsible stage for blocked requirement training_remote_ppo_checkpoint must not be ready."
-    },
     {
       "issue_id": "handoff_bundle_safety_issues_open",
       "message": "handoff bundle reports open safety issues."

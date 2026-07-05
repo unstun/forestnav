@@ -2,8 +2,8 @@
 
 This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
-- status: `post_f02_6_plan_audit_failed`
-- audit_issue_count: `1`
+- status: `post_f02_6_plan_audit_passed`
+- audit_issue_count: `0`
 - executes_commands: `False`
 - runs_training: `False`
 - runs_remote_preflight: `False`
@@ -67,7 +67,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - runs_remote_preflight: `False`
 - formal_claim_allowed_now: `False`
 - local_training_allowed_now: `False`
-- input_safety_issue_count: `5`
+- input_safety_issue_count: `4`
 - next_blocked_lane_id: `decision`
 
 ### Remaining Deliverables Gap Summary
@@ -102,7 +102,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
 - status: `blocked_handoff_input_safety_issues`
 - remote_training_allowed_now: `True`
-- safety_issue_count: `5`
+- safety_issue_count: `2`
 
 ### Status Report Execution Veto Matrix
 
@@ -125,7 +125,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
 ## Audit Issues
 
-- `formal_gate_status_report_has_input_safety_issues`: Status report reports open input safety issues.
+- none
 
 ## Claim Boundaries
 
