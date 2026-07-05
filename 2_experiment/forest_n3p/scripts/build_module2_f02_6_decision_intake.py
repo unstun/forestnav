@@ -85,6 +85,10 @@ def build_manifest(config: F026DecisionIntakeConfig) -> dict[str, Any]:
     )
     decision_intake_contract = _decision_intake_contract(gate_audit)
     post_decision_route_matrix = _post_decision_route_matrix()
+    formal_gate_decision_impact_summary = _formal_gate_decision_impact_summary(
+        current_state=current_state,
+        post_decision_route_matrix=post_decision_route_matrix,
+    )
     return {
         "schema_version": 1,
         "artifact_name": "module2_f02_6_decision_intake",
@@ -111,6 +115,7 @@ def build_manifest(config: F026DecisionIntakeConfig) -> dict[str, Any]:
             decision_intake_contract=decision_intake_contract,
             post_decision_route_matrix=post_decision_route_matrix,
         ),
+        "formal_gate_decision_impact_summary": formal_gate_decision_impact_summary,
         "decision_intake_contract": decision_intake_contract,
         "post_decision_route_matrix": post_decision_route_matrix,
         "post_decision_non_authorizations": _post_decision_non_authorizations(),
@@ -330,6 +335,70 @@ def _post_decision_non_authorizations() -> list[dict[str, Any]]:
             "reason": "Smoke and no-warm failure artifacts are invalid substitutes for the approved warm-start formal run.",
         },
     ]
+
+
+def _formal_gate_decision_impact_summary(
+    *,
+    current_state: dict[str, Any],
+    post_decision_route_matrix: Sequence[dict[str, Any]],
+) -> dict[str, Any]:
+    route_by_decision = {
+        str(route["decision"]): route
+        for route in post_decision_route_matrix
+        if isinstance(route, dict) and route.get("decision")
+    }
+    return {
+        "summary_id": "module2_f02_6_formal_gate_decision_impact",
+        "purpose": "make the human F02.6 decision effect explicit before any formal gate execution",
+        "not_paper_result_material": True,
+        "current_blocker": current_state.get("next_blocked_lane"),
+        "current_record_status": current_state.get("record_status"),
+        "missing_deliverable_count": current_state.get("missing_deliverable_count"),
+        "missing_by_category": current_state.get("missing_by_category"),
+        "current_allowed_action_ids": _strings(current_state.get("packet_current_allowed_action_ids")),
+        "current_blocked_action_ids": _strings(current_state.get("packet_current_blocked_action_ids")),
+        "decision_routes": [
+            _decision_route_impact(
+                decision=APPROVE_OBSTACLE_SUMMARY,
+                route=route_by_decision.get(APPROVE_OBSTACLE_SUMMARY, {}),
+            ),
+            _decision_route_impact(
+                decision=REJECT_OBSTACLE_SUMMARY,
+                route=route_by_decision.get(REJECT_OBSTACLE_SUMMARY, {}),
+            ),
+        ],
+        "invariants_after_any_decision_record": {
+            "decision_record_is_not_training_authorization": True,
+            "decision_record_is_not_paper_result_material": True,
+            "local_training_allowed_now": False,
+            "remote_preflight_allowed_now": False,
+            "remote_training_allowed_now": False,
+            "formal_claim_allowed_now": False,
+            "paper_result_material_allowed_now": False,
+            "formal_training_still_requires": [
+                "source_freshness_audit",
+                "post_f02_6_regeneration_plan",
+                "post_f02_6_plan_audit",
+                "remote_formal_execution_packet_ready",
+                "approved_remote_preflight",
+            ],
+        },
+    }
+
+
+def _decision_route_impact(*, decision: str, route: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "decision": decision,
+        "next_lane_after_record": route.get("next_lane_after_record"),
+        "next_protocol": route.get("next_protocol"),
+        "requires_new_protocol_contract": route.get("requires_new_protocol_contract"),
+        "allows_local_training_now": route.get("allows_local_training_now"),
+        "allows_remote_preflight_now": route.get("allows_remote_preflight_now"),
+        "allows_remote_training_now": route.get("allows_remote_training_now"),
+        "allows_formal_claim_now": route.get("allows_formal_claim_now"),
+        "required_next_artifacts": _strings(route.get("required_next_artifacts")),
+        "claim_boundary": route.get("claim_boundary"),
+    }
 
 
 def _post_decision_route_matrix() -> list[dict[str, Any]]:
@@ -633,6 +702,40 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"remote_training_now=`{route['allows_remote_training_now']}`, "
             f"formal_claim_now=`{route['allows_formal_claim_now']}`"
         )
+    impact = manifest["formal_gate_decision_impact_summary"]
+    invariants = impact["invariants_after_any_decision_record"]
+    lines.extend([
+        "",
+        "## Formal Gate Decision Impact",
+        "",
+        f"- current_blocker: `{impact['current_blocker']}`",
+        f"- current_record_status: `{impact['current_record_status']}`",
+        f"- missing_deliverable_count: `{impact['missing_deliverable_count']}`",
+        f"- missing_by_category: `{impact['missing_by_category']}`",
+        f"- current_allowed_action_ids: `{', '.join(impact['current_allowed_action_ids'])}`",
+        f"- current_blocked_action_ids: `{', '.join(impact['current_blocked_action_ids'])}`",
+    ])
+    for route in impact["decision_routes"]:
+        lines.extend(
+            [
+                f"- `{route['decision']}`: next_lane_after_record=`{route['next_lane_after_record']}`, "
+                f"requires_new_protocol_contract=`{route['requires_new_protocol_contract']}`, "
+                f"remote_training_now=`{route['allows_remote_training_now']}`, "
+                f"formal_claim_now=`{route['allows_formal_claim_now']}`",
+            ]
+        )
+    lines.extend(
+        [
+            f"- decision_record_is_not_training_authorization: `{invariants['decision_record_is_not_training_authorization']}`",
+            f"- decision_record_is_not_paper_result_material: `{invariants['decision_record_is_not_paper_result_material']}`",
+            f"- local_training_allowed_now_after_record: `{invariants['local_training_allowed_now']}`",
+            f"- remote_preflight_allowed_now_after_record: `{invariants['remote_preflight_allowed_now']}`",
+            f"- remote_training_allowed_now_after_record: `{invariants['remote_training_allowed_now']}`",
+            f"- formal_claim_allowed_now_after_record: `{invariants['formal_claim_allowed_now']}`",
+            f"- paper_result_material_allowed_now_after_record: `{invariants['paper_result_material_allowed_now']}`",
+            f"- formal_training_still_requires: `{', '.join(invariants['formal_training_still_requires'])}`",
+        ]
+    )
     lines.extend([
         "",
         "## Required Fields",
