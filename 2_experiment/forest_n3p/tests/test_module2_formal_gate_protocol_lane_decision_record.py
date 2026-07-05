@@ -54,6 +54,14 @@ def test_protocol_lane_decision_record_defaults_to_pending_and_blocks_training(t
     assert all(template["allowed_for_agent_now"] is False for template in record["record_command_templates"])
     assert all(template["runs_training"] is False for template in record["record_command_templates"])
     assert "pending_protocol_lane_decision" in markdown
+    assert "decision_record_is_not_training_authorization: `True`" in markdown
+    assert "Record Command Templates" in markdown
+    assert "full_patch_cnn_policy" in markdown
+    assert "allowed_for_agent_now: `False`" in markdown
+    assert "runs_training: `False`" in markdown
+    assert "Post-Decision Requirements" in markdown
+    assert "approved_or_frozen_contract" in markdown
+    assert "paper_result_input_allowed_true" in markdown
 
 
 def test_protocol_lane_decision_record_records_dr_sun_lane_choice_without_authorizing_training(tmp_path):
