@@ -149,6 +149,14 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["current_state"]["remaining_deliverables_proof_plan_present"] is True
     assert manifest["current_state"]["remaining_deliverables_proof_plan_matrix_row_count"] == 10
     assert manifest["current_state"]["remaining_deliverables_proof_plan_command_count"] == 20
+    assert manifest["current_state"]["remaining_deliverables_source_blocker_summary_present"] is True
+    assert manifest["current_state"]["remaining_deliverables_source_blocker_count"] == 1
+    assert manifest["current_state"]["remaining_deliverables_source_blocker_ids"] == [
+        "gpu3070ti_readiness_refresh"
+    ]
+    assert manifest["current_state"]["remaining_deliverables_remote_readiness_blocker_count"] == 1
+    assert manifest["current_state"]["remaining_deliverables_remote_readiness_refresh_requires_external_ssh"] is True
+    assert manifest["current_state"]["remaining_deliverables_remote_readiness_refresh_allowed_now"] is False
     assert manifest["current_state"]["formal_gate_proof_audit_status"] == "formal_gate_proof_audit_blocked"
     assert manifest["current_state"]["formal_gate_proof_audit_command_count"] == 20
     assert manifest["current_state"]["formal_gate_proof_audit_passed_count"] == 2
@@ -388,6 +396,15 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert proof_plan["total_matrix_rows"] == 10
     assert proof_plan["total_proof_command_count"] == 20
     assert proof_plan["rows"]["training:train_final_model_zip"]["proof_command_count"] == 2
+    source_blockers = manifest["remaining_deliverables_source_blocker_summary"]
+    assert source_blockers["summary_id"] == "module2_source_freshness_blocking_targets_summary"
+    assert source_blockers["blocking_target_ids"] == ["gpu3070ti_readiness_refresh"]
+    assert source_blockers["remote_readiness_blocking_target_ids"] == ["gpu3070ti_readiness_refresh"]
+    assert source_blockers["remote_readiness_refresh_requires_external_ssh"] is True
+    assert source_blockers["remote_readiness_refresh_allowed_now"] is False
+    assert source_blockers["remote_preflight_allowed_now"] is False
+    assert source_blockers["remote_training_allowed_now"] is False
+    assert source_blockers["formal_claim_allowed_now"] is False
     proof_audit = manifest["formal_gate_proof_audit_summary"]
     assert proof_audit["present"] is True
     assert proof_audit["status"] == "formal_gate_proof_audit_blocked"
