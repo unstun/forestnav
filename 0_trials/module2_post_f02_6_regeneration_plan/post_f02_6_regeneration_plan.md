@@ -18,6 +18,16 @@ This file is an ordered plan. It does not execute commands, train, preflight, au
 - remote_packet_status: `blocked_until_f02_6_decision`
 - ready_to_run_remote_training: `False`
 
+## F02.6 Human Decision Request
+
+- present: `True`
+- status: `awaiting_dr_sun_decision`
+- decision_owner_required: `Dr Sun`
+- current_allowed_action_ids: `record_f02_6_decision`
+- current_blocked_action_ids: `remote_preflight, remote_training, local_training, formal_claim, paper_result_material`
+- post_decision_routes_are_current_authorization: `False`
+- all_execution_disabled_now: `True`
+
 ## Remaining Deliverables Gap Summary
 
 - present: `True`
