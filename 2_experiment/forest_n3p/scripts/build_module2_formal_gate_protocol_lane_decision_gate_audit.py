@@ -319,6 +319,8 @@ def _post_decision_gate_requirements(record: dict[str, Any]) -> dict[str, Any]:
 
 def _markdown(manifest: dict[str, Any]) -> str:
     state = manifest["decision_state"]
+    note = manifest["decision_note_audit_summary"]
+    requirements = manifest["post_decision_gate_requirements"]
     lines = [
         "# Module2 Formal Gate Protocol Lane Decision Gate Audit",
         "",
@@ -333,10 +335,45 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- remote_training_allowed_now: `{state['remote_training_allowed_now']}`",
         f"- formal_claim_allowed_now: `{state['formal_claim_allowed_now']}`",
         "",
+        "## Decision Note Audit",
+        "",
+        f"- gate_review_status: `{note['gate_review_status']}`",
+        f"- gate_requires_note_quality: `{note['gate_requires_note_quality']}`",
+        f"- decision_note_present: `{note['decision_note_present']}`",
+        f"- quality_warning: `{note['quality_warning']}`",
+        "",
         "## Allowed Next Human Actions",
     ]
     for action in manifest["allowed_next_human_actions"]:
         lines.append(f"- `{action['action_id']}`")
+        lines.append(f"  - requires_dr_sun: `{action['requires_dr_sun']}`")
+        lines.append(f"  - runs_training: `{action['runs_training']}`")
+        lines.append(f"  - runs_remote_preflight: `{action['runs_remote_preflight']}`")
+        if "valid_lane_ids" in action:
+            lines.append("  - valid_lane_ids:")
+            for lane in action["valid_lane_ids"]:
+                lines.append(f"    - `{lane}`")
+        if "selected_lane_id" in action:
+            lines.append(f"  - selected_lane_id: `{action['selected_lane_id']}`")
+    lines.extend(
+        [
+            "",
+            "## Post-Decision Gate Requirements",
+            "",
+            f"- new_or_revised_contract_required: `{requirements['new_or_revised_contract_required']}`",
+            f"- contract_status_required_before_training: `{', '.join(requirements['contract_status_required_before_training'])}`",
+            f"- draft_contract_allows_training: `{requirements['draft_contract_allows_training']}`",
+            "- formal_training_still_requires:",
+        ]
+    )
+    for item in requirements["formal_training_still_requires"]:
+        lines.append(f"  - {item}")
+    lines.append("- paper_result_still_requires:")
+    for item in requirements["paper_result_still_requires"]:
+        lines.append(f"  - {item}")
+    lines.extend(["", "## Claim Boundaries"])
+    for boundary in manifest["claim_boundaries"]:
+        lines.append(f"- {boundary}")
     lines.extend(["", "## Audit", "", f"- status: `{manifest['status']}`", f"- audit_issue_count: `{manifest['audit_issue_count']}`"])
     return "\n".join(lines) + "\n"
 
