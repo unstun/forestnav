@@ -76,6 +76,7 @@ def build_manifest(config: F026DecisionGateAuditConfig) -> dict[str, Any]:
             "decision_record": str(config.decision_record_path),
             "post_f02_6_regeneration_plan": str(config.post_plan_path),
         },
+        "decision_note_audit_summary": _decision_note_audit_summary(record),
         "decision_state": _decision_state(packet=packet, record=record, plan=plan),
         "audit_issue_count": len(issues),
         "audit_issues": issues,
@@ -149,6 +150,7 @@ def _record_issues(record: dict[str, Any]) -> list[dict[str, Any]]:
         issues.append(_issue("record_allows_remote_preflight_now", "Decision record alone must not allow remote preflight now."))
     if record.get("remote_training_allowed_now") is not False:
         issues.append(_issue("record_allows_remote_training_now", "Decision record alone must not allow remote training now."))
+    issues.extend(_decision_note_audit_issues(record))
     if status == "pending_human_decision":
         if record.get("decider") is not None:
             issues.append(_issue("pending_record_has_decider", "Pending record must not name a decider.", observed=record.get("decider")))
@@ -184,6 +186,74 @@ def _record_issues(record: dict[str, Any]) -> list[dict[str, Any]]:
     return issues
 
 
+def _decision_note_audit_issues(record: dict[str, Any]) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    status = record.get("status")
+    audit = record.get("decision_note_audit")
+    if not isinstance(audit, dict):
+        issues.append(_issue("record_missing_decision_note_audit", "Decision record must expose decision_note_audit for gate-level review."))
+        return issues
+
+    note_text = str(record.get("decision_note") or "").strip()
+    audit_note_present = bool(audit.get("present"))
+    if audit_note_present != bool(note_text):
+        issues.append(
+            _issue(
+                "decision_note_audit_presence_mismatch",
+                "decision_note_audit.present must match whether decision_note is non-empty.",
+                observed={"decision_note_present": bool(note_text), "audit_present": audit.get("present")},
+            )
+        )
+
+    if status == "pending_human_decision":
+        if audit.get("required_for_non_pending_decision") is not False:
+            issues.append(
+                _issue(
+                    "pending_record_note_audit_marks_required",
+                    "Pending F02.6 records must not mark a decision note as currently required.",
+                    observed=audit.get("required_for_non_pending_decision"),
+                )
+            )
+        if audit_note_present:
+            issues.append(_issue("pending_record_note_audit_present", "Pending F02.6 records must keep decision_note_audit.present false."))
+        if audit.get("quality_warning") is not None:
+            issues.append(
+                _issue(
+                    "pending_record_note_audit_quality_warning",
+                    "Pending F02.6 records should not carry non-pending decision-note quality warnings.",
+                    observed=audit.get("quality_warning"),
+                )
+            )
+        return issues
+
+    if status in {"approved", "rejected"}:
+        if audit.get("required_for_non_pending_decision") is not True:
+            issues.append(
+                _issue(
+                    "closed_record_note_audit_not_required",
+                    "Closed F02.6 records must mark decision note audit as required.",
+                    observed=audit.get("required_for_non_pending_decision"),
+                )
+            )
+        if not audit_note_present:
+            issues.append(_issue("closed_record_note_audit_not_present", "Closed F02.6 records must have decision_note_audit.present true."))
+        if audit.get("mentions_selected_route") is not True:
+            issues.append(_issue("closed_record_note_audit_missing_selected_route", "Closed F02.6 decision notes must mention the selected route."))
+        if audit.get("mentions_evidence_or_risk_basis") is not True:
+            issues.append(_issue("closed_record_note_audit_missing_evidence_or_risk_basis", "Closed F02.6 decision notes must mention evidence or accepted/avoided risk."))
+        if audit.get("mentions_next_gated_action") is not True:
+            issues.append(_issue("closed_record_note_audit_missing_next_gated_action", "Closed F02.6 decision notes must mention the next gated action."))
+        if audit.get("quality_warning") is not None:
+            issues.append(
+                _issue(
+                    "closed_record_note_audit_quality_warning",
+                    "Closed F02.6 decision notes must clear decision_note_audit quality warnings before the gate passes.",
+                    observed=audit.get("quality_warning"),
+                )
+            )
+    return issues
+
+
 def _plan_alignment_issues(*, record: dict[str, Any], plan: dict[str, Any]) -> list[dict[str, Any]]:
     issues: list[dict[str, Any]] = []
     summary = plan.get("current_gate_summary") if isinstance(plan.get("current_gate_summary"), dict) else {}
@@ -206,6 +276,45 @@ def _plan_alignment_issues(*, record: dict[str, Any], plan: dict[str, Any]) -> l
         if _stage(plan, "f02_6_decision_record").get("requires_human_input") is not True:
             issues.append(_issue("pending_plan_decision_stage_not_human_input", "Pending plan must keep decision stage human-input gated."))
     return issues
+
+
+def _decision_note_audit_summary(record: dict[str, Any]) -> dict[str, Any]:
+    audit = record.get("decision_note_audit")
+    if not isinstance(audit, dict):
+        return {
+            "record_status": record.get("status"),
+            "audit_present": False,
+            "gate_review_status": "missing_decision_note_audit",
+        }
+    gate_requires_note_quality = record.get("status") in {"approved", "rejected"}
+    quality_fields = (
+        "mentions_selected_route",
+        "mentions_evidence_or_risk_basis",
+        "mentions_next_gated_action",
+    )
+    missing_quality_fields = [field for field in quality_fields if audit.get(field) is not True]
+    if not gate_requires_note_quality:
+        gate_review_status = "not_required_while_pending"
+    elif missing_quality_fields or audit.get("quality_warning") is not None or audit.get("present") is not True:
+        gate_review_status = "closed_decision_note_audit_incomplete"
+    else:
+        gate_review_status = "closed_decision_note_audit_complete"
+    return {
+        "record_status": record.get("status"),
+        "audit_present": True,
+        "gate_requires_note_quality": gate_requires_note_quality,
+        "required_for_non_pending_decision": audit.get("required_for_non_pending_decision"),
+        "decision_note_present": audit.get("present"),
+        "character_count": audit.get("character_count"),
+        "word_count": audit.get("word_count"),
+        "guidance_items": _strings(audit.get("guidance_items")),
+        "mentions_selected_route": audit.get("mentions_selected_route"),
+        "mentions_evidence_or_risk_basis": audit.get("mentions_evidence_or_risk_basis"),
+        "mentions_next_gated_action": audit.get("mentions_next_gated_action"),
+        "quality_warning": audit.get("quality_warning"),
+        "missing_quality_fields": missing_quality_fields,
+        "gate_review_status": gate_review_status,
+    }
 
 
 def _decision_state(*, packet: dict[str, Any], record: dict[str, Any], plan: dict[str, Any]) -> dict[str, Any]:
@@ -333,6 +442,17 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- packet_recommendation: `{manifest['decision_state']['packet_recommendation']}`",
         f"- training_allowed_now: `{manifest['decision_state']['training_allowed_now']}`",
         f"- remote_preflight_allowed_now: `{manifest['decision_state']['remote_preflight_allowed_now']}`",
+        f"- decision_note_gate_review_status: `{manifest['decision_note_audit_summary']['gate_review_status']}`",
+        "",
+        "## Decision Note Audit",
+        "",
+        f"- audit_present: `{manifest['decision_note_audit_summary']['audit_present']}`",
+        f"- gate_requires_note_quality: `{manifest['decision_note_audit_summary'].get('gate_requires_note_quality')}`",
+        f"- decision_note_present: `{manifest['decision_note_audit_summary'].get('decision_note_present')}`",
+        f"- mentions_selected_route: `{manifest['decision_note_audit_summary'].get('mentions_selected_route')}`",
+        f"- mentions_evidence_or_risk_basis: `{manifest['decision_note_audit_summary'].get('mentions_evidence_or_risk_basis')}`",
+        f"- mentions_next_gated_action: `{manifest['decision_note_audit_summary'].get('mentions_next_gated_action')}`",
+        f"- quality_warning: `{manifest['decision_note_audit_summary'].get('quality_warning')}`",
         "",
         "## Audit Issues",
         "",
