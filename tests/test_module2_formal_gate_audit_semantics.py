@@ -14,6 +14,9 @@ from forest_n3p.scripts.build_module2_f02_6_transition_gate_audit import (
 from forest_n3p.scripts.build_module2_formal_gate_gap_audit import (
     _execution_veto_matrix,
 )
+from forest_n3p.scripts.build_module2_formal_gate_closure_checklist import (
+    _item as _closure_checklist_item,
+)
 from forest_n3p.scripts.build_module2_formal_gate_remaining_deliverables import (
     _deliverable_unlock_chain,
     _production_plan_safety_issues,
@@ -416,6 +419,34 @@ def test_transition_common_ignores_nested_downstream_audit_failures() -> None:
     assert "remote_packet_safety_issue_count" not in issue_ids
     assert "post_plan_audit_not_passed" not in issue_ids
     assert "remote_packet_safety_not_passed" not in issue_ids
+
+
+def test_closure_checklist_respects_completed_formal_decision_step() -> None:
+    item = _closure_checklist_item(
+        checklist_id="F02.6_decision",
+        phase="decision",
+        group={
+            "group_id": "f02_6_decision_record",
+            "complete": False,
+            "blocked_by": ["current_decision_status_approved"],
+            "items": [
+                {
+                    "artifact_id": "f02_6_decision_record",
+                    "exists": True,
+                    "state": "approved",
+                    "missing": False,
+                }
+            ],
+        },
+        formal_step={"status": "complete", "blocked_by": []},
+        post_stage={"status": "blocked", "blocked_by": ["current_decision_status_approved"]},
+        completion_signal="decision closed",
+        next_action="none",
+    )
+
+    assert item["status"] == "complete"
+    assert item["complete"] is True
+    assert item["blocked_by"] == []
 
 
 def test_remaining_deliverables_allow_training_generation_while_missing() -> None:
