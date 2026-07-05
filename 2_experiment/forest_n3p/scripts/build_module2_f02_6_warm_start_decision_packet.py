@@ -786,6 +786,38 @@ def _packet_markdown(packet: dict[str, Any]) -> str:
         f"- warm-start blockers: `{', '.join(packet['remote_readiness']['warm_start_formal_preflight']['blocker_codes'])}`",
         f"- CUDA smoke formal decision: `{packet['remote_readiness']['warm_start_cuda_smoke']['formal_decision']}`",
         "",
+        "## Decision Evidence Matrix",
+        "",
+        f"- matrix_status: `{packet['decision_evidence_matrix']['status']}`",
+        f"- current_authorization_allowed_now: `{packet['decision_evidence_matrix']['current_authorization_allowed_now']}`",
+        f"- missing_required_evidence_count: `{packet['decision_evidence_matrix']['missing_required_evidence_count']}`",
+        "",
+    ]
+    for route in packet["decision_evidence_matrix"]["routes"]:
+        lines.extend(
+            [
+                f"### {route['decision']}",
+                "",
+                f"- route_status: `{route['route_status']}`",
+                f"- next_lane_after_record: `{route['next_lane_after_record']}`",
+                f"- current_authorization_allowed_now: `{route['current_authorization_allowed_now']}`",
+                f"- allows_remote_training_now: `{route['allows_remote_training_now']}`",
+                f"- allows_formal_claim_now: `{route['allows_formal_claim_now']}`",
+                f"- invalid_substitutes: `{'; '.join(route['invalid_substitutes'])}`",
+            ]
+        )
+        for evidence in route["required_evidence"]:
+            lines.extend(
+                [
+                    f"- evidence_id: `{evidence['evidence_id']}`",
+                    f"  - satisfied: `{evidence['satisfied']}`",
+                    f"  - artifacts: `{'; '.join(evidence['required_artifact_paths'])}`",
+                    f"  - invalid_substitutes: `{'; '.join(evidence['invalid_substitutes'])}`",
+                ]
+            )
+        lines.append("")
+    lines.extend(
+        [
         "## Source Integrity",
         "",
         f"- source_count: `{packet['source_integrity_summary']['source_count']}`",
@@ -811,7 +843,8 @@ def _packet_markdown(packet: dict[str, Any]) -> str:
         "```",
         "",
         "## Claim Boundaries",
-    ]
+        ]
+    )
     lines.extend(f"- {boundary}" for boundary in packet["claim_boundaries"])
     return "\n".join(lines) + "\n"
 
