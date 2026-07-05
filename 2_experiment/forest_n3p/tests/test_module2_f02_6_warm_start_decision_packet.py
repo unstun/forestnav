@@ -95,9 +95,25 @@ def test_f02_6_decision_packet_builds_evidence_bound_recommendation(tmp_path):
     assert remote["warm_start_cuda_smoke"]["formal_decision"] == "not_formal"
     assert "warm_start_decision_pending" in remote["warm_start_cuda_smoke"]["blocker_codes"]
 
-    assert manifest["next_actions"]["if_approved_obstacle_summary"]["runner_command"]
-    assert "--bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt" in manifest["next_actions"]["if_approved_obstacle_summary"]["runner_command"]
+    approved_action = manifest["next_actions"]["if_approved_obstacle_summary"]
+    assert approved_action["command_kind"] == "post_approval_remote_training_candidate"
+    assert approved_action["host"] == "gpu3070ti-relay"
+    assert approved_action["remote_cwd"] == "~/ForestNav"
+    assert approved_action["runner_command"]
+    assert approved_action["remote_runner_command"].startswith("ssh gpu3070ti-relay ")
+    assert "cd ~/ForestNav && python -m forest_n3p.scripts.run_rl_rs_gate3_trial" in approved_action["remote_runner_command"]
+    assert "--bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt" in approved_action["runner_command"]
+    assert approved_action["current_authorization_allowed_now"] is False
+    assert approved_action["local_execution_allowed"] is False
+    assert approved_action["remote_preflight_allowed_now"] is False
+    assert approved_action["remote_training_allowed_now"] is False
+    assert approved_action["formal_claim_allowed_now"] is False
+    assert approved_action["requires_dr_sun_decision_record"] is True
+    assert approved_action["requires_source_fresh_regeneration"] is True
+    assert approved_action["requires_post_f02_6_plan_audit"] is True
+    assert approved_action["requires_approved_remote_preflight"] is True
     assert manifest["claim_boundaries"]
+    assert any("must not be run on the local Mac" in boundary for boundary in manifest["claim_boundaries"])
     assert "# Module2 F02.6 Warm-Start Decision Packet" in markdown
     assert "pending_human_decision" in markdown
     assert "approve_obstacle_summary_warm_start" in markdown
@@ -108,3 +124,10 @@ def test_f02_6_decision_packet_builds_evidence_bound_recommendation(tmp_path):
     assert "remote preflight allowed now: `False`" in markdown
     assert "remote training allowed now: `False`" in markdown
     assert "Source Integrity" in markdown
+    assert "Post-Approval Remote-Only Command Candidate" in markdown
+    assert "current_authorization_allowed_now: `False`" in markdown
+    assert "execution_host_required: `gpu3070ti-relay`" in markdown
+    assert "local_execution_allowed: `False`" in markdown
+    assert "requires_approved_remote_preflight: `True`" in markdown
+    assert "ssh gpu3070ti-relay" in markdown
+    assert "Next Command If Approved" not in markdown
