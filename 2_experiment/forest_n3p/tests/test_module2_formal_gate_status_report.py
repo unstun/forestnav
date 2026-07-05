@@ -1780,6 +1780,33 @@ def _decision_intake(*, complete):
             "packet_local_training_allowed_now": False,
             "packet_formal_claim_allowed_now": complete,
             "packet_paper_result_material_allowed_now": False,
+            "record_authorization_status": "decision_recorded_not_execution_authorization"
+            if complete
+            else "blocked_until_dr_sun_decision",
+            "record_authorization_current_allowed_action_ids": []
+            if complete
+            else ["record_f02_6_decision"],
+            "record_authorization_current_blocked_action_ids": [
+                "remote_preflight",
+                "remote_training",
+                "local_training",
+                "formal_claim",
+                "paper_result_material",
+            ],
+            "record_authorization_post_decision_routes_are_current_authorization": False,
+            "record_authorization_remote_preflight_allowed_now": False,
+            "record_authorization_remote_training_allowed_now": False,
+            "record_authorization_local_training_allowed_now": False,
+            "record_authorization_formal_claim_allowed_now": False,
+            "record_authorization_paper_result_material_allowed_now": False,
+            "record_post_decision_non_authorization_count": 4,
+            "record_post_decision_formal_training_still_requires": [
+                "source_freshness_audit",
+                "post_f02_6_regeneration_plan",
+                "post_f02_6_plan_audit",
+                "remote_formal_execution_packet_ready",
+                "approved_remote_preflight",
+            ],
         },
         "next_human_decision_request": {
             "status": "decision_recorded" if complete else "awaiting_dr_sun_decision",
