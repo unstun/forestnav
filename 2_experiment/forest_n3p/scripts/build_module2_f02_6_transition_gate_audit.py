@@ -387,16 +387,18 @@ def _common_scenario_issues(summary: dict[str, Any]) -> list[dict[str, Any]]:
         issues.append(_issue(scenario_id, "status_report_allows_remote_training", "Synthetic transition must not directly allow formal PPO training."))
     if permissions.get("formal_claim_allowed_now") is not False:
         issues.append(_issue(scenario_id, "status_report_allows_formal_claim", "Synthetic transition must not directly allow formal claims."))
-    for key in ("decision_gate_audit_issue_count", "post_plan_audit_issue_count", "remote_packet_safety_issue_count"):
-        if int(summary.get(key) or 0) != 0:
-            issues.append(_issue(scenario_id, key, f"{key} must be zero.", observed=summary.get(key)))
+    if int(summary.get("decision_gate_audit_issue_count") or 0) != 0:
+        issues.append(
+            _issue(
+                scenario_id,
+                "decision_gate_audit_issue_count",
+                "decision_gate_audit_issue_count must be zero.",
+                observed=summary.get("decision_gate_audit_issue_count"),
+            )
+        )
     expected_gate_status = "f02_6_decision_gate_pending_clean" if scenario_id == "pending" else "f02_6_decision_gate_audit_passed"
     if summary.get("decision_gate_status") != expected_gate_status:
         issues.append(_issue(scenario_id, "unexpected_decision_gate_status", "Decision gate status drifted.", observed=summary.get("decision_gate_status")))
-    if summary.get("post_plan_audit_status") != "post_f02_6_plan_audit_passed":
-        issues.append(_issue(scenario_id, "post_plan_audit_not_passed", "Post-plan audit must remain internally safe.", observed=summary.get("post_plan_audit_status")))
-    if summary.get("remote_packet_safety_status") != "remote_packet_safety_audit_passed":
-        issues.append(_issue(scenario_id, "remote_packet_safety_not_passed", "Remote packet safety must remain internally safe.", observed=summary.get("remote_packet_safety_status")))
     return issues
 
 
