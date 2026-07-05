@@ -266,6 +266,16 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- remote_training_allowed_now: `{state['remote_training_allowed_now']}`",
         f"- formal_claim_allowed_now: `{state['formal_claim_allowed_now']}`",
         "",
+        "## Safety Flags",
+        "",
+        f"- local_training_allowed_now: `{state['local_training_allowed_now']}`",
+        f"- remote_training_allowed_now: `{state['remote_training_allowed_now']}`",
+        f"- formal_claim_allowed_now: `{state['formal_claim_allowed_now']}`",
+        f"- paper_result_material_allowed_now: `{state['paper_result_material_allowed_now']}`",
+        f"- new_success_training_allowed_now: `{state['new_success_training_allowed_now']}`",
+        f"- contract_approval_allowed_now: `{state['contract_approval_allowed_now']}`",
+        f"- draft_contract_allows_training: `{state['draft_contract_allows_training']}`",
+        "",
         "## Allowed Next Actions",
     ]
     for action in state["allowed_next_action_ids"]:
@@ -273,6 +283,9 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.extend(["", "## Blocked Actions"])
     for action in state["blocked_action_ids"]:
         lines.append(f"- `{action}`")
+    lines.extend(["", "## Claim Boundaries"])
+    for boundary in manifest["claim_boundaries"]:
+        lines.append(f"- {boundary}")
     lines.extend(["", "## Audit", "", f"- status: `{manifest['status']}`", f"- audit_issue_count: `{manifest['audit_issue_count']}`"])
     return "\n".join(lines) + "\n"
 
