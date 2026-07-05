@@ -1791,10 +1791,72 @@ def _execution_veto_matrix(
     status_report: dict[str, Any],
     handoff_bundle: dict[str, Any],
     remote_packet_safety: dict[str, Any],
+    protocol_lane_status: dict[str, Any],
 ) -> dict[str, Any]:
+    protocol_lane_pending = _protocol_lane_pending(protocol_lane_status)
     status_permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
     handoff_permissions = handoff_bundle.get("permissions_now") if isinstance(handoff_bundle.get("permissions_now"), dict) else {}
     safety_summary = remote_packet_safety.get("packet_summary") if isinstance(remote_packet_safety.get("packet_summary"), dict) else {}
+    if protocol_lane_pending:
+        rows = [
+            _veto_row(
+                "local_training",
+                {
+                    "formal_gate_gap_audit": False,
+                    "protocol_lane_status": False,
+                    "status_report": False,
+                    "handoff_bundle": False,
+                },
+            ),
+            _veto_row(
+                "remote_preflight",
+                {
+                    "protocol_lane_status": False,
+                    "status_report": False,
+                    "handoff_bundle": False,
+                    "remote_packet_superseded_by_protocol_lane": None,
+                    "remote_packet_safety_superseded_by_protocol_lane": None,
+                },
+            ),
+            _veto_row(
+                "remote_training",
+                {
+                    "protocol_lane_status": False,
+                    "decision_record": decision.get("remote_training_allowed"),
+                    "status_report": False,
+                    "handoff_bundle": False,
+                    "remote_packet_superseded_by_protocol_lane": None,
+                    "remote_packet_safety_superseded_by_protocol_lane": None,
+                },
+            ),
+            _veto_row(
+                "remote_audit",
+                {
+                    "protocol_lane_status": False,
+                    "handoff_bundle": False,
+                    "remote_packet_superseded_by_protocol_lane": None,
+                    "remote_packet_safety_superseded_by_protocol_lane": None,
+                },
+            ),
+            _veto_row(
+                "formal_claim",
+                {
+                    "protocol_lane_status": False,
+                    "status_report": False,
+                    "handoff_bundle": False,
+                },
+            ),
+        ]
+        mismatches = [row["row_id"] for row in rows if not row["consistent"]]
+        return {
+            "matrix_version": 1,
+            "f02_6_decision_status": decision.get("status"),
+            "protocol_lane_status": protocol_lane_status.get("status"),
+            "protocol_lane_override_active": True,
+            "all_rows_consistent": not mismatches,
+            "mismatch_rows": mismatches,
+            "rows": rows,
+        }
     rows = [
         _veto_row(
             "local_training",
@@ -1844,10 +1906,25 @@ def _execution_veto_matrix(
     return {
         "matrix_version": 1,
         "f02_6_decision_status": decision.get("status"),
+        "protocol_lane_status": protocol_lane_status.get("status"),
+        "protocol_lane_override_active": False,
         "all_rows_consistent": not mismatches,
         "mismatch_rows": mismatches,
         "rows": rows,
     }
+
+
+def _protocol_lane_pending(protocol_lane_status: dict[str, Any]) -> bool:
+    current_status = (
+        protocol_lane_status.get("current_status")
+        if isinstance(protocol_lane_status.get("current_status"), dict)
+        else {}
+    )
+    return (
+        protocol_lane_status.get("status") == "protocol_lane_status_blocked_pending_lane_decision"
+        or current_status.get("next_blocked_lane") == "protocol_lane_decision"
+        or current_status.get("decision_record_status") == "pending_protocol_lane_decision"
+    )
 
 
 def _veto_row(row_id: str, sources: dict[str, Any]) -> dict[str, Any]:
