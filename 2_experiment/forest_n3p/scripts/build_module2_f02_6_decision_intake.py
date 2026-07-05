@@ -22,6 +22,13 @@ DEFAULT_REMAINING_DELIVERABLES = Path(
 APPROVE_OBSTACLE_SUMMARY = "approve_obstacle_summary_warm_start"
 REJECT_OBSTACLE_SUMMARY = "reject_obstacle_summary_warm_start"
 DECISION_OWNER = "Dr Sun"
+DECISION_NOTE_GUIDANCE = (
+    "selected decision",
+    "human rationale",
+    "evidence basis",
+    "risk accepted or avoided",
+    "next gated action",
+)
 
 
 @dataclass(frozen=True)
@@ -238,6 +245,7 @@ def _decision_intake_contract(gate_audit: dict[str, Any]) -> dict[str, Any]:
             "decider": f"must equal {DECISION_OWNER}",
             "decision_note": "must be a human-readable Dr Sun note explaining the approval or rejection rationale",
         },
+        "decision_note_guidance": list(DECISION_NOTE_GUIDANCE),
         "record_command_templates": [
             _command_template(APPROVE_OBSTACLE_SUMMARY),
             _command_template(REJECT_OBSTACLE_SUMMARY),
