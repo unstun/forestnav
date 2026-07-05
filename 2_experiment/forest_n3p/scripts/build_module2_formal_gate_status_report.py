@@ -2217,6 +2217,8 @@ def _formal_gate_remote_packet_safety_claim_gate_command_index_issues(
         )
     for artifact_id, row in summary["claim_gate_rows"].items():
         if not row["present"]:
+            if artifact_id not in summary["missing_target_ids"]:
+                continue
             issues.append(
                 _issue(
                     f"formal_gate_remote_packet_safety_command_index_missing_{artifact_id}",
