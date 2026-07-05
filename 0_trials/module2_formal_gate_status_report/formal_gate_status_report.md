@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `154d2d8bcea346ca532a417cfb00bcd5d80fc47d+dirty`
+- source_head: `26fd7297f6c18c831038a7ec5f61b5d1f5d75d03+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -352,6 +352,7 @@ This file is a read-only formal-gate status report. It does not execute commands
 - missing_target_ids: `[]`
 - unknown_manual_count: `0`
 - forbidden_command_count: `0`
+- `formal_gate_proof_summary_chain_audit`: present=`True`, stage=`regenerate_claim_gate_artifacts`, required_before=`formal_claim_gate`, command_kind=`known_builder`
 - `claim_safety`: present=`True`, stage=`regenerate_claim_gate_artifacts`, required_before=`formal_claim_gate`, command_kind=`known_builder`
 - `paper_readiness`: present=`True`, stage=`regenerate_claim_gate_artifacts`, required_before=`formal_claim_gate`, command_kind=`known_builder`
 

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_claim_safety",
   "status": "blocked_formal_performance_claims",
-  "created_at_utc": "2026-07-05T03:48:14.719052+00:00",
-  "source_head": "154d2d8bcea346ca532a417cfb00bcd5d80fc47d",
+  "created_at_utc": "2026-07-05T03:52:48.704778+00:00",
+  "source_head": "26fd7297f6c18c831038a7ec5f61b5d1f5d75d03",
   "formal_performance_claim_allowed": false,
   "formal_performance_blockers": [
     "paper_tables_not_formal",
@@ -880,6 +880,13 @@
     "forbidden_command_count": 0,
     "forbidden_command_ids": [],
     "claim_gate_rows": {
+      "formal_gate_proof_summary_chain_audit": {
+        "present": true,
+        "stage_id": "regenerate_claim_gate_artifacts",
+        "required_before": "formal_claim_gate",
+        "command_kind": "known_builder",
+        "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit"
+      },
       "claim_safety": {
         "present": true,
         "stage_id": "regenerate_claim_gate_artifacts",
