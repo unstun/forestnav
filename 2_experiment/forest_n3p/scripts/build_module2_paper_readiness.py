@@ -2054,6 +2054,14 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- claim_safety_next_required_formal_deliverables_total_missing: `{input_status.get('claim_safety_next_required_formal_deliverables_total_missing')}`",
             f"- claim_safety_next_required_formal_deliverables_blocked_category_count: `{input_status.get('claim_safety_next_required_formal_deliverables_blocked_category_count')}`",
             f"- claim_safety_next_required_formal_deliverables_row_count: `{input_status.get('claim_safety_next_required_formal_deliverables_row_count')}`",
+            "",
+            "## Claim Safety Mainline Formal Gate State Audit",
+            "",
+            f"- claim_safety_mainline_audit_present: `{input_status.get('claim_safety_mainline_audit_present')}`",
+            f"- claim_safety_mainline_audit_status: `{input_status.get('claim_safety_mainline_audit_status')}`",
+            f"- claim_safety_mainline_audit_issue_count: `{input_status.get('claim_safety_mainline_audit_issue_count')}`",
+            f"- claim_safety_mainline_audit_proof_summary_issue_count: `{input_status.get('claim_safety_mainline_audit_proof_summary_issue_count')}`",
+            f"- claim_safety_mainline_audit_proof_audit_input_safety_issue_count: `{input_status.get('claim_safety_mainline_audit_proof_audit_input_safety_issue_count')}`",
         ]
     )
     lines.extend(["", "## Section Readiness", ""])
