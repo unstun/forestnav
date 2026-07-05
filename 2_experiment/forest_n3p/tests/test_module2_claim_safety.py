@@ -1498,6 +1498,12 @@ def _status_report_command_index_summary():
         "command_kind": "known_builder",
         "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety",
     }
+    rows["formal_gate_proof_summary_chain_audit"] = {
+        "stage_id": "regenerate_claim_gate_artifacts",
+        "required_before": "formal_claim_gate",
+        "command_kind": "known_builder",
+        "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit",
+    }
     rows["paper_readiness"] = {
         "stage_id": "regenerate_claim_gate_artifacts",
         "required_before": "formal_claim_gate",

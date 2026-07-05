@@ -1126,7 +1126,13 @@ def _command_index_summary():
             "command_kind": "known_builder",
             "command_template": f"PYTHONPATH=2_experiment python -m builder_{index}",
         }
-        for index in range(16)
+        for index in range(17)
+    }
+    rows["formal_gate_proof_summary_chain_audit"] = {
+        "stage_id": "regenerate_claim_gate_artifacts",
+        "required_before": "formal_claim_gate",
+        "command_kind": "known_builder",
+        "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit",
     }
     rows["claim_safety"] = {
         "stage_id": "regenerate_claim_gate_artifacts",
