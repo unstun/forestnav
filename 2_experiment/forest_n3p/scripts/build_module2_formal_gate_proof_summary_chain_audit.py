@@ -1080,6 +1080,8 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- next_action_guard_consistent_row_count: `{manifest['next_action_guard_consistent_row_count']}`",
         f"- next_required_deliverables_row_count: `{manifest['next_required_deliverables_row_count']}`",
         f"- next_required_deliverables_consistent_row_count: `{manifest['next_required_deliverables_consistent_row_count']}`",
+        f"- handoff_single_next_action_row_count: `{manifest['handoff_single_next_action_row_count']}`",
+        f"- handoff_single_next_action_consistent_row_count: `{manifest['handoff_single_next_action_consistent_row_count']}`",
         f"- executes_commands: `{manifest['executes_commands']}`",
         f"- runs_training: `{manifest['runs_training']}`",
         f"- runs_remote_preflight: `{manifest['runs_remote_preflight']}`",
@@ -1126,6 +1128,17 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"total_missing_deliverables=`{row['total_missing_deliverables']}`, "
             f"row_count=`{row['row_count']}`, "
             f"runs_training=`{row['runs_training']}`, "
+            f"path=`{row['path']}`, key=`{row['summary_key_path']}`"
+        )
+    lines.extend(["", "## Handoff Single Next-Action Chain Rows", ""])
+    for row in manifest["handoff_single_next_action_rows"]:
+        lines.append(
+            f"- `{row['row_id']}`: present=`{row['present']}`, "
+            f"matches=`{row['signature_matches_baseline']}`, "
+            f"next_action_id=`{row['next_action_id']}`, "
+            f"decision_owner_required=`{row['decision_owner_required']}`, "
+            f"all_execution_disabled_now=`{row['all_execution_disabled_now']}`, "
+            f"remote_training_allowed_now=`{row['remote_training_allowed_now']}`, "
             f"path=`{row['path']}`, key=`{row['summary_key_path']}`"
         )
     lines.extend(["", "## Claim Boundaries", ""])
