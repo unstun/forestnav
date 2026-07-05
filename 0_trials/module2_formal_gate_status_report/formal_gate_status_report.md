@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `4a7b1d7e55fc52c24b42941b062a3c0ac0df564d`
+- source_head: `eaeb7f90d66edae27ec6c5594617cd3b6642be8a`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -282,6 +282,15 @@ This file is a read-only formal-gate status report. It does not execute commands
 - passed_proof_command_count: `2`
 - failed_proof_command_count: `2`
 - blocked_proof_command_count: `16`
+- remaining_deliverables_summary_present: `True`
+- remaining_missing_counts_by_formal_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
+- remaining_next_blocked_lane: `decision`
+- remaining_h01_status: `blocked_pending_decisions`
+- remaining_h02_status: `blocked_formal_output_acceptance`
+- remaining_training_missing_matrix_ids: `training:train_final_model_zip, training:train_summary_json, training:train_training_manifest_json`
+- remaining_evaluation_missing_matrix_ids: `evaluation:eval_gate3_eval_episodes_csv, evaluation:eval_gate3_summary_json`
+- remaining_acceptance_missing_matrix_ids: `acceptance:gate3_trial_manifest_json, acceptance:gate3_formal_audit_json, acceptance:pulled_back_checkpoint_hash_record`
+- remaining_formal_acceptance_missing_matrix_ids: `formal_acceptance:h01_ready_for_formal_run, formal_acceptance:h02_formal_output_acceptance`
 - `train_final_model_zip_exists_nonempty`: status=`blocked_missing_artifact`, matrix_id=`training:train_final_model_zip`
 - `train_final_model_zip_valid_zip`: status=`blocked_missing_artifact`, matrix_id=`training:train_final_model_zip`
 - `train_summary_json_exists_nonempty`: status=`blocked_missing_artifact`, matrix_id=`training:train_summary_json`
