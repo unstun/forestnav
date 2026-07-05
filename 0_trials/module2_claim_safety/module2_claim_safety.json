@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_claim_safety",
   "status": "blocked_formal_performance_claims",
-  "created_at_utc": "2026-07-05T15:44:11.067069+00:00",
-  "source_head": "2a19340105406bae8ad54ba1eac679b95a41580f",
+  "created_at_utc": "2026-07-05T15:59:20.400931+00:00",
+  "source_head": "bc5b1c3d225effac19e22a4e7f83f6332bb79789",
   "formal_performance_claim_allowed": false,
   "formal_performance_blockers": [
     "paper_tables_not_formal",
@@ -107,6 +107,12 @@
     "handoff_single_next_action_index_remote_training_allowed_now": false,
     "handoff_single_next_action_index_formal_claim_allowed_now": false,
     "handoff_single_next_action_index_paper_result_material_allowed_now": false,
+    "handoff_decision_evidence_matrix_present": true,
+    "handoff_decision_evidence_matrix_status": "ready_for_dr_sun_decision_not_authorization",
+    "handoff_decision_evidence_matrix_route_count": 2,
+    "handoff_decision_evidence_matrix_required_evidence_count": 7,
+    "handoff_decision_evidence_matrix_missing_required_evidence_count": 0,
+    "handoff_decision_evidence_matrix_remote_training_allowed_now": false,
     "status_report_next_required_formal_deliverables_present": true,
     "status_report_next_required_formal_deliverables_total_missing": 10,
     "status_report_next_required_formal_deliverables_blocked_category_count": 4,
@@ -1020,14 +1026,14 @@
       "satisfied_required_evidence_count": 7,
       "missing_required_evidence_count": 0,
       "missing_required_evidence_ids": [],
+      "source_issue_count": 0,
+      "global_invalid_substitute_count": 4,
       "current_authorization_allowed_now": false,
       "remote_preflight_allowed_now": false,
       "remote_training_allowed_now": false,
       "local_training_allowed_now": false,
       "formal_claim_allowed_now": false,
       "paper_result_material_allowed_now": false,
-      "source_issue_count": 0,
-      "global_invalid_substitute_count": 4,
       "evidence_counts_by_route": {
         "approve_obstacle_summary_warm_start": 4,
         "reject_obstacle_summary_warm_start": 3
@@ -1068,14 +1074,14 @@
     "satisfied_required_evidence_count": 7,
     "missing_required_evidence_count": 0,
     "missing_required_evidence_ids": [],
+    "source_issue_count": 0,
+    "global_invalid_substitute_count": 4,
     "current_authorization_allowed_now": false,
     "remote_preflight_allowed_now": false,
     "remote_training_allowed_now": false,
     "local_training_allowed_now": false,
     "formal_claim_allowed_now": false,
     "paper_result_material_allowed_now": false,
-    "source_issue_count": 0,
-    "global_invalid_substitute_count": 4,
     "evidence_counts_by_route": {
       "approve_obstacle_summary_warm_start": 4,
       "reject_obstacle_summary_warm_start": 3
@@ -1149,6 +1155,36 @@
       "remote_formal_execution_packet_ready",
       "approved_remote_preflight"
     ]
+  },
+  "handoff_f02_6_decision_evidence_matrix_summary": {
+    "present": true,
+    "matrix_id": "module2_f02_6_decision_evidence_matrix",
+    "status": "ready_for_dr_sun_decision_not_authorization",
+    "route_count": 2,
+    "route_decisions": [
+      "approve_obstacle_summary_warm_start",
+      "reject_obstacle_summary_warm_start"
+    ],
+    "required_evidence_count": 7,
+    "satisfied_required_evidence_count": 7,
+    "missing_required_evidence_count": 0,
+    "missing_required_evidence_ids": [],
+    "source_issue_count": 0,
+    "global_invalid_substitute_count": 4,
+    "current_authorization_allowed_now": false,
+    "remote_preflight_allowed_now": false,
+    "remote_training_allowed_now": false,
+    "local_training_allowed_now": false,
+    "formal_claim_allowed_now": false,
+    "paper_result_material_allowed_now": false,
+    "evidence_counts_by_route": {
+      "approve_obstacle_summary_warm_start": 4,
+      "reject_obstacle_summary_warm_start": 3
+    },
+    "invalid_substitute_counts_by_route": {
+      "approve_obstacle_summary_warm_start": 4,
+      "reject_obstacle_summary_warm_start": 4
+    }
   },
   "status_report_next_required_formal_deliverables": {
     "present": true,
