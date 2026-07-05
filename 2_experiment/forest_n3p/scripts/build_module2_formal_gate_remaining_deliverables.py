@@ -392,6 +392,117 @@ def _proof_command_plan(deliverable_acceptance_matrix: Sequence[dict[str, Any]])
     }
 
 
+def _deliverable_production_plan(
+    *,
+    deliverable_acceptance_matrix: Sequence[dict[str, Any]],
+    post_f02_6_plan: dict[str, Any],
+    remote_packet: dict[str, Any],
+) -> dict[str, Any]:
+    stage_by_id = _post_plan_stage_by_id(post_f02_6_plan)
+    rows: list[dict[str, Any]] = []
+    for item in deliverable_acceptance_matrix:
+        artifact_id = str(item.get("artifact_id") or "")
+        category = str(item.get("category") or "")
+        expected_path = str(item.get("expected_path") or "")
+        remote_stage_id = REMOTE_GENERATION_STAGE_BY_ARTIFACT.get(artifact_id)
+        materialization_stage_id = LOCAL_MATERIALIZATION_STAGE_BY_CATEGORY.get(category)
+        remote_stage = stage_by_id.get(str(remote_stage_id or ""), {})
+        materialization_stage = stage_by_id.get(str(materialization_stage_id or ""), {})
+        rows.append(
+            {
+                "matrix_id": item.get("matrix_id"),
+                "category": category,
+                "artifact_id": artifact_id,
+                "expected_path": expected_path,
+                "current_missing": item.get("missing"),
+                "remote_generation_stage_id": remote_stage_id,
+                "local_materialization_stage_id": materialization_stage_id,
+                "remote_generation_stage": _stage_summary(remote_stage),
+                "local_materialization_stage": _stage_summary(materialization_stage),
+                "expected_path_listed_in_remote_generation_stage": _stage_lists_expected_path(
+                    stage=remote_stage,
+                    expected_path=expected_path,
+                ),
+                "expected_path_listed_in_local_materialization_stage": _stage_lists_expected_path(
+                    stage=materialization_stage,
+                    expected_path=expected_path,
+                ),
+                "hash_manifest_required_by_remote_packet": bool(
+                    remote_packet.get("post_run_pullback", {}).get("hash_manifest_required")
+                )
+                if isinstance(remote_packet.get("post_run_pullback"), dict)
+                else False,
+                "post_plan_input_status": post_f02_6_plan.get("status"),
+                "execution_boundary": "reference_only_no_execution",
+                "not_paper_result_material": True,
+            }
+        )
+    return {
+        "plan_id": "module2_formal_gate_deliverable_production_plan",
+        "source_plan": "post_f02_6_regeneration_plan",
+        "post_plan_status": post_f02_6_plan.get("status"),
+        "execution_boundary": "reference_only_no_execution",
+        "not_paper_result_material": True,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "row_count": len(rows),
+        "rows_missing_production_stage": sum(
+            1 for row in rows if not row["remote_generation_stage_id"] or not row["remote_generation_stage"]
+        ),
+        "rows_missing_materialization_stage": sum(
+            1 for row in rows if not row["local_materialization_stage_id"] or not row["local_materialization_stage"]
+        ),
+        "rows_allowed_while_missing": sum(
+            1
+            for row in rows
+            if row["current_missing"] is True
+            and (
+                row["remote_generation_stage"].get("allowed_now") is True
+                or row["local_materialization_stage"].get("allowed_now") is True
+            )
+        ),
+        "rows": rows,
+    }
+
+
+def _post_plan_stage_by_id(post_f02_6_plan: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    stages = post_f02_6_plan.get("ordered_stages")
+    stages = stages if isinstance(stages, list) else []
+    out: dict[str, dict[str, Any]] = {}
+    for stage in stages:
+        if isinstance(stage, dict) and stage.get("stage_id"):
+            out[str(stage["stage_id"])] = stage
+    return out
+
+
+def _stage_summary(stage: dict[str, Any]) -> dict[str, Any]:
+    if not stage:
+        return {}
+    command_templates = stage.get("command_templates")
+    evidence_paths = stage.get("evidence_paths")
+    return {
+        "stage_id": stage.get("stage_id"),
+        "phase": stage.get("phase"),
+        "status": stage.get("status"),
+        "allowed_now": stage.get("allowed_now"),
+        "blocked_by": _strings(stage.get("blocked_by")),
+        "runs_training": stage.get("runs_training"),
+        "runs_remote_preflight": stage.get("runs_remote_preflight"),
+        "host": stage.get("host"),
+        "command_template_count": len(command_templates) if isinstance(command_templates, list) else 0,
+        "evidence_path_count": len(evidence_paths) if isinstance(evidence_paths, list) else 0,
+    }
+
+
+def _stage_lists_expected_path(*, stage: dict[str, Any], expected_path: str) -> bool:
+    if not stage or not expected_path:
+        return False
+    candidate_paths = _path_candidate_literals(expected_path)
+    evidence_paths = stage.get("evidence_paths")
+    evidence = {str(item) for item in evidence_paths} if isinstance(evidence_paths, list) else set()
+    return any(candidate in evidence for candidate in candidate_paths)
+
+
 def _deliverable_unlock_chain(deliverable_acceptance_matrix: Sequence[dict[str, Any]]) -> dict[str, Any]:
     rows: list[dict[str, Any]] = []
     for row in deliverable_acceptance_matrix:
