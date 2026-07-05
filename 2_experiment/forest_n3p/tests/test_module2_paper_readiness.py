@@ -160,6 +160,22 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_row_count"] == 22
     assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_source_target_count"] == 22
     assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_missing_target_count"] == 0
+    assert manifest["input_status"]["claim_safety_next_action_guard_present"] is True
+    assert manifest["input_status"]["claim_safety_next_action_guard_status"] == "next_action_guard_passed"
+    assert (
+        manifest["input_status"]["claim_safety_next_action_guard_expected_next_action_id"]
+        == "record_f02_6_decision"
+    )
+    assert manifest["input_status"]["claim_safety_next_action_guard_all_execution_disabled_now"] is True
+    assert manifest["input_status"]["claim_safety_next_action_guard_execution_leak_count"] == 0
+    assert manifest["input_status"]["claim_safety_next_required_formal_deliverables_present"] is True
+    assert (
+        manifest["input_status"]["claim_safety_next_required_formal_deliverables_status"]
+        == "blocked_missing_formal_deliverables"
+    )
+    assert manifest["input_status"]["claim_safety_next_required_formal_deliverables_total_missing"] == 10
+    assert manifest["input_status"]["claim_safety_next_required_formal_deliverables_blocked_category_count"] == 4
+    assert manifest["input_status"]["claim_safety_next_required_formal_deliverables_row_count"] == 10
     assert manifest["claim_safety_remote_packet_safety_claim_gate_command_index_summary"]["claim_gate_rows"][
         "formal_gate_proof_summary_chain_audit"
     ]["stage_id"] == "regenerate_claim_gate_artifacts"
@@ -222,6 +238,10 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert "claim_safety_remote_packet_safety_proof_h02_paper_result_input_allowed" in markdown
     assert "Claim Safety Remote-Safety Claim-Gate Command Index" in markdown
     assert "claim_safety_remote_packet_safety_command_index_row_count" in markdown
+    assert "Claim Safety Next-Action Guard" in markdown
+    assert "claim_safety_next_action_guard_expected_next_action_id" in markdown
+    assert "Claim Safety Next Required Formal Deliverables" in markdown
+    assert "claim_safety_next_required_formal_deliverables_total_missing" in markdown
 
 
 def test_paper_readiness_accepts_synthetic_complete_evidence(tmp_path):
@@ -287,6 +307,13 @@ def test_paper_readiness_accepts_synthetic_complete_evidence(tmp_path):
         "claim_safety_remote_packet_safety_proof_deliverables_summary"
     ]
     assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_row_count"] == 22
+    assert manifest["input_status"]["claim_safety_next_action_guard_status"] == "next_action_guard_passed"
+    assert manifest["input_status"]["claim_safety_next_action_guard_expected_next_action_id"] is None
+    assert manifest["input_status"]["claim_safety_next_action_guard_all_execution_disabled_now"] is False
+    assert manifest["input_status"]["claim_safety_next_required_formal_deliverables_status"] == "formal_deliverables_ready"
+    assert manifest["input_status"]["claim_safety_next_required_formal_deliverables_total_missing"] == 0
+    assert manifest["input_status"]["claim_safety_next_required_formal_deliverables_blocked_category_count"] == 0
+    assert manifest["input_status"]["claim_safety_next_required_formal_deliverables_row_count"] == 10
     assert all(item["status"] != "blocked" for item in manifest["section_readiness"])
     assert "formal_performance_improvement" in manifest["conditional_claim_ids"]
 
@@ -717,6 +744,117 @@ def test_paper_readiness_rejects_claim_safety_remote_safety_command_index_drift(
     assert "claim_safety_remote_packet_safety_command_index_missing_paper_readiness" in manifest["global_blockers"]
 
 
+def test_paper_readiness_rejects_claim_safety_next_action_guard_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_paper_readiness")
+    paths = _write_inputs(tmp_path, formal=True)
+
+    claim_safety_payload = json.loads(paths["claim_safety"].read_text(encoding="utf-8"))
+    summary = claim_safety_payload["status_report_next_action_guard_summary"]
+    summary["status"] = "next_action_guard_failed"
+    summary["violation_count"] = 1
+    summary["pending_f02_6_decision"] = True
+    summary["next_blocked_lane_id"] = "remote_training"
+    summary["expected_next_action_id"] = "run_remote_training"
+    summary["handoff_next_action_id"] = "run_remote_training"
+    summary["handoff_next_action_requires_dr_sun"] = False
+    summary["missing_artifacts_next_action_id"] = "run_remote_training"
+    summary["decision_intake_next_blocked_lane"] = "remote_training"
+    summary["all_execution_disabled_now"] = False
+    summary["execution_leak_count"] = 1
+    summary["remote_execution_allowed_count"] = 1
+    summary["remote_stage_allowed_count"] = 1
+    paths["claim_safety"].write_text(json.dumps(claim_safety_payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        builder.PaperReadinessConfig(
+            output_dir=tmp_path,
+            method_algorithms_path=paths["method_algorithms"],
+            system_diagram_path=paths["system_diagram"],
+            paper_tables_path=paths["paper_tables"],
+            claim_safety_path=paths["claim_safety"],
+            h02_formal_acceptance_path=paths["h02_acceptance"],
+            h01_manifest_path=paths["h01_manifest"],
+            f02_6_decision_record_path=paths["decision_record"],
+            remote_execution_packet_path=paths["remote_packet"],
+            status_report_path=paths["status_report"],
+        )
+    )
+
+    assert manifest["status"] == "partial_methods_ready_results_blocked"
+    assert "claim_safety_next_action_guard_not_passed" in manifest["global_blockers"]
+    assert "claim_safety_next_action_guard_violations_open" in manifest["global_blockers"]
+    assert "claim_safety_next_action_guard_lane_not_decision" in manifest["global_blockers"]
+    assert "claim_safety_next_action_guard_next_action_not_decision" in manifest["global_blockers"]
+    assert "claim_safety_next_action_guard_handoff_action_not_decision" in manifest["global_blockers"]
+    assert "claim_safety_next_action_guard_missing_artifacts_action_not_decision" in manifest["global_blockers"]
+    assert "claim_safety_next_action_guard_intake_lane_not_decision" in manifest["global_blockers"]
+    assert "claim_safety_next_action_guard_handoff_not_gated_by_dr_sun" in manifest["global_blockers"]
+    assert "claim_safety_next_action_guard_execution_not_disabled" in manifest["global_blockers"]
+    assert "claim_safety_next_action_guard_execution_leaks_open" in manifest["global_blockers"]
+    assert "claim_safety_next_action_guard_remote_execution_allowed" in manifest["global_blockers"]
+    assert "claim_safety_next_action_guard_remote_stage_allowed" in manifest["global_blockers"]
+    assert manifest["input_status"]["claim_safety_next_action_guard_expected_next_action_id"] == "run_remote_training"
+
+
+def test_paper_readiness_rejects_claim_safety_next_required_formal_deliverables_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_paper_readiness")
+    paths = _write_inputs(tmp_path, formal=True)
+
+    claim_safety_payload = json.loads(paths["claim_safety"].read_text(encoding="utf-8"))
+    summary = claim_safety_payload["status_report_next_required_formal_deliverables"]
+    summary["not_paper_result_material"] = False
+    summary["runs_training"] = True
+    summary["runs_remote_preflight"] = True
+    summary["total_missing_deliverables"] = 1
+    summary["blocked_category_count"] = 1
+    summary["blocked_categories"] = ["training"]
+    summary["category_order"] = ["training", "evaluation"]
+    summary["rows"]["training:train_final_model_zip"]["proof_command_ids"] = []
+    summary["rows"]["training:train_final_model_zip"]["invalid_substitute_count"] = 0
+    summary["rows"].pop("formal_acceptance:h02_formal_output_acceptance")
+    paths["claim_safety"].write_text(json.dumps(claim_safety_payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        builder.PaperReadinessConfig(
+            output_dir=tmp_path,
+            method_algorithms_path=paths["method_algorithms"],
+            system_diagram_path=paths["system_diagram"],
+            paper_tables_path=paths["paper_tables"],
+            claim_safety_path=paths["claim_safety"],
+            h02_formal_acceptance_path=paths["h02_acceptance"],
+            h01_manifest_path=paths["h01_manifest"],
+            f02_6_decision_record_path=paths["decision_record"],
+            remote_execution_packet_path=paths["remote_packet"],
+            status_report_path=paths["status_report"],
+        )
+    )
+
+    assert manifest["status"] == "partial_methods_ready_results_blocked"
+    assert "claim_safety_next_required_formal_deliverables_marked_as_paper_result" in manifest["global_blockers"]
+    assert "claim_safety_next_required_formal_deliverables_runs_training" in manifest["global_blockers"]
+    assert "claim_safety_next_required_formal_deliverables_runs_remote_preflight" in manifest["global_blockers"]
+    assert "claim_safety_next_required_formal_deliverables_category_order_mismatch" in manifest["global_blockers"]
+    assert "claim_safety_next_required_formal_deliverables_row_count_mismatch" in manifest["global_blockers"]
+    assert (
+        "claim_safety_next_required_formal_deliverables_missing_formal_acceptance_h02_formal_output_acceptance"
+        in manifest["global_blockers"]
+    )
+    assert "claim_safety_next_required_formal_deliverables_missing_while_claim_ready" in manifest["global_blockers"]
+    assert (
+        "claim_safety_next_required_formal_deliverables_categories_blocked_while_claim_ready"
+        in manifest["global_blockers"]
+    )
+    assert (
+        "claim_safety_next_required_formal_deliverables_training_train_final_model_zip_missing_proof_commands"
+        in manifest["global_blockers"]
+    )
+    assert (
+        "claim_safety_next_required_formal_deliverables_training_train_final_model_zip_missing_invalid_substitutes"
+        in manifest["global_blockers"]
+    )
+    assert manifest["input_status"]["claim_safety_next_required_formal_deliverables_row_count"] == 9
+
+
 def test_paper_readiness_rejects_missing_claim_safety_remote_safety_proof_summary(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_paper_readiness")
     paths = _write_inputs(tmp_path, formal=True)
@@ -887,6 +1025,12 @@ def _write_inputs(tmp_path, *, formal):
                 json.dumps(proof_summary)
             ),
             "status_report_remote_packet_safety_claim_gate_command_index_summary": _claim_safety_command_index_summary_payload(),
+            "status_report_next_action_guard_summary": _claim_safety_next_action_guard_summary_payload(
+                formal=formal
+            ),
+            "status_report_next_required_formal_deliverables": _claim_safety_next_required_formal_deliverables_payload(
+                formal=formal
+            ),
             "allowed_claims": [
                 {"claim_id": "method_is_ha_star_analytic_operator", "scope": "method_structure"},
                 {"claim_id": "no_warm_gate3_formal_failure", "scope": "no_warm_only"},
@@ -1309,6 +1453,62 @@ def _claim_safety_remote_safety_proof_summary_payload(*, formal):
         "h02_status": "formal_output_accepted" if formal else "blocked_formal_output_acceptance",
         "h02_formal_output_accepted": bool(formal),
         "h02_paper_result_input_allowed": bool(formal),
+    }
+
+
+def _claim_safety_next_action_guard_summary_payload(*, formal):
+    return {
+        "present": True,
+        "status": "next_action_guard_passed",
+        "pending_f02_6_decision": not formal,
+        "next_blocked_lane_id": None if formal else "decision",
+        "expected_next_action_id": None if formal else "record_f02_6_decision",
+        "handoff_next_action_id": None if formal else "record_f02_6_decision",
+        "handoff_next_action_requires_dr_sun": not formal,
+        "missing_artifacts_next_action_id": None if formal else "record_f02_6_decision",
+        "decision_intake_next_blocked_lane": None if formal else "decision",
+        "all_execution_disabled_now": not formal,
+        "execution_leak_count": 0,
+        "remote_execution_allowed_count": 0,
+        "remote_stage_allowed_count": 0,
+        "violation_count": 0,
+        "execution_leak_surface_ids": [],
+    }
+
+
+def _claim_safety_next_required_formal_deliverables_payload(*, formal):
+    acceptance = _claim_safety_remaining_deliverables_acceptance_summary_payload(formal=formal)
+    gap = _claim_safety_remaining_deliverables_gap_summary_payload(formal=formal)
+    rows = {}
+    for matrix_id, row in acceptance["rows"].items():
+        category, artifact_id = matrix_id.split(":", 1)
+        rows[matrix_id] = {
+            "present": True,
+            "category": category,
+            "artifact_id": artifact_id,
+            "expected_path": f"expected/{matrix_id.replace(':', '/')}",
+            "current_state": "missing" if row["missing"] else "present",
+            "missing_reason": "required formal gate artifact" if row["missing"] else None,
+            "responsible_stage_id": row["responsible_stage_id"],
+            "responsible_stage_allowed_now": row["responsible_stage_allowed_now"],
+            "responsible_stage_blocked_by": []
+            if formal
+            else ["f02_6_decision_not_approved", "remote_packet_not_ready"],
+            "proof_command_ids": [f"{artifact_id}_exists", f"{artifact_id}_schema"],
+            "invalid_substitute_count": row["invalid_substitute_count"],
+        }
+    return {
+        "present": True,
+        "status": "formal_deliverables_ready" if formal else "blocked_missing_formal_deliverables",
+        "execution_boundary": "read_only_no_execution",
+        "not_paper_result_material": True,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "total_missing_deliverables": gap["total_missing_deliverables"],
+        "blocked_category_count": gap["open_category_count"],
+        "blocked_categories": [] if formal else ["training", "evaluation", "acceptance", "formal_acceptance"],
+        "category_order": ["training", "evaluation", "acceptance", "formal_acceptance"],
+        "rows": rows,
     }
 
 

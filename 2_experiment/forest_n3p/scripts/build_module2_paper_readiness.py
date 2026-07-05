@@ -218,6 +218,8 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
     claim_remote_packet_safety_claim_gate_command_index_summary = (
         _claim_safety_remote_packet_safety_claim_gate_command_index_summary(claim_safety)
     )
+    claim_next_action_guard_summary = _claim_safety_next_action_guard_summary(claim_safety)
+    claim_next_required_formal_deliverables = _claim_safety_next_required_formal_deliverables(claim_safety)
     input_status = {
         "method_algorithms_status": method_algorithms.get("status"),
         "system_diagram_status": system_diagram.get("status"),
@@ -397,6 +399,31 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_remote_packet_safety_command_index_missing_target_count": len(
             claim_remote_packet_safety_claim_gate_command_index_summary["missing_target_ids"]
         ),
+        "claim_safety_next_action_guard_present": claim_next_action_guard_summary["present"],
+        "claim_safety_next_action_guard_status": claim_next_action_guard_summary["status"],
+        "claim_safety_next_action_guard_expected_next_action_id": claim_next_action_guard_summary[
+            "expected_next_action_id"
+        ],
+        "claim_safety_next_action_guard_all_execution_disabled_now": claim_next_action_guard_summary[
+            "all_execution_disabled_now"
+        ],
+        "claim_safety_next_action_guard_execution_leak_count": claim_next_action_guard_summary[
+            "execution_leak_count"
+        ],
+        "claim_safety_next_action_guard_violation_count": claim_next_action_guard_summary["violation_count"],
+        "claim_safety_next_required_formal_deliverables_present": claim_next_required_formal_deliverables[
+            "present"
+        ],
+        "claim_safety_next_required_formal_deliverables_status": claim_next_required_formal_deliverables["status"],
+        "claim_safety_next_required_formal_deliverables_total_missing": claim_next_required_formal_deliverables[
+            "total_missing_deliverables"
+        ],
+        "claim_safety_next_required_formal_deliverables_blocked_category_count": claim_next_required_formal_deliverables[
+            "blocked_category_count"
+        ],
+        "claim_safety_next_required_formal_deliverables_row_count": claim_next_required_formal_deliverables[
+            "row_count"
+        ],
         "h02_formal_acceptance_status": h02_acceptance.get("status"),
         "h02_formal_output_accepted": h02_acceptance.get("formal_output_accepted"),
         "h02_paper_result_input_allowed": h02_acceptance.get("paper_result_input_allowed"),
@@ -462,6 +489,8 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_remote_packet_safety_claim_gate_command_index_summary": (
             claim_remote_packet_safety_claim_gate_command_index_summary
         ),
+        "claim_safety_next_action_guard_summary": claim_next_action_guard_summary,
+        "claim_safety_next_required_formal_deliverables": claim_next_required_formal_deliverables,
         "global_blockers": global_blockers,
         "allowed_claim_ids": allowed_claim_ids,
         "conditional_claim_ids": conditional_claim_ids,
@@ -524,6 +553,8 @@ def _global_blockers(
     _extend_unique(blockers, _claim_safety_remaining_deliverables_proof_command_plan_blockers(claim_safety))
     _extend_unique(blockers, _claim_safety_remote_packet_safety_proof_deliverables_blockers(claim_safety))
     _extend_unique(blockers, _claim_safety_remote_packet_safety_claim_gate_command_index_blockers(claim_safety))
+    _extend_unique(blockers, _claim_safety_next_action_guard_blockers(claim_safety))
+    _extend_unique(blockers, _claim_safety_next_required_formal_deliverables_blockers(claim_safety))
     _extend_unique(blockers, h01_manifest.get("blockers", []))
     if str(decision_record.get("status")) == "pending_human_decision":
         _append_unique(blockers, "f02_6_pending")
@@ -899,6 +930,175 @@ def _claim_safety_decision_intake_blockers(claim_safety: dict[str, Any]) -> list
             blockers.append("claim_safety_closed_f02_6_intake_decider_not_dr_sun")
     elif summary["record_status"] not in CLAIM_SAFETY_DECISION_INTAKE_RECORD_STATUSES:
         blockers.append("claim_safety_f02_6_decision_intake_unknown_record_status")
+    return blockers
+
+
+def _claim_safety_next_action_guard_summary(claim_safety: dict[str, Any]) -> dict[str, Any]:
+    summary = claim_safety.get("status_report_next_action_guard_summary")
+    summary = summary if isinstance(summary, dict) else {}
+    return {
+        "present": bool(summary.get("present")) or bool(summary),
+        "status": summary.get("status"),
+        "pending_f02_6_decision": summary.get("pending_f02_6_decision")
+        if isinstance(summary.get("pending_f02_6_decision"), bool)
+        else None,
+        "next_blocked_lane_id": summary.get("next_blocked_lane_id"),
+        "expected_next_action_id": summary.get("expected_next_action_id"),
+        "handoff_next_action_id": summary.get("handoff_next_action_id"),
+        "handoff_next_action_requires_dr_sun": summary.get("handoff_next_action_requires_dr_sun")
+        if isinstance(summary.get("handoff_next_action_requires_dr_sun"), bool)
+        else None,
+        "missing_artifacts_next_action_id": summary.get("missing_artifacts_next_action_id"),
+        "decision_intake_next_blocked_lane": summary.get("decision_intake_next_blocked_lane"),
+        "all_execution_disabled_now": summary.get("all_execution_disabled_now")
+        if isinstance(summary.get("all_execution_disabled_now"), bool)
+        else None,
+        "execution_leak_count": int(summary.get("execution_leak_count") or 0),
+        "remote_execution_allowed_count": int(summary.get("remote_execution_allowed_count") or 0),
+        "remote_stage_allowed_count": int(summary.get("remote_stage_allowed_count") or 0),
+        "violation_count": int(summary.get("violation_count") or 0),
+        "execution_leak_surface_ids": _strings(summary.get("execution_leak_surface_ids")),
+    }
+
+
+def _claim_safety_next_action_guard_blockers(claim_safety: dict[str, Any]) -> list[str]:
+    summary = _claim_safety_next_action_guard_summary(claim_safety)
+    blockers: list[str] = []
+    if not summary["present"]:
+        blockers.append("claim_safety_missing_next_action_guard_summary")
+        return blockers
+    if summary["status"] != "next_action_guard_passed":
+        blockers.append("claim_safety_next_action_guard_not_passed")
+    if summary["violation_count"] > 0:
+        blockers.append("claim_safety_next_action_guard_violations_open")
+    if summary["pending_f02_6_decision"] is not True:
+        return blockers
+    expected_action = "record_f02_6_decision"
+    if summary["next_blocked_lane_id"] != "decision":
+        blockers.append("claim_safety_next_action_guard_lane_not_decision")
+    if summary["expected_next_action_id"] != expected_action:
+        blockers.append("claim_safety_next_action_guard_next_action_not_decision")
+    if summary["handoff_next_action_id"] != expected_action:
+        blockers.append("claim_safety_next_action_guard_handoff_action_not_decision")
+    if summary["missing_artifacts_next_action_id"] != expected_action:
+        blockers.append("claim_safety_next_action_guard_missing_artifacts_action_not_decision")
+    if summary["decision_intake_next_blocked_lane"] != "decision":
+        blockers.append("claim_safety_next_action_guard_intake_lane_not_decision")
+    if summary["handoff_next_action_requires_dr_sun"] is not True:
+        blockers.append("claim_safety_next_action_guard_handoff_not_gated_by_dr_sun")
+    if summary["all_execution_disabled_now"] is not True:
+        blockers.append("claim_safety_next_action_guard_execution_not_disabled")
+    if summary["execution_leak_count"] > 0:
+        blockers.append("claim_safety_next_action_guard_execution_leaks_open")
+    if summary["remote_execution_allowed_count"] > 0:
+        blockers.append("claim_safety_next_action_guard_remote_execution_allowed")
+    if summary["remote_stage_allowed_count"] > 0:
+        blockers.append("claim_safety_next_action_guard_remote_stage_allowed")
+    return blockers
+
+
+def _claim_safety_next_required_formal_deliverables(claim_safety: dict[str, Any]) -> dict[str, Any]:
+    summary = claim_safety.get("status_report_next_required_formal_deliverables")
+    summary = summary if isinstance(summary, dict) else {}
+    raw_rows = summary.get("rows")
+    rows: dict[str, dict[str, Any]] = {}
+    if isinstance(raw_rows, dict):
+        iterable_rows = (
+            dict(raw_row, matrix_id=matrix_id) if isinstance(raw_row, dict) and "matrix_id" not in raw_row else raw_row
+            for matrix_id, raw_row in raw_rows.items()
+        )
+    elif isinstance(raw_rows, list):
+        iterable_rows = (raw_row for raw_row in raw_rows if isinstance(raw_row, dict))
+    else:
+        iterable_rows = ()
+    for raw_row in iterable_rows:
+        if not isinstance(raw_row, dict):
+            continue
+        matrix_id = raw_row.get("matrix_id")
+        if not matrix_id:
+            continue
+        rows[str(matrix_id)] = {
+            "present": True,
+            "category": raw_row.get("category"),
+            "current_state": raw_row.get("current_state"),
+            "responsible_stage_id": raw_row.get("responsible_stage_id"),
+            "responsible_stage_allowed_now": raw_row.get("responsible_stage_allowed_now")
+            if isinstance(raw_row.get("responsible_stage_allowed_now"), bool)
+            else None,
+            "proof_command_ids": _strings(raw_row.get("proof_command_ids")),
+            "invalid_substitute_count": int(raw_row.get("invalid_substitute_count") or 0),
+        }
+    return {
+        "present": bool(summary.get("present")) or bool(summary),
+        "status": summary.get("status"),
+        "execution_boundary": summary.get("execution_boundary"),
+        "not_paper_result_material": summary.get("not_paper_result_material") is True,
+        "runs_training": summary.get("runs_training") is True,
+        "runs_remote_preflight": summary.get("runs_remote_preflight") is True,
+        "total_missing_deliverables": int(summary.get("total_missing_deliverables") or 0),
+        "blocked_category_count": int(summary.get("blocked_category_count") or 0),
+        "blocked_categories": _strings(summary.get("blocked_categories")),
+        "category_order": _strings(summary.get("category_order")),
+        "row_count": len(rows),
+        "missing_matrix_ids": [
+            matrix_id for matrix_id in CLAIM_SAFETY_REMAINING_DELIVERABLE_MATRIX_IDS if matrix_id not in rows
+        ],
+        "rows": rows,
+    }
+
+
+def _claim_safety_next_required_formal_deliverables_blockers(claim_safety: dict[str, Any]) -> list[str]:
+    summary = _claim_safety_next_required_formal_deliverables(claim_safety)
+    blockers: list[str] = []
+    if not summary["present"]:
+        blockers.append("claim_safety_missing_next_required_formal_deliverables")
+        return blockers
+    if not summary["not_paper_result_material"]:
+        blockers.append("claim_safety_next_required_formal_deliverables_marked_as_paper_result")
+    if summary["runs_training"]:
+        blockers.append("claim_safety_next_required_formal_deliverables_runs_training")
+    if summary["runs_remote_preflight"]:
+        blockers.append("claim_safety_next_required_formal_deliverables_runs_remote_preflight")
+    if summary["category_order"] != list(CLAIM_SAFETY_REMAINING_DELIVERABLE_CATEGORY_IDS):
+        blockers.append("claim_safety_next_required_formal_deliverables_category_order_mismatch")
+    if summary["row_count"] != len(CLAIM_SAFETY_REMAINING_DELIVERABLE_MATRIX_IDS):
+        blockers.append("claim_safety_next_required_formal_deliverables_row_count_mismatch")
+    for matrix_id in summary["missing_matrix_ids"]:
+        _append_unique(
+            blockers,
+            f"claim_safety_next_required_formal_deliverables_missing_{matrix_id.replace(':', '_')}",
+        )
+    if claim_safety.get("formal_performance_claim_allowed") is True:
+        if summary["total_missing_deliverables"] > 0:
+            blockers.append("claim_safety_next_required_formal_deliverables_missing_while_claim_ready")
+        if summary["blocked_category_count"] > 0:
+            blockers.append("claim_safety_next_required_formal_deliverables_categories_blocked_while_claim_ready")
+    else:
+        if summary["status"] != "blocked_missing_formal_deliverables":
+            blockers.append("claim_safety_next_required_formal_deliverables_status_not_blocked")
+        if summary["total_missing_deliverables"] <= 0:
+            blockers.append("claim_safety_next_required_formal_deliverables_zero_missing_while_blocked")
+        if summary["blocked_category_count"] <= 0:
+            blockers.append("claim_safety_next_required_formal_deliverables_zero_blocked_categories_while_blocked")
+        if summary["blocked_categories"] != list(CLAIM_SAFETY_REMAINING_DELIVERABLE_CATEGORY_IDS):
+            blockers.append("claim_safety_next_required_formal_deliverables_blocked_categories_mismatch")
+    for matrix_id, row in summary["rows"].items():
+        safe_matrix_id = matrix_id.replace(":", "_")
+        if not row["proof_command_ids"]:
+            _append_unique(
+                blockers,
+                f"claim_safety_next_required_formal_deliverables_{safe_matrix_id}_missing_proof_commands",
+            )
+        if row["invalid_substitute_count"] <= 0:
+            _append_unique(
+                blockers,
+                f"claim_safety_next_required_formal_deliverables_{safe_matrix_id}_missing_invalid_substitutes",
+            )
+        if claim_safety.get("formal_performance_claim_allowed") is not True and row["responsible_stage_allowed_now"] is True:
+            _append_unique(
+                blockers,
+                f"claim_safety_next_required_formal_deliverables_{safe_matrix_id}_stage_allowed_while_blocked",
+            )
     return blockers
 
 
@@ -1499,6 +1699,23 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- claim_safety_remote_packet_safety_command_index_row_count: `{input_status.get('claim_safety_remote_packet_safety_command_index_row_count')}`",
             f"- claim_safety_remote_packet_safety_command_index_source_target_count: `{input_status.get('claim_safety_remote_packet_safety_command_index_source_target_count')}`",
             f"- claim_safety_remote_packet_safety_command_index_missing_target_count: `{input_status.get('claim_safety_remote_packet_safety_command_index_missing_target_count')}`",
+            "",
+            "## Claim Safety Next-Action Guard",
+            "",
+            f"- claim_safety_next_action_guard_present: `{input_status.get('claim_safety_next_action_guard_present')}`",
+            f"- claim_safety_next_action_guard_status: `{input_status.get('claim_safety_next_action_guard_status')}`",
+            f"- claim_safety_next_action_guard_expected_next_action_id: `{input_status.get('claim_safety_next_action_guard_expected_next_action_id')}`",
+            f"- claim_safety_next_action_guard_all_execution_disabled_now: `{input_status.get('claim_safety_next_action_guard_all_execution_disabled_now')}`",
+            f"- claim_safety_next_action_guard_execution_leak_count: `{input_status.get('claim_safety_next_action_guard_execution_leak_count')}`",
+            f"- claim_safety_next_action_guard_violation_count: `{input_status.get('claim_safety_next_action_guard_violation_count')}`",
+            "",
+            "## Claim Safety Next Required Formal Deliverables",
+            "",
+            f"- claim_safety_next_required_formal_deliverables_present: `{input_status.get('claim_safety_next_required_formal_deliverables_present')}`",
+            f"- claim_safety_next_required_formal_deliverables_status: `{input_status.get('claim_safety_next_required_formal_deliverables_status')}`",
+            f"- claim_safety_next_required_formal_deliverables_total_missing: `{input_status.get('claim_safety_next_required_formal_deliverables_total_missing')}`",
+            f"- claim_safety_next_required_formal_deliverables_blocked_category_count: `{input_status.get('claim_safety_next_required_formal_deliverables_blocked_category_count')}`",
+            f"- claim_safety_next_required_formal_deliverables_row_count: `{input_status.get('claim_safety_next_required_formal_deliverables_row_count')}`",
         ]
     )
     lines.extend(["", "## Section Readiness", ""])
