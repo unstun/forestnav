@@ -5,6 +5,11 @@ from pathlib import Path
 
 from forest_n3p.scripts.build_module2_formal_gate_status_report import (
     _formal_gate_execution_veto_issues,
+    _remaining_deliverables_acceptance_issues,
+)
+from forest_n3p.scripts.build_module2_formal_gate_remaining_deliverables import (
+    _production_plan_safety_issues,
+    _unlock_chain_safety_issues,
 )
 from forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit import (
     FormalGateProofSummaryChainAuditConfig,
@@ -272,6 +277,86 @@ def test_remote_packet_ready_stage_does_not_allow_audit_before_training(tmp_path
     assert steps["run_remote_training"]["allowed_now"] is True
     assert steps["run_remote_audit"]["allowed_now"] is False
     assert steps["run_remote_audit"]["blocked_by"] == ["remote_training_not_completed"]
+
+
+def test_remaining_deliverables_allow_training_generation_while_missing() -> None:
+    production_issues = _production_plan_safety_issues(
+        {
+            "execution_boundary": "reference_only_no_execution",
+            "runs_training": False,
+            "runs_remote_preflight": False,
+            "row_count": 1,
+            "rows": [
+                {
+                    "matrix_id": "training:train_final_model_zip",
+                    "category": "training",
+                    "artifact_id": "train_final_model_zip",
+                    "execution_boundary": "reference_only_no_execution",
+                    "current_missing": True,
+                    "remote_generation_stage_id": "gate3_remote_training",
+                    "local_materialization_stage_id": "gate3_remote_audit_pullback",
+                    "remote_generation_stage": {"allowed_now": True},
+                    "local_materialization_stage": {"allowed_now": False},
+                    "hash_manifest_required_by_remote_packet": False,
+                }
+            ],
+        }
+    )
+    unlock_issues = _unlock_chain_safety_issues(
+        {
+            "execution_boundary": "read_only_no_execution",
+            "rows": [
+                {
+                    "matrix_id": "training:train_final_model_zip",
+                    "missing": True,
+                    "responsible_stage_id": "gate3_remote_training",
+                    "responsible_stage_allowed_now": True,
+                    "missing_required_current_blockers": [],
+                    "execution_boundary": "read_only_no_execution",
+                    "unlock_sequence_before_stage_allowed": ["remote_formal_execution_packet_ready"],
+                }
+            ],
+        }
+    )
+
+    assert not {
+        issue["issue_id"]
+        for issue in production_issues + unlock_issues
+        if issue["issue_id"].endswith("_allowed_while_missing")
+    }
+
+
+def test_status_report_allows_training_stage_in_remaining_deliverables_summary() -> None:
+    issues = _remaining_deliverables_acceptance_issues(
+        remaining_deliverables={"status": "formal_gate_deliverables_blocked"},
+        summary={
+            "present": True,
+            "status": "formal_gate_deliverables_blocked",
+            "matrix_row_count": 1,
+            "expected_matrix_row_count": 1,
+            "missing_expected_matrix_ids": [],
+            "permissions_now": {
+                "local_training_allowed_now": False,
+                "remote_training_allowed_now": False,
+                "formal_claim_allowed_now": False,
+            },
+            "rows": {
+                "training:train_final_model_zip": {
+                    "present": True,
+                    "category": "training",
+                    "execution_boundary": "read_only_no_execution",
+                    "acceptance_predicate_count": 1,
+                    "invalid_substitute_count": 1,
+                    "responsible_stage_allowed_now": True,
+                    "responsible_stage_id": "gate3_remote_training",
+                }
+            },
+        },
+    )
+
+    assert "remaining_deliverables_training_train_final_model_zip_stage_allowed_while_blocked" not in {
+        issue["issue_id"] for issue in issues
+    }
 
 
 def test_status_report_execution_veto_blocks_only_local_and_claim_when_result_gate_blocked() -> None:
