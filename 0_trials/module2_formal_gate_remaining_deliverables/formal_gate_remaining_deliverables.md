@@ -3,7 +3,7 @@
 This ledger is read-only. It lists remaining formal training, evaluation, and acceptance deliverables; it does not execute commands or write paper results.
 
 - status: `formal_gate_deliverables_blocked`
-- source_head: `8bc3ddbb00151123b56fea63ac513a487f1cd213+dirty`
+- source_head: `6c3c910cbae1484f53428bf2f7809861411852b7`
 - missing_deliverable_count: `10`
 - open_category_count: `4`
 - proof_command_count: `20`
