@@ -195,12 +195,14 @@ def build_manifest(config: SourceFreshnessAuditConfig) -> dict[str, Any]:
         "artifact_count": len(records),
         "risk_counts": risk_counts,
         "commit_lag_summary": commit_lag_summary,
+        "audit_self_reference_policy": _audit_self_reference_policy(config),
         "regeneration_required_before_remote_formal_execution": bool(freshness_risks),
         "artifact_records": records,
         "ordered_regeneration_targets": _ordered_regeneration_targets(records),
         "claim_boundaries": [
             "This audit records source-head freshness only; it is not a training run or paper result.",
             "Historical or dirty source_head values are regeneration risks, not formal experimental failures.",
+            "The audit artifact's own post-commit source_head lag is expected and is not a formal gate blocker by itself.",
             "F02.6 remains the human approval gate before approved remote preflight or formal PPO training.",
             "Regenerate stale/dirty gate artifacts after F02.6 closes and before H01/H02 formal evaluation or formal claims.",
         ],
@@ -335,6 +337,19 @@ def _commit_lag_summary(records: Sequence[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _audit_self_reference_policy(config: SourceFreshnessAuditConfig) -> dict[str, Any]:
+    manifest_path = config.manifest_out or Path(config.output_dir) / "source_freshness_audit.json"
+    markdown_path = config.markdown_out or Path(config.output_dir) / "source_freshness_audit.md"
+    return {
+        "source_head_scope": "generation_time_repository_head",
+        "commit_storing_this_audit_known_at_generation": False,
+        "expected_post_commit_self_lag": True,
+        "self_lag_is_formal_gate_blocker": False,
+        "manifest_path": str(manifest_path),
+        "markdown_path": str(markdown_path),
+    }
+
+
 def _positive_int(value: Any) -> bool:
     return isinstance(value, int) and value > 0
 
@@ -383,6 +398,9 @@ def _markdown(manifest: dict[str, Any]) -> str:
         lines.append(f"- `{key}`: `{value}`")
     lines.extend(["", "## Commit Lag Diagnostics", ""])
     for key, value in manifest["commit_lag_summary"].items():
+        lines.append(f"- `{key}`: `{value}`")
+    lines.extend(["", "## Audit Self-Reference Policy", ""])
+    for key, value in manifest["audit_self_reference_policy"].items():
         lines.append(f"- `{key}`: `{value}`")
     lines.extend(["", "## Regeneration Targets", ""])
     if manifest["ordered_regeneration_targets"]:
