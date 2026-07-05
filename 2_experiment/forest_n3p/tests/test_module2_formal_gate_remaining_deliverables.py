@@ -32,6 +32,37 @@ def test_remaining_deliverables_blocks_pending_formal_gate(tmp_path):
     assert manifest["category_counts"]["evaluation"] == {"item_count": 2, "missing_count": 2, "present_count": 0}
     assert manifest["category_counts"]["acceptance"] == {"item_count": 3, "missing_count": 3, "present_count": 0}
     assert manifest["category_counts"]["formal_acceptance"] == {"item_count": 2, "missing_count": 2, "present_count": 0}
+    assert manifest["missing_counts_by_formal_category"] == {
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 2,
+    }
+    assert manifest["missing_matrix_ids_by_formal_category"] == {
+        "training": [
+            "training:train_final_model_zip",
+            "training:train_summary_json",
+            "training:train_training_manifest_json",
+        ],
+        "evaluation": [
+            "evaluation:eval_gate3_eval_episodes_csv",
+            "evaluation:eval_gate3_summary_json",
+        ],
+        "acceptance": [
+            "acceptance:gate3_trial_manifest_json",
+            "acceptance:gate3_formal_audit_json",
+            "acceptance:pulled_back_checkpoint_hash_record",
+        ],
+        "formal_acceptance": [
+            "formal_acceptance:h01_ready_for_formal_run",
+            "formal_acceptance:h02_formal_output_acceptance",
+        ],
+    }
+    assert manifest["next_blocked_lane"] == "decision"
+    assert manifest["h01_status"] == "blocked_pending_decisions"
+    assert manifest["h02_status"] == "blocked_formal_output_acceptance"
+    assert manifest["h02_formal_output_accepted"] is False
+    assert manifest["h02_paper_result_input_allowed"] is False
     gap_summary = manifest["deliverable_gap_summary"]
     assert gap_summary["summary_id"] == "module2_formal_gate_missing_training_eval_acceptance_summary"
     assert gap_summary["execution_boundary"] == "read_only_no_execution"
@@ -136,6 +167,18 @@ def test_remaining_deliverables_accepts_synthetic_complete_gate(tmp_path):
     assert manifest["status"] == "formal_gate_deliverables_ready_for_claim_audit"
     assert manifest["missing_deliverable_count"] == 0
     assert manifest["open_category_count"] == 0
+    assert manifest["missing_counts_by_formal_category"] == {
+        "training": 0,
+        "evaluation": 0,
+        "acceptance": 0,
+        "formal_acceptance": 0,
+    }
+    assert all(not matrix_ids for matrix_ids in manifest["missing_matrix_ids_by_formal_category"].values())
+    assert manifest["next_blocked_lane"] is None
+    assert manifest["h01_status"] == "ready_for_formal_run"
+    assert manifest["h02_status"] == "formal_output_accepted"
+    assert manifest["h02_formal_output_accepted"] is True
+    assert manifest["h02_paper_result_input_allowed"] is True
     assert manifest["deliverable_gap_summary"]["total_missing_deliverables"] == 0
     assert manifest["deliverable_gap_summary"]["open_category_count"] == 0
     assert all(not category["missing_artifacts"] for category in manifest["deliverable_gap_summary"]["categories"])
@@ -215,6 +258,9 @@ def test_remaining_deliverables_cli_writes_json_and_markdown(tmp_path):
     markdown = markdown_path.read_text(encoding="utf-8")
     assert manifest["status"] == "formal_gate_deliverables_blocked"
     assert "Module2 Formal Gate Remaining Deliverables" in markdown
+    assert "missing_counts_by_formal_category" in markdown
+    assert "h01_status" in markdown
+    assert "h02_status" in markdown
     assert "train_final_model_zip" in markdown
     assert "eval_gate3_eval_episodes_csv" in markdown
     assert "gate3_formal_audit_json" in markdown
