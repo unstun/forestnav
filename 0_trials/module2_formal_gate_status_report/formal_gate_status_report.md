@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `1d03fd8b1a091b6e2e4017757ef8d9220fc6e3b9+dirty`
+- source_head: `2c33d6de389a4c19af7bc78ba9274cd20cc13a80`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -142,7 +142,7 @@ This file is a read-only formal-gate status report. It does not execute commands
 - source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
 - source_freshness_regeneration_required: `True`
 - source_freshness_blocking_regeneration_required: `True`
-- source_freshness_non_self_changed_records: `15`
+- source_freshness_non_self_changed_records: `23`
 - source_freshness_self_artifact_only_lag_records: `0`
 - remote_packet_safety_command_index_present: `True`
 - remote_packet_safety_command_index_row_count: `23`
@@ -499,7 +499,7 @@ This file is a read-only formal-gate status report. It does not execute commands
 - `training_remote_ppo_checkpoint`: expected_stage=`gate3_remote_training`, responsible_stage=`gate3_remote_training`, stage_status=`blocked`, stage_allowed_now=`False`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 - `evaluation_gate3_episode_outputs`: expected_stage=`gate3_remote_audit_pullback`, responsible_stage=`gate3_remote_audit_pullback`, stage_status=`blocked`, stage_allowed_now=`False`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 - `acceptance_remote_pullback_and_audit`: expected_stage=`gate3_remote_audit_pullback`, responsible_stage=`gate3_remote_audit_pullback`, stage_status=`blocked`, stage_allowed_now=`False`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
-- `h01_h02_formal_evaluation_acceptance`: expected_stage=`regenerate_h01_h02_formal_artifacts`, responsible_stage=`regenerate_h01_h02_formal_artifacts`, stage_status=`blocked`, stage_allowed_now=`False`, blocked_by=`missing_remote_audit_pullback`
+- `h01_h02_formal_evaluation_acceptance`: expected_stage=`regenerate_h01_h02_formal_artifacts`, responsible_stage=`regenerate_h01_h02_formal_artifacts`, stage_status=`blocked`, stage_allowed_now=`False`, blocked_by=`missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
 
 ## Formal Gate Execution Veto Matrix
 

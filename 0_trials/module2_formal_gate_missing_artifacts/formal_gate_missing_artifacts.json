@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_missing_artifacts_audit",
   "status": "formal_gate_missing_artifacts_open",
-  "created_at_utc": "2026-07-05T14:55:54.748098+00:00",
-  "source_head": "0f5d0e63cebbb4df6544aa04918b02a95f4a4cb9",
+  "created_at_utc": "2026-07-05T16:10:06.723939+00:00",
+  "source_head": "2c33d6de389a4c19af7bc78ba9274cd20cc13a80",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -379,7 +379,7 @@
           "artifact_id": "f02_6_decision_gate_audit",
           "path": "0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json",
           "exists": true,
-          "state": "historical_clean",
+          "state": "historical_dirty",
           "missing": true,
           "required_before": "approved_remote_preflight",
           "reason": "source freshness audit requires regeneration before the corresponding formal gate"
@@ -388,7 +388,7 @@
           "artifact_id": "f02_6_decision_intake",
           "path": "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
           "exists": true,
-          "state": "historical_clean",
+          "state": "historical_dirty",
           "missing": true,
           "required_before": "approved_remote_preflight",
           "reason": "source freshness audit requires regeneration before the corresponding formal gate"
@@ -406,7 +406,7 @@
           "artifact_id": "f02_6_transition_gate_audit",
           "path": "0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json",
           "exists": true,
-          "state": "historical_clean",
+          "state": "historical_dirty",
           "missing": true,
           "required_before": "approved_remote_preflight",
           "reason": "source freshness audit requires regeneration before the corresponding formal gate"
@@ -415,7 +415,7 @@
           "artifact_id": "f02_6_warm_start_decision_packet",
           "path": "0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json",
           "exists": true,
-          "state": "historical_clean",
+          "state": "historical_dirty",
           "missing": true,
           "required_before": "approved_remote_preflight",
           "reason": "source freshness audit requires regeneration before the corresponding formal gate"
@@ -442,7 +442,7 @@
           "artifact_id": "formal_gate_handoff_bundle",
           "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
           "exists": true,
-          "state": "historical_clean",
+          "state": "historical_dirty",
           "missing": true,
           "required_before": "approved_remote_preflight",
           "reason": "source freshness audit requires regeneration before the corresponding formal gate"
@@ -469,7 +469,7 @@
           "artifact_id": "post_f02_6_regeneration_plan",
           "path": "0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json",
           "exists": true,
-          "state": "historical_clean",
+          "state": "historical_dirty",
           "missing": true,
           "required_before": "approved_remote_preflight",
           "reason": "source freshness audit requires regeneration before the corresponding formal gate"
@@ -514,7 +514,7 @@
           "artifact_id": "claim_safety",
           "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
           "exists": true,
-          "state": "current_dirty",
+          "state": "historical_dirty",
           "missing": true,
           "required_before": "formal_claim_gate",
           "reason": "source freshness audit requires regeneration before the corresponding formal gate"
@@ -541,7 +541,7 @@
           "artifact_id": "formal_gate_proof_summary_chain_audit",
           "path": "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
           "exists": true,
-          "state": "historical_clean",
+          "state": "historical_dirty",
           "missing": true,
           "required_before": "formal_claim_gate",
           "reason": "source freshness audit requires regeneration before the corresponding formal gate"
@@ -559,7 +559,7 @@
           "artifact_id": "formal_gate_status_report",
           "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
           "exists": true,
-          "state": "current_dirty",
+          "state": "historical_dirty",
           "missing": true,
           "required_before": "formal_claim_gate",
           "reason": "source freshness audit requires regeneration before the corresponding formal gate"
@@ -568,7 +568,7 @@
           "artifact_id": "mainline_formal_gate_state_audit",
           "path": "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json",
           "exists": true,
-          "state": "current_dirty",
+          "state": "historical_dirty",
           "missing": true,
           "required_before": "formal_claim_gate",
           "reason": "source freshness audit requires regeneration before the corresponding formal gate"
@@ -577,7 +577,7 @@
           "artifact_id": "paper_readiness",
           "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
           "exists": true,
-          "state": "current_dirty",
+          "state": "historical_dirty",
           "missing": true,
           "required_before": "formal_claim_gate",
           "reason": "source freshness audit requires regeneration before the corresponding formal gate"
@@ -816,7 +816,7 @@
           "artifact_id": "claim_safety",
           "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
           "exists": true,
-          "state": "current_dirty",
+          "state": "historical_dirty",
           "missing": true,
           "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
         },
@@ -840,7 +840,7 @@
           "artifact_id": "formal_gate_proof_summary_chain_audit",
           "path": "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
           "exists": true,
-          "state": "historical_clean",
+          "state": "historical_dirty",
           "missing": true,
           "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
         },
@@ -856,7 +856,7 @@
           "artifact_id": "formal_gate_status_report",
           "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
           "exists": true,
-          "state": "current_dirty",
+          "state": "historical_dirty",
           "missing": true,
           "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
         },
@@ -864,7 +864,7 @@
           "artifact_id": "mainline_formal_gate_state_audit",
           "path": "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json",
           "exists": true,
-          "state": "current_dirty",
+          "state": "historical_dirty",
           "missing": true,
           "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
         },
@@ -872,7 +872,7 @@
           "artifact_id": "paper_readiness",
           "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
           "exists": true,
-          "state": "current_dirty",
+          "state": "historical_dirty",
           "missing": true,
           "reason": "claim gate artifact must be regenerated after H02 formal acceptance"
         },
