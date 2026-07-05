@@ -155,12 +155,13 @@ def _ordered_stages(
     preflight_targets = _targets_required_before(source_targets, "approved_remote_preflight")
     h01_h02_targets = _targets_required_before(source_targets, "formal_h01_h02")
     claim_targets = _targets_required_before(source_targets, "formal_claim_gate")
+    preflight_blocking_targets = _blocking_targets(preflight_targets)
     preflight_command_targets = _targets_required_before(command_index_targets, "approved_remote_preflight")
     h01_h02_command_targets = _targets_required_before(command_index_targets, "formal_h01_h02")
     claim_command_targets = _targets_required_before(command_index_targets, "formal_claim_gate")
     preflight_command = _approved_action(decision, "preflight_command")
     packet_steps = remote_packet.get("execution_steps") if isinstance(remote_packet.get("execution_steps"), dict) else {}
-    preflight_blockers = _preflight_blockers(approved=approved, preflight_targets=preflight_targets)
+    preflight_blockers = _preflight_blockers(approved=approved, preflight_targets=preflight_blocking_targets)
     remote_packet_blockers = [] if remote_packet.get("ready_to_run_remote_training") is True else ["remote_packet_not_ready"]
     remote_execution_blockers = _unique(preflight_blockers + remote_packet_blockers)
     remote_audit_step = packet_steps.get("run_remote_audit") if isinstance(packet_steps.get("run_remote_audit"), dict) else {}
@@ -192,7 +193,7 @@ def _ordered_stages(
             "approved_remote_preflight",
             "remote_preflight",
             "Run approved gpu3070ti preflight after decision and source-fresh regeneration.",
-            allowed_now=approved and not preflight_targets,
+            allowed_now=approved and not preflight_blocking_targets,
             blocked_by=preflight_blockers,
             runs_remote_preflight=True,
             host="gpu3070ti-relay",
@@ -205,7 +206,7 @@ def _ordered_stages(
             "regenerate_remote_execution_packet",
             "regeneration",
             "Regenerate remote formal execution packet from the approved preflight manifest.",
-            allowed_now=approved and not preflight_targets,
+            allowed_now=approved and not preflight_blocking_targets,
             blocked_by=preflight_blockers,
             evidence_paths=["0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json"],
             command_templates=["PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_formal_execution_packet"],
