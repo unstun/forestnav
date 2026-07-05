@@ -27,6 +27,8 @@ def test_f02_6_transition_gate_audit_passes_current_formal_gate_chain(tmp_path):
 
     pending = scenarios["pending"]
     assert pending["record_status"] == "pending_human_decision"
+    assert pending["post_plan_audit_status"] == "post_f02_6_plan_audit_passed"
+    assert pending["remote_packet_safety_status"] == "remote_packet_safety_audit_passed"
     assert pending["record_remote_preflight_allowed_now"] is False
     assert pending["record_remote_training_allowed_now"] is False
     assert pending["post_plan_status"] == "blocked_until_f02_6_decision"
@@ -37,6 +39,8 @@ def test_f02_6_transition_gate_audit_passes_current_formal_gate_chain(tmp_path):
 
     approved = scenarios["approved"]
     assert approved["record_status"] == "approved"
+    assert approved["post_plan_audit_status"] == "post_f02_6_plan_audit_passed"
+    assert approved["remote_packet_safety_status"] == "remote_packet_safety_audit_passed"
     assert approved["record_remote_preflight_allowed_now"] is False
     assert approved["record_remote_training_allowed_now"] is False
     assert approved["post_plan_status"] == "ready_to_execute_post_f02_6_regeneration_plan"
@@ -50,6 +54,8 @@ def test_f02_6_transition_gate_audit_passes_current_formal_gate_chain(tmp_path):
 
     rejected = scenarios["rejected"]
     assert rejected["record_status"] == "rejected"
+    assert rejected["post_plan_audit_status"] == "post_f02_6_plan_audit_passed"
+    assert rejected["remote_packet_safety_status"] == "remote_packet_safety_audit_passed"
     assert rejected["record_remote_preflight_allowed_now"] is False
     assert rejected["record_remote_training_allowed_now"] is False
     assert rejected["post_plan_status"] == "blocked_by_f02_6_rejected"
