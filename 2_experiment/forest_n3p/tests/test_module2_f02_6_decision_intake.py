@@ -31,6 +31,24 @@ def test_f02_6_decision_intake_pending_clean_lists_required_human_fields(tmp_pat
     state = manifest["current_state"]
     assert state["record_status"] == "pending_human_decision"
     assert state["next_blocked_lane"] == "decision"
+    assert state["record_decision_record_is_not_training_authorization"] is True
+    assert state["record_decision_record_is_not_paper_result_material"] is True
+    assert state["record_paper_result_material_allowed_now"] is False
+    assert state["record_authorization_status"] == "blocked_until_dr_sun_decision"
+    assert state["record_authorization_current_blocked_action_ids"] == [
+        "remote_preflight",
+        "remote_training",
+        "local_training",
+        "formal_claim",
+        "paper_result_material",
+    ]
+    assert state["record_authorization_post_decision_routes_are_current_authorization"] is False
+    assert state["record_authorization_remote_preflight_allowed_now"] is False
+    assert state["record_authorization_remote_training_allowed_now"] is False
+    assert state["record_authorization_formal_claim_allowed_now"] is False
+    assert state["record_post_decision_non_authorization_count"] == 4
+    assert "approved_remote_preflight" in state["record_post_decision_formal_training_still_requires"]
+    assert state["record_command_template_count"] == 2
     assert state["packet_authorization_status"] == "blocked_until_dr_sun_decision"
     assert state["packet_current_allowed_action_ids"] == ["record_f02_6_decision"]
     assert state["packet_current_blocked_action_ids"] == [
@@ -132,6 +150,8 @@ def test_f02_6_decision_intake_pending_clean_lists_required_human_fields(tmp_pat
     assert impact["not_paper_result_material"] is True
     assert impact["current_blocker"] == "decision"
     assert impact["current_record_status"] == "pending_human_decision"
+    assert impact["record_authorization_status"] == "blocked_until_dr_sun_decision"
+    assert impact["record_post_decision_non_authorization_count"] == 4
     assert impact["missing_deliverable_count"] == 10
     assert impact["missing_by_category"] == {
         "training": 3,
@@ -273,6 +293,59 @@ def test_f02_6_decision_intake_catches_decision_evidence_matrix_drift(tmp_path):
     assert "decision_evidence_matrix_approve_obstacle_summary_warm_start_missing_invalid_substitutes" in issue_ids
 
 
+def test_f02_6_decision_intake_catches_decision_record_non_authorization_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_f02_6_decision_intake")
+    record = _record_payload()
+    record["decision_record_is_not_training_authorization"] = False
+    record["decision_record_is_not_paper_result_material"] = False
+    record["paper_result_material_allowed_now"] = True
+    record["current_authorization"]["current_blocked_action_ids"] = [
+        "remote_training",
+        "local_training",
+        "formal_claim",
+    ]
+    record["current_authorization"]["post_decision_routes_are_current_authorization"] = True
+    record["current_authorization"]["remote_preflight_allowed_now"] = True
+    record["current_authorization"]["formal_claim_allowed_now"] = True
+    record["post_decision_non_authorization_invariants"]["formal_training_still_requires"] = [
+        "source_freshness_audit"
+    ]
+    record["post_decision_non_authorization_invariants"]["blocked_after_decision_record"] = []
+    record["record_command_templates"][0]["allowed_for_agent_now"] = True
+    record["record_command_templates"][0]["runs_remote_preflight"] = True
+
+    manifest = builder.build_manifest(
+        builder.F026DecisionIntakeConfig(
+            output_dir=tmp_path,
+            packet_path=_json(tmp_path, "packet.json", _packet_payload()),
+            decision_record_path=_json(tmp_path, "record.json", record),
+            decision_gate_audit_path=_json(tmp_path, "gate.json", _gate_audit_payload()),
+            status_report_path=_json(tmp_path, "status.json", _status_report_payload()),
+            remaining_deliverables_path=_json(tmp_path, "remaining.json", _remaining_payload()),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "f02_6_decision_intake_failed"
+    assert "record_missing_not_training_authorization_invariant" in issue_ids
+    assert "record_missing_not_paper_result_material_invariant" in issue_ids
+    assert "record_allows_paper_result_material_now" in issue_ids
+    assert "record_current_authorization_missing_blocked_actions" in issue_ids
+    assert "record_treats_post_decision_routes_as_current_authorization" in issue_ids
+    assert "record_authorization_remote_preflight_allowed_now_not_false" in issue_ids
+    assert "record_authorization_formal_claim_allowed_now_not_false" in issue_ids
+    assert "record_post_decision_still_requires_incomplete" in issue_ids
+    assert "record_post_decision_non_authorizations_incomplete" in issue_ids
+    assert (
+        "record_command_template_approve_obstacle_summary_warm_start_allowed_for_agent_now_not_false"
+        in issue_ids
+    )
+    assert (
+        "record_command_template_approve_obstacle_summary_warm_start_runs_remote_preflight_not_false"
+        in issue_ids
+    )
+
+
 def test_f02_6_decision_intake_cli_writes_json_and_markdown(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_f02_6_decision_intake")
     manifest_path = tmp_path / "intake.json"
@@ -408,7 +481,86 @@ def _record_payload():
         "remote_preflight_allowed_now": False,
         "remote_training_allowed_now": False,
         "local_training_allowed": False,
+        "local_training_allowed_now": False,
         "formal_claim_allowed": False,
+        "formal_claim_allowed_now": False,
+        "paper_result_material_allowed_now": False,
+        "decision_record_is_not_training_authorization": True,
+        "decision_record_is_not_paper_result_material": True,
+        "current_authorization": {
+            "authorization_status": "blocked_until_dr_sun_decision",
+            "current_allowed_action_ids": ["record_f02_6_decision"],
+            "current_blocked_action_ids": [
+                "remote_preflight",
+                "remote_training",
+                "local_training",
+                "formal_claim",
+                "paper_result_material",
+            ],
+            "post_decision_routes_are_current_authorization": False,
+            "record_scope": "local_decision_record_only",
+            "remote_preflight_allowed_now": False,
+            "remote_training_allowed_now": False,
+            "local_training_allowed_now": False,
+            "formal_claim_allowed_now": False,
+            "paper_result_material_allowed_now": False,
+        },
+        "record_command_templates": [
+            {
+                "decision": "approve_obstacle_summary_warm_start",
+                "command": (
+                    "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record "
+                    "--decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'"
+                ),
+                "execution_boundary": "local_decision_record_only",
+                "requires_dr_sun_note": True,
+                "allowed_for_agent_now": False,
+                "runs_training": False,
+                "runs_remote_preflight": False,
+                "runs_remote_audit": False,
+                "runs_remote_training": False,
+                "formal_claim_allowed_now": False,
+                "paper_result_material_allowed_now": False,
+            },
+            {
+                "decision": "reject_obstacle_summary_warm_start",
+                "command": (
+                    "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record "
+                    "--decision reject_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun rejection note>'"
+                ),
+                "execution_boundary": "local_decision_record_only",
+                "requires_dr_sun_note": True,
+                "allowed_for_agent_now": False,
+                "runs_training": False,
+                "runs_remote_preflight": False,
+                "runs_remote_audit": False,
+                "runs_remote_training": False,
+                "formal_claim_allowed_now": False,
+                "paper_result_material_allowed_now": False,
+            },
+        ],
+        "post_decision_non_authorization_invariants": {
+            "decision_record_is_not_training_authorization": True,
+            "decision_record_is_not_paper_result_material": True,
+            "local_training_allowed_now": False,
+            "remote_preflight_allowed_now": False,
+            "remote_training_allowed_now": False,
+            "formal_claim_allowed_now": False,
+            "paper_result_material_allowed_now": False,
+            "formal_training_still_requires": [
+                "source_freshness_audit",
+                "post_f02_6_regeneration_plan",
+                "post_f02_6_plan_audit",
+                "remote_formal_execution_packet_ready",
+                "approved_remote_preflight",
+            ],
+            "blocked_after_decision_record": [
+                {"action": "local_training", "allowed_after_decision_record": False},
+                {"action": "remote_preflight", "allowed_after_decision_record": False},
+                {"action": "remote_training", "allowed_after_decision_record": False},
+                {"action": "paper_formal_result_claim", "allowed_after_decision_record": False},
+            ],
+        },
     }
 
 
