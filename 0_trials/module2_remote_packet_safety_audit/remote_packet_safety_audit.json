@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_remote_packet_safety_audit",
-  "status": "remote_packet_safety_audit_failed",
-  "created_at_utc": "2026-07-05T05:05:06.947892+00:00",
-  "source_head": "fe2a7c0ca69c8bab823a36ebddd9efb7bcc43728+dirty",
+  "status": "remote_packet_safety_audit_passed",
+  "created_at_utc": "2026-07-05T05:12:56.184106+00:00",
+  "source_head": "492bb83113ece6bf851ec11896bfd39aa8101077+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -59,7 +59,7 @@
     "decision_gate_status": "f02_6_decision_gate_pending_clean",
     "f02_6_record_status": "pending_human_decision",
     "decision_training_allowed_now": false,
-    "post_plan_audit_status": "post_f02_6_plan_audit_passed",
+    "post_plan_audit_status": "post_f02_6_plan_audit_failed",
     "post_plan_training_allowed_now": false,
     "post_plan_remote_preflight_allowed_now": false,
     "post_plan_status_report_status": "formal_gate_status_blocked",
@@ -533,13 +533,8 @@
       "h02_paper_result_input_allowed": false
     }
   },
-  "audit_issue_count": 1,
-  "audit_issues": [
-    {
-      "issue_id": "post_plan_source_regeneration_command_index_missing_claim_safety",
-      "message": "Post-plan command index must include claim_safety before remote packet safety can pass."
-    }
-  ],
+  "audit_issue_count": 0,
+  "audit_issues": [],
   "expected_pullback_suffixes": [
     "train/final_model.zip",
     "train/summary.json",

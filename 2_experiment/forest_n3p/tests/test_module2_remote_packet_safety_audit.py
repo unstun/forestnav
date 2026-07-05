@@ -378,6 +378,28 @@ def test_remote_packet_safety_audit_requires_post_plan_command_index_summary(tmp
     assert "post_plan_source_regeneration_command_index_missing_paper_readiness" in issue_ids
 
 
+def test_remote_packet_safety_audit_allows_current_clean_claim_safety_omitted_from_command_index(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
+    plan_audit = _plan_audit_payload()
+    summary = plan_audit["source_regeneration_command_index_summary"]
+    summary["rows"].pop("claim_safety")
+    summary["index_row_count"] = 21
+    summary["source_target_count"] = 21
+
+    manifest = auditor.build_manifest(
+        auditor.RemotePacketSafetyAuditConfig(
+            output_dir=tmp_path,
+            remote_packet_path=_json(tmp_path, "packet.json", _packet_payload()),
+            decision_gate_audit_path=_json(tmp_path, "decision_gate.json", _decision_gate_payload()),
+            post_plan_audit_path=_json(tmp_path, "plan_audit.json", plan_audit),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "remote_packet_safety_audit_passed"
+    assert "post_plan_source_regeneration_command_index_missing_claim_safety" not in issue_ids
+
+
 def test_remote_packet_safety_audit_requires_remaining_deliverables_gap_summary(tmp_path):
     auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
     plan_audit = _plan_audit_payload()
