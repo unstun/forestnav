@@ -60,6 +60,14 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["current_state"]["formal_gate_execution_veto_formal_claim_allowed_now"] is False
     assert manifest["current_state"]["formal_gate_gap_audit_remaining_total_missing_deliverables"] == 10
     assert manifest["current_state"]["formal_gate_gap_audit_remaining_open_category_count"] == 4
+    assert manifest["current_state"]["remote_packet_safety_proof_summary_present"] is True
+    assert manifest["current_state"]["remote_packet_safety_proof_training_missing_count"] == 3
+    assert manifest["current_state"]["remote_packet_safety_proof_evaluation_missing_count"] == 2
+    assert manifest["current_state"]["remote_packet_safety_proof_acceptance_missing_count"] == 3
+    assert manifest["current_state"]["remote_packet_safety_proof_formal_acceptance_missing_count"] == 2
+    assert manifest["current_state"]["remote_packet_safety_proof_next_blocked_lane"] == "decision"
+    assert manifest["current_state"]["remote_packet_safety_proof_h02_paper_result_input_allowed"] is False
+    assert manifest["current_state"]["remote_packet_safety_status_report_proof_summary_present"] is True
     assert manifest["current_state"]["source_freshness_status"] == "source_freshness_risks_recorded_gate_still_blocked"
     assert manifest["current_state"]["source_freshness_regeneration_required"] is True
     assert manifest["current_state"]["source_freshness_non_self_changed_records"] == 19
@@ -317,6 +325,26 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
         "training:train_summary_json",
         "training:train_training_manifest_json",
     ]
+    remote_proof = manifest["remote_packet_safety_proof_deliverables_summary"]
+    assert remote_proof["present"] is True
+    assert remote_proof["missing_counts_by_formal_category"] == {
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 2,
+    }
+    assert remote_proof["missing_matrix_ids_by_formal_category"]["acceptance"] == [
+        "acceptance:gate3_trial_manifest_json",
+        "acceptance:gate3_formal_audit_json",
+        "acceptance:pulled_back_checkpoint_hash_record",
+    ]
+    assert remote_proof["next_blocked_lane"] == "decision"
+    assert remote_proof["h01_status"] == "blocked_pending_decisions"
+    assert remote_proof["h02_status"] == "blocked_formal_output_acceptance"
+    assert remote_proof["h02_formal_output_accepted"] is False
+    assert remote_proof["h02_paper_result_input_allowed"] is False
+    remote_status_proof = manifest["remote_packet_safety_status_report_proof_deliverables_summary"]
+    assert remote_status_proof == remote_proof
     command_index = manifest["remote_packet_safety_claim_gate_command_index_summary"]
     assert command_index["present"] is True
     assert command_index["index_row_count"] == 18
