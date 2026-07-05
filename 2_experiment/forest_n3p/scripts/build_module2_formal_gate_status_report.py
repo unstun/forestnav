@@ -3360,6 +3360,37 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.append(f"- remote_preflight_allowed_now: `{intake['remote_preflight_allowed_now']}`")
     lines.append(f"- remote_training_allowed_now: `{intake['remote_training_allowed_now']}`")
     lines.append(f"- formal_claim_allowed_now: `{intake['formal_claim_allowed_now']}`")
+    lines.append(f"- decision_impact_present: `{intake['decision_impact_present']}`")
+    lines.append(f"- decision_impact_summary_id: `{intake['decision_impact_summary_id']}`")
+    lines.append(f"- decision_impact_current_blocker: `{intake['decision_impact_current_blocker']}`")
+    lines.append(
+        f"- decision_impact_missing_deliverable_count: `{intake['decision_impact_missing_deliverable_count']}`"
+    )
+    lines.append(
+        "- decision_record_is_not_training_authorization: "
+        f"`{intake['decision_record_is_not_training_authorization']}`"
+    )
+    lines.append(
+        "- decision_record_is_not_paper_result_material: "
+        f"`{intake['decision_record_is_not_paper_result_material']}`"
+    )
+    lines.append(
+        f"- decision_impact_remote_preflight_allowed_now: `{intake['decision_impact_remote_preflight_allowed_now']}`"
+    )
+    lines.append(
+        f"- decision_impact_remote_training_allowed_now: `{intake['decision_impact_remote_training_allowed_now']}`"
+    )
+    lines.append(
+        f"- decision_impact_formal_claim_allowed_now: `{intake['decision_impact_formal_claim_allowed_now']}`"
+    )
+    lines.append(
+        "- decision_impact_paper_result_material_allowed_now: "
+        f"`{intake['decision_impact_paper_result_material_allowed_now']}`"
+    )
+    lines.append(
+        "- decision_impact_formal_training_still_requires: "
+        f"`{', '.join(intake['decision_impact_formal_training_still_requires'])}`"
+    )
     next_guard = manifest["next_action_guard_summary"]
     lines.extend(["", "## Next Action Guard", ""])
     lines.append(f"- present: `{next_guard['present']}`")
