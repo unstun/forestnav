@@ -29,7 +29,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 ### Source Freshness Regeneration Targets
 
 - `f02_6_decision_gate_audit`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json`
-- `f02_6_decision_intake`: `historical_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json`
+- `f02_6_decision_intake`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json`
 - `f02_6_decision_record`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json`
 - `f02_6_transition_gate_audit`: `historical_clean`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json`
 - `f02_6_warm_start_decision_packet`: `historical_dirty`, required before `approved_remote_preflight`, path `0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json`
