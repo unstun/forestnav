@@ -3554,11 +3554,12 @@ def _remaining_deliverables_unlock_chain_issues(
                 "unlock chain blocked row count must match acceptance matrix missing row count.",
             )
         )
-    if unlock_chain_summary["derived_blocked_row_count"] != acceptance_summary["missing_row_count"]:
+    expected_derived_blocked_row_count = _expected_unlock_chain_derived_blocked_row_count(acceptance_summary)
+    if unlock_chain_summary["derived_blocked_row_count"] != expected_derived_blocked_row_count:
         issues.append(
             _issue(
                 "remaining_deliverables_unlock_chain_derived_blocked_row_count_mismatch",
-                "unlock chain row blockers must match acceptance matrix missing rows.",
+                "unlock chain row blockers must match missing rows that are not currently allowed training-generation rows.",
             )
         )
     if unlock_chain_summary["rows_with_missing_required_blockers"] > 0:
