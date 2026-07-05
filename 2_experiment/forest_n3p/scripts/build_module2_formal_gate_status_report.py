@@ -351,9 +351,30 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "decision_intake_post_decision_route_count": decision_intake_summary[
                 "post_decision_route_count"
             ],
-            "decision_intake_remote_preflight_allowed_now": decision_intake_summary["remote_preflight_allowed_now"],
-            "decision_intake_remote_training_allowed_now": decision_intake_summary["remote_training_allowed_now"],
-            "decision_intake_formal_claim_allowed_now": decision_intake_summary["formal_claim_allowed_now"],
+        "decision_intake_remote_preflight_allowed_now": decision_intake_summary["remote_preflight_allowed_now"],
+        "decision_intake_remote_training_allowed_now": decision_intake_summary["remote_training_allowed_now"],
+        "decision_intake_formal_claim_allowed_now": decision_intake_summary["formal_claim_allowed_now"],
+        "decision_intake_packet_authorization_status": decision_intake_summary[
+            "packet_authorization_status"
+        ],
+        "decision_intake_packet_current_allowed_action_ids": decision_intake_summary[
+            "packet_current_allowed_action_ids"
+        ],
+        "decision_intake_packet_current_blocked_action_ids": decision_intake_summary[
+            "packet_current_blocked_action_ids"
+        ],
+        "decision_intake_packet_post_decision_routes_are_current_authorization": decision_intake_summary[
+            "packet_post_decision_routes_are_current_authorization"
+        ],
+        "decision_intake_packet_remote_preflight_allowed_now": decision_intake_summary[
+            "packet_remote_preflight_allowed_now"
+        ],
+        "decision_intake_packet_remote_training_allowed_now": decision_intake_summary[
+            "packet_remote_training_allowed_now"
+        ],
+        "decision_intake_packet_paper_result_material_allowed_now": decision_intake_summary[
+            "packet_paper_result_material_allowed_now"
+        ],
             "formal_gate_status": formal_gate.get("status"),
             "missing_artifacts_status": missing_artifacts.get("status"),
             "missing_artifacts_handoff_index_status": missing_artifacts_handoff_summary["status"],
