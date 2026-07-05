@@ -281,6 +281,8 @@ def _markdown(record: dict[str, Any]) -> str:
         f"- decider: `{record['decider']}`",
         f"- contract_action: `{record['contract_action']}`",
         f"- training_authorization: `{record['training_authorization']}`",
+        f"- decision_record_is_not_training_authorization: `{record['decision_record_is_not_training_authorization']}`",
+        f"- decision_record_is_not_paper_result_material: `{record['decision_record_is_not_paper_result_material']}`",
         "",
         "## Authorization",
         "",
@@ -293,6 +295,34 @@ def _markdown(record: dict[str, Any]) -> str:
     ]
     for lane in record["valid_lane_ids"]:
         lines.append(f"- `{lane}`")
+    lines.extend(["", "## Record Command Templates"])
+    for template in record["record_command_templates"]:
+        lines.extend(
+            [
+                f"- selected_lane: `{template['selected_lane']}`",
+                f"  - allowed_for_agent_now: `{template['allowed_for_agent_now']}`",
+                f"  - runs_training: `{template['runs_training']}`",
+                f"  - runs_remote_preflight: `{template['runs_remote_preflight']}`",
+                f"  - template: `{template['template']}`",
+            ]
+        )
+    requirements = record["post_decision_requirements"]
+    lines.extend(
+        [
+            "",
+            "## Post-Decision Requirements",
+            "",
+            f"- new_or_revised_contract_required: `{requirements['new_or_revised_contract_required']}`",
+            f"- contract_status_required_before_training: `{', '.join(requirements['contract_status_required_before_training'])}`",
+            f"- draft_contract_allows_training: `{requirements['draft_contract_allows_training']}`",
+            "- formal_training_still_requires:",
+        ]
+    )
+    for item in requirements["formal_training_still_requires"]:
+        lines.append(f"  - {item}")
+    lines.append("- paper_result_still_requires:")
+    for item in requirements["paper_result_still_requires"]:
+        lines.append(f"  - {item}")
     lines.extend(["", "## Audit", "", f"- audit_issue_count: `{record['audit_issue_count']}`"])
     return "\n".join(lines) + "\n"
 
