@@ -52,6 +52,8 @@ def test_protocol_lane_decision_gate_audit_accepts_recorded_lane_without_executi
     assert manifest["audit_issue_count"] == 0
     assert manifest["decision_state"]["selected_lane_id"] == "hybrid_ppo_analytic_fallback"
     assert manifest["decision_note_audit_summary"]["gate_review_status"] == "recorded_decision_note_audit_clean"
+    assert manifest["decision_note_audit_summary"]["mentions_rejected_lanes"] is True
+    assert manifest["decision_note_audit_summary"]["mentions_evidence_artifacts"] is True
     assert manifest["allowed_next_human_actions"] == [
         {
             "action_id": "draft_new_or_revised_contract_after_lane_decision",
@@ -92,6 +94,8 @@ def test_protocol_lane_decision_gate_audit_catches_recorded_note_and_decider_dri
     record = _record(status="protocol_lane_decision_recorded")
     record["decider"] = "Assistant"
     record["decision_note_audit"]["mentions_failed_gate3"] = False
+    record["decision_note_audit"]["mentions_rejected_lanes"] = False
+    record["decision_note_audit"]["mentions_evidence_artifacts"] = False
     record["decision_note_audit"]["quality_warning"] = "decision_note_should_mention_failed_gate3_basis"
     record["contract_action"] = "none"
 
@@ -106,6 +110,8 @@ def test_protocol_lane_decision_gate_audit_catches_recorded_note_and_decider_dri
     issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
     assert "recorded_decider_not_dr_sun" in issue_ids
     assert "recorded_note_missing_mentions_failed_gate3" in issue_ids
+    assert "recorded_note_missing_mentions_rejected_lanes" in issue_ids
+    assert "recorded_note_missing_mentions_evidence_artifacts" in issue_ids
     assert "recorded_note_quality_warning" in issue_ids
     assert "recorded_contract_action_missing" in issue_ids
 
@@ -214,6 +220,8 @@ def _record(*, status: str):
             "mentions_selected_lane": True,
             "mentions_failed_gate3": True,
             "mentions_contract_action": True,
+            "mentions_rejected_lanes": True,
+            "mentions_evidence_artifacts": True,
             "quality_warning": None,
         },
         "contract_action": "none" if pending else "draft_revised_contract",
