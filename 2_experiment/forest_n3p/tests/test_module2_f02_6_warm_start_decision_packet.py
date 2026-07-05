@@ -39,10 +39,39 @@ def test_f02_6_decision_packet_builds_evidence_bound_recommendation(tmp_path):
     assert manifest["recommendation"]["decision"] == "approve_obstacle_summary_warm_start"
     assert manifest["recommendation"]["formal_claim_allowed"] is False
     assert "requires_dr_sun_approval" in manifest["blockers"]
-    assert manifest["source_integrity_summary"]["source_count"] == 10
-    assert manifest["source_integrity_summary"]["existing_source_count"] == 10
+    authorization = manifest["current_authorization"]
+    assert authorization["authorization_status"] == "blocked_until_dr_sun_decision"
+    assert authorization["decision_owner_required"] == "Dr Sun"
+    assert authorization["decision_record"]["status"] == "pending_human_decision"
+    assert authorization["decision_record"]["requested_decision"] == "pending"
+    assert authorization["decision_record"]["effective_warm_start_decision"] == "pending"
+    assert authorization["decision_record"]["decider"] is None
+    assert authorization["decision_record"]["decision_note_present"] is False
+    assert authorization["decision_intake"]["status"] == "f02_6_decision_intake_pending_clean"
+    assert authorization["decision_intake"]["next_blocked_lane"] == "decision"
+    assert authorization["decision_intake"]["audit_issue_count"] == 0
+    assert authorization["decision_intake"]["valid_decision_count"] == 2
+    assert authorization["decision_intake"]["required_record_field_count"] == 3
+    assert authorization["decision_intake"]["post_decision_route_count"] == 2
+    assert authorization["decision_intake"]["post_decision_non_authorization_count"] == 4
+    assert authorization["current_allowed_action_ids"] == ["record_f02_6_decision"]
+    assert authorization["current_blocked_action_ids"] == [
+        "remote_preflight",
+        "remote_training",
+        "local_training",
+        "formal_claim",
+        "paper_result_material",
+    ]
+    assert authorization["post_decision_routes_are_current_authorization"] is False
+    assert authorization["remote_preflight_allowed_now"] is False
+    assert authorization["remote_training_allowed_now"] is False
+    assert authorization["local_training_allowed_now"] is False
+    assert authorization["formal_claim_allowed_now"] is False
+    assert authorization["paper_result_material_allowed_now"] is False
+    assert manifest["source_integrity_summary"]["source_count"] == 12
+    assert manifest["source_integrity_summary"]["existing_source_count"] == 12
     assert manifest["source_integrity_summary"]["missing_source_count"] == 0
-    assert manifest["source_integrity_summary"]["hash_record_count"] == 10
+    assert manifest["source_integrity_summary"]["hash_record_count"] == 12
     assert manifest["source_integrity_summary"]["all_sources_present"] is True
     assert manifest["source_integrity_summary"]["all_existing_sources_hashed"] is True
     assert manifest["source_integrity_summary"]["source_issue_count"] == 0
@@ -72,6 +101,10 @@ def test_f02_6_decision_packet_builds_evidence_bound_recommendation(tmp_path):
     assert "# Module2 F02.6 Warm-Start Decision Packet" in markdown
     assert "pending_human_decision" in markdown
     assert "approve_obstacle_summary_warm_start" in markdown
+    assert "Current Authorization" in markdown
+    assert "authorization_status: `blocked_until_dr_sun_decision`" in markdown
+    assert "allowed_now: `record_f02_6_decision`" in markdown
+    assert "blocked_now: `remote_preflight, remote_training, local_training, formal_claim, paper_result_material`" in markdown
     assert "remote preflight allowed now: `False`" in markdown
     assert "remote training allowed now: `False`" in markdown
     assert "Source Integrity" in markdown

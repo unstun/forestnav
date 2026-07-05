@@ -6,6 +6,13 @@
 - remote preflight allowed now: `False`
 - remote training allowed now: `False`
 
+## Current Authorization
+
+- authorization_status: `blocked_until_dr_sun_decision`
+- allowed_now: `record_f02_6_decision`
+- blocked_now: `remote_preflight, remote_training, local_training, formal_claim, paper_result_material`
+- post_decision_routes_are_current_authorization: `False`
+
 ## Key Evidence
 
 - No-warm formal Gate #3: `fail`, 29/64 terminal-RS success, rate `0.453125`.
@@ -21,7 +28,7 @@
 
 ## Source Integrity
 
-- source_count: `10`
+- source_count: `12`
 - missing_source_count: `0`
 - all_sources_present: `True`
 - all_existing_sources_hashed: `True`

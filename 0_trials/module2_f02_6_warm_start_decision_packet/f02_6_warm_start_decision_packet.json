@@ -2,9 +2,9 @@
   "schema_version": 1,
   "packet_name": "module2_f02_6_warm_start_decision_packet",
   "status": "pending_human_decision",
-  "created_at_utc": "2026-07-05T04:43:24.143117+00:00",
+  "created_at_utc": "2026-07-05T04:47:38.227639+00:00",
   "execution_host": "MacBook-Pro.local",
-  "source_head": "1fd2c4036b7f5b472472a2a20d3ca1ee8e32c09a",
+  "source_head": "3b3b373a8c24e67665f43b2dab1f022df01f4da4+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -186,6 +186,43 @@
       ]
     }
   },
+  "current_authorization": {
+    "authorization_status": "blocked_until_dr_sun_decision",
+    "decision_owner_required": "Dr Sun",
+    "decision_record": {
+      "status": "pending_human_decision",
+      "requested_decision": "pending",
+      "effective_warm_start_decision": "pending",
+      "decider": null,
+      "decision_note_present": false
+    },
+    "decision_intake": {
+      "status": "f02_6_decision_intake_pending_clean",
+      "next_blocked_lane": "decision",
+      "audit_issue_count": 0,
+      "valid_decision_count": 2,
+      "required_record_field_count": 3,
+      "post_decision_route_count": 2,
+      "post_decision_non_authorization_count": 4
+    },
+    "current_allowed_action_ids": [
+      "record_f02_6_decision"
+    ],
+    "current_blocked_action_ids": [
+      "remote_preflight",
+      "remote_training",
+      "local_training",
+      "formal_claim",
+      "paper_result_material"
+    ],
+    "post_decision_routes_are_current_authorization": false,
+    "remote_preflight_allowed_now": false,
+    "remote_training_allowed_now": false,
+    "local_training_allowed_now": false,
+    "formal_claim_allowed_now": false,
+    "paper_result_material_allowed_now": false,
+    "required_next_human_action": "record Dr Sun's F02.6 approval or rejection before any remote preflight."
+  },
   "next_actions": {
     "if_approved_obstacle_summary": {
       "runner_command": "python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 --seed 20260704 --device cuda --train-curriculum-preset f03 --eval-curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260704 --train-total-timesteps 100000 --train-n-envs 1 --train-n-steps 128 --train-batch-size 64 --train-n-epochs 4 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --allow-duplicate-openmp --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt",
@@ -246,13 +283,23 @@
       "path": "0_trials/module2_remote_smoke/gate3_warm_start_cuda_smoke/gate3_formal_audit.json",
       "exists": true,
       "sha256": "c82045777749167764b8de8414d471fd7cbdeada0837ad252ce27d67d58ed15e"
+    },
+    {
+      "path": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+      "exists": true,
+      "sha256": "ff820090ee1b72c8f4ceed25a9be67b1809756f30476771d164e961931af9b0c"
+    },
+    {
+      "path": "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
+      "exists": true,
+      "sha256": "d153a007e4ef0fdc8475459400c632142813a0657fe2166fbd298aa9c1fd66f1"
     }
   ],
   "source_integrity_summary": {
-    "source_count": 10,
-    "existing_source_count": 10,
+    "source_count": 12,
+    "existing_source_count": 12,
     "missing_source_count": 0,
-    "hash_record_count": 10,
+    "hash_record_count": 12,
     "all_sources_present": true,
     "all_existing_sources_hashed": true,
     "source_issue_count": 0,
