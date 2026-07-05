@@ -155,6 +155,13 @@ def test_protocol_lane_decision_packet_cli_writes_json_and_markdown(tmp_path):
     assert "hybrid_ppo_analytic_fallback" in markdown
     assert "training_authorization_must_be" in markdown
     assert "remote_success_training" in markdown
+    assert "Lane Evidence Contracts" in markdown
+    assert "required_training_evidence" in markdown
+    assert "required_evaluation_evidence" in markdown
+    assert "required_acceptance_evidence" in markdown
+    assert "invalid_substitutes" in markdown
+    assert "new remote checkpoint bundle under a new attempt directory" in markdown
+    assert "H02 formal_output_accepted=true with PPO rows and checkpoint hash" in markdown
 
 
 def _config(tmp_path):
