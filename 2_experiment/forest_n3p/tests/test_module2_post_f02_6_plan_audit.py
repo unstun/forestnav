@@ -36,6 +36,24 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
     assert manifest["runs_remote_preflight"] is False
     assert manifest["current_blocking_summary"]["training_allowed_now"] is False
     assert manifest["current_blocking_summary"]["remote_preflight_allowed_now"] is False
+    decision_request = manifest["f02_6_human_decision_request_summary"]
+    assert decision_request["present"] is True
+    assert decision_request["status"] == "awaiting_dr_sun_decision"
+    assert decision_request["decision_owner_required"] == "Dr Sun"
+    assert decision_request["current_allowed_action_ids"] == ["record_f02_6_decision"]
+    assert decision_request["current_blocked_action_ids"] == [
+        "remote_preflight",
+        "remote_training",
+        "local_training",
+        "formal_claim",
+        "paper_result_material",
+    ]
+    assert decision_request["post_decision_routes_are_current_authorization"] is False
+    assert decision_request["all_execution_disabled_now"] is True
+    assert decision_request["remote_preflight_allowed_now"] is False
+    assert decision_request["remote_training_allowed_now"] is False
+    assert decision_request["formal_claim_allowed_now"] is False
+    assert decision_request["local_training_allowed_now"] is False
     command_index = manifest["source_regeneration_command_index_summary"]
     assert command_index["present"] is True
     assert command_index["index_row_count"] == 9
@@ -107,6 +125,47 @@ def test_post_f02_6_plan_audit_catches_training_allowed_while_f02_6_pending(tmp_
     assert "training_stage_allowed_before_f02_6" in issue_ids
     assert "training_stage_missing_f02_6_decision_not_approved" in issue_ids
     assert "training_stage_missing_remote_packet_not_ready" in issue_ids
+
+
+def test_post_f02_6_plan_audit_catches_f02_6_human_decision_request_drift(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
+    plan = _plan_payload()
+    request = plan["f02_6_human_decision_request_summary"]
+    request["status"] = "approved"
+    request["decision_owner_required"] = "automation"
+    request["current_allowed_action_ids"] = ["record_f02_6_decision", "remote_preflight"]
+    request["current_blocked_action_ids"] = ["remote_training"]
+    request["post_decision_routes_are_current_authorization"] = True
+    request["all_execution_disabled_now"] = False
+    request["remote_preflight_allowed_now"] = True
+    request["remote_training_allowed_now"] = True
+    request["formal_claim_allowed_now"] = True
+    request["local_training_allowed_now"] = True
+
+    manifest = auditor.build_manifest(
+        auditor.PostF026PlanAuditConfig(
+            output_dir=tmp_path,
+            plan_path=_json(tmp_path, "plan.json", plan),
+            formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate_payload()),
+            source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
+            missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
+            closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
+            status_report_path=_json(tmp_path, "status_report.json", _status_report_payload(ready=False)),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "post_f02_6_plan_audit_failed"
+    assert "pending_f02_6_human_decision_request_not_awaiting_dr_sun" in issue_ids
+    assert "pending_f02_6_human_decision_request_owner_not_dr_sun" in issue_ids
+    assert "pending_f02_6_human_decision_request_allowed_actions_not_decision_only" in issue_ids
+    assert "pending_f02_6_human_decision_request_missing_blocked_actions" in issue_ids
+    assert "pending_f02_6_human_decision_request_treats_routes_as_authorization" in issue_ids
+    assert "pending_f02_6_human_decision_request_execution_not_disabled" in issue_ids
+    assert "pending_f02_6_human_decision_request_remote_preflight_allowed_now_not_false" in issue_ids
+    assert "pending_f02_6_human_decision_request_remote_training_allowed_now_not_false" in issue_ids
+    assert "pending_f02_6_human_decision_request_formal_claim_allowed_now_not_false" in issue_ids
+    assert "pending_f02_6_human_decision_request_local_training_allowed_now_not_false" in issue_ids
 
 
 def test_post_f02_6_plan_audit_catches_remote_training_host_and_command_drift(tmp_path):
@@ -637,6 +696,8 @@ def test_post_f02_6_plan_audit_cli_writes_json_and_markdown(tmp_path):
     markdown = markdown_path.read_text(encoding="utf-8")
     assert manifest["status"] == "post_f02_6_plan_audit_passed"
     assert "Module2 Post-F02.6 Plan Audit" in markdown
+    assert "F02.6 Human Decision Request" in markdown
+    assert "record_f02_6_decision" in markdown
     assert "Source Regeneration Command Index" in markdown
     assert "Remaining Deliverables Gap Summary" in markdown
     assert "Status Report Remote Execution Steps" in markdown
@@ -662,6 +723,25 @@ def _plan_payload():
             "source_freshness_regeneration_required": True,
             "remote_packet_status": "blocked_until_f02_6_decision",
             "ready_to_run_remote_training": False,
+        },
+        "f02_6_human_decision_request_summary": {
+            "present": True,
+            "status": "awaiting_dr_sun_decision",
+            "decision_owner_required": "Dr Sun",
+            "current_allowed_action_ids": ["record_f02_6_decision"],
+            "current_blocked_action_ids": [
+                "remote_preflight",
+                "remote_training",
+                "local_training",
+                "formal_claim",
+                "paper_result_material",
+            ],
+            "post_decision_routes_are_current_authorization": False,
+            "all_execution_disabled_now": True,
+            "remote_preflight_allowed_now": False,
+            "remote_training_allowed_now": False,
+            "formal_claim_allowed_now": False,
+            "local_training_allowed_now": False,
         },
         "remaining_deliverables_gap_summary": _gap_summary(open_gaps=True),
         "source_regeneration_targets_by_gate": {

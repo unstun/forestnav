@@ -35,6 +35,20 @@ REQUIRED_STAGE_ORDER = (
     "regenerate_h01_h02_formal_artifacts",
     "regenerate_claim_gate_artifacts",
 )
+REQUIRED_F02_6_ALLOWED_ACTION_IDS = ("record_f02_6_decision",)
+REQUIRED_F02_6_BLOCKED_ACTION_IDS = (
+    "remote_preflight",
+    "remote_training",
+    "local_training",
+    "formal_claim",
+    "paper_result_material",
+)
+F02_6_DISABLED_PERMISSION_FIELDS = (
+    "remote_preflight_allowed_now",
+    "remote_training_allowed_now",
+    "formal_claim_allowed_now",
+    "local_training_allowed_now",
+)
 
 
 @dataclass(frozen=True)
@@ -128,6 +142,7 @@ def build_manifest(config: PostF026PlanAuditConfig) -> dict[str, Any]:
         "closure_checklist_summary": _closure_checklist_summary(config.closure_checklist_path, closure_checklist),
         "status_report_summary": _status_report_summary(config.status_report_path, status_report),
         "status_report_proof_audit_deliverables_summary": _status_report_proof_audit_deliverables_summary(status_report),
+        "f02_6_human_decision_request_summary": _f02_6_human_decision_request_summary(plan),
         "remaining_deliverables_gap_summary": _remaining_deliverables_gap_summary(
             config.remaining_deliverables_path,
             remaining_deliverables,
@@ -258,6 +273,69 @@ def _pending_gate_issues(plan: dict[str, Any]) -> list[dict[str, Any]]:
     if decision_status != "pending_human_decision":
         return []
     issues: list[dict[str, Any]] = []
+    request_summary = _f02_6_human_decision_request_summary(plan)
+    if request_summary["present"] is not True:
+        issues.append(_issue("pending_f02_6_human_decision_request_missing", "Pending F02.6 must expose the human decision request summary."))
+    if request_summary["status"] != "awaiting_dr_sun_decision":
+        issues.append(
+            _issue(
+                "pending_f02_6_human_decision_request_not_awaiting_dr_sun",
+                "Pending F02.6 request must await Dr Sun's decision.",
+                observed=request_summary["status"],
+            )
+        )
+    if request_summary["decision_owner_required"] != "Dr Sun":
+        issues.append(
+            _issue(
+                "pending_f02_6_human_decision_request_owner_not_dr_sun",
+                "Pending F02.6 request must require Dr Sun as decision owner.",
+                observed=request_summary["decision_owner_required"],
+            )
+        )
+    allowed_actions = request_summary["current_allowed_action_ids"]
+    if allowed_actions != list(REQUIRED_F02_6_ALLOWED_ACTION_IDS):
+        issues.append(
+            _issue(
+                "pending_f02_6_human_decision_request_allowed_actions_not_decision_only",
+                "Pending F02.6 request must allow only the decision-record action.",
+                observed=allowed_actions,
+            )
+        )
+    blocked_actions = set(request_summary["current_blocked_action_ids"])
+    missing_blocked = [action_id for action_id in REQUIRED_F02_6_BLOCKED_ACTION_IDS if action_id not in blocked_actions]
+    if missing_blocked:
+        issues.append(
+            _issue(
+                "pending_f02_6_human_decision_request_missing_blocked_actions",
+                "Pending F02.6 request must explicitly block execution and paper-result actions.",
+                observed=missing_blocked,
+            )
+        )
+    if request_summary["post_decision_routes_are_current_authorization"] is not False:
+        issues.append(
+            _issue(
+                "pending_f02_6_human_decision_request_treats_routes_as_authorization",
+                "Post-decision routes must not be treated as current authorization while F02.6 is pending.",
+                observed=request_summary["post_decision_routes_are_current_authorization"],
+            )
+        )
+    if request_summary["all_execution_disabled_now"] is not True:
+        issues.append(
+            _issue(
+                "pending_f02_6_human_decision_request_execution_not_disabled",
+                "Pending F02.6 request must mark all execution disabled now.",
+                observed=request_summary["all_execution_disabled_now"],
+            )
+        )
+    for field in F02_6_DISABLED_PERMISSION_FIELDS:
+        if request_summary[field] is not False:
+            issues.append(
+                _issue(
+                    f"pending_f02_6_human_decision_request_{field}_not_false",
+                    f"Pending F02.6 request must keep {field}=false.",
+                    observed=request_summary[field],
+                )
+            )
     if plan.get("status") != "blocked_until_f02_6_decision":
         issues.append(_issue("pending_f02_6_wrong_plan_status", "Pending F02.6 must keep the plan blocked.", observed=plan.get("status")))
     if blocking.get("training_allowed_now") is not False:
@@ -901,6 +979,26 @@ def _current_blocking_summary(plan: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _f02_6_human_decision_request_summary(plan: dict[str, Any]) -> dict[str, Any]:
+    raw = plan.get("f02_6_human_decision_request_summary")
+    summary = raw if isinstance(raw, dict) else {}
+    out: dict[str, Any] = {
+        "present": bool(summary) and summary.get("present") is not False,
+        "status": summary.get("status"),
+        "decision_owner_required": summary.get("decision_owner_required"),
+        "current_allowed_action_ids": _strings(summary.get("current_allowed_action_ids")),
+        "current_blocked_action_ids": _strings(summary.get("current_blocked_action_ids")),
+    }
+    for field in (
+        "post_decision_routes_are_current_authorization",
+        "all_execution_disabled_now",
+        *F02_6_DISABLED_PERMISSION_FIELDS,
+    ):
+        value = summary.get(field)
+        out[field] = value if isinstance(value, bool) else None
+    return out
+
+
 def _missing_artifacts_summary(path: Path, missing_artifacts: dict[str, Any]) -> dict[str, Any]:
     counts = missing_artifacts.get("missing_counts_by_category")
     return {
@@ -1203,6 +1301,25 @@ def _markdown(manifest: dict[str, Any]) -> str:
     ]
     for key, value in manifest["current_blocking_summary"].items():
         lines.append(f"- {key}: `{value}`")
+    decision_request = manifest["f02_6_human_decision_request_summary"]
+    lines.extend(
+        [
+            "",
+            "## F02.6 Human Decision Request",
+            "",
+            f"- present: `{decision_request['present']}`",
+            f"- status: `{decision_request['status']}`",
+            f"- decision_owner_required: `{decision_request['decision_owner_required']}`",
+            f"- current_allowed_action_ids: `{decision_request['current_allowed_action_ids']}`",
+            f"- current_blocked_action_ids: `{decision_request['current_blocked_action_ids']}`",
+            f"- post_decision_routes_are_current_authorization: `{decision_request['post_decision_routes_are_current_authorization']}`",
+            f"- all_execution_disabled_now: `{decision_request['all_execution_disabled_now']}`",
+            f"- remote_preflight_allowed_now: `{decision_request['remote_preflight_allowed_now']}`",
+            f"- remote_training_allowed_now: `{decision_request['remote_training_allowed_now']}`",
+            f"- formal_claim_allowed_now: `{decision_request['formal_claim_allowed_now']}`",
+            f"- local_training_allowed_now: `{decision_request['local_training_allowed_now']}`",
+        ]
+    )
     command_index = manifest["source_regeneration_command_index_summary"]
     lines.extend(
         [
