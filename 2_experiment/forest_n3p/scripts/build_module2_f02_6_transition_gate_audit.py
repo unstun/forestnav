@@ -755,6 +755,62 @@ def _scenario_handoff_bundle(base: dict[str, Any], scenario_id: str, remote_pack
     return out
 
 
+def _scenario_remaining_deliverables(base: dict[str, Any], scenario_id: str) -> dict[str, Any]:
+    out = copy.deepcopy(base)
+    out["status"] = "formal_gate_deliverables_blocked"
+    out["local_training_allowed_now"] = False
+    out["remote_preflight_allowed_now"] = False
+    out["remote_training_allowed_now"] = False
+    out["formal_h01_evaluation_allowed_now"] = False
+    out["formal_h02_acceptance_allowed_now"] = False
+    out["formal_claim_allowed_now"] = False
+    out["paper_result_material_allowed_now"] = False
+    permissions = out.setdefault("permissions_now", {})
+    for key in (
+        "local_training_allowed_now",
+        "remote_preflight_allowed_now",
+        "remote_training_allowed_now",
+        "formal_h01_evaluation_allowed_now",
+        "formal_h02_acceptance_allowed_now",
+        "formal_claim_allowed_now",
+        "paper_result_material_allowed_now",
+    ):
+        permissions[key] = False
+    out["next_blocked_lane"] = (
+        "decision" if scenario_id == "pending" else "protocol_redesign" if scenario_id == "rejected" else "source_fresh_preflight"
+    )
+
+    blockers_by_category = {
+        "training": _scenario_execution_blockers(scenario_id, for_training=True),
+        "evaluation": ["remote_training_not_completed", "missing_remote_audit_pullback"],
+        "acceptance": ["remote_training_not_completed", "missing_remote_audit_pullback"],
+        "formal_acceptance": ["missing_remote_audit_pullback"],
+    }
+    _block_remaining_stage_rows(out.get("deliverable_groups"), blockers_by_category)
+    _block_remaining_stage_rows(out.get("deliverable_acceptance_matrix"), blockers_by_category)
+    gap = out.get("deliverable_gap_summary") if isinstance(out.get("deliverable_gap_summary"), dict) else {}
+    _block_remaining_stage_rows(gap.get("categories"), blockers_by_category)
+    checklist = out.get("plain_formal_gate_closure_checklist") if isinstance(out.get("plain_formal_gate_closure_checklist"), dict) else {}
+    _block_remaining_stage_rows(checklist.get("categories"), blockers_by_category)
+    unlock_chain = out.get("deliverable_unlock_chain") if isinstance(out.get("deliverable_unlock_chain"), dict) else {}
+    _block_remaining_stage_rows(unlock_chain.get("rows"), blockers_by_category)
+    unlock_chain["rows_allowed_while_missing"] = 0
+    return out
+
+
+def _block_remaining_stage_rows(rows: Any, blockers_by_category: dict[str, list[str]]) -> None:
+    if not isinstance(rows, list):
+        return
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        category = str(row.get("category") or "")
+        row["responsible_stage_allowed_now"] = False
+        blockers = _unique_strings(_strings(row.get("responsible_stage_blocked_by")) + blockers_by_category.get(category, []))
+        if blockers:
+            row["responsible_stage_blocked_by"] = blockers
+
+
 def _scenario_decision_intake(base: dict[str, Any], scenario_id: str, record: dict[str, Any]) -> dict[str, Any]:
     out = copy.deepcopy(base)
     current = out.setdefault("current_state", {})
