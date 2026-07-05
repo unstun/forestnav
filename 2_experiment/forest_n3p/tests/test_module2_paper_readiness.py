@@ -203,6 +203,18 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert manifest["input_status"]["claim_safety_next_required_formal_deliverables_total_missing"] == 10
     assert manifest["input_status"]["claim_safety_next_required_formal_deliverables_blocked_category_count"] == 4
     assert manifest["input_status"]["claim_safety_next_required_formal_deliverables_row_count"] == 10
+    assert manifest["input_status"]["claim_safety_mainline_audit_present"] is True
+    assert (
+        manifest["input_status"]["claim_safety_mainline_audit_status"]
+        == "mainline_formal_gate_state_consistent_blocked"
+    )
+    assert manifest["input_status"]["claim_safety_mainline_audit_issue_count"] == 0
+    assert manifest["input_status"]["claim_safety_mainline_audit_proof_summary_issue_count"] == 0
+    assert manifest["input_status"]["claim_safety_mainline_audit_proof_audit_input_safety_issue_count"] == 0
+    assert (
+        manifest["claim_safety_mainline_formal_gate_state_audit_summary"]["proof_summary_chain_status"]
+        == "formal_gate_proof_summary_chain_consistent_blocked"
+    )
     assert manifest["claim_safety_remote_packet_safety_claim_gate_command_index_summary"]["claim_gate_rows"][
         "formal_gate_proof_summary_chain_audit"
     ]["stage_id"] == "regenerate_claim_gate_artifacts"
@@ -279,6 +291,8 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert "Claim Safety Handoff Single Next-Action Index" in markdown
     assert "Claim Safety Next Required Formal Deliverables" in markdown
     assert "claim_safety_next_required_formal_deliverables_total_missing" in markdown
+    assert "Claim Safety Mainline Formal Gate State Audit" in markdown
+    assert "claim_safety_mainline_audit_status" in markdown
 
 
 def test_paper_readiness_accepts_synthetic_complete_evidence(tmp_path):
@@ -351,6 +365,8 @@ def test_paper_readiness_accepts_synthetic_complete_evidence(tmp_path):
     assert manifest["input_status"]["claim_safety_next_required_formal_deliverables_total_missing"] == 0
     assert manifest["input_status"]["claim_safety_next_required_formal_deliverables_blocked_category_count"] == 0
     assert manifest["input_status"]["claim_safety_next_required_formal_deliverables_row_count"] == 10
+    assert manifest["input_status"]["claim_safety_mainline_audit_status"] == "mainline_formal_gate_state_consistent_ready"
+    assert manifest["input_status"]["claim_safety_mainline_audit_issue_count"] == 0
     assert all(item["status"] != "blocked" for item in manifest["section_readiness"])
     assert "formal_performance_improvement" in manifest["conditional_claim_ids"]
 
