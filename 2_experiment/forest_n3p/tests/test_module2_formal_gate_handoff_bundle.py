@@ -43,6 +43,14 @@ def test_formal_gate_handoff_bundle_blocks_pending_decision_without_execution(tm
     assert route_summary["approved_route_allows_remote_training_now"] is False
     assert route_summary["rejected_route_next_lane"] == "protocol_redesign"
     assert route_summary["rejected_route_requires_new_protocol_contract"] is True
+    assert route_summary["decision_impact_present"] is True
+    assert route_summary["decision_record_is_not_training_authorization"] is True
+    assert route_summary["decision_record_is_not_paper_result_material"] is True
+    assert route_summary["decision_impact_remote_preflight_allowed_now"] is False
+    assert route_summary["decision_impact_remote_training_allowed_now"] is False
+    assert route_summary["decision_impact_formal_claim_allowed_now"] is False
+    assert route_summary["decision_impact_paper_result_material_allowed_now"] is False
+    assert "approved_remote_preflight" in route_summary["decision_impact_formal_training_still_requires"]
     assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
     assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 4
     assert manifest["remaining_deliverables_gap_summary"]["categories"]["training"]["missing_count"] == 3
@@ -206,6 +214,33 @@ def test_formal_gate_handoff_bundle_catches_f02_6_route_drift(tmp_path):
     assert "f02_6_rejected_route_missing_protocol_contract" in issue_ids
 
 
+def test_formal_gate_handoff_bundle_catches_f02_6_decision_impact_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_handoff_bundle")
+    config = _config(tmp_path, complete=False)
+    status_report = json.loads(config.status_report_path.read_text(encoding="utf-8"))
+    intake = status_report["f02_6_decision_intake_summary"]
+    intake["decision_impact_present"] = False
+    intake["decision_record_is_not_training_authorization"] = False
+    intake["decision_record_is_not_paper_result_material"] = False
+    intake["decision_impact_remote_training_allowed_now"] = True
+    intake["decision_impact_formal_claim_allowed_now"] = True
+    intake["decision_impact_paper_result_material_allowed_now"] = True
+    intake["decision_impact_formal_training_still_requires"] = []
+    config.status_report_path.write_text(json.dumps(status_report), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    assert manifest["status"] == "blocked_handoff_input_safety_issues"
+    issue_ids = {issue["issue_id"] for issue in manifest["safety_issues"]}
+    assert "f02_6_decision_impact_missing" in issue_ids
+    assert "f02_6_decision_record_may_authorize_training" in issue_ids
+    assert "f02_6_decision_record_may_be_paper_result_material" in issue_ids
+    assert "f02_6_decision_impact_allows_remote_training" in issue_ids
+    assert "f02_6_decision_impact_allows_formal_claim" in issue_ids
+    assert "f02_6_decision_impact_allows_paper_result_material" in issue_ids
+    assert "f02_6_decision_impact_missing_required_approved_remote_preflight" in issue_ids
+
+
 def test_formal_gate_handoff_bundle_cli_writes_json_and_markdown(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_handoff_bundle")
     config = _config(tmp_path, complete=False)
@@ -247,6 +282,7 @@ def test_formal_gate_handoff_bundle_cli_writes_json_and_markdown(tmp_path):
     assert "Remote Steps" in markdown
     assert "Handoff Stages" in markdown
     assert "F02.6 Route Handoff" in markdown
+    assert "decision_record_is_not_training_authorization" in markdown
     assert "source_freshness_status" in markdown
     assert "remaining deliverables gap" in markdown
     assert "Status Report Proof-Audit Deliverables Summary" in markdown
@@ -450,6 +486,20 @@ def _status_report(*, complete):
             "approved_route_allows_remote_training_now": False,
             "rejected_route_next_lane": "protocol_redesign",
             "rejected_route_requires_new_protocol_contract": True,
+            "decision_impact_present": True,
+            "decision_record_is_not_training_authorization": True,
+            "decision_record_is_not_paper_result_material": True,
+            "decision_impact_remote_preflight_allowed_now": False,
+            "decision_impact_remote_training_allowed_now": False,
+            "decision_impact_formal_claim_allowed_now": False,
+            "decision_impact_paper_result_material_allowed_now": False,
+            "decision_impact_formal_training_still_requires": [
+                "source_freshness_audit",
+                "post_f02_6_regeneration_plan",
+                "post_f02_6_plan_audit",
+                "remote_formal_execution_packet_ready",
+                "approved_remote_preflight",
+            ],
         },
     }
 
