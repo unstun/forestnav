@@ -1740,7 +1740,10 @@ def _formal_gate_proof_audit_summary(proof_audit: dict[str, Any]) -> dict[str, A
 
 
 def _proof_audit_remaining_deliverables_top_level_summary(proof_audit: dict[str, Any]) -> dict[str, Any]:
-    raw = proof_audit.get("remaining_deliverables_top_level_summary")
+    return _normalize_proof_deliverables_summary(proof_audit.get("remaining_deliverables_top_level_summary"))
+
+
+def _normalize_proof_deliverables_summary(raw: Any) -> dict[str, Any]:
     raw = raw if isinstance(raw, dict) else {}
     raw_counts = raw.get("missing_counts_by_formal_category")
     raw_counts = raw_counts if isinstance(raw_counts, dict) else {}
@@ -1761,6 +1764,30 @@ def _proof_audit_remaining_deliverables_top_level_summary(proof_audit: dict[str,
         "h02_formal_output_accepted": raw.get("h02_formal_output_accepted"),
         "h02_paper_result_input_allowed": raw.get("h02_paper_result_input_allowed"),
     }
+
+
+def _proof_deliverables_signature(summary: dict[str, Any]) -> dict[str, Any]:
+    matrix_ids = summary.get("missing_matrix_ids_by_formal_category")
+    matrix_ids = matrix_ids if isinstance(matrix_ids, dict) else {}
+    return {
+        "missing_counts_by_formal_category": summary.get("missing_counts_by_formal_category"),
+        "missing_matrix_ids_by_formal_category": {
+            str(category): sorted(str(item) for item in items)
+            for category, items in matrix_ids.items()
+            if isinstance(items, list)
+        },
+        "next_blocked_lane": summary.get("next_blocked_lane"),
+        "h01_status": summary.get("h01_status"),
+        "h02_status": summary.get("h02_status"),
+        "h02_formal_output_accepted": summary.get("h02_formal_output_accepted"),
+        "h02_paper_result_input_allowed": summary.get("h02_paper_result_input_allowed"),
+    }
+
+
+def _proof_deliverables_missing_total(summary: dict[str, Any]) -> int:
+    counts = summary.get("missing_counts_by_formal_category")
+    counts = counts if isinstance(counts, dict) else {}
+    return sum(int(count) for count in counts.values())
 
 
 def _formal_gate_proof_audit_missing_evidence_summary(
