@@ -308,6 +308,47 @@ def test_remaining_deliverables_accepts_synthetic_complete_gate(tmp_path):
     assert manifest["permissions_now"]["formal_claim_allowed_now"] is True
 
 
+def test_remaining_deliverables_keeps_paper_readiness_out_of_remote_readiness_blockers():
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_remaining_deliverables")
+
+    summary = builder._source_freshness_blocking_targets_summary(
+        {
+            "status": "source_freshness_risks_recorded_gate_still_blocked",
+            "source_head": "old-head",
+            "current_head": "current-head",
+            "blocking_regeneration_required_before_remote_formal_execution": True,
+            "blocking_ordered_regeneration_targets": [
+                {
+                    "artifact_id": "gpu3070ti_readiness_refresh",
+                    "path": "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
+                    "freshness_state": "historical_clean",
+                    "source_head": "old-head",
+                    "required_before": "approved_remote_preflight",
+                    "commits_since_source": 12,
+                    "blocking_changed_path_count_since_source": 3,
+                },
+                {
+                    "artifact_id": "paper_readiness",
+                    "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
+                    "freshness_state": "historical_clean",
+                    "source_head": "old-head",
+                    "required_before": "claim_safety",
+                    "commits_since_source": 12,
+                    "blocking_changed_path_count_since_source": 3,
+                },
+            ],
+        }
+    )
+
+    assert summary["blocking_target_ids"] == [
+        "gpu3070ti_readiness_refresh",
+        "paper_readiness",
+    ]
+    assert summary["remote_readiness_blocking_target_ids"] == ["gpu3070ti_readiness_refresh"]
+    assert summary["remote_readiness_blocking_target_count"] == 1
+    assert summary["remote_readiness_refresh_requires_external_ssh"] is True
+
+
 def test_remaining_deliverables_catches_unsafe_or_incomplete_inputs(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_remaining_deliverables")
     config = _config(tmp_path, complete=False)

@@ -87,6 +87,7 @@ LOCAL_MATERIALIZATION_STAGE_BY_CATEGORY = {
     "acceptance": "gate3_remote_audit_pullback",
     "formal_acceptance": "regenerate_h01_h02_formal_artifacts",
 }
+REMOTE_READINESS_SOURCE_BLOCKER_IDS = ("gpu3070ti_readiness_refresh",)
 
 
 @dataclass(frozen=True)
@@ -1437,7 +1438,7 @@ def _source_freshness_blocking_targets_summary(source_freshness: dict[str, Any])
     remote_readiness_ids = [
         target_id
         for target_id in blocking_target_ids
-        if "readiness" in target_id or "gpu3070ti" in target_id
+        if target_id in REMOTE_READINESS_SOURCE_BLOCKER_IDS
     ]
     return {
         "summary_id": "module2_source_freshness_blocking_targets_summary",
