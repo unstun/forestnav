@@ -8,6 +8,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Sequence
 
+from forest_n3p.scripts._module2_source_head import source_head as module2_source_head
+
 
 DEFAULT_OUTPUT_DIR = Path("0_trials/module2_source_freshness_audit")
 CHANGED_PATH_SAMPLE_LIMIT = 12
@@ -632,14 +634,7 @@ def _current_head() -> str:
 
 
 def _source_head() -> str:
-    try:
-        head = _current_head()
-        dirty = subprocess.run(["git", "diff", "--quiet"], check=False)
-        staged_dirty = subprocess.run(["git", "diff", "--cached", "--quiet"], check=False)
-        suffix = "+dirty" if dirty.returncode != 0 or staged_dirty.returncode != 0 else ""
-        return f"{head}{suffix}"
-    except Exception:
-        return "unknown"
+    return module2_source_head()
 
 
 def _commit_exists(commit: str) -> bool:

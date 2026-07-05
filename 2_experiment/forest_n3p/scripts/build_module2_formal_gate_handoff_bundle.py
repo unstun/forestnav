@@ -8,6 +8,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Sequence
 
+from forest_n3p.scripts._module2_source_head import source_head as module2_source_head
+
 
 DEFAULT_OUTPUT_DIR = Path("0_trials/module2_formal_gate_handoff_bundle")
 DEFAULT_DECISION_RECORD = Path("0_trials/module2_f02_6_decision_record/f02_6_decision_record.json")
@@ -642,10 +644,8 @@ def _issue(issue_id: str, detail: str) -> dict[str, str]:
 
 
 def _source_head() -> str | None:
-    try:
-        return subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
-    except Exception:
-        return None
+    value = module2_source_head()
+    return None if value == "unknown" else value
 
 
 def _markdown(manifest: dict[str, Any]) -> str:

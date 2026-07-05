@@ -10,6 +10,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Sequence
 
+from forest_n3p.scripts._module2_source_head import source_head as module2_source_head
+
 
 DEFAULT_OUTPUT_DIR = Path("0_trials/module2_f02_6_decision_record")
 DEFAULT_PACKET = Path("0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json")
@@ -339,12 +341,7 @@ def _join_command(argv: Sequence[str]) -> str:
 
 
 def _source_head() -> str:
-    try:
-        head = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL).strip()
-        dirty = subprocess.check_output(["git", "status", "--short"], text=True, stderr=subprocess.DEVNULL).strip()
-        return f"{head}+dirty" if dirty else head
-    except Exception:  # noqa: BLE001 - provenance should not stop protocol generation.
-        return "unknown"
+    return module2_source_head()
 
 
 if __name__ == "__main__":

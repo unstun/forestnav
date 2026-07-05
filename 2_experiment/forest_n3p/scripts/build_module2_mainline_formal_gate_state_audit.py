@@ -8,6 +8,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Sequence
 
+from forest_n3p.scripts._module2_source_head import source_head as module2_source_head
+
 
 DEFAULT_OUTPUT_DIR = Path("0_trials/module2_mainline_formal_gate_state_audit")
 DEFAULT_MAINLINE = Path(".pipeline/mainline_module2_rl_rs_replacement.md")
@@ -478,12 +480,7 @@ def _read_json(path: Path) -> dict[str, Any]:
 
 
 def _source_head() -> str:
-    try:
-        head = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
-        dirty = subprocess.check_output(["git", "status", "--short"], text=True).strip()
-    except Exception:
-        return "unknown"
-    return f"{head}+dirty" if dirty else head
+    return module2_source_head()
 
 
 def _safe_id(value: str) -> str:

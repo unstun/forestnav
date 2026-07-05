@@ -11,6 +11,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from forest_n3p.scripts._module2_source_head import source_head as module2_source_head
+
 
 OBSTACLE_BC_CHECKPOINT = Path("2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt")
 
@@ -503,12 +505,7 @@ def _join_command(argv: Sequence[str]) -> str:
 
 
 def _source_head() -> str:
-    try:
-        head = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL).strip()
-        dirty = subprocess.check_output(["git", "status", "--short"], text=True, stderr=subprocess.DEVNULL).strip()
-        return f"{head}+dirty" if dirty else head
-    except Exception:  # noqa: BLE001 - provenance should not stop packet generation.
-        return "unknown"
+    return module2_source_head()
 
 
 if __name__ == "__main__":

@@ -8,6 +8,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Sequence
 
+from forest_n3p.scripts._module2_source_head import source_head as module2_source_head
+
 
 DEFAULT_OUTPUT_DIR = Path("0_trials/module2_formal_gate_status_report")
 DEFAULT_FORMAL_GATE = Path("0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json")
@@ -3138,12 +3140,7 @@ def _read_json(path: Path) -> dict[str, Any]:
 
 
 def _source_head() -> str:
-    try:
-        head = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL).strip()
-        dirty = subprocess.check_output(["git", "status", "--short"], text=True, stderr=subprocess.DEVNULL).strip()
-        return f"{head}+dirty" if dirty else head
-    except Exception:
-        return "unknown"
+    return module2_source_head()
 
 
 def _markdown(manifest: dict[str, Any]) -> str:

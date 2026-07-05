@@ -8,6 +8,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Sequence
 
+from forest_n3p.scripts._module2_source_head import source_head as module2_source_head
+
 
 DEFAULT_OUTPUT_DIR = Path("0_trials/module2_formal_gate_gap_audit")
 DEFAULT_CONTRACT = Path(".pipeline/contracts/module2-ppo-funnel-expansion.md")
@@ -2191,14 +2193,7 @@ def _unique_gaps(gaps: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def _source_head() -> str:
-    try:
-        head = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
-        dirty = subprocess.run(["git", "diff", "--quiet"], check=False)
-        staged_dirty = subprocess.run(["git", "diff", "--cached", "--quiet"], check=False)
-        suffix = "+dirty" if dirty.returncode != 0 or staged_dirty.returncode != 0 else ""
-        return f"{head}{suffix}"
-    except Exception:
-        return "unknown"
+    return module2_source_head()
 
 
 if __name__ == "__main__":

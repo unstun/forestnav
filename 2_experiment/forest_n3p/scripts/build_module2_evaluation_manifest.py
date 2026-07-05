@@ -8,6 +8,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Sequence
 
+from forest_n3p.scripts._module2_source_head import source_head as module2_source_head
+
 
 @dataclass(frozen=True)
 class Module2EvaluationManifestConfig:
@@ -646,12 +648,7 @@ def _frontmatter_value(path: Path, key: str) -> str | None:
 
 
 def _source_head() -> str:
-    try:
-        head = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL).strip()
-        dirty = subprocess.check_output(["git", "status", "--short"], text=True, stderr=subprocess.DEVNULL).strip()
-        return f"{head}+dirty" if dirty else head
-    except Exception:  # noqa: BLE001 - provenance should not stop manifest generation.
-        return "unknown"
+    return module2_source_head()
 
 
 def _manifest_markdown(manifest: dict[str, Any]) -> str:

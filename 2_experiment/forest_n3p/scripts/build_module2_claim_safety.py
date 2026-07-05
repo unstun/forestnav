@@ -7,6 +7,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Sequence
 
+from forest_n3p.scripts._module2_source_head import source_head as module2_source_head
+
 
 DEFAULT_OUTPUT_DIR = Path("0_trials/module2_claim_safety")
 DEFAULT_PAPER_TABLES = Path("0_trials/module2_paper_tables/module2_paper_tables.json")
@@ -1848,15 +1850,7 @@ def _anchor(repo_root: Path, path: str, pattern: str, symbol: str) -> dict[str, 
 
 
 def _source_head(repo_root: Path) -> str:
-    try:
-        return subprocess.check_output(
-            ["git", "rev-parse", "HEAD"],
-            cwd=repo_root,
-            text=True,
-            stderr=subprocess.DEVNULL,
-        ).strip()
-    except Exception:  # noqa: BLE001 - provenance is best-effort for generated artifacts.
-        return "unknown"
+    return module2_source_head(repo_root=repo_root)
 
 
 def _markdown(manifest: dict[str, Any]) -> str:
