@@ -282,6 +282,39 @@ def test_formal_gate_proof_audit_rejects_declared_proof_plan_count_drift(tmp_pat
     assert all(result["command_was_executed"] is False for result in manifest["proof_command_results"])
 
 
+def test_formal_gate_proof_audit_rejects_upstream_acceptance_matrix_identity_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_proof_audit")
+    _write_complete_pullback(tmp_path)
+    remaining = _remaining_deliverables(tmp_path)
+    rows = remaining["deliverable_acceptance_matrix"]
+    rows[0]["matrix_id"] = "training:wrong_artifact"
+    rows[0]["invalid_substitutes"] = []
+    rows[0]["execution_boundary"] = "reference_only_no_execution"
+    rows[1]["matrix_id"] = "training:wrong_artifact"
+    rows[1]["artifact_id"] = "train_final_model_zip"
+    remaining_path = _write_json(tmp_path / "remaining_deliverables.json", remaining)
+
+    manifest = builder.build_manifest(
+        builder.FormalGateProofAuditConfig(
+            output_dir=tmp_path,
+            remaining_deliverables_path=remaining_path,
+            workspace_root=tmp_path,
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert manifest["status"] == "formal_gate_proof_audit_blocked"
+    assert "proof_audit_input_safety_issues_open" in manifest["blockers"]
+    assert "acceptance_matrix_training_wrong_artifact_identity_mismatch" in issue_ids
+    assert "acceptance_matrix_training_wrong_artifact_duplicate_matrix_id" in issue_ids
+    assert "acceptance_matrix_training_train_final_model_zip_duplicate_category_artifact" in issue_ids
+    assert "acceptance_matrix_training_wrong_artifact_missing_invalid_substitutes" in issue_ids
+    assert "acceptance_matrix_training_wrong_artifact_wrong_boundary" in issue_ids
+    assert "acceptance_matrix_training_missing_matrix_ids_mismatch" in issue_ids
+    assert manifest["passed_proof_command_count"] == 20
+    assert all(result["command_was_executed"] is False for result in manifest["proof_command_results"])
+
+
 def test_formal_gate_proof_audit_cli_writes_json_and_markdown(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_proof_audit")
     remaining_path = _write_json(tmp_path / "remaining_deliverables.json", _remaining_deliverables(tmp_path))
@@ -415,6 +448,9 @@ def _artifact_rows(root: Path):
             "category": category,
             "artifact_id": artifact_id,
             "expected_path": str(path),
+            "missing": True,
+            "invalid_substitutes": ["local training output", "available-subset smoke output"],
+            "execution_boundary": "read_only_no_execution",
             "proof_commands": _proof_commands(artifact_id),
         }
         for category, artifact_id, path in specs
