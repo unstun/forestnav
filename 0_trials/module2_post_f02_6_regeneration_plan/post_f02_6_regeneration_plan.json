@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_regeneration_plan",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-05T07:05:23.541716+00:00",
-  "source_head": "3fda5e7185b7a167bb73aad52d1ce82cefbabe68+dirty",
+  "created_at_utc": "2026-07-05T07:20:04.406804+00:00",
+  "source_head": "192224335d9708745857315a9adb31bede2189d6+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -246,7 +246,7 @@
       {
         "artifact_id": "mainline_formal_gate_state_audit",
         "path": "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json",
-        "freshness_state": "current_dirty"
+        "freshness_state": "historical_dirty"
       },
       {
         "artifact_id": "paper_readiness",
@@ -448,7 +448,7 @@
     {
       "artifact_id": "mainline_formal_gate_state_audit",
       "required_before": "formal_claim_gate",
-      "freshness_state": "current_dirty",
+      "freshness_state": "historical_dirty",
       "path": "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json",
       "stage_id": "regenerate_claim_gate_artifacts",
       "command_kind": "known_builder",

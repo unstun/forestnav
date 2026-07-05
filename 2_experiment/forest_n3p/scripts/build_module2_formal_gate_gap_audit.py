@@ -41,6 +41,7 @@ REMOTE_PACKET_SAFETY_STEP_MAP = {
 }
 CLAIM_GATE_REGENERATION_ARTIFACT_IDS = (
     "formal_gate_proof_summary_chain_audit",
+    "mainline_formal_gate_state_audit",
     "claim_safety",
     "paper_readiness",
 )

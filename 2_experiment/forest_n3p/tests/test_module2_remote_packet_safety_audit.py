@@ -46,12 +46,17 @@ def test_remote_packet_safety_audit_passes_current_blocked_packet(tmp_path):
     assert manifest["cross_gate_summary"]["post_plan_status_report_execution_veto_summary"]["row_consensus"]["formal_claim"] is False
     command_index = manifest["cross_gate_summary"]["post_plan_source_regeneration_command_index_summary"]
     assert command_index["present"] is True
-    assert command_index["index_row_count"] == 22
-    assert command_index["source_target_count"] == 22
+    assert command_index["index_row_count"] == 23
+    assert command_index["source_target_count"] == 23
     assert command_index["missing_target_ids"] == []
     assert command_index["unknown_manual_count"] == 0
     assert command_index["forbidden_command_count"] == 0
     assert command_index["rows"]["formal_gate_proof_summary_chain_audit"]["stage_id"] == "regenerate_claim_gate_artifacts"
+    assert command_index["rows"]["mainline_formal_gate_state_audit"]["stage_id"] == "regenerate_claim_gate_artifacts"
+    assert (
+        "build_module2_mainline_formal_gate_state_audit"
+        in command_index["rows"]["mainline_formal_gate_state_audit"]["command_template"]
+    )
     assert command_index["rows"]["claim_safety"]["stage_id"] == "regenerate_claim_gate_artifacts"
     assert command_index["rows"]["paper_readiness"]["stage_id"] == "regenerate_claim_gate_artifacts"
     assert manifest["cross_gate_summary"]["post_plan_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
@@ -998,6 +1003,12 @@ def _source_regeneration_command_index_summary():
             "command_kind": "known_builder",
             "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety",
         },
+        "mainline_formal_gate_state_audit": {
+            "required_before": "formal_claim_gate",
+            "stage_id": "regenerate_claim_gate_artifacts",
+            "command_kind": "known_builder",
+            "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit",
+        },
         "paper_readiness": {
             "required_before": "formal_claim_gate",
             "stage_id": "regenerate_claim_gate_artifacts",
@@ -1007,8 +1018,8 @@ def _source_regeneration_command_index_summary():
     }
     return {
         "present": True,
-        "index_row_count": 22,
-        "source_target_count": 22,
+        "index_row_count": 23,
+        "source_target_count": 23,
         "missing_target_ids": [],
         "unknown_manual_count": 0,
         "unknown_manual_ids": [],

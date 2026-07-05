@@ -157,8 +157,8 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
         "formal_acceptance": 2,
     }
     assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_present"] is True
-    assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_row_count"] == 22
-    assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_source_target_count"] == 22
+    assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_row_count"] == 23
+    assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_source_target_count"] == 23
     assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_missing_target_count"] == 0
     assert manifest["input_status"]["claim_safety_next_action_guard_present"] is True
     assert manifest["input_status"]["claim_safety_next_action_guard_status"] == "next_action_guard_passed"
@@ -179,6 +179,15 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert manifest["claim_safety_remote_packet_safety_claim_gate_command_index_summary"]["claim_gate_rows"][
         "formal_gate_proof_summary_chain_audit"
     ]["stage_id"] == "regenerate_claim_gate_artifacts"
+    assert manifest["claim_safety_remote_packet_safety_claim_gate_command_index_summary"]["claim_gate_rows"][
+        "mainline_formal_gate_state_audit"
+    ]["stage_id"] == "regenerate_claim_gate_artifacts"
+    assert (
+        "build_module2_mainline_formal_gate_state_audit"
+        in manifest["claim_safety_remote_packet_safety_claim_gate_command_index_summary"]["claim_gate_rows"][
+            "mainline_formal_gate_state_audit"
+        ]["command_template"]
+    )
     assert manifest["claim_safety_remote_packet_safety_claim_gate_command_index_summary"]["claim_gate_rows"][
         "claim_safety"
     ]["stage_id"] == "regenerate_claim_gate_artifacts"
@@ -306,7 +315,7 @@ def test_paper_readiness_accepts_synthetic_complete_evidence(tmp_path):
     assert manifest["claim_safety_remote_packet_safety_status_report_proof_deliverables_summary"] == manifest[
         "claim_safety_remote_packet_safety_proof_deliverables_summary"
     ]
-    assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_row_count"] == 22
+    assert manifest["input_status"]["claim_safety_remote_packet_safety_command_index_row_count"] == 23
     assert manifest["input_status"]["claim_safety_next_action_guard_status"] == "next_action_guard_passed"
     assert manifest["input_status"]["claim_safety_next_action_guard_expected_next_action_id"] is None
     assert manifest["input_status"]["claim_safety_next_action_guard_all_execution_disabled_now"] is False
@@ -1534,6 +1543,12 @@ def _claim_safety_command_index_summary_payload():
         "command_kind": "known_builder",
         "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit",
     }
+    rows["mainline_formal_gate_state_audit"] = {
+        "stage_id": "regenerate_claim_gate_artifacts",
+        "required_before": "formal_claim_gate",
+        "command_kind": "known_builder",
+        "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit",
+    }
     rows["paper_readiness"] = {
         "stage_id": "regenerate_claim_gate_artifacts",
         "required_before": "formal_claim_gate",
@@ -1542,8 +1557,8 @@ def _claim_safety_command_index_summary_payload():
     }
     return {
         "present": True,
-        "index_row_count": 22,
-        "source_target_count": 22,
+        "index_row_count": 23,
+        "source_target_count": 23,
         "missing_target_ids": [],
         "unknown_manual_count": 0,
         "unknown_manual_ids": [],
@@ -1556,6 +1571,13 @@ def _claim_safety_command_index_summary_payload():
                 "required_before": rows["formal_gate_proof_summary_chain_audit"]["required_before"],
                 "command_kind": rows["formal_gate_proof_summary_chain_audit"]["command_kind"],
                 "command_template": rows["formal_gate_proof_summary_chain_audit"]["command_template"],
+            },
+            "mainline_formal_gate_state_audit": {
+                "present": True,
+                "stage_id": rows["mainline_formal_gate_state_audit"]["stage_id"],
+                "required_before": rows["mainline_formal_gate_state_audit"]["required_before"],
+                "command_kind": rows["mainline_formal_gate_state_audit"]["command_kind"],
+                "command_template": rows["mainline_formal_gate_state_audit"]["command_template"],
             },
             "claim_safety": {
                 "present": True,

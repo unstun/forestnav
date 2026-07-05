@@ -235,14 +235,19 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert manifest["input_status"]["status_report_remote_packet_safety_proof_training_missing_count"] == 0
     command_index = manifest["status_report_remote_packet_safety_claim_gate_command_index_summary"]
     assert command_index["present"] is True
-    assert command_index["index_row_count"] == 22
-    assert command_index["source_target_count"] == 22
+    assert command_index["index_row_count"] == 23
+    assert command_index["source_target_count"] == 23
     assert command_index["missing_target_ids"] == []
     assert command_index["claim_gate_rows"]["formal_gate_proof_summary_chain_audit"]["stage_id"] == "regenerate_claim_gate_artifacts"
+    assert command_index["claim_gate_rows"]["mainline_formal_gate_state_audit"]["stage_id"] == "regenerate_claim_gate_artifacts"
+    assert (
+        "build_module2_mainline_formal_gate_state_audit"
+        in command_index["claim_gate_rows"]["mainline_formal_gate_state_audit"]["command_template"]
+    )
     assert command_index["claim_gate_rows"]["claim_safety"]["stage_id"] == "regenerate_claim_gate_artifacts"
     assert command_index["claim_gate_rows"]["paper_readiness"]["required_before"] == "formal_claim_gate"
     assert manifest["input_status"]["status_report_remote_packet_safety_command_index_present"] is True
-    assert manifest["input_status"]["status_report_remote_packet_safety_command_index_row_count"] == 22
+    assert manifest["input_status"]["status_report_remote_packet_safety_command_index_row_count"] == 23
     assert manifest["status_report_decision_intake_summary"]["status"] == "f02_6_decision_intake_closed_clean"
     assert manifest["status_report_decision_intake_summary"]["record_status"] == "approved"
     assert manifest["status_report_decision_intake_summary"]["decision_owner_required"] == "Dr Sun"
@@ -1649,6 +1654,12 @@ def _status_report_command_index_summary():
         "command_kind": "known_builder",
         "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit",
     }
+    rows["mainline_formal_gate_state_audit"] = {
+        "stage_id": "regenerate_claim_gate_artifacts",
+        "required_before": "formal_claim_gate",
+        "command_kind": "known_builder",
+        "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit",
+    }
     rows["paper_readiness"] = {
         "stage_id": "regenerate_claim_gate_artifacts",
         "required_before": "formal_claim_gate",
@@ -1657,8 +1668,8 @@ def _status_report_command_index_summary():
     }
     return {
         "present": True,
-        "index_row_count": 22,
-        "source_target_count": 22,
+        "index_row_count": 23,
+        "source_target_count": 23,
         "missing_target_ids": [],
         "unknown_manual_count": 0,
         "unknown_manual_ids": [],
@@ -1671,6 +1682,13 @@ def _status_report_command_index_summary():
                 "required_before": rows["formal_gate_proof_summary_chain_audit"]["required_before"],
                 "command_kind": rows["formal_gate_proof_summary_chain_audit"]["command_kind"],
                 "command_template": rows["formal_gate_proof_summary_chain_audit"]["command_template"],
+            },
+            "mainline_formal_gate_state_audit": {
+                "present": True,
+                "stage_id": rows["mainline_formal_gate_state_audit"]["stage_id"],
+                "required_before": rows["mainline_formal_gate_state_audit"]["required_before"],
+                "command_kind": rows["mainline_formal_gate_state_audit"]["command_kind"],
+                "command_template": rows["mainline_formal_gate_state_audit"]["command_template"],
             },
             "claim_safety": {
                 "present": True,

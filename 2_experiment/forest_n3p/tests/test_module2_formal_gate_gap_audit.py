@@ -73,9 +73,14 @@ def test_formal_gate_gap_audit_blocks_current_pending_gate_and_lists_missing_art
     assert manifest["remote_packet_safety"]["status"] == "remote_packet_safety_audit_passed"
     command_index = manifest["remote_packet_safety"]["claim_gate_command_index_summary"]
     assert command_index["present"] is True
-    assert command_index["index_row_count"] == 22
+    assert command_index["index_row_count"] == 23
     assert command_index["missing_target_ids"] == []
     assert command_index["claim_gate_rows"]["formal_gate_proof_summary_chain_audit"]["stage_id"] == "regenerate_claim_gate_artifacts"
+    assert command_index["claim_gate_rows"]["mainline_formal_gate_state_audit"]["stage_id"] == "regenerate_claim_gate_artifacts"
+    assert (
+        "build_module2_mainline_formal_gate_state_audit"
+        in command_index["claim_gate_rows"]["mainline_formal_gate_state_audit"]["command_template"]
+    )
     assert command_index["claim_gate_rows"]["claim_safety"]["stage_id"] == "regenerate_claim_gate_artifacts"
     assert command_index["claim_gate_rows"]["paper_readiness"]["required_before"] == "formal_claim_gate"
     proof_summary = manifest["remote_packet_safety"]["proof_deliverables_summary"]
@@ -1323,6 +1328,12 @@ def _command_index_summary():
         "command_kind": "known_builder",
         "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety",
     }
+    rows["mainline_formal_gate_state_audit"] = {
+        "stage_id": "regenerate_claim_gate_artifacts",
+        "required_before": "formal_claim_gate",
+        "command_kind": "known_builder",
+        "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit",
+    }
     rows["paper_readiness"] = {
         "stage_id": "regenerate_claim_gate_artifacts",
         "required_before": "formal_claim_gate",
@@ -1331,8 +1342,8 @@ def _command_index_summary():
     }
     return {
         "present": True,
-        "index_row_count": 22,
-        "source_target_count": 22,
+        "index_row_count": 23,
+        "source_target_count": 23,
         "missing_target_ids": [],
         "unknown_manual_count": 0,
         "unknown_manual_ids": [],
