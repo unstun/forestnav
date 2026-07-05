@@ -272,6 +272,7 @@ def _remote_steps(remote_packet: dict[str, Any]) -> dict[str, dict[str, Any]]:
 def _safety_issues(
     *,
     decision: dict[str, Any],
+    decision_intake: dict[str, Any],
     transition_gate: dict[str, Any],
     post_plan: dict[str, Any],
     status_report: dict[str, Any],
@@ -282,11 +283,14 @@ def _safety_issues(
     stages: Sequence[dict[str, Any]],
     remote_steps: dict[str, dict[str, Any]],
     route_summary: dict[str, Any],
+    single_next_action_index: dict[str, Any],
 ) -> list[dict[str, str]]:
     issues: list[dict[str, str]] = []
     issues.extend(_transition_gate_issues(transition_gate))
     issues.extend(_f02_6_route_handoff_issues(route_summary))
+    issues.extend(_single_next_action_index_issues(single_next_action_index))
     for name, artifact in (
+        ("decision_intake", decision_intake),
         ("post_plan", post_plan),
         ("status_report", status_report),
         ("missing_artifacts", missing_artifacts),
@@ -332,6 +336,161 @@ def _safety_issues(
             issues.append(_issue(f"{stage['stage_id']}_wrong_training_host", "formal training stage must target gpu3070ti-relay"))
         if not stage["source_allowed_now"] and stage["stage_id"] in {"approved_remote_preflight", "gate3_remote_training"} and not stage["blocked_by"]:
             issues.append(_issue(f"{stage['stage_id']}_missing_blocked_by", "disabled remote stages must explain their blockers"))
+    return issues
+
+
+def _single_next_action_index(
+    *,
+    decision: dict[str, Any],
+    decision_intake: dict[str, Any],
+    permissions: dict[str, bool],
+    remaining_gap: dict[str, Any],
+    route_summary: dict[str, Any],
+    source_freshness_summary: dict[str, Any],
+) -> dict[str, Any]:
+    pending = decision.get("status") == "pending_human_decision"
+    intake_contract = (
+        decision_intake.get("decision_intake_contract")
+        if isinstance(decision_intake.get("decision_intake_contract"), dict)
+        else {}
+    )
+    next_request = (
+        decision_intake.get("next_human_decision_request")
+        if isinstance(decision_intake.get("next_human_decision_request"), dict)
+        else {}
+    )
+    record_templates = _record_command_templates(intake_contract) if pending else []
+    missing_by_category = {
+        str(category): int(payload.get("missing_count") or 0)
+        for category, payload in remaining_gap.get("categories", {}).items()
+        if isinstance(payload, dict)
+    }
+    return {
+        "index_id": "module2_formal_gate_single_next_action_index",
+        "status": "awaiting_dr_sun_f02_6_decision" if pending else "follow_handoff_stages",
+        "single_current_human_entry": bool(pending),
+        "next_action_id": "record_f02_6_decision" if pending else "manual_handoff_stage_review",
+        "decision_owner_required": next_request.get("decision_owner_required")
+        or intake_contract.get("decision_owner_required"),
+        "valid_decisions": _strings(next_request.get("valid_decisions") or intake_contract.get("valid_decisions")),
+        "required_record_fields": _strings(
+            next_request.get("required_record_fields")
+            or intake_contract.get("required_record_fields_for_non_pending_decision")
+        ),
+        "current_allowed_action_ids": _strings(next_request.get("current_allowed_action_ids")),
+        "current_blocked_action_ids": _strings(next_request.get("current_blocked_action_ids")),
+        "post_decision_routes_are_current_authorization": next_request.get(
+            "post_decision_routes_are_current_authorization"
+        )
+        is True,
+        "all_execution_disabled_now": next_request.get("all_execution_disabled_now") is True if pending else False,
+        "record_command_templates": record_templates,
+        "record_command_template_count": len(record_templates),
+        "local_training_allowed_now": permissions.get("local_training_allowed_now") is True,
+        "remote_preflight_allowed_now": permissions.get("remote_preflight_allowed_now") is True,
+        "remote_training_allowed_now": permissions.get("remote_training_allowed_now") is True,
+        "formal_claim_allowed_now": permissions.get("formal_claim_allowed_now") is True,
+        "paper_result_material_allowed_now": False,
+        "missing_deliverable_count": int(remaining_gap.get("total_missing_deliverables") or 0),
+        "open_category_count": int(remaining_gap.get("open_category_count") or 0),
+        "missing_by_category": missing_by_category,
+        "source_freshness_status": source_freshness_summary.get("source_freshness_status"),
+        "source_freshness_blocking_regeneration_required": source_freshness_summary.get(
+            "source_freshness_blocking_regeneration_required"
+        ),
+        "approved_route_next_lane": route_summary.get("approved_route_next_lane"),
+        "rejected_route_next_lane": route_summary.get("rejected_route_next_lane"),
+        "after_approval_still_requires": list(route_summary.get("decision_impact_formal_training_still_requires", [])),
+        "claim_boundaries": [
+            "This index is a read-only handoff pointer, not a decision record.",
+            "The listed command templates only record Dr Sun's F02.6 decision; they do not run preflight, training, audit, sync, pullback, or paper-result generation.",
+            "Approval does not directly authorize remote preflight or remote training.",
+            "Local PPO training remains prohibited.",
+        ],
+    }
+
+
+def _record_command_templates(intake_contract: dict[str, Any]) -> list[dict[str, Any]]:
+    raw = intake_contract.get("record_command_templates")
+    raw = raw if isinstance(raw, list) else []
+    out: list[dict[str, Any]] = []
+    for item in raw:
+        if not isinstance(item, dict) or not item.get("decision") or not item.get("command"):
+            continue
+        out.append(
+            {
+                "decision": str(item["decision"]),
+                "command": str(item["command"]),
+                "execution_boundary": "local_decision_record_only",
+                "requires_dr_sun_note": True,
+                "runs_training": False,
+                "runs_remote_preflight": False,
+                "allowed_for_agent_now": False,
+            }
+        )
+    return out
+
+
+def _single_next_action_index_issues(index: dict[str, Any]) -> list[dict[str, str]]:
+    if not index:
+        return [_issue("single_next_action_index_missing", "handoff bundle must expose a single next-action index")]
+    issues: list[dict[str, str]] = []
+    if index.get("index_id") != "module2_formal_gate_single_next_action_index":
+        issues.append(_issue("single_next_action_index_id_invalid", "single next-action index id is invalid"))
+    pending = index.get("status") == "awaiting_dr_sun_f02_6_decision"
+    if pending:
+        if index.get("single_current_human_entry") is not True:
+            issues.append(_issue("single_next_action_not_marked_human_entry", "pending F02.6 must be a single human-entry gate"))
+        if index.get("next_action_id") != "record_f02_6_decision":
+            issues.append(_issue("single_next_action_wrong_action", "pending F02.6 next action must be record_f02_6_decision"))
+        if index.get("decision_owner_required") != "Dr Sun":
+            issues.append(_issue("single_next_action_wrong_owner", "F02.6 decision owner must be Dr Sun"))
+        if "record_f02_6_decision" not in index.get("current_allowed_action_ids", []):
+            issues.append(_issue("single_next_action_missing_allowed_record", "record_f02_6_decision must be the only allowed lane"))
+        for blocked in ("remote_preflight", "remote_training", "local_training", "formal_claim", "paper_result_material"):
+            if blocked not in index.get("current_blocked_action_ids", []):
+                issues.append(_issue(f"single_next_action_missing_blocked_{blocked}", f"{blocked} must remain blocked"))
+        if index.get("post_decision_routes_are_current_authorization") is not False:
+            issues.append(_issue("single_next_action_routes_authorize_execution", "post-decision routes are not current authorization"))
+        if index.get("all_execution_disabled_now") is not True:
+            issues.append(_issue("single_next_action_execution_not_disabled", "all execution must be disabled while F02.6 is pending"))
+        if int(index.get("record_command_template_count") or 0) != 2:
+            issues.append(_issue("single_next_action_command_template_count", "approve and reject command templates are required"))
+    for field, issue_id in (
+        ("local_training_allowed_now", "single_next_action_allows_local_training"),
+        ("remote_preflight_allowed_now", "single_next_action_allows_remote_preflight"),
+        ("remote_training_allowed_now", "single_next_action_allows_remote_training"),
+        ("formal_claim_allowed_now", "single_next_action_allows_formal_claim"),
+        ("paper_result_material_allowed_now", "single_next_action_allows_paper_result_material"),
+    ):
+        if pending and index.get(field) is not False:
+            issues.append(_issue(issue_id, "single next-action index must not authorize execution or result material"))
+    forbidden_tokens = (
+        "ssh ",
+        "rsync ",
+        "scp ",
+        "preflight_rl_rs_gate3_formal_trial",
+        "run_rl_rs_gate3_trial",
+        "audit_rl_rs_gate3_trial",
+        "build_module2_paper",
+    )
+    for template in index.get("record_command_templates", []):
+        if not isinstance(template, dict):
+            issues.append(_issue("single_next_action_template_malformed", "record command template must be an object"))
+            continue
+        decision = str(template.get("decision") or "unknown")
+        command = str(template.get("command") or "")
+        safe_decision = decision.replace("_", "")
+        if "build_module2_f02_6_decision_record" not in command:
+            issues.append(_issue(f"single_next_action_{safe_decision}_wrong_command", "template must record F02.6 decision only"))
+        if any(token in command for token in forbidden_tokens):
+            issues.append(_issue(f"single_next_action_{safe_decision}_forbidden_command", "template must not execute remote, training, audit, or paper commands"))
+        if template.get("execution_boundary") != "local_decision_record_only":
+            issues.append(_issue(f"single_next_action_{safe_decision}_wrong_boundary", "template boundary must be local decision record only"))
+        if template.get("runs_training") is not False or template.get("runs_remote_preflight") is not False:
+            issues.append(_issue(f"single_next_action_{safe_decision}_executes", "template must not run training or remote preflight"))
+        if template.get("allowed_for_agent_now") is not False:
+            issues.append(_issue(f"single_next_action_{safe_decision}_agent_allowed", "agent must not self-close F02.6"))
     return issues
 
 
