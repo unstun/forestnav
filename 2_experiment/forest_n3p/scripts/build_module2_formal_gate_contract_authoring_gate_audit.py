@@ -302,14 +302,14 @@ def _markdown(manifest: dict[str, Any]) -> str:
         lines.append(f"  - `{action}`")
     lines.extend(
         [
-        "",
-        "## Existing Contract",
-        "",
-        f"- status: `{manifest['existing_contract_summary']['status']}`",
-        f"- version: `{manifest['existing_contract_summary']['version']}`",
-        f"- usable_for_new_success_attempt: `{manifest['existing_contract_summary']['usable_for_new_success_attempt']}`",
-        "",
-        "## Required Contract Sections",
+            "",
+            "## Existing Contract",
+            "",
+            f"- status: `{manifest['existing_contract_summary']['status']}`",
+            f"- version: `{manifest['existing_contract_summary']['version']}`",
+            f"- usable_for_new_success_attempt: `{manifest['existing_contract_summary']['usable_for_new_success_attempt']}`",
+            "",
+            "## Required Contract Sections",
         ]
     )
     for section in manifest["required_contract_sections"]:
@@ -319,11 +319,11 @@ def _markdown(manifest: dict[str, Any]) -> str:
         lines.append(f"- {boundary}")
     lines.extend(
         [
-        "",
-        "## Audit",
-        "",
-        f"- status: `{manifest['status']}`",
-        f"- audit_issue_count: `{manifest['audit_issue_count']}`",
+            "",
+            "## Audit",
+            "",
+            f"- status: `{manifest['status']}`",
+            f"- audit_issue_count: `{manifest['audit_issue_count']}`",
         ]
     )
     return "\n".join(lines) + "\n"
