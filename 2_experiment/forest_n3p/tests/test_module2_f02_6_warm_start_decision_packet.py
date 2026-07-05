@@ -95,6 +95,80 @@ def test_f02_6_decision_packet_builds_evidence_bound_recommendation(tmp_path):
     assert remote["warm_start_cuda_smoke"]["formal_decision"] == "not_formal"
     assert "warm_start_decision_pending" in remote["warm_start_cuda_smoke"]["blocker_codes"]
 
+    evidence_matrix = manifest["decision_evidence_matrix"]
+    assert evidence_matrix["schema_version"] == 1
+    assert evidence_matrix["matrix_id"] == "module2_f02_6_decision_evidence_matrix"
+    assert evidence_matrix["status"] == "ready_for_dr_sun_decision_not_authorization"
+    assert evidence_matrix["current_authorization_allowed_now"] is False
+    assert evidence_matrix["remote_preflight_allowed_now"] is False
+    assert evidence_matrix["remote_training_allowed_now"] is False
+    assert evidence_matrix["local_training_allowed_now"] is False
+    assert evidence_matrix["formal_claim_allowed_now"] is False
+    assert evidence_matrix["paper_result_material_allowed_now"] is False
+    assert evidence_matrix["source_issue_count"] == 0
+    assert evidence_matrix["route_count"] == 2
+    assert evidence_matrix["required_evidence_count"] == 7
+    assert evidence_matrix["satisfied_required_evidence_count"] == 7
+    assert evidence_matrix["missing_required_evidence_count"] == 0
+    assert evidence_matrix["missing_required_evidence_ids"] == []
+    assert "smoke result used as formal PPO checkpoint or Gate #3 evidence" in evidence_matrix["global_invalid_substitutes"]
+
+    evidence_routes = {route["decision"]: route for route in evidence_matrix["routes"]}
+    assert set(evidence_routes) == {
+        "approve_obstacle_summary_warm_start",
+        "reject_obstacle_summary_warm_start",
+    }
+    approve_route = evidence_routes["approve_obstacle_summary_warm_start"]
+    assert approve_route["route_status"] == "decision_supported_not_authorized"
+    assert approve_route["next_lane_after_record"] == "source_fresh_regeneration"
+    assert approve_route["current_authorization_allowed_now"] is False
+    assert approve_route["allows_remote_training_now"] is False
+    assert approve_route["allows_formal_claim_now"] is False
+    assert "remote CUDA smoke as formal evidence" in approve_route["invalid_substitutes"]
+    approve_evidence = {item["evidence_id"]: item for item in approve_route["required_evidence"]}
+    assert set(approve_evidence) == {
+        "no_warm_formal_gate3_failure",
+        "obstacle_summary_bc_candidate_readiness",
+        "bounded_candidate_comparison_against_patch_cnn",
+        "remote_route_guarded_until_decision",
+    }
+    assert approve_evidence["no_warm_formal_gate3_failure"]["observed"]["terminal_rs_success"] == 29
+    assert approve_evidence["no_warm_formal_gate3_failure"]["satisfied"] is True
+    assert "remote CUDA smoke audit" in approve_evidence["no_warm_formal_gate3_failure"]["invalid_substitutes"]
+    assert approve_evidence["obstacle_summary_bc_candidate_readiness"]["observed"]["checkpoint_sha256"]
+    assert "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt" in approve_evidence[
+        "obstacle_summary_bc_candidate_readiness"
+    ]["required_artifact_paths"]
+    assert approve_evidence["bounded_candidate_comparison_against_patch_cnn"]["observed"]["obstacle_summary_terminal_rs_success"] == 101
+    assert approve_evidence["bounded_candidate_comparison_against_patch_cnn"]["observed"]["patch_scalar_cnn_terminal_rs_success"] == 63
+    assert approve_evidence["remote_route_guarded_until_decision"]["observed"]["warm_start_formal_trial_ready"] is False
+    assert "warm_start_decision_pending" in approve_evidence["remote_route_guarded_until_decision"]["observed"]["warm_start_blocker_codes"]
+    for route in evidence_routes.values():
+        assert route["current_authorization_allowed_now"] is False
+        assert route["allows_local_training_now"] is False
+        assert route["allows_remote_preflight_now"] is False
+        assert route["allows_remote_training_now"] is False
+        assert route["allows_formal_claim_now"] is False
+        assert route["missing_required_evidence_ids"] == []
+        assert route["invalid_substitutes"]
+        for evidence in route["required_evidence"]:
+            assert evidence["required_artifact_paths"]
+            assert evidence["invalid_substitutes"]
+            assert evidence["satisfied"] is True
+
+    reject_route = evidence_routes["reject_obstacle_summary_warm_start"]
+    assert reject_route["route_status"] == "redesign_route_defined_not_authorized"
+    assert reject_route["next_lane_after_record"] == "protocol_redesign"
+    assert reject_route["next_protocol"] == "stronger/full patch-CNN warm-start protocol"
+    assert "new_or_revised_research_contract" in reject_route["required_next_artifacts"]
+    assert "protocol redesign without revised contract" in reject_route["invalid_substitutes"]
+    reject_evidence = {item["evidence_id"]: item for item in reject_route["required_evidence"]}
+    assert set(reject_evidence) == {
+        "reject_route_defined_in_decision_intake",
+        "reject_route_does_not_relabel_no_warm_failure",
+        "reject_route_requires_stronger_protocol_before_training",
+    }
+
     approved_action = manifest["next_actions"]["if_approved_obstacle_summary"]
     assert approved_action["command_kind"] == "post_approval_remote_training_candidate"
     assert approved_action["host"] == "gpu3070ti-relay"
@@ -123,6 +197,12 @@ def test_f02_6_decision_packet_builds_evidence_bound_recommendation(tmp_path):
     assert "blocked_now: `remote_preflight, remote_training, local_training, formal_claim, paper_result_material`" in markdown
     assert "remote preflight allowed now: `False`" in markdown
     assert "remote training allowed now: `False`" in markdown
+    assert "Decision Evidence Matrix" in markdown
+    assert "matrix_status: `ready_for_dr_sun_decision_not_authorization`" in markdown
+    assert "approve_obstacle_summary_warm_start" in markdown
+    assert "reject_obstacle_summary_warm_start" in markdown
+    assert "evidence_id: `remote_route_guarded_until_decision`" in markdown
+    assert "invalid_substitutes" in markdown
     assert "Source Integrity" in markdown
     assert "Post-Approval Remote-Only Command Candidate" in markdown
     assert "current_authorization_allowed_now: `False`" in markdown

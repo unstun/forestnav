@@ -26,6 +26,58 @@
 - warm-start blockers: `warm_start_decision_pending`
 - CUDA smoke formal decision: `not_formal`
 
+## Decision Evidence Matrix
+
+- matrix_status: `ready_for_dr_sun_decision_not_authorization`
+- current_authorization_allowed_now: `False`
+- missing_required_evidence_count: `0`
+
+### approve_obstacle_summary_warm_start
+
+- route_status: `decision_supported_not_authorized`
+- next_lane_after_record: `source_fresh_regeneration`
+- current_authorization_allowed_now: `False`
+- allows_remote_training_now: `False`
+- allows_formal_claim_now: `False`
+- invalid_substitutes: `decision packet recommendation without Dr Sun decision record; remote CUDA smoke as formal evidence; local training output; no-warm formal failure as obstacle-summary warm-start evidence`
+- evidence_id: `no_warm_formal_gate3_failure`
+  - satisfied: `True`
+  - artifacts: `0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/gate3_formal_audit.json; 0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/eval/gate3_summary.json`
+  - invalid_substitutes: `remote CUDA smoke audit; available-subset smoke evaluation; paper table preview`
+- evidence_id: `obstacle_summary_bc_candidate_readiness`
+  - satisfied: `True`
+  - artifacts: `2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/summary.json; 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/eval_patch_bounded_rows.json; 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt`
+  - invalid_substitutes: `checkpoint path without sha256; BC training summary without closed-loop rows; manual note that the model exists`
+- evidence_id: `bounded_candidate_comparison_against_patch_cnn`
+  - satisfied: `True`
+  - artifacts: `2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/eval_patch_bounded_rows.json; 2_experiment/forest_n3p/models/module2_rl_rs_bc_patch_formal_v2_pilot/summary.json`
+  - invalid_substitutes: `cross-protocol comparison; single scalar validation loss; README-level model description`
+- evidence_id: `remote_route_guarded_until_decision`
+  - satisfied: `True`
+  - artifacts: `0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_pending_remote_v1/gate3_preflight_manifest.json; 0_trials/module2_remote_smoke/gate3_warm_start_cuda_smoke/gate3_formal_audit.json; 0_trials/module2_f02_6_decision_record/f02_6_decision_record.json; 0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json`
+  - invalid_substitutes: `pending remote preflight manifest; CUDA smoke treated as formal Gate #3 evidence; post-decision command copied into a shell`
+
+### reject_obstacle_summary_warm_start
+
+- route_status: `redesign_route_defined_not_authorized`
+- next_lane_after_record: `protocol_redesign`
+- current_authorization_allowed_now: `False`
+- allows_remote_training_now: `False`
+- allows_formal_claim_now: `False`
+- invalid_substitutes: `implicit rejection by inaction; continuing obstacle-summary formal training after rejection; protocol redesign without revised contract; paper result claim before new formal acceptance`
+- evidence_id: `reject_route_defined_in_decision_intake`
+  - satisfied: `True`
+  - artifacts: `0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json`
+  - invalid_substitutes: `using the rejected obstacle-summary checkpoint anyway; editing downstream permission JSON by hand; paper discussion paragraph without a revised protocol`
+- evidence_id: `reject_route_does_not_relabel_no_warm_failure`
+  - satisfied: `True`
+  - artifacts: `0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/gate3_formal_audit.json; 0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/eval/gate3_summary.json`
+  - invalid_substitutes: `no-warm failure relabeled as warm-start failure; no-warm failure relabeled as patch-CNN evidence; claim that all PPO warm-starts have failed`
+- evidence_id: `reject_route_requires_stronger_protocol_before_training`
+  - satisfied: `True`
+  - artifacts: `0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json; 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/summary.json; 2_experiment/forest_n3p/models/module2_rl_rs_bc_patch_formal_v2_pilot/summary.json`
+  - invalid_substitutes: `stronger protocol name without a contract; remote training command from the approve route; warm-start paper result before new acceptance`
+
 ## Source Integrity
 
 - source_count: `12`

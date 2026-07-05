@@ -2,9 +2,9 @@
   "schema_version": 1,
   "packet_name": "module2_f02_6_warm_start_decision_packet",
   "status": "pending_human_decision",
-  "created_at_utc": "2026-07-05T14:28:35.803021+00:00",
+  "created_at_utc": "2026-07-05T15:06:51.248491+00:00",
   "execution_host": "MacBook-Pro.local",
-  "source_head": "181860fa90c7f5f35dfb9bc224ca84c849a60d8a",
+  "source_head": "4e88654613293ffea82c63203b47007c49cb45e9+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -223,6 +223,243 @@
     "paper_result_material_allowed_now": false,
     "required_next_human_action": "record Dr Sun's F02.6 approval or rejection before any remote preflight."
   },
+  "decision_evidence_matrix": {
+    "schema_version": 1,
+    "matrix_id": "module2_f02_6_decision_evidence_matrix",
+    "status": "ready_for_dr_sun_decision_not_authorization",
+    "current_authorization_allowed_now": false,
+    "remote_preflight_allowed_now": false,
+    "remote_training_allowed_now": false,
+    "local_training_allowed_now": false,
+    "formal_claim_allowed_now": false,
+    "paper_result_material_allowed_now": false,
+    "source_issue_count": 0,
+    "route_count": 2,
+    "required_evidence_count": 7,
+    "satisfied_required_evidence_count": 7,
+    "missing_required_evidence_count": 0,
+    "missing_required_evidence_ids": [],
+    "routes": [
+      {
+        "decision": "approve_obstacle_summary_warm_start",
+        "route_status": "decision_supported_not_authorized",
+        "record_status_after_command": "approved",
+        "next_lane_after_record": "source_fresh_regeneration",
+        "next_protocol": "obstacle-summary BC warm-start PPO formal gate",
+        "required_next_artifacts": [
+          "source_freshness_audit",
+          "post_f02_6_regeneration_plan",
+          "post_f02_6_plan_audit"
+        ],
+        "current_authorization_allowed_now": false,
+        "allows_local_training_now": false,
+        "allows_remote_preflight_now": false,
+        "allows_remote_training_now": false,
+        "allows_formal_claim_now": false,
+        "required_evidence": [
+          {
+            "evidence_id": "no_warm_formal_gate3_failure",
+            "role": "Proves only the no-warm branch failed under the audited Gate #3 protocol.",
+            "required_artifact_paths": [
+              "0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/gate3_formal_audit.json",
+              "0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/eval/gate3_summary.json"
+            ],
+            "observed": {
+              "formal_decision": "fail",
+              "terminal_rs_success": 29,
+              "episodes": 64,
+              "terminal_rs_success_rate": 0.453125,
+              "success_threshold": 0.8
+            },
+            "satisfied": true,
+            "invalid_substitutes": [
+              "remote CUDA smoke audit",
+              "available-subset smoke evaluation",
+              "paper table preview"
+            ]
+          },
+          {
+            "evidence_id": "obstacle_summary_bc_candidate_readiness",
+            "role": "Anchors the recommended practical warm-start initializer and its formal-v2 closed-loop evidence.",
+            "required_artifact_paths": [
+              "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/summary.json",
+              "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/eval_patch_bounded_rows.json",
+              "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt"
+            ],
+            "observed": {
+              "checkpoint": "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt",
+              "checkpoint_sha256": "3156df44ca7f26da7f2e635707554bb1cd486164638b3a2d11075c3787670683",
+              "formal_v2_terminal_rs_success": 67,
+              "formal_v2_episodes": 258,
+              "patch_bounded_terminal_rs_success": 101,
+              "patch_bounded_episodes": 242
+            },
+            "satisfied": true,
+            "invalid_substitutes": [
+              "checkpoint path without sha256",
+              "BC training summary without closed-loop rows",
+              "manual note that the model exists"
+            ]
+          },
+          {
+            "evidence_id": "bounded_candidate_comparison_against_patch_cnn",
+            "role": "Checks that obstacle-summary remains the stronger current warm-start candidate on the same bounded rows.",
+            "required_artifact_paths": [
+              "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/eval_patch_bounded_rows.json",
+              "2_experiment/forest_n3p/models/module2_rl_rs_bc_patch_formal_v2_pilot/summary.json"
+            ],
+            "observed": {
+              "obstacle_summary_terminal_rs_success": 101,
+              "patch_scalar_cnn_terminal_rs_success": 63,
+              "obstacle_summary_episodes": 242,
+              "patch_scalar_cnn_episodes": 242
+            },
+            "satisfied": true,
+            "invalid_substitutes": [
+              "cross-protocol comparison",
+              "single scalar validation loss",
+              "README-level model description"
+            ]
+          },
+          {
+            "evidence_id": "remote_route_guarded_until_decision",
+            "role": "Keeps the post-approval remote route visible without treating it as current training authorization.",
+            "required_artifact_paths": [
+              "0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_pending_remote_v1/gate3_preflight_manifest.json",
+              "0_trials/module2_remote_smoke/gate3_warm_start_cuda_smoke/gate3_formal_audit.json",
+              "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+              "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json"
+            ],
+            "observed": {
+              "warm_start_formal_trial_ready": false,
+              "warm_start_blocker_codes": [
+                "warm_start_decision_pending"
+              ],
+              "cuda_smoke_formal_decision": "not_formal",
+              "current_allowed_action_ids": [
+                "record_f02_6_decision"
+              ],
+              "current_blocked_action_ids": [
+                "remote_preflight",
+                "remote_training",
+                "local_training",
+                "formal_claim",
+                "paper_result_material"
+              ]
+            },
+            "satisfied": true,
+            "invalid_substitutes": [
+              "pending remote preflight manifest",
+              "CUDA smoke treated as formal Gate #3 evidence",
+              "post-decision command copied into a shell"
+            ]
+          }
+        ],
+        "missing_required_evidence_ids": [],
+        "invalid_substitutes": [
+          "decision packet recommendation without Dr Sun decision record",
+          "remote CUDA smoke as formal evidence",
+          "local training output",
+          "no-warm formal failure as obstacle-summary warm-start evidence"
+        ]
+      },
+      {
+        "decision": "reject_obstacle_summary_warm_start",
+        "route_status": "redesign_route_defined_not_authorized",
+        "record_status_after_command": "rejected",
+        "next_lane_after_record": "protocol_redesign",
+        "next_protocol": "stronger/full patch-CNN warm-start protocol",
+        "required_next_artifacts": [
+          "new_or_revised_research_contract",
+          "stronger_patch_cnn_protocol_spec",
+          "fresh_formal_gate_artifact_plan"
+        ],
+        "current_authorization_allowed_now": false,
+        "allows_local_training_now": false,
+        "allows_remote_preflight_now": false,
+        "allows_remote_training_now": false,
+        "allows_formal_claim_now": false,
+        "required_evidence": [
+          {
+            "evidence_id": "reject_route_defined_in_decision_intake",
+            "role": "Defines the audited route if Dr Sun rejects obstacle-summary warm-start.",
+            "required_artifact_paths": [
+              "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json"
+            ],
+            "observed": {
+              "next_lane_after_record": "protocol_redesign",
+              "next_protocol": "stronger/full patch-CNN warm-start protocol",
+              "requires_new_protocol_contract": true,
+              "required_next_artifacts": [
+                "new_or_revised_research_contract",
+                "stronger_patch_cnn_protocol_spec",
+                "fresh_formal_gate_artifact_plan"
+              ]
+            },
+            "satisfied": true,
+            "invalid_substitutes": [
+              "using the rejected obstacle-summary checkpoint anyway",
+              "editing downstream permission JSON by hand",
+              "paper discussion paragraph without a revised protocol"
+            ]
+          },
+          {
+            "evidence_id": "reject_route_does_not_relabel_no_warm_failure",
+            "role": "Prevents the no-warm failure from being reused as a warm-start or protocol-redesign result.",
+            "required_artifact_paths": [
+              "0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/gate3_formal_audit.json",
+              "0_trials/module2_gate3_formal/gate3_no_warm_formal_v1/eval/gate3_summary.json"
+            ],
+            "observed": {
+              "no_warm_formal_decision": "fail",
+              "no_warm_terminal_rs_success_rate": 0.453125,
+              "success_threshold": 0.8
+            },
+            "satisfied": true,
+            "invalid_substitutes": [
+              "no-warm failure relabeled as warm-start failure",
+              "no-warm failure relabeled as patch-CNN evidence",
+              "claim that all PPO warm-starts have failed"
+            ]
+          },
+          {
+            "evidence_id": "reject_route_requires_stronger_protocol_before_training",
+            "role": "Records that rejection moves to protocol redesign before any future formal warm-start PPO run.",
+            "required_artifact_paths": [
+              "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
+              "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/summary.json",
+              "2_experiment/forest_n3p/models/module2_rl_rs_bc_patch_formal_v2_pilot/summary.json"
+            ],
+            "observed": {
+              "approve_route_next_lane": "source_fresh_regeneration",
+              "reject_route_next_protocol": "stronger/full patch-CNN warm-start protocol",
+              "allows_remote_training_now": false,
+              "allows_formal_claim_now": false
+            },
+            "satisfied": true,
+            "invalid_substitutes": [
+              "stronger protocol name without a contract",
+              "remote training command from the approve route",
+              "warm-start paper result before new acceptance"
+            ]
+          }
+        ],
+        "missing_required_evidence_ids": [],
+        "invalid_substitutes": [
+          "implicit rejection by inaction",
+          "continuing obstacle-summary formal training after rejection",
+          "protocol redesign without revised contract",
+          "paper result claim before new formal acceptance"
+        ]
+      }
+    ],
+    "global_invalid_substitutes": [
+      "summary written by an AI agent without artifact anchors",
+      "remote stdout without local pullback and hash",
+      "smoke result used as formal PPO checkpoint or Gate #3 evidence",
+      "paper appendix text used as a decision record"
+    ]
+  },
   "next_actions": {
     "if_approved_obstacle_summary": {
       "command_kind": "post_approval_remote_training_candidate",
@@ -305,7 +542,7 @@
     {
       "path": "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
       "exists": true,
-      "sha256": "7b5b1335b7ef6c068981e3845348840b168e0abb70b21539fff8ac68cd747f1e"
+      "sha256": "d11fdbebb292b263fb9270819744b749e79b470045c595d267ef4f5b84203d7e"
     }
   ],
   "source_integrity_summary": {
