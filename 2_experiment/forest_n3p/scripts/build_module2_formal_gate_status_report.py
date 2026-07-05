@@ -1676,7 +1676,68 @@ def _formal_gate_proof_audit_summary(proof_audit: dict[str, Any]) -> dict[str, A
         "blockers": _strings(proof_audit.get("blockers")),
         "input_safety_issue_count": int(proof_audit.get("input_safety_issue_count") or 0),
         "results_by_id": results_by_id,
+        "missing_evidence_summary": _formal_gate_proof_audit_missing_evidence_summary(
+            proof_audit=proof_audit,
+            results_by_id=results_by_id,
+        ),
     }
+
+
+def _formal_gate_proof_audit_missing_evidence_summary(
+    *,
+    proof_audit: dict[str, Any],
+    results_by_id: dict[str, dict[str, Any]],
+) -> dict[str, dict[str, list[str]]]:
+    raw = proof_audit.get("formal_gate_missing_evidence_summary")
+    if isinstance(raw, dict):
+        return _normalize_missing_evidence_summary(raw)
+    summary = _empty_missing_evidence_summary()
+    for result in results_by_id.values():
+        category = str(result.get("category") or "")
+        if category not in summary:
+            summary[category] = {"missing_artifact_ids": [], "failed_artifact_ids": []}
+        artifact_id = str(result.get("artifact_id") or "")
+        if not artifact_id:
+            continue
+        if result.get("status") == "blocked_missing_artifact":
+            summary[category]["missing_artifact_ids"].append(artifact_id)
+        elif result.get("status") == "failed":
+            summary[category]["failed_artifact_ids"].append(artifact_id)
+    return {
+        category: {
+            "missing_artifact_ids": _unique(payload["missing_artifact_ids"]),
+            "failed_artifact_ids": _unique(payload["failed_artifact_ids"]),
+        }
+        for category, payload in summary.items()
+    }
+
+
+def _normalize_missing_evidence_summary(raw: dict[str, Any]) -> dict[str, dict[str, list[str]]]:
+    summary = _empty_missing_evidence_summary()
+    for category, payload in raw.items():
+        if not isinstance(payload, dict):
+            continue
+        category_key = str(category)
+        summary[category_key] = {
+            "missing_artifact_ids": _strings(payload.get("missing_artifact_ids")),
+            "failed_artifact_ids": _strings(payload.get("failed_artifact_ids")),
+        }
+    return summary
+
+
+def _empty_missing_evidence_summary() -> dict[str, dict[str, list[str]]]:
+    return {
+        category: {"missing_artifact_ids": [], "failed_artifact_ids": []}
+        for category in REMAINING_DELIVERABLE_ACCEPTANCE_MATRIX_IDS
+    }
+
+
+def _missing_evidence_count(summary: dict[str, dict[str, list[str]]], category: str, key: str) -> int:
+    payload = summary.get(category)
+    if not isinstance(payload, dict):
+        return 0
+    values = payload.get(key)
+    return len(values) if isinstance(values, list) else 0
 
 
 def _formal_gate_proof_audit_gap_summary(summary: dict[str, Any]) -> dict[str, Any]:
