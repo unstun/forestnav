@@ -201,6 +201,8 @@ def _decision_record_schema(lanes: list[dict[str, Any]]) -> dict[str, Any]:
             "selected_lane_id",
             "decision_summary",
             "justification_against_failed_gate3",
+            "rejected_lane_rationale",
+            "evidence_artifact_basis",
             "claim_scope_after_decision",
             "contract_action",
             "training_authorization",
@@ -211,12 +213,21 @@ def _decision_record_schema(lanes: list[dict[str, Any]]) -> dict[str, Any]:
             "draft_revised_contract",
             "stop_success_attempts_and_record_negative_evidence",
         ],
+        "decision_note_must_cover": [
+            "selected_lane",
+            "failed_gate3_basis",
+            "contract_action",
+            "rejected_lanes",
+            "evidence_artifact_basis",
+        ],
         "training_authorization_must_be": "not_authorized_by_this_decision_packet",
         "invalid_records": [
             "selected_lane_id outside valid_lane_ids",
             "training_authorization that starts local or remote training directly",
             "decision_summary that rewrites the failed Gate3 result as success",
             "claim_scope_after_decision that hides hybrid fallback usage",
+            "decision note that omits rejected-lane rationale",
+            "decision note that omits the evidence artifact basis",
         ],
     }
 
@@ -324,6 +335,7 @@ def _markdown(manifest: dict[str, Any]) -> str:
                 lines.append(f"  - {item}")
     lines.extend(["", "## Decision Record Schema", ""])
     lines.append(f"- required_fields: `{', '.join(manifest['decision_record_schema']['required_fields'])}`")
+    lines.append(f"- decision_note_must_cover: `{', '.join(manifest['decision_record_schema']['decision_note_must_cover'])}`")
     lines.append(f"- training_authorization_must_be: `{manifest['decision_record_schema']['training_authorization_must_be']}`")
     lines.extend(["", "## Current Blocked Actions"])
     for action in manifest["current_blocked_actions"]:
