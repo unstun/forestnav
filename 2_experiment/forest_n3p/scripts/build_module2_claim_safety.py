@@ -1985,7 +1985,13 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"approved_route_allows_remote_training_now=`{intake['approved_route_allows_remote_training_now']}`, "
         f"rejected_route_requires_new_protocol_contract=`{intake['rejected_route_requires_new_protocol_contract']}`, "
         f"remote_training_allowed_now=`{intake['remote_training_allowed_now']}`, "
-        f"formal_claim_allowed_now=`{intake['formal_claim_allowed_now']}`"
+        f"formal_claim_allowed_now=`{intake['formal_claim_allowed_now']}`, "
+        f"decision_impact_present=`{intake['decision_impact_present']}`, "
+        f"decision_record_is_not_training_authorization=`{intake['decision_record_is_not_training_authorization']}`, "
+        f"decision_record_is_not_paper_result_material=`{intake['decision_record_is_not_paper_result_material']}`, "
+        f"decision_impact_remote_training_allowed_now=`{intake['decision_impact_remote_training_allowed_now']}`, "
+        f"decision_impact_formal_claim_allowed_now=`{intake['decision_impact_formal_claim_allowed_now']}`, "
+        f"decision_impact_paper_result_material_allowed_now=`{intake['decision_impact_paper_result_material_allowed_now']}`"
     )
     lines.extend(["", "## Status Report Next-Action Guard", ""])
     next_action = manifest["status_report_next_action_guard_summary"]
