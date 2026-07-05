@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_regeneration_plan",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-04T23:51:22.072198+00:00",
-  "source_head": "aa814ebef2258443346712aebec65994deb80e8e+dirty",
+  "created_at_utc": "2026-07-05T00:16:27.832545+00:00",
+  "source_head": "cd453709ea9623b15df214f556291e92f7e1ac35",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -140,12 +140,12 @@
       {
         "artifact_id": "formal_gate_gap_audit",
         "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
-        "freshness_state": "current_dirty"
+        "freshness_state": "historical_dirty"
       },
       {
         "artifact_id": "formal_gate_handoff_bundle",
         "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
-        "freshness_state": "current_clean"
+        "freshness_state": "historical_clean"
       },
       {
         "artifact_id": "gpu3070ti_readiness_refresh",
@@ -204,12 +204,12 @@
       {
         "artifact_id": "formal_gate_status_report",
         "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
-        "freshness_state": "current_dirty"
+        "freshness_state": "historical_dirty"
       },
       {
         "artifact_id": "paper_readiness",
         "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
-        "freshness_state": "historical_dirty"
+        "freshness_state": "historical_clean"
       }
     ]
   },
@@ -262,7 +262,7 @@
     {
       "artifact_id": "formal_gate_gap_audit",
       "required_before": "approved_remote_preflight",
-      "freshness_state": "current_dirty",
+      "freshness_state": "historical_dirty",
       "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
       "stage_id": "regenerate_preflight_gate_artifacts",
       "command_kind": "known_builder",
@@ -271,7 +271,7 @@
     {
       "artifact_id": "formal_gate_handoff_bundle",
       "required_before": "approved_remote_preflight",
-      "freshness_state": "current_clean",
+      "freshness_state": "historical_clean",
       "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
       "stage_id": "regenerate_preflight_gate_artifacts",
       "command_kind": "known_builder",
@@ -370,7 +370,7 @@
     {
       "artifact_id": "formal_gate_status_report",
       "required_before": "formal_claim_gate",
-      "freshness_state": "current_dirty",
+      "freshness_state": "historical_dirty",
       "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
       "stage_id": "regenerate_claim_gate_artifacts",
       "command_kind": "known_builder",
@@ -379,7 +379,7 @@
     {
       "artifact_id": "paper_readiness",
       "required_before": "formal_claim_gate",
-      "freshness_state": "historical_dirty",
+      "freshness_state": "historical_clean",
       "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
       "stage_id": "regenerate_claim_gate_artifacts",
       "command_kind": "known_builder",
