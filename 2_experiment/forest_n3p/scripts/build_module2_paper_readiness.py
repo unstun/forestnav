@@ -222,6 +222,9 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         _claim_safety_remote_packet_safety_claim_gate_command_index_summary(claim_safety)
     )
     claim_next_action_guard_summary = _claim_safety_next_action_guard_summary(claim_safety)
+    claim_handoff_single_next_action_index_summary = _claim_safety_handoff_single_next_action_index_summary(
+        claim_safety
+    )
     claim_next_required_formal_deliverables = _claim_safety_next_required_formal_deliverables(claim_safety)
     input_status = {
         "method_algorithms_status": method_algorithms.get("status"),
@@ -432,6 +435,42 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
             "execution_leak_count"
         ],
         "claim_safety_next_action_guard_violation_count": claim_next_action_guard_summary["violation_count"],
+        "claim_safety_handoff_single_next_action_index_present": claim_handoff_single_next_action_index_summary[
+            "present"
+        ],
+        "claim_safety_handoff_single_next_action_index_status": claim_handoff_single_next_action_index_summary[
+            "status"
+        ],
+        "claim_safety_handoff_single_next_action_index_next_action_id": claim_handoff_single_next_action_index_summary[
+            "next_action_id"
+        ],
+        "claim_safety_handoff_single_next_action_index_decision_owner_required": claim_handoff_single_next_action_index_summary[
+            "decision_owner_required"
+        ],
+        "claim_safety_handoff_single_next_action_index_single_current_human_entry": claim_handoff_single_next_action_index_summary[
+            "single_current_human_entry"
+        ],
+        "claim_safety_handoff_single_next_action_index_record_command_template_count": claim_handoff_single_next_action_index_summary[
+            "record_command_template_count"
+        ],
+        "claim_safety_handoff_single_next_action_index_missing_deliverable_count": claim_handoff_single_next_action_index_summary[
+            "missing_deliverable_count"
+        ],
+        "claim_safety_handoff_single_next_action_index_source_freshness_status": claim_handoff_single_next_action_index_summary[
+            "source_freshness_status"
+        ],
+        "claim_safety_handoff_single_next_action_index_all_execution_disabled_now": claim_handoff_single_next_action_index_summary[
+            "all_execution_disabled_now"
+        ],
+        "claim_safety_handoff_single_next_action_index_remote_training_allowed_now": claim_handoff_single_next_action_index_summary[
+            "remote_training_allowed_now"
+        ],
+        "claim_safety_handoff_single_next_action_index_formal_claim_allowed_now": claim_handoff_single_next_action_index_summary[
+            "formal_claim_allowed_now"
+        ],
+        "claim_safety_handoff_single_next_action_index_paper_result_material_allowed_now": claim_handoff_single_next_action_index_summary[
+            "paper_result_material_allowed_now"
+        ],
         "claim_safety_next_required_formal_deliverables_present": claim_next_required_formal_deliverables[
             "present"
         ],
@@ -511,6 +550,7 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
             claim_remote_packet_safety_claim_gate_command_index_summary
         ),
         "claim_safety_next_action_guard_summary": claim_next_action_guard_summary,
+        "claim_safety_handoff_single_next_action_index_summary": claim_handoff_single_next_action_index_summary,
         "claim_safety_next_required_formal_deliverables": claim_next_required_formal_deliverables,
         "global_blockers": global_blockers,
         "allowed_claim_ids": allowed_claim_ids,
