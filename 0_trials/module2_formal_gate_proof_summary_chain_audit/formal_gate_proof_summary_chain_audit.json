@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_proof_summary_chain_audit",
   "status": "formal_gate_proof_summary_chain_consistent_blocked",
-  "created_at_utc": "2026-07-05T13:32:07.080290+00:00",
-  "source_head": "953a96f308f1329869c5cde4f1d49f902827c2ea",
+  "created_at_utc": "2026-07-05T13:38:11.791832+00:00",
+  "source_head": "ce06b10ba19f3e308954164acbbde5c4a93419bd",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -100,6 +100,14 @@
   "handoff_single_next_action_row_count": 3,
   "handoff_single_next_action_consistent_row_count": 3,
   "h02_paper_result_input_allowed": false,
+  "proof_audit_input_safety_issue_count": 0,
+  "proof_audit_input_safety_issues": [],
+  "proof_audit_blockers": [
+    "missing_formal_training_artifacts",
+    "missing_formal_evaluation_artifacts",
+    "missing_formal_acceptance_artifacts",
+    "failed_formal_h01_h02_acceptance_artifacts"
+  ],
   "audit_issue_count": 0,
   "audit_issues": [],
   "chain_rows": [
