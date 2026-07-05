@@ -1109,6 +1109,126 @@ def _gap_signature(summary: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _status_report_remote_packet_safety_proof_deliverables_summary(
+    status_report: dict[str, Any],
+) -> dict[str, Any]:
+    return _normalize_proof_deliverables_summary(
+        status_report.get("remote_packet_safety_proof_deliverables_summary")
+    )
+
+
+def _status_report_remote_packet_safety_status_report_proof_deliverables_summary(
+    status_report: dict[str, Any],
+) -> dict[str, Any]:
+    return _normalize_proof_deliverables_summary(
+        status_report.get("remote_packet_safety_status_report_proof_deliverables_summary")
+    )
+
+
+def _normalize_proof_deliverables_summary(raw: Any) -> dict[str, Any]:
+    summary = raw if isinstance(raw, dict) else {}
+    counts = summary.get("missing_counts_by_formal_category")
+    counts = counts if isinstance(counts, dict) else {}
+    matrix_ids = summary.get("missing_matrix_ids_by_formal_category")
+    matrix_ids = matrix_ids if isinstance(matrix_ids, dict) else {}
+    return {
+        "present": summary.get("present") is True or bool(counts or matrix_ids),
+        "missing_counts_by_formal_category": {
+            category: int(counts.get(category) or 0)
+            for category in STATUS_REPORT_REMAINING_DELIVERABLE_CATEGORY_IDS
+        },
+        "missing_matrix_ids_by_formal_category": {
+            category: _strings(matrix_ids.get(category))
+            for category in STATUS_REPORT_REMAINING_DELIVERABLE_CATEGORY_IDS
+        },
+        "next_blocked_lane": summary.get("next_blocked_lane"),
+        "h01_status": summary.get("h01_status"),
+        "h02_status": summary.get("h02_status"),
+        "h02_formal_output_accepted": summary.get("h02_formal_output_accepted"),
+        "h02_paper_result_input_allowed": summary.get("h02_paper_result_input_allowed"),
+    }
+
+
+def _proof_deliverables_signature(summary: dict[str, Any]) -> dict[str, Any]:
+    matrix_ids = summary.get("missing_matrix_ids_by_formal_category")
+    matrix_ids = matrix_ids if isinstance(matrix_ids, dict) else {}
+    return {
+        "missing_counts_by_formal_category": summary.get("missing_counts_by_formal_category"),
+        "missing_matrix_ids_by_formal_category": {
+            category: sorted(_strings(items))
+            for category, items in matrix_ids.items()
+        },
+        "next_blocked_lane": summary.get("next_blocked_lane"),
+        "h01_status": summary.get("h01_status"),
+        "h02_status": summary.get("h02_status"),
+        "h02_formal_output_accepted": summary.get("h02_formal_output_accepted"),
+        "h02_paper_result_input_allowed": summary.get("h02_paper_result_input_allowed"),
+    }
+
+
+def _proof_deliverables_signature_from_gap(summary: dict[str, Any]) -> dict[str, Any]:
+    categories = summary.get("categories") if isinstance(summary.get("categories"), dict) else {}
+    return {
+        "missing_counts_by_formal_category": {
+            category: int(categories.get(category, {}).get("missing_count") or 0)
+            for category in STATUS_REPORT_REMAINING_DELIVERABLE_CATEGORY_IDS
+        },
+        "missing_matrix_ids_by_formal_category": {
+            category: sorted(_strings(categories.get(category, {}).get("missing_artifact_matrix_ids")))
+            for category in STATUS_REPORT_REMAINING_DELIVERABLE_CATEGORY_IDS
+        },
+    }
+
+
+def _proof_deliverables_gap_signature(summary: dict[str, Any]) -> dict[str, Any]:
+    signature = _proof_deliverables_signature(summary)
+    return {
+        "missing_counts_by_formal_category": signature["missing_counts_by_formal_category"],
+        "missing_matrix_ids_by_formal_category": signature["missing_matrix_ids_by_formal_category"],
+    }
+
+
+def _proof_deliverables_missing_total(summary: dict[str, Any]) -> int:
+    counts = summary.get("missing_counts_by_formal_category")
+    counts = counts if isinstance(counts, dict) else {}
+    return sum(int(count) for count in counts.values())
+
+
+def _status_report_remote_packet_safety_proof_deliverables_blockers(
+    status_report: dict[str, Any],
+) -> list[str]:
+    proof_summary = _status_report_remote_packet_safety_proof_deliverables_summary(status_report)
+    status_report_summary = _status_report_remote_packet_safety_status_report_proof_deliverables_summary(status_report)
+    gap_summary = _status_report_formal_gate_gap_audit_remaining_deliverables_gap_summary(status_report)
+    blockers: list[str] = []
+    if not proof_summary["present"]:
+        blockers.append("status_report_missing_remote_packet_safety_proof_deliverables_summary")
+    if not status_report_summary["present"]:
+        blockers.append("status_report_missing_remote_packet_safety_status_report_proof_deliverables_summary")
+    if proof_summary["present"] and status_report_summary["present"]:
+        if _proof_deliverables_signature(proof_summary) != _proof_deliverables_signature(status_report_summary):
+            blockers.append("status_report_remote_packet_safety_proof_deliverables_summary_mismatch")
+    if proof_summary["present"] and gap_summary["present"]:
+        if _proof_deliverables_gap_signature(proof_summary) != _proof_deliverables_signature_from_gap(gap_summary):
+            blockers.append("status_report_remote_packet_safety_proof_deliverables_summary_drifted_from_gap")
+    for summary_id, summary in (
+        ("proof", proof_summary),
+        ("status_report_proof", status_report_summary),
+    ):
+        if (
+            summary["present"]
+            and _proof_deliverables_missing_total(summary) > 0
+            and summary["h02_paper_result_input_allowed"] is True
+        ):
+            blockers.append(
+                f"status_report_remote_packet_safety_{summary_id}_allows_paper_results_with_missing_deliverables"
+            )
+    if status_report.get("status") == "formal_gate_status_ready_for_claim_audit":
+        if _proof_deliverables_missing_total(proof_summary) > 0:
+            blockers.append("status_report_remote_packet_safety_proof_deliverables_missing_while_status_ready")
+    return blockers
+
+
 def _status_report_remaining_deliverables_gap_blockers(status_report: dict[str, Any]) -> list[str]:
     summary = _status_report_remaining_deliverables_gap_summary(status_report)
     blockers: list[str] = []
