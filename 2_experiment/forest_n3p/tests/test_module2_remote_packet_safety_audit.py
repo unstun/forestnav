@@ -61,6 +61,24 @@ def test_remote_packet_safety_audit_passes_current_blocked_packet(tmp_path):
         ]
         == 10
     )
+    proof_deliverables = manifest["cross_gate_summary"]["post_plan_proof_audit_deliverables_summary"]
+    assert proof_deliverables["present"] is True
+    assert proof_deliverables["missing_counts_by_formal_category"] == {
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 2,
+    }
+    assert proof_deliverables["next_blocked_lane"] == "decision"
+    assert proof_deliverables["h01_status"] == "blocked_pending_decisions"
+    assert proof_deliverables["h02_status"] == "blocked_formal_output_acceptance"
+    assert proof_deliverables["h02_paper_result_input_allowed"] is False
+    assert (
+        manifest["cross_gate_summary"]["post_plan_status_report_proof_audit_deliverables_summary"][
+            "missing_counts_by_formal_category"
+        ]
+        == proof_deliverables["missing_counts_by_formal_category"]
+    )
     status_steps = manifest["cross_gate_summary"]["post_plan_status_report_remote_execution_step_summary"]
     assert status_steps["sync_to_remote"]["blocked_by"] == ["requires_dr_sun_approval"]
     assert status_steps["run_remote_training"]["blocked_by"] == ["requires_dr_sun_approval", "remote_packet_not_ready"]
@@ -399,6 +417,70 @@ def test_remote_packet_safety_audit_rejects_remaining_deliverables_gap_summary_d
     assert manifest["status"] == "remote_packet_safety_audit_failed"
     assert "post_plan_status_report_remaining_deliverables_gap_summary_mismatch" in issue_ids
     assert "status_report_allows_formal_claim_with_remaining_gap_open" in issue_ids
+
+
+def test_remote_packet_safety_audit_requires_proof_audit_deliverables_summary(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
+    plan_audit = _plan_audit_payload()
+    plan_audit.pop("status_report_proof_audit_deliverables_summary")
+    plan_audit["status_report_summary"].pop("proof_audit_deliverables_summary")
+
+    manifest = auditor.build_manifest(
+        auditor.RemotePacketSafetyAuditConfig(
+            output_dir=tmp_path,
+            remote_packet_path=_json(tmp_path, "packet.json", _packet_payload()),
+            decision_gate_audit_path=_json(tmp_path, "decision_gate.json", _decision_gate_payload()),
+            post_plan_audit_path=_json(tmp_path, "plan_audit.json", plan_audit),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "remote_packet_safety_audit_failed"
+    assert "post_plan_missing_proof_audit_deliverables_summary" in issue_ids
+    assert "post_plan_status_report_missing_proof_audit_deliverables_summary" in issue_ids
+
+
+def test_remote_packet_safety_audit_rejects_proof_audit_deliverables_summary_drift(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
+    plan_audit = _plan_audit_payload()
+    plan_audit["status_report_summary"]["proof_audit_deliverables_summary"]["missing_counts_by_formal_category"][
+        "training"
+    ] = 2
+    plan_audit["status_report_summary"]["formal_claim_allowed_now"] = True
+
+    manifest = auditor.build_manifest(
+        auditor.RemotePacketSafetyAuditConfig(
+            output_dir=tmp_path,
+            remote_packet_path=_json(tmp_path, "packet.json", _packet_payload()),
+            decision_gate_audit_path=_json(tmp_path, "decision_gate.json", _decision_gate_payload()),
+            post_plan_audit_path=_json(tmp_path, "plan_audit.json", plan_audit),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "remote_packet_safety_audit_failed"
+    assert "post_plan_status_report_proof_audit_deliverables_summary_mismatch" in issue_ids
+    assert "status_report_allows_formal_claim_with_proof_deliverables_missing" in issue_ids
+
+
+def test_remote_packet_safety_audit_rejects_h02_paper_input_with_missing_proof_deliverables(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
+    plan_audit = _plan_audit_payload()
+    plan_audit["status_report_proof_audit_deliverables_summary"]["h02_paper_result_input_allowed"] = True
+
+    manifest = auditor.build_manifest(
+        auditor.RemotePacketSafetyAuditConfig(
+            output_dir=tmp_path,
+            remote_packet_path=_json(tmp_path, "packet.json", _packet_payload()),
+            decision_gate_audit_path=_json(tmp_path, "decision_gate.json", _decision_gate_payload()),
+            post_plan_audit_path=_json(tmp_path, "plan_audit.json", plan_audit),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "remote_packet_safety_audit_failed"
+    assert "post_plan_status_report_proof_audit_deliverables_summary_mismatch" in issue_ids
+    assert "proof_deliverables_allow_h02_paper_input_while_missing" in issue_ids
 
 
 def test_remote_packet_safety_audit_catches_status_report_execution_veto_drift(tmp_path):
@@ -806,12 +888,14 @@ def _plan_audit_payload(*, training_allowed=False, status_report_ready=False):
         },
         "source_regeneration_command_index_summary": _source_regeneration_command_index_summary(),
         "remaining_deliverables_gap_summary": _gap_summary(open_gaps=not status_report_ready),
+        "status_report_proof_audit_deliverables_summary": _deliverables_top_level_summary(open_gaps=not status_report_ready),
         "status_report_summary": {
             "status": "formal_gate_status_ready_for_claim_audit" if status_report_ready else "formal_gate_status_blocked",
             "formal_claim_allowed_now": status_report_ready,
             "local_training_allowed_now": False,
             "next_blocked_lane_id": None if status_report_ready else "decision",
             "remaining_deliverables_gap_summary": _gap_summary(open_gaps=not status_report_ready),
+            "proof_audit_deliverables_summary": _deliverables_top_level_summary(open_gaps=not status_report_ready),
             "remote_execution_step_summary": {
                 "sync_to_remote": {
                     "present": True,
@@ -922,6 +1006,27 @@ def _gap_summary(*, open_gaps):
                 open_gaps=open_gaps,
             ),
         },
+    }
+
+
+def _deliverables_top_level_summary(*, open_gaps):
+    counts = {
+        "training": 3 if open_gaps else 0,
+        "evaluation": 2 if open_gaps else 0,
+        "acceptance": 3 if open_gaps else 0,
+        "formal_acceptance": 2 if open_gaps else 0,
+    }
+    return {
+        "missing_counts_by_formal_category": counts,
+        "missing_matrix_ids_by_formal_category": {
+            category: [f"{category}:artifact_{index}" for index in range(count)]
+            for category, count in counts.items()
+        },
+        "next_blocked_lane": "decision" if open_gaps else None,
+        "h01_status": "blocked_pending_decisions" if open_gaps else "ready_for_formal_run",
+        "h02_status": "blocked_formal_output_acceptance" if open_gaps else "formal_output_accepted",
+        "h02_formal_output_accepted": not open_gaps,
+        "h02_paper_result_input_allowed": not open_gaps,
     }
 
 
