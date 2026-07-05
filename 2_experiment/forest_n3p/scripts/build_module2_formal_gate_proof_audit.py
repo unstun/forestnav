@@ -250,8 +250,53 @@ def _input_safety_issues(*, remaining: dict[str, Any], plan: dict[str, Any], mat
         issues.append({"issue_id": "proof_plan_runs_remote_preflight", "observed": plan.get("runs_remote_preflight")})
     if plan.get("execution_boundary") != "local_read_only_after_formal_remote_pullback":
         issues.append({"issue_id": "proof_plan_execution_boundary_invalid", "observed": plan.get("execution_boundary")})
+    declared_rows = _int_or_none(plan.get("total_matrix_rows"))
+    if declared_rows is None:
+        issues.append({"issue_id": "proof_plan_total_matrix_rows_missing", "observed": plan.get("total_matrix_rows")})
+    elif declared_rows != len(matrix):
+        issues.append(
+            {
+                "issue_id": "proof_plan_total_matrix_rows_mismatch",
+                "observed": {"declared": declared_rows, "actual": len(matrix)},
+            }
+        )
+    actual_command_count = _matrix_proof_command_count(matrix)
+    declared_command_count = _int_or_none(plan.get("total_proof_command_count"))
+    if declared_command_count is None:
+        issues.append(
+            {
+                "issue_id": "proof_plan_total_proof_command_count_missing",
+                "observed": plan.get("total_proof_command_count"),
+            }
+        )
+    elif declared_command_count != actual_command_count:
+        issues.append(
+            {
+                "issue_id": "proof_plan_total_proof_command_count_mismatch",
+                "observed": {"declared": declared_command_count, "actual": actual_command_count},
+            }
+        )
+    plan_rows = plan.get("rows")
+    if isinstance(plan_rows, list) and len(plan_rows) != len(matrix):
+        issues.append(
+            {
+                "issue_id": "proof_plan_rows_count_mismatch",
+                "observed": {"declared_rows": len(plan_rows), "actual_matrix_rows": len(matrix)},
+            }
+        )
     issues.extend(_proof_command_input_safety_issues(matrix))
     return issues
+
+
+def _matrix_proof_command_count(matrix: Sequence[Any]) -> int:
+    count = 0
+    for raw_row in matrix:
+        if not isinstance(raw_row, dict):
+            continue
+        commands = raw_row.get("proof_commands")
+        if isinstance(commands, list):
+            count += len(commands)
+    return count
 
 
 def _proof_command_input_safety_issues(matrix: Sequence[Any]) -> list[dict[str, Any]]:
@@ -553,6 +598,12 @@ def _markdown(manifest: dict[str, Any]) -> str:
         "",
     ]
     lines.extend(f"- `{blocker}`" for blocker in manifest["blockers"]) if manifest["blockers"] else lines.append("- none")
+    lines.extend(["", "## Input Safety Issues", ""])
+    if manifest["input_safety_issues"]:
+        for issue in manifest["input_safety_issues"]:
+            lines.append(f"- `{issue['issue_id']}`: observed=`{issue.get('observed')}`")
+    else:
+        lines.append("- none")
     current_state = manifest.get("current_state", {})
     lines.extend(["", "## Current Gate State", ""])
     for key in (
