@@ -4,7 +4,7 @@ This file is a formal-gate closure checklist. It does not execute commands, trai
 
 - status: `formal_gate_closure_blocked`
 - closure_item_count: `8`
-- open_item_count: `7`
+- open_item_count: `6`
 - input_safety_issue_count: `0`
 - runs_training: `False`
 - runs_remote_preflight: `False`
@@ -16,7 +16,7 @@ This file is a formal-gate closure checklist. It does not execute commands, trai
 - missing_artifacts_status: `formal_gate_missing_artifacts_open`
 - post_plan_status: `ready_for_remote_training_packet_execution`
 - source_freshness_status: `source_freshness_tracked_artifact_lag_only_gate_ready`
-- missing_counts_by_category: `{'decision': 0, 'decision_gate': 1, 'regeneration': 0, 'gate_sequence': 6, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 9}`
+- missing_counts_by_category: `{'decision': 0, 'decision_gate': 1, 'regeneration': 0, 'gate_sequence': 4, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 9}`
 - formal_ordered_next_step_count: `6`
 - post_plan_blocked_stage_ids: `['f02_6_decision_record', 'gate3_remote_audit_pullback', 'regenerate_h01_h02_formal_artifacts', 'regenerate_claim_gate_artifacts']`
 - source_regeneration_target_count: `23`
@@ -34,15 +34,14 @@ This file is a formal-gate closure checklist. It does not execute commands, trai
 
 ## Closure Checklist
 
-- `F02.6_decision` (decision): status=`blocked`, missing=`0`, runs_training=`False`
-  - blocked_by: `current_decision_status_approved`
+- `F02.6_decision` (decision): status=`complete`, missing=`0`, runs_training=`False`
   - completion_signal: Dr Sun approved/rejected decision record is present and source-fresh.
   - next_action: Close the F02.6 warm-start decision record before any approved preflight.
 - `preflight_source_fresh_regeneration` (regeneration): status=`complete`, missing=`0`, runs_training=`False`
   - completion_signal: All approved_remote_preflight source-fresh targets are regenerated from the current head.
   - next_action: Regenerate source freshness targets only after F02.6 is closed.
-- `approved_remote_preflight_and_packet` (remote_preflight): status=`blocked`, missing=`6`, runs_training=`False`
-  - blocked_by: `f02_6_decision_record, approved_remote_preflight, regenerate_remote_execution_packet, gate3_remote_audit_pullback, regenerate_h01_h02_formal_artifacts, regenerate_claim_gate_artifacts`
+- `approved_remote_preflight_and_packet` (remote_preflight): status=`blocked`, missing=`4`, runs_training=`False`
+  - blocked_by: `f02_6_decision_record, gate3_remote_audit_pullback, regenerate_h01_h02_formal_artifacts, regenerate_claim_gate_artifacts`
   - completion_signal: Approved gpu3070ti preflight passes and the remote execution packet becomes ready.
   - next_action: Run only the approved remote preflight path; do not train locally.
 - `gate3_remote_training_outputs` (training): status=`blocked`, missing=`3`, runs_training=`True`, host=`gpu3070ti-relay`

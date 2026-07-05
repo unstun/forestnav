@@ -56,7 +56,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - status: `formal_gate_closure_blocked`
 - runs_training: `False`
 - runs_remote_preflight: `False`
-- open_item_count: `7`
+- open_item_count: `6`
 - input_safety_issue_count: `0`
 
 ## Formal Gate Status Report
@@ -68,7 +68,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - formal_claim_allowed_now: `False`
 - local_training_allowed_now: `False`
 - input_safety_issue_count: `3`
-- next_blocked_lane_id: `decision`
+- next_blocked_lane_id: `remote_packet_preflight`
 
 ### Remaining Deliverables Gap Summary
 

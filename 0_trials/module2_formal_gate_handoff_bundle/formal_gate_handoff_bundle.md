@@ -4,7 +4,7 @@
 - executes commands: `False`
 - runs training: `False`
 - local training allowed: `False`
-- next action: `resolve_decision`
+- next action: `resolve_remote_packet_preflight`
 
 ## Single Next Action Index
 

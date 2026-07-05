@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-05T19:18:23.760749+00:00",
-  "source_head": "c4ed43a51c8553ded144ce3946ac4917c1fd8aa6",
+  "created_at_utc": "2026-07-05T19:20:00.258012+00:00",
+  "source_head": "8b9720c064bdab57a24bea7ef0795aad8ef24a56",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -109,7 +109,7 @@
     "missing_artifacts_handoff_remote_training_allowed_now": true,
     "missing_artifacts_handoff_formal_result_material_allowed_now": false,
     "closure_checklist_status": "formal_gate_closure_blocked",
-    "closure_open_item_count": 7,
+    "closure_open_item_count": 6,
     "closure_remote_preflight_allowed_now": true,
     "closure_remote_training_allowed_now": true,
     "closure_remote_audit_pullback_allowed_now": false,
@@ -172,7 +172,7 @@
     "mainline_formal_gate_state_audit_proof_summary_chain_status": "formal_gate_proof_summary_chain_audit_failed",
     "mainline_formal_gate_state_audit_proof_summary_chain_issue_count": 10,
     "mainline_formal_gate_state_audit_proof_audit_input_safety_issue_count": 0,
-    "handoff_bundle_next_action": "resolve_decision",
+    "handoff_bundle_next_action": "resolve_remote_packet_preflight",
     "handoff_bundle_safety_issue_count": 0,
     "handoff_bundle_remote_training_allowed_now": true,
     "handoff_requirement_stage_mapped_count": 4,
@@ -880,7 +880,7 @@
     "status": "ready_for_manual_remote_execution_review",
     "transition_gate_status": "f02_6_transition_gate_audit_passed",
     "transition_gate_audit_issue_count": 0,
-    "next_handoff_action_id": "resolve_decision",
+    "next_handoff_action_id": "resolve_remote_packet_preflight",
     "next_action_requires_dr_sun": false,
     "safety_issue_count": 0,
     "remote_training_allowed_now": true,
@@ -2775,7 +2775,7 @@
     "pending_f02_6_decision": false,
     "next_blocked_lane_id": "decision",
     "expected_next_action_id": null,
-    "handoff_next_action_id": "resolve_decision",
+    "handoff_next_action_id": "resolve_remote_packet_preflight",
     "handoff_next_action_requires_dr_sun": false,
     "missing_artifacts_next_action_id": "resolve_training_remote_ppo_checkpoint",
     "decision_intake_next_blocked_lane": "decision",
@@ -3065,13 +3065,11 @@
     {
       "lane_id": "decision",
       "phase": "decision",
-      "status": "blocked",
+      "status": "complete",
       "primary_status": "approved",
       "runs_training": false,
       "host": null,
-      "blocked_by": [
-        "current_decision_status_approved"
-      ],
+      "blocked_by": [],
       "missing_item_count": 0,
       "missing_items": [],
       "completion_signal": "F02.6 decision record is approved or rejected by Dr Sun.",
@@ -3101,9 +3099,7 @@
         "f02_6_decision_record",
         "gate3_remote_audit_pullback",
         "regenerate_h01_h02_formal_artifacts",
-        "regenerate_claim_gate_artifacts",
-        "approved_remote_preflight",
-        "regenerate_remote_execution_packet"
+        "regenerate_claim_gate_artifacts"
       ],
       "missing_item_count": 4,
       "missing_items": [
@@ -3370,11 +3366,14 @@
     }
   ],
   "next_blocked_lane": {
-    "lane_id": "decision",
-    "phase": "decision",
-    "action_when_blocked": "Record Dr Sun's F02.6 decision before any formal preflight or training.",
+    "lane_id": "remote_packet_preflight",
+    "phase": "remote_preflight",
+    "action_when_blocked": "Run only approved remote preflight after F02.6 and source freshness close.",
     "blocked_by": [
-      "current_decision_status_approved"
+      "f02_6_decision_record",
+      "gate3_remote_audit_pullback",
+      "regenerate_h01_h02_formal_artifacts",
+      "regenerate_claim_gate_artifacts"
     ]
   },
   "input_safety_issue_count": 3,

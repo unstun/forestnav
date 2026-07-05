@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_plan_audit",
   "status": "post_f02_6_plan_audit_passed",
-  "created_at_utc": "2026-07-05T19:18:23.292069+00:00",
-  "source_head": "c4ed43a51c8553ded144ce3946ac4917c1fd8aa6",
+  "created_at_utc": "2026-07-05T19:20:00.036662+00:00",
+  "source_head": "8b9720c064bdab57a24bea7ef0795aad8ef24a56",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -284,7 +284,7 @@
     "local_training_allowed": false,
     "formal_claim_allowed": false,
     "closure_item_count": 8,
-    "open_item_count": 7,
+    "open_item_count": 6,
     "input_safety_issue_count": 0
   },
   "status_report_summary": {
@@ -299,7 +299,7 @@
     "formal_claim_allowed_now": false,
     "local_training_allowed_now": false,
     "input_safety_issue_count": 3,
-    "next_blocked_lane_id": "decision",
+    "next_blocked_lane_id": "remote_packet_preflight",
     "remote_execution_step_summary": {
       "sync_to_remote": {
         "present": true,

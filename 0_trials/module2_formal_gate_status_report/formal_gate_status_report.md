@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `c4ed43a51c8553ded144ce3946ac4917c1fd8aa6`
+- source_head: `8b9720c064bdab57a24bea7ef0795aad8ef24a56`
 - input_safety_issue_count: `3`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `True`
@@ -71,7 +71,7 @@ This file is a read-only formal-gate status report. It does not execute commands
 - missing_artifacts_handoff_remote_training_allowed_now: `True`
 - missing_artifacts_handoff_formal_result_material_allowed_now: `False`
 - closure_checklist_status: `formal_gate_closure_blocked`
-- closure_open_item_count: `7`
+- closure_open_item_count: `6`
 - closure_remote_preflight_allowed_now: `True`
 - closure_remote_training_allowed_now: `True`
 - closure_remote_audit_pullback_allowed_now: `False`
@@ -134,7 +134,7 @@ This file is a read-only formal-gate status report. It does not execute commands
 - mainline_formal_gate_state_audit_proof_summary_chain_status: `formal_gate_proof_summary_chain_audit_failed`
 - mainline_formal_gate_state_audit_proof_summary_chain_issue_count: `10`
 - mainline_formal_gate_state_audit_proof_audit_input_safety_issue_count: `0`
-- handoff_bundle_next_action: `resolve_decision`
+- handoff_bundle_next_action: `resolve_remote_packet_preflight`
 - handoff_bundle_safety_issue_count: `0`
 - handoff_bundle_remote_training_allowed_now: `True`
 - handoff_requirement_stage_mapped_count: `4`
@@ -166,10 +166,10 @@ This file is a read-only formal-gate status report. It does not execute commands
 
 ## Next Blocked Lane
 
-- lane_id: `decision`
-- phase: `decision`
-- blocked_by: `current_decision_status_approved`
-- action: Record Dr Sun's F02.6 decision before any formal preflight or training.
+- lane_id: `remote_packet_preflight`
+- phase: `remote_preflight`
+- blocked_by: `f02_6_decision_record, gate3_remote_audit_pullback, regenerate_h01_h02_formal_artifacts, regenerate_claim_gate_artifacts`
+- action: Run only approved remote preflight after F02.6 and source freshness close.
 
 ## F02.6 Decision Intake
 
@@ -219,7 +219,7 @@ This file is a read-only formal-gate status report. It does not execute commands
 - status: `next_action_guard_not_applicable`
 - pending_f02_6_decision: `False`
 - expected_next_action_id: `None`
-- handoff_next_action_id: `resolve_decision`
+- handoff_next_action_id: `resolve_remote_packet_preflight`
 - missing_artifacts_next_action_id: `resolve_training_remote_ppo_checkpoint`
 - all_execution_disabled_now: `False`
 - execution_leak_count: `9`
@@ -229,15 +229,14 @@ This file is a read-only formal-gate status report. It does not execute commands
 
 ## Formal Gate Lanes
 
-- `decision` (decision): status=`blocked`, missing=`0`, runs_training=`False`
-  - blocked_by: `current_decision_status_approved`
+- `decision` (decision): status=`complete`, missing=`0`, runs_training=`False`
   - completion_signal: F02.6 decision record is approved or rejected by Dr Sun.
   - action_when_blocked: Record Dr Sun's F02.6 decision before any formal preflight or training.
 - `source_fresh_preflight` (regeneration): status=`complete`, missing=`0`, runs_training=`False`
   - completion_signal: Source-fresh preflight targets are regenerated from the current head.
   - action_when_blocked: After F02.6 closes, regenerate source-fresh gate artifacts before approved preflight.
 - `remote_packet_preflight` (remote_preflight): status=`blocked`, missing=`4`, runs_training=`False`
-  - blocked_by: `f02_6_decision_record, gate3_remote_audit_pullback, regenerate_h01_h02_formal_artifacts, regenerate_claim_gate_artifacts, approved_remote_preflight, regenerate_remote_execution_packet`
+  - blocked_by: `f02_6_decision_record, gate3_remote_audit_pullback, regenerate_h01_h02_formal_artifacts, regenerate_claim_gate_artifacts`
   - completion_signal: Approved gpu3070ti preflight passes and remote packet reports ready.
   - action_when_blocked: Run only approved remote preflight after F02.6 and source freshness close.
 - `gate3_remote_training` (training): status=`blocked`, missing=`3`, runs_training=`True`, host=`gpu3070ti-relay`
@@ -509,7 +508,7 @@ This file is a read-only formal-gate status report. It does not execute commands
 
 - present: `True`
 - status: `ready_for_manual_remote_execution_review`
-- next_handoff_action: `resolve_decision`
+- next_handoff_action: `resolve_remote_packet_preflight`
 - safety_issue_count: `0`
 - remote_training_allowed_now: `True`
 - `sync_to_remote`: present=`True`, allowed_now=`True`, runs_training=`False`, blocked_by=`none`
