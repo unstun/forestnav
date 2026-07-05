@@ -1240,6 +1240,57 @@ def _handoff_single_next_action_index_blockers(handoff_bundle: dict[str, Any]) -
     return blockers
 
 
+def _handoff_decision_evidence_matrix_blockers(
+    handoff_bundle: dict[str, Any], *, status_report: dict[str, Any]
+) -> list[str]:
+    summary = _handoff_decision_evidence_matrix_summary(handoff_bundle)
+    status_summary = _status_report_decision_intake_summary(status_report)["decision_evidence_matrix_summary"]
+    blockers: list[str] = []
+    expected_decisions = {"approve_obstacle_summary_warm_start", "reject_obstacle_summary_warm_start"}
+    if summary["present"] is not True:
+        blockers.append("handoff_f02_6_decision_evidence_matrix_missing")
+        return blockers
+    if summary["matrix_id"] != "module2_f02_6_decision_evidence_matrix":
+        blockers.append("handoff_f02_6_decision_evidence_matrix_id_invalid")
+    if summary["status"] != "ready_for_dr_sun_decision_not_authorization":
+        blockers.append("handoff_f02_6_decision_evidence_matrix_status_invalid")
+    if summary["route_count"] != 2:
+        blockers.append("handoff_f02_6_decision_evidence_matrix_route_count_invalid")
+    if not expected_decisions.issubset(set(summary["route_decisions"])):
+        blockers.append("handoff_f02_6_decision_evidence_matrix_routes_incomplete")
+    if summary["required_evidence_count"] < 7:
+        blockers.append("handoff_f02_6_decision_evidence_matrix_required_evidence_incomplete")
+    if summary["satisfied_required_evidence_count"] != summary["required_evidence_count"]:
+        blockers.append("handoff_f02_6_decision_evidence_matrix_unsatisfied_required_evidence")
+    if summary["missing_required_evidence_count"] != 0:
+        blockers.append("handoff_f02_6_decision_evidence_matrix_missing_required_evidence")
+    if summary["source_issue_count"] != 0:
+        blockers.append("handoff_f02_6_decision_evidence_matrix_source_issues_open")
+    if summary["global_invalid_substitute_count"] == 0:
+        blockers.append("handoff_f02_6_decision_evidence_matrix_invalid_substitutes_missing")
+    invalid_by_route = summary["invalid_substitute_counts_by_route"]
+    for route in expected_decisions:
+        if int(invalid_by_route.get(route) or 0) <= 0:
+            blockers.append(f"handoff_f02_6_decision_evidence_matrix_{route}_invalid_substitutes_missing")
+    for field, blocker in (
+        ("current_authorization_allowed_now", "handoff_f02_6_decision_evidence_matrix_authorizes_now"),
+        ("remote_preflight_allowed_now", "handoff_f02_6_decision_evidence_matrix_allows_remote_preflight"),
+        ("remote_training_allowed_now", "handoff_f02_6_decision_evidence_matrix_allows_remote_training"),
+        ("local_training_allowed_now", "handoff_f02_6_decision_evidence_matrix_allows_local_training"),
+        ("formal_claim_allowed_now", "handoff_f02_6_decision_evidence_matrix_allows_formal_claim"),
+        ("paper_result_material_allowed_now", "handoff_f02_6_decision_evidence_matrix_allows_paper_result_material"),
+    ):
+        if summary[field] is not False:
+            blockers.append(blocker)
+    if (
+        summary["present"] is True
+        and status_summary["present"] is True
+        and _decision_evidence_matrix_signature(summary) != _decision_evidence_matrix_signature(status_summary)
+    ):
+        blockers.append("handoff_f02_6_decision_evidence_matrix_status_report_mismatch")
+    return blockers
+
+
 def _status_report_next_required_formal_deliverables(status_report: dict[str, Any]) -> dict[str, Any]:
     summary = status_report.get("next_required_formal_deliverables")
     summary = summary if isinstance(summary, dict) else {}
