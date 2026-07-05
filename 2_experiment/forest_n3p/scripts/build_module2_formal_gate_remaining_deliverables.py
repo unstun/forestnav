@@ -1588,6 +1588,27 @@ def _markdown(manifest: dict[str, Any]) -> str:
     )
     for key, value in manifest["current_gate_summary"].items():
         lines.append(f"- {key}: `{value}`")
+    source_blockers = manifest["source_freshness_blocking_targets_summary"]
+    lines.extend(["", "## Source-Freshness Blocking Targets", ""])
+    lines.append(f"- summary_id: `{source_blockers['summary_id']}`")
+    lines.append(f"- status: `{source_blockers['status']}`")
+    lines.append(f"- blocking_target_count: `{source_blockers['blocking_target_count']}`")
+    lines.append(
+        f"- remote_readiness_blocking_target_count: `{source_blockers['remote_readiness_blocking_target_count']}`"
+    )
+    lines.append(
+        f"- remote_readiness_refresh_requires_external_ssh: `{source_blockers['remote_readiness_refresh_requires_external_ssh']}`"
+    )
+    lines.append(f"- remote_readiness_refresh_allowed_now: `{source_blockers['remote_readiness_refresh_allowed_now']}`")
+    if source_blockers["rows"]:
+        for row in source_blockers["rows"]:
+            lines.append(
+                f"- `{row['artifact_id']}`: path=`{row['path']}`, "
+                f"freshness_state=`{row['freshness_state']}`, required_before=`{row['required_before']}`, "
+                f"blocking_changed_path_count_since_source=`{row['blocking_changed_path_count_since_source']}`"
+            )
+    else:
+        lines.append("- none")
     gap_summary = manifest["deliverable_gap_summary"]
     lines.extend(["", "## Formal Gate Gap Summary", ""])
     lines.append(f"- summary_id: `{gap_summary['summary_id']}`")
