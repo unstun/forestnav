@@ -267,6 +267,50 @@ def _remote_readiness(*, remote_no_warm: dict[str, Any], remote_warm: dict[str, 
     }
 
 
+def _current_authorization(*, decision_record: dict[str, Any], decision_intake: dict[str, Any]) -> dict[str, Any]:
+    current_state = dict(decision_intake.get("current_state") or {})
+    intake_contract = dict(decision_intake.get("decision_intake_contract") or {})
+    valid_decisions = list(intake_contract.get("valid_decisions") or ())
+    required_fields = list(intake_contract.get("required_record_fields_for_non_pending_decision") or ())
+    post_decision_routes = list(decision_intake.get("post_decision_route_matrix") or ())
+    non_authorizations = list(decision_intake.get("post_decision_non_authorizations") or ())
+    return {
+        "authorization_status": "blocked_until_dr_sun_decision",
+        "decision_owner_required": str(decision_record.get("decision_owner_required") or "Dr Sun"),
+        "decision_record": {
+            "status": str(decision_record.get("status")),
+            "requested_decision": str(decision_record.get("requested_decision")),
+            "effective_warm_start_decision": str(decision_record.get("effective_warm_start_decision")),
+            "decider": decision_record.get("decider"),
+            "decision_note_present": bool(decision_record.get("decision_note")),
+        },
+        "decision_intake": {
+            "status": str(decision_intake.get("status")),
+            "next_blocked_lane": str(current_state.get("next_blocked_lane")),
+            "audit_issue_count": int(decision_intake.get("audit_issue_count", 0) or 0),
+            "valid_decision_count": len(valid_decisions),
+            "required_record_field_count": len(required_fields),
+            "post_decision_route_count": len(post_decision_routes),
+            "post_decision_non_authorization_count": len(non_authorizations),
+        },
+        "current_allowed_action_ids": ["record_f02_6_decision"],
+        "current_blocked_action_ids": [
+            "remote_preflight",
+            "remote_training",
+            "local_training",
+            "formal_claim",
+            "paper_result_material",
+        ],
+        "post_decision_routes_are_current_authorization": False,
+        "remote_preflight_allowed_now": bool(decision_record.get("remote_preflight_allowed_now")),
+        "remote_training_allowed_now": bool(decision_record.get("remote_training_allowed_now")),
+        "local_training_allowed_now": bool(decision_record.get("local_training_allowed")),
+        "formal_claim_allowed_now": bool(decision_record.get("formal_claim_allowed")),
+        "paper_result_material_allowed_now": False,
+        "required_next_human_action": "record Dr Sun's F02.6 approval or rejection before any remote preflight.",
+    }
+
+
 def _next_actions() -> dict[str, Any]:
     output_dir = "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1"
     runner = [
@@ -354,6 +398,8 @@ def _sources(config: F026DecisionPacketConfig) -> list[dict[str, Any]]:
         config.remote_no_warm_preflight,
         config.remote_warm_pending_preflight,
         config.remote_warm_smoke_audit,
+        config.decision_record,
+        config.decision_intake,
     )
     return [{"path": str(path), "exists": path.exists(), "sha256": _sha256(path) if path.exists() else None} for path in paths]
 
@@ -391,6 +437,13 @@ def _packet_markdown(packet: dict[str, Any]) -> str:
         "- decision owner: `Dr Sun`",
         f"- remote preflight allowed now: `{packet['remote_preflight_allowed']}`",
         f"- remote training allowed now: `{packet['remote_training_allowed']}`",
+        "",
+        "## Current Authorization",
+        "",
+        f"- authorization_status: `{packet['current_authorization']['authorization_status']}`",
+        f"- allowed_now: `{', '.join(packet['current_authorization']['current_allowed_action_ids'])}`",
+        f"- blocked_now: `{', '.join(packet['current_authorization']['current_blocked_action_ids'])}`",
+        f"- post_decision_routes_are_current_authorization: `{packet['current_authorization']['post_decision_routes_are_current_authorization']}`",
         "",
         "## Key Evidence",
         "",
