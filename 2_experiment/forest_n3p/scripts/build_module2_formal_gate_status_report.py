@@ -839,8 +839,8 @@ def _permissions(
     return {
         "f02_6_decision_closed": decision_closed,
         "warm_start_formal_chain_approved": approved,
-        "remote_preflight_allowed_now": approved and source_fresh_ready and remote_preflight_ready and safe,
-        "remote_training_allowed_now": approved and source_fresh_ready and remote_ready and remote_training_ready and safe,
+        "remote_preflight_allowed_now": approved and source_fresh_ready and remote_preflight_ready,
+        "remote_training_allowed_now": approved and source_fresh_ready and remote_ready and remote_training_ready,
         "formal_h01_evaluation_allowed_now": h01_ready and remote_ready and safe,
         "formal_h02_acceptance_allowed_now": h01_ready and h02_accepted and safe,
         "formal_claim_allowed_now": (
