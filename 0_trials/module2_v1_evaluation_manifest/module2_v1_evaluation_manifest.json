@@ -2,8 +2,8 @@
   "schema_version": 1,
   "manifest_name": "module2_v1_evaluation",
   "status": "blocked_pending_decisions",
-  "created_at_utc": "2026-07-05T11:20:26.397947+00:00",
-  "source_head": "b53f0c122cdfab7ac96f2ac5bb4d61127cae8235",
+  "created_at_utc": "2026-07-05T11:32:11.257011+00:00",
+  "source_head": "b8b395c63e8d0d801f36067fa137a14c8033906e",
   "contract": {
     "path": ".pipeline/contracts/module2-ppo-funnel-expansion.md",
     "exists": true,

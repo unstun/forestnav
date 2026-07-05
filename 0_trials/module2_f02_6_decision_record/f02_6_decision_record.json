@@ -2,9 +2,9 @@
   "schema_version": 1,
   "record_name": "module2_f02_6_decision_record",
   "status": "pending_human_decision",
-  "created_at_utc": "2026-07-05T11:20:24.256665+00:00",
+  "created_at_utc": "2026-07-05T11:32:09.104743+00:00",
   "execution_host": "MacBook-Pro.local",
-  "source_head": "b53f0c122cdfab7ac96f2ac5bb4d61127cae8235",
+  "source_head": "b8b395c63e8d0d801f36067fa137a14c8033906e",
   "decision_owner_required": "Dr Sun",
   "requested_decision": "pending",
   "decider": null,
@@ -19,7 +19,7 @@
       "requires_dr_sun_approval"
     ],
     "formal_claim_allowed": false,
-    "source_head": "d02d01497837a1cde882e96b02322cb75d4b5e75"
+    "source_head": "b53f0c122cdfab7ac96f2ac5bb4d61127cae8235"
   },
   "decision_mapping": {
     "approve_obstacle_summary_warm_start": {

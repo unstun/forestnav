@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_closure_checklist",
   "status": "formal_gate_closure_blocked",
-  "created_at_utc": "2026-07-05T11:20:27.029816+00:00",
-  "source_head": "b53f0c122cdfab7ac96f2ac5bb4d61127cae8235",
+  "created_at_utc": "2026-07-05T11:32:11.826814+00:00",
+  "source_head": "b8b395c63e8d0d801f36067fa137a14c8033906e",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -21,7 +21,7 @@
     "formal_gate_status": "blocked_formal_gate_gaps_open",
     "missing_artifacts_status": "formal_gate_missing_artifacts_open",
     "post_plan_status": "blocked_until_f02_6_decision",
-    "source_freshness_status": "source_freshness_clean_current",
+    "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
     "missing_counts_by_category": {
       "decision": 1,
       "decision_gate": 0,
@@ -43,7 +43,7 @@
       "regenerate_h01_h02_formal_artifacts",
       "regenerate_claim_gate_artifacts"
     ],
-    "source_regeneration_target_count": 1,
+    "source_regeneration_target_count": 16,
     "remaining_deliverables_gap_total_missing": 10,
     "remaining_deliverables_gap_open_category_count": 4
   },
@@ -646,7 +646,8 @@
         "h02_scale_below_h01_seed_count",
         "h02_scale_below_h01_queries_per_map",
         "h02_verdict_not_formal",
-        "missing_remote_audit_pullback"
+        "missing_remote_audit_pullback",
+        "source_fresh_h01_h02_targets_open"
       ],
       "missing_item_count": 2,
       "required_items": [
@@ -706,7 +707,8 @@
         "formal_gate_closure_checklist_open",
         "formal_gate_status_report_blocked",
         "formal_gate_remaining_deliverables_open",
-        "h02_formal_acceptance_not_ready"
+        "h02_formal_acceptance_not_ready",
+        "source_fresh_claim_targets_open"
       ],
       "missing_item_count": 1,
       "required_items": [

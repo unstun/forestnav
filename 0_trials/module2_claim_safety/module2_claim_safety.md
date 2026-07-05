@@ -31,7 +31,6 @@
 - status_report_remote_packet_safety_command_index_missing_mainline_formal_gate_state_audit
 - status_report_remote_packet_safety_command_index_missing_claim_safety
 - status_report_remote_packet_safety_command_index_missing_paper_readiness
-- handoff_single_next_action_index_source_freshness_not_clean
 
 ## Allowed Claims
 
@@ -59,7 +58,7 @@
 
 ## Handoff Single Next-Action Index
 
-- present=`True`, status=`awaiting_dr_sun_f02_6_decision`, next_action_id=`record_f02_6_decision`, decision_owner_required=`Dr Sun`, single_current_human_entry=`True`, all_execution_disabled_now=`True`, missing_deliverable_count=`10`, source_freshness_status=`source_freshness_tracked_artifact_lag_only_gate_ready`, remote_training_allowed_now=`False`, formal_claim_allowed_now=`False`, paper_result_material_allowed_now=`False`
+- present=`True`, status=`awaiting_dr_sun_f02_6_decision`, next_action_id=`record_f02_6_decision`, decision_owner_required=`Dr Sun`, single_current_human_entry=`True`, all_execution_disabled_now=`True`, missing_deliverable_count=`10`, source_freshness_status=`source_freshness_clean_current`, remote_training_allowed_now=`False`, formal_claim_allowed_now=`False`, paper_result_material_allowed_now=`False`
 
 ## Status Report Next Required Formal Deliverables
 
@@ -79,7 +78,7 @@
 - `training_remote_ppo_checkpoint`: stage=`gate3_remote_training`, stage_status=`blocked`, allowed_now=`False`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 - `evaluation_gate3_episode_outputs`: stage=`gate3_remote_audit_pullback`, stage_status=`blocked`, allowed_now=`False`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 - `acceptance_remote_pullback_and_audit`: stage=`gate3_remote_audit_pullback`, stage_status=`blocked`, allowed_now=`False`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
-- `h01_h02_formal_evaluation_acceptance`: stage=`regenerate_h01_h02_formal_artifacts`, stage_status=`blocked`, allowed_now=`False`, blocked_by=`missing_remote_audit_pullback`
+- `h01_h02_formal_evaluation_acceptance`: stage=`regenerate_h01_h02_formal_artifacts`, stage_status=`blocked`, allowed_now=`False`, blocked_by=`missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
 
 ## Status Report Remote Gate Summary
 
@@ -198,8 +197,8 @@
 ## Status Report Remote-Safety Claim-Gate Command Index
 
 - present=`True`
-- index_row_count=`1`
-- source_target_count=`1`
+- index_row_count=`16`
+- source_target_count=`16`
 - missing_target_ids=`[]`
 - unknown_manual_count=`0`
 - forbidden_command_count=`0`

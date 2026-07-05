@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_remote_packet_safety_audit",
   "status": "remote_packet_safety_audit_passed",
-  "created_at_utc": "2026-07-05T11:20:26.916682+00:00",
-  "source_head": "b53f0c122cdfab7ac96f2ac5bb4d61127cae8235",
+  "created_at_utc": "2026-07-05T11:32:11.719328+00:00",
+  "source_head": "b8b395c63e8d0d801f36067fa137a14c8033906e",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -236,19 +236,109 @@
     },
     "post_plan_source_regeneration_command_index_summary": {
       "present": true,
-      "index_row_count": 1,
-      "source_target_count": 1,
+      "index_row_count": 16,
+      "source_target_count": 16,
       "missing_target_ids": [],
       "unknown_manual_count": 0,
       "unknown_manual_ids": [],
       "forbidden_command_count": 0,
       "forbidden_command_ids": [],
       "rows": {
+        "f02_6_decision_gate_audit": {
+          "stage_id": "regenerate_preflight_gate_artifacts",
+          "required_before": "approved_remote_preflight",
+          "command_kind": "known_builder",
+          "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_gate_audit"
+        },
+        "f02_6_decision_intake": {
+          "stage_id": "regenerate_preflight_gate_artifacts",
+          "required_before": "approved_remote_preflight",
+          "command_kind": "known_builder",
+          "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_intake"
+        },
+        "f02_6_decision_record": {
+          "stage_id": "regenerate_preflight_gate_artifacts",
+          "required_before": "approved_remote_preflight",
+          "command_kind": "human_decision_record",
+          "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'"
+        },
+        "f02_6_transition_gate_audit": {
+          "stage_id": "regenerate_preflight_gate_artifacts",
+          "required_before": "approved_remote_preflight",
+          "command_kind": "known_builder",
+          "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_transition_gate_audit"
+        },
+        "f02_6_warm_start_decision_packet": {
+          "stage_id": "regenerate_preflight_gate_artifacts",
+          "required_before": "approved_remote_preflight",
+          "command_kind": "known_builder",
+          "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_warm_start_decision_packet"
+        },
+        "formal_gate_closure_checklist": {
+          "stage_id": "regenerate_preflight_gate_artifacts",
+          "required_before": "approved_remote_preflight",
+          "command_kind": "known_builder",
+          "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_closure_checklist"
+        },
+        "formal_gate_gap_audit": {
+          "stage_id": "regenerate_preflight_gate_artifacts",
+          "required_before": "approved_remote_preflight",
+          "command_kind": "known_builder",
+          "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_gap_audit"
+        },
         "formal_gate_handoff_bundle": {
           "stage_id": "regenerate_preflight_gate_artifacts",
           "required_before": "approved_remote_preflight",
           "command_kind": "known_builder",
           "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_handoff_bundle"
+        },
+        "gpu3070ti_readiness_refresh": {
+          "stage_id": "regenerate_preflight_gate_artifacts",
+          "required_before": "approved_remote_preflight",
+          "command_kind": "read_only_remote_resource_check",
+          "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_gpu3070ti_readiness_refresh"
+        },
+        "post_f02_6_plan_audit": {
+          "stage_id": "regenerate_preflight_gate_artifacts",
+          "required_before": "approved_remote_preflight",
+          "command_kind": "known_builder",
+          "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_plan_audit"
+        },
+        "post_f02_6_regeneration_plan": {
+          "stage_id": "regenerate_preflight_gate_artifacts",
+          "required_before": "approved_remote_preflight",
+          "command_kind": "known_builder",
+          "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_regeneration_plan"
+        },
+        "remote_formal_execution_packet": {
+          "stage_id": "regenerate_preflight_gate_artifacts",
+          "required_before": "approved_remote_preflight",
+          "command_kind": "known_builder",
+          "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_formal_execution_packet"
+        },
+        "remote_packet_safety_audit": {
+          "stage_id": "regenerate_preflight_gate_artifacts",
+          "required_before": "approved_remote_preflight",
+          "command_kind": "known_builder",
+          "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_remote_packet_safety_audit"
+        },
+        "h01_evaluation_manifest": {
+          "stage_id": "regenerate_h01_h02_formal_artifacts",
+          "required_before": "formal_h01_h02",
+          "command_kind": "known_builder",
+          "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_evaluation_manifest --module2-rl-rs-checkpoint <pulled-back-final_model.zip>"
+        },
+        "h02_formal_acceptance": {
+          "stage_id": "regenerate_h01_h02_formal_artifacts",
+          "required_before": "formal_h01_h02",
+          "command_kind": "known_builder",
+          "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_h02_formal_acceptance"
+        },
+        "formal_gate_missing_artifacts": {
+          "stage_id": "regenerate_claim_gate_artifacts",
+          "required_before": "formal_claim_gate",
+          "command_kind": "known_builder",
+          "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_missing_artifacts_audit"
         }
       }
     },
