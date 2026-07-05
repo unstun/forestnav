@@ -176,6 +176,9 @@ def build_manifest(
     status_report_next_action_guard_summary = _status_report_next_action_guard_summary(status_report)
     handoff_single_next_action_index_summary = _handoff_single_next_action_index_summary(handoff_bundle or {})
     status_report_next_required_formal_deliverables = _status_report_next_required_formal_deliverables(status_report)
+    status_report_mainline_formal_gate_state_audit_summary = (
+        _status_report_mainline_formal_gate_state_audit_summary(status_report)
+    )
     formal_allowed = not formal_blockers
     prohibited = _prohibited_claims()
     allowed = _allowed_claims(
@@ -344,6 +347,21 @@ def build_manifest(
             ],
             "status_report_next_required_formal_deliverables_row_count": status_report_next_required_formal_deliverables[
                 "row_count"
+            ],
+            "status_report_mainline_audit_present": status_report_mainline_formal_gate_state_audit_summary[
+                "present"
+            ],
+            "status_report_mainline_audit_status": status_report_mainline_formal_gate_state_audit_summary[
+                "status"
+            ],
+            "status_report_mainline_audit_issue_count": status_report_mainline_formal_gate_state_audit_summary[
+                "audit_issue_count"
+            ],
+            "status_report_mainline_audit_proof_summary_issue_count": status_report_mainline_formal_gate_state_audit_summary[
+                "proof_summary_chain_audit_issue_count"
+            ],
+            "status_report_mainline_audit_proof_audit_input_safety_issue_count": status_report_mainline_formal_gate_state_audit_summary[
+                "proof_summary_chain_proof_audit_input_safety_issue_count"
             ],
             "status_report_handoff_status": status_report_handoff_summary["status"],
             "status_report_transition_gate_status": status_report_handoff_summary["transition_gate_status"],
@@ -522,6 +540,9 @@ def build_manifest(
         "status_report_next_action_guard_summary": status_report_next_action_guard_summary,
         "handoff_single_next_action_index_summary": handoff_single_next_action_index_summary,
         "status_report_next_required_formal_deliverables": status_report_next_required_formal_deliverables,
+        "status_report_mainline_formal_gate_state_audit_summary": (
+            status_report_mainline_formal_gate_state_audit_summary
+        ),
         "status_report_remote_gate_summary": status_report_remote_gate_summary,
         "allowed_claims": allowed,
         "conditional_claims": _conditional_claims(),
