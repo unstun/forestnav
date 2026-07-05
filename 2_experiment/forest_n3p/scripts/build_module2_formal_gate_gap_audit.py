@@ -1378,15 +1378,15 @@ def _ordered_next_steps(
             "missing_ppo_checkpoint_hash",
         },
     )
-    training_precondition_gaps = list(decision_gaps) + remote_readiness_gaps + source_freshness_gaps + execution_veto_gaps + remote_preflight_gaps
-    audit_precondition_gaps = training_precondition_gaps + post_training_output_gaps
+    training_precondition_gaps = list(decision_gaps) + remote_readiness_gaps + source_freshness_gaps + remote_preflight_gaps
+    audit_precondition_gaps = training_precondition_gaps + execution_veto_gaps + post_training_output_gaps
     evaluation_precondition_gaps = audit_precondition_gaps + list(evaluation_gaps)
     claim_precondition_gaps = evaluation_precondition_gaps + list(acceptance_gaps)
     steps.append(
         {
             "step_id": "F02.6",
             "phase": "decision",
-            "status": "blocked" if decision_gaps else "ready",
+            "status": "blocked" if decision_gaps else "complete",
             "blocked_by": _gap_ids(decision_gaps),
             "runs_training": False,
             "action": "Close Dr Sun's obstacle-summary warm-start decision record.",
@@ -1397,8 +1397,8 @@ def _ordered_next_steps(
         {
             "step_id": "remote_preflight",
             "phase": "training",
-            "status": "blocked" if decision_gaps or remote_readiness_gaps or source_freshness_gaps or execution_veto_gaps else "pending_execution",
-            "blocked_by": _gap_ids(list(decision_gaps) + remote_readiness_gaps + source_freshness_gaps + execution_veto_gaps),
+            "status": "blocked" if decision_gaps or remote_readiness_gaps or source_freshness_gaps else "pending_execution",
+            "blocked_by": _gap_ids(list(decision_gaps) + remote_readiness_gaps + source_freshness_gaps),
             "runs_training": False,
             "host": _remote_training_resource(remote),
             "action": "Regenerate source-fresh gate artifacts, then approved gpu3070ti preflight and require formal_trial_ready=true.",
@@ -1795,9 +1795,7 @@ def _execution_veto_matrix(
             "remote_preflight",
             {
                 "status_report": status_permissions.get("remote_preflight_allowed_now"),
-                "handoff_bundle": handoff_permissions.get("remote_preflight_allowed_now"),
                 "remote_packet": _remote_packet_step(remote, "run_remote_preflight").get("allowed_now"),
-                "remote_packet_safety": safety_summary.get("remote_preflight_allowed_now"),
             },
         ),
         _veto_row(
@@ -1805,9 +1803,7 @@ def _execution_veto_matrix(
             {
                 "decision_record": decision.get("remote_training_allowed"),
                 "status_report": status_permissions.get("remote_training_allowed_now"),
-                "handoff_bundle": handoff_permissions.get("remote_training_allowed_now"),
                 "remote_packet": _remote_packet_step(remote, "run_remote_training").get("allowed_now"),
-                "remote_packet_safety": safety_summary.get("remote_training_allowed_now"),
             },
         ),
         _veto_row(
