@@ -31,6 +31,7 @@ MODULE2_GATE_ARTIFACTS = (
     "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
     "0_trials/module2_formal_gate_failure_triage/formal_gate_failure_triage.json",
     "0_trials/module2_formal_gate_next_round_requirements/formal_gate_next_round_requirements.json",
+    "0_trials/module2_formal_gate_contract_intake/formal_gate_contract_intake.json",
     "0_trials/module2_source_freshness_audit/source_freshness_audit.json",
 )
 
