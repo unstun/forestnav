@@ -21,6 +21,14 @@ DEFAULT_PROOF_SUMMARY_CHAIN_AUDIT = Path(
 )
 
 CURRENT_STATE_MARKER = "当前 formal gate 下一步清单已同步到主任务书"
+EXPECTED_DECISION_EVIDENCE_MATRIX_ID = "module2_f02_6_decision_evidence_matrix"
+EXPECTED_DECISION_EVIDENCE_MATRIX_STATUS = "ready_for_dr_sun_decision_not_authorization"
+EXPECTED_DECISION_EVIDENCE_MATRIX_ROUTES = (
+    "approve_obstacle_summary_warm_start",
+    "reject_obstacle_summary_warm_start",
+)
+MIN_REQUIRED_DECISION_EVIDENCE_ROWS = 7
+MIN_GLOBAL_INVALID_SUBSTITUTE_ROWS = 4
 REQUIRED_CURRENT_BOUNDARY_TOKENS = (
     "local training",
     "remote preflight",
@@ -36,6 +44,14 @@ FORBIDDEN_CURRENT_ALLOWED_TOKENS = (
     "formal_claim_allowed=true",
     "paper_result_material_allowed=true",
     "formal_result_material_allowed=true",
+)
+DECISION_EVIDENCE_MATRIX_ALLOWED_KEYS = (
+    "current_authorization_allowed_now",
+    "remote_preflight_allowed_now",
+    "remote_training_allowed_now",
+    "local_training_allowed_now",
+    "formal_claim_allowed_now",
+    "paper_result_material_allowed_now",
 )
 
 
@@ -84,6 +100,9 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
     proof_chain = _read_json(config.proof_summary_chain_audit_path)
     next_action_guard = _normalize_next_action_guard(status_report.get("next_action_guard_summary"))
     next_required = _normalize_next_required_deliverables(status_report.get("next_required_formal_deliverables"))
+    decision_matrix = _normalize_decision_evidence_matrix_summary(
+        status_report.get("f02_6_decision_evidence_matrix_summary")
+    )
     current_section = _current_section(mainline_text)
     deliverable_rows = _deliverable_rows(next_required, mainline_text=mainline_text, current_section=current_section)
     issues = (
@@ -92,10 +111,12 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
             current_section=current_section,
             next_action_guard=next_action_guard,
             next_required=next_required,
+            decision_matrix=decision_matrix,
             deliverable_rows=deliverable_rows,
             proof_chain=proof_chain,
         )
         + _status_report_issues(next_action_guard=next_action_guard, next_required=next_required)
+        + _decision_evidence_matrix_issues(decision_matrix)
         + _proof_chain_issues(proof_chain)
     )
     issues = _unique_issues(issues)
@@ -131,6 +152,13 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
         "next_required_formal_deliverables_status": next_required["status"],
         "total_missing_deliverables": next_required["total_missing_deliverables"],
         "blocked_category_count": next_required["blocked_category_count"],
+        "f02_6_decision_evidence_matrix_summary": decision_matrix,
+        "f02_6_decision_evidence_matrix_mentioned": decision_matrix["matrix_id"] in current_section,
+        "f02_6_decision_evidence_matrix_status_mentioned": decision_matrix["status"] in current_section,
+        "f02_6_decision_evidence_matrix_route_mentions": [
+            {"route_decision": route, "mentioned": route in current_section}
+            for route in EXPECTED_DECISION_EVIDENCE_MATRIX_ROUTES
+        ],
         "mainline_missing_deliverable_mention_count": sum(1 for row in deliverable_rows if not row["mentioned"]),
         "deliverable_rows": deliverable_rows,
         "deliverable_rows_by_matrix_id": {row["matrix_id"]: row for row in deliverable_rows},
@@ -187,6 +215,7 @@ def _mainline_issues(
     current_section: str,
     next_action_guard: dict[str, Any],
     next_required: dict[str, Any],
+    decision_matrix: dict[str, Any],
     deliverable_rows: Sequence[dict[str, Any]],
     proof_chain: dict[str, Any],
 ) -> list[dict[str, Any]]:
@@ -235,6 +264,38 @@ def _mainline_issues(
                     "token": token,
                 }
             )
+    if decision_matrix["matrix_id"] and decision_matrix["matrix_id"] not in current_section:
+        issues.append(
+            {
+                "issue_id": "mainline_current_section_missing_decision_evidence_matrix",
+                "message": "Current formal-gate section must mention the F02.6 decision evidence matrix id.",
+                "matrix_id": decision_matrix["matrix_id"],
+            }
+        )
+    if decision_matrix["status"] and decision_matrix["status"] not in current_section:
+        issues.append(
+            {
+                "issue_id": "mainline_current_section_missing_decision_evidence_matrix_status",
+                "message": "Current formal-gate section must mention that the F02.6 matrix is a decision aid, not authorization.",
+                "matrix_status": decision_matrix["status"],
+            }
+        )
+    for route_decision in EXPECTED_DECISION_EVIDENCE_MATRIX_ROUTES:
+        if route_decision not in current_section:
+            issues.append(
+                {
+                    "issue_id": f"mainline_current_section_missing_decision_route_{_safe_id(route_decision)}",
+                    "message": "Current formal-gate section must mention both F02.6 decision routes.",
+                    "route_decision": route_decision,
+                }
+            )
+    if "invalid substitutes" not in current_section:
+        issues.append(
+            {
+                "issue_id": "mainline_current_section_missing_invalid_substitutes_boundary",
+                "message": "Current formal-gate section must mention invalid substitutes so the decision matrix is not treated as weak evidence.",
+            }
+        )
     proof_status = str(proof_chain.get("status", ""))
     if proof_status and proof_status not in mainline_text:
         issues.append(
@@ -251,6 +312,106 @@ def _mainline_issues(
                 "message": "Normalized deliverable row count must match total missing deliverables.",
                 "total_missing_deliverables": next_required["total_missing_deliverables"],
                 "row_count": len(deliverable_rows),
+            }
+        )
+    return issues
+
+
+def _decision_evidence_matrix_issues(decision_matrix: dict[str, Any]) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    if not decision_matrix["present"]:
+        issues.append(
+            {
+                "issue_id": "status_report_decision_evidence_matrix_missing",
+                "message": "Status report must expose the F02.6 decision evidence matrix summary.",
+            }
+        )
+    if decision_matrix["matrix_id"] != EXPECTED_DECISION_EVIDENCE_MATRIX_ID:
+        issues.append(
+            {
+                "issue_id": "status_report_decision_evidence_matrix_id_drift",
+                "message": "Status report decision evidence matrix id must remain the F02.6 matrix.",
+                "observed_matrix_id": decision_matrix["matrix_id"],
+            }
+        )
+    if decision_matrix["status"] != EXPECTED_DECISION_EVIDENCE_MATRIX_STATUS:
+        issues.append(
+            {
+                "issue_id": "status_report_decision_evidence_matrix_status_drift",
+                "message": "Decision evidence matrix must remain a decision aid, not authorization.",
+                "observed_status": decision_matrix["status"],
+            }
+        )
+    if decision_matrix["route_count"] != len(EXPECTED_DECISION_EVIDENCE_MATRIX_ROUTES):
+        issues.append(
+            {
+                "issue_id": "status_report_decision_evidence_matrix_route_count_drift",
+                "message": "Decision evidence matrix must retain the approve and reject routes.",
+                "observed_route_count": decision_matrix["route_count"],
+            }
+        )
+    missing_routes = [
+        route for route in EXPECTED_DECISION_EVIDENCE_MATRIX_ROUTES if route not in decision_matrix["route_decisions"]
+    ]
+    if missing_routes:
+        issues.append(
+            {
+                "issue_id": "status_report_decision_evidence_matrix_missing_routes",
+                "message": "Decision evidence matrix must retain both F02.6 route decisions.",
+                "missing_routes": missing_routes,
+            }
+        )
+    if decision_matrix["required_evidence_count"] < MIN_REQUIRED_DECISION_EVIDENCE_ROWS:
+        issues.append(
+            {
+                "issue_id": "status_report_decision_evidence_matrix_too_few_required_rows",
+                "message": "Decision evidence matrix must retain the full required evidence basis.",
+                "required_evidence_count": decision_matrix["required_evidence_count"],
+            }
+        )
+    if decision_matrix["satisfied_required_evidence_count"] != decision_matrix["required_evidence_count"]:
+        issues.append(
+            {
+                "issue_id": "status_report_decision_evidence_matrix_unsatisfied_required_rows",
+                "message": "Decision evidence matrix must not hide unsatisfied required evidence rows.",
+                "required_evidence_count": decision_matrix["required_evidence_count"],
+                "satisfied_required_evidence_count": decision_matrix["satisfied_required_evidence_count"],
+            }
+        )
+    if decision_matrix["missing_required_evidence_count"] != 0:
+        issues.append(
+            {
+                "issue_id": "status_report_decision_evidence_matrix_missing_required_evidence",
+                "message": "Decision evidence matrix cannot be mirrored into the mainline while required evidence is missing.",
+                "missing_required_evidence_count": decision_matrix["missing_required_evidence_count"],
+                "missing_required_evidence_ids": decision_matrix["missing_required_evidence_ids"],
+            }
+        )
+    if decision_matrix["source_issue_count"] != 0:
+        issues.append(
+            {
+                "issue_id": "status_report_decision_evidence_matrix_source_issues_open",
+                "message": "Decision evidence matrix cannot be mirrored while source integrity issues are open.",
+                "source_issue_count": decision_matrix["source_issue_count"],
+            }
+        )
+    if decision_matrix["global_invalid_substitute_count"] < MIN_GLOBAL_INVALID_SUBSTITUTE_ROWS:
+        issues.append(
+            {
+                "issue_id": "status_report_decision_evidence_matrix_invalid_substitutes_missing",
+                "message": "Decision evidence matrix must retain invalid substitutes so weak evidence is rejected.",
+                "global_invalid_substitute_count": decision_matrix["global_invalid_substitute_count"],
+            }
+        )
+    allowed_leaks = [
+        key for key in DECISION_EVIDENCE_MATRIX_ALLOWED_KEYS if decision_matrix["authorization_flags"].get(key) is True
+    ]
+    if allowed_leaks:
+        issues.append(
+            {
+                "issue_id": "status_report_decision_evidence_matrix_authorization_leak",
+                "message": "Decision evidence matrix must not authorize training, preflight, claims, or paper-result material.",
+                "allowed_leaks": allowed_leaks,
             }
         )
     return issues
@@ -473,6 +634,31 @@ def _normalize_next_required_deliverables(raw: Any) -> dict[str, Any]:
     }
 
 
+def _normalize_decision_evidence_matrix_summary(raw: Any) -> dict[str, Any]:
+    raw = raw if isinstance(raw, dict) else {}
+    authorization_flags = {key: raw.get(key) for key in DECISION_EVIDENCE_MATRIX_ALLOWED_KEYS}
+    return {
+        "present": bool(raw.get("present")) if "present" in raw else bool(raw),
+        "matrix_id": raw.get("matrix_id"),
+        "status": raw.get("status"),
+        "route_count": int(raw.get("route_count") or 0),
+        "route_decisions": _strings(raw.get("route_decisions")),
+        "required_evidence_count": int(raw.get("required_evidence_count") or 0),
+        "satisfied_required_evidence_count": int(raw.get("satisfied_required_evidence_count") or 0),
+        "missing_required_evidence_count": int(raw.get("missing_required_evidence_count") or 0),
+        "missing_required_evidence_ids": _strings(raw.get("missing_required_evidence_ids")),
+        "source_issue_count": int(raw.get("source_issue_count") or 0),
+        "global_invalid_substitute_count": int(raw.get("global_invalid_substitute_count") or 0),
+        "authorization_flags": authorization_flags,
+        "evidence_counts_by_route": raw.get("evidence_counts_by_route")
+        if isinstance(raw.get("evidence_counts_by_route"), dict)
+        else {},
+        "invalid_substitute_counts_by_route": raw.get("invalid_substitute_counts_by_route")
+        if isinstance(raw.get("invalid_substitute_counts_by_route"), dict)
+        else {},
+    }
+
+
 def _strings(value: Any) -> list[str]:
     if not isinstance(value, list):
         return []
@@ -491,6 +677,12 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- expected_next_action_mentioned: `{manifest['expected_next_action_mentioned']}`",
         f"- total_missing_deliverables: `{manifest['total_missing_deliverables']}`",
         f"- mainline_missing_deliverable_mention_count: `{manifest['mainline_missing_deliverable_mention_count']}`",
+        "- f02_6_decision_evidence_matrix_summary: "
+        f"`{manifest['f02_6_decision_evidence_matrix_summary']}`",
+        "- f02_6_decision_evidence_matrix_mentioned: "
+        f"`{manifest['f02_6_decision_evidence_matrix_mentioned']}`",
+        "- f02_6_decision_evidence_matrix_status_mentioned: "
+        f"`{manifest['f02_6_decision_evidence_matrix_status_mentioned']}`",
         f"- proof_summary_chain_status: `{manifest['proof_summary_chain_status']}`",
         "- proof_summary_handoff_single_next_action_consistency: "
         f"`{manifest['proof_summary_handoff_single_next_action_consistency']}`",
@@ -513,6 +705,18 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- `{row['matrix_id']}`: artifact_id=`{row['artifact_id']}`, mentioned=`{row['mentioned']}`, "
             f"mentioned_in_current_section=`{row['mentioned_in_current_section']}`"
         )
+    lines.extend(["", "## F02.6 Decision Evidence Matrix", ""])
+    decision_matrix = manifest["f02_6_decision_evidence_matrix_summary"]
+    lines.extend(
+        [
+            f"- matrix_id: `{decision_matrix['matrix_id']}`",
+            f"- status: `{decision_matrix['status']}`",
+            f"- route_count: `{decision_matrix['route_count']}`",
+            f"- required_evidence_count: `{decision_matrix['required_evidence_count']}`",
+            f"- missing_required_evidence_count: `{decision_matrix['missing_required_evidence_count']}`",
+            f"- authorization_flags: `{decision_matrix['authorization_flags']}`",
+        ]
+    )
     lines.extend(["", "## Current Boundary Tokens", ""])
     for row in manifest["current_boundary_tokens"]:
         lines.append(f"- `{row['token']}`: mentioned=`{row['mentioned']}`")
