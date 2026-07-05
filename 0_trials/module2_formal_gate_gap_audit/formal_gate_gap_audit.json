@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_gap_audit",
   "status": "blocked_formal_gate_gaps_open",
-  "created_at_utc": "2026-07-04T23:51:33.198715+00:00",
-  "source_head": "aa814ebef2258443346712aebec65994deb80e8e+dirty",
+  "created_at_utc": "2026-07-05T00:22:43.057154+00:00",
+  "source_head": "9949fa4b4797c875818487289ddf378efc141402",
   "not_paper_result_material": true,
   "local_training_allowed": false,
   "remote_training_resource": "gpu3070ti-relay",
@@ -36,10 +36,8 @@
     "formal_claim_allowed": false,
     "regeneration_required_before_remote_formal_execution": true,
     "risk_counts": {
-      "historical_dirty": 14,
-      "historical_clean": 2,
-      "current_dirty": 2,
-      "current_clean": 1
+      "historical_dirty": 15,
+      "historical_clean": 4
     },
     "ordered_regeneration_target_count": 19,
     "ordered_regeneration_targets": [
@@ -52,7 +50,7 @@
         "source_head_dirty": true,
         "source_commit_exists": true,
         "matches_current_head": false,
-        "current_head": "aa814ebef2258443346712aebec65994deb80e8e",
+        "current_head": "ee2708b90c38cde889f5155537ec60dbc2a0f5a4",
         "required_before": "approved_remote_preflight"
       },
       {
@@ -64,7 +62,7 @@
         "source_head_dirty": true,
         "source_commit_exists": true,
         "matches_current_head": false,
-        "current_head": "aa814ebef2258443346712aebec65994deb80e8e",
+        "current_head": "ee2708b90c38cde889f5155537ec60dbc2a0f5a4",
         "required_before": "approved_remote_preflight"
       },
       {
@@ -76,7 +74,7 @@
         "source_head_dirty": true,
         "source_commit_exists": true,
         "matches_current_head": false,
-        "current_head": "aa814ebef2258443346712aebec65994deb80e8e",
+        "current_head": "ee2708b90c38cde889f5155537ec60dbc2a0f5a4",
         "required_before": "approved_remote_preflight"
       },
       {
@@ -88,7 +86,7 @@
         "source_head_dirty": true,
         "source_commit_exists": true,
         "matches_current_head": false,
-        "current_head": "aa814ebef2258443346712aebec65994deb80e8e",
+        "current_head": "ee2708b90c38cde889f5155537ec60dbc2a0f5a4",
         "required_before": "approved_remote_preflight"
       },
       {
@@ -100,31 +98,31 @@
         "source_head_dirty": true,
         "source_commit_exists": true,
         "matches_current_head": false,
-        "current_head": "aa814ebef2258443346712aebec65994deb80e8e",
+        "current_head": "ee2708b90c38cde889f5155537ec60dbc2a0f5a4",
         "required_before": "approved_remote_preflight"
       },
       {
         "artifact_id": "formal_gate_gap_audit",
         "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
-        "freshness_state": "current_dirty",
+        "freshness_state": "historical_dirty",
         "source_head": "aa814ebef2258443346712aebec65994deb80e8e+dirty",
         "source_commit": "aa814ebef2258443346712aebec65994deb80e8e",
         "source_head_dirty": true,
         "source_commit_exists": true,
-        "matches_current_head": true,
-        "current_head": "aa814ebef2258443346712aebec65994deb80e8e",
+        "matches_current_head": false,
+        "current_head": "ee2708b90c38cde889f5155537ec60dbc2a0f5a4",
         "required_before": "approved_remote_preflight"
       },
       {
         "artifact_id": "formal_gate_handoff_bundle",
         "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
-        "freshness_state": "current_clean",
-        "source_head": "aa814ebef2258443346712aebec65994deb80e8e",
-        "source_commit": "aa814ebef2258443346712aebec65994deb80e8e",
+        "freshness_state": "historical_clean",
+        "source_head": "86bf7aaccb1e49aecf5ad3b249b63ac4c555dab4",
+        "source_commit": "86bf7aaccb1e49aecf5ad3b249b63ac4c555dab4",
         "source_head_dirty": false,
         "source_commit_exists": true,
-        "matches_current_head": true,
-        "current_head": "aa814ebef2258443346712aebec65994deb80e8e",
+        "matches_current_head": false,
+        "current_head": "ee2708b90c38cde889f5155537ec60dbc2a0f5a4",
         "required_before": "approved_remote_preflight"
       },
       {
@@ -136,19 +134,19 @@
         "source_head_dirty": false,
         "source_commit_exists": true,
         "matches_current_head": false,
-        "current_head": "aa814ebef2258443346712aebec65994deb80e8e",
+        "current_head": "ee2708b90c38cde889f5155537ec60dbc2a0f5a4",
         "required_before": "approved_remote_preflight"
       },
       {
         "artifact_id": "post_f02_6_plan_audit",
         "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
         "freshness_state": "historical_dirty",
-        "source_head": "858ece7f044510d35900ae0fa133b33e375e3dcf+dirty",
-        "source_commit": "858ece7f044510d35900ae0fa133b33e375e3dcf",
+        "source_head": "aa814ebef2258443346712aebec65994deb80e8e+dirty",
+        "source_commit": "aa814ebef2258443346712aebec65994deb80e8e",
         "source_head_dirty": true,
         "source_commit_exists": true,
         "matches_current_head": false,
-        "current_head": "aa814ebef2258443346712aebec65994deb80e8e",
+        "current_head": "ee2708b90c38cde889f5155537ec60dbc2a0f5a4",
         "required_before": "approved_remote_preflight"
       },
       {
@@ -160,7 +158,7 @@
         "source_head_dirty": true,
         "source_commit_exists": true,
         "matches_current_head": false,
-        "current_head": "aa814ebef2258443346712aebec65994deb80e8e",
+        "current_head": "ee2708b90c38cde889f5155537ec60dbc2a0f5a4",
         "required_before": "approved_remote_preflight"
       },
       {
@@ -172,7 +170,7 @@
         "source_head_dirty": true,
         "source_commit_exists": true,
         "matches_current_head": false,
-        "current_head": "aa814ebef2258443346712aebec65994deb80e8e",
+        "current_head": "ee2708b90c38cde889f5155537ec60dbc2a0f5a4",
         "required_before": "approved_remote_preflight"
       },
       {
@@ -184,7 +182,7 @@
         "source_head_dirty": true,
         "source_commit_exists": true,
         "matches_current_head": false,
-        "current_head": "aa814ebef2258443346712aebec65994deb80e8e",
+        "current_head": "ee2708b90c38cde889f5155537ec60dbc2a0f5a4",
         "required_before": "formal_h01_h02"
       },
       {
@@ -196,19 +194,19 @@
         "source_head_dirty": true,
         "source_commit_exists": true,
         "matches_current_head": false,
-        "current_head": "aa814ebef2258443346712aebec65994deb80e8e",
+        "current_head": "ee2708b90c38cde889f5155537ec60dbc2a0f5a4",
         "required_before": "formal_h01_h02"
       },
       {
         "artifact_id": "claim_safety",
         "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
         "freshness_state": "historical_clean",
-        "source_head": "f21eb594fdd75e125e74c729ae4a5e751ad08407",
-        "source_commit": "f21eb594fdd75e125e74c729ae4a5e751ad08407",
+        "source_head": "d1e136a7e77379b15d9206f9d98c414e793c1533",
+        "source_commit": "d1e136a7e77379b15d9206f9d98c414e793c1533",
         "source_head_dirty": false,
         "source_commit_exists": true,
         "matches_current_head": false,
-        "current_head": "aa814ebef2258443346712aebec65994deb80e8e",
+        "current_head": "ee2708b90c38cde889f5155537ec60dbc2a0f5a4",
         "required_before": "formal_claim_gate"
       },
       {
@@ -220,7 +218,7 @@
         "source_head_dirty": true,
         "source_commit_exists": true,
         "matches_current_head": false,
-        "current_head": "aa814ebef2258443346712aebec65994deb80e8e",
+        "current_head": "ee2708b90c38cde889f5155537ec60dbc2a0f5a4",
         "required_before": "formal_claim_gate"
       },
       {
@@ -232,7 +230,7 @@
         "source_head_dirty": true,
         "source_commit_exists": true,
         "matches_current_head": false,
-        "current_head": "aa814ebef2258443346712aebec65994deb80e8e",
+        "current_head": "ee2708b90c38cde889f5155537ec60dbc2a0f5a4",
         "required_before": "formal_claim_gate"
       },
       {
@@ -244,31 +242,31 @@
         "source_head_dirty": true,
         "source_commit_exists": true,
         "matches_current_head": false,
-        "current_head": "aa814ebef2258443346712aebec65994deb80e8e",
+        "current_head": "ee2708b90c38cde889f5155537ec60dbc2a0f5a4",
         "required_before": "formal_claim_gate"
       },
       {
         "artifact_id": "formal_gate_status_report",
         "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
-        "freshness_state": "current_dirty",
-        "source_head": "aa814ebef2258443346712aebec65994deb80e8e+dirty",
-        "source_commit": "aa814ebef2258443346712aebec65994deb80e8e",
+        "freshness_state": "historical_dirty",
+        "source_head": "86bf7aaccb1e49aecf5ad3b249b63ac4c555dab4+dirty",
+        "source_commit": "86bf7aaccb1e49aecf5ad3b249b63ac4c555dab4",
         "source_head_dirty": true,
         "source_commit_exists": true,
-        "matches_current_head": true,
-        "current_head": "aa814ebef2258443346712aebec65994deb80e8e",
+        "matches_current_head": false,
+        "current_head": "ee2708b90c38cde889f5155537ec60dbc2a0f5a4",
         "required_before": "formal_claim_gate"
       },
       {
         "artifact_id": "paper_readiness",
         "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
-        "freshness_state": "historical_dirty",
-        "source_head": "68a4a448fbeecc0e6ee1d8db5e973b64ce6d8f78+dirty",
-        "source_commit": "68a4a448fbeecc0e6ee1d8db5e973b64ce6d8f78",
-        "source_head_dirty": true,
+        "freshness_state": "historical_clean",
+        "source_head": "21905c71383680b02db6c383db664025a0794300",
+        "source_commit": "21905c71383680b02db6c383db664025a0794300",
+        "source_head_dirty": false,
         "source_commit_exists": true,
         "matches_current_head": false,
-        "current_head": "aa814ebef2258443346712aebec65994deb80e8e",
+        "current_head": "ee2708b90c38cde889f5155537ec60dbc2a0f5a4",
         "required_before": "formal_claim_gate"
       }
     ]
@@ -796,8 +794,8 @@
     "remote_audit_allowed_now": false,
     "claim_gate_command_index_summary": {
       "present": true,
-      "index_row_count": 18,
-      "source_target_count": 18,
+      "index_row_count": 19,
+      "source_target_count": 19,
       "missing_target_ids": [],
       "unknown_manual_count": 0,
       "unknown_manual_ids": [],
