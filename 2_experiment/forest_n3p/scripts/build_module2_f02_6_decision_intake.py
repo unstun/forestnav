@@ -604,9 +604,32 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- remote_training_allowed_now: `{state['status_report_remote_training_allowed_now']}`",
         f"- formal_claim_allowed_now: `{state['status_report_formal_claim_allowed_now']}`",
         "",
-        "## Required Fields",
+        "## Next Human Decision Request",
         "",
     ]
+    request = manifest["next_human_decision_request"]
+    lines.append(f"- status: `{request['status']}`")
+    lines.append(f"- decision_owner_required: `{request['decision_owner_required']}`")
+    lines.append(f"- valid_decisions: `{', '.join(request['valid_decisions'])}`")
+    lines.append(f"- required_record_fields: `{', '.join(request['required_record_fields'])}`")
+    lines.append(f"- current_allowed_action_ids: `{', '.join(request['current_allowed_action_ids'])}`")
+    lines.append(f"- current_blocked_action_ids: `{', '.join(request['current_blocked_action_ids'])}`")
+    lines.append(
+        f"- post_decision_routes_are_current_authorization: `{request['post_decision_routes_are_current_authorization']}`"
+    )
+    lines.append(f"- all_execution_disabled_now: `{request['all_execution_disabled_now']}`")
+    for decision, route in request["route_effects"].items():
+        lines.append(
+            f"- `{decision}`: next_lane_after_record=`{route['next_lane_after_record']}`, "
+            f"remote_preflight_now=`{route['allows_remote_preflight_now']}`, "
+            f"remote_training_now=`{route['allows_remote_training_now']}`, "
+            f"formal_claim_now=`{route['allows_formal_claim_now']}`"
+        )
+    lines.extend([
+        "",
+        "## Required Fields",
+        "",
+    ])
     for field in manifest["decision_intake_contract"]["required_record_fields_for_non_pending_decision"]:
         rule = manifest["decision_intake_contract"]["field_rules"][field]
         lines.append(f"- `{field}`: {rule}")
