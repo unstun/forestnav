@@ -122,6 +122,11 @@ def test_protocol_lane_status_report_cli_writes_json_and_markdown(tmp_path):
     assert "not paper result material" in markdown
     assert "record_protocol_lane_decision" in markdown
     assert "remote_success_training" in markdown
+    assert "paper_result_material_allowed_now: `False`" in markdown
+    assert "new_success_training_allowed_now: `False`" in markdown
+    assert "draft_contract_allows_training: `False`" in markdown
+    assert "Claim Boundaries" in markdown
+    assert "Current allowed actions do not include local training, remote training, formal claims, or paper result material." in markdown
 
 
 def _config(tmp_path, *, recorded):
