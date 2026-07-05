@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_claim_safety",
   "status": "blocked_formal_performance_claims",
-  "created_at_utc": "2026-07-05T07:53:47.554546+00:00",
-  "source_head": "429271d516bc45bb9d823b7092e70c80fd7ab584",
+  "created_at_utc": "2026-07-05T08:51:20.965126+00:00",
+  "source_head": "c3704f32027de19718c688215c32cff374c4aa90",
   "formal_performance_claim_allowed": false,
   "formal_performance_blockers": [
     "paper_tables_not_formal",
@@ -1327,13 +1327,13 @@
     },
     {
       "path": "2_experiment/forest_n3p/scripts/build_module2_h02_formal_acceptance.py",
-      "line": 112,
+      "line": 114,
       "symbol": "h02_formal_acceptance_gate",
       "pattern": "\"formal_output_accepted\": accepted"
     },
     {
       "path": "2_experiment/forest_n3p/scripts/build_module2_evaluation_manifest.py",
-      "line": 454,
+      "line": 456,
       "symbol": "h01_f02_6_guard",
       "pattern": "f02_6_decision_packet_pending"
     },
