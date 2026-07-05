@@ -943,6 +943,8 @@ def _claim_safety_decision_intake_summary(claim_safety: dict[str, Any]) -> dict[
     route_decisions = _string_list(summary.get("post_decision_route_decisions"))
     required_fields = _string_list(summary.get("required_record_fields"))
     impact_required = _string_list(summary.get("decision_impact_formal_training_still_requires"))
+    evidence_matrix = summary.get("decision_evidence_matrix_summary")
+    evidence_matrix = evidence_matrix if isinstance(evidence_matrix, dict) else {}
     return {
         "present": bool(summary),
         "status": summary.get("status"),
@@ -1014,6 +1016,45 @@ def _claim_safety_decision_intake_summary(claim_safety: dict[str, Any]) -> dict[
         if isinstance(summary.get("decision_impact_paper_result_material_allowed_now"), bool)
         else None,
         "decision_impact_formal_training_still_requires": impact_required,
+        "decision_evidence_matrix_summary": evidence_matrix,
+        "decision_evidence_matrix_present": bool(evidence_matrix.get("present")) or bool(evidence_matrix),
+        "decision_evidence_matrix_id": evidence_matrix.get("matrix_id"),
+        "decision_evidence_matrix_status": evidence_matrix.get("status"),
+        "decision_evidence_matrix_route_count": int(evidence_matrix.get("route_count") or 0),
+        "decision_evidence_matrix_route_decisions": _string_list(evidence_matrix.get("route_decisions")),
+        "decision_evidence_matrix_required_evidence_count": int(evidence_matrix.get("required_evidence_count") or 0),
+        "decision_evidence_matrix_missing_required_evidence_count": int(evidence_matrix.get("missing_required_evidence_count") or 0),
+        "decision_evidence_matrix_global_invalid_substitute_count": int(evidence_matrix.get("global_invalid_substitute_count") or 0),
+        "decision_evidence_matrix_current_authorization_allowed_now": evidence_matrix.get(
+            "current_authorization_allowed_now"
+        )
+        if isinstance(evidence_matrix.get("current_authorization_allowed_now"), bool)
+        else None,
+        "decision_evidence_matrix_remote_preflight_allowed_now": evidence_matrix.get(
+            "remote_preflight_allowed_now"
+        )
+        if isinstance(evidence_matrix.get("remote_preflight_allowed_now"), bool)
+        else None,
+        "decision_evidence_matrix_remote_training_allowed_now": evidence_matrix.get(
+            "remote_training_allowed_now"
+        )
+        if isinstance(evidence_matrix.get("remote_training_allowed_now"), bool)
+        else None,
+        "decision_evidence_matrix_local_training_allowed_now": evidence_matrix.get(
+            "local_training_allowed_now"
+        )
+        if isinstance(evidence_matrix.get("local_training_allowed_now"), bool)
+        else None,
+        "decision_evidence_matrix_formal_claim_allowed_now": evidence_matrix.get(
+            "formal_claim_allowed_now"
+        )
+        if isinstance(evidence_matrix.get("formal_claim_allowed_now"), bool)
+        else None,
+        "decision_evidence_matrix_paper_result_material_allowed_now": evidence_matrix.get(
+            "paper_result_material_allowed_now"
+        )
+        if isinstance(evidence_matrix.get("paper_result_material_allowed_now"), bool)
+        else None,
     }
 
 
