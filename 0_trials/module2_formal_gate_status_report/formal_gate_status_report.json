@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-05T10:28:26.763085+00:00",
-  "source_head": "d91a5dae78017e0c5e8b462e65202d9e85874300",
+  "created_at_utc": "2026-07-05T10:34:10.800899+00:00",
+  "source_head": "dba3e814501709a060634602359b81f469c058cb",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -155,10 +155,10 @@
     "remote_packet_safety_proof_next_blocked_lane": "decision",
     "remote_packet_safety_proof_h02_paper_result_input_allowed": false,
     "remote_packet_safety_status_report_proof_summary_present": true,
-    "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
-    "source_freshness_regeneration_required": true,
-    "source_freshness_blocking_regeneration_required": true,
-    "source_freshness_non_self_changed_records": 12,
+    "source_freshness_status": "source_freshness_clean_current",
+    "source_freshness_regeneration_required": false,
+    "source_freshness_blocking_regeneration_required": false,
+    "source_freshness_non_self_changed_records": 0,
     "source_freshness_self_artifact_only_lag_records": 0,
     "remote_packet_safety_command_index_present": true,
     "remote_packet_safety_command_index_row_count": 13,
@@ -175,7 +175,7 @@
     "formal_h02_acceptance_allowed_now": false,
     "formal_claim_allowed_now": false,
     "local_training_allowed_now": false,
-    "source_freshness_ready_for_remote_preflight": false
+    "source_freshness_ready_for_remote_preflight": true
   },
   "missing_counts_by_category": {
     "decision": 1,
@@ -938,9 +938,12 @@
         "responsible_stage_status": "blocked",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "missing_remote_audit_pullback"
+          "missing_remote_audit_pullback",
+          "source_fresh_h01_h02_targets_open"
         ],
         "responsible_stage_evidence_paths": [
+          "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
+          "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
           "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
         ],
         "mapping_present": true,
@@ -1048,7 +1051,7 @@
       "formal_h02_acceptance_allowed_now": false,
       "formal_claim_allowed_now": false,
       "remote_packet_ready_to_run_remote_training": false,
-      "source_freshness_ready_for_remote_preflight": false
+      "source_freshness_ready_for_remote_preflight": true
     },
     "rows": {
       "training:train_final_model_zip": {
@@ -2896,8 +2899,8 @@
         "train_training_manifest_json",
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
-        "source_freshness_regeneration_required",
         "remote_training_packet_not_ready",
+        "source_freshness_regeneration_required",
         "f02_6_decision_not_approved",
         "source_fresh_preflight_targets_open",
         "remote_packet_not_ready"
@@ -2941,11 +2944,11 @@
         "eval_gate3_summary_json",
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
-        "source_freshness_regeneration_required",
         "remote_training_packet_not_ready",
         "missing_remote_pullback_artifact",
         "missing_ppo_result_rows",
         "missing_ppo_checkpoint_hash",
+        "source_freshness_regeneration_required",
         "f02_6_decision_not_approved",
         "source_fresh_preflight_targets_open",
         "remote_packet_not_ready"
@@ -2998,7 +3001,6 @@
         "h02_formal_output_acceptance",
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
-        "source_freshness_regeneration_required",
         "remote_training_packet_not_ready",
         "missing_remote_pullback_artifact",
         "missing_ppo_result_rows",
@@ -3009,6 +3011,7 @@
         "h02_scale_below_h01_seed_count",
         "h02_scale_below_h01_queries_per_map",
         "h02_verdict_not_formal",
+        "source_freshness_regeneration_required",
         "missing_remote_audit_pullback",
         "source_fresh_h01_h02_targets_open"
       ],
@@ -3049,7 +3052,6 @@
         "h02_formal_acceptance_before_claim_gate",
         "f02_6_warm_start_decision_pending",
         "requires_dr_sun_approval",
-        "source_freshness_regeneration_required",
         "remote_training_packet_not_ready",
         "missing_remote_pullback_artifact",
         "missing_ppo_result_rows",
@@ -3068,6 +3070,7 @@
         "formal_gate_closure_checklist_open",
         "formal_gate_status_report_blocked",
         "formal_gate_remaining_deliverables_open",
+        "source_freshness_regeneration_required",
         "h02_formal_acceptance_not_ready",
         "source_fresh_claim_targets_open"
       ],

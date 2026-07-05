@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_handoff_bundle",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-05T10:28:26.871226+00:00",
-  "source_head": "d91a5dae78017e0c5e8b462e65202d9e85874300",
+  "created_at_utc": "2026-07-05T10:34:10.913538+00:00",
+  "source_head": "dba3e814501709a060634602359b81f469c058cb",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -34,10 +34,10 @@
     "h02_formal_output_accepted": false,
     "h02_paper_result_input_allowed": false,
     "next_blocked_lane": "decision",
-    "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
-    "source_freshness_regeneration_required": true,
-    "source_freshness_blocking_regeneration_required": true,
-    "source_freshness_non_self_changed_records": 12,
+    "source_freshness_status": "source_freshness_clean_current",
+    "source_freshness_regeneration_required": false,
+    "source_freshness_blocking_regeneration_required": false,
+    "source_freshness_non_self_changed_records": 0,
     "source_freshness_self_artifact_only_lag_records": 0
   },
   "permissions_now": {
@@ -49,7 +49,7 @@
     "formal_h02_acceptance_allowed_now": false,
     "formal_claim_allowed_now": false,
     "local_training_allowed_now": false,
-    "source_freshness_ready_for_remote_preflight": false
+    "source_freshness_ready_for_remote_preflight": true
   },
   "next_handoff_action": {
     "action_id": "record_f02_6_decision",
