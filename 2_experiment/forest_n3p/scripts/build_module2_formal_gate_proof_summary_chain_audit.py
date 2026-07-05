@@ -30,6 +30,9 @@ DEFAULT_REMOTE_PACKET_SAFETY_AUDIT = Path(
 DEFAULT_FORMAL_GATE_GAP_AUDIT = Path(
     "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json"
 )
+DEFAULT_FORMAL_GATE_HANDOFF_BUNDLE = Path(
+    "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json"
+)
 DEFAULT_CLAIM_SAFETY = Path("0_trials/module2_claim_safety/module2_claim_safety.json")
 DEFAULT_PAPER_READINESS = Path("0_trials/module2_paper_readiness/module2_paper_readiness.json")
 
@@ -54,6 +57,7 @@ class FormalGateProofSummaryChainAuditConfig:
     post_f02_6_plan_audit_path: Path = DEFAULT_POST_F02_6_PLAN_AUDIT
     remote_packet_safety_audit_path: Path = DEFAULT_REMOTE_PACKET_SAFETY_AUDIT
     formal_gate_gap_audit_path: Path = DEFAULT_FORMAL_GATE_GAP_AUDIT
+    formal_gate_handoff_bundle_path: Path = DEFAULT_FORMAL_GATE_HANDOFF_BUNDLE
     claim_safety_path: Path = DEFAULT_CLAIM_SAFETY
     paper_readiness_path: Path = DEFAULT_PAPER_READINESS
 
@@ -70,6 +74,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         post_f02_6_plan_audit_path=args.post_f02_6_plan_audit,
         remote_packet_safety_audit_path=args.remote_packet_safety_audit,
         formal_gate_gap_audit_path=args.formal_gate_gap_audit,
+        formal_gate_handoff_bundle_path=args.formal_gate_handoff_bundle,
         claim_safety_path=args.claim_safety,
         paper_readiness_path=args.paper_readiness,
     )
@@ -113,10 +118,15 @@ def build_manifest(config: FormalGateProofSummaryChainAuditConfig) -> dict[str, 
     next_required_deliverables_baseline_signature = (
         next_required_deliverables_rows[0]["signature"] if next_required_deliverables_rows else {}
     )
+    handoff_single_next_action_rows = _handoff_single_next_action_rows(config)
+    handoff_single_next_action_baseline_signature = (
+        handoff_single_next_action_rows[0]["signature"] if handoff_single_next_action_rows else {}
+    )
     issues = (
         _audit_issues(rows=rows, baseline_summary=baseline_summary)
         + _next_action_guard_issues(rows=next_action_guard_rows)
         + _next_required_deliverables_issues(rows=next_required_deliverables_rows)
+        + _handoff_single_next_action_issues(rows=handoff_single_next_action_rows)
     )
     proof_open = _proof_open(baseline_summary)
     if issues:
@@ -145,6 +155,7 @@ def build_manifest(config: FormalGateProofSummaryChainAuditConfig) -> dict[str, 
             "post_f02_6_plan_audit": str(config.post_f02_6_plan_audit_path),
             "remote_packet_safety_audit": str(config.remote_packet_safety_audit_path),
             "formal_gate_gap_audit": str(config.formal_gate_gap_audit_path),
+            "formal_gate_handoff_bundle": str(config.formal_gate_handoff_bundle_path),
             "claim_safety": str(config.claim_safety_path),
             "paper_readiness": str(config.paper_readiness_path),
         },
@@ -163,6 +174,10 @@ def build_manifest(config: FormalGateProofSummaryChainAuditConfig) -> dict[str, 
         "next_required_deliverables_consistent_row_count": sum(
             1 for row in next_required_deliverables_rows if row["signature_matches_baseline"]
         ),
+        "handoff_single_next_action_row_count": len(handoff_single_next_action_rows),
+        "handoff_single_next_action_consistent_row_count": sum(
+            1 for row in handoff_single_next_action_rows if row["signature_matches_baseline"]
+        ),
         "h02_paper_result_input_allowed": baseline_summary["h02_paper_result_input_allowed"],
         "audit_issue_count": len(issues),
         "audit_issues": issues,
@@ -174,11 +189,15 @@ def build_manifest(config: FormalGateProofSummaryChainAuditConfig) -> dict[str, 
         "next_required_deliverables_baseline_signature": next_required_deliverables_baseline_signature,
         "next_required_deliverables_rows": next_required_deliverables_rows,
         "next_required_deliverables_rows_by_id": {row["row_id"]: row for row in next_required_deliverables_rows},
+        "handoff_single_next_action_baseline_signature": handoff_single_next_action_baseline_signature,
+        "handoff_single_next_action_rows": handoff_single_next_action_rows,
+        "handoff_single_next_action_rows_by_id": {row["row_id"]: row for row in handoff_single_next_action_rows},
         "claim_boundaries": [
             "This audit is a local read-only consistency check over existing formal-gate summary fields.",
             "It does not execute proof commands, run training, run remote preflight, evaluate PPO, pull back artifacts, or write paper results.",
             "A consistent blocked chain only proves the downstream artifacts agree that the formal gate is still blocked.",
             "Next-action and next-required-deliverable consistency does not authorize the next action; it only checks that the artifacts agree on the current blocked lane.",
+            "Single-next-action consistency only proves the handoff pointer is mirrored; it is still not Dr Sun's F02.6 decision record.",
             "Formal PPO-vs-RS performance claims still require the missing training, evaluation, acceptance, and H01/H02 artifacts to be produced and audited.",
         ],
     }
@@ -197,6 +216,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--post-f02-6-plan-audit", type=Path, default=DEFAULT_POST_F02_6_PLAN_AUDIT)
     parser.add_argument("--remote-packet-safety-audit", type=Path, default=DEFAULT_REMOTE_PACKET_SAFETY_AUDIT)
     parser.add_argument("--formal-gate-gap-audit", type=Path, default=DEFAULT_FORMAL_GATE_GAP_AUDIT)
+    parser.add_argument("--formal-gate-handoff-bundle", type=Path, default=DEFAULT_FORMAL_GATE_HANDOFF_BUNDLE)
     parser.add_argument("--claim-safety", type=Path, default=DEFAULT_CLAIM_SAFETY)
     parser.add_argument("--paper-readiness", type=Path, default=DEFAULT_PAPER_READINESS)
     return parser.parse_args(list(argv) if argv is not None else None)
