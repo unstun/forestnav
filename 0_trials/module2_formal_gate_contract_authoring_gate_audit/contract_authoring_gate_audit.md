@@ -11,11 +11,41 @@ This file audits whether contract authoring may proceed; it is not paper result 
 - contract_approval_allowed_now: `False`
 - draft_contract_allows_training: `False`
 
+## Allowed Next Actions
+
+- allowed_next_action_ids:
+  - `record_protocol_lane_decision`
+
+## Blocked Actions
+
+- blocked_action_ids:
+  - `local_training`
+  - `remote_success_training`
+  - `remote_preflight_for_new_success_attempt`
+  - `formal_claim`
+  - `paper_result_material`
+
 ## Existing Contract
 
 - status: `approved`
 - version: `v1`
 - usable_for_new_success_attempt: `False`
+
+## Required Contract Sections
+- `protocol_lane`
+- `hypothesis`
+- `success_signal`
+- `failure_signal`
+- `protocol_delta_from_failed_run`
+- `training_budget_and_seed_policy`
+- `evaluation_and_acceptance_plan`
+- `paper_claim_boundary`
+
+## Claim Boundaries
+- This audit gates contract authoring after the protocol-lane decision; it does not draft or approve a contract.
+- The approved v1 contract is historical input only and cannot authorize a new success attempt after the failed warm-start Gate3 run.
+- A clean pending audit still blocks contract drafting, remote training, formal claims, and paper result material.
+- A recorded lane decision can only open contract drafting, not training; training still requires an approved/frozen new or revised contract plus later gates.
 
 ## Audit
 
