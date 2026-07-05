@@ -567,7 +567,8 @@ def _next_action_guard_issues(*, rows: Sequence[dict[str, Any]]) -> list[dict[st
                     "expected_signature": rows[0]["signature"] if rows else {},
                 }
             )
-        if row["status"] != "next_action_guard_passed":
+        pending_f02_6 = row["pending_f02_6_decision"] is True
+        if pending_f02_6 and row["status"] != "next_action_guard_passed":
             issues.append(
                 {
                     "issue_id": f"{row_id}_not_passed",
@@ -575,7 +576,20 @@ def _next_action_guard_issues(*, rows: Sequence[dict[str, Any]]) -> list[dict[st
                     "path": row["path"],
                 }
             )
-        if row["execution_leak_count"] > 0 or row["remote_execution_allowed_count"] > 0 or row["remote_stage_allowed_count"] > 0:
+        elif not pending_f02_6 and row["status"] not in {"next_action_guard_not_applicable", "next_action_guard_passed"}:
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_invalid_after_f02_6",
+                    "message": "After F02.6 closes, next-action guard should be not-applicable or passed.",
+                    "path": row["path"],
+                    "observed_status": row["status"],
+                }
+            )
+        if pending_f02_6 and (
+            row["execution_leak_count"] > 0
+            or row["remote_execution_allowed_count"] > 0
+            or row["remote_stage_allowed_count"] > 0
+        ):
             issues.append(
                 {
                     "issue_id": f"{row_id}_execution_leak",
@@ -670,16 +684,18 @@ def _handoff_single_next_action_issues(*, rows: Sequence[dict[str, Any]]) -> lis
                     "expected_signature": rows[0]["signature"] if rows else {},
                 }
             )
-        if row["status"] != "awaiting_dr_sun_f02_6_decision":
+        pending_f02_6 = row["status"] == "awaiting_dr_sun_f02_6_decision"
+        following_stages = row["status"] == "follow_handoff_stages"
+        if not pending_f02_6 and not following_stages:
             issues.append(
                 {
                     "issue_id": f"{row_id}_unexpected_status",
-                    "message": "Single-next-action summary must remain pending Dr Sun's F02.6 decision.",
+                    "message": "Single-next-action summary must either wait for F02.6 or follow post-decision handoff stages.",
                     "path": row["path"],
                     "observed_status": row["status"],
                 }
             )
-        if row["single_current_human_entry"] is not True:
+        if pending_f02_6 and row["single_current_human_entry"] is not True:
             issues.append(
                 {
                     "issue_id": f"{row_id}_not_single_human_entry",
@@ -687,7 +703,15 @@ def _handoff_single_next_action_issues(*, rows: Sequence[dict[str, Any]]) -> lis
                     "path": row["path"],
                 }
             )
-        if row["next_action_id"] != "record_f02_6_decision":
+        if following_stages and row["single_current_human_entry"] is not False:
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_post_approval_still_single_human_entry",
+                    "message": "Post-approval handoff should follow gated stages, not keep a human decision lane open.",
+                    "path": row["path"],
+                }
+            )
+        if pending_f02_6 and row["next_action_id"] != "record_f02_6_decision":
             issues.append(
                 {
                     "issue_id": f"{row_id}_unexpected_next_action",
@@ -696,7 +720,16 @@ def _handoff_single_next_action_issues(*, rows: Sequence[dict[str, Any]]) -> lis
                     "observed_next_action_id": row["next_action_id"],
                 }
             )
-        if row["decision_owner_required"] != "Dr Sun":
+        if following_stages and row["next_action_id"] != "manual_handoff_stage_review":
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_unexpected_post_approval_next_action",
+                    "message": "Post-approval handoff should point to manual review of the gated handoff stages.",
+                    "path": row["path"],
+                    "observed_next_action_id": row["next_action_id"],
+                }
+            )
+        if pending_f02_6 and row["decision_owner_required"] != "Dr Sun":
             issues.append(
                 {
                     "issue_id": f"{row_id}_unexpected_decision_owner",
@@ -705,7 +738,7 @@ def _handoff_single_next_action_issues(*, rows: Sequence[dict[str, Any]]) -> lis
                     "observed_decision_owner_required": row["decision_owner_required"],
                 }
             )
-        if row["current_allowed_action_ids"] != ["record_f02_6_decision"]:
+        if pending_f02_6 and row["current_allowed_action_ids"] != ["record_f02_6_decision"]:
             issues.append(
                 {
                     "issue_id": f"{row_id}_unexpected_allowed_actions",
@@ -714,7 +747,7 @@ def _handoff_single_next_action_issues(*, rows: Sequence[dict[str, Any]]) -> lis
                     "observed_current_allowed_action_ids": row["current_allowed_action_ids"],
                 }
             )
-        if not required_blocked.issubset(set(row["current_blocked_action_ids"])):
+        if pending_f02_6 and not required_blocked.issubset(set(row["current_blocked_action_ids"])):
             issues.append(
                 {
                     "issue_id": f"{row_id}_missing_blocked_actions",
@@ -731,7 +764,7 @@ def _handoff_single_next_action_issues(*, rows: Sequence[dict[str, Any]]) -> lis
                     "path": row["path"],
                 }
             )
-        if row["all_execution_disabled_now"] is not True:
+        if pending_f02_6 and row["all_execution_disabled_now"] is not True:
             issues.append(
                 {
                     "issue_id": f"{row_id}_execution_not_disabled",
@@ -741,8 +774,6 @@ def _handoff_single_next_action_issues(*, rows: Sequence[dict[str, Any]]) -> lis
             )
         for flag in (
             "local_training_allowed_now",
-            "remote_preflight_allowed_now",
-            "remote_training_allowed_now",
             "formal_claim_allowed_now",
             "paper_result_material_allowed_now",
         ):
