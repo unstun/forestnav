@@ -3922,6 +3922,23 @@ def _markdown(manifest: dict[str, Any]) -> str:
         lines.append(f"- remaining_{category}_missing_matrix_ids: `{joined}`")
     for command_id, result in proof_audit["results_by_id"].items():
         lines.append(f"- `{command_id}`: status=`{result['status']}`, matrix_id=`{result['matrix_id']}`")
+    mainline_audit = manifest["mainline_formal_gate_state_audit_summary"]
+    lines.extend(["", "## Mainline Formal Gate State Audit", ""])
+    lines.append(f"- present: `{mainline_audit['present']}`")
+    lines.append(f"- status: `{mainline_audit['status']}`")
+    lines.append(f"- audit_issue_count: `{mainline_audit['audit_issue_count']}`")
+    lines.append(f"- proof_summary_chain_status: `{mainline_audit['proof_summary_chain_status']}`")
+    lines.append(
+        f"- proof_summary_chain_audit_issue_count: `{mainline_audit['proof_summary_chain_audit_issue_count']}`"
+    )
+    lines.append(
+        "- proof_summary_chain_proof_audit_input_safety_issue_count: "
+        f"`{mainline_audit['proof_summary_chain_proof_audit_input_safety_issue_count']}`"
+    )
+    lines.append(
+        "- proof_summary_chain_proof_audit_blockers: "
+        f"`{', '.join(mainline_audit['proof_summary_chain_proof_audit_blockers'])}`"
+    )
     formal_gate_gap = manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]
     lines.extend(["", "## Formal Gate Gap Audit Remaining Deliverables Gap Summary", ""])
     lines.append(f"- present: `{formal_gate_gap['present']}`")
