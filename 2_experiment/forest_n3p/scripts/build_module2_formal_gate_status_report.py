@@ -182,6 +182,9 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
     remaining_deliverables_proof_command_plan = _remaining_deliverables_proof_command_plan(remaining_deliverables)
     formal_gate_proof_audit_summary = _formal_gate_proof_audit_summary(formal_gate_proof_audit)
     formal_gate_proof_audit_gap_summary = _formal_gate_proof_audit_gap_summary(formal_gate_proof_audit_summary)
+    formal_gate_proof_audit_missing_evidence_summary = formal_gate_proof_audit_summary[
+        "missing_evidence_summary"
+    ]
     next_action_guard_summary = _next_action_guard_summary(
         decision=decision,
         decision_intake_summary=decision_intake_summary,
@@ -403,6 +406,26 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "formal_gate_proof_audit_failed_acceptance_artifact_count": formal_gate_proof_audit_gap_summary[
                 "failed_acceptance_artifact_count"
             ],
+            "formal_gate_proof_audit_training_missing_artifact_count": _missing_evidence_count(
+                formal_gate_proof_audit_missing_evidence_summary,
+                "training",
+                "missing_artifact_ids",
+            ),
+            "formal_gate_proof_audit_evaluation_missing_artifact_count": _missing_evidence_count(
+                formal_gate_proof_audit_missing_evidence_summary,
+                "evaluation",
+                "missing_artifact_ids",
+            ),
+            "formal_gate_proof_audit_acceptance_missing_artifact_count": _missing_evidence_count(
+                formal_gate_proof_audit_missing_evidence_summary,
+                "acceptance",
+                "missing_artifact_ids",
+            ),
+            "formal_gate_proof_audit_formal_acceptance_failed_artifact_count": _missing_evidence_count(
+                formal_gate_proof_audit_missing_evidence_summary,
+                "formal_acceptance",
+                "failed_artifact_ids",
+            ),
             "handoff_bundle_next_action": handoff_summary["next_handoff_action_id"],
             "handoff_bundle_safety_issue_count": handoff_summary["safety_issue_count"],
             "handoff_bundle_remote_training_allowed_now": handoff_summary["remote_training_allowed_now"],
@@ -464,6 +487,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "remaining_deliverables_proof_command_plan": remaining_deliverables_proof_command_plan,
         "formal_gate_proof_audit_summary": formal_gate_proof_audit_summary,
         "formal_gate_proof_audit_gap_summary": formal_gate_proof_audit_gap_summary,
+        "formal_gate_proof_audit_missing_evidence_summary": formal_gate_proof_audit_missing_evidence_summary,
         "next_action_guard_summary": next_action_guard_summary,
         "formal_gate_gap_audit_remaining_deliverables_gap_summary": (
             formal_gate_gap_audit_remaining_deliverables_gap_summary
