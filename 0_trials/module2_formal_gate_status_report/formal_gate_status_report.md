@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `9949fa4b4797c875818487289ddf378efc141402+dirty`
+- source_head: `9af2ba3aeaadc49853c989079792632d7f2a55b6`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -83,6 +83,10 @@ This file is a read-only formal-gate status report. It does not execute commands
 - formal_gate_execution_veto_formal_claim_allowed_now: `False`
 - formal_gate_gap_audit_remaining_total_missing_deliverables: `10`
 - formal_gate_gap_audit_remaining_open_category_count: `4`
+- source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
+- source_freshness_regeneration_required: `True`
+- source_freshness_non_self_changed_records: `18`
+- source_freshness_self_artifact_only_lag_records: `1`
 - remote_packet_safety_command_index_present: `True`
 - remote_packet_safety_command_index_row_count: `19`
 - remote_packet_safety_command_index_source_target_count: `19`
