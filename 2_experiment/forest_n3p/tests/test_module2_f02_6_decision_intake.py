@@ -57,6 +57,31 @@ def test_f02_6_decision_intake_pending_clean_lists_required_human_fields(tmp_pat
     assert state["remaining_remote_training_allowed_now"] is False
     assert manifest["decision_intake_contract"]["decision_owner_required"] == "Dr Sun"
     assert "decision_note" in manifest["decision_intake_contract"]["required_record_fields_for_non_pending_decision"]
+    request = manifest["next_human_decision_request"]
+    assert request["status"] == "awaiting_dr_sun_decision"
+    assert request["decision_owner_required"] == "Dr Sun"
+    assert request["valid_decisions"] == [
+        "approve_obstacle_summary_warm_start",
+        "reject_obstacle_summary_warm_start",
+    ]
+    assert request["required_record_fields"] == ["decision", "decider", "decision_note"]
+    assert request["current_allowed_action_ids"] == ["record_f02_6_decision"]
+    assert request["current_blocked_action_ids"] == [
+        "remote_preflight",
+        "remote_training",
+        "local_training",
+        "formal_claim",
+        "paper_result_material",
+    ]
+    assert request["post_decision_routes_are_current_authorization"] is False
+    assert request["all_execution_disabled_now"] is True
+    assert request["route_effects"]["approve_obstacle_summary_warm_start"]["next_lane_after_record"] == (
+        "source_fresh_regeneration"
+    )
+    assert request["route_effects"]["approve_obstacle_summary_warm_start"]["allows_remote_training_now"] is False
+    assert request["route_effects"]["reject_obstacle_summary_warm_start"]["next_lane_after_record"] == (
+        "protocol_redesign"
+    )
     commands = {item["decision"]: item["command"] for item in manifest["decision_intake_contract"]["record_command_templates"]}
     assert "approve_obstacle_summary_warm_start" in commands
     assert "--decider 'Dr Sun'" in commands["approve_obstacle_summary_warm_start"]
@@ -200,6 +225,8 @@ def test_f02_6_decision_intake_cli_writes_json_and_markdown(tmp_path):
     assert manifest["status"] == "f02_6_decision_intake_pending_clean"
     assert "Module2 F02.6 Decision Intake" in markdown
     assert "does not record a decision" in markdown
+    assert "Next Human Decision Request" in markdown
+    assert "all_execution_disabled_now" in markdown
     assert "packet_authorization_status" in markdown
     assert "decision_note" in markdown
 
