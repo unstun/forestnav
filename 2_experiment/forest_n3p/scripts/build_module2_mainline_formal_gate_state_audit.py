@@ -136,6 +136,10 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
         "deliverable_rows_by_matrix_id": {row["matrix_id"]: row for row in deliverable_rows},
         "proof_summary_chain_status": proof_chain.get("status"),
         "proof_summary_chain_audit_issue_count": proof_chain.get("audit_issue_count"),
+        "proof_summary_chain_proof_audit_input_safety_issue_count": proof_chain.get(
+            "proof_audit_input_safety_issue_count"
+        ),
+        "proof_summary_chain_proof_audit_blockers": _strings(proof_chain.get("proof_audit_blockers")),
         "proof_summary_next_action_guard_consistency": {
             "row_count": proof_chain.get("next_action_guard_row_count"),
             "consistent_row_count": proof_chain.get("next_action_guard_consistent_row_count"),
@@ -333,6 +337,24 @@ def _proof_chain_issues(proof_chain: dict[str, Any]) -> list[dict[str, Any]]:
                 "audit_issue_count": proof_chain.get("audit_issue_count"),
             }
         )
+    proof_audit_input_safety_issue_count = int(proof_chain.get("proof_audit_input_safety_issue_count") or 0)
+    if proof_audit_input_safety_issue_count > 0:
+        issues.append(
+            {
+                "issue_id": "proof_summary_chain_proof_audit_input_safety_issues_open",
+                "message": "Mainline task-book state cannot mirror a proof-summary chain with upstream proof-audit input-safety issues.",
+                "proof_audit_input_safety_issue_count": proof_audit_input_safety_issue_count,
+            }
+        )
+    proof_audit_blockers = _strings(proof_chain.get("proof_audit_blockers"))
+    if "proof_audit_input_safety_issues_open" in proof_audit_blockers:
+        issues.append(
+            {
+                "issue_id": "proof_summary_chain_proof_audit_input_safety_blocker_open",
+                "message": "Mainline task-book state cannot ignore an upstream proof-audit input-safety blocker.",
+                "proof_audit_blockers": proof_audit_blockers,
+            }
+        )
     if proof_chain.get("next_action_guard_row_count") != proof_chain.get("next_action_guard_consistent_row_count"):
         issues.append(
             {
@@ -449,6 +471,12 @@ def _normalize_next_required_deliverables(raw: Any) -> dict[str, Any]:
         "row_count": len(normalized_rows),
         "rows": normalized_rows,
     }
+
+
+def _strings(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [str(item) for item in value if item]
 
 
 def _markdown(manifest: dict[str, Any]) -> str:
