@@ -79,6 +79,10 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["current_state"]["formal_gate_proof_audit_blocked_count"] == 16
     assert manifest["current_state"]["formal_gate_proof_audit_missing_artifact_count"] == 8
     assert manifest["current_state"]["formal_gate_proof_audit_failed_acceptance_artifact_count"] == 2
+    assert manifest["current_state"]["formal_gate_proof_audit_training_missing_artifact_count"] == 3
+    assert manifest["current_state"]["formal_gate_proof_audit_evaluation_missing_artifact_count"] == 2
+    assert manifest["current_state"]["formal_gate_proof_audit_acceptance_missing_artifact_count"] == 3
+    assert manifest["current_state"]["formal_gate_proof_audit_formal_acceptance_failed_artifact_count"] == 2
     assert manifest["missing_counts_by_category"]["training"] == 3
     assert len(manifest["training_artifacts_required"]) == 3
     assert len(manifest["evaluation_artifacts_required"]) == 2
@@ -260,6 +264,25 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert proof_gap["categories"]["formal_acceptance"]["failed_proof_command_ids"] == [
         "h01_ready_for_formal_run_schema",
         "h02_formal_output_acceptance_schema",
+    ]
+    proof_missing = manifest["formal_gate_proof_audit_missing_evidence_summary"]
+    assert proof_missing["training"]["missing_artifact_ids"] == [
+        "train_final_model_zip",
+        "train_summary_json",
+        "train_training_manifest_json",
+    ]
+    assert proof_missing["evaluation"]["missing_artifact_ids"] == [
+        "eval_gate3_eval_episodes_csv",
+        "eval_gate3_summary_json",
+    ]
+    assert proof_missing["acceptance"]["missing_artifact_ids"] == [
+        "gate3_trial_manifest_json",
+        "gate3_formal_audit_json",
+        "pulled_back_checkpoint_hash_record",
+    ]
+    assert proof_missing["formal_acceptance"]["failed_artifact_ids"] == [
+        "h01_ready_for_formal_run",
+        "h02_formal_output_acceptance",
     ]
     formal_gate_gap = manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]
     assert formal_gate_gap["present"] is True
