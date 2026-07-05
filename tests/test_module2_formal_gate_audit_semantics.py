@@ -5,9 +5,16 @@ from pathlib import Path
 from forest_n3p.scripts.build_module2_formal_gate_status_report import (
     _formal_gate_execution_veto_issues,
 )
+from forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit import (
+    _handoff_single_next_action_issues,
+    _next_action_guard_issues,
+)
 from forest_n3p.scripts.build_module2_post_f02_6_plan_audit import (
     _cross_artifact_issues,
     _status_report_issues,
+)
+from forest_n3p.scripts.build_module2_claim_safety import (
+    _status_report_next_action_guard_blockers,
 )
 from forest_n3p.scripts.build_module2_remote_packet_safety_audit import (
     _status_report_execution_veto_issues,
@@ -154,3 +161,100 @@ def test_status_report_execution_veto_blocks_only_local_and_claim_when_result_ga
     assert "blocked_formal_gate_execution_veto_allows_remote_preflight" not in {
         issue["issue_id"] for issue in issues
     }
+
+
+def test_post_approval_next_action_guard_is_not_a_pending_execution_leak() -> None:
+    rows = [
+        {
+            "row_id": "status_report_next_action_guard",
+            "present": True,
+            "path": "status.json",
+            "summary_key_path": ("next_action_guard_summary",),
+            "signature_matches_baseline": True,
+            "status": "next_action_guard_not_applicable",
+            "pending_f02_6_decision": False,
+            "execution_leak_count": 2,
+            "remote_execution_allowed_count": 2,
+            "remote_stage_allowed_count": 0,
+        }
+    ]
+
+    assert _next_action_guard_issues(rows=rows) == []
+
+
+def test_post_approval_handoff_single_next_action_can_follow_stages() -> None:
+    rows = [
+        {
+            "row_id": "handoff_bundle_single_next_action_index",
+            "present": True,
+            "path": "handoff.json",
+            "summary_key_path": ("single_next_action_index",),
+            "signature_matches_baseline": True,
+            "status": "follow_handoff_stages",
+            "single_current_human_entry": False,
+            "next_action_id": "manual_handoff_stage_review",
+            "decision_owner_required": "Dr Sun",
+            "valid_decisions": [
+                "approve_obstacle_summary_warm_start",
+                "reject_obstacle_summary_warm_start",
+            ],
+            "required_record_fields": ["decision", "decider", "decision_note"],
+            "current_allowed_action_ids": [],
+            "current_blocked_action_ids": [
+                "remote_preflight",
+                "remote_training",
+                "local_training",
+                "formal_claim",
+                "paper_result_material",
+            ],
+            "post_decision_routes_are_current_authorization": False,
+            "all_execution_disabled_now": False,
+            "record_command_template_count": 0,
+            "local_training_allowed_now": False,
+            "remote_preflight_allowed_now": False,
+            "remote_training_allowed_now": False,
+            "formal_claim_allowed_now": False,
+            "paper_result_material_allowed_now": False,
+            "missing_deliverable_count": 10,
+            "open_category_count": 4,
+            "source_freshness_status": "source_freshness_clean_current",
+            "source_freshness_blocking_regeneration_required": False,
+            "approved_route_next_lane": "source_fresh_regeneration",
+            "rejected_route_next_lane": "protocol_redesign",
+            "after_approval_still_requires": [
+                "source_freshness_audit",
+                "post_f02_6_regeneration_plan",
+                "post_f02_6_plan_audit",
+                "remote_formal_execution_packet_ready",
+                "approved_remote_preflight",
+            ],
+        }
+    ]
+
+    assert _handoff_single_next_action_issues(rows=rows) == []
+
+
+def test_claim_safety_does_not_require_pending_next_action_guard_after_approval() -> None:
+    blockers = _status_report_next_action_guard_blockers(
+        {
+            "status": "formal_gate_status_blocked",
+            "next_action_guard_summary": {
+                "present": True,
+                "status": "next_action_guard_not_applicable",
+                "pending_f02_6_decision": False,
+                "next_blocked_lane_id": "remote_packet_preflight",
+                "expected_next_action_id": None,
+                "handoff_next_action_id": "manual_handoff_stage_review",
+                "handoff_next_action_requires_dr_sun": False,
+                "missing_artifacts_next_action_id": "resolve_training_remote_ppo_checkpoint",
+                "decision_intake_next_blocked_lane": "remote_packet_preflight",
+                "all_execution_disabled_now": False,
+                "execution_leak_count": 2,
+                "remote_execution_allowed_count": 2,
+                "remote_stage_allowed_count": 0,
+                "violation_count": 0,
+            },
+        }
+    )
+
+    assert blockers == []
