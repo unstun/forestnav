@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_remaining_deliverables",
   "status": "formal_gate_deliverables_blocked",
-  "created_at_utc": "2026-07-05T19:51:21.225431+00:00",
-  "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+  "created_at_utc": "2026-07-05T23:48:46.824121+00:00",
+  "source_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -11,8 +11,8 @@
   "local_training_allowed": false,
   "formal_claim_allowed": false,
   "local_training_allowed_now": false,
-  "remote_preflight_allowed_now": true,
-  "remote_training_allowed_now": true,
+  "remote_preflight_allowed_now": false,
+  "remote_training_allowed_now": false,
   "formal_h01_evaluation_allowed_now": false,
   "formal_h02_acceptance_allowed_now": false,
   "formal_claim_allowed_now": false,
@@ -25,45 +25,82 @@
     "h01_manifest": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
     "h02_formal_acceptance": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
     "source_freshness_audit": "0_trials/module2_source_freshness_audit/source_freshness_audit.json",
-    "post_f02_6_regeneration_plan": "0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json"
+    "post_f02_6_regeneration_plan": "0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json",
+    "protocol_lane_status_report": "0_trials/module2_formal_gate_protocol_lane_status_report/protocol_lane_status_report.json"
   },
   "current_gate_summary": {
     "status_report_status": "formal_gate_status_blocked",
-    "next_blocked_lane": "source_fresh_preflight",
+    "next_blocked_lane": "protocol_lane_decision",
+    "protocol_lane_status": "protocol_lane_status_blocked_pending_lane_decision",
+    "protocol_lane_next_blocked_lane": "protocol_lane_decision",
+    "protocol_lane_decision_record_status": "pending_protocol_lane_decision",
+    "protocol_lane_selected_lane_id": null,
+    "protocol_lane_allowed_next_action_ids": [
+      "record_protocol_lane_decision"
+    ],
+    "protocol_lane_blocked_action_ids": [
+      "local_training",
+      "remote_success_training",
+      "remote_preflight_for_new_success_attempt",
+      "formal_claim",
+      "paper_result_material"
+    ],
+    "protocol_lane_new_success_training_allowed_now": false,
     "missing_counts_by_category": {
       "decision": 0,
       "decision_gate": 0,
-      "regeneration": 0,
+      "regeneration": 22,
       "gate_sequence": 4,
       "training": 0,
       "evaluation": 0,
       "acceptance": 0,
       "evaluation_acceptance": 1,
-      "claim_gate": 1
+      "claim_gate": 8
     },
     "remote_packet_status": "ready_for_gpu3070ti_remote_training",
-    "ready_to_run_remote_training": true,
+    "ready_to_run_remote_training": false,
     "h01_status": "ready_for_formal_run",
     "h02_status": "blocked_formal_output_acceptance",
     "h02_formal_output_accepted": false,
     "h02_paper_result_input_allowed": false,
-    "source_freshness_status": "source_freshness_clean_current",
-    "source_freshness_regeneration_required": false,
-    "source_freshness_blocking_regeneration_required": false,
-    "source_freshness_non_self_changed_records": 0,
+    "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
+    "source_freshness_regeneration_required": true,
+    "source_freshness_blocking_regeneration_required": true,
+    "source_freshness_non_self_changed_records": 18,
     "source_freshness_self_artifact_only_lag_records": 0,
-    "source_freshness_blocking_target_count": 0,
-    "source_freshness_blocking_target_ids": []
+    "source_freshness_blocking_target_count": 18,
+    "source_freshness_blocking_target_ids": [
+      "f02_6_decision_gate_audit",
+      "f02_6_decision_intake",
+      "f02_6_decision_record",
+      "f02_6_transition_gate_audit",
+      "f02_6_warm_start_decision_packet",
+      "formal_gate_closure_checklist",
+      "gpu3070ti_readiness_refresh",
+      "post_f02_6_plan_audit",
+      "post_f02_6_regeneration_plan",
+      "remote_formal_execution_packet",
+      "remote_packet_safety_audit",
+      "h01_evaluation_manifest",
+      "h02_formal_acceptance",
+      "claim_safety",
+      "formal_gate_proof_audit",
+      "formal_gate_proof_summary_chain_audit",
+      "mainline_formal_gate_state_audit",
+      "paper_readiness"
+    ]
   },
   "permissions_now": {
     "local_training_allowed_now": false,
-    "remote_preflight_allowed_now": true,
-    "remote_training_allowed_now": true,
+    "remote_preflight_allowed_now": false,
+    "remote_training_allowed_now": false,
     "formal_h01_evaluation_allowed_now": false,
     "formal_h02_acceptance_allowed_now": false,
     "formal_claim_allowed_now": false,
     "remote_packet_ready_to_run_remote_training": true,
-    "source_freshness_ready_for_remote_preflight": true
+    "source_freshness_ready_for_remote_preflight": false,
+    "protocol_lane_status": "protocol_lane_status_blocked_pending_lane_decision",
+    "protocol_lane_pending": true
   },
   "category_counts": {
     "training": {
@@ -101,7 +138,7 @@
       "formal_acceptance:h02_formal_output_acceptance"
     ]
   },
-  "next_blocked_lane": "source_fresh_preflight",
+  "next_blocked_lane": "protocol_lane_decision",
   "h01_status": "ready_for_formal_run",
   "h02_status": "blocked_formal_output_acceptance",
   "h02_formal_output_accepted": false,
@@ -125,8 +162,12 @@
         "missing_count": 0,
         "present_count": 3,
         "responsible_stage_id": "gate3_remote_training",
-        "responsible_stage_allowed_now": true,
-        "responsible_stage_blocked_by": [],
+        "responsible_stage_allowed_now": false,
+        "responsible_stage_blocked_by": [
+          "protocol_lane_decision_pending",
+          "f02_6_decision_not_approved",
+          "remote_packet_not_ready"
+        ],
         "next_required_evidence": [
           "remote-produced train/final_model.zip pulled back to the local formal Gate3 trial directory",
           "train/summary.json with PPO run metadata and terminal-RS training signals",
@@ -142,7 +183,8 @@
         "responsible_stage_id": "gate3_remote_audit_pullback",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "remote_training_not_completed"
+          "remote_training_not_completed",
+          "protocol_lane_decision_pending"
         ],
         "next_required_evidence": [
           "eval/gate3_eval_episodes.csv from the approved formal remote run",
@@ -158,7 +200,8 @@
         "responsible_stage_id": "gate3_remote_audit_pullback",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "remote_training_not_completed"
+          "remote_training_not_completed",
+          "protocol_lane_decision_pending"
         ],
         "next_required_evidence": [
           "gate3_trial_manifest.json copied back from the formal remote run",
@@ -175,6 +218,7 @@
         "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
+          "protocol_lane_decision_pending",
           "missing_remote_audit_pullback"
         ],
         "next_required_evidence": [
@@ -209,20 +253,204 @@
     "summary_id": "module2_source_freshness_blocking_targets_summary",
     "execution_boundary": "read_only_no_execution",
     "not_paper_result_material": true,
-    "status": "source_freshness_clean_current",
-    "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
-    "current_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
-    "blocking_regeneration_required_before_remote_formal_execution": false,
-    "blocking_target_count": 0,
-    "blocking_target_ids": [],
-    "remote_readiness_blocking_target_ids": [],
-    "remote_readiness_blocking_target_count": 0,
-    "remote_readiness_refresh_requires_external_ssh": false,
+    "status": "source_freshness_risks_recorded_gate_still_blocked",
+    "source_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
+    "current_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
+    "blocking_regeneration_required_before_remote_formal_execution": true,
+    "blocking_target_count": 18,
+    "blocking_target_ids": [
+      "f02_6_decision_gate_audit",
+      "f02_6_decision_intake",
+      "f02_6_decision_record",
+      "f02_6_transition_gate_audit",
+      "f02_6_warm_start_decision_packet",
+      "formal_gate_closure_checklist",
+      "gpu3070ti_readiness_refresh",
+      "post_f02_6_plan_audit",
+      "post_f02_6_regeneration_plan",
+      "remote_formal_execution_packet",
+      "remote_packet_safety_audit",
+      "h01_evaluation_manifest",
+      "h02_formal_acceptance",
+      "claim_safety",
+      "formal_gate_proof_audit",
+      "formal_gate_proof_summary_chain_audit",
+      "mainline_formal_gate_state_audit",
+      "paper_readiness"
+    ],
+    "remote_readiness_blocking_target_ids": [
+      "gpu3070ti_readiness_refresh"
+    ],
+    "remote_readiness_blocking_target_count": 1,
+    "remote_readiness_refresh_requires_external_ssh": true,
     "remote_readiness_refresh_allowed_now": false,
     "remote_preflight_allowed_now": false,
     "remote_training_allowed_now": false,
     "formal_claim_allowed_now": false,
-    "rows": []
+    "rows": [
+      {
+        "artifact_id": "f02_6_decision_gate_audit",
+        "path": "0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "required_before": "approved_remote_preflight",
+        "commits_since_source": 136,
+        "blocking_changed_path_count_since_source": 42
+      },
+      {
+        "artifact_id": "f02_6_decision_intake",
+        "path": "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "required_before": "approved_remote_preflight",
+        "commits_since_source": 136,
+        "blocking_changed_path_count_since_source": 42
+      },
+      {
+        "artifact_id": "f02_6_decision_record",
+        "path": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "required_before": "approved_remote_preflight",
+        "commits_since_source": 136,
+        "blocking_changed_path_count_since_source": 42
+      },
+      {
+        "artifact_id": "f02_6_transition_gate_audit",
+        "path": "0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json",
+        "freshness_state": "historical_clean",
+        "source_head": "b1c238c311ee96e614e4cc48094b712f1c352d7e",
+        "required_before": "approved_remote_preflight",
+        "commits_since_source": 35,
+        "blocking_changed_path_count_since_source": 8
+      },
+      {
+        "artifact_id": "f02_6_warm_start_decision_packet",
+        "path": "0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "required_before": "approved_remote_preflight",
+        "commits_since_source": 136,
+        "blocking_changed_path_count_since_source": 42
+      },
+      {
+        "artifact_id": "formal_gate_closure_checklist",
+        "path": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "required_before": "approved_remote_preflight",
+        "commits_since_source": 136,
+        "blocking_changed_path_count_since_source": 42
+      },
+      {
+        "artifact_id": "gpu3070ti_readiness_refresh",
+        "path": "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "required_before": "approved_remote_preflight",
+        "commits_since_source": 136,
+        "blocking_changed_path_count_since_source": 42
+      },
+      {
+        "artifact_id": "post_f02_6_plan_audit",
+        "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "required_before": "approved_remote_preflight",
+        "commits_since_source": 136,
+        "blocking_changed_path_count_since_source": 42
+      },
+      {
+        "artifact_id": "post_f02_6_regeneration_plan",
+        "path": "0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "required_before": "approved_remote_preflight",
+        "commits_since_source": 136,
+        "blocking_changed_path_count_since_source": 42
+      },
+      {
+        "artifact_id": "remote_formal_execution_packet",
+        "path": "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "required_before": "approved_remote_preflight",
+        "commits_since_source": 136,
+        "blocking_changed_path_count_since_source": 42
+      },
+      {
+        "artifact_id": "remote_packet_safety_audit",
+        "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "required_before": "approved_remote_preflight",
+        "commits_since_source": 136,
+        "blocking_changed_path_count_since_source": 42
+      },
+      {
+        "artifact_id": "h01_evaluation_manifest",
+        "path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "required_before": "formal_h01_h02",
+        "commits_since_source": 136,
+        "blocking_changed_path_count_since_source": 42
+      },
+      {
+        "artifact_id": "h02_formal_acceptance",
+        "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "required_before": "formal_h01_h02",
+        "commits_since_source": 136,
+        "blocking_changed_path_count_since_source": 42
+      },
+      {
+        "artifact_id": "claim_safety",
+        "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "required_before": "formal_claim_gate",
+        "commits_since_source": 136,
+        "blocking_changed_path_count_since_source": 42
+      },
+      {
+        "artifact_id": "formal_gate_proof_audit",
+        "path": "0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "required_before": "formal_claim_gate",
+        "commits_since_source": 136,
+        "blocking_changed_path_count_since_source": 42
+      },
+      {
+        "artifact_id": "formal_gate_proof_summary_chain_audit",
+        "path": "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "required_before": "formal_claim_gate",
+        "commits_since_source": 136,
+        "blocking_changed_path_count_since_source": 42
+      },
+      {
+        "artifact_id": "mainline_formal_gate_state_audit",
+        "path": "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json",
+        "freshness_state": "historical_clean",
+        "source_head": "2cd4e13da6aff82d096cbf7cd11595f859ec4d05",
+        "required_before": "formal_claim_gate",
+        "commits_since_source": 37,
+        "blocking_changed_path_count_since_source": 9
+      },
+      {
+        "artifact_id": "paper_readiness",
+        "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "required_before": "formal_claim_gate",
+        "commits_since_source": 136,
+        "blocking_changed_path_count_since_source": 42
+      }
+    ]
   },
   "proof_command_plan": {
     "plan_id": "module2_formal_gate_local_read_only_proof_commands",
@@ -795,8 +1023,12 @@
         "missing": false,
         "current_state": "present",
         "responsible_stage_id": "gate3_remote_training",
-        "responsible_stage_allowed_now": true,
-        "responsible_stage_blocked_by": [],
+        "responsible_stage_allowed_now": false,
+        "responsible_stage_blocked_by": [
+          "protocol_lane_decision_pending",
+          "f02_6_decision_not_approved",
+          "remote_packet_not_ready"
+        ],
         "required_current_blockers": [
           "f02_6_decision_not_approved",
           "remote_packet_not_ready"
@@ -818,8 +1050,12 @@
         "missing": false,
         "current_state": "present",
         "responsible_stage_id": "gate3_remote_training",
-        "responsible_stage_allowed_now": true,
-        "responsible_stage_blocked_by": [],
+        "responsible_stage_allowed_now": false,
+        "responsible_stage_blocked_by": [
+          "protocol_lane_decision_pending",
+          "f02_6_decision_not_approved",
+          "remote_packet_not_ready"
+        ],
         "required_current_blockers": [
           "f02_6_decision_not_approved",
           "remote_packet_not_ready"
@@ -841,8 +1077,12 @@
         "missing": false,
         "current_state": "present",
         "responsible_stage_id": "gate3_remote_training",
-        "responsible_stage_allowed_now": true,
-        "responsible_stage_blocked_by": [],
+        "responsible_stage_allowed_now": false,
+        "responsible_stage_blocked_by": [
+          "protocol_lane_decision_pending",
+          "f02_6_decision_not_approved",
+          "remote_packet_not_ready"
+        ],
         "required_current_blockers": [
           "f02_6_decision_not_approved",
           "remote_packet_not_ready"
@@ -866,7 +1106,8 @@
         "responsible_stage_id": "gate3_remote_audit_pullback",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "remote_training_not_completed"
+          "remote_training_not_completed",
+          "protocol_lane_decision_pending"
         ],
         "required_current_blockers": [
           "remote_training_not_completed"
@@ -891,7 +1132,8 @@
         "responsible_stage_id": "gate3_remote_audit_pullback",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "remote_training_not_completed"
+          "remote_training_not_completed",
+          "protocol_lane_decision_pending"
         ],
         "required_current_blockers": [
           "remote_training_not_completed"
@@ -916,7 +1158,8 @@
         "responsible_stage_id": "gate3_remote_audit_pullback",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "remote_training_not_completed"
+          "remote_training_not_completed",
+          "protocol_lane_decision_pending"
         ],
         "required_current_blockers": [
           "remote_training_not_completed"
@@ -941,7 +1184,8 @@
         "responsible_stage_id": "gate3_remote_audit_pullback",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "remote_training_not_completed"
+          "remote_training_not_completed",
+          "protocol_lane_decision_pending"
         ],
         "required_current_blockers": [
           "remote_training_not_completed"
@@ -966,7 +1210,8 @@
         "responsible_stage_id": "gate3_remote_audit_pullback",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "remote_training_not_completed"
+          "remote_training_not_completed",
+          "protocol_lane_decision_pending"
         ],
         "required_current_blockers": [
           "remote_training_not_completed"
@@ -991,6 +1236,7 @@
         "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
+          "protocol_lane_decision_pending",
           "missing_remote_audit_pullback"
         ],
         "required_current_blockers": [
@@ -1013,6 +1259,7 @@
         "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
+          "protocol_lane_decision_pending",
           "missing_remote_audit_pullback"
         ],
         "required_current_blockers": [
@@ -1032,19 +1279,23 @@
     "purpose": "human_readable_formal_gate_missing_deliverables_only",
     "not_paper_result_material": true,
     "execution_boundary": "read_only_no_execution",
-    "next_blocked_lane": "source_fresh_preflight",
+    "next_blocked_lane": "protocol_lane_decision",
     "total_missing_deliverables": 1,
     "open_category_count": 1,
     "local_training_allowed_now": false,
-    "remote_training_allowed_now": true,
+    "remote_training_allowed_now": false,
     "formal_claim_allowed_now": false,
     "categories": [
       {
         "category": "training",
         "missing_count": 0,
         "responsible_stage_id": "gate3_remote_training",
-        "responsible_stage_allowed_now": true,
-        "responsible_stage_blocked_by": [],
+        "responsible_stage_allowed_now": false,
+        "responsible_stage_blocked_by": [
+          "protocol_lane_decision_pending",
+          "f02_6_decision_not_approved",
+          "remote_packet_not_ready"
+        ],
         "missing_matrix_ids": [],
         "expected_paths": [],
         "invalid_substitutes": [],
@@ -1056,7 +1307,8 @@
         "responsible_stage_id": "gate3_remote_audit_pullback",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "remote_training_not_completed"
+          "remote_training_not_completed",
+          "protocol_lane_decision_pending"
         ],
         "missing_matrix_ids": [],
         "expected_paths": [],
@@ -1069,7 +1321,8 @@
         "responsible_stage_id": "gate3_remote_audit_pullback",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
-          "remote_training_not_completed"
+          "remote_training_not_completed",
+          "protocol_lane_decision_pending"
         ],
         "missing_matrix_ids": [],
         "expected_paths": [],
@@ -1082,6 +1335,7 @@
         "responsible_stage_id": "regenerate_h01_h02_formal_artifacts",
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
+          "protocol_lane_decision_pending",
           "missing_remote_audit_pullback"
         ],
         "missing_matrix_ids": [
@@ -1110,9 +1364,13 @@
       "missing_count": 0,
       "present_count": 3,
       "responsible_stage_id": "gate3_remote_training",
-      "responsible_stage_status": "ready",
-      "responsible_stage_allowed_now": true,
-      "responsible_stage_blocked_by": [],
+      "responsible_stage_status": "blocked",
+      "responsible_stage_allowed_now": false,
+      "responsible_stage_blocked_by": [
+        "protocol_lane_decision_pending",
+        "f02_6_decision_not_approved",
+        "remote_packet_not_ready"
+      ],
       "acceptable_evidence": [
         "remote-produced train/final_model.zip pulled back to the local formal Gate3 trial directory",
         "train/summary.json with PPO run metadata and terminal-RS training signals",
@@ -1161,7 +1419,8 @@
       "responsible_stage_status": "blocked",
       "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
-        "remote_training_not_completed"
+        "remote_training_not_completed",
+        "protocol_lane_decision_pending"
       ],
       "acceptable_evidence": [
         "eval/gate3_eval_episodes.csv from the approved formal remote run",
@@ -1201,7 +1460,8 @@
       "responsible_stage_status": "blocked",
       "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
-        "remote_training_not_completed"
+        "remote_training_not_completed",
+        "protocol_lane_decision_pending"
       ],
       "acceptable_evidence": [
         "gate3_trial_manifest.json copied back from the formal remote run",
@@ -1250,6 +1510,7 @@
       "responsible_stage_status": "blocked",
       "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
+        "protocol_lane_decision_pending",
         "missing_remote_audit_pullback"
       ],
       "acceptable_evidence": [
@@ -1293,9 +1554,13 @@
       "missing": false,
       "missing_reason": "required formal Gate3 training artifact",
       "responsible_stage_id": "gate3_remote_training",
-      "responsible_stage_status": "ready",
-      "responsible_stage_allowed_now": true,
-      "responsible_stage_blocked_by": [],
+      "responsible_stage_status": "blocked",
+      "responsible_stage_allowed_now": false,
+      "responsible_stage_blocked_by": [
+        "protocol_lane_decision_pending",
+        "f02_6_decision_not_approved",
+        "remote_packet_not_ready"
+      ],
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
         "artifact state is not missing, blocked, smoke, preview, or candidate",
@@ -1343,9 +1608,13 @@
       "missing": false,
       "missing_reason": "required formal Gate3 training artifact",
       "responsible_stage_id": "gate3_remote_training",
-      "responsible_stage_status": "ready",
-      "responsible_stage_allowed_now": true,
-      "responsible_stage_blocked_by": [],
+      "responsible_stage_status": "blocked",
+      "responsible_stage_allowed_now": false,
+      "responsible_stage_blocked_by": [
+        "protocol_lane_decision_pending",
+        "f02_6_decision_not_approved",
+        "remote_packet_not_ready"
+      ],
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
         "artifact state is not missing, blocked, smoke, preview, or candidate",
@@ -1393,9 +1662,13 @@
       "missing": false,
       "missing_reason": "required formal Gate3 training artifact",
       "responsible_stage_id": "gate3_remote_training",
-      "responsible_stage_status": "ready",
-      "responsible_stage_allowed_now": true,
-      "responsible_stage_blocked_by": [],
+      "responsible_stage_status": "blocked",
+      "responsible_stage_allowed_now": false,
+      "responsible_stage_blocked_by": [
+        "protocol_lane_decision_pending",
+        "f02_6_decision_not_approved",
+        "remote_packet_not_ready"
+      ],
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
         "artifact state is not missing, blocked, smoke, preview, or candidate",
@@ -1446,7 +1719,8 @@
       "responsible_stage_status": "blocked",
       "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
-        "remote_training_not_completed"
+        "remote_training_not_completed",
+        "protocol_lane_decision_pending"
       ],
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
@@ -1496,7 +1770,8 @@
       "responsible_stage_status": "blocked",
       "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
-        "remote_training_not_completed"
+        "remote_training_not_completed",
+        "protocol_lane_decision_pending"
       ],
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
@@ -1546,7 +1821,8 @@
       "responsible_stage_status": "blocked",
       "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
-        "remote_training_not_completed"
+        "remote_training_not_completed",
+        "protocol_lane_decision_pending"
       ],
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
@@ -1597,7 +1873,8 @@
       "responsible_stage_status": "blocked",
       "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
-        "remote_training_not_completed"
+        "remote_training_not_completed",
+        "protocol_lane_decision_pending"
       ],
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
@@ -1648,7 +1925,8 @@
       "responsible_stage_status": "blocked",
       "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
-        "remote_training_not_completed"
+        "remote_training_not_completed",
+        "protocol_lane_decision_pending"
       ],
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
@@ -1699,6 +1977,7 @@
       "responsible_stage_status": "blocked",
       "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
+        "protocol_lane_decision_pending",
         "missing_remote_audit_pullback"
       ],
       "acceptance_predicates": [
@@ -1750,6 +2029,7 @@
       "responsible_stage_status": "blocked",
       "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
+        "protocol_lane_decision_pending",
         "missing_remote_audit_pullback"
       ],
       "acceptance_predicates": [

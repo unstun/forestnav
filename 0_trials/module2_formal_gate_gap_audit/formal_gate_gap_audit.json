@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_gap_audit",
   "status": "blocked_formal_gate_gaps_open",
-  "created_at_utc": "2026-07-05T19:51:50.843442+00:00",
-  "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+  "created_at_utc": "2026-07-05T23:48:47.405310+00:00",
+  "source_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -33,28 +33,149 @@
   "source_freshness": {
     "path": "0_trials/module2_source_freshness_audit/source_freshness_audit.json",
     "exists": true,
-    "status": "source_freshness_clean_current",
+    "status": "source_freshness_risks_recorded_gate_still_blocked",
     "runs_training": false,
     "runs_remote_preflight": false,
     "local_training_allowed": false,
     "formal_claim_allowed": false,
-    "regeneration_required_before_remote_formal_execution": false,
-    "blocking_regeneration_required_before_remote_formal_execution": false,
+    "regeneration_required_before_remote_formal_execution": true,
+    "blocking_regeneration_required_before_remote_formal_execution": true,
     "risk_counts": {
-      "current_clean": 23
+      "historical_clean": 18,
+      "current_clean": 5
     },
-    "ordered_regeneration_target_count": 1,
+    "ordered_regeneration_target_count": 19,
     "ordered_regeneration_targets": [
       {
-        "artifact_id": "formal_gate_handoff_bundle",
-        "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
-        "freshness_state": "current_clean",
+        "artifact_id": "f02_6_decision_gate_audit",
+        "path": "0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json",
+        "freshness_state": "historical_clean",
         "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
         "source_commit": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
         "source_head_dirty": false,
         "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
+        "commits_since_source": 136,
+        "changed_path_count_since_source": 99,
+        "artifact_path_changed_since_source": true,
+        "non_self_changed_path_count_since_source": 98,
+        "blocking_changed_path_count_since_source": 42,
+        "self_artifact_only_lag": false,
+        "tracked_artifact_only_lag": false,
+        "blocking_regeneration_required_before_remote_formal_execution": true,
+        "required_before": "approved_remote_preflight"
+      },
+      {
+        "artifact_id": "f02_6_decision_intake",
+        "path": "0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_commit": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_head_dirty": false,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
+        "commits_since_source": 136,
+        "changed_path_count_since_source": 99,
+        "artifact_path_changed_since_source": true,
+        "non_self_changed_path_count_since_source": 97,
+        "blocking_changed_path_count_since_source": 42,
+        "self_artifact_only_lag": false,
+        "tracked_artifact_only_lag": false,
+        "blocking_regeneration_required_before_remote_formal_execution": true,
+        "required_before": "approved_remote_preflight"
+      },
+      {
+        "artifact_id": "f02_6_decision_record",
+        "path": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_commit": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_head_dirty": false,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
+        "commits_since_source": 136,
+        "changed_path_count_since_source": 99,
+        "artifact_path_changed_since_source": true,
+        "non_self_changed_path_count_since_source": 98,
+        "blocking_changed_path_count_since_source": 42,
+        "self_artifact_only_lag": false,
+        "tracked_artifact_only_lag": false,
+        "blocking_regeneration_required_before_remote_formal_execution": true,
+        "required_before": "approved_remote_preflight"
+      },
+      {
+        "artifact_id": "f02_6_transition_gate_audit",
+        "path": "0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json",
+        "freshness_state": "historical_clean",
+        "source_head": "b1c238c311ee96e614e4cc48094b712f1c352d7e",
+        "source_commit": "b1c238c311ee96e614e4cc48094b712f1c352d7e",
+        "source_head_dirty": false,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
+        "commits_since_source": 35,
+        "changed_path_count_since_source": 16,
+        "artifact_path_changed_since_source": true,
+        "non_self_changed_path_count_since_source": 14,
+        "blocking_changed_path_count_since_source": 8,
+        "self_artifact_only_lag": false,
+        "tracked_artifact_only_lag": false,
+        "blocking_regeneration_required_before_remote_formal_execution": true,
+        "required_before": "approved_remote_preflight"
+      },
+      {
+        "artifact_id": "f02_6_warm_start_decision_packet",
+        "path": "0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_commit": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_head_dirty": false,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
+        "commits_since_source": 136,
+        "changed_path_count_since_source": 99,
+        "artifact_path_changed_since_source": true,
+        "non_self_changed_path_count_since_source": 98,
+        "blocking_changed_path_count_since_source": 42,
+        "self_artifact_only_lag": false,
+        "tracked_artifact_only_lag": false,
+        "blocking_regeneration_required_before_remote_formal_execution": true,
+        "required_before": "approved_remote_preflight"
+      },
+      {
+        "artifact_id": "formal_gate_closure_checklist",
+        "path": "0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_commit": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_head_dirty": false,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
+        "commits_since_source": 136,
+        "changed_path_count_since_source": 99,
+        "artifact_path_changed_since_source": true,
+        "non_self_changed_path_count_since_source": 97,
+        "blocking_changed_path_count_since_source": 42,
+        "self_artifact_only_lag": false,
+        "tracked_artifact_only_lag": false,
+        "blocking_regeneration_required_before_remote_formal_execution": true,
+        "required_before": "approved_remote_preflight"
+      },
+      {
+        "artifact_id": "formal_gate_handoff_bundle",
+        "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
+        "freshness_state": "current_clean",
+        "source_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
+        "source_commit": "e1a6329a97e0baa55aad8212196a537acc4dc302",
+        "source_head_dirty": false,
+        "source_commit_exists": true,
         "matches_current_head": true,
-        "current_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "current_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
         "commits_since_source": 0,
         "changed_path_count_since_source": 0,
         "artifact_path_changed_since_source": false,
@@ -64,6 +185,246 @@
         "tracked_artifact_only_lag": false,
         "blocking_regeneration_required_before_remote_formal_execution": false,
         "required_before": "approved_remote_preflight"
+      },
+      {
+        "artifact_id": "gpu3070ti_readiness_refresh",
+        "path": "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_commit": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_head_dirty": false,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
+        "commits_since_source": 136,
+        "changed_path_count_since_source": 99,
+        "artifact_path_changed_since_source": true,
+        "non_self_changed_path_count_since_source": 97,
+        "blocking_changed_path_count_since_source": 42,
+        "self_artifact_only_lag": false,
+        "tracked_artifact_only_lag": false,
+        "blocking_regeneration_required_before_remote_formal_execution": true,
+        "required_before": "approved_remote_preflight"
+      },
+      {
+        "artifact_id": "post_f02_6_plan_audit",
+        "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_commit": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_head_dirty": false,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
+        "commits_since_source": 136,
+        "changed_path_count_since_source": 99,
+        "artifact_path_changed_since_source": true,
+        "non_self_changed_path_count_since_source": 97,
+        "blocking_changed_path_count_since_source": 42,
+        "self_artifact_only_lag": false,
+        "tracked_artifact_only_lag": false,
+        "blocking_regeneration_required_before_remote_formal_execution": true,
+        "required_before": "approved_remote_preflight"
+      },
+      {
+        "artifact_id": "post_f02_6_regeneration_plan",
+        "path": "0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_commit": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_head_dirty": false,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
+        "commits_since_source": 136,
+        "changed_path_count_since_source": 99,
+        "artifact_path_changed_since_source": true,
+        "non_self_changed_path_count_since_source": 97,
+        "blocking_changed_path_count_since_source": 42,
+        "self_artifact_only_lag": false,
+        "tracked_artifact_only_lag": false,
+        "blocking_regeneration_required_before_remote_formal_execution": true,
+        "required_before": "approved_remote_preflight"
+      },
+      {
+        "artifact_id": "remote_formal_execution_packet",
+        "path": "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_commit": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_head_dirty": false,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
+        "commits_since_source": 136,
+        "changed_path_count_since_source": 99,
+        "artifact_path_changed_since_source": true,
+        "non_self_changed_path_count_since_source": 98,
+        "blocking_changed_path_count_since_source": 42,
+        "self_artifact_only_lag": false,
+        "tracked_artifact_only_lag": false,
+        "blocking_regeneration_required_before_remote_formal_execution": true,
+        "required_before": "approved_remote_preflight"
+      },
+      {
+        "artifact_id": "remote_packet_safety_audit",
+        "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_commit": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_head_dirty": false,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
+        "commits_since_source": 136,
+        "changed_path_count_since_source": 99,
+        "artifact_path_changed_since_source": true,
+        "non_self_changed_path_count_since_source": 98,
+        "blocking_changed_path_count_since_source": 42,
+        "self_artifact_only_lag": false,
+        "tracked_artifact_only_lag": false,
+        "blocking_regeneration_required_before_remote_formal_execution": true,
+        "required_before": "approved_remote_preflight"
+      },
+      {
+        "artifact_id": "h01_evaluation_manifest",
+        "path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_commit": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_head_dirty": false,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
+        "commits_since_source": 136,
+        "changed_path_count_since_source": 99,
+        "artifact_path_changed_since_source": true,
+        "non_self_changed_path_count_since_source": 98,
+        "blocking_changed_path_count_since_source": 42,
+        "self_artifact_only_lag": false,
+        "tracked_artifact_only_lag": false,
+        "blocking_regeneration_required_before_remote_formal_execution": true,
+        "required_before": "formal_h01_h02"
+      },
+      {
+        "artifact_id": "h02_formal_acceptance",
+        "path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_commit": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_head_dirty": false,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
+        "commits_since_source": 136,
+        "changed_path_count_since_source": 99,
+        "artifact_path_changed_since_source": true,
+        "non_self_changed_path_count_since_source": 98,
+        "blocking_changed_path_count_since_source": 42,
+        "self_artifact_only_lag": false,
+        "tracked_artifact_only_lag": false,
+        "blocking_regeneration_required_before_remote_formal_execution": true,
+        "required_before": "formal_h01_h02"
+      },
+      {
+        "artifact_id": "claim_safety",
+        "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_commit": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_head_dirty": false,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
+        "commits_since_source": 136,
+        "changed_path_count_since_source": 99,
+        "artifact_path_changed_since_source": true,
+        "non_self_changed_path_count_since_source": 97,
+        "blocking_changed_path_count_since_source": 42,
+        "self_artifact_only_lag": false,
+        "tracked_artifact_only_lag": false,
+        "blocking_regeneration_required_before_remote_formal_execution": true,
+        "required_before": "formal_claim_gate"
+      },
+      {
+        "artifact_id": "formal_gate_proof_audit",
+        "path": "0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_commit": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_head_dirty": false,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
+        "commits_since_source": 136,
+        "changed_path_count_since_source": 99,
+        "artifact_path_changed_since_source": true,
+        "non_self_changed_path_count_since_source": 98,
+        "blocking_changed_path_count_since_source": 42,
+        "self_artifact_only_lag": false,
+        "tracked_artifact_only_lag": false,
+        "blocking_regeneration_required_before_remote_formal_execution": true,
+        "required_before": "formal_claim_gate"
+      },
+      {
+        "artifact_id": "formal_gate_proof_summary_chain_audit",
+        "path": "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_commit": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_head_dirty": false,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
+        "commits_since_source": 136,
+        "changed_path_count_since_source": 99,
+        "artifact_path_changed_since_source": true,
+        "non_self_changed_path_count_since_source": 97,
+        "blocking_changed_path_count_since_source": 42,
+        "self_artifact_only_lag": false,
+        "tracked_artifact_only_lag": false,
+        "blocking_regeneration_required_before_remote_formal_execution": true,
+        "required_before": "formal_claim_gate"
+      },
+      {
+        "artifact_id": "mainline_formal_gate_state_audit",
+        "path": "0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json",
+        "freshness_state": "historical_clean",
+        "source_head": "2cd4e13da6aff82d096cbf7cd11595f859ec4d05",
+        "source_commit": "2cd4e13da6aff82d096cbf7cd11595f859ec4d05",
+        "source_head_dirty": false,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
+        "commits_since_source": 37,
+        "changed_path_count_since_source": 19,
+        "artifact_path_changed_since_source": true,
+        "non_self_changed_path_count_since_source": 17,
+        "blocking_changed_path_count_since_source": 9,
+        "self_artifact_only_lag": false,
+        "tracked_artifact_only_lag": false,
+        "blocking_regeneration_required_before_remote_formal_execution": true,
+        "required_before": "formal_claim_gate"
+      },
+      {
+        "artifact_id": "paper_readiness",
+        "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
+        "freshness_state": "historical_clean",
+        "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_commit": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+        "source_head_dirty": false,
+        "source_commit_exists": true,
+        "matches_current_head": false,
+        "current_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
+        "commits_since_source": 136,
+        "changed_path_count_since_source": 99,
+        "artifact_path_changed_since_source": true,
+        "non_self_changed_path_count_since_source": 97,
+        "blocking_changed_path_count_since_source": 42,
+        "self_artifact_only_lag": false,
+        "tracked_artifact_only_lag": false,
+        "blocking_regeneration_required_before_remote_formal_execution": true,
+        "required_before": "formal_claim_gate"
       }
     ]
   },
@@ -81,13 +442,13 @@
     "missing_counts_by_category": {
       "decision": 0,
       "decision_gate": 0,
-      "regeneration": 0,
+      "regeneration": 22,
       "gate_sequence": 4,
       "training": 0,
       "evaluation": 0,
       "acceptance": 0,
       "evaluation_acceptance": 1,
-      "claim_gate": 1
+      "claim_gate": 8
     }
   },
   "closure_checklist": {
@@ -115,7 +476,7 @@
     "formal_claim_allowed_now": false,
     "local_training_allowed_now": false,
     "next_blocked_lane_id": "source_fresh_preflight",
-    "input_safety_issue_count": 3
+    "input_safety_issue_count": 1
   },
   "remaining_deliverables_ledger": {
     "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
@@ -148,7 +509,7 @@
       "training": {
         "missing_count": 0,
         "responsible_stage_id": "gate3_remote_training",
-        "responsible_stage_allowed_now": true,
+        "responsible_stage_allowed_now": false,
         "missing_artifact_matrix_ids": []
       },
       "evaluation": {
@@ -190,7 +551,7 @@
       "training": {
         "missing_count": 0,
         "responsible_stage_id": "gate3_remote_training",
-        "responsible_stage_allowed_now": true,
+        "responsible_stage_allowed_now": false,
         "missing_artifact_matrix_ids": []
       },
       "evaluation": {
@@ -259,6 +620,10 @@
   },
   "current_gate_state": {
     "f02_6_decision_status": "approved",
+    "protocol_lane_status": "protocol_lane_status_blocked_pending_lane_decision",
+    "protocol_lane_decision_record_status": "pending_protocol_lane_decision",
+    "protocol_lane_selected_lane_id": null,
+    "protocol_lane_pending": true,
     "effective_warm_start_decision": "approved_obstacle_summary",
     "remote_training_allowed": true,
     "h01_status": "ready_for_formal_run",
@@ -269,9 +634,9 @@
     "ppo_row_count": 0,
     "ppo_checkpoint_hashes": [],
     "formal_performance_claim_allowed": false,
-    "source_freshness_status": "source_freshness_clean_current",
-    "source_freshness_regeneration_required": false,
-    "source_freshness_blocking_regeneration_required": false,
+    "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
+    "source_freshness_regeneration_required": true,
+    "source_freshness_blocking_regeneration_required": true,
     "formal_gate_missing_artifacts_status": "formal_gate_missing_artifacts_open",
     "formal_gate_missing_artifacts_open": true,
     "formal_gate_closure_checklist_status": "formal_gate_closure_blocked",
@@ -281,9 +646,9 @@
     "remaining_deliverables_status": "formal_gate_deliverables_blocked",
     "remaining_deliverables_gap_total_missing": 1,
     "remaining_deliverables_gap_open_category_count": 1,
-    "formal_gate_handoff_status": "ready_for_manual_remote_execution_review",
+    "formal_gate_handoff_status": "blocked_until_protocol_lane_decision",
     "formal_gate_handoff_safety_issue_count": 0,
-    "formal_gate_handoff_remote_training_allowed_now": true,
+    "formal_gate_handoff_remote_training_allowed_now": false,
     "remote_packet_safety_status": "remote_packet_safety_audit_passed",
     "remote_packet_safety_audit_issue_count": 0
   },
@@ -302,6 +667,62 @@
       "why_missing": "PPO rows do not contain a non-empty rl_rs_checkpoint_sha256.",
       "evidence_path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
       "required_next_artifact": "Record checkpoint path and SHA-256 in every PPO/RL-RS result row."
+    },
+    {
+      "category": "training",
+      "gap_id": "source_freshness_regeneration_required",
+      "why_missing": "Source freshness audit reports stale or dirty gate artifacts that must be regenerated before formal execution.",
+      "evidence_path": "0_trials/module2_source_freshness_audit/source_freshness_audit.json",
+      "required_next_artifact": "After F02.6 closes, regenerate the listed targets before approved remote preflight, H01/H02, and formal claim gates."
+    },
+    {
+      "category": "training",
+      "gap_id": "handoff_step_allowed_mismatch_sync_to_remote",
+      "why_missing": "Handoff sync_to_remote.allowed_now=False does not match remote packet True.",
+      "evidence_path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
+      "required_next_artifact": "Regenerate handoff from the current remote execution packet."
+    },
+    {
+      "category": "training",
+      "gap_id": "handoff_step_blockers_mismatch_sync_to_remote",
+      "why_missing": "Handoff sync_to_remote.blocked_by does not match the remote packet.",
+      "evidence_path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
+      "required_next_artifact": "Regenerate handoff from the current remote execution packet blockers."
+    },
+    {
+      "category": "training",
+      "gap_id": "handoff_step_allowed_mismatch_run_remote_preflight",
+      "why_missing": "Handoff run_remote_preflight.allowed_now=False does not match remote packet True.",
+      "evidence_path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
+      "required_next_artifact": "Regenerate handoff from the current remote execution packet."
+    },
+    {
+      "category": "training",
+      "gap_id": "handoff_step_blockers_mismatch_run_remote_preflight",
+      "why_missing": "Handoff run_remote_preflight.blocked_by does not match the remote packet.",
+      "evidence_path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
+      "required_next_artifact": "Regenerate handoff from the current remote execution packet blockers."
+    },
+    {
+      "category": "training",
+      "gap_id": "handoff_step_allowed_mismatch_run_remote_training",
+      "why_missing": "Handoff run_remote_training.allowed_now=False does not match remote packet True.",
+      "evidence_path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
+      "required_next_artifact": "Regenerate handoff from the current remote execution packet."
+    },
+    {
+      "category": "training",
+      "gap_id": "handoff_step_blockers_mismatch_run_remote_training",
+      "why_missing": "Handoff run_remote_training.blocked_by does not match the remote packet.",
+      "evidence_path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
+      "required_next_artifact": "Regenerate handoff from the current remote execution packet blockers."
+    },
+    {
+      "category": "training",
+      "gap_id": "handoff_step_blockers_mismatch_run_remote_audit",
+      "why_missing": "Handoff run_remote_audit.blocked_by does not match the remote packet.",
+      "evidence_path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
+      "required_next_artifact": "Regenerate handoff from the current remote execution packet blockers."
     }
   ],
   "missing_evaluation_artifacts": [
@@ -366,7 +787,7 @@
     {
       "category": "acceptance",
       "gap_id": "formal_gate_missing_artifacts_open",
-      "why_missing": "Formal gate inventory still reports missing evidence counts: {'decision': 0, 'decision_gate': 0, 'regeneration': 0, 'gate_sequence': 4, 'training': 0, 'evaluation': 0, 'acceptance': 0, 'evaluation_acceptance': 1, 'claim_gate': 1}.",
+      "why_missing": "Formal gate inventory still reports missing evidence counts: {'decision': 0, 'decision_gate': 0, 'regeneration': 22, 'gate_sequence': 4, 'training': 0, 'evaluation': 0, 'acceptance': 0, 'evaluation_acceptance': 1, 'claim_gate': 8}.",
       "evidence_path": "0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json",
       "required_next_artifact": "Close every missing-artifacts group before final H02/claim readiness can pass."
     },
@@ -380,7 +801,7 @@
     {
       "category": "acceptance",
       "gap_id": "formal_status_report_safety_issues_open",
-      "why_missing": "Status report has 3 input safety issues.",
+      "why_missing": "Status report has 1 input safety issues.",
       "evidence_path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
       "required_next_artifact": "Resolve status report input safety issues before treating the formal gate as complete."
     },
@@ -402,42 +823,49 @@
   "formal_gate_handoff": {
     "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
     "exists": true,
-    "status": "ready_for_manual_remote_execution_review",
+    "status": "blocked_until_protocol_lane_decision",
     "executes_commands": false,
     "runs_training": false,
     "runs_remote_preflight": false,
     "local_training_allowed": false,
     "formal_claim_allowed": false,
     "safety_issue_count": 0,
-    "next_handoff_action_id": "resolve_source_fresh_preflight",
-    "remote_preflight_allowed_now": true,
-    "remote_training_allowed_now": true,
+    "next_handoff_action_id": "record_protocol_lane_decision",
+    "remote_preflight_allowed_now": false,
+    "remote_training_allowed_now": false,
     "formal_claim_allowed_now": false,
     "remote_execution_steps": {
       "sync_to_remote": {
         "present": true,
-        "allowed_now": true,
+        "allowed_now": false,
         "runs_training": false,
-        "blocked_by": []
+        "blocked_by": [
+          "protocol_lane_decision_pending"
+        ]
       },
       "run_remote_preflight": {
         "present": true,
-        "allowed_now": true,
+        "allowed_now": false,
         "runs_training": false,
-        "blocked_by": []
+        "blocked_by": [
+          "protocol_lane_decision_pending"
+        ]
       },
       "run_remote_training": {
         "present": true,
-        "allowed_now": true,
+        "allowed_now": false,
         "runs_training": true,
-        "blocked_by": []
+        "blocked_by": [
+          "protocol_lane_decision_pending"
+        ]
       },
       "run_remote_audit": {
         "present": true,
         "allowed_now": false,
         "runs_training": false,
         "blocked_by": [
-          "remote_training_not_completed"
+          "remote_training_not_completed",
+          "protocol_lane_decision_pending"
         ]
       }
     }
@@ -544,6 +972,8 @@
   "execution_veto_matrix": {
     "matrix_version": 1,
     "f02_6_decision_status": "approved",
+    "protocol_lane_status": "protocol_lane_status_blocked_pending_lane_decision",
+    "protocol_lane_override_active": true,
     "all_rows_consistent": true,
     "mismatch_rows": [],
     "rows": [
@@ -551,9 +981,9 @@
         "row_id": "local_training",
         "allowed_now_by_source": {
           "formal_gate_gap_audit": false,
+          "protocol_lane_status": false,
           "status_report": false,
-          "handoff_bundle": false,
-          "remote_packet": false
+          "handoff_bundle": false
         },
         "consistent": true,
         "consensus_allowed_now": false
@@ -561,28 +991,35 @@
       {
         "row_id": "remote_preflight",
         "allowed_now_by_source": {
-          "status_report": true,
-          "remote_packet": true
+          "protocol_lane_status": false,
+          "status_report": false,
+          "handoff_bundle": false,
+          "remote_packet_superseded_by_protocol_lane": null,
+          "remote_packet_safety_superseded_by_protocol_lane": null
         },
         "consistent": true,
-        "consensus_allowed_now": true
+        "consensus_allowed_now": false
       },
       {
         "row_id": "remote_training",
         "allowed_now_by_source": {
-          "decision_record": true,
-          "status_report": true,
-          "remote_packet": true
+          "protocol_lane_status": false,
+          "decision_record_superseded_by_protocol_lane": null,
+          "status_report": false,
+          "handoff_bundle": false,
+          "remote_packet_superseded_by_protocol_lane": null,
+          "remote_packet_safety_superseded_by_protocol_lane": null
         },
         "consistent": true,
-        "consensus_allowed_now": true
+        "consensus_allowed_now": false
       },
       {
         "row_id": "remote_audit",
         "allowed_now_by_source": {
+          "protocol_lane_status": false,
           "handoff_bundle": false,
-          "remote_packet": false,
-          "remote_packet_safety": false
+          "remote_packet_superseded_by_protocol_lane": null,
+          "remote_packet_safety_superseded_by_protocol_lane": null
         },
         "consistent": true,
         "consensus_allowed_now": false
@@ -590,6 +1027,7 @@
       {
         "row_id": "formal_claim",
         "allowed_now_by_source": {
+          "protocol_lane_status": false,
           "status_report": false,
           "handoff_bundle": false
         },
@@ -611,8 +1049,17 @@
     {
       "step_id": "remote_preflight",
       "phase": "training",
-      "status": "pending_execution",
-      "blocked_by": [],
+      "status": "blocked",
+      "blocked_by": [
+        "source_freshness_regeneration_required",
+        "handoff_step_allowed_mismatch_sync_to_remote",
+        "handoff_step_blockers_mismatch_sync_to_remote",
+        "handoff_step_allowed_mismatch_run_remote_preflight",
+        "handoff_step_blockers_mismatch_run_remote_preflight",
+        "handoff_step_allowed_mismatch_run_remote_training",
+        "handoff_step_blockers_mismatch_run_remote_training",
+        "handoff_step_blockers_mismatch_run_remote_audit"
+      ],
       "runs_training": false,
       "host": "gpu3070ti-relay",
       "action": "Regenerate source-fresh gate artifacts, then approved gpu3070ti preflight and require formal_trial_ready=true.",
@@ -621,8 +1068,17 @@
     {
       "step_id": "gate3_remote_training",
       "phase": "training",
-      "status": "pending_execution",
-      "blocked_by": [],
+      "status": "blocked",
+      "blocked_by": [
+        "source_freshness_regeneration_required",
+        "handoff_step_allowed_mismatch_sync_to_remote",
+        "handoff_step_blockers_mismatch_sync_to_remote",
+        "handoff_step_allowed_mismatch_run_remote_preflight",
+        "handoff_step_blockers_mismatch_run_remote_preflight",
+        "handoff_step_allowed_mismatch_run_remote_training",
+        "handoff_step_blockers_mismatch_run_remote_training",
+        "handoff_step_blockers_mismatch_run_remote_audit"
+      ],
       "runs_training": true,
       "host": "gpu3070ti-relay",
       "action": "Run formal PPO Gate3 trial remotely; never on local Mac.",
@@ -633,6 +1089,14 @@
       "phase": "acceptance",
       "status": "blocked",
       "blocked_by": [
+        "source_freshness_regeneration_required",
+        "handoff_step_allowed_mismatch_sync_to_remote",
+        "handoff_step_blockers_mismatch_sync_to_remote",
+        "handoff_step_allowed_mismatch_run_remote_preflight",
+        "handoff_step_blockers_mismatch_run_remote_preflight",
+        "handoff_step_allowed_mismatch_run_remote_training",
+        "handoff_step_blockers_mismatch_run_remote_training",
+        "handoff_step_blockers_mismatch_run_remote_audit",
         "missing_ppo_result_rows",
         "missing_ppo_checkpoint_hash"
       ],
@@ -646,6 +1110,14 @@
       "phase": "evaluation",
       "status": "blocked",
       "blocked_by": [
+        "source_freshness_regeneration_required",
+        "handoff_step_allowed_mismatch_sync_to_remote",
+        "handoff_step_blockers_mismatch_sync_to_remote",
+        "handoff_step_allowed_mismatch_run_remote_preflight",
+        "handoff_step_blockers_mismatch_run_remote_preflight",
+        "handoff_step_allowed_mismatch_run_remote_training",
+        "handoff_step_blockers_mismatch_run_remote_training",
+        "handoff_step_blockers_mismatch_run_remote_audit",
         "missing_ppo_result_rows",
         "missing_ppo_checkpoint_hash",
         "h02_scale_below_h01_queries_per_bucket",
@@ -662,6 +1134,14 @@
       "phase": "acceptance",
       "status": "blocked",
       "blocked_by": [
+        "source_freshness_regeneration_required",
+        "handoff_step_allowed_mismatch_sync_to_remote",
+        "handoff_step_blockers_mismatch_sync_to_remote",
+        "handoff_step_allowed_mismatch_run_remote_preflight",
+        "handoff_step_blockers_mismatch_run_remote_preflight",
+        "handoff_step_allowed_mismatch_run_remote_training",
+        "handoff_step_blockers_mismatch_run_remote_training",
+        "handoff_step_blockers_mismatch_run_remote_audit",
         "missing_ppo_result_rows",
         "missing_ppo_checkpoint_hash",
         "h02_scale_below_h01_queries_per_bucket",

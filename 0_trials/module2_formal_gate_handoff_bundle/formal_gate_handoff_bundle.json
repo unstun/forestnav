@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_handoff_bundle",
   "status": "blocked_until_protocol_lane_decision",
-  "created_at_utc": "2026-07-05T23:28:09.092359+00:00",
-  "source_head": "414970cfb79086679983d3110e202642abc63f8d",
+  "created_at_utc": "2026-07-05T23:48:47.289622+00:00",
+  "source_head": "e1a6329a97e0baa55aad8212196a537acc4dc302",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -42,7 +42,7 @@
     "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
     "source_freshness_regeneration_required": true,
     "source_freshness_blocking_regeneration_required": true,
-    "source_freshness_non_self_changed_records": 22,
+    "source_freshness_non_self_changed_records": 18,
     "source_freshness_self_artifact_only_lag_records": 0
   },
   "permissions_now": {
@@ -258,7 +258,7 @@
       "training": {
         "missing_count": 0,
         "responsible_stage_id": "gate3_remote_training",
-        "responsible_stage_allowed_now": true,
+        "responsible_stage_allowed_now": false,
         "missing_artifact_matrix_ids": []
       },
       "evaluation": {
@@ -351,12 +351,14 @@
       "phase": "training",
       "status": "satisfied",
       "complete": true,
-      "execution_allowed_now": true,
+      "execution_allowed_now": false,
       "missing_artifact_ids": [],
       "responsible_stage_id": "gate3_remote_training",
-      "responsible_stage_status": "ready",
-      "responsible_stage_allowed_now": true,
-      "responsible_stage_blocked_by": [],
+      "responsible_stage_status": "blocked",
+      "responsible_stage_allowed_now": false,
+      "responsible_stage_blocked_by": [
+        "protocol_lane_decision_pending"
+      ],
       "responsible_stage_evidence_paths": [
         "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
         "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json",
@@ -383,13 +385,14 @@
       "phase": "evaluation",
       "status": "satisfied",
       "complete": true,
-      "execution_allowed_now": true,
+      "execution_allowed_now": false,
       "missing_artifact_ids": [],
       "responsible_stage_id": "gate3_remote_audit_pullback",
       "responsible_stage_status": "blocked",
       "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
-        "remote_training_not_completed"
+        "remote_training_not_completed",
+        "protocol_lane_decision_pending"
       ],
       "responsible_stage_evidence_paths": [
         "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
@@ -415,13 +418,14 @@
       "phase": "acceptance",
       "status": "satisfied",
       "complete": true,
-      "execution_allowed_now": true,
+      "execution_allowed_now": false,
       "missing_artifact_ids": [],
       "responsible_stage_id": "gate3_remote_audit_pullback",
       "responsible_stage_status": "blocked",
       "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
-        "remote_training_not_completed"
+        "remote_training_not_completed",
+        "protocol_lane_decision_pending"
       ],
       "responsible_stage_evidence_paths": [
         "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
