@@ -166,7 +166,11 @@ def build_manifest(config: FormalGateGapAuditConfig) -> dict[str, Any]:
         "created_at_utc": datetime.now(UTC).isoformat(),
         "source_head": _source_head(),
         "not_paper_result_material": True,
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
         "local_training_allowed": False,
+        "formal_claim_allowed": False,
         "remote_training_resource": _remote_training_resource(remote),
         "contract": {
             "path": str(config.contract_path),
