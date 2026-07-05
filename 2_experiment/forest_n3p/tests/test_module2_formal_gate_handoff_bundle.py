@@ -193,6 +193,51 @@ def test_formal_gate_handoff_bundle_marks_manual_review_when_sources_allow_remot
     assert stages["gate3_remote_training"]["host"] == "gpu3070ti-relay"
 
 
+def test_formal_gate_handoff_bundle_blocks_remote_when_protocol_lane_pending(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_handoff_bundle")
+
+    manifest = builder.build_manifest(_config(tmp_path, complete=True, protocol_pending=True))
+
+    assert manifest["status"] == "blocked_until_protocol_lane_decision"
+    assert manifest["current_state"]["protocol_lane_status"] == "protocol_lane_status_blocked_pending_lane_decision"
+    assert manifest["current_state"]["next_blocked_lane"] == "protocol_lane_decision"
+    assert manifest["current_state"]["ready_to_run_remote_training"] is False
+    assert manifest["permissions_now"]["remote_preflight_allowed_now"] is False
+    assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+    assert manifest["next_handoff_action"]["action_id"] == "record_protocol_lane_decision"
+    assert manifest["next_handoff_action"]["requires_dr_sun"] is True
+    single = manifest["single_next_action_index"]
+    assert single["status"] == "awaiting_dr_sun_protocol_lane_decision"
+    assert single["single_current_human_entry"] is True
+    assert single["next_action_id"] == "record_protocol_lane_decision"
+    assert single["valid_decisions"] == [
+        "stronger_obstacle_summary_warm_start",
+        "full_patch_cnn_policy",
+        "hybrid_ppo_analytic_fallback",
+        "stop_or_reframe_module2_claim",
+    ]
+    assert single["current_allowed_action_ids"] == ["record_protocol_lane_decision"]
+    assert single["current_blocked_action_ids"] == [
+        "local_training",
+        "remote_success_training",
+        "remote_preflight_for_new_success_attempt",
+        "formal_claim",
+        "paper_result_material",
+    ]
+    assert single["all_execution_disabled_now"] is True
+    assert single["remote_preflight_allowed_now"] is False
+    assert single["remote_training_allowed_now"] is False
+    assert single["formal_claim_allowed_now"] is False
+    assert single["paper_result_material_allowed_now"] is False
+    assert manifest["remote_execution_steps"]["run_remote_training"]["allowed_now"] is False
+    assert "protocol_lane_decision_pending" in manifest["remote_execution_steps"]["run_remote_training"]["blocked_by"]
+    stages = {stage["stage_id"]: stage for stage in manifest["handoff_stages"]}
+    assert stages["approved_remote_preflight"]["source_allowed_now"] is False
+    assert stages["gate3_remote_training"]["source_allowed_now"] is False
+    assert "protocol_lane_decision_pending" in stages["gate3_remote_training"]["blocked_by"]
+    assert manifest["safety_issue_count"] == 0
+
+
 def test_formal_gate_handoff_bundle_blocks_remote_when_source_freshness_stale(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_handoff_bundle")
     config = _config(tmp_path, complete=True)
@@ -363,6 +408,8 @@ def test_formal_gate_handoff_bundle_cli_writes_json_and_markdown(tmp_path):
             str(config.h02_acceptance_path),
             "--source-freshness",
             str(config.source_freshness_path),
+            "--protocol-lane-status-report",
+            str(config.protocol_lane_status_report_path),
         ]
     )
 
@@ -404,6 +451,11 @@ def _config(tmp_path, *, complete):
         missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts(complete=complete)),
         h02_acceptance_path=_json(tmp_path, "h02.json", _h02(complete=complete)),
         source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness(complete=complete)),
+        protocol_lane_status_report_path=_json(
+            tmp_path,
+            "protocol_lane_status.json",
+            _protocol_lane_status(pending=protocol_pending),
+        ),
     )
 
 
