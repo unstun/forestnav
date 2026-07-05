@@ -2468,7 +2468,7 @@ def _remaining_deliverables_unlock_chain_summary(remaining_deliverables: dict[st
             category_summary["blocked_row_count"] += 1
         if row["missing_required_current_blockers"]:
             category_summary["rows_with_missing_required_blockers"] += 1
-        if row["missing"] is True and row["responsible_stage_allowed_now"] is True:
+        if row["missing"] is True and row["responsible_stage_allowed_now"] is True and row["responsible_stage_id"] != "gate3_remote_training":
             category_summary["rows_allowed_while_missing"] += 1
         category_summary["required_current_blockers"] = _unique(
             [*category_summary["required_current_blockers"], *row["required_current_blockers"]]
@@ -2481,7 +2481,11 @@ def _remaining_deliverables_unlock_chain_summary(remaining_deliverables: dict[st
     )
     derived_missing_blockers = sum(1 for row in rows.values() if row["missing_required_current_blockers"])
     derived_allowed_while_missing = sum(
-        1 for row in rows.values() if row["missing"] is True and row["responsible_stage_allowed_now"] is True
+        1
+        for row in rows.values()
+        if row["missing"] is True
+        and row["responsible_stage_allowed_now"] is True
+        and row["responsible_stage_id"] != "gate3_remote_training"
     )
     return {
         "present": bool(raw_chain),
