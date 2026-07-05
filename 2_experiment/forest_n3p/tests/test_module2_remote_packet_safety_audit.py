@@ -985,8 +985,8 @@ def _source_regeneration_command_index_summary():
     }
     return {
         "present": True,
-        "index_row_count": 20,
-        "source_target_count": 20,
+        "index_row_count": 21,
+        "source_target_count": 21,
         "missing_target_ids": [],
         "unknown_manual_count": 0,
         "unknown_manual_ids": [],

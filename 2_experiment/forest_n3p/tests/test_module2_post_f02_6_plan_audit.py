@@ -38,8 +38,8 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
     assert manifest["current_blocking_summary"]["remote_preflight_allowed_now"] is False
     command_index = manifest["source_regeneration_command_index_summary"]
     assert command_index["present"] is True
-    assert command_index["index_row_count"] == 7
-    assert command_index["source_target_count"] == 7
+    assert command_index["index_row_count"] == 8
+    assert command_index["source_target_count"] == 8
     assert command_index["unknown_manual_count"] == 0
     assert command_index["stage_mismatch_count"] == 0
     assert command_index["command_not_in_stage_count"] == 0
@@ -47,7 +47,7 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
     assert command_index["stage_counts"] == {
         "regenerate_claim_gate_artifacts": 3,
         "regenerate_h01_h02_formal_artifacts": 1,
-        "regenerate_preflight_gate_artifacts": 3,
+        "regenerate_preflight_gate_artifacts": 4,
     }
     assert manifest["inputs"]["formal_gate_status_report"].endswith("status_report.json")
     assert manifest["status_report_summary"]["status"] == "formal_gate_status_blocked"
@@ -673,6 +673,11 @@ def _plan_payload():
                     "path": "handoff.json",
                     "freshness_state": "historical_clean",
                 },
+                {
+                    "artifact_id": "post_f02_6_regeneration_plan",
+                    "path": "post_plan.json",
+                    "freshness_state": "historical_dirty",
+                },
             ],
             "formal_h01_h02": [
                 {"artifact_id": "h01_evaluation_manifest", "path": "h01.json", "freshness_state": "historical_dirty"}
@@ -712,6 +717,13 @@ def _plan_payload():
                 "handoff.json",
                 "known_builder",
                 "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_handoff_bundle",
+            ),
+            _command_index_row(
+                "post_f02_6_regeneration_plan",
+                "approved_remote_preflight",
+                "post_plan.json",
+                "known_builder",
+                "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_regeneration_plan",
             ),
             _command_index_row(
                 "h01_evaluation_manifest",
@@ -766,6 +778,7 @@ def _plan_payload():
                     "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'",
                     "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_gap_audit",
                     "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_handoff_bundle",
+                    "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_regeneration_plan",
                 ],
             ),
             _stage_payload(
@@ -878,6 +891,11 @@ def _source_freshness_payload():
             {
                 "artifact_id": "formal_gate_handoff_bundle",
                 "path": "handoff.json",
+                "required_before": "approved_remote_preflight",
+            },
+            {
+                "artifact_id": "post_f02_6_regeneration_plan",
+                "path": "post_plan.json",
                 "required_before": "approved_remote_preflight",
             },
             {"artifact_id": "h01_evaluation_manifest", "path": "h01.json", "required_before": "formal_h01_h02"},
