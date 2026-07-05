@@ -16,8 +16,19 @@ def test_remaining_deliverables_blocks_pending_formal_gate(tmp_path):
     assert manifest["runs_remote_preflight"] is False
     assert manifest["local_training_allowed"] is False
     assert manifest["formal_claim_allowed"] is False
+    assert manifest["local_training_allowed_now"] is False
+    assert manifest["remote_preflight_allowed_now"] is False
+    assert manifest["remote_training_allowed_now"] is False
+    assert manifest["formal_h01_evaluation_allowed_now"] is False
+    assert manifest["formal_h02_acceptance_allowed_now"] is False
+    assert manifest["formal_claim_allowed_now"] is False
+    assert manifest["paper_result_material_allowed_now"] is False
     assert manifest["permissions_now"]["local_training_allowed_now"] is False
+    assert manifest["permissions_now"]["remote_preflight_allowed_now"] is False
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+    assert manifest["permissions_now"]["formal_h01_evaluation_allowed_now"] is False
+    assert manifest["permissions_now"]["formal_h02_acceptance_allowed_now"] is False
+    assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
     assert manifest["permissions_now"]["source_freshness_ready_for_remote_preflight"] is False
     assert manifest["inputs"]["source_freshness_audit"].endswith("source_freshness.json")
     assert manifest["current_gate_summary"]["next_blocked_lane"] == "decision"
@@ -195,6 +206,13 @@ def test_remaining_deliverables_accepts_synthetic_complete_gate(tmp_path):
     assert manifest["h02_status"] == "formal_output_accepted"
     assert manifest["h02_formal_output_accepted"] is True
     assert manifest["h02_paper_result_input_allowed"] is True
+    assert manifest["local_training_allowed_now"] is False
+    assert manifest["remote_preflight_allowed_now"] is True
+    assert manifest["remote_training_allowed_now"] is True
+    assert manifest["formal_h01_evaluation_allowed_now"] is True
+    assert manifest["formal_h02_acceptance_allowed_now"] is True
+    assert manifest["formal_claim_allowed_now"] is True
+    assert manifest["paper_result_material_allowed_now"] is True
     assert manifest["deliverable_gap_summary"]["total_missing_deliverables"] == 0
     assert manifest["deliverable_gap_summary"]["open_category_count"] == 0
     assert all(not category["missing_artifacts"] for category in manifest["deliverable_gap_summary"]["categories"])
@@ -333,6 +351,8 @@ def test_remaining_deliverables_cli_writes_json_and_markdown(tmp_path):
     assert "Proof Command Plan" in markdown
     assert "total_missing_deliverables" in markdown
     assert "total_proof_command_count" in markdown
+    assert "remote_preflight_allowed_now" in markdown
+    assert "paper_result_material_allowed_now" in markdown
     assert "gap:training" in markdown
     assert "missing_artifacts=`training:train_final_model_zip" in markdown
     assert "proof_commands=`train_final_model_zip_exists_nonempty" in markdown
