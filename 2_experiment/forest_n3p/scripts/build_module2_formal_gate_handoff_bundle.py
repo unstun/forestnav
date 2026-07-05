@@ -432,9 +432,64 @@ def _next_handoff_action(*, decision: dict[str, Any], status_report: dict[str, A
     }
 
 
-def _permissions(status_report: dict[str, Any]) -> dict[str, bool]:
+def _source_freshness_summary(source_freshness: dict[str, Any]) -> dict[str, Any]:
+    commit_lag = (
+        source_freshness.get("commit_lag_summary")
+        if isinstance(source_freshness.get("commit_lag_summary"), dict)
+        else {}
+    )
+    return {
+        "source_freshness_status": source_freshness.get("status"),
+        "source_freshness_regeneration_required": source_freshness.get(
+            "regeneration_required_before_remote_formal_execution"
+        ),
+        "source_freshness_non_self_changed_records": commit_lag.get(
+            "records_with_non_self_changed_paths_since_source"
+        ),
+        "source_freshness_self_artifact_only_lag_records": commit_lag.get("records_with_self_artifact_only_lag"),
+    }
+
+
+def _source_freshness_ready_for_remote_preflight(source_freshness: dict[str, Any]) -> bool:
+    return (
+        source_freshness.get("status") == "source_freshness_clean_current"
+        and source_freshness.get("regeneration_required_before_remote_formal_execution") is False
+    )
+
+
+def _remote_execution_allowed(
+    *,
+    remote_steps: dict[str, dict[str, Any]],
+    stages: Sequence[dict[str, Any]],
+    status_permissions: dict[str, Any],
+) -> bool:
+    if any(bool(step.get("allowed_now")) for step in remote_steps.values()):
+        return True
+    for key in ("remote_preflight_allowed_now", "remote_training_allowed_now"):
+        if status_permissions.get(key) is True:
+            return True
+    for stage in stages:
+        if (
+            stage.get("stage_id") in {"approved_remote_preflight", "gate3_remote_training"}
+            and stage.get("source_allowed_now") is True
+        ):
+            return True
+    return False
+
+
+def _permissions(status_report: dict[str, Any], *, source_freshness: dict[str, Any] | None = None) -> dict[str, bool]:
     permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
-    return {str(key): bool(value) for key, value in permissions.items()}
+    out = {str(key): bool(value) for key, value in permissions.items()}
+    if source_freshness is None:
+        return out
+    source_ready = _source_freshness_ready_for_remote_preflight(source_freshness)
+    out["source_freshness_ready_for_remote_preflight"] = source_ready
+    if not source_ready:
+        out["remote_preflight_allowed_now"] = False
+        out["remote_training_allowed_now"] = False
+        out["formal_claim_allowed_now"] = False
+    out["local_training_allowed_now"] = False
+    return out
 
 
 def _next_blocked_lane_id(status_report: dict[str, Any]) -> str | None:
