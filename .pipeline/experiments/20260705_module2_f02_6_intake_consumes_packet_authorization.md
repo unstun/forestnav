@@ -71,7 +71,7 @@ PYTHONPATH=2_experiment pytest -q \
   2_experiment/forest_n3p/tests/test_module2_paper_readiness.py
 ```
 
-Observed: `150 passed in 6.39s`.
+Observed: `150 passed in 6.51s`.
 
 ## Boundary
 
