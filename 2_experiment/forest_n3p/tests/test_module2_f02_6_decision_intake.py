@@ -57,6 +57,13 @@ def test_f02_6_decision_intake_pending_clean_lists_required_human_fields(tmp_pat
     assert state["remaining_remote_training_allowed_now"] is False
     assert manifest["decision_intake_contract"]["decision_owner_required"] == "Dr Sun"
     assert "decision_note" in manifest["decision_intake_contract"]["required_record_fields_for_non_pending_decision"]
+    assert manifest["decision_intake_contract"]["decision_note_guidance"] == [
+        "selected decision",
+        "human rationale",
+        "evidence basis",
+        "risk accepted or avoided",
+        "next gated action",
+    ]
     request = manifest["next_human_decision_request"]
     assert request["status"] == "awaiting_dr_sun_decision"
     assert request["decision_owner_required"] == "Dr Sun"
@@ -258,6 +265,8 @@ def test_f02_6_decision_intake_cli_writes_json_and_markdown(tmp_path):
     assert "Formal Gate Decision Impact" in markdown
     assert "all_execution_disabled_now" in markdown
     assert "packet_authorization_status" in markdown
+    assert "decision_note_guidance" in markdown
+    assert "evidence basis" in markdown
     assert "decision_note" in markdown
     assert "decision_record_is_not_training_authorization" in markdown
 
