@@ -25,6 +25,9 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
     assert manifest["permissions_now"]["source_freshness_ready_for_remote_preflight"] is False
     assert manifest["inputs"]["source_freshness_audit"].endswith("source_freshness.json")
+    assert manifest["inputs"]["mainline_formal_gate_state_audit"].endswith(
+        "mainline_formal_gate_state_audit.json"
+    )
     assert manifest["current_state"]["decision_status"] == "pending_human_decision"
     assert manifest["current_state"]["decision_remote_preflight_allowed_now"] is False
     assert manifest["current_state"]["decision_remote_training_allowed_now"] is False
@@ -137,6 +140,20 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["current_state"]["formal_gate_proof_audit_evaluation_missing_artifact_count"] == 2
     assert manifest["current_state"]["formal_gate_proof_audit_acceptance_missing_artifact_count"] == 3
     assert manifest["current_state"]["formal_gate_proof_audit_formal_acceptance_failed_artifact_count"] == 2
+    assert (
+        manifest["current_state"]["mainline_formal_gate_state_audit_status"]
+        == "mainline_formal_gate_state_consistent_blocked"
+    )
+    assert manifest["current_state"]["mainline_formal_gate_state_audit_issue_count"] == 0
+    assert (
+        manifest["current_state"]["mainline_formal_gate_state_audit_proof_summary_chain_status"]
+        == "formal_gate_proof_summary_chain_consistent_blocked"
+    )
+    assert manifest["current_state"]["mainline_formal_gate_state_audit_proof_summary_chain_issue_count"] == 0
+    assert (
+        manifest["current_state"]["mainline_formal_gate_state_audit_proof_audit_input_safety_issue_count"]
+        == 0
+    )
     assert manifest["missing_counts_by_category"]["training"] == 3
     assert len(manifest["training_artifacts_required"]) == 3
     assert len(manifest["evaluation_artifacts_required"]) == 2
@@ -563,6 +580,17 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     }
     assert manifest["formal_gate_proof_audit_gap_summary"]["missing_artifact_count"] == 0
     assert manifest["formal_gate_proof_audit_gap_summary"]["failed_acceptance_artifact_count"] == 0
+    assert (
+        manifest["mainline_formal_gate_state_audit_summary"]["status"]
+        == "mainline_formal_gate_state_ready_for_claim_audit"
+    )
+    assert manifest["mainline_formal_gate_state_audit_summary"]["audit_issue_count"] == 0
+    assert (
+        manifest["mainline_formal_gate_state_audit_summary"][
+            "proof_summary_chain_proof_audit_input_safety_issue_count"
+        ]
+        == 0
+    )
     assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 0
     assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 0
     assert manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 0
@@ -966,6 +994,47 @@ def test_formal_gate_status_report_requires_formal_gate_proof_audit_summary(tmp_
     assert manifest["formal_gate_proof_audit_summary"]["total_matrix_rows"] == 9
 
 
+def test_formal_gate_status_report_requires_mainline_audit_input_safety(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=True)
+    mainline_audit = json.loads(config.mainline_formal_gate_state_audit_path.read_text(encoding="utf-8"))
+    mainline_audit["status"] = "mainline_formal_gate_state_audit_failed"
+    mainline_audit["not_paper_result_material"] = False
+    mainline_audit["executes_commands"] = True
+    mainline_audit["runs_training"] = True
+    mainline_audit["runs_remote_preflight"] = True
+    mainline_audit["audit_issue_count"] = 1
+    mainline_audit["proof_summary_chain_audit_issue_count"] = 1
+    mainline_audit["proof_summary_chain_proof_audit_input_safety_issue_count"] = 1
+    mainline_audit["proof_summary_chain_proof_audit_blockers"] = [
+        "proof_audit_input_safety_issues_open"
+    ]
+    config.mainline_formal_gate_state_audit_path.write_text(
+        json.dumps(mainline_audit),
+        encoding="utf-8",
+    )
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert "mainline_formal_gate_state_audit_executes_commands" in issue_ids
+    assert "mainline_formal_gate_state_audit_runs_training" in issue_ids
+    assert "mainline_formal_gate_state_audit_runs_remote_preflight" in issue_ids
+    assert "mainline_formal_gate_state_audit_failed" in issue_ids
+    assert "mainline_formal_gate_state_audit_marked_as_paper_result" in issue_ids
+    assert "mainline_formal_gate_state_audit_issues_open" in issue_ids
+    assert "mainline_formal_gate_state_audit_proof_summary_issues_open" in issue_ids
+    assert "mainline_formal_gate_state_audit_proof_audit_input_safety_issues_open" in issue_ids
+    assert "mainline_formal_gate_state_audit_proof_audit_input_safety_blocker_open" in issue_ids
+    assert manifest["mainline_formal_gate_state_audit_summary"]["audit_issue_count"] == 1
+    assert (
+        manifest["mainline_formal_gate_state_audit_summary"][
+            "proof_summary_chain_proof_audit_input_safety_issue_count"
+        ]
+        == 1
+    )
+
+
 def test_formal_gate_status_report_consumes_handoff_bundle_safety(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
     config = _config(tmp_path, complete=False)
@@ -1260,6 +1329,8 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
             str(config.remaining_deliverables_path),
             "--formal-gate-proof-audit",
             str(config.formal_gate_proof_audit_path),
+            "--mainline-formal-gate-state-audit",
+            str(config.mainline_formal_gate_state_audit_path),
             "--decision-intake",
             str(config.decision_intake_path),
             "--source-freshness",
@@ -1288,6 +1359,7 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
     assert "Next Required Formal Deliverables" in markdown
     assert "Formal Gate Proof Audit" in markdown
     assert "Formal Gate Proof Audit Gap Summary" in markdown
+    assert "Mainline Formal Gate State Audit" in markdown
     assert "source_freshness_status" in markdown
     assert "missing_artifact_count=`8`" in markdown
     assert "formal_gate_proof_audit_blocked" in markdown
@@ -1328,6 +1400,11 @@ def _config(tmp_path, *, complete, drift=False):
             tmp_path,
             "formal_gate_proof_audit.json",
             _formal_gate_proof_audit(complete=complete),
+        ),
+        mainline_formal_gate_state_audit_path=_json(
+            tmp_path,
+            "mainline_formal_gate_state_audit.json",
+            _mainline_formal_gate_state_audit(complete=complete),
         ),
     )
 
