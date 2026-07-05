@@ -1331,6 +1331,9 @@ def _write_inputs(tmp_path, *, formal):
                     "paper_result_material_allowed_now": False,
                 },
             },
+            "handoff_f02_6_decision_evidence_matrix_summary": (
+                _claim_safety_handoff_decision_evidence_matrix_summary_payload()
+            ),
             "status_report_remaining_deliverables_acceptance_summary": _claim_safety_remaining_deliverables_acceptance_summary_payload(
                 formal=formal
             ),
