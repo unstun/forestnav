@@ -468,6 +468,20 @@ def test_claim_safety_blocks_formal_claim_when_status_report_is_blocked(tmp_path
     assert manifest["input_status"]["status_report_decision_intake_formal_claim_allowed_now"] is False
     assert manifest["input_status"]["status_report_closure_remote_training_allowed_now"] is False
     assert manifest["input_status"]["status_report_remote_packet_training_allowed_now"] is False
+    assert manifest["input_status"]["status_report_remote_packet_safety_proof_summary_present"] is True
+    assert manifest["input_status"]["status_report_remote_packet_safety_proof_training_missing_count"] == 3
+    assert manifest["input_status"]["status_report_remote_packet_safety_proof_evaluation_missing_count"] == 2
+    assert manifest["input_status"]["status_report_remote_packet_safety_proof_acceptance_missing_count"] == 3
+    assert manifest["input_status"]["status_report_remote_packet_safety_proof_formal_acceptance_missing_count"] == 2
+    assert manifest["input_status"]["status_report_remote_packet_safety_proof_h02_paper_result_input_allowed"] is False
+    assert manifest["status_report_remote_packet_safety_proof_deliverables_summary"][
+        "missing_counts_by_formal_category"
+    ] == {
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 2,
+    }
     assert manifest["status_report_remote_gate_summary"]["closure_remote_stage_summary"]["gate3_remote_training"][
         "blocked_by"
     ] == ["f02_6_decision_not_approved", "source_fresh_preflight_targets_open", "remote_packet_not_ready"]

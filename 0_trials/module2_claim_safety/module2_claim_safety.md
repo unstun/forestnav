@@ -160,6 +160,22 @@
 - open_category_count=`4`
 - matches_status_report_remaining_gap=`True`
 
+## Status Report Remote-Safety Proof Deliverables Summary
+
+- proof_summary_present=`True`
+- proof_missing_counts_by_formal_category=`{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
+- proof_next_blocked_lane=`decision`
+- proof_h01_status=`blocked_pending_decisions`
+- proof_h02_status=`blocked_formal_output_acceptance`
+- proof_h02_paper_result_input_allowed=`False`
+- status_report_proof_summary_present=`True`
+- status_report_proof_matches_remote_proof=`True`
+- remote_proof_matches_gap_summary=`True`
+- remote_proof_training_missing_matrix_ids=`training:train_final_model_zip, training:train_summary_json, training:train_training_manifest_json`
+- remote_proof_evaluation_missing_matrix_ids=`evaluation:eval_gate3_eval_episodes_csv, evaluation:eval_gate3_summary_json`
+- remote_proof_acceptance_missing_matrix_ids=`acceptance:gate3_trial_manifest_json, acceptance:gate3_formal_audit_json, acceptance:pulled_back_checkpoint_hash_record`
+- remote_proof_formal_acceptance_missing_matrix_ids=`formal_acceptance:h01_ready_for_formal_run, formal_acceptance:h02_formal_output_acceptance`
+
 ## Status Report Remote-Safety Claim-Gate Command Index
 
 - present=`True`
