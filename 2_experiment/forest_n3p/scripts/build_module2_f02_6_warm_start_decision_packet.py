@@ -157,6 +157,7 @@ def build_packet(config: F026DecisionPacketConfig) -> dict[str, Any]:
             "It does not close F02.6; Dr Sun must explicitly approve or reject the recommendation.",
             "Remote smoke artifacts prove executable CUDA plumbing only; they are not Gate #3 evidence.",
             "The listed remote command is a post-approval route, not current authorization to preflight or train.",
+            "The listed command must not be run on the local Mac; approved execution is remote-only on gpu3070ti-relay after the formal gates reopen it.",
             "No-warm formal failure cannot be relabeled as obstacle-summary warm-start failure.",
             "The obstacle-summary checkpoint is a warm-start initializer candidate, not a finished planner checkpoint.",
         ],
