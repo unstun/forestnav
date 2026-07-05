@@ -129,6 +129,76 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
+def _current_state(remaining: dict[str, Any]) -> dict[str, Any]:
+    current_gate = (
+        remaining.get("current_gate_summary")
+        if isinstance(remaining.get("current_gate_summary"), dict)
+        else {}
+    )
+    permissions = remaining.get("permissions_now") if isinstance(remaining.get("permissions_now"), dict) else {}
+    gap = (
+        remaining.get("deliverable_gap_summary")
+        if isinstance(remaining.get("deliverable_gap_summary"), dict)
+        else {}
+    )
+    return {
+        "remaining_deliverables_status": remaining.get("status"),
+        "remaining_missing_deliverable_count": _int_or_none(
+            remaining.get("missing_deliverable_count", gap.get("total_missing_deliverables"))
+        ),
+        "remaining_open_category_count": _int_or_none(
+            remaining.get("open_category_count", gap.get("open_category_count"))
+        ),
+        "source_freshness_ready_for_remote_preflight": permissions.get(
+            "source_freshness_ready_for_remote_preflight",
+            current_gate.get("source_freshness_ready_for_remote_preflight"),
+        ),
+        "source_freshness_status": current_gate.get("source_freshness_status"),
+        "source_freshness_regeneration_required": current_gate.get(
+            "source_freshness_regeneration_required"
+        ),
+        "source_freshness_non_self_changed_records": current_gate.get(
+            "source_freshness_non_self_changed_records"
+        ),
+        "source_freshness_self_artifact_only_lag_records": current_gate.get(
+            "source_freshness_self_artifact_only_lag_records"
+        ),
+    }
+
+
+def _formal_gate_missing_evidence_summary(results: Sequence[dict[str, Any]]) -> dict[str, dict[str, list[str]]]:
+    summary = {
+        category: {"missing_artifact_ids": [], "failed_artifact_ids": []}
+        for category in CATEGORY_BLOCKER_PREFIX
+    }
+    for result in results:
+        category = str(result.get("category") or "unknown")
+        if category not in summary:
+            summary[category] = {"missing_artifact_ids": [], "failed_artifact_ids": []}
+        artifact_id = str(result.get("artifact_id") or "")
+        if not artifact_id:
+            continue
+        if result.get("status") == "blocked_missing_artifact":
+            _append_unique(summary[category]["missing_artifact_ids"], artifact_id)
+        elif result.get("status") == "failed":
+            _append_unique(summary[category]["failed_artifact_ids"], artifact_id)
+    return summary
+
+
+def _append_unique(items: list[str], item: str) -> None:
+    if item not in items:
+        items.append(item)
+
+
+def _int_or_none(value: Any) -> int | None:
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
 def _input_safety_issues(*, remaining: dict[str, Any], plan: dict[str, Any]) -> list[dict[str, Any]]:
     issues: list[dict[str, Any]] = []
     for key in ("executes_commands", "runs_training", "runs_remote_preflight", "local_training_allowed", "formal_claim_allowed"):
