@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_f02_6_decision_intake",
   "status": "f02_6_decision_intake_pending_clean",
-  "created_at_utc": "2026-07-05T04:58:03.521451+00:00",
-  "source_head": "d660065ee07319f803425e6948d91d9bd7901a27+dirty",
+  "created_at_utc": "2026-07-05T05:29:59.206788+00:00",
+  "source_head": "c8c9a0649b7c8487821b0756cbfdc15d736fa937+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -69,6 +69,55 @@
       "evaluation": 2,
       "acceptance": 3,
       "formal_acceptance": 2
+    }
+  },
+  "next_human_decision_request": {
+    "status": "awaiting_dr_sun_decision",
+    "decision_owner_required": "Dr Sun",
+    "valid_decisions": [
+      "approve_obstacle_summary_warm_start",
+      "reject_obstacle_summary_warm_start"
+    ],
+    "required_record_fields": [
+      "decision",
+      "decider",
+      "decision_note"
+    ],
+    "current_allowed_action_ids": [
+      "record_f02_6_decision"
+    ],
+    "current_blocked_action_ids": [
+      "remote_preflight",
+      "remote_training",
+      "local_training",
+      "formal_claim",
+      "paper_result_material"
+    ],
+    "post_decision_routes_are_current_authorization": false,
+    "all_execution_disabled_now": true,
+    "route_effects": {
+      "approve_obstacle_summary_warm_start": {
+        "next_lane_after_record": "source_fresh_regeneration",
+        "allows_remote_preflight_now": false,
+        "allows_remote_training_now": false,
+        "allows_formal_claim_now": false,
+        "required_next_artifacts": [
+          "source_freshness_audit",
+          "post_f02_6_regeneration_plan",
+          "post_f02_6_plan_audit"
+        ]
+      },
+      "reject_obstacle_summary_warm_start": {
+        "next_lane_after_record": "protocol_redesign",
+        "allows_remote_preflight_now": false,
+        "allows_remote_training_now": false,
+        "allows_formal_claim_now": false,
+        "required_next_artifacts": [
+          "new_or_revised_research_contract",
+          "stronger_patch_cnn_protocol_spec",
+          "fresh_formal_gate_artifact_plan"
+        ]
+      }
     }
   },
   "decision_intake_contract": {

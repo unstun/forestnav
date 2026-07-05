@@ -17,6 +17,19 @@ This read-only artifact explains how F02.6 can be closed. It does not record a d
 - remote_training_allowed_now: `False`
 - formal_claim_allowed_now: `False`
 
+## Next Human Decision Request
+
+- status: `awaiting_dr_sun_decision`
+- decision_owner_required: `Dr Sun`
+- valid_decisions: `approve_obstacle_summary_warm_start, reject_obstacle_summary_warm_start`
+- required_record_fields: `decision, decider, decision_note`
+- current_allowed_action_ids: `record_f02_6_decision`
+- current_blocked_action_ids: `remote_preflight, remote_training, local_training, formal_claim, paper_result_material`
+- post_decision_routes_are_current_authorization: `False`
+- all_execution_disabled_now: `True`
+- `approve_obstacle_summary_warm_start`: next_lane_after_record=`source_fresh_regeneration`, remote_preflight_now=`False`, remote_training_now=`False`, formal_claim_now=`False`
+- `reject_obstacle_summary_warm_start`: next_lane_after_record=`protocol_redesign`, remote_preflight_now=`False`, remote_training_now=`False`, formal_claim_now=`False`
+
 ## Required Fields
 
 - `decision`: must be one of approve_obstacle_summary_warm_start or reject_obstacle_summary_warm_start
