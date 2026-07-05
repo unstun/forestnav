@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_claim_safety",
   "status": "blocked_formal_performance_claims",
-  "created_at_utc": "2026-07-05T03:16:56.155829+00:00",
-  "source_head": "4082e6fae4cdebee0795e91653d73d2cca7dff75",
+  "created_at_utc": "2026-07-05T03:48:14.719052+00:00",
+  "source_head": "154d2d8bcea346ca532a417cfb00bcd5d80fc47d",
   "formal_performance_claim_allowed": false,
   "formal_performance_blockers": [
     "paper_tables_not_formal",
@@ -120,8 +120,8 @@
     "status_report_remote_packet_safety_proof_h02_paper_result_input_allowed": false,
     "status_report_remote_packet_safety_status_report_proof_summary_present": true,
     "status_report_remote_packet_safety_command_index_present": true,
-    "status_report_remote_packet_safety_command_index_row_count": 19,
-    "status_report_remote_packet_safety_command_index_source_target_count": 19,
+    "status_report_remote_packet_safety_command_index_row_count": 20,
+    "status_report_remote_packet_safety_command_index_source_target_count": 20,
     "status_report_remote_packet_safety_command_index_missing_target_count": 0
   },
   "status_report_handoff_summary": {
@@ -872,8 +872,8 @@
   },
   "status_report_remote_packet_safety_claim_gate_command_index_summary": {
     "present": true,
-    "index_row_count": 19,
-    "source_target_count": 19,
+    "index_row_count": 20,
+    "source_target_count": 20,
     "missing_target_ids": [],
     "unknown_manual_count": 0,
     "unknown_manual_ids": [],
