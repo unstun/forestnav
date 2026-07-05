@@ -54,6 +54,19 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["current_state"]["decision_intake_packet_remote_preflight_allowed_now"] is False
     assert manifest["current_state"]["decision_intake_packet_remote_training_allowed_now"] is False
     assert manifest["current_state"]["decision_intake_packet_paper_result_material_allowed_now"] is False
+    assert manifest["current_state"]["decision_intake_next_request_status"] == "awaiting_dr_sun_decision"
+    assert manifest["current_state"]["decision_intake_next_request_current_allowed_action_ids"] == [
+        "record_f02_6_decision"
+    ]
+    assert manifest["current_state"]["decision_intake_next_request_current_blocked_action_ids"] == [
+        "remote_preflight",
+        "remote_training",
+        "local_training",
+        "formal_claim",
+        "paper_result_material",
+    ]
+    assert manifest["current_state"]["decision_intake_next_request_post_decision_routes_are_current_authorization"] is False
+    assert manifest["current_state"]["decision_intake_next_request_all_execution_disabled_now"] is True
     assert manifest["current_state"]["missing_artifacts_handoff_index_status"] == "blocked_until_f02_6_decision"
     assert manifest["current_state"]["missing_artifacts_handoff_next_action"] == "record_f02_6_decision"
     assert manifest["current_state"]["missing_artifacts_handoff_open_requirement_count"] == 5
@@ -149,6 +162,10 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert intake["packet_remote_preflight_allowed_now"] is False
     assert intake["packet_remote_training_allowed_now"] is False
     assert intake["packet_paper_result_material_allowed_now"] is False
+    assert intake["next_request_status"] == "awaiting_dr_sun_decision"
+    assert intake["next_request_decision_owner_required"] == "Dr Sun"
+    assert intake["next_request_current_allowed_action_ids"] == ["record_f02_6_decision"]
+    assert intake["next_request_all_execution_disabled_now"] is True
     assert intake["decision_owner_required"] == "Dr Sun"
     assert intake["valid_decision_count"] == 2
     assert set(intake["valid_decisions"]) == {
