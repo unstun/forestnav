@@ -22,6 +22,13 @@ DEFAULT_BC_CHECKPOINT = Path("2_experiment/forest_n3p/models/module2_rl_rs_bc_ob
 APPROVE_OBSTACLE_SUMMARY = "approve_obstacle_summary_warm_start"
 REJECT_OBSTACLE_SUMMARY = "reject_obstacle_summary_warm_start"
 DECISION_OWNER = "Dr Sun"
+DECISION_NOTE_GUIDANCE = (
+    "selected decision",
+    "human rationale",
+    "evidence basis",
+    "risk accepted or avoided",
+    "next gated action",
+)
 
 
 @dataclass(frozen=True)
@@ -87,6 +94,10 @@ def build_record(config: F026DecisionRecordConfig) -> dict[str, Any]:
         "requested_decision": requested_decision,
         "decider": config.decider,
         "decision_note": config.decision_note,
+        "decision_note_audit": _decision_note_audit(
+            requested_decision=requested_decision,
+            decision_note=config.decision_note,
+        ),
         "packet": _packet_record(config.packet_path, packet),
         "decision_mapping": _decision_mapping(),
         "effective_warm_start_decision": normalized["effective_warm_start_decision"],
@@ -141,6 +152,59 @@ def _validate_decision_note(*, requested_decision: str, decision_note: str | Non
         return
     if not isinstance(decision_note, str) or not decision_note.strip():
         raise ValueError("non-pending F02.6 decisions require a non-empty --decision-note")
+
+
+def _decision_note_audit(*, requested_decision: str, decision_note: str | None) -> dict[str, Any]:
+    note = decision_note.strip() if isinstance(decision_note, str) else ""
+    normalized_note = note.lower()
+    selected_route_terms = {
+        "pending": ("pending",),
+        APPROVE_OBSTACLE_SUMMARY: ("approve", "approved", "obstacle-summary", "warm-start"),
+        REJECT_OBSTACLE_SUMMARY: ("reject", "rejected", "patch-cnn", "stronger"),
+    }.get(requested_decision, ())
+    evidence_terms = ("evidence", "packet", "bc", "formal-v2", "patch-cnn", "gate", "risk", "because")
+    next_step_terms = ("source-fresh", "preflight", "protocol", "contract", "gate", "next")
+    return {
+        "required_for_non_pending_decision": requested_decision != "pending",
+        "present": bool(note),
+        "character_count": len(note),
+        "word_count": len(note.split()),
+        "guidance_items": list(DECISION_NOTE_GUIDANCE),
+        "mentions_selected_route": any(term in normalized_note for term in selected_route_terms),
+        "mentions_evidence_or_risk_basis": any(term in normalized_note for term in evidence_terms),
+        "mentions_next_gated_action": any(term in normalized_note for term in next_step_terms),
+        "quality_warning": _decision_note_quality_warning(
+            requested_decision=requested_decision,
+            present=bool(note),
+            mentions_selected_route=any(term in normalized_note for term in selected_route_terms),
+            mentions_evidence_or_risk_basis=any(term in normalized_note for term in evidence_terms),
+            mentions_next_gated_action=any(term in normalized_note for term in next_step_terms),
+        ),
+    }
+
+
+def _decision_note_quality_warning(
+    *,
+    requested_decision: str,
+    present: bool,
+    mentions_selected_route: bool,
+    mentions_evidence_or_risk_basis: bool,
+    mentions_next_gated_action: bool,
+) -> str | None:
+    if requested_decision == "pending":
+        return None
+    if not present:
+        return "missing_required_decision_note"
+    missing: list[str] = []
+    if not mentions_selected_route:
+        missing.append("selected_route")
+    if not mentions_evidence_or_risk_basis:
+        missing.append("evidence_or_risk_basis")
+    if not mentions_next_gated_action:
+        missing.append("next_gated_action")
+    if missing:
+        return "decision_note_should_mention_" + "_".join(missing)
+    return None
 
 
 def _normalize_decision(*, requested_decision: str, decider: str | None, packet: dict[str, Any]) -> dict[str, Any]:
@@ -296,6 +360,7 @@ def _markdown(record: dict[str, Any]) -> str:
         f"- requested decision: `{record['requested_decision']}`",
         f"- effective warm-start decision: `{record['effective_warm_start_decision']}`",
         f"- decider: `{record['decider']}`",
+        f"- decision note audit: `{record['decision_note_audit']}`",
         f"- remote training allowed: `{record['remote_training_allowed']}`",
         f"- remote preflight allowed now: `{record['remote_preflight_allowed_now']}`",
         f"- remote training allowed now: `{record['remote_training_allowed_now']}`",
