@@ -3721,6 +3721,22 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"stage_allowed_now=`{payload['responsible_stage_allowed_now']}`, "
             f"missing_artifacts=`{missing_ids}`, proof_commands=`{proof_ids}`, blocked_by=`{blocked_by}`"
         )
+    unlock_chain = manifest["remaining_deliverables_unlock_chain_summary"]
+    lines.extend(["", "## Remaining Deliverables Unlock Chain", ""])
+    lines.append(f"- present: `{unlock_chain['present']}`")
+    lines.append(f"- chain_id: `{unlock_chain['chain_id']}`")
+    lines.append(f"- status: `{unlock_chain['status']}`")
+    lines.append(f"- row_count: `{unlock_chain['row_count']}`")
+    lines.append(f"- blocked_row_count: `{unlock_chain['blocked_row_count']}`")
+    lines.append(f"- rows_with_missing_required_blockers: `{unlock_chain['rows_with_missing_required_blockers']}`")
+    lines.append(f"- rows_allowed_while_missing: `{unlock_chain['rows_allowed_while_missing']}`")
+    for category, payload in unlock_chain["categories"].items():
+        blockers = ", ".join(payload["required_current_blockers"]) if payload["required_current_blockers"] else "none"
+        lines.append(
+            f"- `{category}`: row_count=`{payload['row_count']}`, blocked_row_count=`{payload['blocked_row_count']}`, "
+            f"rows_with_missing_required_blockers=`{payload['rows_with_missing_required_blockers']}`, "
+            f"rows_allowed_while_missing=`{payload['rows_allowed_while_missing']}`, blockers=`{blockers}`"
+        )
     next_deliverables = manifest["next_required_formal_deliverables"]
     lines.extend(["", "## Next Required Formal Deliverables", ""])
     lines.append(f"- status: `{next_deliverables['status']}`")
