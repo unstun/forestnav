@@ -279,7 +279,7 @@ def _run_scenario(*, config: F026TransitionGateAuditConfig, scenario_id: str, wo
             output_dir=work_root,
             plan_path=plan_path,
             formal_gate_path=formal_gate_path,
-            source_freshness_path=config.source_freshness_path,
+            source_freshness_path=source_freshness_path,
             missing_artifacts_path=missing_artifacts_path,
             closure_checklist_path=closure_checklist_path,
             status_report_path=status_report_path,
@@ -651,7 +651,9 @@ def _scenario_remote_packet(base: dict[str, Any], scenario_id: str) -> dict[str,
     preflight["preflight_status"] = "blocked"
     preflight["warm_start_decision"] = "pending" if scenario_id == "pending" else scenario_id
     preflight["blocker_codes"] = _unique_strings(
-        _strings(preflight.get("blocker_codes")) + _scenario_execution_blockers(scenario_id, for_training=False)
+        _strings(preflight.get("blocker_codes"))
+        + (["warm_start_decision_pending"] if scenario_id == "pending" else [])
+        + _scenario_execution_blockers(scenario_id, for_training=False)
     )
 
     steps = out.setdefault("execution_steps", {})
@@ -1009,6 +1011,7 @@ def _markdown(manifest: dict[str, Any]) -> str:
         "# Module2 F02.6 Transition Gate Audit",
         "",
         "This file audits synthetic pending/approved/rejected F02.6 gate transitions. It does not record a decision, run preflight, train, audit, pull back artifacts, or write paper results.",
+        "A passing transition audit is not permission to train.",
         "",
         f"- status: `{manifest['status']}`",
         f"- audit_issue_count: `{manifest['audit_issue_count']}`",
