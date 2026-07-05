@@ -224,6 +224,10 @@ def _run_scenario(*, config: F026TransitionGateAuditConfig, scenario_id: str, wo
     source_freshness = _scenario_source_freshness(_read_json(config.source_freshness_path), scenario_id)
     remote_packet = _scenario_remote_packet(_read_json(config.remote_packet_path), scenario_id)
     handoff_bundle = _scenario_handoff_bundle(_read_json(config.handoff_bundle_path), scenario_id, remote_packet)
+    remaining_deliverables = _scenario_remaining_deliverables(
+        _read_json(config.remaining_deliverables_path),
+        scenario_id,
+    )
     formal_gate_path = _write_json(work_root / "formal_gate_gap_audit.json", formal_gate)
     missing_artifacts_path = _write_json(work_root / "formal_gate_missing_artifacts.json", missing_artifacts)
     closure_checklist_path = _write_json(work_root / "formal_gate_closure_checklist.json", closure_checklist)
@@ -231,6 +235,10 @@ def _run_scenario(*, config: F026TransitionGateAuditConfig, scenario_id: str, wo
     source_freshness_path = _write_json(work_root / "source_freshness_audit.json", source_freshness)
     remote_packet_path = _write_json(work_root / "remote_formal_execution_packet.json", remote_packet)
     handoff_bundle_path = _write_json(work_root / "formal_gate_handoff_bundle.json", handoff_bundle)
+    remaining_deliverables_path = _write_json(
+        work_root / "formal_gate_remaining_deliverables.json",
+        remaining_deliverables,
+    )
 
     status_report = status_report_builder.build_manifest(
         status_report_builder.FormalGateStatusReportConfig(
@@ -246,6 +254,7 @@ def _run_scenario(*, config: F026TransitionGateAuditConfig, scenario_id: str, wo
             claim_safety_path=config.claim_safety_path,
             paper_readiness_path=config.paper_readiness_path,
             handoff_bundle_path=handoff_bundle_path,
+            remaining_deliverables_path=remaining_deliverables_path,
             source_freshness_path=source_freshness_path,
         )
     )
@@ -259,7 +268,7 @@ def _run_scenario(*, config: F026TransitionGateAuditConfig, scenario_id: str, wo
             status_report_path=status_report_path,
             source_freshness_path=source_freshness_path,
             remote_packet_path=remote_packet_path,
-            remaining_deliverables_path=config.remaining_deliverables_path,
+            remaining_deliverables_path=remaining_deliverables_path,
         )
     )
     plan_path = _write_json(work_root / "post_f02_6_regeneration_plan.json", plan)
@@ -283,7 +292,7 @@ def _run_scenario(*, config: F026TransitionGateAuditConfig, scenario_id: str, wo
             missing_artifacts_path=missing_artifacts_path,
             closure_checklist_path=closure_checklist_path,
             status_report_path=status_report_path,
-            remaining_deliverables_path=config.remaining_deliverables_path,
+            remaining_deliverables_path=remaining_deliverables_path,
         )
     )
     post_plan_audit_path = _write_json(work_root / "post_f02_6_plan_audit.json", post_plan_audit)
