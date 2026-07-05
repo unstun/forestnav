@@ -1,6 +1,6 @@
 # Module2 Remote Formal Execution Packet
 
-- status: `blocked_remote_preflight_not_ready`
+- status: `blocked_preconditions`
 - ready to run remote training: `False`
 - local training allowed: `False`
 - GPU alias: `gpu3070ti-relay`
@@ -8,16 +8,12 @@
 ## Blockers
 - `missing_module2_rl_rs_checkpoint`
 - `realmap_query_generation_not_frozen`
-- `remote_formal_preflight_not_ready`
-- `warm_start_decision_pending`
 
 ## Remote Preflight Requirements
 
 - `f02_6_decision_closed_for_preflight` (decision): status=`satisfied`, execution_allowed_now=`True`
   - invalid_substitutes: `decision packet recommendation without Dr Sun decision record; remote smoke output; manual command execution without approved record`
-- `approved_remote_preflight_manifest` (remote_preflight): status=`ready_to_execute_missing_preflight`, execution_allowed_now=`True`
-  - missing_artifact_ids: `approved_remote_preflight_manifest_ready`
-  - blocked_by: `warm_start_decision_pending`
+- `approved_remote_preflight_manifest` (remote_preflight): status=`satisfied`, execution_allowed_now=`True`
   - invalid_substitutes: `pending remote preflight manifest; CUDA import smoke not tied to the approved Gate3 command; local preflight output`
 - `remote_preflight_protocol_contract` (remote_preflight): status=`satisfied`, execution_allowed_now=`True`
   - invalid_substitutes: `protocol missing eval_min_episodes or success threshold; CPU protocol; smoke protocol`

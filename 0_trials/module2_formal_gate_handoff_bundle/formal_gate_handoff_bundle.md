@@ -21,8 +21,8 @@
 - record_command_template_count: `0`
 - missing_deliverable_count: `10`
 - missing_by_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
-- source_freshness_status: `source_freshness_tracked_artifact_lag_only_gate_ready`
-- source_freshness_blocking_regeneration_required: `False`
+- source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
+- source_freshness_blocking_regeneration_required: `True`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
 - remote_training_allowed_now: `False`
@@ -36,8 +36,8 @@
 
 - `sync_to_remote`: allowed_now=`True`, blocked_by=`none`
 - `run_remote_preflight`: allowed_now=`True`, blocked_by=`none`
-- `run_remote_training`: allowed_now=`False`, blocked_by=`missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
-- `run_remote_audit`: allowed_now=`False`, blocked_by=`missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
+- `run_remote_training`: allowed_now=`False`, blocked_by=`f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_packet_not_ready`
+- `run_remote_audit`: allowed_now=`False`, blocked_by=`f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_packet_not_ready`
 
 ## F02.6 Route Handoff
 
@@ -70,9 +70,9 @@
 
 ## Source Freshness Gate
 
-- source_freshness_status: `source_freshness_tracked_artifact_lag_only_gate_ready`
+- source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
 - source_freshness_regeneration_required: `True`
-- source_freshness_non_self_changed_records: `1`
+- source_freshness_non_self_changed_records: `0`
 - source_freshness_self_artifact_only_lag_records: `0`
 
 ## Handoff Stages
@@ -83,8 +83,8 @@
 - 4. `regenerate_remote_execution_packet`: allowed_now=`False`, blocked_by=`source_fresh_preflight_targets_open`
 - 5. `gate3_remote_training`: allowed_now=`False`, blocked_by=`source_fresh_preflight_targets_open, remote_packet_not_ready`
 - 6. `gate3_remote_audit_pullback`: allowed_now=`False`, blocked_by=`source_fresh_preflight_targets_open, remote_packet_not_ready`
-- 7. `regenerate_h01_h02_formal_artifacts`: allowed_now=`False`, blocked_by=`missing_remote_audit_pullback`
-- 8. `regenerate_claim_gate_artifacts`: allowed_now=`False`, blocked_by=`h02_formal_acceptance_not_ready`
+- 7. `regenerate_h01_h02_formal_artifacts`: allowed_now=`False`, blocked_by=`missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
+- 8. `regenerate_claim_gate_artifacts`: allowed_now=`False`, blocked_by=`h02_formal_acceptance_not_ready, source_fresh_claim_targets_open`
 
 ## Requirement Summary
 
@@ -99,7 +99,7 @@
 - present: `True`
 - missing_counts_by_formal_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
 - next_blocked_lane: `decision`
-- h01_status: `blocked_protocol_gap`
+- h01_status: `blocked_pending_decisions`
 - h02_status: `blocked_formal_output_acceptance`
 - training_missing_matrix_ids: `training:train_final_model_zip, training:train_summary_json, training:train_training_manifest_json`
 - evaluation_missing_matrix_ids: `evaluation:eval_gate3_eval_episodes_csv, evaluation:eval_gate3_summary_json`
@@ -111,6 +111,6 @@
   - `acceptance_remote_pullback_and_audit`: status=`blocked_missing_outputs`, responsible_stage=`gate3_remote_audit_pullback`
   - `h01_h02_formal_evaluation_acceptance`: status=`blocked_missing_outputs`, responsible_stage=`regenerate_h01_h02_formal_artifacts`
 - H02 acceptance requirements: `4`
-- safety issues: `2`
+- safety issues: `3`
 
 This artifact is read-only and does not execute commands.

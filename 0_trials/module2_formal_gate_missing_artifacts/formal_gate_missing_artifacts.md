@@ -20,13 +20,13 @@ This file inventories missing formal-gate evidence. It does not execute commands
 - source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
 - source_freshness_regeneration_required: `True`
 - source_freshness_blocking_regeneration_required: `True`
-- remote_packet_status: `blocked_remote_preflight_not_ready`
+- remote_packet_status: `blocked_preconditions`
 - ready_to_run_remote_training: `False`
 - remote_packet_safety_audit_status: `remote_packet_safety_audit_failed`
-- h01_manifest_status: `blocked_protocol_gap`
-- h01_blockers: `['missing_module2_rl_rs_checkpoint', 'realmap_query_generation_not_frozen']`
+- h01_manifest_status: `blocked_pending_decisions`
+- h01_blockers: `['f02_6_warm_start_decision_pending', 'missing_module2_bc_checkpoint', 'missing_module2_rl_rs_checkpoint', 'realmap_query_generation_not_frozen']`
 - h02_acceptance_status: `blocked_formal_output_acceptance`
-- h02_blockers: `['h02_verdict_not_formal', 'h01_manifest_not_ready', 'missing_module2_rl_rs_checkpoint', 'realmap_query_generation_not_frozen', 'remote_execution_packet_not_ready', 'remote_formal_preflight_not_ready', 'warm_start_decision_pending', 'missing_gate3_formal_audit', 'h02_scale_below_h01_manifest', 'missing_ppo_result_rows', 'missing_remote_pullback_artifacts']`
+- h02_blockers: `['h02_verdict_not_formal', 'h01_manifest_not_ready', 'f02_6_warm_start_decision_pending', 'missing_module2_bc_checkpoint', 'missing_module2_rl_rs_checkpoint', 'realmap_query_generation_not_frozen', 'remote_execution_packet_not_ready', 'missing_gate3_formal_audit', 'h02_scale_below_h01_manifest', 'missing_ppo_result_rows', 'missing_remote_pullback_artifacts']`
 
 ## Formal Gate Handoff Index
 
@@ -84,7 +84,7 @@ This file inventories missing formal-gate evidence. It does not execute commands
 - evaluation: `2`
 - evaluation_acceptance: `2`
 - gate_sequence: `7`
-- regeneration: `21`
+- regeneration: `18`
 - training: `3`
 
 ## Formal Gate Requirements
@@ -124,15 +124,12 @@ This file inventories missing formal-gate evidence. It does not execute commands
 - `f02_6_transition_gate_audit` (decision_gate): complete=`False`, blocked_by=`f02_6_transition_gate_audit_not_passed, f02_6_transition_gate_audit_issues_open`
   - missing `f02_6_transition_gate_audit`: `0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json` (transition audit must pass before the missing-artifacts inventory can represent the formal gate chain)
 - `source_fresh_regeneration_targets` (regeneration): complete=`False`, blocked_by=`source_freshness_regeneration_required`
-  - missing `f02_6_decision_gate_audit`: `0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json` (source freshness audit requires regeneration before the corresponding formal gate)
-  - missing `f02_6_decision_intake`: `0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `f02_6_transition_gate_audit`: `0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json` (source freshness audit requires regeneration before the corresponding formal gate)
-  - missing `f02_6_warm_start_decision_packet`: `0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `formal_gate_closure_checklist`: `0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `formal_gate_gap_audit`: `0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `formal_gate_handoff_bundle`: `0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json` (source freshness audit requires regeneration before the corresponding formal gate)
+  - missing `gpu3070ti_readiness_refresh`: `0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `post_f02_6_plan_audit`: `0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json` (source freshness audit requires regeneration before the corresponding formal gate)
-  - missing `post_f02_6_regeneration_plan`: `0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `remote_formal_execution_packet`: `0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `remote_packet_safety_audit`: `0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json` (source freshness audit requires regeneration before the corresponding formal gate)
   - missing `h01_evaluation_manifest`: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json` (source freshness audit requires regeneration before the corresponding formal gate)
@@ -165,8 +162,8 @@ This file inventories missing formal-gate evidence. It does not execute commands
   - missing `gate3_formal_audit_json`: `0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json` (required formal Gate3 acceptance artifact)
   - missing `pulled_back_checkpoint_hash_record`: `0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json` (remote packet requires checkpoint hash before any local formal claim)
 - `h01_h02_formal_evaluation_acceptance` (evaluation_acceptance): complete=`False`, blocked_by=`h01_ready_for_formal_run, h02_formal_output_acceptance`
-  - missing `h01_ready_for_formal_run`: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json` (missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen)
-  - missing `h02_formal_output_acceptance`: `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json` (h02_verdict_not_formal, h01_manifest_not_ready, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_execution_packet_not_ready, remote_formal_preflight_not_ready, warm_start_decision_pending, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts)
+  - missing `h01_ready_for_formal_run`: `0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json` (f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen)
+  - missing `h02_formal_output_acceptance`: `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json` (h02_verdict_not_formal, h01_manifest_not_ready, f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_execution_packet_not_ready, missing_gate3_formal_audit, h02_scale_below_h01_manifest, missing_ppo_result_rows, missing_remote_pullback_artifacts)
 - `claim_gate_regeneration` (claim_gate): complete=`False`, blocked_by=`claim_safety, formal_gate_missing_artifacts, formal_gate_proof_audit, formal_gate_proof_summary_chain_audit, formal_gate_remaining_deliverables, formal_gate_status_report, mainline_formal_gate_state_audit, paper_readiness, h02_formal_acceptance_before_claim_gate`
   - missing `claim_safety`: `0_trials/module2_claim_safety/module2_claim_safety.json` (claim gate artifact must be regenerated after H02 formal acceptance)
   - missing `formal_gate_missing_artifacts`: `0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json` (claim gate artifact must be regenerated after H02 formal acceptance)

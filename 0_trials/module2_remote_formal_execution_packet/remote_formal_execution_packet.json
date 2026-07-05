@@ -1,17 +1,15 @@
 {
   "schema_version": 1,
   "packet_name": "module2_remote_formal_execution_packet",
-  "status": "blocked_remote_preflight_not_ready",
-  "created_at_utc": "2026-07-05T18:35:45.149476+00:00",
-  "source_head": "e5ba1501cecf92a9901fe718128019b0836f7302",
+  "status": "blocked_preconditions",
+  "created_at_utc": "2026-07-05T18:40:58.376078+00:00",
+  "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
   "ready_to_run_remote_training": false,
   "local_training_allowed": false,
   "formal_claim_allowed_before_audit": false,
   "blockers": [
     "missing_module2_rl_rs_checkpoint",
-    "realmap_query_generation_not_frozen",
-    "remote_formal_preflight_not_ready",
-    "warm_start_decision_pending"
+    "realmap_query_generation_not_frozen"
   ],
   "execution_environment": {
     "gpu_alias": "gpu3070ti-relay",
@@ -47,14 +45,12 @@
     }
   },
   "remote_preflight": {
-    "path": "0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_pending_remote_v1/gate3_preflight_manifest.json",
+    "path": "0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_v1/gate3_preflight_manifest.json",
     "exists": true,
-    "preflight_status": "blocked",
-    "formal_trial_ready": false,
-    "warm_start_decision": "pending",
-    "blocker_codes": [
-      "warm_start_decision_pending"
-    ],
+    "preflight_status": "ready",
+    "formal_trial_ready": true,
+    "warm_start_decision": "approved_obstacle_summary",
+    "blocker_codes": [],
     "protocol_present": true,
     "protocol_device": "cuda",
     "protocol_smoke": false,
@@ -90,16 +86,12 @@
     {
       "requirement_id": "approved_remote_preflight_manifest",
       "phase": "remote_preflight",
-      "status": "ready_to_execute_missing_preflight",
-      "complete": false,
+      "status": "satisfied",
+      "complete": true,
       "execution_allowed_now": true,
       "required_before": "run_remote_training",
-      "missing_artifact_ids": [
-        "approved_remote_preflight_manifest_ready"
-      ],
-      "blocked_by": [
-        "warm_start_decision_pending"
-      ],
+      "missing_artifact_ids": [],
+      "blocked_by": [],
       "acceptable_evidence": [
         "gate3_preflight_manifest.json with preflight_status=ready",
         "formal_trial_ready=true",
@@ -153,8 +145,7 @@
     }
   ],
   "remote_preflight_requirement_counts": {
-    "satisfied": 3,
-    "ready_to_execute_missing_preflight": 1
+    "satisfied": 4
   },
   "execution_steps": {
     "trial_dir": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1",
@@ -178,8 +169,6 @@
       "blocked_by": [
         "missing_module2_rl_rs_checkpoint",
         "realmap_query_generation_not_frozen",
-        "remote_formal_preflight_not_ready",
-        "warm_start_decision_pending",
         "remote_packet_not_ready"
       ]
     },
@@ -190,8 +179,6 @@
       "blocked_by": [
         "missing_module2_rl_rs_checkpoint",
         "realmap_query_generation_not_frozen",
-        "remote_formal_preflight_not_ready",
-        "warm_start_decision_pending",
         "remote_packet_not_ready"
       ]
     }

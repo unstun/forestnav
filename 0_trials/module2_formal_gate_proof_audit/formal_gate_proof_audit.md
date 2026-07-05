@@ -36,7 +36,7 @@
 - present: `True`
 - missing_counts_by_formal_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
 - next_blocked_lane: `decision`
-- h01_status: `blocked_protocol_gap`
+- h01_status: `blocked_pending_decisions`
 - h02_status: `blocked_formal_output_acceptance`
 - h02_formal_output_accepted: `False`
 - h02_paper_result_input_allowed: `False`

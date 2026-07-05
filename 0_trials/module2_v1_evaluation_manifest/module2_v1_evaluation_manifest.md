@@ -1,6 +1,6 @@
 # Module2 v1 Evaluation Manifest
 
-- status: `blocked_pending_decisions`
+- status: `blocked_protocol_gap`
 - contract: `.pipeline/contracts/module2-ppo-funnel-expansion.md`
 - scale: `100` queries/bucket, `5` seeds
 
@@ -10,20 +10,18 @@
 - `ha_dang_multi_rs`: ready (blockers: none)
 - `f_n3p_knn`: ready_if_preflight_passes (blockers: none)
 - `mlp`: ready (blockers: none)
-- `bc_analytic_operator`: blocked (blockers: missing_module2_bc_checkpoint)
-- `ppo_analytic_operator`: blocked (blockers: missing_module2_rl_rs_checkpoint, f02_6_warm_start_decision_pending)
-- `ppo_rs_funnel`: blocked (blockers: missing_module2_rl_rs_checkpoint, f02_6_warm_start_decision_pending)
+- `bc_analytic_operator`: ready (blockers: none)
+- `ppo_analytic_operator`: blocked (blockers: missing_module2_rl_rs_checkpoint)
+- `ppo_rs_funnel`: blocked (blockers: missing_module2_rl_rs_checkpoint)
 
 ## Blockers
-- `f02_6_warm_start_decision_pending`
-- `missing_module2_bc_checkpoint`
 - `missing_module2_rl_rs_checkpoint`
 - `realmap_query_generation_not_frozen`
 
 ## F02.6 Decision Packet
-- path: `None`
-- status: `not_provided`
-- effective decision: `pending`
+- path: `0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json`
+- status: `pending_human_decision`
+- effective decision: `approved_obstacle_summary`
 
 ## Required Output Schema
 - records.csv columns: `36` required

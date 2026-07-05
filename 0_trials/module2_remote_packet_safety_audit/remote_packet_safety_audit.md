@@ -4,7 +4,7 @@ This file audits the remote formal execution packet. It does not execute any com
 
 - status: `remote_packet_safety_audit_failed`
 - audit_issue_count: `3`
-- packet_status: `blocked_remote_preflight_not_ready`
+- packet_status: `blocked_preconditions`
 - remote_training_allowed_now: `False`
 - pullback_artifact_count: `7`
 - post_plan_status_report_status: `formal_gate_status_blocked`

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_f02_6_transition_gate_audit",
   "status": "f02_6_transition_gate_audit_failed",
-  "created_at_utc": "2026-07-05T18:30:00.636953+00:00",
-  "source_head": "e5ba1501cecf92a9901fe718128019b0836f7302",
+  "created_at_utc": "2026-07-05T18:40:06.474052+00:00",
+  "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -144,7 +144,7 @@
         }
       },
       "formal_gate_status_report_status": "formal_gate_status_blocked",
-      "formal_gate_status_report_input_safety_issue_count": 10,
+      "formal_gate_status_report_input_safety_issue_count": 11,
       "formal_gate_status_report_permissions_now": {
         "local_training_allowed_now": false,
         "remote_preflight_allowed_now": false,
@@ -155,17 +155,17 @@
       "post_plan_audit_status": "post_f02_6_plan_audit_failed",
       "post_plan_audit_issue_count": 7,
       "remote_packet_safety_status": "remote_packet_safety_audit_failed",
-      "remote_packet_safety_issue_count": 6,
+      "remote_packet_safety_issue_count": 11,
       "missing_counts_by_category": {
         "decision": 0,
         "decision_gate": 1,
-        "regeneration": 0,
+        "regeneration": 11,
         "gate_sequence": 7,
         "training": 3,
         "evaluation": 2,
         "acceptance": 3,
         "evaluation_acceptance": 2,
-        "claim_gate": 1
+        "claim_gate": 6
       },
       "closure_open_item_count": 8
     },
@@ -281,7 +281,7 @@
         }
       },
       "formal_gate_status_report_status": "formal_gate_status_blocked",
-      "formal_gate_status_report_input_safety_issue_count": 6,
+      "formal_gate_status_report_input_safety_issue_count": 7,
       "formal_gate_status_report_permissions_now": {
         "local_training_allowed_now": false,
         "remote_preflight_allowed_now": false,
@@ -296,13 +296,13 @@
       "missing_counts_by_category": {
         "decision": 0,
         "decision_gate": 1,
-        "regeneration": 0,
+        "regeneration": 11,
         "gate_sequence": 7,
         "training": 3,
         "evaluation": 2,
         "acceptance": 3,
         "evaluation_acceptance": 2,
-        "claim_gate": 1
+        "claim_gate": 6
       },
       "closure_open_item_count": 7
     },
@@ -423,7 +423,7 @@
         }
       },
       "formal_gate_status_report_status": "formal_gate_status_blocked",
-      "formal_gate_status_report_input_safety_issue_count": 6,
+      "formal_gate_status_report_input_safety_issue_count": 7,
       "formal_gate_status_report_permissions_now": {
         "local_training_allowed_now": false,
         "remote_preflight_allowed_now": false,
@@ -438,13 +438,13 @@
       "missing_counts_by_category": {
         "decision": 0,
         "decision_gate": 1,
-        "regeneration": 0,
+        "regeneration": 11,
         "gate_sequence": 7,
         "training": 3,
         "evaluation": 2,
         "acceptance": 3,
         "evaluation_acceptance": 2,
-        "claim_gate": 1
+        "claim_gate": 6
       },
       "closure_open_item_count": 7
     }
@@ -461,7 +461,7 @@
       "scenario_id": "pending",
       "issue_id": "remote_packet_safety_issue_count",
       "message": "remote_packet_safety_issue_count must be zero.",
-      "observed": 6
+      "observed": 11
     },
     {
       "scenario_id": "pending",

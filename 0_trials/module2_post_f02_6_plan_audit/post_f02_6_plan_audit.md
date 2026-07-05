@@ -3,7 +3,7 @@
 This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
 - status: `post_f02_6_plan_audit_failed`
-- audit_issue_count: `8`
+- audit_issue_count: `9`
 - executes_commands: `False`
 - runs_training: `False`
 - runs_remote_preflight: `False`
@@ -48,7 +48,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - runs_remote_preflight: `False`
 - all_required_evidence_present: `False`
 - audit_issue_count: `3`
-- missing_counts_by_category: `{'decision': 0, 'decision_gate': 1, 'regeneration': 0, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 1}`
+- missing_counts_by_category: `{'decision': 0, 'decision_gate': 1, 'regeneration': 11, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 6}`
 
 ## Closure Checklist
 
@@ -67,7 +67,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - runs_remote_preflight: `False`
 - formal_claim_allowed_now: `False`
 - local_training_allowed_now: `False`
-- input_safety_issue_count: `7`
+- input_safety_issue_count: `9`
 - next_blocked_lane_id: `decision`
 
 ### Remaining Deliverables Gap Summary
@@ -94,7 +94,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - present: `True`
 - missing_counts_by_formal_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
 - next_blocked_lane: `decision`
-- h01_status: `blocked_protocol_gap`
+- h01_status: `blocked_pending_decisions`
 - h02_status: `blocked_formal_output_acceptance`
 - h02_paper_result_input_allowed: `False`
 
@@ -102,7 +102,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
 - status: `blocked_handoff_input_safety_issues`
 - remote_training_allowed_now: `False`
-- safety_issue_count: `2`
+- safety_issue_count: `3`
 
 ### Status Report Execution Veto Matrix
 
@@ -120,11 +120,12 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
 - `sync_to_remote`: allowed_now=`True`, runs_training=`False`, blocked_by=`none`
 - `run_remote_preflight`: allowed_now=`True`, runs_training=`False`, blocked_by=`none`
-- `run_remote_training`: allowed_now=`False`, runs_training=`True`, blocked_by=`missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
-- `run_remote_audit`: allowed_now=`False`, runs_training=`False`, blocked_by=`missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
+- `run_remote_training`: allowed_now=`False`, runs_training=`True`, blocked_by=`f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_packet_not_ready`
+- `run_remote_audit`: allowed_now=`False`, runs_training=`False`, blocked_by=`f02_6_warm_start_decision_pending, missing_module2_bc_checkpoint, missing_module2_rl_rs_checkpoint, realmap_query_generation_not_frozen, remote_packet_not_ready`
 
 ## Audit Issues
 
+- `plan_source_regeneration_target_counts_mismatch`: Plan target counts by gate do not match source freshness audit.
 - `missing_artifacts_inventory_has_audit_issues`: Missing-artifacts inventory reports open audit issues.
 - `formal_gate_status_report_has_input_safety_issues`: Status report reports open input safety issues.
 - `formal_gate_status_report_sync_allowed_without_remote_permission`: Status report may surface remote sync only when a remote preflight/training lane is allowed.

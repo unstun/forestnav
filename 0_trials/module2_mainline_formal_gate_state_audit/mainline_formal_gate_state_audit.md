@@ -3,7 +3,7 @@
 This file checks that the long-term Module2 mainline task book mirrors the current formal-gate state. It is not a training run, remote preflight, formal evaluation, or paper result.
 
 - status: `mainline_formal_gate_state_audit_failed`
-- audit_issue_count: `5`
+- audit_issue_count: `2`
 - expected_next_action_id: `None`
 - expected_next_action_mentioned: `False`
 - total_missing_deliverables: `10`
@@ -21,9 +21,6 @@ This file checks that the long-term Module2 mainline task book mirrors the curre
 ## Audit Issues
 
 - `mainline_missing_proof_chain_status`: Mainline task book must mention the current proof-summary chain status.
-- `status_report_next_action_guard_not_passed`: Status report next-action guard must be passed before the mainline can mirror it.
-- `status_report_unexpected_next_action`: F02.6-pending mainline audit expects the next action to remain the human decision record.
-- `status_report_next_action_guard_execution_leak`: Status report exposes an execution leak while F02.6 is pending.
 - `proof_summary_chain_has_audit_issues`: Mainline task-book state should only mirror a clean proof-summary chain.
 
 ## Missing Formal Deliverables

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_remote_packet_safety_audit",
   "status": "remote_packet_safety_audit_failed",
-  "created_at_utc": "2026-07-05T18:29:58.952069+00:00",
-  "source_head": "e5ba1501cecf92a9901fe718128019b0836f7302",
+  "created_at_utc": "2026-07-05T18:40:04.956984+00:00",
+  "source_head": "400489e36a80db3278ce4f9fe550d133a4b6b607+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -16,11 +16,11 @@
     "post_f02_6_plan_audit": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json"
   },
   "packet_summary": {
-    "status": "blocked_remote_preflight_not_ready",
+    "status": "blocked_preconditions",
     "ready_to_run_remote_training": false,
-    "embedded_preflight_status": "blocked",
-    "embedded_preflight_ready": false,
-    "embedded_preflight_warm_start_decision": "pending",
+    "embedded_preflight_status": "ready",
+    "embedded_preflight_ready": true,
+    "embedded_preflight_warm_start_decision": "approved_obstacle_summary",
     "gpu_alias": "gpu3070ti-relay",
     "training_host_required": "gpu3070ti-relay",
     "sync_allowed_now": true,
@@ -30,24 +30,23 @@
     "sync_blocked_by": [],
     "remote_preflight_blocked_by": [],
     "remote_training_blocked_by": [
+      "f02_6_warm_start_decision_pending",
+      "missing_module2_bc_checkpoint",
       "missing_module2_rl_rs_checkpoint",
       "realmap_query_generation_not_frozen",
-      "remote_formal_preflight_not_ready",
-      "warm_start_decision_pending",
       "remote_packet_not_ready"
     ],
     "remote_audit_blocked_by": [
+      "f02_6_warm_start_decision_pending",
+      "missing_module2_bc_checkpoint",
       "missing_module2_rl_rs_checkpoint",
       "realmap_query_generation_not_frozen",
-      "remote_formal_preflight_not_ready",
-      "warm_start_decision_pending",
       "remote_packet_not_ready"
     ],
     "pullback_artifact_count": 7,
     "hash_manifest_required": true,
     "remote_preflight_requirement_counts": {
-      "satisfied": 3,
-      "ready_to_execute_missing_preflight": 1
+      "satisfied": 4
     },
     "post_run_acceptance_requirement_counts": {
       "blocked_until_remote_audit": 4
@@ -82,10 +81,10 @@
         "allowed_now": false,
         "runs_training": true,
         "blocked_by": [
+          "f02_6_warm_start_decision_pending",
+          "missing_module2_bc_checkpoint",
           "missing_module2_rl_rs_checkpoint",
           "realmap_query_generation_not_frozen",
-          "remote_formal_preflight_not_ready",
-          "warm_start_decision_pending",
           "remote_packet_not_ready"
         ]
       },
@@ -94,10 +93,10 @@
         "allowed_now": false,
         "runs_training": false,
         "blocked_by": [
+          "f02_6_warm_start_decision_pending",
+          "missing_module2_bc_checkpoint",
           "missing_module2_rl_rs_checkpoint",
           "realmap_query_generation_not_frozen",
-          "remote_formal_preflight_not_ready",
-          "warm_start_decision_pending",
           "remote_packet_not_ready"
         ]
       }
@@ -109,7 +108,7 @@
       "transition_gate_audit_issue_count": 12,
       "next_handoff_action_id": "resolve_decision",
       "next_action_requires_dr_sun": false,
-      "safety_issue_count": 2,
+      "safety_issue_count": 3,
       "remote_training_allowed_now": false,
       "remote_preflight_allowed_now": false,
       "formal_claim_allowed_now": false,
@@ -131,10 +130,10 @@
           "allowed_now": false,
           "runs_training": true,
           "blocked_by": [
+            "f02_6_warm_start_decision_pending",
+            "missing_module2_bc_checkpoint",
             "missing_module2_rl_rs_checkpoint",
             "realmap_query_generation_not_frozen",
-            "remote_formal_preflight_not_ready",
-            "warm_start_decision_pending",
             "remote_packet_not_ready"
           ]
         },
@@ -143,10 +142,10 @@
           "allowed_now": false,
           "runs_training": false,
           "blocked_by": [
+            "f02_6_warm_start_decision_pending",
+            "missing_module2_bc_checkpoint",
             "missing_module2_rl_rs_checkpoint",
             "realmap_query_generation_not_frozen",
-            "remote_formal_preflight_not_ready",
-            "warm_start_decision_pending",
             "remote_packet_not_ready"
           ]
         }
@@ -502,7 +501,7 @@
         ]
       },
       "next_blocked_lane": "decision",
-      "h01_status": "blocked_protocol_gap",
+      "h01_status": "blocked_pending_decisions",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
       "h02_paper_result_input_allowed": false
@@ -536,7 +535,7 @@
         ]
       },
       "next_blocked_lane": "decision",
-      "h01_status": "blocked_protocol_gap",
+      "h01_status": "blocked_pending_decisions",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
       "h02_paper_result_input_allowed": false
