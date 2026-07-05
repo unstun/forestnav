@@ -801,6 +801,7 @@ def _plan_payload():
                 blocked_by=["h02_formal_acceptance_not_ready", "source_fresh_claim_targets_open"],
                 commands=[
                     "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_claim_safety",
+                    "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit",
                     "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_paper_readiness",
                 ],
             ),
