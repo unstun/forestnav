@@ -228,6 +228,14 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
         "train_final_model_zip_exists",
         "train_final_model_zip_schema",
     ]
+    assert manifest["input_status"]["status_report_mainline_audit_present"] is True
+    assert manifest["input_status"]["status_report_mainline_audit_status"] == "mainline_formal_gate_state_consistent_ready"
+    assert manifest["input_status"]["status_report_mainline_audit_issue_count"] == 0
+    assert manifest["input_status"]["status_report_mainline_audit_proof_summary_issue_count"] == 0
+    assert manifest["input_status"]["status_report_mainline_audit_proof_audit_input_safety_issue_count"] == 0
+    assert manifest["status_report_mainline_formal_gate_state_audit_summary"]["proof_summary_chain_status"] == (
+        "formal_gate_proof_summary_chain_consistent_ready"
+    )
     remote_proof = manifest["status_report_remote_packet_safety_proof_deliverables_summary"]
     assert remote_proof["present"] is True
     assert remote_proof["missing_counts_by_formal_category"] == {
@@ -292,6 +300,7 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert "Handoff Single Next-Action Index" in markdown
     assert "Status Report Remote-Safety Proof Deliverables Summary" in markdown
     assert "proof_h02_paper_result_input_allowed" in markdown
+    assert "Status Report Mainline Formal Gate State Audit" in markdown
 
 
 def test_claim_safety_refuses_formal_claim_when_h02_acceptance_is_blocked_even_if_tables_are_formal(tmp_path):
