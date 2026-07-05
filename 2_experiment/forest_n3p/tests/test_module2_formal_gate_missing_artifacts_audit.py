@@ -118,6 +118,27 @@ def test_missing_artifacts_audit_accepts_synthetic_complete_formal_chain(tmp_pat
     assert manifest["current_gate_summary"]["h02_acceptance_status"] == "formal_output_accepted"
 
 
+def test_missing_artifacts_audit_protocol_lane_pending_overrides_complete_remote_ready(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_missing_artifacts_audit")
+    config = _config(tmp_path, complete=True, protocol_pending=True)
+
+    manifest = builder.build_manifest(config)
+
+    assert manifest["current_gate_summary"]["protocol_lane_status"] == "protocol_lane_status_blocked_pending_lane_decision"
+    assert manifest["current_gate_summary"]["protocol_lane_decision_record_status"] == "pending_protocol_lane_decision"
+    assert manifest["current_gate_summary"]["ready_to_run_remote_training"] is False
+    handoff = manifest["formal_gate_handoff_index"]
+    assert handoff["status"] == "blocked_until_protocol_lane_decision"
+    assert handoff["next_action"]["action_id"] == "record_protocol_lane_decision"
+    assert handoff["next_action"]["requires_dr_sun"] is True
+    assert handoff["remote_training_allowed_now"] is False
+    requirements = {item["requirement_id"]: item for item in manifest["formal_gate_requirements"]}
+    assert requirements["training_remote_ppo_checkpoint"]["responsible_stage_allowed_now"] is False
+    assert "protocol_lane_decision_pending" in requirements["training_remote_ppo_checkpoint"]["responsible_stage_blocked_by"]
+    assert requirements["evaluation_gate3_episode_outputs"]["responsible_stage_allowed_now"] is False
+    assert requirements["acceptance_remote_pullback_and_audit"]["responsible_stage_allowed_now"] is False
+
+
 def test_missing_artifacts_audit_catches_dangerous_gate_drift(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_missing_artifacts_audit")
     config = _config(tmp_path, complete=False, drift=True)
@@ -188,7 +209,7 @@ def test_missing_artifacts_audit_cli_writes_json_and_markdown(tmp_path):
     assert "does not execute commands" in markdown
 
 
-def _config(tmp_path, *, complete, drift=False):
+def _config(tmp_path, *, complete, drift=False, protocol_pending=False):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_missing_artifacts_audit")
     trial_dir = tmp_path / "gate3_obstacle_summary_warm_approved_v1"
     artifacts = _artifact_paths(trial_dir)
@@ -209,6 +230,11 @@ def _config(tmp_path, *, complete, drift=False):
         remote_packet_audit_path=_json(tmp_path, "remote_packet_audit.json", _remote_packet_audit()),
         h01_manifest_path=_json(tmp_path, "h01_manifest.json", _h01_manifest(complete=complete)),
         h02_acceptance_path=_json(tmp_path, "h02_acceptance.json", _h02_acceptance(complete=complete, drift=drift)),
+        protocol_lane_status_report_path=_json(
+            tmp_path,
+            "protocol_lane_status_report.json",
+            _protocol_lane_status_report(pending=protocol_pending),
+        ),
     )
 
 
@@ -385,6 +411,36 @@ def _h02_acceptance(*, complete, drift=False):
         "paper_result_input_allowed": accepted,
         "local_training_allowed": False,
         "blockers": [] if accepted else ["missing_remote_pullback_artifacts", "missing_ppo_result_rows"],
+    }
+
+
+def _protocol_lane_status_report(*, pending):
+    return {
+        "status": "protocol_lane_status_blocked_pending_lane_decision" if pending else "protocol_lane_status_clean",
+        "not_paper_result_material": True,
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+        "paper_result_material_allowed": False,
+        "remote_training_allowed_now": False,
+        "current_status": {
+            "next_blocked_lane": "protocol_lane_decision" if pending else None,
+            "decision_record_status": "pending_protocol_lane_decision" if pending else "selected_protocol_lane_recorded",
+            "selected_lane_id": None if pending else "stronger_obstacle_summary_warm_start",
+            "allowed_next_action_ids": ["record_protocol_lane_decision"] if pending else ["draft_revised_contract"],
+            "blocked_action_ids": [
+                "local_training",
+                "remote_success_training",
+                "remote_preflight_for_new_success_attempt",
+                "formal_claim",
+                "paper_result_material",
+            ]
+            if pending
+            else [],
+            "new_success_training_allowed_now": False,
+        },
     }
 
 
