@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `2ca9fcd010ecda59254289b5b254f49d23f50bfb+dirty`
+- source_head: `74045f4085e99d37862690f0066b5e0a3bb1dc13+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -75,6 +75,8 @@ This file is a read-only formal-gate status report. It does not execute commands
 - remaining_deliverables_acceptance_blocked_category_count: `4`
 - remaining_deliverables_gap_total_missing_deliverable_count: `10`
 - remaining_deliverables_gap_open_category_count: `4`
+- next_required_formal_deliverable_count: `10`
+- next_required_formal_deliverable_blocked_category_count: `4`
 - remaining_deliverables_proof_plan_present: `True`
 - remaining_deliverables_proof_plan_matrix_row_count: `10`
 - remaining_deliverables_proof_plan_command_count: `20`
@@ -262,6 +264,26 @@ This file is a read-only formal-gate status report. It does not execute commands
 - `evaluation`: missing_count=`2`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`evaluation:eval_gate3_eval_episodes_csv, evaluation:eval_gate3_summary_json`, proof_commands=`eval_gate3_eval_episodes_csv_exists_nonempty, eval_gate3_eval_episodes_csv_schema, eval_gate3_summary_json_exists_nonempty, eval_gate3_summary_json_formal_scope`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 - `acceptance`: missing_count=`3`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`acceptance:gate3_trial_manifest_json, acceptance:gate3_formal_audit_json, acceptance:pulled_back_checkpoint_hash_record`, proof_commands=`gate3_trial_manifest_json_exists_nonempty, gate3_trial_manifest_json_formal_warm_start_scope, gate3_formal_audit_json_exists_nonempty, gate3_formal_audit_json_accepts_formal_scope, pulled_back_checkpoint_hash_record_exists_nonempty, pulled_back_checkpoint_hash_record_matches_model`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 - `formal_acceptance`: missing_count=`2`, stage=`regenerate_h01_h02_formal_artifacts`, stage_allowed_now=`False`, missing_artifacts=`formal_acceptance:h01_ready_for_formal_run, formal_acceptance:h02_formal_output_acceptance`, proof_commands=`h01_ready_for_formal_run_exists_nonempty, h01_ready_for_formal_run_status, h02_formal_output_acceptance_exists_nonempty, h02_formal_output_acceptance_status`, blocked_by=`missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
+
+## Next Required Formal Deliverables
+
+- status: `blocked_missing_formal_deliverables`
+- execution_boundary: `read_only_no_execution`
+- not_paper_result_material: `True`
+- runs_training: `False`
+- runs_remote_preflight: `False`
+- total_missing_deliverables: `10`
+- blocked_categories: `training, evaluation, acceptance, formal_acceptance`
+- `training:train_final_model_zip`: category=`training`, artifact=`train_final_model_zip`, expected_path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip`, current_state=`missing`, stage=`gate3_remote_training`, stage_allowed_now=`False`, proof_commands=`train_final_model_zip_exists_nonempty, train_final_model_zip_valid_zip`, invalid_substitute_count=`4`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
+- `training:train_summary_json`: category=`training`, artifact=`train_summary_json`, expected_path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json`, current_state=`missing`, stage=`gate3_remote_training`, stage_allowed_now=`False`, proof_commands=`train_summary_json_exists_nonempty, train_summary_json_formal_warm_start_metadata`, invalid_substitute_count=`4`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
+- `training:train_training_manifest_json`: category=`training`, artifact=`train_training_manifest_json`, expected_path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/training_manifest.json`, current_state=`missing`, stage=`gate3_remote_training`, stage_allowed_now=`False`, proof_commands=`train_training_manifest_json_exists_nonempty, train_training_manifest_json_provenance`, invalid_substitute_count=`4`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
+- `evaluation:eval_gate3_eval_episodes_csv`: category=`evaluation`, artifact=`eval_gate3_eval_episodes_csv`, expected_path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_eval_episodes.csv`, current_state=`missing`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, proof_commands=`eval_gate3_eval_episodes_csv_exists_nonempty, eval_gate3_eval_episodes_csv_schema`, invalid_substitute_count=`3`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
+- `evaluation:eval_gate3_summary_json`: category=`evaluation`, artifact=`eval_gate3_summary_json`, expected_path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/eval/gate3_summary.json`, current_state=`missing`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, proof_commands=`eval_gate3_summary_json_exists_nonempty, eval_gate3_summary_json_formal_scope`, invalid_substitute_count=`3`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
+- `acceptance:gate3_trial_manifest_json`: category=`acceptance`, artifact=`gate3_trial_manifest_json`, expected_path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json`, current_state=`missing`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, proof_commands=`gate3_trial_manifest_json_exists_nonempty, gate3_trial_manifest_json_formal_warm_start_scope`, invalid_substitute_count=`3`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
+- `acceptance:gate3_formal_audit_json`: category=`acceptance`, artifact=`gate3_formal_audit_json`, expected_path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json`, current_state=`missing`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, proof_commands=`gate3_formal_audit_json_exists_nonempty, gate3_formal_audit_json_accepts_formal_scope`, invalid_substitute_count=`3`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
+- `acceptance:pulled_back_checkpoint_hash_record`: category=`acceptance`, artifact=`pulled_back_checkpoint_hash_record`, expected_path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256 or 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip.sha256.json`, current_state=`missing`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, proof_commands=`pulled_back_checkpoint_hash_record_exists_nonempty, pulled_back_checkpoint_hash_record_matches_model`, invalid_substitute_count=`3`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
+- `formal_acceptance:h01_ready_for_formal_run`: category=`formal_acceptance`, artifact=`h01_ready_for_formal_run`, expected_path=`0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json`, current_state=`blocked_pending_decisions`, stage=`regenerate_h01_h02_formal_artifacts`, stage_allowed_now=`False`, proof_commands=`h01_ready_for_formal_run_exists_nonempty, h01_ready_for_formal_run_status`, invalid_substitute_count=`3`, blocked_by=`missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
+- `formal_acceptance:h02_formal_output_acceptance`: category=`formal_acceptance`, artifact=`h02_formal_output_acceptance`, expected_path=`0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`, current_state=`blocked_formal_output_acceptance`, stage=`regenerate_h01_h02_formal_artifacts`, stage_allowed_now=`False`, proof_commands=`h02_formal_output_acceptance_exists_nonempty, h02_formal_output_acceptance_status`, invalid_substitute_count=`3`, blocked_by=`missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
 
 ## Remaining Deliverables Proof Command Plan
 
