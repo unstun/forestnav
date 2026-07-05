@@ -194,6 +194,9 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         remaining_deliverables_gap_summary
     )
     remaining_deliverables_proof_command_plan = _remaining_deliverables_proof_command_plan(remaining_deliverables)
+    remaining_deliverables_source_blocker_summary = _remaining_deliverables_source_blocker_summary(
+        remaining_deliverables
+    )
     formal_gate_proof_audit_summary = _formal_gate_proof_audit_summary(formal_gate_proof_audit)
     formal_gate_proof_audit_gap_summary = _formal_gate_proof_audit_gap_summary(formal_gate_proof_audit_summary)
     formal_gate_proof_audit_missing_evidence_summary = formal_gate_proof_audit_summary[
@@ -269,6 +272,11 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             acceptance_summary=remaining_deliverables_acceptance_summary,
             gap_summary=remaining_deliverables_gap_summary,
             proof_plan=remaining_deliverables_proof_command_plan,
+        )
+        + _remaining_deliverables_source_blocker_summary_issues(
+            remaining_deliverables=remaining_deliverables,
+            source_freshness=source_freshness,
+            summary=remaining_deliverables_source_blocker_summary,
         )
         + _formal_gate_proof_audit_issues(
             proof_audit=formal_gate_proof_audit,
@@ -561,6 +569,28 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "remaining_deliverables_proof_plan_command_count": remaining_deliverables_proof_command_plan[
                 "total_proof_command_count"
             ],
+            "remaining_deliverables_source_blocker_summary_present": remaining_deliverables_source_blocker_summary[
+                "present"
+            ],
+            "remaining_deliverables_source_blocker_count": remaining_deliverables_source_blocker_summary[
+                "blocking_target_count"
+            ],
+            "remaining_deliverables_source_blocker_ids": remaining_deliverables_source_blocker_summary[
+                "blocking_target_ids"
+            ],
+            "remaining_deliverables_remote_readiness_blocker_count": remaining_deliverables_source_blocker_summary[
+                "remote_readiness_blocking_target_count"
+            ],
+            "remaining_deliverables_remote_readiness_refresh_requires_external_ssh": (
+                remaining_deliverables_source_blocker_summary[
+                    "remote_readiness_refresh_requires_external_ssh"
+                ]
+            ),
+            "remaining_deliverables_remote_readiness_refresh_allowed_now": (
+                remaining_deliverables_source_blocker_summary[
+                    "remote_readiness_refresh_allowed_now"
+                ]
+            ),
             "formal_gate_proof_audit_status": formal_gate_proof_audit_summary["status"],
             "formal_gate_proof_audit_command_count": formal_gate_proof_audit_summary[
                 "total_proof_command_count"
@@ -712,6 +742,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "remaining_deliverables_unlock_chain_summary": remaining_deliverables_unlock_chain_summary,
         "next_required_formal_deliverables": next_required_formal_deliverables,
         "remaining_deliverables_proof_command_plan": remaining_deliverables_proof_command_plan,
+        "remaining_deliverables_source_blocker_summary": remaining_deliverables_source_blocker_summary,
         "formal_gate_proof_audit_summary": formal_gate_proof_audit_summary,
         "formal_gate_proof_audit_remaining_deliverables_top_level_summary": (
             formal_gate_proof_audit_summary["remaining_deliverables_top_level_summary"]
