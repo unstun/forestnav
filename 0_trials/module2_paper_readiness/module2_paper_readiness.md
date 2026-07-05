@@ -121,6 +121,17 @@
 - claim_safety_remaining_deliverables_proof_command_plan_matrix_row_count: `10`
 - claim_safety_remaining_deliverables_proof_command_plan_command_count: `20`
 
+## Claim Safety Remote-Safety Proof Deliverables Summary
+
+- claim_safety_remote_packet_safety_proof_summary_present: `True`
+- claim_safety_remote_packet_safety_proof_training_missing_count: `3`
+- claim_safety_remote_packet_safety_proof_evaluation_missing_count: `2`
+- claim_safety_remote_packet_safety_proof_acceptance_missing_count: `3`
+- claim_safety_remote_packet_safety_proof_formal_acceptance_missing_count: `2`
+- claim_safety_remote_packet_safety_proof_next_blocked_lane: `decision`
+- claim_safety_remote_packet_safety_proof_h02_paper_result_input_allowed: `False`
+- claim_safety_remote_packet_safety_status_report_proof_summary_present: `True`
+
 ## Claim Safety Remote-Safety Claim-Gate Command Index
 
 - claim_safety_remote_packet_safety_command_index_present: `True`

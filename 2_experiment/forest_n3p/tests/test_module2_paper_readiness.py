@@ -714,6 +714,76 @@ def test_paper_readiness_rejects_claim_safety_remote_safety_command_index_drift(
     assert "claim_safety_remote_packet_safety_command_index_missing_paper_readiness" in manifest["global_blockers"]
 
 
+def test_paper_readiness_rejects_missing_claim_safety_remote_safety_proof_summary(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_paper_readiness")
+    paths = _write_inputs(tmp_path, formal=True)
+
+    claim_safety_payload = json.loads(paths["claim_safety"].read_text(encoding="utf-8"))
+    claim_safety_payload.pop("status_report_remote_packet_safety_proof_deliverables_summary")
+    claim_safety_payload.pop("status_report_remote_packet_safety_status_report_proof_deliverables_summary")
+    paths["claim_safety"].write_text(json.dumps(claim_safety_payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        builder.PaperReadinessConfig(
+            output_dir=tmp_path,
+            method_algorithms_path=paths["method_algorithms"],
+            system_diagram_path=paths["system_diagram"],
+            paper_tables_path=paths["paper_tables"],
+            claim_safety_path=paths["claim_safety"],
+            h02_formal_acceptance_path=paths["h02_acceptance"],
+            h01_manifest_path=paths["h01_manifest"],
+            f02_6_decision_record_path=paths["decision_record"],
+            remote_execution_packet_path=paths["remote_packet"],
+            status_report_path=paths["status_report"],
+        )
+    )
+
+    assert manifest["status"] == "partial_methods_ready_results_blocked"
+    assert "claim_safety_missing_remote_packet_safety_proof_deliverables_summary" in manifest["global_blockers"]
+    assert (
+        "claim_safety_missing_remote_packet_safety_status_report_proof_deliverables_summary"
+        in manifest["global_blockers"]
+    )
+    assert manifest["claim_safety_remote_packet_safety_proof_deliverables_summary"]["present"] is False
+
+
+def test_paper_readiness_rejects_claim_safety_remote_safety_proof_summary_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_paper_readiness")
+    paths = _write_inputs(tmp_path, formal=True)
+
+    claim_safety_payload = json.loads(paths["claim_safety"].read_text(encoding="utf-8"))
+    proof = claim_safety_payload["status_report_remote_packet_safety_proof_deliverables_summary"]
+    proof["missing_counts_by_formal_category"]["training"] = 1
+    proof["missing_matrix_ids_by_formal_category"]["training"] = ["training:train_final_model_zip"]
+    paths["claim_safety"].write_text(json.dumps(claim_safety_payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        builder.PaperReadinessConfig(
+            output_dir=tmp_path,
+            method_algorithms_path=paths["method_algorithms"],
+            system_diagram_path=paths["system_diagram"],
+            paper_tables_path=paths["paper_tables"],
+            claim_safety_path=paths["claim_safety"],
+            h02_formal_acceptance_path=paths["h02_acceptance"],
+            h01_manifest_path=paths["h01_manifest"],
+            f02_6_decision_record_path=paths["decision_record"],
+            remote_execution_packet_path=paths["remote_packet"],
+            status_report_path=paths["status_report"],
+        )
+    )
+
+    assert manifest["status"] == "partial_methods_ready_results_blocked"
+    assert "claim_safety_remote_packet_safety_proof_deliverables_summary_mismatch" in manifest["global_blockers"]
+    assert (
+        "claim_safety_remote_packet_safety_proof_deliverables_summary_drifted_from_gap"
+        in manifest["global_blockers"]
+    )
+    assert (
+        "claim_safety_remote_packet_safety_proof_allows_paper_results_with_missing_deliverables"
+        in manifest["global_blockers"]
+    )
+
+
 def _write_inputs(tmp_path, *, formal):
     proof_summary = _claim_safety_remote_safety_proof_summary_payload(formal=formal)
     paths = {}

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_paper_readiness",
   "status": "partial_methods_ready_results_blocked",
-  "created_at_utc": "2026-07-05T02:28:58.308642+00:00",
-  "source_head": "0b97ae3999b11f138c9e29dbcf65996471a156af",
+  "created_at_utc": "2026-07-05T03:24:48.965737+00:00",
+  "source_head": "9e5249298abfc8a16730b38875aae059174a673d+dirty",
   "manuscript_ready": false,
   "formal_results_ready": false,
   "local_training_allowed": false,
@@ -80,6 +80,14 @@
     "claim_safety_remaining_deliverables_proof_command_plan_present": true,
     "claim_safety_remaining_deliverables_proof_command_plan_matrix_row_count": 10,
     "claim_safety_remaining_deliverables_proof_command_plan_command_count": 20,
+    "claim_safety_remote_packet_safety_proof_summary_present": true,
+    "claim_safety_remote_packet_safety_proof_training_missing_count": 3,
+    "claim_safety_remote_packet_safety_proof_evaluation_missing_count": 2,
+    "claim_safety_remote_packet_safety_proof_acceptance_missing_count": 3,
+    "claim_safety_remote_packet_safety_proof_formal_acceptance_missing_count": 2,
+    "claim_safety_remote_packet_safety_proof_next_blocked_lane": "decision",
+    "claim_safety_remote_packet_safety_proof_h02_paper_result_input_allowed": false,
+    "claim_safety_remote_packet_safety_status_report_proof_summary_present": true,
     "claim_safety_remote_packet_safety_command_index_present": true,
     "claim_safety_remote_packet_safety_command_index_row_count": 19,
     "claim_safety_remote_packet_safety_command_index_source_target_count": 19,
@@ -622,6 +630,74 @@
         "unexpected_proof_command_ids": []
       }
     }
+  },
+  "claim_safety_remote_packet_safety_proof_deliverables_summary": {
+    "present": true,
+    "missing_counts_by_formal_category": {
+      "training": 3,
+      "evaluation": 2,
+      "acceptance": 3,
+      "formal_acceptance": 2
+    },
+    "missing_matrix_ids_by_formal_category": {
+      "training": [
+        "training:train_final_model_zip",
+        "training:train_summary_json",
+        "training:train_training_manifest_json"
+      ],
+      "evaluation": [
+        "evaluation:eval_gate3_eval_episodes_csv",
+        "evaluation:eval_gate3_summary_json"
+      ],
+      "acceptance": [
+        "acceptance:gate3_trial_manifest_json",
+        "acceptance:gate3_formal_audit_json",
+        "acceptance:pulled_back_checkpoint_hash_record"
+      ],
+      "formal_acceptance": [
+        "formal_acceptance:h01_ready_for_formal_run",
+        "formal_acceptance:h02_formal_output_acceptance"
+      ]
+    },
+    "next_blocked_lane": "decision",
+    "h01_status": "blocked_pending_decisions",
+    "h02_status": "blocked_formal_output_acceptance",
+    "h02_formal_output_accepted": false,
+    "h02_paper_result_input_allowed": false
+  },
+  "claim_safety_remote_packet_safety_status_report_proof_deliverables_summary": {
+    "present": true,
+    "missing_counts_by_formal_category": {
+      "training": 3,
+      "evaluation": 2,
+      "acceptance": 3,
+      "formal_acceptance": 2
+    },
+    "missing_matrix_ids_by_formal_category": {
+      "training": [
+        "training:train_final_model_zip",
+        "training:train_summary_json",
+        "training:train_training_manifest_json"
+      ],
+      "evaluation": [
+        "evaluation:eval_gate3_eval_episodes_csv",
+        "evaluation:eval_gate3_summary_json"
+      ],
+      "acceptance": [
+        "acceptance:gate3_trial_manifest_json",
+        "acceptance:gate3_formal_audit_json",
+        "acceptance:pulled_back_checkpoint_hash_record"
+      ],
+      "formal_acceptance": [
+        "formal_acceptance:h01_ready_for_formal_run",
+        "formal_acceptance:h02_formal_output_acceptance"
+      ]
+    },
+    "next_blocked_lane": "decision",
+    "h01_status": "blocked_pending_decisions",
+    "h02_status": "blocked_formal_output_acceptance",
+    "h02_formal_output_accepted": false,
+    "h02_paper_result_input_allowed": false
   },
   "claim_safety_remote_packet_safety_claim_gate_command_index_summary": {
     "present": true,
