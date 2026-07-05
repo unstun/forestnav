@@ -1219,6 +1219,35 @@ def _markdown(manifest: dict[str, Any]) -> str:
     for row in proof_plan["rows"]:
         command_ids = ", ".join(row["proof_command_ids"]) if row["proof_command_ids"] else "none"
         lines.append(f"- `{row['matrix_id']}`: proof_command_count=`{row['proof_command_count']}`, command_ids=`{command_ids}`")
+    unlock_chain = manifest["deliverable_unlock_chain"]
+    lines.extend(["", "## Deliverable Unlock Chain", ""])
+    lines.append(f"- chain_id: `{unlock_chain['chain_id']}`")
+    lines.append(f"- status: `{unlock_chain['status']}`")
+    lines.append(f"- row_count: `{unlock_chain['row_count']}`")
+    lines.append(f"- blocked_row_count: `{unlock_chain['blocked_row_count']}`")
+    lines.append(
+        f"- rows_with_missing_required_blockers: `{unlock_chain['rows_with_missing_required_blockers']}`"
+    )
+    lines.append(f"- rows_allowed_while_missing: `{unlock_chain['rows_allowed_while_missing']}`")
+    for row in unlock_chain["rows"]:
+        required_blockers = ", ".join(row["required_current_blockers"]) if row["required_current_blockers"] else "none"
+        missing_blockers = (
+            ", ".join(row["missing_required_current_blockers"])
+            if row["missing_required_current_blockers"]
+            else "none"
+        )
+        unlock_sequence = (
+            " -> ".join(row["unlock_sequence_before_stage_allowed"])
+            if row["unlock_sequence_before_stage_allowed"]
+            else "none"
+        )
+        lines.append(
+            f"- `{row['matrix_id']}`: missing=`{row['missing']}`, "
+            f"stage_allowed_now=`{row['responsible_stage_allowed_now']}`, "
+            f"required_current_blockers=`{required_blockers}`, "
+            f"missing_required_current_blockers=`{missing_blockers}`, "
+            f"unlock_sequence=`{unlock_sequence}`"
+        )
     lines.extend(["", "## Deliverable Groups", ""])
     for group in manifest["deliverable_groups"]:
         lines.append(f"### {group['category']}")
