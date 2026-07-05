@@ -8,6 +8,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Sequence
 
+from forest_n3p.scripts._module2_source_head import module2_gate_artifact_paths
 from forest_n3p.scripts._module2_source_head import source_head as module2_source_head
 
 
@@ -423,7 +424,7 @@ def _self_artifact_paths(artifact_path: Path) -> set[str]:
 
 
 def _tracked_artifact_paths(config: SourceFreshnessAuditConfig) -> set[str]:
-    paths: set[str] = set()
+    paths: set[str] = set(module2_gate_artifact_paths())
     for target in config.artifacts:
         paths.update(_self_artifact_paths(target.path))
     manifest_path = config.manifest_out or Path(config.output_dir) / "source_freshness_audit.json"
