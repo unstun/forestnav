@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `5a1b69d5986198e8b8b17d99a21740871ecf8a7f`
+- source_head: `d0f31d27fd23300e5782dedc39e1b287184eb234`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -87,6 +87,11 @@ This file is a read-only formal-gate status report. It does not execute commands
 - remaining_deliverables_acceptance_matrix_count: `10`
 - remaining_deliverables_acceptance_missing_row_count: `10`
 - remaining_deliverables_acceptance_blocked_category_count: `4`
+- remaining_deliverables_unlock_chain_present: `True`
+- remaining_deliverables_unlock_chain_row_count: `10`
+- remaining_deliverables_unlock_chain_blocked_row_count: `10`
+- remaining_deliverables_unlock_chain_rows_with_missing_required_blockers: `0`
+- remaining_deliverables_unlock_chain_rows_allowed_while_missing: `0`
 - remaining_deliverables_gap_total_missing_deliverable_count: `10`
 - remaining_deliverables_gap_open_category_count: `4`
 - next_required_formal_deliverable_count: `10`
@@ -290,6 +295,20 @@ This file is a read-only formal-gate status report. It does not execute commands
 - `evaluation`: missing_count=`2`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`evaluation:eval_gate3_eval_episodes_csv, evaluation:eval_gate3_summary_json`, proof_commands=`eval_gate3_eval_episodes_csv_exists_nonempty, eval_gate3_eval_episodes_csv_schema, eval_gate3_summary_json_exists_nonempty, eval_gate3_summary_json_formal_scope`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 - `acceptance`: missing_count=`3`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`acceptance:gate3_trial_manifest_json, acceptance:gate3_formal_audit_json, acceptance:pulled_back_checkpoint_hash_record`, proof_commands=`gate3_trial_manifest_json_exists_nonempty, gate3_trial_manifest_json_formal_warm_start_scope, gate3_formal_audit_json_exists_nonempty, gate3_formal_audit_json_accepts_formal_scope, pulled_back_checkpoint_hash_record_exists_nonempty, pulled_back_checkpoint_hash_record_matches_model`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 - `formal_acceptance`: missing_count=`2`, stage=`regenerate_h01_h02_formal_artifacts`, stage_allowed_now=`False`, missing_artifacts=`formal_acceptance:h01_ready_for_formal_run, formal_acceptance:h02_formal_output_acceptance`, proof_commands=`h01_ready_for_formal_run_exists_nonempty, h01_ready_for_formal_run_status, h02_formal_output_acceptance_exists_nonempty, h02_formal_output_acceptance_status`, blocked_by=`missing_remote_audit_pullback`
+
+## Remaining Deliverables Unlock Chain
+
+- present: `True`
+- chain_id: `module2_formal_gate_missing_deliverable_unlock_chain`
+- status: `blocked_missing_formal_deliverables`
+- row_count: `10`
+- blocked_row_count: `10`
+- rows_with_missing_required_blockers: `0`
+- rows_allowed_while_missing: `0`
+- `training`: row_count=`3`, blocked_row_count=`3`, rows_with_missing_required_blockers=`0`, rows_allowed_while_missing=`0`, blockers=`f02_6_decision_not_approved, remote_packet_not_ready`
+- `evaluation`: row_count=`2`, blocked_row_count=`2`, rows_with_missing_required_blockers=`0`, rows_allowed_while_missing=`0`, blockers=`f02_6_decision_not_approved, remote_packet_not_ready`
+- `acceptance`: row_count=`3`, blocked_row_count=`3`, rows_with_missing_required_blockers=`0`, rows_allowed_while_missing=`0`, blockers=`f02_6_decision_not_approved, remote_packet_not_ready`
+- `formal_acceptance`: row_count=`2`, blocked_row_count=`2`, rows_with_missing_required_blockers=`0`, rows_allowed_while_missing=`0`, blockers=`missing_remote_audit_pullback`
 
 ## Next Required Formal Deliverables
 
