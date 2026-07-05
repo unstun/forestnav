@@ -479,12 +479,17 @@ def _formal_gate_requirements(
     groups_by_id = {str(group.get("group_id")): group for group in groups}
     stages_by_id = _post_plan_stages_by_id(post_plan)
     remote_training_allowed = current_gate_summary.get("ready_to_run_remote_training") is True
+    protocol_lane_pending = _protocol_lane_pending(current_gate_summary)
+    stage_blocker = "protocol_lane_decision_pending" if protocol_lane_pending else None
     return [
         _requirement(
             requirement_id="training_remote_ppo_checkpoint",
             phase="training",
             group=groups_by_id.get("remote_training_outputs", {}),
-            responsible_stage=_stage_context(stages_by_id, "gate3_remote_training"),
+            responsible_stage=_blocked_stage_context(
+                _stage_context(stages_by_id, "gate3_remote_training"),
+                blocker=stage_blocker,
+            ),
             execution_allowed_now=remote_training_allowed,
             required_before="gate3_remote_audit_pullback",
             acceptable_evidence=[
@@ -503,7 +508,10 @@ def _formal_gate_requirements(
             requirement_id="evaluation_gate3_episode_outputs",
             phase="evaluation",
             group=groups_by_id.get("gate3_evaluation_outputs", {}),
-            responsible_stage=_stage_context(stages_by_id, "gate3_remote_audit_pullback"),
+            responsible_stage=_blocked_stage_context(
+                _stage_context(stages_by_id, "gate3_remote_audit_pullback"),
+                blocker=stage_blocker,
+            ),
             execution_allowed_now=remote_training_allowed,
             required_before="h01_h02_formal_regeneration",
             acceptable_evidence=[
@@ -520,7 +528,10 @@ def _formal_gate_requirements(
             requirement_id="acceptance_remote_pullback_and_audit",
             phase="acceptance",
             group=groups_by_id.get("gate3_acceptance_pullback", {}),
-            responsible_stage=_stage_context(stages_by_id, "gate3_remote_audit_pullback"),
+            responsible_stage=_blocked_stage_context(
+                _stage_context(stages_by_id, "gate3_remote_audit_pullback"),
+                blocker=stage_blocker,
+            ),
             execution_allowed_now=remote_training_allowed,
             required_before="h02_formal_acceptance",
             acceptable_evidence=[
