@@ -2361,7 +2361,14 @@ def _remaining_deliverables(*, complete):
 
 
 def _source_freshness(*, complete):
-    blocking_targets = [] if complete else [_source_freshness_blocking_target()]
+    blocking_targets = [] if complete else [
+        _source_freshness_blocking_target(),
+        _source_freshness_blocking_target(
+            artifact_id="claim_safety",
+            path="0_trials/module2_claim_safety/module2_claim_safety.json",
+            required_before="formal_claim_gate",
+        ),
+    ]
     return {
         "status": "source_freshness_clean_current" if complete else "source_freshness_risks_recorded_gate_still_blocked",
         "not_paper_result_material": True,
@@ -2403,14 +2410,19 @@ def _remaining_deliverable_source_blocker_summary(*, complete):
     }
 
 
-def _source_freshness_blocking_target():
+def _source_freshness_blocking_target(
+    *,
+    artifact_id="gpu3070ti_readiness_refresh",
+    path="0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
+    required_before="approved_remote_preflight",
+):
     return {
-        "artifact_id": "gpu3070ti_readiness_refresh",
-        "path": "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json",
+        "artifact_id": artifact_id,
+        "path": path,
         "freshness_state": "historical_clean",
         "source_head": "old-head",
         "current_head": "current-head",
-        "required_before": "approved_remote_preflight",
+        "required_before": required_before,
         "commits_since_source": 12,
         "blocking_changed_path_count_since_source": 3,
         "blocking_regeneration_required_before_remote_formal_execution": True,
