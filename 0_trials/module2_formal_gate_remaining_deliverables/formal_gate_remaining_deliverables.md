@@ -3,7 +3,7 @@
 This ledger is read-only. It lists remaining formal training, evaluation, and acceptance deliverables; it does not execute commands or write paper results.
 
 - status: `formal_gate_deliverables_blocked`
-- source_head: `429271d516bc45bb9d823b7092e70c80fd7ab584+dirty`
+- source_head: `0876902d5fa346cfb1ac1216badd1d41caf4bc54`
 - missing_deliverable_count: `10`
 - open_category_count: `4`
 - missing_counts_by_formal_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
@@ -15,8 +15,12 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - proof_command_count: `20`
 - audit_issue_count: `0`
 - local_training_allowed_now: `False`
+- remote_preflight_allowed_now: `False`
 - remote_training_allowed_now: `False`
+- formal_h01_evaluation_allowed_now: `False`
+- formal_h02_acceptance_allowed_now: `False`
 - formal_claim_allowed_now: `False`
+- paper_result_material_allowed_now: `False`
 
 ## Human-Readable Gate Closure Checklist
 
@@ -44,6 +48,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - h02_paper_result_input_allowed: `False`
 - source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
 - source_freshness_regeneration_required: `True`
+- source_freshness_blocking_regeneration_required: `True`
 - source_freshness_non_self_changed_records: `21`
 - source_freshness_self_artifact_only_lag_records: `0`
 
