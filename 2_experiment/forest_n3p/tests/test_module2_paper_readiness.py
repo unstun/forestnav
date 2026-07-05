@@ -1217,6 +1217,9 @@ def _write_inputs(tmp_path, *, formal):
             "status_report_next_required_formal_deliverables": _claim_safety_next_required_formal_deliverables_payload(
                 formal=formal
             ),
+            "status_report_mainline_formal_gate_state_audit_summary": (
+                _claim_safety_mainline_formal_gate_state_audit_summary_payload(formal=formal)
+            ),
             "allowed_claims": [
                 {"claim_id": "method_is_ha_star_analytic_operator", "scope": "method_structure"},
                 {"claim_id": "no_warm_gate3_formal_failure", "scope": "no_warm_only"},
