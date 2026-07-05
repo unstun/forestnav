@@ -9,6 +9,10 @@ This file checks that formal-gate proof-deliverables summaries remain consistent
 - consistent_row_count: `14`
 - missing_row_count: `0`
 - mismatch_row_count: `0`
+- next_action_guard_row_count: `3`
+- next_action_guard_consistent_row_count: `3`
+- next_required_deliverables_row_count: `3`
+- next_required_deliverables_consistent_row_count: `3`
 - executes_commands: `False`
 - runs_training: `False`
 - runs_remote_preflight: `False`
@@ -44,9 +48,22 @@ This file checks that formal-gate proof-deliverables summaries remain consistent
 - `paper_readiness_remote_safety_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_paper_readiness/module2_paper_readiness.json`, key=`claim_safety_remote_packet_safety_proof_deliverables_summary`
 - `paper_readiness_remote_safety_status_report_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_paper_readiness/module2_paper_readiness.json`, key=`claim_safety_remote_packet_safety_status_report_proof_deliverables_summary`
 
+## Next-Action Guard Chain Rows
+
+- `status_report_next_action_guard`: present=`True`, matches=`True`, expected_next_action_id=`record_f02_6_decision`, execution_leak_count=`0`, path=`0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`, key=`next_action_guard_summary`
+- `claim_safety_status_report_next_action_guard`: present=`True`, matches=`True`, expected_next_action_id=`record_f02_6_decision`, execution_leak_count=`0`, path=`0_trials/module2_claim_safety/module2_claim_safety.json`, key=`status_report_next_action_guard_summary`
+- `paper_readiness_claim_safety_next_action_guard`: present=`True`, matches=`True`, expected_next_action_id=`record_f02_6_decision`, execution_leak_count=`0`, path=`0_trials/module2_paper_readiness/module2_paper_readiness.json`, key=`claim_safety_next_action_guard_summary`
+
+## Next Required Formal Deliverables Chain Rows
+
+- `status_report_next_required_formal_deliverables`: present=`True`, matches=`True`, total_missing_deliverables=`10`, row_count=`10`, runs_training=`False`, path=`0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`, key=`next_required_formal_deliverables`
+- `claim_safety_status_report_next_required_formal_deliverables`: present=`True`, matches=`True`, total_missing_deliverables=`10`, row_count=`10`, runs_training=`False`, path=`0_trials/module2_claim_safety/module2_claim_safety.json`, key=`status_report_next_required_formal_deliverables`
+- `paper_readiness_claim_safety_next_required_formal_deliverables`: present=`True`, matches=`True`, total_missing_deliverables=`10`, row_count=`10`, runs_training=`False`, path=`0_trials/module2_paper_readiness/module2_paper_readiness.json`, key=`claim_safety_next_required_formal_deliverables`
+
 ## Claim Boundaries
 
 - This audit is a local read-only consistency check over existing formal-gate summary fields.
 - It does not execute proof commands, run training, run remote preflight, evaluate PPO, pull back artifacts, or write paper results.
 - A consistent blocked chain only proves the downstream artifacts agree that the formal gate is still blocked.
+- Next-action and next-required-deliverable consistency does not authorize the next action; it only checks that the artifacts agree on the current blocked lane.
 - Formal PPO-vs-RS performance claims still require the missing training, evaluation, acceptance, and H01/H02 artifacts to be produced and audited.
