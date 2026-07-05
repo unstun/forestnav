@@ -874,6 +874,80 @@ def test_paper_readiness_rejects_claim_safety_next_action_guard_drift(tmp_path):
     assert manifest["input_status"]["claim_safety_next_action_guard_expected_next_action_id"] == "run_remote_training"
 
 
+def test_paper_readiness_rejects_claim_safety_handoff_single_next_action_index_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_paper_readiness")
+    paths = _write_inputs(tmp_path, formal=True)
+
+    claim_safety_payload = json.loads(paths["claim_safety"].read_text(encoding="utf-8"))
+    summary = claim_safety_payload["handoff_single_next_action_index_summary"]
+    summary["status"] = "awaiting_dr_sun_f02_6_decision"
+    summary["index_id"] = "wrong_index"
+    summary["single_current_human_entry"] = False
+    summary["next_action_id"] = "run_remote_training"
+    summary["decision_owner_required"] = "Assistant"
+    summary["valid_decisions"] = ["approve_obstacle_summary_warm_start"]
+    summary["required_record_fields"] = ["decision"]
+    summary["current_allowed_action_ids"] = ["run_remote_training"]
+    summary["current_blocked_action_ids"] = ["formal_claim"]
+    summary["post_decision_routes_are_current_authorization"] = True
+    summary["all_execution_disabled_now"] = False
+    summary["record_command_template_count"] = 1
+    summary["local_training_allowed_now"] = True
+    summary["remote_preflight_allowed_now"] = True
+    summary["remote_training_allowed_now"] = True
+    summary["formal_claim_allowed_now"] = True
+    summary["paper_result_material_allowed_now"] = True
+    summary["missing_deliverable_count"] = 0
+    summary["open_category_count"] = 0
+    summary["source_freshness_status"] = "source_freshness_stale"
+    summary["source_freshness_blocking_regeneration_required"] = True
+    summary["approved_route_next_lane"] = "run_remote_training"
+    summary["rejected_route_next_lane"] = "continue_anyway"
+    summary["after_approval_still_requires"] = []
+    paths["claim_safety"].write_text(json.dumps(claim_safety_payload), encoding="utf-8")
+
+    manifest = builder.build_manifest(
+        builder.PaperReadinessConfig(
+            output_dir=tmp_path,
+            method_algorithms_path=paths["method_algorithms"],
+            system_diagram_path=paths["system_diagram"],
+            paper_tables_path=paths["paper_tables"],
+            claim_safety_path=paths["claim_safety"],
+            h02_formal_acceptance_path=paths["h02_acceptance"],
+            h01_manifest_path=paths["h01_manifest"],
+            f02_6_decision_record_path=paths["decision_record"],
+            remote_execution_packet_path=paths["remote_packet"],
+            status_report_path=paths["status_report"],
+        )
+    )
+
+    blockers = set(manifest["global_blockers"])
+    assert "claim_safety_handoff_single_next_action_index_id_invalid" in blockers
+    assert "claim_safety_handoff_single_next_action_index_not_single_human_entry" in blockers
+    assert "claim_safety_handoff_single_next_action_index_next_action_not_decision" in blockers
+    assert "claim_safety_handoff_single_next_action_index_owner_not_dr_sun" in blockers
+    assert "claim_safety_handoff_single_next_action_index_valid_decisions_incomplete" in blockers
+    assert "claim_safety_handoff_single_next_action_index_required_fields_incomplete" in blockers
+    assert "claim_safety_handoff_single_next_action_index_allowed_actions_not_decision_only" in blockers
+    assert "claim_safety_handoff_single_next_action_index_missing_block_remote_preflight" in blockers
+    assert "claim_safety_handoff_single_next_action_index_post_decision_routes_authorize_now" in blockers
+    assert "claim_safety_handoff_single_next_action_index_execution_not_disabled" in blockers
+    assert "claim_safety_handoff_single_next_action_index_record_command_count_mismatch" in blockers
+    assert "claim_safety_handoff_single_next_action_index_allows_local_training" in blockers
+    assert "claim_safety_handoff_single_next_action_index_allows_remote_preflight" in blockers
+    assert "claim_safety_handoff_single_next_action_index_allows_remote_training" in blockers
+    assert "claim_safety_handoff_single_next_action_index_allows_formal_claim" in blockers
+    assert "claim_safety_handoff_single_next_action_index_allows_paper_result_material" in blockers
+    assert "claim_safety_handoff_single_next_action_index_zero_missing_deliverables_while_blocked" in blockers
+    assert "claim_safety_handoff_single_next_action_index_zero_open_categories_while_blocked" in blockers
+    assert "claim_safety_handoff_single_next_action_index_source_freshness_not_clean" in blockers
+    assert "claim_safety_handoff_single_next_action_index_source_freshness_blocks" in blockers
+    assert "claim_safety_handoff_single_next_action_index_approved_route_invalid" in blockers
+    assert "claim_safety_handoff_single_next_action_index_rejected_route_invalid" in blockers
+    assert "claim_safety_handoff_single_next_action_index_approval_skips_remote_preflight" in blockers
+    assert manifest["input_status"]["claim_safety_handoff_single_next_action_index_next_action_id"] == "run_remote_training"
+
+
 def test_paper_readiness_rejects_claim_safety_next_required_formal_deliverables_drift(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_paper_readiness")
     paths = _write_inputs(tmp_path, formal=True)
