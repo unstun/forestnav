@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_mainline_formal_gate_state_audit",
-  "status": "mainline_formal_gate_state_audit_failed",
-  "created_at_utc": "2026-07-05T20:58:50.019296+00:00",
-  "source_head": "885b9fce883621a1e7fe652dfbbaf159000c5da4+dirty",
+  "status": "mainline_formal_gate_state_consistent_blocked",
+  "created_at_utc": "2026-07-05T20:59:42.144119+00:00",
+  "source_head": "17982c5757a2523e9d35d714e32664efc0086a24+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -162,15 +162,8 @@
       "mentioned": false
     }
   ],
-  "audit_issue_count": 1,
-  "audit_issues": [
-    {
-      "issue_id": "status_report_next_action_guard_execution_leak",
-      "message": "Status report exposes an execution leak while the mainline is mirroring a gated state.",
-      "execution_leak_count": 11,
-      "all_execution_disabled_now": false
-    }
-  ],
+  "audit_issue_count": 0,
+  "audit_issues": [],
   "claim_boundaries": [
     "This audit only checks that the long-term mainline task book mirrors the current formal-gate state.",
     "It does not execute commands, run local training, run remote preflight, run remote PPO training, evaluate PPO, pull back artifacts, or write paper results.",

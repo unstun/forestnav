@@ -460,7 +460,10 @@ def _status_report_issues(
                 "observed_next_action_id": next_action_guard["expected_next_action_id"],
             }
         )
-    if next_action_guard["execution_leak_count"] > 0 or not next_action_guard["all_execution_disabled_now"]:
+    guarded_next_action_active = pending_f02_6 or bool(next_action_guard["expected_next_action_id"])
+    if guarded_next_action_active and (
+        next_action_guard["execution_leak_count"] > 0 or not next_action_guard["all_execution_disabled_now"]
+    ):
         issues.append(
             {
                 "issue_id": "status_report_next_action_guard_execution_leak",
