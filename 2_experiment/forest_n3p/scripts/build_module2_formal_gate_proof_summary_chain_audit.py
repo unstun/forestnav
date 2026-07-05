@@ -835,6 +835,74 @@ def _next_action_guard_signature(summary: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _normalize_handoff_single_next_action(raw: Any) -> dict[str, Any]:
+    summary = raw if isinstance(raw, dict) else {}
+    return {
+        "present": bool(summary.get("present")) or bool(summary),
+        "index_id": summary.get("index_id"),
+        "status": summary.get("status"),
+        "single_current_human_entry": _optional_bool(summary.get("single_current_human_entry")),
+        "next_action_id": summary.get("next_action_id"),
+        "decision_owner_required": summary.get("decision_owner_required"),
+        "valid_decisions": _strings(summary.get("valid_decisions")),
+        "required_record_fields": _strings(summary.get("required_record_fields")),
+        "current_allowed_action_ids": _strings(summary.get("current_allowed_action_ids")),
+        "current_blocked_action_ids": _strings(summary.get("current_blocked_action_ids")),
+        "post_decision_routes_are_current_authorization": _optional_bool(
+            summary.get("post_decision_routes_are_current_authorization")
+        ),
+        "all_execution_disabled_now": _optional_bool(summary.get("all_execution_disabled_now")),
+        "record_command_template_count": int(summary.get("record_command_template_count") or 0),
+        "local_training_allowed_now": _optional_bool(summary.get("local_training_allowed_now")),
+        "remote_preflight_allowed_now": _optional_bool(summary.get("remote_preflight_allowed_now")),
+        "remote_training_allowed_now": _optional_bool(summary.get("remote_training_allowed_now")),
+        "formal_claim_allowed_now": _optional_bool(summary.get("formal_claim_allowed_now")),
+        "paper_result_material_allowed_now": _optional_bool(summary.get("paper_result_material_allowed_now")),
+        "missing_deliverable_count": int(summary.get("missing_deliverable_count") or 0),
+        "open_category_count": int(summary.get("open_category_count") or 0),
+        "source_freshness_status": summary.get("source_freshness_status"),
+        "source_freshness_blocking_regeneration_required": _optional_bool(
+            summary.get("source_freshness_blocking_regeneration_required")
+        ),
+        "approved_route_next_lane": summary.get("approved_route_next_lane"),
+        "rejected_route_next_lane": summary.get("rejected_route_next_lane"),
+        "after_approval_still_requires": _strings(summary.get("after_approval_still_requires")),
+    }
+
+
+def _handoff_single_next_action_signature(summary: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "index_id": summary["index_id"],
+        "status": summary["status"],
+        "single_current_human_entry": summary["single_current_human_entry"],
+        "next_action_id": summary["next_action_id"],
+        "decision_owner_required": summary["decision_owner_required"],
+        "valid_decisions": sorted(summary["valid_decisions"]),
+        "required_record_fields": sorted(summary["required_record_fields"]),
+        "current_allowed_action_ids": sorted(summary["current_allowed_action_ids"]),
+        "current_blocked_action_ids": sorted(summary["current_blocked_action_ids"]),
+        "post_decision_routes_are_current_authorization": summary[
+            "post_decision_routes_are_current_authorization"
+        ],
+        "all_execution_disabled_now": summary["all_execution_disabled_now"],
+        "record_command_template_count": summary["record_command_template_count"],
+        "local_training_allowed_now": summary["local_training_allowed_now"],
+        "remote_preflight_allowed_now": summary["remote_preflight_allowed_now"],
+        "remote_training_allowed_now": summary["remote_training_allowed_now"],
+        "formal_claim_allowed_now": summary["formal_claim_allowed_now"],
+        "paper_result_material_allowed_now": summary["paper_result_material_allowed_now"],
+        "missing_deliverable_count": summary["missing_deliverable_count"],
+        "open_category_count": summary["open_category_count"],
+        "source_freshness_status": summary["source_freshness_status"],
+        "source_freshness_blocking_regeneration_required": summary[
+            "source_freshness_blocking_regeneration_required"
+        ],
+        "approved_route_next_lane": summary["approved_route_next_lane"],
+        "rejected_route_next_lane": summary["rejected_route_next_lane"],
+        "after_approval_still_requires": sorted(summary["after_approval_still_requires"]),
+    }
+
+
 def _normalize_next_required_deliverables(raw: Any) -> dict[str, Any]:
     summary = raw if isinstance(raw, dict) else {}
     rows = _normalize_deliverable_rows(summary.get("rows"))
