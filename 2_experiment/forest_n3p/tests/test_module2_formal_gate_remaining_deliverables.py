@@ -375,6 +375,48 @@ def test_remaining_deliverables_rejects_duplicate_generated_proof_command_ids():
     )
 
 
+def test_remaining_deliverables_rejects_acceptance_matrix_identity_drift():
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_remaining_deliverables")
+
+    issues = builder._acceptance_matrix_integrity_issues(
+        deliverable_groups=[
+            {
+                "category": "training",
+                "item_count": 1,
+                "missing_count": 1,
+                "items": [{"artifact_id": "train_final_model_zip", "missing": True}],
+            }
+        ],
+        deliverable_acceptance_matrix=[
+            {
+                "matrix_id": "training:wrong_artifact",
+                "category": "training",
+                "artifact_id": "train_final_model_zip",
+                "missing": True,
+                "invalid_substitutes": [],
+                "execution_boundary": "reference_only_no_execution",
+            },
+            {
+                "matrix_id": "training:wrong_artifact",
+                "category": "training",
+                "artifact_id": "train_final_model_zip",
+                "missing": True,
+                "invalid_substitutes": ["local training output"],
+                "execution_boundary": "read_only_no_execution",
+            },
+        ],
+    )
+
+    issue_ids = {issue["issue_id"] for issue in issues}
+    assert "acceptance_matrix_row_count_mismatch" in issue_ids
+    assert "acceptance_matrix_training_wrong_artifact_identity_mismatch" in issue_ids
+    assert "acceptance_matrix_training_wrong_artifact_duplicate_matrix_id" in issue_ids
+    assert "acceptance_matrix_training_train_final_model_zip_duplicate_category_artifact" in issue_ids
+    assert "acceptance_matrix_training_wrong_artifact_missing_invalid_substitutes" in issue_ids
+    assert "acceptance_matrix_training_wrong_artifact_wrong_boundary" in issue_ids
+    assert "acceptance_matrix_training_missing_count_mismatch" in issue_ids
+
+
 def test_remaining_deliverables_cli_writes_json_and_markdown(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_remaining_deliverables")
     config = _config(tmp_path, complete=False)
