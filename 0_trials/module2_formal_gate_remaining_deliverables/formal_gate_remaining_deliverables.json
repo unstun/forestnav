@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_remaining_deliverables",
   "status": "formal_gate_deliverables_blocked",
-  "created_at_utc": "2026-07-05T17:58:09.662575+00:00",
-  "source_head": "1bfb7a6193a15157f1b13197119aaab9e2967ff4",
+  "created_at_utc": "2026-07-05T18:02:23.337311+00:00",
+  "source_head": "58a0c3ae4792a78155f9aab7d3ee19fb3faa89ee",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -32,14 +32,14 @@
     "next_blocked_lane": "decision",
     "missing_counts_by_category": {
       "decision": 1,
-      "decision_gate": 1,
-      "regeneration": 23,
+      "decision_gate": 0,
+      "regeneration": 2,
       "gate_sequence": 7,
       "training": 3,
       "evaluation": 2,
       "acceptance": 3,
       "evaluation_acceptance": 2,
-      "claim_gate": 9
+      "claim_gate": 1
     },
     "remote_packet_status": "blocked_until_f02_6_decision",
     "ready_to_run_remote_training": false,
@@ -50,7 +50,7 @@
     "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
     "source_freshness_regeneration_required": true,
     "source_freshness_blocking_regeneration_required": true,
-    "source_freshness_non_self_changed_records": 1,
+    "source_freshness_non_self_changed_records": 23,
     "source_freshness_self_artifact_only_lag_records": 0,
     "source_freshness_blocking_target_count": 1,
     "source_freshness_blocking_target_ids": [
@@ -401,8 +401,8 @@
     "execution_boundary": "read_only_no_execution",
     "not_paper_result_material": true,
     "status": "source_freshness_risks_recorded_gate_still_blocked",
-    "source_head": "1bfb7a6193a15157f1b13197119aaab9e2967ff4",
-    "current_head": "1bfb7a6193a15157f1b13197119aaab9e2967ff4",
+    "source_head": "58a0c3ae4792a78155f9aab7d3ee19fb3faa89ee",
+    "current_head": "58a0c3ae4792a78155f9aab7d3ee19fb3faa89ee",
     "blocking_regeneration_required_before_remote_formal_execution": true,
     "blocking_target_count": 1,
     "blocking_target_ids": [
@@ -424,8 +424,8 @@
         "freshness_state": "historical_clean",
         "source_head": "181860fa90c7f5f35dfb9bc224ca84c849a60d8a",
         "required_before": "approved_remote_preflight",
-        "commits_since_source": 141,
-        "blocking_changed_path_count_since_source": 42
+        "commits_since_source": 144,
+        "blocking_changed_path_count_since_source": 43
       }
     ]
   },
@@ -953,14 +953,13 @@
           "status": "blocked",
           "allowed_now": false,
           "blocked_by": [
-            "missing_remote_audit_pullback",
-            "source_fresh_h01_h02_targets_open"
+            "missing_remote_audit_pullback"
           ],
           "runs_training": false,
           "runs_remote_preflight": false,
           "host": null,
           "command_template_count": 2,
-          "evidence_path_count": 3
+          "evidence_path_count": 1
         },
         "local_materialization_stage": {
           "stage_id": "regenerate_h01_h02_formal_artifacts",
@@ -968,17 +967,16 @@
           "status": "blocked",
           "allowed_now": false,
           "blocked_by": [
-            "missing_remote_audit_pullback",
-            "source_fresh_h01_h02_targets_open"
+            "missing_remote_audit_pullback"
           ],
           "runs_training": false,
           "runs_remote_preflight": false,
           "host": null,
           "command_template_count": 2,
-          "evidence_path_count": 3
+          "evidence_path_count": 1
         },
-        "expected_path_listed_in_remote_generation_stage": true,
-        "expected_path_listed_in_local_materialization_stage": true,
+        "expected_path_listed_in_remote_generation_stage": false,
+        "expected_path_listed_in_local_materialization_stage": false,
         "hash_manifest_required_by_remote_packet": true,
         "post_plan_input_status": "blocked_until_f02_6_decision",
         "execution_boundary": "reference_only_no_execution",
@@ -998,14 +996,13 @@
           "status": "blocked",
           "allowed_now": false,
           "blocked_by": [
-            "missing_remote_audit_pullback",
-            "source_fresh_h01_h02_targets_open"
+            "missing_remote_audit_pullback"
           ],
           "runs_training": false,
           "runs_remote_preflight": false,
           "host": null,
           "command_template_count": 2,
-          "evidence_path_count": 3
+          "evidence_path_count": 1
         },
         "local_materialization_stage": {
           "stage_id": "regenerate_h01_h02_formal_artifacts",
@@ -1013,14 +1010,13 @@
           "status": "blocked",
           "allowed_now": false,
           "blocked_by": [
-            "missing_remote_audit_pullback",
-            "source_fresh_h01_h02_targets_open"
+            "missing_remote_audit_pullback"
           ],
           "runs_training": false,
           "runs_remote_preflight": false,
           "host": null,
           "command_template_count": 2,
-          "evidence_path_count": 3
+          "evidence_path_count": 1
         },
         "expected_path_listed_in_remote_generation_stage": true,
         "expected_path_listed_in_local_materialization_stage": true,

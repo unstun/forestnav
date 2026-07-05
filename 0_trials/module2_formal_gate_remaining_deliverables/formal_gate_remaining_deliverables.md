@@ -3,7 +3,7 @@
 This ledger is read-only. It lists remaining formal training, evaluation, and acceptance deliverables; it does not execute commands or write paper results.
 
 - status: `formal_gate_deliverables_blocked`
-- source_head: `1bfb7a6193a15157f1b13197119aaab9e2967ff4`
+- source_head: `58a0c3ae4792a78155f9aab7d3ee19fb3faa89ee`
 - missing_deliverable_count: `10`
 - open_category_count: `4`
 - missing_counts_by_formal_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
@@ -40,7 +40,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 
 - status_report_status: `formal_gate_status_blocked`
 - next_blocked_lane: `decision`
-- missing_counts_by_category: `{'decision': 1, 'decision_gate': 1, 'regeneration': 23, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 9}`
+- missing_counts_by_category: `{'decision': 1, 'decision_gate': 0, 'regeneration': 2, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 1}`
 - remote_packet_status: `blocked_until_f02_6_decision`
 - ready_to_run_remote_training: `False`
 - h01_status: `blocked_pending_decisions`
@@ -50,7 +50,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
 - source_freshness_regeneration_required: `True`
 - source_freshness_blocking_regeneration_required: `True`
-- source_freshness_non_self_changed_records: `1`
+- source_freshness_non_self_changed_records: `23`
 - source_freshness_self_artifact_only_lag_records: `0`
 - source_freshness_blocking_target_count: `1`
 - source_freshness_blocking_target_ids: `['gpu3070ti_readiness_refresh']`
@@ -63,7 +63,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - remote_readiness_blocking_target_count: `1`
 - remote_readiness_refresh_requires_external_ssh: `True`
 - remote_readiness_refresh_allowed_now: `False`
-- `gpu3070ti_readiness_refresh`: path=`0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`42`
+- `gpu3070ti_readiness_refresh`: path=`0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json`, freshness_state=`historical_clean`, required_before=`approved_remote_preflight`, blocking_changed_path_count_since_source=`43`
 
 ## Formal Gate Gap Summary
 
@@ -141,7 +141,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - `acceptance:gate3_trial_manifest_json`: generation_stage=`gate3_remote_training`, generation_allowed_now=`False`, materialization_stage=`gate3_remote_audit_pullback`, materialization_allowed_now=`False`, host=`gpu3070ti-relay`, generation_evidence_path_listed=`True`, materialization_evidence_path_listed=`True`
 - `acceptance:gate3_formal_audit_json`: generation_stage=`gate3_remote_audit_pullback`, generation_allowed_now=`False`, materialization_stage=`gate3_remote_audit_pullback`, materialization_allowed_now=`False`, host=`gpu3070ti-relay`, generation_evidence_path_listed=`True`, materialization_evidence_path_listed=`True`
 - `acceptance:pulled_back_checkpoint_hash_record`: generation_stage=`gate3_remote_audit_pullback`, generation_allowed_now=`False`, materialization_stage=`gate3_remote_audit_pullback`, materialization_allowed_now=`False`, host=`gpu3070ti-relay`, generation_evidence_path_listed=`False`, materialization_evidence_path_listed=`False`
-- `formal_acceptance:h01_ready_for_formal_run`: generation_stage=`regenerate_h01_h02_formal_artifacts`, generation_allowed_now=`False`, materialization_stage=`regenerate_h01_h02_formal_artifacts`, materialization_allowed_now=`False`, host=`None`, generation_evidence_path_listed=`True`, materialization_evidence_path_listed=`True`
+- `formal_acceptance:h01_ready_for_formal_run`: generation_stage=`regenerate_h01_h02_formal_artifacts`, generation_allowed_now=`False`, materialization_stage=`regenerate_h01_h02_formal_artifacts`, materialization_allowed_now=`False`, host=`None`, generation_evidence_path_listed=`False`, materialization_evidence_path_listed=`False`
 - `formal_acceptance:h02_formal_output_acceptance`: generation_stage=`regenerate_h01_h02_formal_artifacts`, generation_allowed_now=`False`, materialization_stage=`regenerate_h01_h02_formal_artifacts`, materialization_allowed_now=`False`, host=`None`, generation_evidence_path_listed=`True`, materialization_evidence_path_listed=`True`
 
 ## Deliverable Unlock Chain
