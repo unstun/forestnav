@@ -439,6 +439,21 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "decision_intake_decision_impact_paper_result_material_allowed_now": decision_intake_summary[
             "decision_impact_paper_result_material_allowed_now"
         ],
+        "decision_intake_evidence_matrix_status": decision_intake_summary[
+            "decision_evidence_matrix_status"
+        ],
+        "decision_intake_evidence_matrix_route_count": decision_intake_summary[
+            "decision_evidence_matrix_route_count"
+        ],
+        "decision_intake_evidence_matrix_required_evidence_count": decision_intake_summary[
+            "decision_evidence_matrix_required_evidence_count"
+        ],
+        "decision_intake_evidence_matrix_missing_required_evidence_count": decision_intake_summary[
+            "decision_evidence_matrix_missing_required_evidence_count"
+        ],
+        "decision_intake_evidence_matrix_remote_training_allowed_now": decision_intake_summary[
+            "decision_evidence_matrix_remote_training_allowed_now"
+        ],
             "formal_gate_status": formal_gate.get("status"),
             "missing_artifacts_status": missing_artifacts.get("status"),
             "missing_artifacts_handoff_index_status": missing_artifacts_handoff_summary["status"],
@@ -661,6 +676,9 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         "post_run_acceptance_requirement_summary": post_run_acceptance_requirements,
         "h02_formal_acceptance_requirement_summary": h02_acceptance_requirements,
         "f02_6_decision_intake_summary": decision_intake_summary,
+        "f02_6_decision_evidence_matrix_summary": decision_intake_summary[
+            "decision_evidence_matrix_summary"
+        ],
         "formal_gate_handoff_summary": handoff_summary,
         "formal_gate_requirement_stage_summary": requirement_stage_summary,
         "missing_artifacts_handoff_index_summary": missing_artifacts_handoff_summary,
