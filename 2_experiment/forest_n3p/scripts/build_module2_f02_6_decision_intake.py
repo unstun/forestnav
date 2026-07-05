@@ -81,6 +81,7 @@ def build_manifest(config: F026DecisionIntakeConfig) -> dict[str, Any]:
     status_report = _read_json(config.status_report_path)
     remaining = _read_json(config.remaining_deliverables_path)
     current_state = _current_state(packet=packet, record=record, gate_audit=gate_audit, status_report=status_report, remaining=remaining)
+    decision_evidence_matrix_summary = _decision_evidence_matrix_summary(packet)
     issues = _audit_issues(
         config=config,
         packet=packet,
@@ -117,6 +118,7 @@ def build_manifest(config: F026DecisionIntakeConfig) -> dict[str, Any]:
             "remaining_deliverables": str(config.remaining_deliverables_path),
         },
         "current_state": current_state,
+        "decision_evidence_matrix_summary": decision_evidence_matrix_summary,
         "next_human_decision_request": _next_human_decision_request(
             current_state=current_state,
             decision_intake_contract=decision_intake_contract,
@@ -212,6 +214,57 @@ def _current_state(
             for name, payload in category_counts.items()
             if isinstance(payload, dict)
         },
+    }
+
+
+def _decision_evidence_matrix_summary(packet: dict[str, Any]) -> dict[str, Any]:
+    matrix = packet.get("decision_evidence_matrix")
+    matrix = matrix if isinstance(matrix, dict) else {}
+    routes = matrix.get("routes") if isinstance(matrix.get("routes"), list) else []
+    route_decisions = [str(route.get("decision")) for route in routes if isinstance(route, dict) and route.get("decision")]
+    evidence_counts_by_route: dict[str, int] = {}
+    invalid_substitute_counts_by_route: dict[str, int] = {}
+    for route in routes:
+        if not isinstance(route, dict) or not route.get("decision"):
+            continue
+        decision = str(route["decision"])
+        required_evidence = route.get("required_evidence") if isinstance(route.get("required_evidence"), list) else []
+        invalid_substitutes = route.get("invalid_substitutes") if isinstance(route.get("invalid_substitutes"), list) else []
+        evidence_counts_by_route[decision] = len(required_evidence)
+        invalid_substitute_counts_by_route[decision] = len(invalid_substitutes)
+    missing_ids = _strings(matrix.get("missing_required_evidence_ids"))
+    return {
+        "present": bool(matrix),
+        "matrix_id": matrix.get("matrix_id"),
+        "status": matrix.get("status"),
+        "route_count": int(matrix.get("route_count") or len(routes)),
+        "route_decisions": sorted(route_decisions),
+        "required_evidence_count": int(matrix.get("required_evidence_count") or sum(evidence_counts_by_route.values())),
+        "satisfied_required_evidence_count": int(matrix.get("satisfied_required_evidence_count") or 0),
+        "missing_required_evidence_count": int(matrix.get("missing_required_evidence_count") or len(missing_ids)),
+        "missing_required_evidence_ids": missing_ids,
+        "current_authorization_allowed_now": matrix.get("current_authorization_allowed_now")
+        if isinstance(matrix.get("current_authorization_allowed_now"), bool)
+        else None,
+        "remote_preflight_allowed_now": matrix.get("remote_preflight_allowed_now")
+        if isinstance(matrix.get("remote_preflight_allowed_now"), bool)
+        else None,
+        "remote_training_allowed_now": matrix.get("remote_training_allowed_now")
+        if isinstance(matrix.get("remote_training_allowed_now"), bool)
+        else None,
+        "local_training_allowed_now": matrix.get("local_training_allowed_now")
+        if isinstance(matrix.get("local_training_allowed_now"), bool)
+        else None,
+        "formal_claim_allowed_now": matrix.get("formal_claim_allowed_now")
+        if isinstance(matrix.get("formal_claim_allowed_now"), bool)
+        else None,
+        "paper_result_material_allowed_now": matrix.get("paper_result_material_allowed_now")
+        if isinstance(matrix.get("paper_result_material_allowed_now"), bool)
+        else None,
+        "source_issue_count": int(matrix.get("source_issue_count") or 0),
+        "global_invalid_substitute_count": len(matrix.get("global_invalid_substitutes") or []),
+        "evidence_counts_by_route": evidence_counts_by_route,
+        "invalid_substitute_counts_by_route": invalid_substitute_counts_by_route,
     }
 
 
