@@ -48,6 +48,18 @@
   - `evaluation`: missing=`2`, responsible_stage=`gate3_remote_audit_pullback`
   - `acceptance`: missing=`3`, responsible_stage=`gate3_remote_audit_pullback`
   - `formal_acceptance`: missing=`2`, responsible_stage=`regenerate_h01_h02_formal_artifacts`
+
+## Status Report Proof-Audit Deliverables Summary
+
+- present: `True`
+- missing_counts_by_formal_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
+- next_blocked_lane: `decision`
+- h01_status: `blocked_pending_decisions`
+- h02_status: `blocked_formal_output_acceptance`
+- training_missing_matrix_ids: `training:train_final_model_zip, training:train_summary_json, training:train_training_manifest_json`
+- evaluation_missing_matrix_ids: `evaluation:eval_gate3_eval_episodes_csv, evaluation:eval_gate3_summary_json`
+- acceptance_missing_matrix_ids: `acceptance:gate3_trial_manifest_json, acceptance:gate3_formal_audit_json, acceptance:pulled_back_checkpoint_hash_record`
+- formal_acceptance_missing_matrix_ids: `formal_acceptance:h01_ready_for_formal_run, formal_acceptance:h02_formal_output_acceptance`
 - formal gate requirements: `4`
   - `training_remote_ppo_checkpoint`: status=`blocked_missing_outputs`, responsible_stage=`gate3_remote_training`
   - `evaluation_gate3_episode_outputs`: status=`blocked_missing_outputs`, responsible_stage=`gate3_remote_audit_pullback`
