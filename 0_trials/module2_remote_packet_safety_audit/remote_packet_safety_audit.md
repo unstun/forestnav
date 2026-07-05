@@ -22,6 +22,9 @@ This file audits the remote formal execution packet. It does not execute any com
 - post_plan_command_index_forbidden_command_count: `0`
 - post_plan_remaining_deliverables_gap_total_missing: `10`
 - post_plan_status_report_gap_total_missing: `10`
+- post_plan_proof_deliverables_present: `True`
+- post_plan_proof_deliverables_missing_counts: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
+- post_plan_proof_deliverables_h02_paper_result_input_allowed: `False`
 
 ## Audit Issues
 

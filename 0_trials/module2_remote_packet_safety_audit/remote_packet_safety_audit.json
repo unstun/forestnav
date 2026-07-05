@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_remote_packet_safety_audit",
   "status": "remote_packet_safety_audit_passed",
-  "created_at_utc": "2026-07-05T01:30:27.193445+00:00",
-  "source_head": "e0c7995c243b79b0b7a977f9698e3f5daa12c13a",
+  "created_at_utc": "2026-07-05T02:51:02.065479+00:00",
+  "source_head": "53e3bbf6b8afef8ee779d568bac05b9ad1308ab5",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -451,6 +451,74 @@
           ]
         }
       }
+    },
+    "post_plan_proof_audit_deliverables_summary": {
+      "present": true,
+      "missing_counts_by_formal_category": {
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 2
+      },
+      "missing_matrix_ids_by_formal_category": {
+        "training": [
+          "training:train_final_model_zip",
+          "training:train_summary_json",
+          "training:train_training_manifest_json"
+        ],
+        "evaluation": [
+          "evaluation:eval_gate3_eval_episodes_csv",
+          "evaluation:eval_gate3_summary_json"
+        ],
+        "acceptance": [
+          "acceptance:gate3_trial_manifest_json",
+          "acceptance:gate3_formal_audit_json",
+          "acceptance:pulled_back_checkpoint_hash_record"
+        ],
+        "formal_acceptance": [
+          "formal_acceptance:h01_ready_for_formal_run",
+          "formal_acceptance:h02_formal_output_acceptance"
+        ]
+      },
+      "next_blocked_lane": "decision",
+      "h01_status": "blocked_pending_decisions",
+      "h02_status": "blocked_formal_output_acceptance",
+      "h02_formal_output_accepted": false,
+      "h02_paper_result_input_allowed": false
+    },
+    "post_plan_status_report_proof_audit_deliverables_summary": {
+      "present": true,
+      "missing_counts_by_formal_category": {
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 2
+      },
+      "missing_matrix_ids_by_formal_category": {
+        "training": [
+          "training:train_final_model_zip",
+          "training:train_summary_json",
+          "training:train_training_manifest_json"
+        ],
+        "evaluation": [
+          "evaluation:eval_gate3_eval_episodes_csv",
+          "evaluation:eval_gate3_summary_json"
+        ],
+        "acceptance": [
+          "acceptance:gate3_trial_manifest_json",
+          "acceptance:gate3_formal_audit_json",
+          "acceptance:pulled_back_checkpoint_hash_record"
+        ],
+        "formal_acceptance": [
+          "formal_acceptance:h01_ready_for_formal_run",
+          "formal_acceptance:h02_formal_output_acceptance"
+        ]
+      },
+      "next_blocked_lane": "decision",
+      "h01_status": "blocked_pending_decisions",
+      "h02_status": "blocked_formal_output_acceptance",
+      "h02_formal_output_accepted": false,
+      "h02_paper_result_input_allowed": false
     }
   },
   "audit_issue_count": 0,
