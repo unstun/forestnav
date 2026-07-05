@@ -1748,6 +1748,55 @@ def _status_report_payload(*, ready, invalid=False):
     }
 
 
+def _handoff_bundle_payload(*, ready):
+    return {
+        "status": "ready_for_manual_remote_execution_review" if ready else "blocked_until_f02_6_decision",
+        "single_next_action_index": {
+            "index_id": "module2_formal_gate_single_next_action_index",
+            "status": "f02_6_decision_recorded" if ready else "awaiting_dr_sun_f02_6_decision",
+            "single_current_human_entry": not ready,
+            "next_action_id": None if ready else "record_f02_6_decision",
+            "decision_owner_required": "Dr Sun",
+            "valid_decisions": [
+                "approve_obstacle_summary_warm_start",
+                "reject_obstacle_summary_warm_start",
+            ],
+            "required_record_fields": ["decision", "decider", "decision_note"],
+            "current_allowed_action_ids": [] if ready else ["record_f02_6_decision"],
+            "current_blocked_action_ids": []
+            if ready
+            else [
+                "remote_preflight",
+                "remote_training",
+                "local_training",
+                "formal_claim",
+                "paper_result_material",
+            ],
+            "post_decision_routes_are_current_authorization": False,
+            "all_execution_disabled_now": not ready,
+            "record_command_template_count": 2,
+            "local_training_allowed_now": False,
+            "remote_preflight_allowed_now": False if not ready else True,
+            "remote_training_allowed_now": False if not ready else True,
+            "formal_claim_allowed_now": False if not ready else True,
+            "paper_result_material_allowed_now": False,
+            "missing_deliverable_count": 0 if ready else 10,
+            "open_category_count": 0 if ready else 4,
+            "source_freshness_status": "source_freshness_clean_current",
+            "source_freshness_blocking_regeneration_required": False,
+            "approved_route_next_lane": "source_fresh_regeneration",
+            "rejected_route_next_lane": "protocol_redesign",
+            "after_approval_still_requires": [
+                "source_freshness_audit",
+                "post_f02_6_regeneration_plan",
+                "post_f02_6_plan_audit",
+                "remote_formal_execution_packet_ready",
+                "approved_remote_preflight",
+            ],
+        },
+    }
+
+
 def _status_report_next_action_guard_summary_payload(*, ready):
     return {
         "present": True,
