@@ -93,6 +93,21 @@ def test_formal_gate_handoff_bundle_marks_manual_review_when_sources_allow_remot
     assert stages["gate3_remote_training"]["host"] == "gpu3070ti-relay"
 
 
+def test_formal_gate_handoff_bundle_blocks_remote_when_source_freshness_stale(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_handoff_bundle")
+    config = _config(tmp_path, complete=True)
+    config.source_freshness_path.write_text(json.dumps(_source_freshness(complete=False)), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    assert manifest["status"] == "blocked_handoff_input_safety_issues"
+    issue_ids = {issue["issue_id"] for issue in manifest["safety_issues"]}
+    assert "source_freshness_blocks_remote_execution" in issue_ids
+    assert manifest["permissions_now"]["source_freshness_ready_for_remote_preflight"] is False
+    assert manifest["permissions_now"]["remote_preflight_allowed_now"] is False
+    assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+
+
 def test_formal_gate_handoff_bundle_catches_pending_decision_execution_drift(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_handoff_bundle")
     config = _config(tmp_path, complete=False)
