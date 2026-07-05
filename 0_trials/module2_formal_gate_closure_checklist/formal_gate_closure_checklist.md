@@ -15,11 +15,11 @@ This file is a formal-gate closure checklist. It does not execute commands, trai
 - formal_gate_status: `blocked_formal_gate_gaps_open`
 - missing_artifacts_status: `formal_gate_missing_artifacts_open`
 - post_plan_status: `blocked_until_f02_6_decision`
-- source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
+- source_freshness_status: `source_freshness_clean_current`
 - missing_counts_by_category: `{'decision': 1, 'decision_gate': 0, 'regeneration': 12, 'gate_sequence': 7, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 9}`
 - formal_ordered_next_step_count: `6`
 - post_plan_blocked_stage_ids: `['regenerate_preflight_gate_artifacts', 'approved_remote_preflight', 'regenerate_remote_execution_packet', 'gate3_remote_training', 'gate3_remote_audit_pullback', 'regenerate_h01_h02_formal_artifacts', 'regenerate_claim_gate_artifacts']`
-- source_regeneration_target_count: `12`
+- source_regeneration_target_count: `1`
 - remaining_deliverables_gap_total_missing: `10`
 - remaining_deliverables_gap_open_category_count: `4`
 

@@ -31,6 +31,10 @@
 - `status_report_remaining_deliverables_gap_categories_blocked`
 - `status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing`
 - `status_report_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked`
+- `status_report_remote_packet_safety_command_index_missing_formal_gate_proof_summary_chain_audit`
+- `status_report_remote_packet_safety_command_index_missing_mainline_formal_gate_state_audit`
+- `status_report_remote_packet_safety_command_index_missing_claim_safety`
+- `status_report_remote_packet_safety_command_index_missing_paper_readiness`
 - `claim_safety_f02_6_decision_intake_pending`
 - `claim_safety_remaining_deliverables_acceptance_rows_missing`
 - `claim_safety_remaining_deliverables_acceptance_categories_blocked`
@@ -38,6 +42,10 @@
 - `claim_safety_remaining_deliverables_gap_categories_blocked`
 - `claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing`
 - `claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked`
+- `claim_safety_remote_packet_safety_command_index_missing_formal_gate_proof_summary_chain_audit`
+- `claim_safety_remote_packet_safety_command_index_missing_mainline_formal_gate_state_audit`
+- `claim_safety_remote_packet_safety_command_index_missing_claim_safety`
+- `claim_safety_remote_packet_safety_command_index_missing_paper_readiness`
 
 ## Claim Safety Handoff Summary
 
@@ -143,8 +151,8 @@
 ## Claim Safety Remote-Safety Claim-Gate Command Index
 
 - claim_safety_remote_packet_safety_command_index_present: `True`
-- claim_safety_remote_packet_safety_command_index_row_count: `22`
-- claim_safety_remote_packet_safety_command_index_source_target_count: `12`
+- claim_safety_remote_packet_safety_command_index_row_count: `1`
+- claim_safety_remote_packet_safety_command_index_source_target_count: `1`
 - claim_safety_remote_packet_safety_command_index_missing_target_count: `0`
 
 ## Claim Safety Next-Action Guard
@@ -155,6 +163,20 @@
 - claim_safety_next_action_guard_all_execution_disabled_now: `True`
 - claim_safety_next_action_guard_execution_leak_count: `0`
 - claim_safety_next_action_guard_violation_count: `0`
+
+## Claim Safety Handoff Single Next-Action Index
+
+- claim_safety_handoff_single_next_action_index_present: `True`
+- claim_safety_handoff_single_next_action_index_status: `awaiting_dr_sun_f02_6_decision`
+- claim_safety_handoff_single_next_action_index_next_action_id: `record_f02_6_decision`
+- claim_safety_handoff_single_next_action_index_decision_owner_required: `Dr Sun`
+- claim_safety_handoff_single_next_action_index_single_current_human_entry: `True`
+- claim_safety_handoff_single_next_action_index_all_execution_disabled_now: `True`
+- claim_safety_handoff_single_next_action_index_missing_deliverable_count: `10`
+- claim_safety_handoff_single_next_action_index_source_freshness_status: `source_freshness_clean_current`
+- claim_safety_handoff_single_next_action_index_remote_training_allowed_now: `False`
+- claim_safety_handoff_single_next_action_index_formal_claim_allowed_now: `False`
+- claim_safety_handoff_single_next_action_index_paper_result_material_allowed_now: `False`
 
 ## Claim Safety Next Required Formal Deliverables
 
@@ -193,7 +215,7 @@
 ### formal_results
 - target: Results: formal performance improvement claims
 - status: `blocked`
-- blockers: `paper_tables_not_formal`, `h02_verdict_not_formal`, `h02_formal_acceptance_not_accepted`, `h01_manifest_not_ready`, `f02_6_warm_start_decision_pending`, `missing_module2_rl_rs_checkpoint`, `remote_execution_packet_not_ready`, `requires_dr_sun_approval`, `missing_gate3_formal_audit`, `h02_scale_below_h01_manifest`, `missing_ppo_result_rows`, `missing_remote_pullback_artifacts`, `f02_6_formal_chain_pending`, `missing_module2_bc_checkpoint`, `realmap_query_generation_not_frozen`, `claim_safety_blocks_formal_performance`, `f02_6_pending`, `formal_gate_closure_checklist_open`, `formal_gate_status_report_blocked`, `status_report_remaining_deliverables_gap_rows_missing`, `status_report_remaining_deliverables_gap_categories_blocked`, `status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing`, `status_report_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked`, `claim_safety_f02_6_decision_intake_pending`, `claim_safety_remaining_deliverables_acceptance_rows_missing`, `claim_safety_remaining_deliverables_acceptance_categories_blocked`, `claim_safety_remaining_deliverables_gap_rows_missing`, `claim_safety_remaining_deliverables_gap_categories_blocked`, `claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing`, `claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked`
+- blockers: `paper_tables_not_formal`, `h02_verdict_not_formal`, `h02_formal_acceptance_not_accepted`, `h01_manifest_not_ready`, `f02_6_warm_start_decision_pending`, `missing_module2_rl_rs_checkpoint`, `remote_execution_packet_not_ready`, `requires_dr_sun_approval`, `missing_gate3_formal_audit`, `h02_scale_below_h01_manifest`, `missing_ppo_result_rows`, `missing_remote_pullback_artifacts`, `f02_6_formal_chain_pending`, `missing_module2_bc_checkpoint`, `realmap_query_generation_not_frozen`, `claim_safety_blocks_formal_performance`, `f02_6_pending`, `formal_gate_closure_checklist_open`, `formal_gate_status_report_blocked`, `status_report_remaining_deliverables_gap_rows_missing`, `status_report_remaining_deliverables_gap_categories_blocked`, `status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing`, `status_report_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked`, `status_report_remote_packet_safety_command_index_missing_formal_gate_proof_summary_chain_audit`, `status_report_remote_packet_safety_command_index_missing_mainline_formal_gate_state_audit`, `status_report_remote_packet_safety_command_index_missing_claim_safety`, `status_report_remote_packet_safety_command_index_missing_paper_readiness`, `claim_safety_f02_6_decision_intake_pending`, `claim_safety_remaining_deliverables_acceptance_rows_missing`, `claim_safety_remaining_deliverables_acceptance_categories_blocked`, `claim_safety_remaining_deliverables_gap_rows_missing`, `claim_safety_remaining_deliverables_gap_categories_blocked`, `claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing`, `claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_categories_blocked`, `claim_safety_remote_packet_safety_command_index_missing_formal_gate_proof_summary_chain_audit`, `claim_safety_remote_packet_safety_command_index_missing_mainline_formal_gate_state_audit`, `claim_safety_remote_packet_safety_command_index_missing_claim_safety`, `claim_safety_remote_packet_safety_command_index_missing_paper_readiness`
 - evidence: `0_trials/module2_claim_safety/module2_claim_safety.json`, `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`, `0_trials/module2_paper_tables/module2_paper_tables.json`, `0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`
 
 ### warm_start_effect

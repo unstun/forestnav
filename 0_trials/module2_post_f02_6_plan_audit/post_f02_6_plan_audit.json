@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_plan_audit",
-  "status": "post_f02_6_plan_audit_failed",
-  "created_at_utc": "2026-07-05T10:43:47.880086+00:00",
-  "source_head": "8aa9190382f1927f4ced908e895e6e22491d1e2f",
+  "status": "post_f02_6_plan_audit_passed",
+  "created_at_utc": "2026-07-05T11:05:29.807477+00:00",
+  "source_head": "d02d01497837a1cde882e96b02322cb75d4b5e75",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -23,10 +23,8 @@
   "source_regeneration_command_index_summary": {
     "present": true,
     "index_row_count": 1,
-    "source_target_count": 2,
-    "missing_target_ids": [
-      "post_f02_6_plan_audit"
-    ],
+    "source_target_count": 1,
+    "missing_target_ids": [],
     "extra_index_ids": [],
     "unknown_manual_count": 0,
     "unknown_manual_ids": [],
@@ -474,36 +472,8 @@
     "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
     "exists": true
   },
-  "audit_issue_count": 3,
-  "audit_issues": [
-    {
-      "issue_id": "plan_source_freshness_requirement_mismatch",
-      "message": "Plan source freshness flag does not match source freshness audit.",
-      "observed": {
-        "plan": false,
-        "source_freshness": true
-      }
-    },
-    {
-      "issue_id": "plan_source_regeneration_target_counts_mismatch",
-      "message": "Plan target counts by gate do not match source freshness audit.",
-      "observed": {
-        "plan": {
-          "approved_remote_preflight": 1
-        },
-        "source_freshness": {
-          "approved_remote_preflight": 2
-        }
-      }
-    },
-    {
-      "issue_id": "source_regeneration_command_index_missing_source_targets",
-      "message": "Command index must cover every source-freshness regeneration target.",
-      "observed": [
-        "post_f02_6_plan_audit"
-      ]
-    }
-  ],
+  "audit_issue_count": 0,
+  "audit_issues": [],
   "required_stage_order": [
     "f02_6_decision_record",
     "regenerate_preflight_gate_artifacts",

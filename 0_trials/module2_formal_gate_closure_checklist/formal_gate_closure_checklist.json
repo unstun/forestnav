@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_closure_checklist",
   "status": "formal_gate_closure_blocked",
-  "created_at_utc": "2026-07-05T10:43:26.089718+00:00",
-  "source_head": "8aa9190382f1927f4ced908e895e6e22491d1e2f",
+  "created_at_utc": "2026-07-05T11:05:30.041243+00:00",
+  "source_head": "d02d01497837a1cde882e96b02322cb75d4b5e75",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -21,7 +21,7 @@
     "formal_gate_status": "blocked_formal_gate_gaps_open",
     "missing_artifacts_status": "formal_gate_missing_artifacts_open",
     "post_plan_status": "blocked_until_f02_6_decision",
-    "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
+    "source_freshness_status": "source_freshness_clean_current",
     "missing_counts_by_category": {
       "decision": 1,
       "decision_gate": 0,
@@ -43,7 +43,7 @@
       "regenerate_h01_h02_formal_artifacts",
       "regenerate_claim_gate_artifacts"
     ],
-    "source_regeneration_target_count": 12,
+    "source_regeneration_target_count": 1,
     "remaining_deliverables_gap_total_missing": 10,
     "remaining_deliverables_gap_open_category_count": 4
   },

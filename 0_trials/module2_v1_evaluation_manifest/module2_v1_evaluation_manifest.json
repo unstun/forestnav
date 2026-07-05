@@ -2,8 +2,8 @@
   "schema_version": 1,
   "manifest_name": "module2_v1_evaluation",
   "status": "blocked_pending_decisions",
-  "created_at_utc": "2026-07-05T10:43:24.868121+00:00",
-  "source_head": "8aa9190382f1927f4ced908e895e6e22491d1e2f",
+  "created_at_utc": "2026-07-05T11:05:29.409353+00:00",
+  "source_head": "d02d01497837a1cde882e96b02322cb75d4b5e75",
   "contract": {
     "path": ".pipeline/contracts/module2-ppo-funnel-expansion.md",
     "exists": true,
@@ -90,7 +90,9 @@
       "status": "blocked",
       "blockers": [
         "missing_module2_rl_rs_checkpoint",
-        "f02_6_warm_start_decision_pending"
+        "f02_6_warm_start_decision_pending",
+        "requires_dr_sun_approval",
+        "f02_6_decision_record_pending"
       ],
       "checkpoint": null
     },
@@ -101,7 +103,9 @@
       "status": "blocked",
       "blockers": [
         "missing_module2_rl_rs_checkpoint",
-        "f02_6_warm_start_decision_pending"
+        "f02_6_warm_start_decision_pending",
+        "requires_dr_sun_approval",
+        "f02_6_decision_record_pending"
       ],
       "checkpoint": null
     }
@@ -261,13 +265,29 @@
     "endpoint_audit_pass": false
   },
   "f02_6_decision_packet": {
-    "path": null,
-    "exists": false,
-    "status": "not_provided",
+    "path": "0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json",
+    "exists": true,
+    "status": "pending_human_decision",
     "requested_warm_start_decision": "pending",
     "effective_warm_start_decision": "pending",
-    "recommendation": null,
-    "blockers": []
+    "recommendation": "approve_obstacle_summary_warm_start",
+    "packet_blockers": [
+      "requires_dr_sun_approval"
+    ],
+    "decision_record": {
+      "path": "0_trials/module2_f02_6_decision_record/f02_6_decision_record.json",
+      "exists": true,
+      "status": "pending_human_decision",
+      "effective_warm_start_decision": "pending",
+      "decider": null,
+      "blockers": [
+        "requires_dr_sun_approval"
+      ]
+    },
+    "blockers": [
+      "requires_dr_sun_approval",
+      "f02_6_decision_record_pending"
+    ]
   },
   "blockers": [
     "f02_6_warm_start_decision_pending",

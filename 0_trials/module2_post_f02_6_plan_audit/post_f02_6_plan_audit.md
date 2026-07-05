@@ -2,8 +2,8 @@
 
 This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
-- status: `post_f02_6_plan_audit_failed`
-- audit_issue_count: `3`
+- status: `post_f02_6_plan_audit_passed`
+- audit_issue_count: `0`
 - executes_commands: `False`
 - runs_training: `False`
 - runs_remote_preflight: `False`
@@ -34,7 +34,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
 - present: `True`
 - index_row_count: `1`
-- source_target_count: `2`
+- source_target_count: `1`
 - unknown_manual_count: `0`
 - stage_mismatch_count: `0`
 - command_not_in_stage_count: `0`
@@ -115,9 +115,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
 ## Audit Issues
 
-- `plan_source_freshness_requirement_mismatch`: Plan source freshness flag does not match source freshness audit.
-- `plan_source_regeneration_target_counts_mismatch`: Plan target counts by gate do not match source freshness audit.
-- `source_regeneration_command_index_missing_source_targets`: Command index must cover every source-freshness regeneration target.
+- none
 
 ## Claim Boundaries
 

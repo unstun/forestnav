@@ -28,7 +28,7 @@ This file audits synthetic pending/approved/rejected F02.6 gate transitions. It 
 ### approved
 
 - record_status: `approved`
-- post_plan_status: `ready_to_execute_post_f02_6_regeneration_plan`
+- post_plan_status: `blocked_formal_gate_preconditions`
 - status_report_status: `formal_gate_status_blocked`
 - decision_gate_status: `f02_6_decision_gate_audit_passed`
 - post_plan_audit_status: `post_f02_6_plan_audit_passed`
