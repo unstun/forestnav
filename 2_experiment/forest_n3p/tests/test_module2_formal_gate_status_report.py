@@ -1500,6 +1500,27 @@ def _decision_intake(*, complete):
             "packet_formal_claim_allowed_now": complete,
             "packet_paper_result_material_allowed_now": False,
         },
+        "next_human_decision_request": {
+            "status": "decision_recorded" if complete else "awaiting_dr_sun_decision",
+            "decision_owner_required": "Dr Sun",
+            "valid_decisions": [
+                "approve_obstacle_summary_warm_start",
+                "reject_obstacle_summary_warm_start",
+            ],
+            "required_record_fields": ["decision", "decider", "decision_note"],
+            "current_allowed_action_ids": [] if complete else ["record_f02_6_decision"],
+            "current_blocked_action_ids": []
+            if complete
+            else [
+                "remote_preflight",
+                "remote_training",
+                "local_training",
+                "formal_claim",
+                "paper_result_material",
+            ],
+            "post_decision_routes_are_current_authorization": False,
+            "all_execution_disabled_now": not complete,
+        },
         "decision_intake_contract": {
             "decision_owner_required": "Dr Sun",
             "valid_decisions": [
