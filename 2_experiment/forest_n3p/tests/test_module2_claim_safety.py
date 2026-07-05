@@ -1407,6 +1407,26 @@ def _status_report_command_index_summary():
     }
 
 
+def _status_report_remote_safety_proof_summary_payload(*, ready):
+    gap = _status_report_remaining_deliverables_gap_summary_payload(ready=ready)
+    return {
+        "present": True,
+        "missing_counts_by_formal_category": {
+            category: payload["missing_count"]
+            for category, payload in gap["categories"].items()
+        },
+        "missing_matrix_ids_by_formal_category": {
+            category: list(payload["missing_artifact_matrix_ids"])
+            for category, payload in gap["categories"].items()
+        },
+        "next_blocked_lane": None if ready else "decision",
+        "h01_status": "ready_for_formal_run" if ready else "blocked_pending_decisions",
+        "h02_status": "formal_output_accepted" if ready else "blocked_formal_output_acceptance",
+        "h02_formal_output_accepted": bool(ready),
+        "h02_paper_result_input_allowed": bool(ready),
+    }
+
+
 def _status_report_remote_preflight_requirement_summary_payload(*, ready):
     requirements = {
         "f02_6_decision_closed_for_preflight": _status_report_remote_requirement_row(
