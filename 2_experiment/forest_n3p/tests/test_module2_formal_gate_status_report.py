@@ -1685,6 +1685,59 @@ def _decision_intake(*, complete):
                 "requires_new_protocol_contract": True,
             },
         ],
+        "formal_gate_decision_impact_summary": {
+            "summary_id": "module2_f02_6_formal_gate_decision_impact",
+            "not_paper_result_material": True,
+            "current_blocker": None if complete else "decision",
+            "current_record_status": "approved" if complete else "pending_human_decision",
+            "missing_deliverable_count": 0 if complete else 10,
+            "current_allowed_action_ids": [] if complete else ["record_f02_6_decision"],
+            "current_blocked_action_ids": []
+            if complete
+            else [
+                "remote_preflight",
+                "remote_training",
+                "local_training",
+                "formal_claim",
+                "paper_result_material",
+            ],
+            "decision_routes": [
+                {
+                    "decision": "approve_obstacle_summary_warm_start",
+                    "next_lane_after_record": "source_fresh_regeneration",
+                    "allows_local_training_now": False,
+                    "allows_remote_preflight_now": False,
+                    "allows_remote_training_now": False,
+                    "allows_formal_claim_now": False,
+                    "requires_new_protocol_contract": False,
+                },
+                {
+                    "decision": "reject_obstacle_summary_warm_start",
+                    "next_lane_after_record": "protocol_redesign",
+                    "allows_local_training_now": False,
+                    "allows_remote_preflight_now": False,
+                    "allows_remote_training_now": False,
+                    "allows_formal_claim_now": False,
+                    "requires_new_protocol_contract": True,
+                },
+            ],
+            "invariants_after_any_decision_record": {
+                "decision_record_is_not_training_authorization": True,
+                "decision_record_is_not_paper_result_material": True,
+                "local_training_allowed_now": False,
+                "remote_preflight_allowed_now": False,
+                "remote_training_allowed_now": False,
+                "formal_claim_allowed_now": False,
+                "paper_result_material_allowed_now": False,
+                "formal_training_still_requires": [
+                    "source_freshness_audit",
+                    "post_f02_6_regeneration_plan",
+                    "post_f02_6_plan_audit",
+                    "remote_formal_execution_packet_ready",
+                    "approved_remote_preflight",
+                ],
+            },
+        },
     }
 
 
