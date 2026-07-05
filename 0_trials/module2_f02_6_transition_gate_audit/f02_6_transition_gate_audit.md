@@ -2,8 +2,8 @@
 
 This file audits synthetic pending/approved/rejected F02.6 gate transitions. It does not record a decision, run preflight, train, audit, pull back artifacts, or write paper results.
 
-- status: `f02_6_transition_gate_audit_passed`
-- audit_issue_count: `0`
+- status: `f02_6_transition_gate_audit_failed`
+- audit_issue_count: `6`
 - scenario_count: `3`
 - synthetic_inputs_persisted: `False`
 
@@ -16,7 +16,7 @@ This file audits synthetic pending/approved/rejected F02.6 gate transitions. It 
 - status_report_status: `formal_gate_status_blocked`
 - decision_gate_status: `f02_6_decision_gate_pending_clean`
 - post_plan_audit_status: `post_f02_6_plan_audit_passed`
-- remote_packet_safety_status: `remote_packet_safety_audit_passed`
+- remote_packet_safety_status: `remote_packet_safety_audit_failed`
 - next_blocked_lane_id: `decision`
 - remote_preflight_allowed_now: `False`
 - remote_training_allowed_now: `False`
@@ -32,7 +32,7 @@ This file audits synthetic pending/approved/rejected F02.6 gate transitions. It 
 - status_report_status: `formal_gate_status_blocked`
 - decision_gate_status: `f02_6_decision_gate_audit_passed`
 - post_plan_audit_status: `post_f02_6_plan_audit_passed`
-- remote_packet_safety_status: `remote_packet_safety_audit_passed`
+- remote_packet_safety_status: `remote_packet_safety_audit_failed`
 - next_blocked_lane_id: `source_fresh_preflight`
 - remote_preflight_allowed_now: `False`
 - remote_training_allowed_now: `False`
@@ -48,7 +48,7 @@ This file audits synthetic pending/approved/rejected F02.6 gate transitions. It 
 - status_report_status: `formal_gate_status_blocked`
 - decision_gate_status: `f02_6_decision_gate_audit_passed`
 - post_plan_audit_status: `post_f02_6_plan_audit_passed`
-- remote_packet_safety_status: `remote_packet_safety_audit_passed`
+- remote_packet_safety_status: `remote_packet_safety_audit_failed`
 - next_blocked_lane_id: `source_fresh_preflight`
 - remote_preflight_allowed_now: `False`
 - remote_training_allowed_now: `False`
@@ -59,7 +59,12 @@ This file audits synthetic pending/approved/rejected F02.6 gate transitions. It 
 
 ## Audit Issues
 
-- none
+- `pending.remote_packet_safety_issue_count`: remote_packet_safety_issue_count must be zero.
+- `pending.remote_packet_safety_not_passed`: Remote packet safety must remain internally safe.
+- `approved.remote_packet_safety_issue_count`: remote_packet_safety_issue_count must be zero.
+- `approved.remote_packet_safety_not_passed`: Remote packet safety must remain internally safe.
+- `rejected.remote_packet_safety_issue_count`: remote_packet_safety_issue_count must be zero.
+- `rejected.remote_packet_safety_not_passed`: Remote packet safety must remain internally safe.
 
 ## Claim Boundaries
 
