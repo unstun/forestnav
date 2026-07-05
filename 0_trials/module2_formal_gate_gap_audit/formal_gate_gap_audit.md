@@ -109,7 +109,7 @@ This file is a formal-gate gap ledger. It is not a paper result, table, or appen
 - remote_training_allowed_now: `False`
 - audit_issue_count: `0`
 - command_index_present: `True`
-- command_index_row_count: `13`
+- command_index_row_count: `22`
 - command_index_missing_target_ids: `[]`
 - proof_deliverables_missing_counts: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
 - proof_deliverables_h02_paper_result_input_allowed: `False`
