@@ -830,7 +830,7 @@ def _transition_gate_issues(transition_gate: dict[str, Any]) -> list[dict[str, s
             issues.append(_issue(f"transition_gate_missing_{scenario_id}_scenario", f"transition audit missing {scenario_id} scenario"))
     for scenario_id, scenario in by_id.items():
         permissions = scenario.get("formal_gate_status_report_permissions_now") if isinstance(scenario.get("formal_gate_status_report_permissions_now"), dict) else {}
-        if permissions.get("remote_training_allowed_now") is True:
+        if scenario_id != "approved" and permissions.get("remote_training_allowed_now") is True:
             issues.append(_issue(f"transition_gate_{scenario_id}_allows_remote_training", "transition audit scenario must not directly allow remote training"))
         if permissions.get("formal_claim_allowed_now") is True:
             issues.append(_issue(f"transition_gate_{scenario_id}_allows_formal_claim", "transition audit scenario must not directly allow formal claims"))
@@ -839,9 +839,13 @@ def _transition_gate_issues(transition_gate: dict[str, Any]) -> list[dict[str, s
 
     approved = by_id.get("approved", {})
     approved_stages = approved.get("post_plan_stage_summary") if isinstance(approved.get("post_plan_stage_summary"), dict) else {}
-    if approved_stages.get("regenerate_preflight_gate_artifacts", {}).get("allowed_now") is not True:
+    approved_remote_entry_ready = approved.get("post_plan_status") == "ready_for_remote_training_packet_execution"
+    if not approved_remote_entry_ready and approved_stages.get("regenerate_preflight_gate_artifacts", {}).get("allowed_now") is not True:
         issues.append(_issue("transition_gate_approved_regeneration_not_ready", "approved scenario should expose source-fresh regeneration as next local gate"))
-    for stage_id in ("approved_remote_preflight", "gate3_remote_training", "regenerate_claim_gate_artifacts"):
+    for stage_id in ("approved_remote_preflight", "gate3_remote_training"):
+        if not approved_remote_entry_ready and approved_stages.get(stage_id, {}).get("allowed_now") is True:
+            issues.append(_issue(f"transition_gate_approved_{stage_id}_ready_too_early", "approved scenario must not bypass source-fresh or remote-packet gates"))
+    for stage_id in ("gate3_remote_audit_pullback", "regenerate_claim_gate_artifacts"):
         if approved_stages.get(stage_id, {}).get("allowed_now") is True:
             issues.append(_issue(f"transition_gate_approved_{stage_id}_ready_too_early", "approved scenario must not bypass downstream formal gates"))
 
