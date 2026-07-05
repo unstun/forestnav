@@ -1084,14 +1084,27 @@ def _config(tmp_path, *, complete, drift=False):
 
 
 def _formal_gate(*, complete):
+    remaining = _remaining_deliverables(complete=complete)
+    proof_summary = {
+        "present": True,
+        "missing_counts_by_formal_category": remaining["missing_counts_by_formal_category"],
+        "missing_matrix_ids_by_formal_category": remaining["missing_matrix_ids_by_formal_category"],
+        "next_blocked_lane": remaining["next_blocked_lane"],
+        "h01_status": remaining["h01_status"],
+        "h02_status": remaining["h02_status"],
+        "h02_formal_output_accepted": remaining["h02_formal_output_accepted"],
+        "h02_paper_result_input_allowed": remaining["h02_paper_result_input_allowed"],
+    }
     return {
         "status": "formal_gate_ready_for_result_audit" if complete else "blocked_formal_gate_gaps_open",
         "local_training_allowed": False,
         "formal_claim_allowed": False,
         "execution_veto_matrix": _execution_veto_matrix(complete=complete),
-        "remaining_deliverables_gap_summary": _remaining_deliverables(complete=complete)["deliverable_gap_summary"],
+        "remaining_deliverables_gap_summary": remaining["deliverable_gap_summary"],
         "remote_packet_safety": {
             "claim_gate_command_index_summary": _command_index_summary(),
+            "proof_deliverables_summary": proof_summary,
+            "status_report_proof_deliverables_summary": dict(proof_summary),
         },
         "ordered_next_steps": [
             {"step_id": "F02.6", "status": "complete" if complete else "blocked", "blocked_by": [] if complete else ["f02_6_decision_not_approved"]},
