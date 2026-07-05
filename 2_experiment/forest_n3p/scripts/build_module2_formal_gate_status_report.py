@@ -1745,6 +1745,52 @@ def _remaining_deliverables_gap_summary(remaining_deliverables: dict[str, Any]) 
     }
 
 
+def _next_required_formal_deliverables(gap_summary: dict[str, Any]) -> dict[str, Any]:
+    rows: list[dict[str, Any]] = []
+    categories = gap_summary.get("categories") if isinstance(gap_summary.get("categories"), dict) else {}
+    category_order = _strings(gap_summary.get("category_order")) or list(REMAINING_DELIVERABLE_ACCEPTANCE_MATRIX_IDS)
+    for category in category_order:
+        payload = categories.get(category) if isinstance(categories.get(category), dict) else {}
+        for item in payload.get("missing_artifacts", []):
+            if not isinstance(item, dict) or not item.get("matrix_id"):
+                continue
+            rows.append(
+                {
+                    "matrix_id": item.get("matrix_id"),
+                    "category": category,
+                    "artifact_id": item.get("artifact_id"),
+                    "expected_path": item.get("expected_path"),
+                    "current_state": item.get("current_state"),
+                    "missing_reason": item.get("missing_reason"),
+                    "responsible_stage_id": payload.get("responsible_stage_id"),
+                    "responsible_stage_allowed_now": payload.get("responsible_stage_allowed_now"),
+                    "responsible_stage_blocked_by": _strings(payload.get("responsible_stage_blocked_by")),
+                    "proof_command_ids": _strings(item.get("proof_command_ids")),
+                    "invalid_substitute_count": int(item.get("invalid_substitute_count") or 0),
+                }
+            )
+    blocked_categories = [
+        category
+        for category in category_order
+        if isinstance(categories.get(category), dict)
+        and categories[category].get("missing_count", 0) > 0
+        and categories[category].get("responsible_stage_allowed_now") is False
+    ]
+    return {
+        "present": bool(gap_summary.get("present")),
+        "status": "blocked_missing_formal_deliverables" if rows else "no_missing_formal_deliverables",
+        "execution_boundary": "read_only_no_execution",
+        "not_paper_result_material": True,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "total_missing_deliverables": len(rows),
+        "blocked_category_count": len(blocked_categories),
+        "blocked_categories": blocked_categories,
+        "category_order": category_order,
+        "rows": rows,
+    }
+
+
 def _remaining_deliverables_proof_command_plan(remaining_deliverables: dict[str, Any]) -> dict[str, Any]:
     raw_plan = remaining_deliverables.get("proof_command_plan")
     raw_plan = raw_plan if isinstance(raw_plan, dict) else {}
