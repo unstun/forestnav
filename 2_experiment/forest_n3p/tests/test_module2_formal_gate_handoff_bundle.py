@@ -46,6 +46,28 @@ def test_formal_gate_handoff_bundle_blocks_pending_decision_without_execution(tm
     assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
     assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 4
     assert manifest["remaining_deliverables_gap_summary"]["categories"]["training"]["missing_count"] == 3
+    proof_summary = manifest["status_report_proof_audit_deliverables_summary"]
+    assert proof_summary["present"] is True
+    assert proof_summary["missing_counts_by_formal_category"] == {
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 2,
+    }
+    assert proof_summary["missing_matrix_ids_by_formal_category"]["training"] == [
+        "training:train_final_model_zip",
+        "training:train_summary_json",
+        "training:train_training_manifest_json",
+    ]
+    assert proof_summary["missing_matrix_ids_by_formal_category"]["formal_acceptance"] == [
+        "formal_acceptance:h01_ready_for_formal_run",
+        "formal_acceptance:h02_formal_output_acceptance",
+    ]
+    assert proof_summary["next_blocked_lane"] == "decision"
+    assert proof_summary["h01_status"] == "blocked_pending_decisions"
+    assert proof_summary["h02_status"] == "blocked_formal_output_acceptance"
+    assert proof_summary["h02_formal_output_accepted"] is False
+    assert proof_summary["h02_paper_result_input_allowed"] is False
     assert manifest["post_plan_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
     assert manifest["remote_execution_steps"]["sync_to_remote"]["allowed_now"] is False
     assert manifest["remote_execution_steps"]["run_remote_training"]["allowed_now"] is False
@@ -83,6 +105,14 @@ def test_formal_gate_handoff_bundle_marks_manual_review_when_sources_allow_remot
     assert manifest["local_training_allowed"] is False
     assert manifest["permissions_now"]["remote_training_allowed_now"] is True
     assert manifest["permissions_now"]["source_freshness_ready_for_remote_preflight"] is True
+    assert manifest["status_report_proof_audit_deliverables_summary"][
+        "missing_counts_by_formal_category"
+    ] == {
+        "training": 0,
+        "evaluation": 0,
+        "acceptance": 0,
+        "formal_acceptance": 0,
+    }
     assert manifest["remote_execution_steps"]["run_remote_training"]["allowed_now"] is True
     assert "ssh gpu3070ti-relay" in manifest["remote_execution_steps"]["run_remote_training"]["command"]
     assert manifest["safety_issue_count"] == 0
@@ -219,6 +249,9 @@ def test_formal_gate_handoff_bundle_cli_writes_json_and_markdown(tmp_path):
     assert "F02.6 Route Handoff" in markdown
     assert "source_freshness_status" in markdown
     assert "remaining deliverables gap" in markdown
+    assert "Status Report Proof-Audit Deliverables Summary" in markdown
+    assert "missing_counts_by_formal_category" in markdown
+    assert "formal_acceptance_missing_matrix_ids" in markdown
     assert "responsible_stage=`gate3_remote_training`" in markdown
     assert "does not execute commands" in markdown
 
@@ -341,6 +374,26 @@ def _stage(stage_id, phase, *, allowed, blocked, runs_training=False, runs_remot
 
 
 def _status_report(*, complete):
+    category_artifacts = {
+        "training": [
+            "train_final_model_zip",
+            "train_summary_json",
+            "train_training_manifest_json",
+        ],
+        "evaluation": [
+            "eval_gate3_eval_episodes_csv",
+            "eval_gate3_summary_json",
+        ],
+        "acceptance": [
+            "gate3_trial_manifest_json",
+            "gate3_formal_audit_json",
+            "pulled_back_checkpoint_hash_record",
+        ],
+        "formal_acceptance": [
+            "h01_ready_for_formal_run",
+            "h02_formal_output_acceptance",
+        ],
+    }
     return {
         "status": "formal_gate_status_ready_for_claim_audit" if complete else "formal_gate_status_blocked",
         "not_paper_result_material": True,
@@ -368,6 +421,24 @@ def _status_report(*, complete):
         },
         "next_blocked_lane": None if complete else {"lane_id": "decision"},
         "remaining_deliverables_gap_summary": _gap_summary(open_gaps=not complete),
+        "formal_gate_proof_audit_remaining_deliverables_top_level_summary": {
+            "present": True,
+            "missing_counts_by_formal_category": {
+                category: 0 if complete else len(artifact_ids)
+                for category, artifact_ids in category_artifacts.items()
+            },
+            "missing_matrix_ids_by_formal_category": {
+                category: []
+                if complete
+                else [f"{category}:{artifact_id}" for artifact_id in artifact_ids]
+                for category, artifact_ids in category_artifacts.items()
+            },
+            "next_blocked_lane": None if complete else "decision",
+            "h01_status": "ready_for_formal_run" if complete else "blocked_pending_decisions",
+            "h02_status": "formal_output_accepted" if complete else "blocked_formal_output_acceptance",
+            "h02_formal_output_accepted": complete,
+            "h02_paper_result_input_allowed": complete,
+        },
         "f02_6_decision_intake_summary": {
             "present": True,
             "post_decision_route_count": 2,
