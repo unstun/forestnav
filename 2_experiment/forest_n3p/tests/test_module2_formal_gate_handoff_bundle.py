@@ -24,8 +24,14 @@ def test_formal_gate_handoff_bundle_blocks_pending_decision_without_execution(tm
     assert manifest["next_handoff_action"]["allowed_for_agent_now"] is False
     assert manifest["current_state"]["decision_status"] == "pending_human_decision"
     assert manifest["current_state"]["transition_gate_status"] == "f02_6_transition_gate_audit_passed"
+    assert manifest["current_state"]["source_freshness_status"] == "source_freshness_risks_recorded_gate_still_blocked"
+    assert manifest["current_state"]["source_freshness_regeneration_required"] is True
+    assert manifest["current_state"]["source_freshness_non_self_changed_records"] == 18
+    assert manifest["current_state"]["source_freshness_self_artifact_only_lag_records"] == 1
     assert manifest["current_state"]["next_blocked_lane"] == "decision"
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+    assert manifest["permissions_now"]["source_freshness_ready_for_remote_preflight"] is False
+    assert manifest["inputs"]["source_freshness_audit"].endswith("source_freshness.json")
     route_summary = manifest["f02_6_route_handoff_summary"]
     assert route_summary["present"] is True
     assert route_summary["post_decision_route_count"] == 2
@@ -76,6 +82,7 @@ def test_formal_gate_handoff_bundle_marks_manual_review_when_sources_allow_remot
     assert manifest["runs_training"] is False
     assert manifest["local_training_allowed"] is False
     assert manifest["permissions_now"]["remote_training_allowed_now"] is True
+    assert manifest["permissions_now"]["source_freshness_ready_for_remote_preflight"] is True
     assert manifest["remote_execution_steps"]["run_remote_training"]["allowed_now"] is True
     assert "ssh gpu3070ti-relay" in manifest["remote_execution_steps"]["run_remote_training"]["command"]
     assert manifest["safety_issue_count"] == 0
