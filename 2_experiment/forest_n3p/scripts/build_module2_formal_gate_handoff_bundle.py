@@ -22,6 +22,22 @@ DEFAULT_MISSING_ARTIFACTS = Path("0_trials/module2_formal_gate_missing_artifacts
 DEFAULT_H02_ACCEPTANCE = Path("0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json")
 DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_freshness_audit.json")
 REMOTE_STEP_IDS = ("sync_to_remote", "run_remote_preflight", "run_remote_training", "run_remote_audit")
+EXPECTED_DECISION_EVIDENCE_MATRIX_ID = "module2_f02_6_decision_evidence_matrix"
+EXPECTED_DECISION_EVIDENCE_MATRIX_STATUS = "ready_for_dr_sun_decision_not_authorization"
+EXPECTED_DECISION_EVIDENCE_ROUTES = (
+    "approve_obstacle_summary_warm_start",
+    "reject_obstacle_summary_warm_start",
+)
+MIN_DECISION_EVIDENCE_ROWS = 7
+MIN_DECISION_INVALID_SUBSTITUTES = 4
+DECISION_EVIDENCE_AUTHORIZATION_KEYS = (
+    "current_authorization_allowed_now",
+    "remote_preflight_allowed_now",
+    "remote_training_allowed_now",
+    "local_training_allowed_now",
+    "formal_claim_allowed_now",
+    "paper_result_material_allowed_now",
+)
 FORMAL_STAGE_IDS = (
     "f02_6_decision_record",
     "regenerate_preflight_gate_artifacts",
@@ -99,6 +115,7 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
     stages = _handoff_stages(post_plan)
     remote_steps = _remote_steps(remote_packet)
     route_summary = _f02_6_route_handoff_summary(status_report)
+    decision_matrix_summary = _f02_6_decision_evidence_matrix_handoff_summary(status_report)
     source_freshness_summary = _source_freshness_summary(source_freshness)
     permissions = _permissions(status_report, source_freshness=source_freshness)
     remaining_gap = _remaining_deliverables_gap_summary(status_report)
@@ -123,6 +140,7 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
         stages=stages,
         remote_steps=remote_steps,
         route_summary=route_summary,
+        decision_matrix_summary=decision_matrix_summary,
         single_next_action_index=single_next_action_index,
     )
     status = _status(
@@ -174,6 +192,7 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
         "next_handoff_action": _next_handoff_action(decision=decision, status_report=status_report),
         "single_next_action_index": single_next_action_index,
         "f02_6_route_handoff_summary": route_summary,
+        "f02_6_decision_evidence_matrix_handoff_summary": decision_matrix_summary,
         "remaining_deliverables_gap_summary": remaining_gap,
         "status_report_proof_audit_deliverables_summary": _status_report_proof_audit_deliverables_summary(
             status_report
@@ -283,11 +302,13 @@ def _safety_issues(
     stages: Sequence[dict[str, Any]],
     remote_steps: dict[str, dict[str, Any]],
     route_summary: dict[str, Any],
+    decision_matrix_summary: dict[str, Any],
     single_next_action_index: dict[str, Any],
 ) -> list[dict[str, str]]:
     issues: list[dict[str, str]] = []
     issues.extend(_transition_gate_issues(transition_gate))
     issues.extend(_f02_6_route_handoff_issues(route_summary))
+    issues.extend(_f02_6_decision_evidence_matrix_handoff_issues(decision_matrix_summary))
     issues.extend(_single_next_action_index_issues(single_next_action_index))
     for name, artifact in (
         ("decision_intake", decision_intake),
@@ -336,6 +357,115 @@ def _safety_issues(
             issues.append(_issue(f"{stage['stage_id']}_wrong_training_host", "formal training stage must target gpu3070ti-relay"))
         if not stage["source_allowed_now"] and stage["stage_id"] in {"approved_remote_preflight", "gate3_remote_training"} and not stage["blocked_by"]:
             issues.append(_issue(f"{stage['stage_id']}_missing_blocked_by", "disabled remote stages must explain their blockers"))
+    return issues
+
+
+def _f02_6_decision_evidence_matrix_handoff_summary(status_report: dict[str, Any]) -> dict[str, Any]:
+    raw = status_report.get("f02_6_decision_evidence_matrix_summary")
+    if not isinstance(raw, dict):
+        intake = status_report.get("f02_6_decision_intake_summary")
+        raw = intake.get("decision_evidence_matrix_summary") if isinstance(intake, dict) else {}
+    raw = raw if isinstance(raw, dict) else {}
+    authorization_flags = {key: raw.get(key) for key in DECISION_EVIDENCE_AUTHORIZATION_KEYS}
+    return {
+        "present": raw.get("present") is True or bool(raw),
+        "matrix_id": str(raw.get("matrix_id") or ""),
+        "status": str(raw.get("status") or ""),
+        "route_count": int(raw.get("route_count") or 0),
+        "route_decisions": _strings(raw.get("route_decisions")),
+        "required_evidence_count": int(raw.get("required_evidence_count") or 0),
+        "satisfied_required_evidence_count": int(raw.get("satisfied_required_evidence_count") or 0),
+        "missing_required_evidence_count": int(raw.get("missing_required_evidence_count") or 0),
+        "missing_required_evidence_ids": _strings(raw.get("missing_required_evidence_ids")),
+        "source_issue_count": int(raw.get("source_issue_count") or 0),
+        "global_invalid_substitute_count": int(raw.get("global_invalid_substitute_count") or 0),
+        "authorization_flags": authorization_flags,
+        "evidence_counts_by_route": raw.get("evidence_counts_by_route")
+        if isinstance(raw.get("evidence_counts_by_route"), dict)
+        else {},
+        "invalid_substitute_counts_by_route": raw.get("invalid_substitute_counts_by_route")
+        if isinstance(raw.get("invalid_substitute_counts_by_route"), dict)
+        else {},
+    }
+
+
+def _f02_6_decision_evidence_matrix_handoff_issues(summary: dict[str, Any]) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    if not summary["present"]:
+        return [
+            _issue(
+                "f02_6_decision_evidence_matrix_missing",
+                "handoff bundle must consume the F02.6 decision evidence matrix summary",
+            )
+        ]
+    if summary["matrix_id"] != EXPECTED_DECISION_EVIDENCE_MATRIX_ID:
+        issues.append(_issue("f02_6_decision_evidence_matrix_id_invalid", "decision evidence matrix id drifted"))
+    if summary["status"] != EXPECTED_DECISION_EVIDENCE_MATRIX_STATUS:
+        issues.append(
+            _issue(
+                "f02_6_decision_evidence_matrix_status_invalid",
+                "decision evidence matrix must remain decision evidence, not authorization",
+            )
+        )
+    if summary["route_count"] != len(EXPECTED_DECISION_EVIDENCE_ROUTES):
+        issues.append(_issue("f02_6_decision_evidence_matrix_route_count_invalid", "matrix must retain both route rows"))
+    missing_routes = [route for route in EXPECTED_DECISION_EVIDENCE_ROUTES if route not in summary["route_decisions"]]
+    if missing_routes:
+        issues.append(_issue("f02_6_decision_evidence_matrix_routes_incomplete", "matrix must retain approve and reject routes"))
+    if summary["required_evidence_count"] < MIN_DECISION_EVIDENCE_ROWS:
+        issues.append(
+            _issue(
+                "f02_6_decision_evidence_matrix_required_evidence_incomplete",
+                "matrix must retain the full required evidence basis",
+            )
+        )
+    if summary["satisfied_required_evidence_count"] != summary["required_evidence_count"]:
+        issues.append(
+            _issue(
+                "f02_6_decision_evidence_matrix_unsatisfied_required_evidence",
+                "handoff cannot hide unsatisfied required evidence rows",
+            )
+        )
+    if summary["missing_required_evidence_count"] != 0:
+        issues.append(
+            _issue(
+                "f02_6_decision_evidence_matrix_missing_required_evidence",
+                "handoff cannot proceed with missing decision evidence rows",
+            )
+        )
+    if summary["source_issue_count"] != 0:
+        issues.append(
+            _issue(
+                "f02_6_decision_evidence_matrix_source_issues_open",
+                "handoff cannot trust a decision matrix with source integrity issues",
+            )
+        )
+    if summary["global_invalid_substitute_count"] < MIN_DECISION_INVALID_SUBSTITUTES:
+        issues.append(
+            _issue(
+                "f02_6_decision_evidence_matrix_invalid_substitutes_missing",
+                "matrix must retain invalid substitutes so weak evidence is not accepted",
+            )
+        )
+    invalid_by_route = summary["invalid_substitute_counts_by_route"]
+    for route in EXPECTED_DECISION_EVIDENCE_ROUTES:
+        if int(invalid_by_route.get(route) or 0) <= 0:
+            issues.append(
+                _issue(
+                    f"f02_6_decision_evidence_matrix_{route}_invalid_substitutes_missing",
+                    "each decision route must retain invalid substitute rules",
+                )
+            )
+    for field, issue_id in (
+        ("current_authorization_allowed_now", "f02_6_decision_evidence_matrix_authorizes_now"),
+        ("remote_preflight_allowed_now", "f02_6_decision_evidence_matrix_allows_remote_preflight"),
+        ("remote_training_allowed_now", "f02_6_decision_evidence_matrix_allows_remote_training"),
+        ("local_training_allowed_now", "f02_6_decision_evidence_matrix_allows_local_training"),
+        ("formal_claim_allowed_now", "f02_6_decision_evidence_matrix_allows_formal_claim"),
+        ("paper_result_material_allowed_now", "f02_6_decision_evidence_matrix_allows_paper_result_material"),
+    ):
+        if summary["authorization_flags"].get(field) is True:
+            issues.append(_issue(issue_id, "decision evidence matrix must not authorize execution or result material"))
     return issues
 
 
