@@ -438,7 +438,7 @@ def test_formal_gate_handoff_bundle_cli_writes_json_and_markdown(tmp_path):
     assert "does not execute commands" in markdown
 
 
-def _config(tmp_path, *, complete):
+def _config(tmp_path, *, complete, protocol_pending=False):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_handoff_bundle")
     return builder.FormalGateHandoffBundleConfig(
         output_dir=tmp_path,
@@ -776,6 +776,48 @@ def _source_freshness(*, complete):
         "commit_lag_summary": {
             "records_with_non_self_changed_paths_since_source": 0 if complete else 18,
             "records_with_self_artifact_only_lag": 0 if complete else 1,
+        },
+    }
+
+
+def _protocol_lane_status(*, pending):
+    return {
+        "status": "protocol_lane_status_blocked_pending_lane_decision"
+        if pending
+        else "protocol_lane_status_ready_for_contract_draft",
+        "audit_issue_count": 0,
+        "not_paper_result_material": True,
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+        "paper_result_material_allowed": False,
+        "current_status": {
+            "next_blocked_lane": "protocol_lane_decision" if pending else "new_or_revised_contract",
+            "decision_record_status": "pending_protocol_lane_decision"
+            if pending
+            else "protocol_lane_decision_recorded",
+            "selected_lane_id": None if pending else "hybrid_ppo_analytic_fallback",
+            "lane_count": 4,
+            "contract_drafting_allowed_now": False if pending else True,
+            "contract_approval_allowed_now": False,
+            "draft_contract_allows_training": False,
+            "allowed_next_action_ids": ["record_protocol_lane_decision"]
+            if pending
+            else ["draft_new_or_revised_contract_after_lane_decision"],
+            "blocked_action_ids": [
+                "local_training",
+                "remote_success_training",
+                "remote_preflight_for_new_success_attempt",
+                "formal_claim",
+                "paper_result_material",
+            ],
+            "local_training_allowed_now": False,
+            "remote_training_allowed_now": False,
+            "formal_claim_allowed_now": False,
+            "paper_result_material_allowed_now": False,
+            "new_success_training_allowed_now": False,
         },
     }
 
