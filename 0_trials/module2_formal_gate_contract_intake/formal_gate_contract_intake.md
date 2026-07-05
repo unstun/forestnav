@@ -39,6 +39,28 @@ This file is a formal-gate decision intake artifact, not paper result material.
 | `hybrid_ppo_analytic_fallback` | `candidate_requires_contract` | treat PPO as a learned selector or recovery layer instead of direct RS replacement |
 | `stop_or_reframe_module2_claim` | `candidate_requires_contract` | record the formal failure and stop pursuing PPO replacement under the current module2 claim |
 
+## Contract Output Requirements
+
+- required_location_pattern: `.pipeline/contracts/module2-*.md`
+- allowed_status_before_training: `approved, frozen`
+- draft_status_allows_training: `False`
+- required_sections:
+  - `protocol_lane`
+  - `hypothesis`
+  - `success_signal`
+  - `failure_signal`
+  - `protocol_delta_from_failed_run`
+  - `training_budget_and_seed_policy`
+  - `evaluation_and_acceptance_plan`
+  - `paper_claim_boundary`
+- post_contract_next_artifacts:
+  - remote execution packet for the selected protocol
+  - source freshness audit after the contract commit
+  - remote-only training checkpoint bundle
+  - formal Gate3 eval CSV/summary
+  - Gate3 formal audit and checkpoint hash acceptance
+  - H02 formal output acceptance
+
 ## Invalid Shortcuts
 - start another PPO success attempt from the failed checkpoint without a new or revised contract
 - change reward, curriculum, architecture, observations, budget, seed policy, or threshold in code without pre-registration
