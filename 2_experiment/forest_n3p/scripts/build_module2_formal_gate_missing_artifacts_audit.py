@@ -21,6 +21,9 @@ DEFAULT_REMOTE_PACKET = Path("0_trials/module2_remote_formal_execution_packet/re
 DEFAULT_REMOTE_PACKET_AUDIT = Path("0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json")
 DEFAULT_H01_MANIFEST = Path("0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json")
 DEFAULT_H02_ACCEPTANCE = Path("0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json")
+DEFAULT_PROTOCOL_LANE_STATUS_REPORT = Path(
+    "0_trials/module2_formal_gate_protocol_lane_status_report/protocol_lane_status_report.json"
+)
 
 TRAINING_SUFFIXES = (
     "train/final_model.zip",
@@ -51,6 +54,7 @@ class FormalGateMissingArtifactsAuditConfig:
     remote_packet_audit_path: Path = DEFAULT_REMOTE_PACKET_AUDIT
     h01_manifest_path: Path = DEFAULT_H01_MANIFEST
     h02_acceptance_path: Path = DEFAULT_H02_ACCEPTANCE
+    protocol_lane_status_report_path: Path = DEFAULT_PROTOCOL_LANE_STATUS_REPORT
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -68,6 +72,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         remote_packet_audit_path=args.remote_packet_audit,
         h01_manifest_path=args.h01_manifest,
         h02_acceptance_path=args.h02_acceptance,
+        protocol_lane_status_report_path=args.protocol_lane_status_report,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -92,6 +97,7 @@ def build_manifest(config: FormalGateMissingArtifactsAuditConfig) -> dict[str, A
     remote_packet_audit = _read_json(config.remote_packet_audit_path)
     h01_manifest = _read_json(config.h01_manifest_path)
     h02_acceptance = _read_json(config.h02_acceptance_path)
+    protocol_lane_status = _read_json(config.protocol_lane_status_report_path)
 
     groups = _missing_evidence_groups(
         decision=decision,
@@ -112,6 +118,7 @@ def build_manifest(config: FormalGateMissingArtifactsAuditConfig) -> dict[str, A
         remote_packet_audit=remote_packet_audit,
         h01_manifest=h01_manifest,
         h02_acceptance=h02_acceptance,
+        protocol_lane_status=protocol_lane_status,
     )
     formal_requirements = _formal_gate_requirements(
         groups=groups,
@@ -128,6 +135,7 @@ def build_manifest(config: FormalGateMissingArtifactsAuditConfig) -> dict[str, A
         "remote_packet_safety_audit": str(config.remote_packet_audit_path),
         "h01_manifest": str(config.h01_manifest_path),
         "h02_formal_acceptance": str(config.h02_acceptance_path),
+        "protocol_lane_status_report": str(config.protocol_lane_status_report_path),
     }
     handoff_index = _formal_gate_handoff_index(
         current_gate_summary=current_gate_summary,
