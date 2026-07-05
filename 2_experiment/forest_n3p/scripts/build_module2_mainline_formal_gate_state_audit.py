@@ -19,6 +19,9 @@ DEFAULT_FORMAL_GATE_STATUS_REPORT = Path(
 DEFAULT_PROOF_SUMMARY_CHAIN_AUDIT = Path(
     "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json"
 )
+DEFAULT_PROTOCOL_LANE_STATUS_REPORT = Path(
+    "0_trials/module2_formal_gate_protocol_lane_status_report/protocol_lane_status_report.json"
+)
 
 CURRENT_STATE_MARKER = "当前 formal gate 下一步清单已同步到主任务书"
 EXPECTED_DECISION_EVIDENCE_MATRIX_ID = "module2_f02_6_decision_evidence_matrix"
@@ -53,6 +56,33 @@ DECISION_EVIDENCE_MATRIX_ALLOWED_KEYS = (
     "formal_claim_allowed_now",
     "paper_result_material_allowed_now",
 )
+EXPECTED_PROTOCOL_LANE_STATUS = "protocol_lane_status_blocked_pending_lane_decision"
+EXPECTED_PROTOCOL_LANE_NEXT_BLOCKED = "protocol_lane_decision"
+EXPECTED_PROTOCOL_LANE_DECISION_RECORD_STATUS = "pending_protocol_lane_decision"
+EXPECTED_PROTOCOL_LANE_ALLOWED_NEXT_ACTIONS = ("record_protocol_lane_decision",)
+EXPECTED_PROTOCOL_LANE_IDS = (
+    "stronger_obstacle_summary_warm_start",
+    "full_patch_cnn_policy",
+    "hybrid_ppo_analytic_fallback",
+    "stop_or_reframe_module2_claim",
+)
+EXPECTED_PROTOCOL_LANE_BLOCKED_ACTIONS = (
+    "local_training",
+    "remote_success_training",
+    "remote_preflight_for_new_success_attempt",
+    "formal_claim",
+    "paper_result_material",
+)
+PROTOCOL_LANE_FALSE_FLAGS = (
+    "contract_drafting_allowed_now",
+    "contract_approval_allowed_now",
+    "draft_contract_allows_training",
+    "local_training_allowed_now",
+    "remote_training_allowed_now",
+    "formal_claim_allowed_now",
+    "paper_result_material_allowed_now",
+    "new_success_training_allowed_now",
+)
 
 
 @dataclass(frozen=True)
@@ -63,6 +93,7 @@ class MainlineFormalGateStateAuditConfig:
     mainline_path: Path = DEFAULT_MAINLINE
     formal_gate_status_report_path: Path = DEFAULT_FORMAL_GATE_STATUS_REPORT
     proof_summary_chain_audit_path: Path = DEFAULT_PROOF_SUMMARY_CHAIN_AUDIT
+    protocol_lane_status_report_path: Path = DEFAULT_PROTOCOL_LANE_STATUS_REPORT
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -74,6 +105,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         mainline_path=args.mainline,
         formal_gate_status_report_path=args.formal_gate_status_report,
         proof_summary_chain_audit_path=args.proof_summary_chain_audit,
+        protocol_lane_status_report_path=args.protocol_lane_status_report,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -98,6 +130,9 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
     mainline_text = Path(config.mainline_path).read_text(encoding="utf-8")
     status_report = _read_json(config.formal_gate_status_report_path)
     proof_chain = _read_json(config.proof_summary_chain_audit_path)
+    protocol_lane_status = _normalize_protocol_lane_status_report(
+        _read_json(config.protocol_lane_status_report_path)
+    )
     next_action_guard = _normalize_next_action_guard(status_report.get("next_action_guard_summary"))
     next_required = _normalize_next_required_deliverables(status_report.get("next_required_formal_deliverables"))
     decision_matrix = _normalize_decision_evidence_matrix_summary(
@@ -112,11 +147,13 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
             next_action_guard=next_action_guard,
             next_required=next_required,
             decision_matrix=decision_matrix,
+            protocol_lane_status=protocol_lane_status,
             deliverable_rows=deliverable_rows,
             proof_chain=proof_chain,
         )
         + _status_report_issues(next_action_guard=next_action_guard, next_required=next_required)
         + _decision_evidence_matrix_issues(decision_matrix)
+        + _protocol_lane_status_issues(protocol_lane_status)
         + _proof_chain_issues(proof_chain)
     )
     issues = _unique_issues(issues)
@@ -148,6 +185,7 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
             "mainline": str(config.mainline_path),
             "formal_gate_status_report": str(config.formal_gate_status_report_path),
             "proof_summary_chain_audit": str(config.proof_summary_chain_audit_path),
+            "protocol_lane_status_report": str(config.protocol_lane_status_report_path),
         },
         "mainline_current_state_section_present": bool(current_section),
         "expected_next_action_id": expected_next_action_id,
@@ -163,6 +201,23 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
         "f02_6_decision_evidence_matrix_route_mentions": [
             {"route_decision": route, "mentioned": route in current_section}
             for route in EXPECTED_DECISION_EVIDENCE_MATRIX_ROUTES
+        ],
+        "protocol_lane_status_summary": protocol_lane_status,
+        "protocol_lane_status_mentioned": protocol_lane_status["status"] in current_section,
+        "protocol_lane_next_blocked_mentioned": protocol_lane_status["next_blocked_lane"] in current_section,
+        "protocol_lane_next_action_mentioned": all(
+            action in current_section for action in EXPECTED_PROTOCOL_LANE_ALLOWED_NEXT_ACTIONS
+        ),
+        "protocol_lane_decision_record_status_mentioned": (
+            protocol_lane_status["decision_record_status"] in current_section
+        ),
+        "protocol_lane_lane_mentions": [
+            {"lane_id": lane_id, "mentioned": lane_id in current_section}
+            for lane_id in EXPECTED_PROTOCOL_LANE_IDS
+        ],
+        "protocol_lane_blocked_action_mentions": [
+            {"action_id": action_id, "mentioned": action_id in current_section}
+            for action_id in EXPECTED_PROTOCOL_LANE_BLOCKED_ACTIONS
         ],
         "mainline_missing_deliverable_mention_count": sum(1 for row in deliverable_rows if not row["mentioned"]),
         "deliverable_rows": deliverable_rows,
@@ -199,6 +254,7 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
             "It does not execute commands, run local training, run remote preflight, run remote PPO training, evaluate PPO, pull back artifacts, or write paper results.",
             "A consistent blocked audit does not prove PPO has replaced RS in formal evaluation.",
             "Formal PPO-vs-RS performance claims still require the missing training, evaluation, acceptance, and H01/H02 artifacts to be produced and audited.",
+            "Protocol-lane status must remain blocked on record_protocol_lane_decision before any new or revised contract can authorize future remote success attempts.",
         ],
     }
 
@@ -211,6 +267,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--mainline", type=Path, default=DEFAULT_MAINLINE)
     parser.add_argument("--formal-gate-status-report", type=Path, default=DEFAULT_FORMAL_GATE_STATUS_REPORT)
     parser.add_argument("--proof-summary-chain-audit", type=Path, default=DEFAULT_PROOF_SUMMARY_CHAIN_AUDIT)
+    parser.add_argument("--protocol-lane-status-report", type=Path, default=DEFAULT_PROTOCOL_LANE_STATUS_REPORT)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
@@ -221,6 +278,7 @@ def _mainline_issues(
     next_action_guard: dict[str, Any],
     next_required: dict[str, Any],
     decision_matrix: dict[str, Any],
+    protocol_lane_status: dict[str, Any],
     deliverable_rows: Sequence[dict[str, Any]],
     proof_chain: dict[str, Any],
 ) -> list[dict[str, Any]]:
@@ -301,6 +359,60 @@ def _mainline_issues(
                 "message": "Current formal-gate section must mention invalid substitutes so the decision matrix is not treated as weak evidence.",
             }
         )
+    if protocol_lane_status["status"] and protocol_lane_status["status"] not in current_section:
+        issues.append(
+            {
+                "issue_id": "mainline_current_section_missing_protocol_lane_status",
+                "message": "Current formal-gate section must mention the protocol-lane status report state.",
+                "protocol_lane_status": protocol_lane_status["status"],
+            }
+        )
+    if protocol_lane_status["next_blocked_lane"] and protocol_lane_status["next_blocked_lane"] not in current_section:
+        issues.append(
+            {
+                "issue_id": "mainline_current_section_missing_protocol_lane_next_blocked",
+                "message": "Current formal-gate section must mention protocol_lane_decision as the current blocked lane.",
+                "next_blocked_lane": protocol_lane_status["next_blocked_lane"],
+            }
+        )
+    for action_id in EXPECTED_PROTOCOL_LANE_ALLOWED_NEXT_ACTIONS:
+        if action_id not in current_section:
+            issues.append(
+                {
+                    "issue_id": "mainline_current_section_missing_protocol_lane_next_action",
+                    "message": "Current formal-gate section must mention the only allowed protocol-lane next action.",
+                    "action_id": action_id,
+                }
+            )
+    if (
+        protocol_lane_status["decision_record_status"]
+        and protocol_lane_status["decision_record_status"] not in current_section
+    ):
+        issues.append(
+            {
+                "issue_id": "mainline_current_section_missing_protocol_lane_decision_record_status",
+                "message": "Current formal-gate section must mention the pending protocol-lane decision record.",
+                "decision_record_status": protocol_lane_status["decision_record_status"],
+            }
+        )
+    for lane_id in EXPECTED_PROTOCOL_LANE_IDS:
+        if lane_id not in current_section:
+            issues.append(
+                {
+                    "issue_id": f"mainline_current_section_missing_protocol_lane_{_safe_id(lane_id)}",
+                    "message": "Current formal-gate section must mention every protocol-lane option.",
+                    "lane_id": lane_id,
+                }
+            )
+    for action_id in EXPECTED_PROTOCOL_LANE_BLOCKED_ACTIONS:
+        if action_id not in current_section:
+            issues.append(
+                {
+                    "issue_id": f"mainline_current_section_missing_protocol_lane_blocked_action_{_safe_id(action_id)}",
+                    "message": "Current formal-gate section must mention every blocked protocol-lane action.",
+                    "action_id": action_id,
+                }
+            )
     proof_status = str(proof_chain.get("status", ""))
     if proof_status and proof_status not in mainline_text:
         issues.append(
@@ -317,6 +429,96 @@ def _mainline_issues(
                 "message": "Normalized deliverable row count must match total missing deliverables.",
                 "total_missing_deliverables": next_required["total_missing_deliverables"],
                 "row_count": len(deliverable_rows),
+            }
+        )
+    return issues
+
+
+def _protocol_lane_status_issues(protocol_lane_status: dict[str, Any]) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    if not protocol_lane_status["present"]:
+        issues.append(
+            {
+                "issue_id": "protocol_lane_status_report_missing",
+                "message": "Mainline audit must consume the protocol-lane status report.",
+            }
+        )
+        return issues
+    if protocol_lane_status["status"] != EXPECTED_PROTOCOL_LANE_STATUS:
+        issues.append(
+            {
+                "issue_id": "protocol_lane_status_drift",
+                "message": "Protocol-lane status must remain blocked pending Dr Sun's lane decision.",
+                "observed_status": protocol_lane_status["status"],
+            }
+        )
+    if protocol_lane_status["audit_issue_count"] != 0:
+        issues.append(
+            {
+                "issue_id": "protocol_lane_status_audit_issues_open",
+                "message": "Protocol-lane status report must be audit-clean before mainline mirrors it.",
+                "audit_issue_count": protocol_lane_status["audit_issue_count"],
+            }
+        )
+    if protocol_lane_status["next_blocked_lane"] != EXPECTED_PROTOCOL_LANE_NEXT_BLOCKED:
+        issues.append(
+            {
+                "issue_id": "protocol_lane_status_next_blocked_lane_drift",
+                "message": "Current blocked lane must remain protocol_lane_decision.",
+                "observed_next_blocked_lane": protocol_lane_status["next_blocked_lane"],
+            }
+        )
+    if protocol_lane_status["decision_record_status"] != EXPECTED_PROTOCOL_LANE_DECISION_RECORD_STATUS:
+        issues.append(
+            {
+                "issue_id": "protocol_lane_status_decision_record_not_pending",
+                "message": "Mainline audit currently mirrors the pending protocol-lane decision state.",
+                "observed_decision_record_status": protocol_lane_status["decision_record_status"],
+            }
+        )
+    if protocol_lane_status["selected_lane_id"] is not None:
+        issues.append(
+            {
+                "issue_id": "protocol_lane_status_selected_lane_present",
+                "message": "Pending protocol-lane state must not already have a selected lane.",
+                "selected_lane_id": protocol_lane_status["selected_lane_id"],
+            }
+        )
+    if protocol_lane_status["lane_count"] != len(EXPECTED_PROTOCOL_LANE_IDS):
+        issues.append(
+            {
+                "issue_id": "protocol_lane_status_lane_count_drift",
+                "message": "Protocol-lane matrix must expose exactly the four expected lane options.",
+                "lane_count": protocol_lane_status["lane_count"],
+            }
+        )
+    if protocol_lane_status["allowed_next_action_ids"] != list(EXPECTED_PROTOCOL_LANE_ALLOWED_NEXT_ACTIONS):
+        issues.append(
+            {
+                "issue_id": "protocol_lane_status_allowed_actions_drift",
+                "message": "Pending protocol-lane state may only allow record_protocol_lane_decision.",
+                "allowed_next_action_ids": protocol_lane_status["allowed_next_action_ids"],
+            }
+        )
+    missing_blocked_actions = [
+        action for action in EXPECTED_PROTOCOL_LANE_BLOCKED_ACTIONS
+        if action not in protocol_lane_status["blocked_action_ids"]
+    ]
+    if missing_blocked_actions:
+        issues.append(
+            {
+                "issue_id": "protocol_lane_status_missing_blocked_actions",
+                "message": "Protocol-lane status must keep training, preflight, claim, and paper-result actions blocked.",
+                "missing_blocked_action_ids": missing_blocked_actions,
+            }
+        )
+    true_flags = [key for key in PROTOCOL_LANE_FALSE_FLAGS if protocol_lane_status.get(key) is True]
+    if true_flags:
+        issues.append(
+            {
+                "issue_id": "protocol_lane_status_authorization_leak",
+                "message": "Protocol-lane status must not authorize contract approval, training, preflight, claims, or paper-result material.",
+                "true_flags": true_flags,
             }
         )
     return issues
