@@ -347,14 +347,14 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert remote_status_proof == remote_proof
     command_index = manifest["remote_packet_safety_claim_gate_command_index_summary"]
     assert command_index["present"] is True
-    assert command_index["index_row_count"] == 20
-    assert command_index["source_target_count"] == 20
+    assert command_index["index_row_count"] == 21
+    assert command_index["source_target_count"] == 21
     assert command_index["missing_target_ids"] == []
     assert command_index["claim_gate_rows"]["formal_gate_proof_summary_chain_audit"]["stage_id"] == "regenerate_claim_gate_artifacts"
     assert command_index["claim_gate_rows"]["claim_safety"]["stage_id"] == "regenerate_claim_gate_artifacts"
     assert command_index["claim_gate_rows"]["paper_readiness"]["required_before"] == "formal_claim_gate"
     assert manifest["current_state"]["remote_packet_safety_command_index_present"] is True
-    assert manifest["current_state"]["remote_packet_safety_command_index_row_count"] == 20
+    assert manifest["current_state"]["remote_packet_safety_command_index_row_count"] == 21
     assert manifest["current_state"]["next_action_guard_status"] == "next_action_guard_passed"
     next_guard = manifest["next_action_guard_summary"]
     assert next_guard["present"] is True
@@ -439,7 +439,7 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 0
     assert manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 0
     assert manifest["formal_gate_gap_audit_remaining_deliverables_gap_summary"]["open_category_count"] == 0
-    assert manifest["remote_packet_safety_claim_gate_command_index_summary"]["index_row_count"] == 20
+    assert manifest["remote_packet_safety_claim_gate_command_index_summary"]["index_row_count"] == 21
     assert all(
         category["missing_artifact_matrix_ids"] == []
         for category in manifest["remaining_deliverables_gap_summary"]["categories"].values()

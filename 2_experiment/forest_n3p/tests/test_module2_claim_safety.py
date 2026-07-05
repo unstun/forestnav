@@ -235,14 +235,14 @@ def test_claim_safety_blocks_overclaims_and_keeps_no_warm_failure_claim(tmp_path
     assert manifest["input_status"]["status_report_remote_packet_safety_proof_training_missing_count"] == 0
     command_index = manifest["status_report_remote_packet_safety_claim_gate_command_index_summary"]
     assert command_index["present"] is True
-    assert command_index["index_row_count"] == 20
-    assert command_index["source_target_count"] == 20
+    assert command_index["index_row_count"] == 21
+    assert command_index["source_target_count"] == 21
     assert command_index["missing_target_ids"] == []
     assert command_index["claim_gate_rows"]["formal_gate_proof_summary_chain_audit"]["stage_id"] == "regenerate_claim_gate_artifacts"
     assert command_index["claim_gate_rows"]["claim_safety"]["stage_id"] == "regenerate_claim_gate_artifacts"
     assert command_index["claim_gate_rows"]["paper_readiness"]["required_before"] == "formal_claim_gate"
     assert manifest["input_status"]["status_report_remote_packet_safety_command_index_present"] is True
-    assert manifest["input_status"]["status_report_remote_packet_safety_command_index_row_count"] == 20
+    assert manifest["input_status"]["status_report_remote_packet_safety_command_index_row_count"] == 21
     assert manifest["status_report_decision_intake_summary"]["status"] == "f02_6_decision_intake_closed_clean"
     assert manifest["status_report_decision_intake_summary"]["record_status"] == "approved"
     assert manifest["status_report_decision_intake_summary"]["decision_owner_required"] == "Dr Sun"
