@@ -229,6 +229,50 @@ def _decision_record(tmp_path, *, status):
     return path
 
 
+def _status_report(tmp_path, *, pending):
+    path = tmp_path / f"status_report_{pending}.json"
+    allowed = not pending
+    path.write_text(
+        json.dumps(
+            {
+                "status": "formal_gate_status_blocked",
+                "permissions_now": {
+                    "remote_preflight_allowed_now": allowed,
+                    "remote_training_allowed_now": allowed,
+                    "formal_claim_allowed_now": allowed,
+                    "local_training_allowed_now": False,
+                },
+                "current_state": {
+                    "decision_intake_next_request_status": "awaiting_dr_sun_decision"
+                    if pending
+                    else "decision_recorded",
+                    "decision_intake_next_request_current_allowed_action_ids": [
+                        "record_f02_6_decision"
+                    ]
+                    if pending
+                    else [],
+                    "decision_intake_next_request_current_blocked_action_ids": [
+                        "remote_preflight",
+                        "remote_training",
+                        "local_training",
+                        "formal_claim",
+                        "paper_result_material",
+                    ]
+                    if pending
+                    else [],
+                    "decision_intake_next_request_post_decision_routes_are_current_authorization": False,
+                    "decision_intake_next_request_all_execution_disabled_now": pending,
+                },
+                "f02_6_decision_intake_summary": {
+                    "next_request_decision_owner_required": "Dr Sun",
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    return path
+
+
 def _remaining_deliverables(tmp_path, *, open_gaps):
     path = tmp_path / f"remaining_deliverables_{open_gaps}.json"
     categories = [
