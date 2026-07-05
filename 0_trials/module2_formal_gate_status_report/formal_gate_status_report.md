@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `26fd7297f6c18c831038a7ec5f61b5d1f5d75d03+dirty`
+- source_head: `37fca35f7d525e6bacfc3c49a7f45aedcd87a89d+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -97,11 +97,11 @@ This file is a read-only formal-gate status report. It does not execute commands
 - remote_packet_safety_status_report_proof_summary_present: `True`
 - source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
 - source_freshness_regeneration_required: `True`
-- source_freshness_non_self_changed_records: `19`
-- source_freshness_self_artifact_only_lag_records: `1`
+- source_freshness_non_self_changed_records: `21`
+- source_freshness_self_artifact_only_lag_records: `0`
 - remote_packet_safety_command_index_present: `True`
-- remote_packet_safety_command_index_row_count: `20`
-- remote_packet_safety_command_index_source_target_count: `20`
+- remote_packet_safety_command_index_row_count: `21`
+- remote_packet_safety_command_index_source_target_count: `21`
 - remote_packet_safety_command_index_missing_target_count: `0`
 - next_action_guard_status: `next_action_guard_passed`
 
@@ -158,7 +158,7 @@ This file is a read-only formal-gate status report. It does not execute commands
   - blocked_by: `f02_6_decision_not_approved, f02_6_warm_start_decision_pending, requires_dr_sun_approval`
   - completion_signal: F02.6 decision record is approved or rejected by Dr Sun.
   - action_when_blocked: Record Dr Sun's F02.6 decision before any formal preflight or training.
-- `source_fresh_preflight` (regeneration): status=`blocked`, missing=`19`, runs_training=`False`
+- `source_fresh_preflight` (regeneration): status=`blocked`, missing=`21`, runs_training=`False`
   - blocked_by: `source_freshness_regeneration_required, f02_6_warm_start_decision_pending, requires_dr_sun_approval, f02_6_decision_not_approved`
   - completion_signal: Source-fresh preflight targets are regenerated from the current head.
   - action_when_blocked: After F02.6 closes, regenerate source-fresh gate artifacts before approved preflight.
@@ -178,8 +178,8 @@ This file is a read-only formal-gate status report. It does not execute commands
   - blocked_by: `h01_ready_for_formal_run, h02_formal_output_acceptance, f02_6_warm_start_decision_pending, requires_dr_sun_approval, source_freshness_regeneration_required, remote_training_packet_not_ready, missing_remote_pullback_artifact, missing_ppo_result_rows, missing_ppo_checkpoint_hash, h01_manifest_not_ready, formal_main_evaluation_command_missing, h02_scale_below_h01_queries_per_bucket, h02_scale_below_h01_seed_count, h02_scale_below_h01_queries_per_map, h02_verdict_not_formal, missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
   - completion_signal: H01 is ready and H02 accepts formal-scale PPO outputs.
   - action_when_blocked: Regenerate H01/H02 only after audited checkpoint pullback is complete.
-- `claim_gate` (claim_gate): status=`blocked`, missing=`7`, runs_training=`False`
-  - blocked_by: `claim_safety, formal_gate_missing_artifacts, formal_gate_proof_audit, formal_gate_remaining_deliverables, formal_gate_status_report, paper_readiness, h02_formal_acceptance_before_claim_gate, f02_6_warm_start_decision_pending, requires_dr_sun_approval, source_freshness_regeneration_required, remote_training_packet_not_ready, missing_remote_pullback_artifact, missing_ppo_result_rows, missing_ppo_checkpoint_hash, h01_manifest_not_ready, formal_main_evaluation_command_missing, h02_scale_below_h01_queries_per_bucket, h02_scale_below_h01_seed_count, h02_scale_below_h01_queries_per_map, h02_verdict_not_formal, missing_or_failed_gate3_formal_audit, h02_formal_output_not_accepted, claim_safety_blocks_formal_performance, readiness_blocks_formal_results, formal_gate_missing_artifacts_open, formal_gate_closure_checklist_open, formal_gate_status_report_blocked, formal_gate_remaining_deliverables_open, h02_formal_acceptance_not_ready, source_fresh_claim_targets_open`
+- `claim_gate` (claim_gate): status=`blocked`, missing=`8`, runs_training=`False`
+  - blocked_by: `claim_safety, formal_gate_missing_artifacts, formal_gate_proof_audit, formal_gate_proof_summary_chain_audit, formal_gate_remaining_deliverables, formal_gate_status_report, paper_readiness, h02_formal_acceptance_before_claim_gate, f02_6_warm_start_decision_pending, requires_dr_sun_approval, source_freshness_regeneration_required, remote_training_packet_not_ready, missing_remote_pullback_artifact, missing_ppo_result_rows, missing_ppo_checkpoint_hash, h01_manifest_not_ready, formal_main_evaluation_command_missing, h02_scale_below_h01_queries_per_bucket, h02_scale_below_h01_seed_count, h02_scale_below_h01_queries_per_map, h02_verdict_not_formal, missing_or_failed_gate3_formal_audit, h02_formal_output_not_accepted, claim_safety_blocks_formal_performance, readiness_blocks_formal_results, formal_gate_missing_artifacts_open, formal_gate_closure_checklist_open, formal_gate_status_report_blocked, formal_gate_remaining_deliverables_open, h02_formal_acceptance_not_ready, source_fresh_claim_targets_open`
   - completion_signal: Claim safety and paper readiness allow formal results after H02 acceptance.
   - action_when_blocked: Regenerate claim gates only after H02 formal acceptance passes.
 
@@ -347,8 +347,8 @@ This file is a read-only formal-gate status report. It does not execute commands
 ## Remote Packet Safety Claim-Gate Command Index
 
 - present: `True`
-- index_row_count: `20`
-- source_target_count: `20`
+- index_row_count: `21`
+- source_target_count: `21`
 - missing_target_ids: `[]`
 - unknown_manual_count: `0`
 - forbidden_command_count: `0`

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_remaining_deliverables",
   "status": "formal_gate_deliverables_blocked",
-  "created_at_utc": "2026-07-05T02:19:21.911817+00:00",
-  "source_head": "df1e95b557eb90564f1229187ae8b48f20199d95",
+  "created_at_utc": "2026-07-05T04:09:30.761798+00:00",
+  "source_head": "37fca35f7d525e6bacfc3c49a7f45aedcd87a89d+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -41,8 +41,8 @@
     "h02_paper_result_input_allowed": false,
     "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
     "source_freshness_regeneration_required": true,
-    "source_freshness_non_self_changed_records": 18,
-    "source_freshness_self_artifact_only_lag_records": 1
+    "source_freshness_non_self_changed_records": 21,
+    "source_freshness_self_artifact_only_lag_records": 0
   },
   "permissions_now": {
     "local_training_allowed_now": false,

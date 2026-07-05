@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_remote_packet_safety_audit",
   "status": "remote_packet_safety_audit_passed",
-  "created_at_utc": "2026-07-05T03:52:48.487502+00:00",
-  "source_head": "26fd7297f6c18c831038a7ec5f61b5d1f5d75d03+dirty",
+  "created_at_utc": "2026-07-05T04:09:52.230174+00:00",
+  "source_head": "37fca35f7d525e6bacfc3c49a7f45aedcd87a89d+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -224,8 +224,8 @@
     },
     "post_plan_source_regeneration_command_index_summary": {
       "present": true,
-      "index_row_count": 20,
-      "source_target_count": 20,
+      "index_row_count": 21,
+      "source_target_count": 21,
       "missing_target_ids": [],
       "unknown_manual_count": 0,
       "unknown_manual_ids": [],
@@ -285,6 +285,12 @@
           "required_before": "approved_remote_preflight",
           "command_kind": "known_builder",
           "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_plan_audit"
+        },
+        "post_f02_6_regeneration_plan": {
+          "stage_id": "regenerate_preflight_gate_artifacts",
+          "required_before": "approved_remote_preflight",
+          "command_kind": "known_builder",
+          "command_template": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_regeneration_plan"
         },
         "remote_formal_execution_packet": {
           "stage_id": "regenerate_preflight_gate_artifacts",

@@ -135,8 +135,8 @@
 ## Claim Safety Remote-Safety Claim-Gate Command Index
 
 - claim_safety_remote_packet_safety_command_index_present: `True`
-- claim_safety_remote_packet_safety_command_index_row_count: `20`
-- claim_safety_remote_packet_safety_command_index_source_target_count: `20`
+- claim_safety_remote_packet_safety_command_index_row_count: `21`
+- claim_safety_remote_packet_safety_command_index_source_target_count: `21`
 - claim_safety_remote_packet_safety_command_index_missing_target_count: `0`
 
 ## Section Readiness
