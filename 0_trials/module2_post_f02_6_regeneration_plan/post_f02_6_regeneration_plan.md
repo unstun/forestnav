@@ -45,7 +45,7 @@ This file is an ordered plan. It does not execute commands, train, preflight, au
   - evidence: `0_trials/module2_f02_6_decision_record/f02_6_decision_record.json`
 - `regenerate_preflight_gate_artifacts` (regeneration): status=`blocked`, allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`False`
   - blocked_by: `f02_6_decision_not_approved`
-  - evidence: `0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json; 0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json; 0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json; 0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json`
+  - evidence: `0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json; 0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json; 0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json; 0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json; 0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json`
 - `approved_remote_preflight` (remote_preflight): status=`blocked`, allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`True`, host=`gpu3070ti-relay`
   - blocked_by: `f02_6_decision_not_approved, source_fresh_preflight_targets_open`
   - evidence: `0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1/gate3_preflight_manifest.json`
@@ -63,7 +63,7 @@ This file is an ordered plan. It does not execute commands, train, preflight, au
   - evidence: `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`
 - `regenerate_claim_gate_artifacts` (claim_gate): status=`blocked`, allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`False`
   - blocked_by: `h02_formal_acceptance_not_ready, source_fresh_claim_targets_open`
-  - evidence: `0_trials/module2_claim_safety/module2_claim_safety.json; 0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json; 0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json; 0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json; 0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json; 0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json; 0_trials/module2_paper_readiness/module2_paper_readiness.json`
+  - evidence: `0_trials/module2_claim_safety/module2_claim_safety.json; 0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json; 0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json; 0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json; 0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json; 0_trials/module2_formal_gate_status_report/formal_gate_status_report.json; 0_trials/module2_mainline_formal_gate_state_audit/mainline_formal_gate_state_audit.json; 0_trials/module2_paper_readiness/module2_paper_readiness.json`
 
 ## Source Regeneration Command Index
 
@@ -73,6 +73,8 @@ This file is an ordered plan. It does not execute commands, train, preflight, au
   - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_gap_audit`
 - `formal_gate_handoff_bundle` -> `regenerate_preflight_gate_artifacts` kind=`known_builder`, required_before=`approved_remote_preflight`
   - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_handoff_bundle`
+- `post_f02_6_plan_audit` -> `regenerate_preflight_gate_artifacts` kind=`known_builder`, required_before=`approved_remote_preflight`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_plan_audit`
 - `post_f02_6_regeneration_plan` -> `regenerate_preflight_gate_artifacts` kind=`known_builder`, required_before=`approved_remote_preflight`
   - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_post_f02_6_regeneration_plan`
 - `claim_safety` -> `regenerate_claim_gate_artifacts` kind=`known_builder`, required_before=`formal_claim_gate`
@@ -85,6 +87,8 @@ This file is an ordered plan. It does not execute commands, train, preflight, au
   - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_proof_summary_chain_audit`
 - `formal_gate_remaining_deliverables` -> `regenerate_claim_gate_artifacts` kind=`known_builder`, required_before=`formal_claim_gate`
   - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_remaining_deliverables`
+- `formal_gate_status_report` -> `regenerate_claim_gate_artifacts` kind=`known_builder`, required_before=`formal_claim_gate`
+  - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_status_report`
 - `mainline_formal_gate_state_audit` -> `regenerate_claim_gate_artifacts` kind=`known_builder`, required_before=`formal_claim_gate`
   - command: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit`
 - `paper_readiness` -> `regenerate_claim_gate_artifacts` kind=`known_builder`, required_before=`formal_claim_gate`

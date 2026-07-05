@@ -34,7 +34,7 @@
 
 - source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
 - source_freshness_regeneration_required: `True`
-- source_freshness_non_self_changed_records: `10`
+- source_freshness_non_self_changed_records: `13`
 - source_freshness_self_artifact_only_lag_records: `0`
 
 ## Handoff Stages

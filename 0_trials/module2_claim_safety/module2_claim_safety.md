@@ -70,7 +70,7 @@
 - `training_remote_ppo_checkpoint`: stage=`gate3_remote_training`, stage_status=`blocked`, allowed_now=`False`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 - `evaluation_gate3_episode_outputs`: stage=`gate3_remote_audit_pullback`, stage_status=`blocked`, allowed_now=`False`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
 - `acceptance_remote_pullback_and_audit`: stage=`gate3_remote_audit_pullback`, stage_status=`blocked`, allowed_now=`False`, blocked_by=`f02_6_decision_not_approved, source_fresh_preflight_targets_open, remote_packet_not_ready`
-- `h01_h02_formal_evaluation_acceptance`: stage=`regenerate_h01_h02_formal_artifacts`, stage_status=`blocked`, allowed_now=`False`, blocked_by=`missing_remote_audit_pullback, source_fresh_h01_h02_targets_open`
+- `h01_h02_formal_evaluation_acceptance`: stage=`regenerate_h01_h02_formal_artifacts`, stage_status=`blocked`, allowed_now=`False`, blocked_by=`missing_remote_audit_pullback`
 
 ## Status Report Remote Gate Summary
 
@@ -189,8 +189,8 @@
 ## Status Report Remote-Safety Claim-Gate Command Index
 
 - present=`True`
-- index_row_count=`23`
-- source_target_count=`23`
+- index_row_count=`11`
+- source_target_count=`11`
 - missing_target_ids=`[]`
 - unknown_manual_count=`0`
 - forbidden_command_count=`0`
