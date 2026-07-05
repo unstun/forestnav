@@ -92,7 +92,7 @@ def build_packet(config: RemoteFormalExecutionPacketConfig) -> dict[str, Any]:
     commands["sync_to_remote"]["allowed_now"] = decision["status"] == "approved"
     commands["run_remote_preflight"]["allowed_now"] = decision["status"] == "approved"
     commands["run_remote_training"]["allowed_now"] = ready
-    commands["run_remote_audit"]["allowed_now"] = ready
+    commands["run_remote_audit"]["allowed_now"] = False
     _annotate_step_blockers(commands=commands, decision=decision, blockers=blockers, ready=ready)
     preflight_requirements = _remote_preflight_requirements(decision=decision, preflight=preflight, commands=commands)
     post_run_pullback = _post_run_pullback(config=config, trial_dir=commands["trial_dir"])
@@ -298,7 +298,8 @@ def _annotate_step_blockers(
     commands["run_remote_preflight"]["blocked_by"] = [] if commands["run_remote_preflight"]["allowed_now"] else decision_blockers
     training_blockers = _unique(list(blockers) + ([] if ready else ["remote_packet_not_ready"]))
     commands["run_remote_training"]["blocked_by"] = [] if commands["run_remote_training"]["allowed_now"] else training_blockers
-    commands["run_remote_audit"]["blocked_by"] = [] if commands["run_remote_audit"]["allowed_now"] else training_blockers
+    audit_blockers = _unique(training_blockers + (["remote_training_not_completed"] if ready else []))
+    commands["run_remote_audit"]["blocked_by"] = [] if commands["run_remote_audit"]["allowed_now"] else audit_blockers
 
 
 def _decision_step_blockers(decision: dict[str, Any]) -> list[str]:
