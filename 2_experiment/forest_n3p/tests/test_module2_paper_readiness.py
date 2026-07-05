@@ -118,6 +118,18 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert manifest["claim_safety_f02_6_decision_evidence_matrix_summary"]["status"] == "ready_for_dr_sun_decision_not_authorization"
     assert manifest["claim_safety_f02_6_decision_evidence_matrix_summary"]["missing_required_evidence_count"] == 0
     assert manifest["claim_safety_f02_6_decision_evidence_matrix_summary"]["remote_training_allowed_now"] is False
+    assert (
+        manifest["input_status"]["claim_safety_handoff_decision_evidence_matrix_status"]
+        == "ready_for_dr_sun_decision_not_authorization"
+    )
+    assert manifest["input_status"]["claim_safety_handoff_decision_evidence_matrix_missing_required_evidence_count"] == 0
+    assert manifest["input_status"]["claim_safety_handoff_decision_evidence_matrix_remote_training_allowed_now"] is False
+    assert (
+        manifest["claim_safety_handoff_f02_6_decision_evidence_matrix_summary"]["status"]
+        == "ready_for_dr_sun_decision_not_authorization"
+    )
+    assert manifest["claim_safety_handoff_f02_6_decision_evidence_matrix_summary"]["missing_required_evidence_count"] == 0
+    assert manifest["claim_safety_handoff_f02_6_decision_evidence_matrix_summary"]["remote_training_allowed_now"] is False
     assert "claim_safety_f02_6_decision_intake_pending" in manifest["global_blockers"]
     assert manifest["input_status"]["claim_safety_remaining_deliverables_acceptance_present"] is True
     assert manifest["input_status"]["claim_safety_remaining_deliverables_acceptance_matrix_row_count"] == 10
