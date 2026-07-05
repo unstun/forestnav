@@ -880,6 +880,70 @@ def test_formal_gate_status_report_rejects_remote_safety_command_index_drift(tmp
     assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
 
 
+def test_formal_gate_status_report_requires_remote_safety_proof_summary(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    formal_gate = json.loads(config.formal_gate_path.read_text(encoding="utf-8"))
+    formal_gate["remote_packet_safety"].pop("proof_deliverables_summary")
+    formal_gate["remote_packet_safety"].pop("status_report_proof_deliverables_summary")
+    config.formal_gate_path.write_text(json.dumps(formal_gate), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert "formal_gate_remote_packet_safety_missing_proof_deliverables_summary" in issue_ids
+    assert "formal_gate_remote_packet_safety_missing_status_report_proof_deliverables_summary" in issue_ids
+    assert manifest["remote_packet_safety_proof_deliverables_summary"]["present"] is False
+    assert manifest["remote_packet_safety_status_report_proof_deliverables_summary"]["present"] is False
+    assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
+
+
+def test_formal_gate_status_report_rejects_remote_safety_proof_summary_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    formal_gate = json.loads(config.formal_gate_path.read_text(encoding="utf-8"))
+    formal_gate["remote_packet_safety"]["proof_deliverables_summary"][
+        "missing_counts_by_formal_category"
+    ]["training"] = 2
+    config.formal_gate_path.write_text(json.dumps(formal_gate), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert "formal_gate_remote_packet_safety_proof_deliverables_summary_mismatch" in issue_ids
+    assert "formal_gate_remote_packet_safety_proof_deliverables_summary_drifted_from_proof_audit" in issue_ids
+    assert manifest["remote_packet_safety_proof_deliverables_summary"][
+        "missing_counts_by_formal_category"
+    ]["training"] == 2
+    assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
+
+
+def test_formal_gate_status_report_rejects_remote_safety_proof_allowing_results_while_missing(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    formal_gate = json.loads(config.formal_gate_path.read_text(encoding="utf-8"))
+    formal_gate["remote_packet_safety"]["proof_deliverables_summary"][
+        "h02_paper_result_input_allowed"
+    ] = True
+    formal_gate["remote_packet_safety"]["status_report_proof_deliverables_summary"][
+        "h02_paper_result_input_allowed"
+    ] = True
+    config.formal_gate_path.write_text(json.dumps(formal_gate), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert (
+        "formal_gate_remote_packet_safety_proof_allows_paper_results_with_missing_deliverables"
+        in issue_ids
+    )
+    assert (
+        "formal_gate_remote_packet_safety_status_report_proof_allows_paper_results_with_missing_deliverables"
+        in issue_ids
+    )
+    assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
+
+
 def test_formal_gate_status_report_requires_closure_remote_stage_summary(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
     config = _config(tmp_path, complete=False)
