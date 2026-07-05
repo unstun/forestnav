@@ -22,6 +22,10 @@ from forest_n3p.scripts.build_module2_claim_safety import (
 from forest_n3p.scripts.build_module2_remote_packet_safety_audit import (
     _status_report_execution_veto_issues,
 )
+from forest_n3p.scripts.build_module2_remote_formal_execution_packet import (
+    _blockers as _remote_packet_blockers,
+    _status as _remote_packet_status,
+)
 
 
 def test_post_f02_6_plan_compares_blocking_source_freshness_flag() -> None:
@@ -143,6 +147,55 @@ def test_remote_packet_safety_allows_preflight_before_result_gate_is_claim_ready
     assert "blocked_status_report_execution_veto_allows_remote_preflight" not in {
         issue["issue_id"] for issue in issues
     }
+
+
+def test_remote_packet_training_ready_ignores_downstream_h01_output_blockers() -> None:
+    decision = {
+        "status": "approved",
+        "local_training_allowed": False,
+        "remote_training_allowed": True,
+        "blockers": [],
+    }
+    h01 = {
+        "schema_checks": {
+            "required_output_schema": "present",
+            "schema_status": "frozen_for_module2_v1",
+        },
+        "blockers": [
+            "missing_module2_rl_rs_checkpoint",
+            "realmap_query_generation_not_frozen",
+        ],
+    }
+    preflight = {"formal_trial_ready": True, "blocker_codes": []}
+
+    blockers = _remote_packet_blockers(decision=decision, h01=h01, preflight=preflight)
+
+    assert blockers == []
+    assert _remote_packet_status(decision=decision, blockers=blockers, preflight=preflight) == (
+        "ready_for_gpu3070ti_remote_training"
+    )
+
+
+def test_remote_packet_training_still_blocks_unfrozen_h01_schema() -> None:
+    decision = {
+        "status": "approved",
+        "local_training_allowed": False,
+        "remote_training_allowed": True,
+        "blockers": [],
+    }
+    h01 = {
+        "schema_checks": {
+            "required_output_schema": "present",
+            "schema_status": "draft",
+        },
+        "blockers": [],
+    }
+    preflight = {"formal_trial_ready": True, "blocker_codes": []}
+
+    blockers = _remote_packet_blockers(decision=decision, h01=h01, preflight=preflight)
+
+    assert blockers == ["h01_required_output_schema_not_frozen"]
+    assert _remote_packet_status(decision=decision, blockers=blockers, preflight=preflight) == "blocked_preconditions"
 
 
 def test_status_report_execution_veto_blocks_only_local_and_claim_when_result_gate_blocked() -> None:
