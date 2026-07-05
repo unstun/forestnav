@@ -19,9 +19,53 @@ def test_formal_gate_handoff_bundle_blocks_pending_decision_without_execution(tm
     assert manifest["runs_remote_preflight"] is False
     assert manifest["local_training_allowed"] is False
     assert manifest["formal_claim_allowed"] is False
+    assert manifest["inputs"]["decision_intake"].endswith("decision_intake.json")
     assert manifest["next_handoff_action"]["action_id"] == "record_f02_6_decision"
     assert manifest["next_handoff_action"]["requires_dr_sun"] is True
     assert manifest["next_handoff_action"]["allowed_for_agent_now"] is False
+    single = manifest["single_next_action_index"]
+    assert single["index_id"] == "module2_formal_gate_single_next_action_index"
+    assert single["status"] == "awaiting_dr_sun_f02_6_decision"
+    assert single["single_current_human_entry"] is True
+    assert single["next_action_id"] == "record_f02_6_decision"
+    assert single["decision_owner_required"] == "Dr Sun"
+    assert single["valid_decisions"] == [
+        "approve_obstacle_summary_warm_start",
+        "reject_obstacle_summary_warm_start",
+    ]
+    assert single["required_record_fields"] == ["decision", "decider", "decision_note"]
+    assert single["current_allowed_action_ids"] == ["record_f02_6_decision"]
+    assert single["current_blocked_action_ids"] == [
+        "remote_preflight",
+        "remote_training",
+        "local_training",
+        "formal_claim",
+        "paper_result_material",
+    ]
+    assert single["post_decision_routes_are_current_authorization"] is False
+    assert single["all_execution_disabled_now"] is True
+    assert single["record_command_template_count"] == 2
+    assert all("build_module2_f02_6_decision_record" in item["command"] for item in single["record_command_templates"])
+    assert all("run_rl_rs_gate3_trial" not in item["command"] for item in single["record_command_templates"])
+    assert all(item["execution_boundary"] == "local_decision_record_only" for item in single["record_command_templates"])
+    assert all(item["allowed_for_agent_now"] is False for item in single["record_command_templates"])
+    assert single["local_training_allowed_now"] is False
+    assert single["remote_preflight_allowed_now"] is False
+    assert single["remote_training_allowed_now"] is False
+    assert single["formal_claim_allowed_now"] is False
+    assert single["paper_result_material_allowed_now"] is False
+    assert single["missing_deliverable_count"] == 10
+    assert single["missing_by_category"] == {
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 2,
+    }
+    assert single["source_freshness_status"] == "source_freshness_risks_recorded_gate_still_blocked"
+    assert single["source_freshness_blocking_regeneration_required"] is True
+    assert single["approved_route_next_lane"] == "source_fresh_regeneration"
+    assert single["rejected_route_next_lane"] == "protocol_redesign"
+    assert "approved_remote_preflight" in single["after_approval_still_requires"]
     assert manifest["current_state"]["decision_status"] == "pending_human_decision"
     assert manifest["current_state"]["transition_gate_status"] == "f02_6_transition_gate_audit_passed"
     assert manifest["current_state"]["source_freshness_status"] == "source_freshness_risks_recorded_gate_still_blocked"
@@ -113,6 +157,10 @@ def test_formal_gate_handoff_bundle_marks_manual_review_when_sources_allow_remot
     assert manifest["local_training_allowed"] is False
     assert manifest["permissions_now"]["remote_training_allowed_now"] is True
     assert manifest["permissions_now"]["source_freshness_ready_for_remote_preflight"] is True
+    assert manifest["single_next_action_index"]["status"] == "follow_handoff_stages"
+    assert manifest["single_next_action_index"]["single_current_human_entry"] is False
+    assert manifest["single_next_action_index"]["record_command_templates"] == []
+    assert manifest["single_next_action_index"]["remote_training_allowed_now"] is True
     assert manifest["status_report_proof_audit_deliverables_summary"][
         "missing_counts_by_formal_category"
     ] == {
@@ -257,6 +305,8 @@ def test_formal_gate_handoff_bundle_cli_writes_json_and_markdown(tmp_path):
             str(markdown_path),
             "--decision-record",
             str(config.decision_record_path),
+            "--decision-intake",
+            str(config.decision_intake_path),
             "--transition-gate-audit",
             str(config.transition_gate_audit_path),
             "--post-plan",
@@ -279,6 +329,10 @@ def test_formal_gate_handoff_bundle_cli_writes_json_and_markdown(tmp_path):
     markdown = markdown_path.read_text(encoding="utf-8")
     assert manifest["status"] == "blocked_until_f02_6_decision"
     assert "Module2 Formal Gate Handoff Bundle" in markdown
+    assert "Single Next Action Index" in markdown
+    assert "single_current_human_entry: `True`" in markdown
+    assert "record template: approve_obstacle_summary_warm_start" in markdown
+    assert "build_module2_f02_6_decision_record" in markdown
     assert "Remote Steps" in markdown
     assert "Handoff Stages" in markdown
     assert "F02.6 Route Handoff" in markdown
@@ -297,6 +351,7 @@ def _config(tmp_path, *, complete):
     return builder.FormalGateHandoffBundleConfig(
         output_dir=tmp_path,
         decision_record_path=_json(tmp_path, "decision.json", _decision(complete=complete)),
+        decision_intake_path=_json(tmp_path, "decision_intake.json", _decision_intake(complete=complete)),
         transition_gate_audit_path=_json(tmp_path, "transition_gate.json", _transition_gate()),
         post_plan_path=_json(tmp_path, "post_plan.json", _post_plan(complete=complete)),
         status_report_path=_json(tmp_path, "status_report.json", _status_report(complete=complete)),
@@ -313,6 +368,55 @@ def _decision(*, complete):
         "decider": "Dr Sun" if complete else None,
         "local_training_allowed": False,
         "formal_claim_allowed": False,
+    }
+
+
+def _decision_intake(*, complete):
+    return {
+        "status": "f02_6_decision_intake_closed" if complete else "f02_6_decision_intake_pending_clean",
+        "not_paper_result_material": True,
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+        "decision_intake_contract": {
+            "decision_owner_required": "Dr Sun",
+            "valid_decisions": [
+                "approve_obstacle_summary_warm_start",
+                "reject_obstacle_summary_warm_start",
+            ],
+            "required_record_fields_for_non_pending_decision": ["decision", "decider", "decision_note"],
+            "record_command_templates": [
+                {
+                    "decision": "approve_obstacle_summary_warm_start",
+                    "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision approve_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun approval note>'",
+                },
+                {
+                    "decision": "reject_obstacle_summary_warm_start",
+                    "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_f02_6_decision_record --decision reject_obstacle_summary_warm_start --decider 'Dr Sun' --decision-note '<Dr Sun rejection note>'",
+                },
+            ],
+        },
+        "next_human_decision_request": {
+            "status": "closed" if complete else "awaiting_dr_sun_decision",
+            "decision_owner_required": "Dr Sun",
+            "valid_decisions": [
+                "approve_obstacle_summary_warm_start",
+                "reject_obstacle_summary_warm_start",
+            ],
+            "required_record_fields": ["decision", "decider", "decision_note"],
+            "current_allowed_action_ids": [] if complete else ["record_f02_6_decision"],
+            "current_blocked_action_ids": [] if complete else [
+                "remote_preflight",
+                "remote_training",
+                "local_training",
+                "formal_claim",
+                "paper_result_material",
+            ],
+            "post_decision_routes_are_current_authorization": False,
+            "all_execution_disabled_now": not complete,
+        },
     }
 
 
