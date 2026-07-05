@@ -23,6 +23,8 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["permissions_now"]["remote_preflight_allowed_now"] is False
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
     assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
+    assert manifest["permissions_now"]["source_freshness_ready_for_remote_preflight"] is False
+    assert manifest["inputs"]["source_freshness_audit"].endswith("source_freshness.json")
     assert manifest["current_state"]["decision_status"] == "pending_human_decision"
     assert manifest["current_state"]["decision_remote_preflight_allowed_now"] is False
     assert manifest["current_state"]["decision_remote_training_allowed_now"] is False
@@ -58,6 +60,10 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["current_state"]["formal_gate_execution_veto_formal_claim_allowed_now"] is False
     assert manifest["current_state"]["formal_gate_gap_audit_remaining_total_missing_deliverables"] == 10
     assert manifest["current_state"]["formal_gate_gap_audit_remaining_open_category_count"] == 4
+    assert manifest["current_state"]["source_freshness_status"] == "source_freshness_risks_recorded_gate_still_blocked"
+    assert manifest["current_state"]["source_freshness_regeneration_required"] is True
+    assert manifest["current_state"]["source_freshness_non_self_changed_records"] == 19
+    assert manifest["current_state"]["source_freshness_self_artifact_only_lag_records"] == 0
     assert manifest["current_state"]["remaining_deliverables_status"] == "formal_gate_deliverables_blocked"
     assert manifest["current_state"]["remaining_deliverables_missing_deliverable_count"] == 10
     assert manifest["current_state"]["remaining_deliverables_acceptance_matrix_count"] == 10
@@ -301,6 +307,7 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     assert manifest["permissions_now"]["f02_6_decision_closed"] is True
     assert manifest["permissions_now"]["warm_start_formal_chain_approved"] is True
     assert manifest["permissions_now"]["remote_training_allowed_now"] is True
+    assert manifest["permissions_now"]["source_freshness_ready_for_remote_preflight"] is True
     assert manifest["permissions_now"]["formal_claim_allowed_now"] is True
     assert manifest["permissions_now"]["local_training_allowed_now"] is False
     assert manifest["input_safety_issue_count"] == 0
@@ -341,6 +348,24 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
         category["missing_artifact_matrix_ids"] == []
         for category in manifest["remaining_deliverables_gap_summary"]["categories"].values()
     )
+    assert manifest["current_state"]["source_freshness_status"] == "source_freshness_clean_current"
+    assert manifest["current_state"]["source_freshness_regeneration_required"] is False
+
+
+def test_formal_gate_status_report_blocks_remote_when_source_freshness_is_stale(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=True)
+    config.source_freshness_path.write_text(json.dumps(_source_freshness(complete=False)), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert manifest["status"] == "formal_gate_status_blocked"
+    assert "source_freshness_blocks_remote_execution" in issue_ids
+    assert manifest["permissions_now"]["source_freshness_ready_for_remote_preflight"] is False
+    assert manifest["permissions_now"]["remote_preflight_allowed_now"] is False
+    assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+    assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
 
 
 def test_formal_gate_status_report_catches_status_input_drift(tmp_path):
@@ -830,6 +855,8 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
             str(config.formal_gate_proof_audit_path),
             "--decision-intake",
             str(config.decision_intake_path),
+            "--source-freshness",
+            str(config.source_freshness_path),
         ]
     )
 
@@ -853,6 +880,7 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
     assert "Remaining Deliverables Acceptance Matrix" in markdown
     assert "Formal Gate Proof Audit" in markdown
     assert "Formal Gate Proof Audit Gap Summary" in markdown
+    assert "source_freshness_status" in markdown
     assert "missing_artifact_count=`8`" in markdown
     assert "formal_gate_proof_audit_blocked" in markdown
     assert "training:train_final_model_zip" in markdown
@@ -881,6 +909,7 @@ def _config(tmp_path, *, complete, drift=False):
             "remaining_deliverables.json",
             _remaining_deliverables(complete=complete),
         ),
+        source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness(complete=complete)),
         formal_gate_proof_audit_path=_json(
             tmp_path,
             "formal_gate_proof_audit.json",
@@ -1522,6 +1551,23 @@ def _remaining_deliverables(*, complete):
             complete=complete,
         ),
         "proof_command_plan": _remaining_deliverable_proof_command_plan(matrix),
+    }
+
+
+def _source_freshness(*, complete):
+    return {
+        "status": "source_freshness_clean_current" if complete else "source_freshness_risks_recorded_gate_still_blocked",
+        "not_paper_result_material": True,
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+        "regeneration_required_before_remote_formal_execution": not complete,
+        "commit_lag_summary": {
+            "records_with_non_self_changed_paths_since_source": 0 if complete else 19,
+            "records_with_self_artifact_only_lag": 0,
+        },
     }
 
 
