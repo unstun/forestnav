@@ -97,6 +97,11 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert manifest["input_status"]["claim_safety_decision_intake_remote_training_allowed_now"] is False
     assert manifest["input_status"]["claim_safety_decision_intake_formal_claim_allowed_now"] is False
     assert manifest["input_status"]["claim_safety_decision_intake_impact_present"] is True
+    assert manifest["input_status"]["claim_safety_decision_evidence_matrix_status"] == "ready_for_dr_sun_decision_not_authorization"
+    assert manifest["input_status"]["claim_safety_decision_evidence_matrix_route_count"] == 2
+    assert manifest["input_status"]["claim_safety_decision_evidence_matrix_required_evidence_count"] == 7
+    assert manifest["input_status"]["claim_safety_decision_evidence_matrix_missing_required_evidence_count"] == 0
+    assert manifest["input_status"]["claim_safety_decision_evidence_matrix_remote_training_allowed_now"] is False
     assert manifest["input_status"]["claim_safety_decision_record_is_not_training_authorization"] is True
     assert manifest["input_status"]["claim_safety_decision_record_is_not_paper_result_material"] is True
     assert manifest["input_status"]["claim_safety_decision_impact_remote_training_allowed_now"] is False
@@ -110,6 +115,9 @@ def test_paper_readiness_keeps_methods_ready_but_blocks_formal_results(tmp_path)
     assert manifest["claim_safety_decision_intake_summary"]["decision_impact_present"] is True
     assert manifest["claim_safety_decision_intake_summary"]["decision_record_is_not_training_authorization"] is True
     assert manifest["claim_safety_decision_intake_summary"]["decision_impact_remote_training_allowed_now"] is False
+    assert manifest["claim_safety_f02_6_decision_evidence_matrix_summary"]["status"] == "ready_for_dr_sun_decision_not_authorization"
+    assert manifest["claim_safety_f02_6_decision_evidence_matrix_summary"]["missing_required_evidence_count"] == 0
+    assert manifest["claim_safety_f02_6_decision_evidence_matrix_summary"]["remote_training_allowed_now"] is False
     assert "claim_safety_f02_6_decision_intake_pending" in manifest["global_blockers"]
     assert manifest["input_status"]["claim_safety_remaining_deliverables_acceptance_present"] is True
     assert manifest["input_status"]["claim_safety_remaining_deliverables_acceptance_matrix_row_count"] == 10
