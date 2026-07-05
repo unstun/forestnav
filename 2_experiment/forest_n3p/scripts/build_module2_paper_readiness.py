@@ -225,6 +225,9 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
     claim_handoff_single_next_action_index_summary = _claim_safety_handoff_single_next_action_index_summary(
         claim_safety
     )
+    claim_handoff_decision_evidence_matrix_summary = _claim_safety_handoff_decision_evidence_matrix_summary(
+        claim_safety
+    )
     claim_next_required_formal_deliverables = _claim_safety_next_required_formal_deliverables(claim_safety)
     claim_mainline_formal_gate_state_audit_summary = _claim_safety_mainline_formal_gate_state_audit_summary(
         claim_safety
@@ -263,6 +266,24 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         ],
         "claim_safety_decision_evidence_matrix_remote_training_allowed_now": claim_decision_intake_summary[
             "decision_evidence_matrix_remote_training_allowed_now"
+        ],
+        "claim_safety_handoff_decision_evidence_matrix_present": claim_handoff_decision_evidence_matrix_summary[
+            "present"
+        ],
+        "claim_safety_handoff_decision_evidence_matrix_status": claim_handoff_decision_evidence_matrix_summary[
+            "status"
+        ],
+        "claim_safety_handoff_decision_evidence_matrix_route_count": claim_handoff_decision_evidence_matrix_summary[
+            "route_count"
+        ],
+        "claim_safety_handoff_decision_evidence_matrix_required_evidence_count": claim_handoff_decision_evidence_matrix_summary[
+            "required_evidence_count"
+        ],
+        "claim_safety_handoff_decision_evidence_matrix_missing_required_evidence_count": claim_handoff_decision_evidence_matrix_summary[
+            "missing_required_evidence_count"
+        ],
+        "claim_safety_handoff_decision_evidence_matrix_remote_training_allowed_now": claim_handoff_decision_evidence_matrix_summary[
+            "remote_training_allowed_now"
         ],
         "claim_safety_requirement_stage_present": claim_requirement_stage_summary["present"],
         "claim_safety_requirement_stage_mapped_count": claim_requirement_stage_summary["mapped_requirement_count"],
@@ -570,6 +591,9 @@ def build_manifest(config: PaperReadinessConfig) -> dict[str, Any]:
         "claim_safety_f02_6_decision_evidence_matrix_summary": claim_decision_intake_summary[
             "decision_evidence_matrix_summary"
         ],
+        "claim_safety_handoff_f02_6_decision_evidence_matrix_summary": (
+            claim_handoff_decision_evidence_matrix_summary
+        ),
         "claim_safety_remaining_deliverables_acceptance_summary": claim_remaining_deliverables_acceptance_summary,
         "claim_safety_remaining_deliverables_gap_summary": claim_remaining_deliverables_gap_summary,
         "claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_summary": claim_formal_gate_gap_audit_remaining_deliverables_gap_summary,
@@ -645,6 +669,7 @@ def _global_blockers(
     _extend_unique(blockers, _claim_safety_remote_requirement_blockers(claim_safety))
     _extend_unique(blockers, _claim_safety_h02_acceptance_requirement_blockers(claim_safety))
     _extend_unique(blockers, _claim_safety_decision_intake_blockers(claim_safety))
+    _extend_unique(blockers, _claim_safety_handoff_decision_evidence_matrix_blockers(claim_safety))
     _extend_unique(blockers, _claim_safety_remaining_deliverables_acceptance_blockers(claim_safety))
     _extend_unique(blockers, _claim_safety_remaining_deliverables_gap_blockers(claim_safety))
     _extend_unique(blockers, _claim_safety_formal_gate_gap_audit_remaining_deliverables_gap_blockers(claim_safety))
