@@ -122,11 +122,17 @@ def build_manifest(config: FormalGateProofSummaryChainAuditConfig) -> dict[str, 
     handoff_single_next_action_baseline_signature = (
         handoff_single_next_action_rows[0]["signature"] if handoff_single_next_action_rows else {}
     )
+    proof_audit_payload = _read_json(config.formal_gate_proof_audit_path)
+    proof_audit_input_safety_issues = _proof_audit_input_safety_issues(
+        path=config.formal_gate_proof_audit_path,
+        proof_audit=proof_audit_payload,
+    )
     issues = (
         _audit_issues(rows=rows, baseline_summary=baseline_summary)
         + _next_action_guard_issues(rows=next_action_guard_rows)
         + _next_required_deliverables_issues(rows=next_required_deliverables_rows)
         + _handoff_single_next_action_issues(rows=handoff_single_next_action_rows)
+        + proof_audit_input_safety_issues
     )
     proof_open = _proof_open(baseline_summary)
     if issues:
@@ -179,6 +185,11 @@ def build_manifest(config: FormalGateProofSummaryChainAuditConfig) -> dict[str, 
             1 for row in handoff_single_next_action_rows if row["signature_matches_baseline"]
         ),
         "h02_paper_result_input_allowed": baseline_summary["h02_paper_result_input_allowed"],
+        "proof_audit_input_safety_issue_count": int(proof_audit_payload.get("input_safety_issue_count") or 0),
+        "proof_audit_input_safety_issues": proof_audit_payload.get("input_safety_issues")
+        if isinstance(proof_audit_payload.get("input_safety_issues"), list)
+        else [],
+        "proof_audit_blockers": _strings(proof_audit_payload.get("blockers")),
         "audit_issue_count": len(issues),
         "audit_issues": issues,
         "chain_rows": rows,
@@ -768,6 +779,55 @@ def _handoff_single_next_action_issues(*, rows: Sequence[dict[str, Any]]) -> lis
                     "path": row["path"],
                 }
             )
+    return _unique_issues(issues)
+
+
+def _proof_audit_input_safety_issues(*, path: Path, proof_audit: dict[str, Any]) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    input_safety_issue_count = int(proof_audit.get("input_safety_issue_count") or 0)
+    input_safety_issues = (
+        proof_audit.get("input_safety_issues")
+        if isinstance(proof_audit.get("input_safety_issues"), list)
+        else []
+    )
+    blockers = _strings(proof_audit.get("blockers"))
+    if input_safety_issue_count > 0 or input_safety_issues:
+        issues.append(
+            {
+                "issue_id": "formal_gate_proof_audit_input_safety_issues_open",
+                "message": "Proof summary chain cannot be trusted while the upstream proof audit reports input-safety issues.",
+                "path": str(path),
+                "observed_input_safety_issue_count": input_safety_issue_count,
+            }
+        )
+    if "proof_audit_input_safety_issues_open" in blockers:
+        issues.append(
+            {
+                "issue_id": "formal_gate_proof_audit_input_safety_blocker_open",
+                "message": "Proof summary chain cannot ignore the upstream proof-audit input-safety blocker.",
+                "path": str(path),
+                "observed_blockers": blockers,
+            }
+        )
+    for key in ("executes_commands", "runs_training", "runs_remote_preflight", "local_training_allowed", "formal_claim_allowed"):
+        if proof_audit.get(key) is True:
+            issues.append(
+                {
+                    "issue_id": f"formal_gate_proof_audit_{key}",
+                    "message": "Proof audit must remain a local read-only non-claim artifact before summary-chain propagation.",
+                    "path": str(path),
+                    "observed": proof_audit.get(key),
+                }
+            )
+    if proof_audit.get("not_paper_result_material") is False:
+        issues.append(
+            {
+                "issue_id": "formal_gate_proof_audit_marked_as_paper_result_material",
+                "message": "Proof audit must not be treated as paper-result material.",
+                "path": str(path),
+                "observed": proof_audit.get("not_paper_result_material"),
+            }
+        )
     return _unique_issues(issues)
 
 
