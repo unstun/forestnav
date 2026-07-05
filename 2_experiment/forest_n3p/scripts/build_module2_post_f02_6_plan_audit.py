@@ -1026,7 +1026,7 @@ def _source_regeneration_command_index_issues(*, plan: dict[str, Any], source_fr
 
 
 def _source_regeneration_command_index_summary(plan: dict[str, Any], source_freshness: dict[str, Any]) -> dict[str, Any]:
-    source_targets = _source_targets(source_freshness)
+    source_targets = _source_command_index_targets(source_freshness)
     source_ids = {str(item.get("artifact_id")) for item in source_targets if item.get("artifact_id")}
     index_rows = _source_regeneration_command_index(plan)
     index_ids = {str(item.get("artifact_id")) for item in index_rows if item.get("artifact_id")}
@@ -1088,6 +1088,13 @@ def _source_targets(source_freshness: dict[str, Any]) -> list[dict[str, Any]]:
     if not isinstance(targets, list):
         return []
     return [target for target in targets if isinstance(target, dict)]
+
+
+def _source_command_index_targets(source_freshness: dict[str, Any]) -> list[dict[str, Any]]:
+    records = source_freshness.get("artifact_records")
+    if isinstance(records, list) and records:
+        return [record for record in records if isinstance(record, dict)]
+    return _source_targets(source_freshness)
 
 
 def _stage_commands_by_id(plan: dict[str, Any]) -> dict[str, set[str]]:
