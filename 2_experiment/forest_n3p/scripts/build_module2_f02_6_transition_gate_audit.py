@@ -201,7 +201,7 @@ def _run_scenario(*, config: F026TransitionGateAuditConfig, scenario_id: str, wo
             remote_warm_preflight_path=config.remote_warm_preflight_path,
             decision=_decision_arg(scenario_id),
             decider=DECISION_OWNER if scenario_id in {"approved", "rejected"} else None,
-            decision_note=f"synthetic {scenario_id} transition audit" if scenario_id in {"approved", "rejected"} else None,
+            decision_note=_synthetic_decision_note(scenario_id),
         )
     )
     record_path = _write_json(work_root / "f02_6_decision_record.json", record)
@@ -285,6 +285,20 @@ def _run_scenario(*, config: F026TransitionGateAuditConfig, scenario_id: str, wo
         missing_artifacts=missing_artifacts,
         closure_checklist=closure_checklist,
     )
+
+
+def _synthetic_decision_note(scenario_id: str) -> str | None:
+    if scenario_id == "approved":
+        return (
+            "Approve obstacle-summary warm-start because the evidence packet supports formal-v2 BC risk; "
+            "next run source-fresh regeneration before any remote preflight."
+        )
+    if scenario_id == "rejected":
+        return (
+            "Reject obstacle-summary warm-start because the risk is unacceptable; "
+            "next require a stronger/full patch-CNN protocol before any warm-start PPO formal trial."
+        )
+    return None
 
 
 def _scenario_summary(
