@@ -69,6 +69,13 @@ def build_manifest(config: FormalGateProofAuditConfig) -> dict[str, Any]:
     passed_count = sum(1 for result in results if result["status"] == "passed")
     failed_count = sum(1 for result in results if result["status"] == "failed")
     blocked_count = sum(1 for result in results if result["status"] == "blocked_missing_artifact")
+    proof_command_summary = {
+        "total_matrix_rows": int(plan.get("total_matrix_rows") or len(matrix)),
+        "total_proof_command_count": total_proof_command_count,
+        "passed_proof_command_count": passed_count,
+        "failed_proof_command_count": failed_count,
+        "blocked_proof_command_count": blocked_count,
+    }
     status = "formal_gate_proof_audit_passed" if not blockers and total_proof_command_count > 0 else "formal_gate_proof_audit_blocked"
     return {
         "schema_version": 1,
@@ -86,14 +93,17 @@ def build_manifest(config: FormalGateProofAuditConfig) -> dict[str, Any]:
             "formal_gate_remaining_deliverables": str(config.remaining_deliverables_path),
             "workspace_root": str(config.workspace_root),
         },
+        "current_state": _current_state(remaining),
         "proof_command_plan_id": plan.get("plan_id"),
         "execution_boundary": plan.get("execution_boundary"),
-        "total_matrix_rows": int(plan.get("total_matrix_rows") or len(matrix)),
+        "total_matrix_rows": proof_command_summary["total_matrix_rows"],
         "total_proof_command_count": total_proof_command_count,
         "declared_total_proof_command_count": int(plan.get("total_proof_command_count") or 0),
         "passed_proof_command_count": passed_count,
         "failed_proof_command_count": failed_count,
         "blocked_proof_command_count": blocked_count,
+        "proof_command_summary": proof_command_summary,
+        "formal_gate_missing_evidence_summary": _formal_gate_missing_evidence_summary(results),
         "category_status_counts": category_status_counts,
         "blockers": blockers,
         "input_safety_issue_count": len(input_safety_issues),
