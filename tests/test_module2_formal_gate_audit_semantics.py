@@ -387,6 +387,37 @@ def test_f02_6_approved_transition_allows_remote_training_entry_not_claim() -> N
     assert "approved_training_ready_too_early" not in issue_ids
 
 
+def test_transition_common_ignores_nested_downstream_audit_failures() -> None:
+    issue_ids = {
+        issue["issue_id"]
+        for issue in _common_scenario_issues(
+            {
+                "scenario_id": "approved",
+                "record_local_training_allowed": False,
+                "record_formal_claim_allowed": False,
+                "record_remote_preflight_allowed_now": False,
+                "record_remote_training_allowed_now": False,
+                "formal_gate_status_report_permissions_now": {
+                    "local_training_allowed_now": False,
+                    "remote_training_allowed_now": True,
+                    "formal_claim_allowed_now": False,
+                },
+                "decision_gate_audit_issue_count": 0,
+                "post_plan_audit_issue_count": 4,
+                "remote_packet_safety_issue_count": 2,
+                "decision_gate_status": "f02_6_decision_gate_audit_passed",
+                "post_plan_audit_status": "post_f02_6_plan_audit_failed",
+                "remote_packet_safety_status": "remote_packet_safety_audit_failed",
+            }
+        )
+    }
+
+    assert "post_plan_audit_issue_count" not in issue_ids
+    assert "remote_packet_safety_issue_count" not in issue_ids
+    assert "post_plan_audit_not_passed" not in issue_ids
+    assert "remote_packet_safety_not_passed" not in issue_ids
+
+
 def test_remaining_deliverables_allow_training_generation_while_missing() -> None:
     production_issues = _production_plan_safety_issues(
         {
