@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_f02_6_transition_gate_audit",
   "status": "f02_6_transition_gate_audit_failed",
-  "created_at_utc": "2026-07-05T19:12:42.056743+00:00",
-  "source_head": "be11232de21fd3d30b2590b971252180465d2f3a",
+  "created_at_utc": "2026-07-05T19:14:45.774066+00:00",
+  "source_head": "e5b928b371d18ec3d2c70d7cd81774a0f7d9badb",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -138,7 +138,7 @@
         }
       },
       "formal_gate_status_report_status": "formal_gate_status_blocked",
-      "formal_gate_status_report_input_safety_issue_count": 10,
+      "formal_gate_status_report_input_safety_issue_count": 9,
       "formal_gate_status_report_permissions_now": {
         "local_training_allowed_now": false,
         "remote_preflight_allowed_now": false,
@@ -147,7 +147,7 @@
       },
       "formal_gate_status_report_next_blocked_lane_id": "decision",
       "post_plan_audit_status": "post_f02_6_plan_audit_failed",
-      "post_plan_audit_issue_count": 12,
+      "post_plan_audit_issue_count": 11,
       "remote_packet_safety_status": "remote_packet_safety_audit_failed",
       "remote_packet_safety_issue_count": 12,
       "missing_counts_by_category": {
@@ -267,7 +267,7 @@
         }
       },
       "formal_gate_status_report_status": "formal_gate_status_blocked",
-      "formal_gate_status_report_input_safety_issue_count": 6,
+      "formal_gate_status_report_input_safety_issue_count": 5,
       "formal_gate_status_report_permissions_now": {
         "local_training_allowed_now": false,
         "remote_preflight_allowed_now": true,
@@ -276,7 +276,7 @@
       },
       "formal_gate_status_report_next_blocked_lane_id": "remote_packet_preflight",
       "post_plan_audit_status": "post_f02_6_plan_audit_failed",
-      "post_plan_audit_issue_count": 4,
+      "post_plan_audit_issue_count": 3,
       "remote_packet_safety_status": "remote_packet_safety_audit_failed",
       "remote_packet_safety_issue_count": 2,
       "missing_counts_by_category": {
@@ -404,7 +404,7 @@
         }
       },
       "formal_gate_status_report_status": "formal_gate_status_blocked",
-      "formal_gate_status_report_input_safety_issue_count": 6,
+      "formal_gate_status_report_input_safety_issue_count": 5,
       "formal_gate_status_report_permissions_now": {
         "local_training_allowed_now": false,
         "remote_preflight_allowed_now": false,
@@ -413,7 +413,7 @@
       },
       "formal_gate_status_report_next_blocked_lane_id": "source_fresh_preflight",
       "post_plan_audit_status": "post_f02_6_plan_audit_failed",
-      "post_plan_audit_issue_count": 5,
+      "post_plan_audit_issue_count": 4,
       "remote_packet_safety_status": "remote_packet_safety_audit_failed",
       "remote_packet_safety_issue_count": 2,
       "missing_counts_by_category": {
@@ -442,7 +442,7 @@
       "scenario_id": "pending",
       "issue_id": "post_plan_audit_issue_count",
       "message": "post_plan_audit_issue_count must be zero.",
-      "observed": 12
+      "observed": 11
     },
     {
       "scenario_id": "pending",
@@ -486,7 +486,7 @@
       "scenario_id": "approved",
       "issue_id": "post_plan_audit_issue_count",
       "message": "post_plan_audit_issue_count must be zero.",
-      "observed": 4
+      "observed": 3
     },
     {
       "scenario_id": "approved",
@@ -510,7 +510,7 @@
       "scenario_id": "rejected",
       "issue_id": "post_plan_audit_issue_count",
       "message": "post_plan_audit_issue_count must be zero.",
-      "observed": 5
+      "observed": 4
     },
     {
       "scenario_id": "rejected",

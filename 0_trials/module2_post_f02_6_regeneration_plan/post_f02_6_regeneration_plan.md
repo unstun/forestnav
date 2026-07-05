@@ -49,7 +49,7 @@ This file is an ordered plan. It does not execute commands, train, preflight, au
 - blocked_row_count: `10`
 - rows_with_missing_required_blockers: `0`
 - rows_allowed_while_missing: `0`
-- `training`: blocked_row_count=`3`, required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training`
+- `training`: blocked_row_count=`0`, required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training`
 - `evaluation`: blocked_row_count=`2`, required_current_blockers=`remote_training_not_completed`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
 - `acceptance`: blocked_row_count=`3`, required_current_blockers=`remote_training_not_completed`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
 - `formal_acceptance`: blocked_row_count=`2`, required_current_blockers=`missing_remote_audit_pullback`, unlock_sequence=`gate3_remote_audit_pullback_complete -> regenerate_h01_h02_formal_artifacts -> h01_h02_formal_acceptance_audit`

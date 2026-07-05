@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_regeneration_plan",
   "status": "ready_for_remote_training_packet_execution",
-  "created_at_utc": "2026-07-05T19:12:37.433449+00:00",
-  "source_head": "be11232de21fd3d30b2590b971252180465d2f3a",
+  "created_at_utc": "2026-07-05T19:14:43.691972+00:00",
+  "source_head": "e5b928b371d18ec3d2c70d7cd81774a0f7d9badb",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -69,9 +69,7 @@
         "present_count": 0,
         "responsible_stage_id": "gate3_remote_training",
         "responsible_stage_allowed_now": true,
-        "responsible_stage_blocked_by": [
-          "source_fresh_preflight_targets_open"
-        ],
+        "responsible_stage_blocked_by": [],
         "missing_artifact_matrix_ids": [
           "training:train_final_model_zip",
           "training:train_summary_json",
@@ -140,7 +138,7 @@
     "categories": {
       "training": {
         "row_count": 3,
-        "blocked_row_count": 3,
+        "blocked_row_count": 0,
         "rows_with_missing_required_blockers": 0,
         "rows_allowed_while_missing": 0,
         "required_current_blockers": [],

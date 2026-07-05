@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_handoff_bundle",
   "status": "blocked_handoff_input_safety_issues",
-  "created_at_utc": "2026-07-05T19:12:38.019486+00:00",
-  "source_head": "be11232de21fd3d30b2590b971252180465d2f3a",
+  "created_at_utc": "2026-07-05T19:14:43.944082+00:00",
+  "source_head": "e5b928b371d18ec3d2c70d7cd81774a0f7d9badb",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -830,7 +830,7 @@
     "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_trial_manifest.json",
     "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json"
   ],
-  "safety_issue_count": 4,
+  "safety_issue_count": 5,
   "safety_issues": [
     {
       "issue_id": "transition_gate_audit_not_passed",
@@ -843,6 +843,10 @@
     {
       "issue_id": "transition_gate_approved_allows_remote_training",
       "detail": "transition audit scenario must not directly allow remote training"
+    },
+    {
+      "issue_id": "transition_gate_approved_approved_remote_preflight_ready_too_early",
+      "detail": "approved scenario must not bypass downstream formal gates"
     },
     {
       "issue_id": "transition_gate_approved_gate3_remote_training_ready_too_early",
