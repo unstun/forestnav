@@ -76,7 +76,10 @@ def test_protocol_lane_decision_record_records_dr_sun_lane_choice_without_author
             contract_action="draft_revised_contract",
             decision_note=(
                 "Select hybrid_ppo_analytic_fallback because the failed Gate3 0.53125 result suggests "
-                "direct replacement is weak; draft revised contract before any training."
+                "direct replacement is weak; reject stronger_obstacle_summary_warm_start, "
+                "full_patch_cnn_policy, and stop_or_reframe_module2_claim for this round; "
+                "use protocol_lane_matrix and gate3_formal_audit artifacts as the evidence basis; "
+                "draft revised contract before any training."
             ),
         )
     )
@@ -93,6 +96,8 @@ def test_protocol_lane_decision_record_records_dr_sun_lane_choice_without_author
     assert record["decision_note_audit"]["mentions_selected_lane"] is True
     assert record["decision_note_audit"]["mentions_failed_gate3"] is True
     assert record["decision_note_audit"]["mentions_contract_action"] is True
+    assert record["decision_note_audit"]["mentions_rejected_lanes"] is True
+    assert record["decision_note_audit"]["mentions_evidence_artifacts"] is True
     assert record["selected_lane_summary"]["lane_id"] == "hybrid_ppo_analytic_fallback"
     assert record["selected_lane_summary"]["requires_new_or_revised_contract"] is True
     assert record["current_authorization"]["authorization_status"] == "decision_recorded_not_execution_authorization"
