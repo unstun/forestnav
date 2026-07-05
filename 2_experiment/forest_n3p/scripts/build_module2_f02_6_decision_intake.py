@@ -141,6 +141,7 @@ def _current_state(
     remaining: dict[str, Any],
 ) -> dict[str, Any]:
     recommendation = packet.get("recommendation") if isinstance(packet.get("recommendation"), dict) else {}
+    authorization = packet.get("current_authorization") if isinstance(packet.get("current_authorization"), dict) else {}
     permissions = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
     remaining_permissions = remaining.get("permissions_now") if isinstance(remaining.get("permissions_now"), dict) else {}
     category_counts = remaining.get("category_counts") if isinstance(remaining.get("category_counts"), dict) else {}
@@ -155,8 +156,21 @@ def _current_state(
         "record_decider": record.get("decider"),
         "effective_warm_start_decision": record.get("effective_warm_start_decision"),
         "record_remote_training_allowed": record.get("remote_training_allowed"),
+        "record_remote_preflight_allowed_now": record.get("remote_preflight_allowed_now"),
+        "record_remote_training_allowed_now": record.get("remote_training_allowed_now"),
         "record_local_training_allowed": record.get("local_training_allowed"),
         "record_formal_claim_allowed": record.get("formal_claim_allowed"),
+        "packet_authorization_status": authorization.get("authorization_status"),
+        "packet_current_allowed_action_ids": list(authorization.get("current_allowed_action_ids") or ()),
+        "packet_current_blocked_action_ids": list(authorization.get("current_blocked_action_ids") or ()),
+        "packet_post_decision_routes_are_current_authorization": authorization.get(
+            "post_decision_routes_are_current_authorization"
+        ),
+        "packet_remote_preflight_allowed_now": authorization.get("remote_preflight_allowed_now"),
+        "packet_remote_training_allowed_now": authorization.get("remote_training_allowed_now"),
+        "packet_local_training_allowed_now": authorization.get("local_training_allowed_now"),
+        "packet_formal_claim_allowed_now": authorization.get("formal_claim_allowed_now"),
+        "packet_paper_result_material_allowed_now": authorization.get("paper_result_material_allowed_now"),
         "decision_gate_status": gate_audit.get("status"),
         "decision_gate_issue_count": gate_audit.get("audit_issue_count"),
         "status_report_status": status_report.get("status"),
