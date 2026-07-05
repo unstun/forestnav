@@ -31,6 +31,10 @@ def test_f02_6_decision_gate_audit_passes_current_pending_gate_without_decision(
     assert manifest["decision_state"]["training_allowed_now"] is False
     assert manifest["decision_state"]["remote_preflight_allowed_now"] is False
     assert manifest["decision_state"]["remote_training_allowed_now"] is False
+    assert manifest["decision_note_audit_summary"]["audit_present"] is True
+    assert manifest["decision_note_audit_summary"]["gate_review_status"] == "not_required_while_pending"
+    assert manifest["decision_note_audit_summary"]["gate_requires_note_quality"] is False
+    assert manifest["decision_note_audit_summary"]["decision_note_present"] is False
     actions = {item["decision"]: item for item in manifest["allowed_next_human_actions"]}
     assert set(actions) == {"approve_obstacle_summary_warm_start", "reject_obstacle_summary_warm_start"}
 
@@ -169,6 +173,37 @@ def test_f02_6_decision_gate_audit_requires_decision_note_after_closure(tmp_path
     assert "rejected_record_missing_decision_note" in rejected_issues
 
 
+def test_f02_6_decision_gate_audit_requires_closed_decision_note_rationale_signals(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_f02_6_decision_gate_audit")
+    approved = _record_payload(status="approved")
+    approved["decision_note"] = "Approved."
+    approved["decision_note_audit"] = _decision_note_audit(
+        required=True,
+        present=True,
+        selected_route=False,
+        evidence_or_risk=False,
+        next_action=False,
+        quality_warning="decision_note_should_mention_selected_route_evidence_or_risk_basis_next_gated_action",
+    )
+
+    manifest = auditor.build_manifest(
+        auditor.F026DecisionGateAuditConfig(
+            output_dir=tmp_path,
+            packet_path=_json(tmp_path, "packet.json", _packet_payload()),
+            decision_record_path=_json(tmp_path, "record.json", approved),
+            post_plan_path=_json(tmp_path, "plan.json", _plan_payload(status="approved")),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "f02_6_decision_gate_audit_failed"
+    assert manifest["decision_note_audit_summary"]["gate_review_status"] == "closed_decision_note_audit_incomplete"
+    assert "closed_record_note_audit_missing_selected_route" in issue_ids
+    assert "closed_record_note_audit_missing_evidence_or_risk_basis" in issue_ids
+    assert "closed_record_note_audit_missing_next_gated_action" in issue_ids
+    assert "closed_record_note_audit_quality_warning" in issue_ids
+
+
 def test_f02_6_decision_gate_audit_accepts_rejected_record_only_when_remote_training_stays_blocked(tmp_path):
     auditor = import_module("forest_n3p.scripts.build_module2_f02_6_decision_gate_audit")
     record = _record_payload(status="rejected")
@@ -230,6 +265,7 @@ def test_f02_6_decision_gate_audit_cli_writes_json_and_markdown(tmp_path):
     assert manifest["status"] == "f02_6_decision_gate_pending_clean"
     assert "Module2 F02.6 Decision Gate Audit" in markdown
     assert "does not record a decision" in markdown
+    assert "decision_note_gate_review_status" in markdown
 
 
 def _packet_payload():
@@ -267,6 +303,14 @@ def _record_payload(*, status):
             "requested_decision": "pending",
             "decider": None,
             "decision_note": None,
+            "decision_note_audit": _decision_note_audit(
+                required=False,
+                present=False,
+                selected_route=False,
+                evidence_or_risk=False,
+                next_action=False,
+                quality_warning=None,
+            ),
             "effective_warm_start_decision": "pending",
             "remote_training_allowed": False,
             "remote_preflight_allowed_now": False,
@@ -282,7 +326,15 @@ def _record_payload(*, status):
             "decision_owner_required": "Dr Sun",
             "requested_decision": "approve_obstacle_summary_warm_start",
             "decider": "Dr Sun",
-            "decision_note": "Approve obstacle-summary warm-start for source-fresh regeneration.",
+            "decision_note": "Approve obstacle-summary warm-start because the evidence packet supports formal-v2 BC risk; next run source-fresh regeneration.",
+            "decision_note_audit": _decision_note_audit(
+                required=True,
+                present=True,
+                selected_route=True,
+                evidence_or_risk=True,
+                next_action=True,
+                quality_warning=None,
+            ),
             "effective_warm_start_decision": "approved_obstacle_summary",
             "remote_training_allowed": True,
             "remote_preflight_allowed_now": False,
@@ -304,7 +356,15 @@ def _record_payload(*, status):
             "decision_owner_required": "Dr Sun",
             "requested_decision": "reject_obstacle_summary_warm_start",
             "decider": "Dr Sun",
-            "decision_note": "Reject obstacle-summary warm-start and require stronger/full patch-CNN protocol.",
+            "decision_note": "Reject obstacle-summary warm-start because the risk is unacceptable; next require stronger/full patch-CNN protocol.",
+            "decision_note_audit": _decision_note_audit(
+                required=True,
+                present=True,
+                selected_route=True,
+                evidence_or_risk=True,
+                next_action=True,
+                quality_warning=None,
+            ),
             "effective_warm_start_decision": "no_warm_only",
             "remote_training_allowed": False,
             "remote_preflight_allowed_now": False,
@@ -314,6 +374,26 @@ def _record_payload(*, status):
             "blockers": ["obstacle_summary_warm_start_rejected"],
         }
     raise AssertionError(status)
+
+
+def _decision_note_audit(*, required, present, selected_route, evidence_or_risk, next_action, quality_warning):
+    return {
+        "required_for_non_pending_decision": required,
+        "present": present,
+        "character_count": 120 if present else 0,
+        "word_count": 14 if present else 0,
+        "guidance_items": [
+            "selected decision",
+            "human rationale",
+            "evidence basis",
+            "risk accepted or avoided",
+            "next gated action",
+        ],
+        "mentions_selected_route": selected_route,
+        "mentions_evidence_or_risk_basis": evidence_or_risk,
+        "mentions_next_gated_action": next_action,
+        "quality_warning": quality_warning,
+    }
 
 
 def _plan_payload(*, status):
