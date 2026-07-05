@@ -221,10 +221,16 @@ def _run_scenario(*, config: F026TransitionGateAuditConfig, scenario_id: str, wo
     missing_artifacts = _scenario_missing_artifacts(_read_json(config.missing_artifacts_path), scenario_id, record)
     closure_checklist = _scenario_closure_checklist(_read_json(config.closure_checklist_path), scenario_id, record)
     decision_intake = _scenario_decision_intake(_read_json(config.decision_intake_path), scenario_id, record)
+    source_freshness = _scenario_source_freshness(_read_json(config.source_freshness_path), scenario_id)
+    remote_packet = _scenario_remote_packet(_read_json(config.remote_packet_path), scenario_id)
+    handoff_bundle = _scenario_handoff_bundle(_read_json(config.handoff_bundle_path), scenario_id, remote_packet)
     formal_gate_path = _write_json(work_root / "formal_gate_gap_audit.json", formal_gate)
     missing_artifacts_path = _write_json(work_root / "formal_gate_missing_artifacts.json", missing_artifacts)
     closure_checklist_path = _write_json(work_root / "formal_gate_closure_checklist.json", closure_checklist)
     decision_intake_path = _write_json(work_root / "f02_6_decision_intake.json", decision_intake)
+    source_freshness_path = _write_json(work_root / "source_freshness_audit.json", source_freshness)
+    remote_packet_path = _write_json(work_root / "remote_formal_execution_packet.json", remote_packet)
+    handoff_bundle_path = _write_json(work_root / "formal_gate_handoff_bundle.json", handoff_bundle)
 
     status_report = status_report_builder.build_manifest(
         status_report_builder.FormalGateStatusReportConfig(
@@ -234,12 +240,13 @@ def _run_scenario(*, config: F026TransitionGateAuditConfig, scenario_id: str, wo
             closure_checklist_path=closure_checklist_path,
             decision_record_path=record_path,
             decision_intake_path=decision_intake_path,
-            remote_packet_path=config.remote_packet_path,
+            remote_packet_path=remote_packet_path,
             h01_manifest_path=config.h01_manifest_path,
             h02_acceptance_path=config.h02_acceptance_path,
             claim_safety_path=config.claim_safety_path,
             paper_readiness_path=config.paper_readiness_path,
-            handoff_bundle_path=config.handoff_bundle_path,
+            handoff_bundle_path=handoff_bundle_path,
+            source_freshness_path=source_freshness_path,
         )
     )
     status_report_path = _write_json(work_root / "formal_gate_status_report.json", status_report)
@@ -250,8 +257,8 @@ def _run_scenario(*, config: F026TransitionGateAuditConfig, scenario_id: str, wo
             decision_record_path=record_path,
             formal_gate_path=formal_gate_path,
             status_report_path=status_report_path,
-            source_freshness_path=config.source_freshness_path,
-            remote_packet_path=config.remote_packet_path,
+            source_freshness_path=source_freshness_path,
+            remote_packet_path=remote_packet_path,
             remaining_deliverables_path=config.remaining_deliverables_path,
         )
     )
@@ -284,7 +291,7 @@ def _run_scenario(*, config: F026TransitionGateAuditConfig, scenario_id: str, wo
     remote_safety = remote_safety_builder.build_manifest(
         remote_safety_builder.RemotePacketSafetyAuditConfig(
             output_dir=work_root,
-            remote_packet_path=config.remote_packet_path,
+            remote_packet_path=remote_packet_path,
             decision_gate_audit_path=decision_gate_path,
             post_plan_audit_path=post_plan_audit_path,
         )
