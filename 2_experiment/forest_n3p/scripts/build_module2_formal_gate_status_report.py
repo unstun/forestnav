@@ -738,6 +738,54 @@ def _input_safety_issues(named_payloads: dict[str, dict[str, Any]]) -> list[dict
     return _unique_issues(issues)
 
 
+def _source_freshness_summary(source_freshness: dict[str, Any]) -> dict[str, Any]:
+    commit_lag_summary = (
+        source_freshness.get("commit_lag_summary")
+        if isinstance(source_freshness.get("commit_lag_summary"), dict)
+        else {}
+    )
+    return {
+        "status": source_freshness.get("status"),
+        "regeneration_required_before_remote_formal_execution": source_freshness.get(
+            "regeneration_required_before_remote_formal_execution"
+        ),
+        "records_with_non_self_changed_paths_since_source": commit_lag_summary.get(
+            "records_with_non_self_changed_paths_since_source"
+        ),
+        "records_with_self_artifact_only_lag": commit_lag_summary.get("records_with_self_artifact_only_lag"),
+    }
+
+
+def _source_freshness_ready_for_remote_preflight(source_freshness: dict[str, Any]) -> bool:
+    return (
+        source_freshness.get("status") == "source_freshness_clean_current"
+        and source_freshness.get("regeneration_required_before_remote_formal_execution") is False
+    )
+
+
+def _source_freshness_execution_issues(
+    *,
+    source_freshness: dict[str, Any],
+    remote_packet: dict[str, Any],
+    closure_checklist: dict[str, Any],
+) -> list[dict[str, str]]:
+    if _source_freshness_ready_for_remote_preflight(source_freshness):
+        return []
+    remote_steps = _remote_execution_step_summary(remote_packet)
+    closure_stages = _closure_remote_stage_summary(closure_checklist)
+    remote_allowed = any(bool(step.get("allowed_now")) for step in remote_steps.values()) or any(
+        bool(stage.get("allowed_now")) for stage in closure_stages.values()
+    )
+    if not remote_allowed:
+        return []
+    return [
+        _issue(
+            "source_freshness_blocks_remote_execution",
+            "remote preflight/training cannot be allowed while source freshness requires regeneration.",
+        )
+    ]
+
+
 def _decision_record_safety_issues(decision_record: dict[str, Any]) -> list[dict[str, str]]:
     if not decision_record:
         return [_issue("decision_record_missing", "status report must consume the F02.6 decision record.")]
