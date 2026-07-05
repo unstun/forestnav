@@ -570,6 +570,12 @@ def _issue(issue_id: str, message: str, observed: Any | None = None) -> dict[str
     return issue
 
 
+def _strings(raw: Any) -> list[str]:
+    if not isinstance(raw, list):
+        return []
+    return [str(item) for item in raw if item]
+
+
 def _unique_issues(issues: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
     seen: set[str] = set()
     out: list[dict[str, Any]] = []
