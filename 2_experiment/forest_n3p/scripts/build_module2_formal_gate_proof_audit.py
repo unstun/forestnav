@@ -260,7 +260,7 @@ def _proof_command_results(*, matrix: Sequence[Any], workspace_root: Path) -> li
         artifact_id = str(raw_row.get("artifact_id") or "unknown")
         matrix_id = str(raw_row.get("matrix_id") or f"{category}:{artifact_id}")
         expected_path = str(raw_row.get("expected_path") or "")
-        resolved_path = _resolve_path(workspace_root, expected_path)
+        resolved_paths = _resolve_path_candidates(workspace_root, expected_path)
         raw_commands = raw_row.get("proof_commands")
         commands = raw_commands if isinstance(raw_commands, list) else []
         for raw_command in commands:
@@ -272,7 +272,7 @@ def _proof_command_results(*, matrix: Sequence[Any], workspace_root: Path) -> li
             result = _evaluate_command(
                 command_id=command_id,
                 expected_path=expected_path,
-                resolved_path=resolved_path,
+                resolved_paths=resolved_paths,
                 expected_evidence=str(raw_command.get("expected_evidence") or ""),
             )
             result.update(
@@ -293,7 +293,8 @@ def _proof_command_results(*, matrix: Sequence[Any], workspace_root: Path) -> li
     return results
 
 
-def _evaluate_command(*, command_id: str, expected_path: str, resolved_path: Path, expected_evidence: str) -> dict[str, Any]:
+def _evaluate_command(*, command_id: str, expected_path: str, resolved_paths: Sequence[Path], expected_evidence: str) -> dict[str, Any]:
+    resolved_path = next((path for path in resolved_paths if path.is_file()), resolved_paths[0] if resolved_paths else Path(expected_path))
     if not resolved_path.is_file():
         return {
             "status": "blocked_missing_artifact",
@@ -525,6 +526,12 @@ def _read_json(path: Path) -> dict[str, Any]:
     if not isinstance(data, dict):
         raise ValueError(f"expected object JSON: {path}")
     return data
+
+
+def _resolve_path_candidates(workspace_root: Path, expected_path: str) -> list[Path]:
+    candidates = [item.strip() for item in expected_path.split(" or ") if item.strip()]
+    paths = candidates or [expected_path]
+    return [_resolve_path(workspace_root, path) for path in paths]
 
 
 def _resolve_path(workspace_root: Path, expected_path: str) -> Path:

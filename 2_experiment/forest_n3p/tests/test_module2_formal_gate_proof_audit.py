@@ -153,6 +153,37 @@ def test_formal_gate_proof_audit_accepts_synthetic_complete_pullback(tmp_path):
     assert manifest["proof_command_results_by_id"]["h02_formal_output_acceptance_status"]["status"] == "passed"
 
 
+def test_formal_gate_proof_audit_accepts_sha256_json_candidate(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_proof_audit")
+    _write_complete_pullback(tmp_path)
+    sha256_path = tmp_path / "train" / "checkpoint.sha256"
+    digest = sha256_path.read_text(encoding="utf-8")
+    sha256_path.unlink()
+    (tmp_path / "train" / "checkpoint.sha256.json").write_text(
+        json.dumps({"sha256": digest, "artifact": "final_model.zip"}),
+        encoding="utf-8",
+    )
+    remaining_path = _write_json(tmp_path / "remaining_deliverables.json", _remaining_deliverables(tmp_path))
+
+    manifest = builder.build_manifest(
+        builder.FormalGateProofAuditConfig(
+            output_dir=tmp_path,
+            remaining_deliverables_path=remaining_path,
+            workspace_root=tmp_path,
+        )
+    )
+
+    assert manifest["status"] == "formal_gate_proof_audit_passed"
+    assert (
+        manifest["proof_command_results_by_id"]["pulled_back_checkpoint_hash_record_exists_nonempty"]["status"]
+        == "passed"
+    )
+    assert (
+        manifest["proof_command_results_by_id"]["pulled_back_checkpoint_hash_record_matches_model"]["status"]
+        == "passed"
+    )
+
+
 def test_formal_gate_proof_audit_catches_metadata_failures_without_running_commands(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_proof_audit")
     _write_complete_pullback(tmp_path)
@@ -296,7 +327,11 @@ def _artifact_rows(root: Path):
         ("evaluation", "eval_gate3_summary_json", root / "eval" / "gate3_summary.json"),
         ("acceptance", "gate3_trial_manifest_json", root / "audit" / "gate3_trial_manifest.json"),
         ("acceptance", "gate3_formal_audit_json", root / "audit" / "gate3_formal_audit.json"),
-        ("acceptance", "pulled_back_checkpoint_hash_record", root / "train" / "checkpoint.sha256"),
+        (
+            "acceptance",
+            "pulled_back_checkpoint_hash_record",
+            f"{root / 'train' / 'checkpoint.sha256'} or {root / 'train' / 'checkpoint.sha256.json'}",
+        ),
         ("formal_acceptance", "h01_ready_for_formal_run", root / "h01.json"),
         ("formal_acceptance", "h02_formal_output_acceptance", root / "h02.json"),
     ]
