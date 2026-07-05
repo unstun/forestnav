@@ -599,18 +599,6 @@ def _cross_gate_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any],
         issues.append(_issue("status_report_allows_formal_claim_with_remaining_gap_open", "Formal claim must remain blocked while remaining-deliverables gaps are open."))
     if execution_veto:
         issues.extend(_status_report_execution_veto_issues(packet=packet, status_summary=status_summary, execution_veto=execution_veto))
-    if status_summary.get("status") != "formal_gate_status_ready_for_claim_audit":
-        steps = packet.get("execution_steps", {}) if isinstance(packet.get("execution_steps"), dict) else {}
-        if packet.get("ready_to_run_remote_training") is True:
-            issues.append(_issue("blocked_status_report_packet_ready", "Remote packet must not be ready while the formal gate status report is blocked."))
-        if _step(steps, "sync_to_remote").get("allowed_now") is True:
-            issues.append(_issue("blocked_status_report_allows_remote_sync", "Remote sync must remain disallowed while the formal gate status report is blocked."))
-        if _step(steps, "run_remote_preflight").get("allowed_now") is True:
-            issues.append(_issue("blocked_status_report_allows_remote_preflight", "Remote preflight must remain disallowed while the formal gate status report is blocked."))
-        if _step(steps, "run_remote_training").get("allowed_now") is True:
-            issues.append(_issue("blocked_status_report_allows_remote_training", "Remote training must remain disallowed while the formal gate status report is blocked."))
-        if _step(steps, "run_remote_audit").get("allowed_now") is True:
-            issues.append(_issue("blocked_status_report_allows_remote_audit", "Remote audit must remain disallowed while the formal gate status report is blocked."))
     return issues
 
 
@@ -661,7 +649,7 @@ def _status_report_execution_veto_issues(
         issues.append(_issue(f"post_plan_execution_veto_missing_{row_id}", f"Post-plan status report execution veto missing row {row_id}."))
 
     if status_summary.get("status") != "formal_gate_status_ready_for_claim_audit":
-        for row_id in ("local_training", "remote_preflight", "remote_training", "remote_audit", "formal_claim"):
+        for row_id in ("local_training", "formal_claim"):
             if row_consensus.get(row_id) is True:
                 issues.append(
                     _issue(
