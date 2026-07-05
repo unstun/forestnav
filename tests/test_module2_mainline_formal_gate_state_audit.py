@@ -17,7 +17,7 @@ def _write_json(path: Path, payload: dict) -> Path:
     return path
 
 
-def test_not_applicable_next_action_guard_is_audited_without_type_error(tmp_path: Path) -> None:
+def test_not_applicable_next_action_guard_is_accepted_after_f02_6_closes(tmp_path: Path) -> None:
     mainline = tmp_path / "mainline.md"
     status_report = tmp_path / "formal_gate_status_report.json"
     proof_chain = tmp_path / "formal_gate_proof_summary_chain_audit.json"
@@ -108,7 +108,8 @@ def test_not_applicable_next_action_guard_is_audited_without_type_error(tmp_path
 
     assert manifest["expected_next_action_id"] is None
     assert manifest["expected_next_action_mentioned"] is False
+    assert manifest["status"] == "mainline_formal_gate_state_consistent_blocked"
     issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
-    assert "status_report_next_action_guard_not_passed" in issue_ids
-    assert "status_report_unexpected_next_action" in issue_ids
-    assert "status_report_next_action_guard_execution_leak" in issue_ids
+    assert "status_report_next_action_guard_not_passed" not in issue_ids
+    assert "status_report_unexpected_next_action" not in issue_ids
+    assert "status_report_next_action_guard_execution_leak" not in issue_ids
