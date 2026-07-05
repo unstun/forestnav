@@ -433,10 +433,10 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.extend(
         [
             "",
-        "## Next-Round Requirements",
-        "",
-        "| category | requirement | status | required_before |",
-        "|---|---|---|---|",
+            "## Next-Round Requirements",
+            "",
+            "| category | requirement | status | required_before |",
+            "|---|---|---|---|",
         ]
     )
     for row in manifest["next_round_requirements"]["rows"]:
