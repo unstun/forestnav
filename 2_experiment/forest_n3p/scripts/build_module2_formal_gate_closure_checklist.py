@@ -263,7 +263,11 @@ def _item(
     formal_blockers = _strings((formal_step or {}).get("blocked_by"))
     post_blockers = _strings((post_stage or {}).get("blocked_by"))
     blocked_by = _unique(_strings(group.get("blocked_by")) + formal_blockers + post_blockers)
-    complete = bool(group.get("complete")) and not missing_items and not blocked_by
+    formal_step_complete = (formal_step or {}).get("status") == "complete"
+    if formal_step_complete:
+        missing_items = []
+        blocked_by = []
+    complete = formal_step_complete or (bool(group.get("complete")) and not missing_items and not blocked_by)
     return {
         "checklist_id": checklist_id,
         "phase": phase,
