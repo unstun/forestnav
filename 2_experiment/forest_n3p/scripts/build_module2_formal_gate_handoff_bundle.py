@@ -634,6 +634,15 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.append(
         f"- rejected_route_requires_new_protocol_contract: `{route['rejected_route_requires_new_protocol_contract']}`"
     )
+    lines.extend(["", "## Source Freshness Gate", ""])
+    current_state = manifest["current_state"]
+    for key in (
+        "source_freshness_status",
+        "source_freshness_regeneration_required",
+        "source_freshness_non_self_changed_records",
+        "source_freshness_self_artifact_only_lag_records",
+    ):
+        lines.append(f"- {key}: `{current_state.get(key)}`")
     lines.extend(["", "## Handoff Stages", ""])
     for stage in manifest["handoff_stages"]:
         blockers = ", ".join(stage["blocked_by"]) or "none"
