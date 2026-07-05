@@ -255,6 +255,33 @@ def test_formal_gate_proof_audit_rejects_unsafe_upstream_proof_commands(tmp_path
     assert all(result["command_was_executed"] is False for result in manifest["proof_command_results"])
 
 
+def test_formal_gate_proof_audit_rejects_declared_proof_plan_count_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_proof_audit")
+    _write_complete_pullback(tmp_path)
+    remaining = _remaining_deliverables(tmp_path)
+    remaining["proof_command_plan"]["total_matrix_rows"] = 9
+    remaining["proof_command_plan"]["total_proof_command_count"] = 19
+    remaining["proof_command_plan"]["rows"] = remaining["proof_command_plan"]["rows"][:-1]
+    remaining_path = _write_json(tmp_path / "remaining_deliverables.json", remaining)
+
+    manifest = builder.build_manifest(
+        builder.FormalGateProofAuditConfig(
+            output_dir=tmp_path,
+            remaining_deliverables_path=remaining_path,
+            workspace_root=tmp_path,
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert manifest["status"] == "formal_gate_proof_audit_blocked"
+    assert "proof_audit_input_safety_issues_open" in manifest["blockers"]
+    assert "proof_plan_total_matrix_rows_mismatch" in issue_ids
+    assert "proof_plan_total_proof_command_count_mismatch" in issue_ids
+    assert "proof_plan_rows_count_mismatch" in issue_ids
+    assert manifest["passed_proof_command_count"] == 20
+    assert all(result["command_was_executed"] is False for result in manifest["proof_command_results"])
+
+
 def test_formal_gate_proof_audit_cli_writes_json_and_markdown(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_proof_audit")
     remaining_path = _write_json(tmp_path / "remaining_deliverables.json", _remaining_deliverables(tmp_path))
@@ -285,6 +312,7 @@ def test_formal_gate_proof_audit_cli_writes_json_and_markdown(tmp_path):
     assert "train_final_model_zip_valid_zip" in markdown
     assert "blocked_missing_artifact" in markdown
     assert "command_was_executed" in markdown
+    assert "Input Safety Issues" in markdown
     assert "Current Gate State" in markdown
     assert "Remaining Deliverables Top-Level Summary" in markdown
     assert "missing_counts_by_formal_category" in markdown
