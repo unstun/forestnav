@@ -40,6 +40,7 @@ REMOTE_PACKET_SAFETY_STEP_MAP = {
     "run_remote_audit": ("remote_audit_allowed_now", "remote_audit_blocked_by"),
 }
 CLAIM_GATE_REGENERATION_ARTIFACT_IDS = (
+    "formal_gate_proof_summary_chain_audit",
     "claim_safety",
     "paper_readiness",
 )

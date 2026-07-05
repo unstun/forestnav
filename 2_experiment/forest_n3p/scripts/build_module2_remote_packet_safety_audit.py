@@ -42,6 +42,7 @@ POST_RUN_ACCEPTANCE_REQUIREMENT_IDS = (
     "h01_h02_regenerated_from_audited_checkpoint",
 )
 CLAIM_GATE_REGENERATION_ARTIFACT_IDS = (
+    "formal_gate_proof_summary_chain_audit",
     "claim_safety",
     "paper_readiness",
 )

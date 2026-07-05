@@ -72,6 +72,7 @@ STATUS_REPORT_REMAINING_DELIVERABLE_CATEGORY_IDS = (
     "formal_acceptance",
 )
 STATUS_REPORT_CLAIM_GATE_REGENERATION_ARTIFACT_IDS = (
+    "formal_gate_proof_summary_chain_audit",
     "claim_safety",
     "paper_readiness",
 )

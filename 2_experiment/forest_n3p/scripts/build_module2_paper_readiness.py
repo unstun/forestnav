@@ -115,6 +115,7 @@ CLAIM_SAFETY_DECISION_INTAKE_RECORD_STATUSES = (
     "rejected",
 )
 CLAIM_SAFETY_CLAIM_GATE_REGENERATION_ARTIFACT_IDS = (
+    "formal_gate_proof_summary_chain_audit",
     "claim_safety",
     "paper_readiness",
 )

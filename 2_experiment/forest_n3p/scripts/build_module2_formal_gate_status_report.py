@@ -82,6 +82,7 @@ REMAINING_DELIVERABLE_ACCEPTANCE_MATRIX_IDS = {
     ),
 }
 CLAIM_GATE_REGENERATION_ARTIFACT_IDS = (
+    "formal_gate_proof_summary_chain_audit",
     "claim_safety",
     "paper_readiness",
 )
