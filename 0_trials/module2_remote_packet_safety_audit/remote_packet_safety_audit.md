@@ -3,17 +3,17 @@
 This file audits the remote formal execution packet. It does not execute any command.
 
 - status: `remote_packet_safety_audit_failed`
-- audit_issue_count: `4`
+- audit_issue_count: `1`
 - packet_status: `ready_for_gpu3070ti_remote_training`
 - remote_training_allowed_now: `True`
 - pullback_artifact_count: `7`
 - post_plan_status_report_status: `formal_gate_status_blocked`
 - post_plan_status_report_next_blocked_lane_id: `decision`
 - post_plan_handoff_status: `blocked_handoff_input_safety_issues`
-- post_plan_handoff_remote_training_allowed_now: `False`
+- post_plan_handoff_remote_training_allowed_now: `True`
 - post_plan_execution_veto_present: `True`
-- post_plan_execution_veto_all_rows_consistent: `False`
-- post_plan_execution_veto_remote_training_allowed_now: `False`
+- post_plan_execution_veto_all_rows_consistent: `True`
+- post_plan_execution_veto_remote_training_allowed_now: `True`
 - post_plan_command_index_present: `True`
 - post_plan_command_index_row_count: `23`
 - post_plan_command_index_source_target_count: `23`
@@ -28,10 +28,7 @@ This file audits the remote formal execution packet. It does not execute any com
 
 ## Audit Issues
 
-- `post_plan_execution_veto_rows_inconsistent`: Post-plan status report execution veto matrix must be consistent.
-- `post_plan_execution_veto_mismatch_rows_open`: Post-plan status report execution veto matrix reports mismatch rows.
-- `post_plan_execution_veto_remote_preflight_packet_mismatch`: Post-plan execution veto consensus must match the remote packet allowed_now state.
-- `post_plan_execution_veto_remote_training_packet_mismatch`: Post-plan execution veto consensus must match the remote packet allowed_now state.
+- `blocked_status_report_handoff_allows_training`: Handoff summary must not allow remote training while the status report is blocked.
 
 ## Claim Boundaries
 

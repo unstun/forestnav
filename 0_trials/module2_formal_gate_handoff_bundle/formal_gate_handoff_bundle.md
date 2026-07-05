@@ -21,11 +21,11 @@
 - record_command_template_count: `0`
 - missing_deliverable_count: `10`
 - missing_by_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
-- source_freshness_status: `source_freshness_clean_current`
+- source_freshness_status: `source_freshness_tracked_artifact_lag_only_gate_ready`
 - source_freshness_blocking_regeneration_required: `False`
 - local_training_allowed_now: `False`
-- remote_preflight_allowed_now: `False`
-- remote_training_allowed_now: `False`
+- remote_preflight_allowed_now: `True`
+- remote_training_allowed_now: `True`
 - formal_claim_allowed_now: `False`
 - paper_result_material_allowed_now: `False`
 - approved_route_next_lane: `source_fresh_regeneration`
@@ -70,9 +70,9 @@
 
 ## Source Freshness Gate
 
-- source_freshness_status: `source_freshness_clean_current`
-- source_freshness_regeneration_required: `False`
-- source_freshness_non_self_changed_records: `0`
+- source_freshness_status: `source_freshness_tracked_artifact_lag_only_gate_ready`
+- source_freshness_regeneration_required: `True`
+- source_freshness_non_self_changed_records: `23`
 - source_freshness_self_artifact_only_lag_records: `0`
 
 ## Handoff Stages

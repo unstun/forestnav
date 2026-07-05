@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_f02_6_transition_gate_audit",
   "status": "f02_6_transition_gate_audit_failed",
-  "created_at_utc": "2026-07-05T18:50:51.789787+00:00",
-  "source_head": "dc0f60fc13e12cdef36ee4d5305f5fd0237b8817",
+  "created_at_utc": "2026-07-05T19:04:27.407647+00:00",
+  "source_head": "bc71d8fa820d1a2de675c82bcb9d2049d228e4de",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -124,7 +124,8 @@
           "runs_remote_preflight": false,
           "host": null,
           "blocked_by": [
-            "missing_remote_audit_pullback"
+            "missing_remote_audit_pullback",
+            "source_fresh_h01_h02_targets_open"
           ]
         },
         "regenerate_claim_gate_artifacts": {
@@ -134,12 +135,13 @@
           "runs_remote_preflight": false,
           "host": null,
           "blocked_by": [
-            "h02_formal_acceptance_not_ready"
+            "h02_formal_acceptance_not_ready",
+            "source_fresh_claim_targets_open"
           ]
         }
       },
       "formal_gate_status_report_status": "formal_gate_status_blocked",
-      "formal_gate_status_report_input_safety_issue_count": 17,
+      "formal_gate_status_report_input_safety_issue_count": 16,
       "formal_gate_status_report_permissions_now": {
         "local_training_allowed_now": false,
         "remote_preflight_allowed_now": false,
@@ -148,21 +150,21 @@
       },
       "formal_gate_status_report_next_blocked_lane_id": "decision",
       "post_plan_audit_status": "post_f02_6_plan_audit_failed",
-      "post_plan_audit_issue_count": 15,
+      "post_plan_audit_issue_count": 18,
       "remote_packet_safety_status": "remote_packet_safety_audit_failed",
-      "remote_packet_safety_issue_count": 12,
+      "remote_packet_safety_issue_count": 13,
       "missing_counts_by_category": {
         "decision": 0,
         "decision_gate": 1,
-        "regeneration": 9,
+        "regeneration": 0,
         "gate_sequence": 6,
         "training": 3,
         "evaluation": 2,
         "acceptance": 3,
         "evaluation_acceptance": 2,
-        "claim_gate": 4
+        "claim_gate": 1
       },
-      "closure_open_item_count": 8
+      "closure_open_item_count": 7
     },
     {
       "scenario_id": "approved",
@@ -257,7 +259,8 @@
           "runs_remote_preflight": false,
           "host": null,
           "blocked_by": [
-            "missing_remote_audit_pullback"
+            "missing_remote_audit_pullback",
+            "source_fresh_h01_h02_targets_open"
           ]
         },
         "regenerate_claim_gate_artifacts": {
@@ -267,35 +270,36 @@
           "runs_remote_preflight": false,
           "host": null,
           "blocked_by": [
-            "h02_formal_acceptance_not_ready"
+            "h02_formal_acceptance_not_ready",
+            "source_fresh_claim_targets_open"
           ]
         }
       },
       "formal_gate_status_report_status": "formal_gate_status_blocked",
-      "formal_gate_status_report_input_safety_issue_count": 13,
+      "formal_gate_status_report_input_safety_issue_count": 12,
       "formal_gate_status_report_permissions_now": {
         "local_training_allowed_now": false,
         "remote_preflight_allowed_now": true,
         "remote_training_allowed_now": true,
         "formal_claim_allowed_now": false
       },
-      "formal_gate_status_report_next_blocked_lane_id": "source_fresh_preflight",
+      "formal_gate_status_report_next_blocked_lane_id": "remote_packet_preflight",
       "post_plan_audit_status": "post_f02_6_plan_audit_failed",
-      "post_plan_audit_issue_count": 10,
+      "post_plan_audit_issue_count": 11,
       "remote_packet_safety_status": "remote_packet_safety_audit_failed",
-      "remote_packet_safety_issue_count": 2,
+      "remote_packet_safety_issue_count": 3,
       "missing_counts_by_category": {
         "decision": 0,
         "decision_gate": 1,
-        "regeneration": 9,
+        "regeneration": 0,
         "gate_sequence": 6,
         "training": 3,
         "evaluation": 2,
         "acceptance": 3,
         "evaluation_acceptance": 2,
-        "claim_gate": 4
+        "claim_gate": 1
       },
-      "closure_open_item_count": 7
+      "closure_open_item_count": 6
     },
     {
       "scenario_id": "rejected",
@@ -395,7 +399,8 @@
           "runs_remote_preflight": false,
           "host": null,
           "blocked_by": [
-            "missing_remote_audit_pullback"
+            "missing_remote_audit_pullback",
+            "source_fresh_h01_h02_targets_open"
           ]
         },
         "regenerate_claim_gate_artifacts": {
@@ -405,12 +410,13 @@
           "runs_remote_preflight": false,
           "host": null,
           "blocked_by": [
-            "h02_formal_acceptance_not_ready"
+            "h02_formal_acceptance_not_ready",
+            "source_fresh_claim_targets_open"
           ]
         }
       },
       "formal_gate_status_report_status": "formal_gate_status_blocked",
-      "formal_gate_status_report_input_safety_issue_count": 13,
+      "formal_gate_status_report_input_safety_issue_count": 12,
       "formal_gate_status_report_permissions_now": {
         "local_training_allowed_now": false,
         "remote_preflight_allowed_now": false,
@@ -419,24 +425,24 @@
       },
       "formal_gate_status_report_next_blocked_lane_id": "source_fresh_preflight",
       "post_plan_audit_status": "post_f02_6_plan_audit_failed",
-      "post_plan_audit_issue_count": 11,
+      "post_plan_audit_issue_count": 12,
       "remote_packet_safety_status": "remote_packet_safety_audit_failed",
-      "remote_packet_safety_issue_count": 2,
+      "remote_packet_safety_issue_count": 3,
       "missing_counts_by_category": {
         "decision": 0,
         "decision_gate": 1,
-        "regeneration": 9,
+        "regeneration": 0,
         "gate_sequence": 6,
         "training": 3,
         "evaluation": 2,
         "acceptance": 3,
         "evaluation_acceptance": 2,
-        "claim_gate": 4
+        "claim_gate": 1
       },
-      "closure_open_item_count": 7
+      "closure_open_item_count": 6
     }
   ],
-  "audit_issue_count": 21,
+  "audit_issue_count": 17,
   "audit_issues": [
     {
       "scenario_id": "pending",
@@ -448,13 +454,13 @@
       "scenario_id": "pending",
       "issue_id": "post_plan_audit_issue_count",
       "message": "post_plan_audit_issue_count must be zero.",
-      "observed": 15
+      "observed": 18
     },
     {
       "scenario_id": "pending",
       "issue_id": "remote_packet_safety_issue_count",
       "message": "remote_packet_safety_issue_count must be zero.",
-      "observed": 12
+      "observed": 13
     },
     {
       "scenario_id": "pending",
@@ -490,20 +496,15 @@
     },
     {
       "scenario_id": "approved",
-      "issue_id": "status_report_allows_remote_training",
-      "message": "Synthetic transition must not directly allow formal PPO training."
-    },
-    {
-      "scenario_id": "approved",
       "issue_id": "post_plan_audit_issue_count",
       "message": "post_plan_audit_issue_count must be zero.",
-      "observed": 10
+      "observed": 11
     },
     {
       "scenario_id": "approved",
       "issue_id": "remote_packet_safety_issue_count",
       "message": "remote_packet_safety_issue_count must be zero.",
-      "observed": 2
+      "observed": 3
     },
     {
       "scenario_id": "approved",
@@ -518,32 +519,16 @@
       "observed": "remote_packet_safety_audit_failed"
     },
     {
-      "scenario_id": "approved",
-      "issue_id": "approved_post_plan_wrong_status",
-      "message": "Approved scenario should advance only to local gate regeneration or remain blocked by formal gate preconditions.",
-      "observed": "ready_for_remote_training_packet_execution"
-    },
-    {
-      "scenario_id": "approved",
-      "issue_id": "approved_status_report_allows_remote_preflight_too_early",
-      "message": "Approved decision alone must not bypass remote packet/source freshness."
-    },
-    {
-      "scenario_id": "approved",
-      "issue_id": "approved_training_ready_too_early",
-      "message": "Approved scenario must still block formal PPO training."
-    },
-    {
       "scenario_id": "rejected",
       "issue_id": "post_plan_audit_issue_count",
       "message": "post_plan_audit_issue_count must be zero.",
-      "observed": 11
+      "observed": 12
     },
     {
       "scenario_id": "rejected",
       "issue_id": "remote_packet_safety_issue_count",
       "message": "remote_packet_safety_issue_count must be zero.",
-      "observed": 2
+      "observed": 3
     },
     {
       "scenario_id": "rejected",
@@ -565,13 +550,13 @@
   ],
   "transition_invariants": [
     "pending keeps local training, remote preflight, remote training, remote audit, and formal claim vetoed.",
-    "approved closes only the human decision gate; it may expose source-fresh regeneration, but current remote preflight/training/claim stay blocked until downstream evidence exists.",
+    "approved closes the human decision gate; once source freshness and the remote packet are ready, remote preflight/training may open while audit, H01/H02, claim, and paper-result material stay blocked.",
     "rejected keeps the obstacle-summary warm-start formal path blocked and routes to a stronger/full patch-CNN protocol.",
     "No synthetic scenario writes a real decision, executes commands, runs preflight, trains, audits, pulls back artifacts, or writes paper results."
   ],
   "claim_boundaries": [
     "This audit is a transition-safety check, not Dr Sun's F02.6 decision record.",
-    "A passing approved synthetic scenario is not permission to train; it only proves the post-decision gates do not accidentally open claim or remote training.",
-    "Formal PPO remains gpu3070ti-relay-only after F02.6, source freshness, remote packet readiness, audit, pullback, H01/H02, and claim gates close."
+    "A passing approved synthetic scenario is not a result claim; it only proves the post-decision gates expose the correct remote-training entry without opening audit, H01/H02, or claim lanes.",
+    "Formal PPO remains gpu3070ti-relay-only; local training, formal claims, and paper-result material stay blocked until remote audit, pullback, H01/H02, and claim gates close."
   ]
 }

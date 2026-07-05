@@ -3,7 +3,7 @@
 This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
 - status: `post_f02_6_plan_audit_failed`
-- audit_issue_count: `13`
+- audit_issue_count: `10`
 - executes_commands: `False`
 - runs_training: `False`
 - runs_remote_preflight: `False`
@@ -56,7 +56,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - status: `formal_gate_closure_blocked`
 - runs_training: `False`
 - runs_remote_preflight: `False`
-- open_item_count: `8`
+- open_item_count: `7`
 - input_safety_issue_count: `1`
 
 ## Formal Gate Status Report
@@ -67,7 +67,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - runs_remote_preflight: `False`
 - formal_claim_allowed_now: `False`
 - local_training_allowed_now: `False`
-- input_safety_issue_count: `13`
+- input_safety_issue_count: `12`
 - next_blocked_lane_id: `decision`
 
 ### Remaining Deliverables Gap Summary
@@ -101,20 +101,20 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 ### Status Report Handoff Summary
 
 - status: `blocked_handoff_input_safety_issues`
-- remote_training_allowed_now: `False`
+- remote_training_allowed_now: `True`
 - safety_issue_count: `4`
 
 ### Status Report Execution Veto Matrix
 
 - present: `True`
-- all_rows_consistent: `False`
-- mismatch_rows: `['remote_preflight', 'remote_training', 'remote_audit']`
+- all_rows_consistent: `True`
+- mismatch_rows: `[]`
 
 ### Status Report Remote Execution Steps
 
 - `local_training`: consensus_allowed_now=`False`
-- `remote_preflight`: consensus_allowed_now=`False`
-- `remote_training`: consensus_allowed_now=`False`
+- `remote_preflight`: consensus_allowed_now=`True`
+- `remote_training`: consensus_allowed_now=`True`
 - `remote_audit`: consensus_allowed_now=`False`
 - `formal_claim`: consensus_allowed_now=`False`
 
@@ -129,15 +129,12 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - `missing_artifacts_inventory_has_audit_issues`: Missing-artifacts inventory reports open audit issues.
 - `closure_checklist_has_input_safety_issues`: Closure checklist reports open input safety issues.
 - `formal_gate_status_report_has_input_safety_issues`: Status report reports open input safety issues.
-- `formal_gate_status_report_execution_veto_inconsistent`: Status report execution veto matrix must have all_rows_consistent=true.
-- `formal_gate_status_report_execution_veto_mismatch_rows_open`: Status report execution veto matrix reports mismatch rows.
-- `formal_gate_status_report_execution_veto_permission_mismatch_remote_preflight`: Status report execution veto consensus must match permissions_now.
-- `formal_gate_status_report_execution_veto_permission_mismatch_remote_training`: Status report execution veto consensus must match permissions_now.
 - `remaining_deliverables_unlock_chain_rows_missing_required_blockers`: Unlock chain rows must include every required current blocker while formal deliverables are missing.
 - `remaining_deliverables_unlock_chain_rows_allowed_while_missing`: Unlock chain must not allow responsible stages while their formal deliverables are missing.
 - `plan_remaining_deliverables_unlock_chain_rows_missing_required_blockers`: Unlock chain rows must include every required current blocker while formal deliverables are missing.
 - `plan_remaining_deliverables_unlock_chain_rows_allowed_while_missing`: Unlock chain must not allow responsible stages while their formal deliverables are missing.
 - `plan_remaining_deliverables_unlock_chain_summary_mismatch`: Plan unlock-chain summary must match the remaining-deliverables ledger.
+- `status_report_handoff_training_allowed_while_blocked`: Status report must not show handoff remote training allowed while the formal gate is blocked.
 
 ## Claim Boundaries
 

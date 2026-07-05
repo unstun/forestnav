@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_remote_packet_safety_audit",
   "status": "remote_packet_safety_audit_failed",
-  "created_at_utc": "2026-07-05T18:55:45.038599+00:00",
-  "source_head": "7d4c119d42b501b41b1bfb6ad6fdc3990984c141",
+  "created_at_utc": "2026-07-05T19:04:25.931022+00:00",
+  "source_head": "bc71d8fa820d1a2de675c82bcb9d2049d228e4de",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -85,12 +85,12 @@
       "present": true,
       "status": "blocked_handoff_input_safety_issues",
       "transition_gate_status": "f02_6_transition_gate_audit_failed",
-      "transition_gate_audit_issue_count": 21,
+      "transition_gate_audit_issue_count": 17,
       "next_handoff_action_id": "resolve_decision",
       "next_action_requires_dr_sun": false,
       "safety_issue_count": 4,
-      "remote_training_allowed_now": false,
-      "remote_preflight_allowed_now": false,
+      "remote_training_allowed_now": true,
+      "remote_preflight_allowed_now": true,
       "formal_claim_allowed_now": false,
       "remote_execution_steps": {
         "sync_to_remote": {
@@ -124,17 +124,13 @@
     "post_plan_status_report_execution_veto_summary": {
       "present": true,
       "matrix_version": 1,
-      "all_rows_consistent": false,
-      "mismatch_rows": [
-        "remote_preflight",
-        "remote_training",
-        "remote_audit"
-      ],
+      "all_rows_consistent": true,
+      "mismatch_rows": [],
       "row_count": 5,
       "row_consensus": {
         "local_training": false,
-        "remote_preflight": false,
-        "remote_training": false,
+        "remote_preflight": true,
+        "remote_training": true,
         "remote_audit": false,
         "formal_claim": false
       },
@@ -150,33 +146,29 @@
           }
         },
         "remote_preflight": {
-          "consistent": false,
-          "consensus_allowed_now": false,
+          "consistent": true,
+          "consensus_allowed_now": true,
           "allowed_now_by_source": {
-            "status_report": false,
-            "handoff_bundle": false,
-            "remote_packet": true,
-            "remote_packet_safety": true
+            "status_report": true,
+            "remote_packet": true
           }
         },
         "remote_training": {
-          "consistent": false,
-          "consensus_allowed_now": false,
+          "consistent": true,
+          "consensus_allowed_now": true,
           "allowed_now_by_source": {
             "decision_record": true,
-            "status_report": false,
-            "handoff_bundle": false,
-            "remote_packet": true,
-            "remote_packet_safety": true
+            "status_report": true,
+            "remote_packet": true
           }
         },
         "remote_audit": {
-          "consistent": false,
+          "consistent": true,
           "consensus_allowed_now": false,
           "allowed_now_by_source": {
-            "handoff_bundle": true,
+            "handoff_bundle": false,
             "remote_packet": false,
-            "remote_packet_safety": true
+            "remote_packet_safety": false
           }
         },
         "formal_claim": {
@@ -512,31 +504,11 @@
       "h02_paper_result_input_allowed": false
     }
   },
-  "audit_issue_count": 4,
+  "audit_issue_count": 1,
   "audit_issues": [
     {
-      "issue_id": "post_plan_execution_veto_rows_inconsistent",
-      "message": "Post-plan status report execution veto matrix must be consistent."
-    },
-    {
-      "issue_id": "post_plan_execution_veto_mismatch_rows_open",
-      "message": "Post-plan status report execution veto matrix reports mismatch rows."
-    },
-    {
-      "issue_id": "post_plan_execution_veto_remote_preflight_packet_mismatch",
-      "message": "Post-plan execution veto consensus must match the remote packet allowed_now state.",
-      "observed": {
-        "execution_veto": false,
-        "packet": true
-      }
-    },
-    {
-      "issue_id": "post_plan_execution_veto_remote_training_packet_mismatch",
-      "message": "Post-plan execution veto consensus must match the remote packet allowed_now state.",
-      "observed": {
-        "execution_veto": false,
-        "packet": true
-      }
+      "issue_id": "blocked_status_report_handoff_allows_training",
+      "message": "Handoff summary must not allow remote training while the status report is blocked."
     }
   ],
   "expected_pullback_suffixes": [

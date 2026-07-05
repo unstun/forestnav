@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_plan_audit",
   "status": "post_f02_6_plan_audit_failed",
-  "created_at_utc": "2026-07-05T18:55:44.918991+00:00",
-  "source_head": "7d4c119d42b501b41b1bfb6ad6fdc3990984c141",
+  "created_at_utc": "2026-07-05T19:04:25.825895+00:00",
+  "source_head": "bc71d8fa820d1a2de675c82bcb9d2049d228e4de",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -284,7 +284,7 @@
     "local_training_allowed": false,
     "formal_claim_allowed": false,
     "closure_item_count": 8,
-    "open_item_count": 8,
+    "open_item_count": 7,
     "input_safety_issue_count": 1
   },
   "status_report_summary": {
@@ -298,7 +298,7 @@
     "formal_claim_allowed": false,
     "formal_claim_allowed_now": false,
     "local_training_allowed_now": false,
-    "input_safety_issue_count": 13,
+    "input_safety_issue_count": 12,
     "next_blocked_lane_id": "decision",
     "remote_execution_step_summary": {
       "sync_to_remote": {
@@ -332,12 +332,12 @@
       "present": true,
       "status": "blocked_handoff_input_safety_issues",
       "transition_gate_status": "f02_6_transition_gate_audit_failed",
-      "transition_gate_audit_issue_count": 21,
+      "transition_gate_audit_issue_count": 17,
       "next_handoff_action_id": "resolve_decision",
       "next_action_requires_dr_sun": false,
       "safety_issue_count": 4,
-      "remote_training_allowed_now": false,
-      "remote_preflight_allowed_now": false,
+      "remote_training_allowed_now": true,
+      "remote_preflight_allowed_now": true,
       "formal_claim_allowed_now": false,
       "remote_execution_steps": {
         "sync_to_remote": {
@@ -463,17 +463,13 @@
     "formal_gate_execution_veto_summary": {
       "present": true,
       "matrix_version": 1,
-      "all_rows_consistent": false,
-      "mismatch_rows": [
-        "remote_preflight",
-        "remote_training",
-        "remote_audit"
-      ],
+      "all_rows_consistent": true,
+      "mismatch_rows": [],
       "row_count": 5,
       "row_consensus": {
         "local_training": false,
-        "remote_preflight": false,
-        "remote_training": false,
+        "remote_preflight": true,
+        "remote_training": true,
         "remote_audit": false,
         "formal_claim": false
       },
@@ -489,33 +485,29 @@
           }
         },
         "remote_preflight": {
-          "consistent": false,
-          "consensus_allowed_now": false,
+          "consistent": true,
+          "consensus_allowed_now": true,
           "allowed_now_by_source": {
-            "status_report": false,
-            "handoff_bundle": false,
-            "remote_packet": true,
-            "remote_packet_safety": true
+            "status_report": true,
+            "remote_packet": true
           }
         },
         "remote_training": {
-          "consistent": false,
-          "consensus_allowed_now": false,
+          "consistent": true,
+          "consensus_allowed_now": true,
           "allowed_now_by_source": {
             "decision_record": true,
-            "status_report": false,
-            "handoff_bundle": false,
-            "remote_packet": true,
-            "remote_packet_safety": true
+            "status_report": true,
+            "remote_packet": true
           }
         },
         "remote_audit": {
-          "consistent": false,
+          "consistent": true,
           "consensus_allowed_now": false,
           "allowed_now_by_source": {
-            "handoff_bundle": true,
+            "handoff_bundle": false,
             "remote_packet": false,
-            "remote_packet_safety": true
+            "remote_packet_safety": false
           }
         },
         "formal_claim": {
@@ -723,7 +715,7 @@
     "path": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
     "exists": true
   },
-  "audit_issue_count": 13,
+  "audit_issue_count": 10,
   "audit_issues": [
     {
       "issue_id": "plan_source_regeneration_target_counts_mismatch",
@@ -750,30 +742,6 @@
     {
       "issue_id": "formal_gate_status_report_has_input_safety_issues",
       "message": "Status report reports open input safety issues."
-    },
-    {
-      "issue_id": "formal_gate_status_report_execution_veto_inconsistent",
-      "message": "Status report execution veto matrix must have all_rows_consistent=true."
-    },
-    {
-      "issue_id": "formal_gate_status_report_execution_veto_mismatch_rows_open",
-      "message": "Status report execution veto matrix reports mismatch rows."
-    },
-    {
-      "issue_id": "formal_gate_status_report_execution_veto_permission_mismatch_remote_preflight",
-      "message": "Status report execution veto consensus must match permissions_now.",
-      "observed": {
-        "row_consensus": false,
-        "remote_preflight_allowed_now": true
-      }
-    },
-    {
-      "issue_id": "formal_gate_status_report_execution_veto_permission_mismatch_remote_training",
-      "message": "Status report execution veto consensus must match permissions_now.",
-      "observed": {
-        "row_consensus": false,
-        "remote_training_allowed_now": true
-      }
     },
     {
       "issue_id": "remaining_deliverables_unlock_chain_rows_missing_required_blockers",
@@ -954,6 +922,14 @@
             }
           }
         }
+      }
+    },
+    {
+      "issue_id": "status_report_handoff_training_allowed_while_blocked",
+      "message": "Status report must not show handoff remote training allowed while the formal gate is blocked.",
+      "observed": {
+        "status": "formal_gate_status_blocked",
+        "remote_training_allowed_now": true
       }
     }
   ],

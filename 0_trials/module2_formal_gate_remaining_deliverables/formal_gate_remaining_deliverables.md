@@ -3,7 +3,7 @@
 This ledger is read-only. It lists remaining formal training, evaluation, and acceptance deliverables; it does not execute commands or write paper results.
 
 - status: `formal_gate_deliverables_blocked`
-- source_head: `dc0f60fc13e12cdef36ee4d5305f5fd0237b8817`
+- source_head: `bc71d8fa820d1a2de675c82bcb9d2049d228e4de`
 - missing_deliverable_count: `10`
 - open_category_count: `4`
 - missing_counts_by_formal_category: `{'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 2}`
@@ -16,8 +16,8 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - production_plan_row_count: `10`
 - audit_issue_count: `5`
 - local_training_allowed_now: `False`
-- remote_preflight_allowed_now: `False`
-- remote_training_allowed_now: `False`
+- remote_preflight_allowed_now: `True`
+- remote_training_allowed_now: `True`
 - formal_h01_evaluation_allowed_now: `False`
 - formal_h02_acceptance_allowed_now: `False`
 - formal_claim_allowed_now: `False`
@@ -29,7 +29,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - total_missing_deliverables: `10`
 - open_category_count: `4`
 - local_training_allowed_now: `False`
-- remote_training_allowed_now: `False`
+- remote_training_allowed_now: `True`
 - formal_claim_allowed_now: `False`
 - `training`: missing=`3`, stage=`gate3_remote_training`, stage_allowed_now=`True`, missing_artifacts=`training:train_final_model_zip, training:train_summary_json, training:train_training_manifest_json`, proof_commands=`train_final_model_zip_exists_nonempty, train_final_model_zip_valid_zip, train_summary_json_exists_nonempty, train_summary_json_formal_warm_start_metadata, train_training_manifest_json_exists_nonempty, train_training_manifest_json_provenance`, blocked_by=`source_fresh_preflight_targets_open`
 - `evaluation`: missing=`2`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`evaluation:eval_gate3_eval_episodes_csv, evaluation:eval_gate3_summary_json`, proof_commands=`eval_gate3_eval_episodes_csv_exists_nonempty, eval_gate3_eval_episodes_csv_schema, eval_gate3_summary_json_exists_nonempty, eval_gate3_summary_json_formal_scope`, blocked_by=`remote_training_not_completed`
@@ -40,17 +40,17 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 
 - status_report_status: `formal_gate_status_blocked`
 - next_blocked_lane: `decision`
-- missing_counts_by_category: `{'decision': 0, 'decision_gate': 1, 'regeneration': 9, 'gate_sequence': 6, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 4}`
+- missing_counts_by_category: `{'decision': 0, 'decision_gate': 1, 'regeneration': 0, 'gate_sequence': 6, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'evaluation_acceptance': 2, 'claim_gate': 1}`
 - remote_packet_status: `ready_for_gpu3070ti_remote_training`
 - ready_to_run_remote_training: `True`
 - h01_status: `blocked_protocol_gap`
 - h02_status: `blocked_formal_output_acceptance`
 - h02_formal_output_accepted: `False`
 - h02_paper_result_input_allowed: `False`
-- source_freshness_status: `source_freshness_clean_current`
-- source_freshness_regeneration_required: `False`
+- source_freshness_status: `source_freshness_tracked_artifact_lag_only_gate_ready`
+- source_freshness_regeneration_required: `True`
 - source_freshness_blocking_regeneration_required: `False`
-- source_freshness_non_self_changed_records: `0`
+- source_freshness_non_self_changed_records: `23`
 - source_freshness_self_artifact_only_lag_records: `0`
 - source_freshness_blocking_target_count: `0`
 - source_freshness_blocking_target_ids: `[]`
@@ -58,7 +58,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 ## Source-Freshness Blocking Targets
 
 - summary_id: `module2_source_freshness_blocking_targets_summary`
-- status: `source_freshness_clean_current`
+- status: `source_freshness_tracked_artifact_lag_only_gate_ready`
 - blocking_target_count: `0`
 - remote_readiness_blocking_target_count: `0`
 - remote_readiness_refresh_requires_external_ssh: `False`

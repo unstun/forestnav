@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_mainline_formal_gate_state_audit",
   "status": "mainline_formal_gate_state_audit_failed",
-  "created_at_utc": "2026-07-05T18:50:29.714573+00:00",
-  "source_head": "dc0f60fc13e12cdef36ee4d5305f5fd0237b8817",
+  "created_at_utc": "2026-07-05T19:04:27.635798+00:00",
+  "source_head": "bc71d8fa820d1a2de675c82bcb9d2049d228e4de",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -22,7 +22,7 @@
   "execution_leak_count": 8,
   "next_required_formal_deliverables_status": "blocked_missing_formal_deliverables",
   "total_missing_deliverables": 10,
-  "blocked_category_count": 1,
+  "blocked_category_count": 3,
   "f02_6_decision_evidence_matrix_summary": {
     "present": true,
     "matrix_id": "module2_f02_6_decision_evidence_matrix",
@@ -107,7 +107,7 @@
       "mentioned": true,
       "mentioned_in_current_section": true,
       "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_allowed_now": true
+      "responsible_stage_allowed_now": false
     },
     {
       "matrix_id": "evaluation:eval_gate3_summary_json",
@@ -117,7 +117,7 @@
       "mentioned": true,
       "mentioned_in_current_section": true,
       "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_allowed_now": true
+      "responsible_stage_allowed_now": false
     },
     {
       "matrix_id": "acceptance:gate3_trial_manifest_json",
@@ -127,7 +127,7 @@
       "mentioned": true,
       "mentioned_in_current_section": true,
       "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_allowed_now": true
+      "responsible_stage_allowed_now": false
     },
     {
       "matrix_id": "acceptance:gate3_formal_audit_json",
@@ -137,7 +137,7 @@
       "mentioned": true,
       "mentioned_in_current_section": true,
       "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_allowed_now": true
+      "responsible_stage_allowed_now": false
     },
     {
       "matrix_id": "acceptance:pulled_back_checkpoint_hash_record",
@@ -147,7 +147,7 @@
       "mentioned": true,
       "mentioned_in_current_section": true,
       "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_allowed_now": true
+      "responsible_stage_allowed_now": false
     },
     {
       "matrix_id": "formal_acceptance:h01_ready_for_formal_run",
@@ -209,7 +209,7 @@
       "mentioned": true,
       "mentioned_in_current_section": true,
       "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_allowed_now": true
+      "responsible_stage_allowed_now": false
     },
     "evaluation:eval_gate3_summary_json": {
       "matrix_id": "evaluation:eval_gate3_summary_json",
@@ -219,7 +219,7 @@
       "mentioned": true,
       "mentioned_in_current_section": true,
       "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_allowed_now": true
+      "responsible_stage_allowed_now": false
     },
     "acceptance:gate3_trial_manifest_json": {
       "matrix_id": "acceptance:gate3_trial_manifest_json",
@@ -229,7 +229,7 @@
       "mentioned": true,
       "mentioned_in_current_section": true,
       "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_allowed_now": true
+      "responsible_stage_allowed_now": false
     },
     "acceptance:gate3_formal_audit_json": {
       "matrix_id": "acceptance:gate3_formal_audit_json",
@@ -239,7 +239,7 @@
       "mentioned": true,
       "mentioned_in_current_section": true,
       "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_allowed_now": true
+      "responsible_stage_allowed_now": false
     },
     "acceptance:pulled_back_checkpoint_hash_record": {
       "matrix_id": "acceptance:pulled_back_checkpoint_hash_record",
@@ -249,7 +249,7 @@
       "mentioned": true,
       "mentioned_in_current_section": true,
       "responsible_stage_id": "gate3_remote_audit_pullback",
-      "responsible_stage_allowed_now": true
+      "responsible_stage_allowed_now": false
     },
     "formal_acceptance:h01_ready_for_formal_run": {
       "matrix_id": "formal_acceptance:h01_ready_for_formal_run",
@@ -273,7 +273,7 @@
     }
   },
   "proof_summary_chain_status": "formal_gate_proof_summary_chain_audit_failed",
-  "proof_summary_chain_audit_issue_count": 11,
+  "proof_summary_chain_audit_issue_count": 10,
   "proof_summary_chain_proof_audit_input_safety_issue_count": 0,
   "proof_summary_chain_proof_audit_blockers": [
     "missing_formal_training_artifacts",
@@ -283,15 +283,15 @@
   ],
   "proof_summary_next_action_guard_consistency": {
     "row_count": 3,
-    "consistent_row_count": 3
+    "consistent_row_count": 1
   },
   "proof_summary_next_required_deliverables_consistency": {
     "row_count": 3,
-    "consistent_row_count": 3
+    "consistent_row_count": 1
   },
   "proof_summary_handoff_single_next_action_consistency": {
     "row_count": 3,
-    "consistent_row_count": 3
+    "consistent_row_count": 1
   },
   "current_boundary_tokens": [
     {
@@ -345,7 +345,7 @@
       "mentioned": false
     }
   ],
-  "audit_issue_count": 2,
+  "audit_issue_count": 5,
   "audit_issues": [
     {
       "issue_id": "mainline_missing_proof_chain_status",
@@ -355,7 +355,25 @@
     {
       "issue_id": "proof_summary_chain_has_audit_issues",
       "message": "Mainline task-book state should only mirror a clean proof-summary chain.",
-      "audit_issue_count": 11
+      "audit_issue_count": 10
+    },
+    {
+      "issue_id": "proof_summary_chain_next_action_guard_inconsistent",
+      "message": "Proof-summary chain must agree on the next-action guard before mainline mirrors it.",
+      "row_count": 3,
+      "consistent_row_count": 1
+    },
+    {
+      "issue_id": "proof_summary_chain_next_required_deliverables_inconsistent",
+      "message": "Proof-summary chain must agree on next required formal deliverables before mainline mirrors them.",
+      "row_count": 3,
+      "consistent_row_count": 1
+    },
+    {
+      "issue_id": "proof_summary_chain_handoff_single_next_action_inconsistent",
+      "message": "Proof-summary chain must agree on the handoff single-next-action index before mainline mirrors it.",
+      "row_count": 3,
+      "consistent_row_count": 1
     }
   ],
   "claim_boundaries": [
