@@ -237,6 +237,30 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert proof_audit["category_status_counts"]["training"]["blocked_missing_artifact"] == 6
     assert proof_audit["category_status_counts"]["formal_acceptance"]["failed"] == 2
     assert proof_audit["results_by_id"]["h02_formal_output_acceptance_schema"]["status"] == "failed"
+    assert proof_audit["remaining_deliverables_top_level_summary"]["missing_counts_by_formal_category"] == {
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 2,
+    }
+    proof_deliverables = manifest["formal_gate_proof_audit_remaining_deliverables_top_level_summary"]
+    assert proof_deliverables["present"] is True
+    assert proof_deliverables["missing_counts_by_formal_category"] == {
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 2,
+    }
+    assert proof_deliverables["missing_matrix_ids_by_formal_category"]["training"] == [
+        "training:train_final_model_zip",
+        "training:train_summary_json",
+        "training:train_training_manifest_json",
+    ]
+    assert proof_deliverables["next_blocked_lane"] == "decision"
+    assert proof_deliverables["h01_status"] == "blocked_pending_decisions"
+    assert proof_deliverables["h02_status"] == "blocked_formal_output_acceptance"
+    assert proof_deliverables["h02_formal_output_accepted"] is False
+    assert proof_deliverables["h02_paper_result_input_allowed"] is False
     proof_gap = manifest["formal_gate_proof_audit_gap_summary"]
     assert proof_gap["present"] is True
     assert proof_gap["status"] == "formal_gate_proof_audit_blocked"
@@ -360,6 +384,14 @@ def test_formal_gate_status_report_accepts_synthetic_complete_chain(tmp_path):
     assert manifest["formal_gate_proof_audit_summary"]["status"] == "formal_gate_proof_audit_passed"
     assert manifest["formal_gate_proof_audit_summary"]["passed_proof_command_count"] == 20
     assert manifest["formal_gate_proof_audit_summary"]["blocked_proof_command_count"] == 0
+    assert manifest["formal_gate_proof_audit_remaining_deliverables_top_level_summary"][
+        "missing_counts_by_formal_category"
+    ] == {
+        "training": 0,
+        "evaluation": 0,
+        "acceptance": 0,
+        "formal_acceptance": 0,
+    }
     assert manifest["formal_gate_proof_audit_gap_summary"]["missing_artifact_count"] == 0
     assert manifest["formal_gate_proof_audit_gap_summary"]["failed_acceptance_artifact_count"] == 0
     assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 0
@@ -906,6 +938,8 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
     assert "source_freshness_status" in markdown
     assert "missing_artifact_count=`8`" in markdown
     assert "formal_gate_proof_audit_blocked" in markdown
+    assert "remaining_missing_counts_by_formal_category" in markdown
+    assert "remaining_formal_acceptance_missing_matrix_ids" in markdown
     assert "training:train_final_model_zip" in markdown
     assert "decision_owner_required" in markdown
     assert "decision_note_required" in markdown
@@ -1559,6 +1593,21 @@ def _remaining_deliverables(*, complete):
         "formal_claim_allowed": False,
         "missing_deliverable_count": 0 if complete else len(matrix),
         "category_counts": category_counts,
+        "missing_counts_by_formal_category": {
+            category: 0 if complete else len(artifact_ids)
+            for category, artifact_ids in category_artifacts.items()
+        },
+        "missing_matrix_ids_by_formal_category": {
+            category: []
+            if complete
+            else [f"{category}:{artifact_id}" for artifact_id in artifact_ids]
+            for category, artifact_ids in category_artifacts.items()
+        },
+        "next_blocked_lane": None if complete else "decision",
+        "h01_status": "ready_for_formal_run" if complete else "blocked_pending_decisions",
+        "h02_status": "formal_output_accepted" if complete else "blocked_formal_output_acceptance",
+        "h02_formal_output_accepted": complete,
+        "h02_paper_result_input_allowed": complete,
         "permissions_now": {
             "local_training_allowed_now": False,
             "remote_preflight_allowed_now": complete,
@@ -1619,6 +1668,7 @@ def _remaining_deliverable_proof_command_plan(matrix):
 
 def _formal_gate_proof_audit(*, complete):
     matrix = _remaining_deliverables(complete=complete)["deliverable_acceptance_matrix"]
+    remaining = _remaining_deliverables(complete=complete)
     results = []
     for row in matrix:
         for command in row["proof_commands"]:
@@ -1680,6 +1730,16 @@ def _formal_gate_proof_audit(*, complete):
         ],
         "input_safety_issue_count": 0,
         "input_safety_issues": [],
+        "remaining_deliverables_top_level_summary": {
+            "present": True,
+            "missing_counts_by_formal_category": remaining["missing_counts_by_formal_category"],
+            "missing_matrix_ids_by_formal_category": remaining["missing_matrix_ids_by_formal_category"],
+            "next_blocked_lane": remaining["next_blocked_lane"],
+            "h01_status": remaining["h01_status"],
+            "h02_status": remaining["h02_status"],
+            "h02_formal_output_accepted": remaining["h02_formal_output_accepted"],
+            "h02_paper_result_input_allowed": remaining["h02_paper_result_input_allowed"],
+        },
         "proof_command_results": results,
         "proof_command_results_by_id": {result["command_id"]: result for result in results},
         "formal_gate_missing_evidence_summary": _formal_gate_missing_evidence_summary(results),
