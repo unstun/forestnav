@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_regeneration_plan",
   "status": "blocked_until_f02_6_decision",
-  "created_at_utc": "2026-07-05T08:32:20.065020+00:00",
-  "source_head": "cd50821ab8cf8ffdd5a7d88a22a315bef10ccfc1",
+  "created_at_utc": "2026-07-05T09:03:37.759824+00:00",
+  "source_head": "52259b91424d11c535d7cdf8fe3053359a675baf",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -168,7 +168,7 @@
       {
         "artifact_id": "formal_gate_gap_audit",
         "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
-        "freshness_state": "historical_dirty"
+        "freshness_state": "historical_clean"
       },
       {
         "artifact_id": "formal_gate_handoff_bundle",
@@ -183,12 +183,12 @@
       {
         "artifact_id": "post_f02_6_plan_audit",
         "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
-        "freshness_state": "historical_dirty"
+        "freshness_state": "historical_clean"
       },
       {
         "artifact_id": "post_f02_6_regeneration_plan",
         "path": "0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json",
-        "freshness_state": "historical_dirty"
+        "freshness_state": "historical_clean"
       },
       {
         "artifact_id": "remote_formal_execution_packet",
@@ -198,7 +198,7 @@
       {
         "artifact_id": "remote_packet_safety_audit",
         "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
-        "freshness_state": "historical_dirty"
+        "freshness_state": "historical_clean"
       }
     ],
     "formal_h01_h02": [
@@ -242,7 +242,7 @@
       {
         "artifact_id": "formal_gate_status_report",
         "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
-        "freshness_state": "historical_dirty"
+        "freshness_state": "historical_clean"
       },
       {
         "artifact_id": "mainline_formal_gate_state_audit",
@@ -252,7 +252,7 @@
       {
         "artifact_id": "paper_readiness",
         "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
-        "freshness_state": "historical_dirty"
+        "freshness_state": "historical_clean"
       }
     ]
   },
@@ -314,7 +314,7 @@
     {
       "artifact_id": "formal_gate_gap_audit",
       "required_before": "approved_remote_preflight",
-      "freshness_state": "historical_dirty",
+      "freshness_state": "historical_clean",
       "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
       "stage_id": "regenerate_preflight_gate_artifacts",
       "command_kind": "known_builder",
@@ -341,7 +341,7 @@
     {
       "artifact_id": "post_f02_6_plan_audit",
       "required_before": "approved_remote_preflight",
-      "freshness_state": "historical_dirty",
+      "freshness_state": "historical_clean",
       "path": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json",
       "stage_id": "regenerate_preflight_gate_artifacts",
       "command_kind": "known_builder",
@@ -350,7 +350,7 @@
     {
       "artifact_id": "post_f02_6_regeneration_plan",
       "required_before": "approved_remote_preflight",
-      "freshness_state": "historical_dirty",
+      "freshness_state": "historical_clean",
       "path": "0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json",
       "stage_id": "regenerate_preflight_gate_artifacts",
       "command_kind": "known_builder",
@@ -368,7 +368,7 @@
     {
       "artifact_id": "remote_packet_safety_audit",
       "required_before": "approved_remote_preflight",
-      "freshness_state": "historical_dirty",
+      "freshness_state": "historical_clean",
       "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
       "stage_id": "regenerate_preflight_gate_artifacts",
       "command_kind": "known_builder",
@@ -440,7 +440,7 @@
     {
       "artifact_id": "formal_gate_status_report",
       "required_before": "formal_claim_gate",
-      "freshness_state": "historical_dirty",
+      "freshness_state": "historical_clean",
       "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
       "stage_id": "regenerate_claim_gate_artifacts",
       "command_kind": "known_builder",
@@ -458,7 +458,7 @@
     {
       "artifact_id": "paper_readiness",
       "required_before": "formal_claim_gate",
-      "freshness_state": "historical_dirty",
+      "freshness_state": "historical_clean",
       "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
       "stage_id": "regenerate_claim_gate_artifacts",
       "command_kind": "known_builder",
