@@ -17,6 +17,7 @@ DEFAULT_STATUS_REPORT = Path("0_trials/module2_formal_gate_status_report/formal_
 DEFAULT_REMOTE_PACKET = Path("0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json")
 DEFAULT_MISSING_ARTIFACTS = Path("0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json")
 DEFAULT_H02_ACCEPTANCE = Path("0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json")
+DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_freshness_audit.json")
 REMOTE_STEP_IDS = ("sync_to_remote", "run_remote_preflight", "run_remote_training", "run_remote_audit")
 FORMAL_STAGE_IDS = (
     "f02_6_decision_record",
@@ -42,6 +43,7 @@ class FormalGateHandoffBundleConfig:
     remote_packet_path: Path = DEFAULT_REMOTE_PACKET
     missing_artifacts_path: Path = DEFAULT_MISSING_ARTIFACTS
     h02_acceptance_path: Path = DEFAULT_H02_ACCEPTANCE
+    source_freshness_path: Path = DEFAULT_SOURCE_FRESHNESS
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -57,6 +59,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         remote_packet_path=args.remote_packet,
         missing_artifacts_path=args.missing_artifacts,
         h02_acceptance_path=args.h02_acceptance,
+        source_freshness_path=args.source_freshness,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -85,10 +88,12 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
     remote_packet = _read_json(config.remote_packet_path)
     missing_artifacts = _read_json(config.missing_artifacts_path)
     h02_acceptance = _read_json(config.h02_acceptance_path)
+    source_freshness = _read_json(config.source_freshness_path)
 
     stages = _handoff_stages(post_plan)
     remote_steps = _remote_steps(remote_packet)
     route_summary = _f02_6_route_handoff_summary(status_report)
+    source_freshness_summary = _source_freshness_summary(source_freshness)
     safety_issues = _safety_issues(
         decision=decision,
         transition_gate=transition_gate,
@@ -97,11 +102,18 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
         remote_packet=remote_packet,
         missing_artifacts=missing_artifacts,
         h02_acceptance=h02_acceptance,
+        source_freshness=source_freshness,
         stages=stages,
         remote_steps=remote_steps,
         route_summary=route_summary,
     )
-    status = _status(decision=decision, status_report=status_report, remote_packet=remote_packet, safety_issues=safety_issues)
+    permissions = _permissions(status_report, source_freshness=source_freshness)
+    status = _status(
+        decision=decision,
+        permissions=permissions,
+        remote_packet=remote_packet,
+        safety_issues=safety_issues,
+    )
     return {
         "schema_version": 1,
         "artifact_name": "module2_formal_gate_handoff_bundle",
@@ -122,6 +134,7 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
             "remote_formal_execution_packet": str(config.remote_packet_path),
             "formal_gate_missing_artifacts": str(config.missing_artifacts_path),
             "h02_formal_acceptance": str(config.h02_acceptance_path),
+            "source_freshness_audit": str(config.source_freshness_path),
         },
         "current_state": {
             "decision_status": decision.get("status"),
@@ -137,8 +150,9 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
             "h02_formal_output_accepted": bool(h02_acceptance.get("formal_output_accepted")),
             "h02_paper_result_input_allowed": bool(h02_acceptance.get("paper_result_input_allowed")),
             "next_blocked_lane": _next_blocked_lane_id(status_report),
+            **source_freshness_summary,
         },
-        "permissions_now": _permissions(status_report),
+        "permissions_now": permissions,
         "next_handoff_action": _next_handoff_action(decision=decision, status_report=status_report),
         "f02_6_route_handoff_summary": route_summary,
         "remaining_deliverables_gap_summary": _remaining_deliverables_gap_summary(status_report),
@@ -171,13 +185,14 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--remote-packet", type=Path, default=DEFAULT_REMOTE_PACKET)
     parser.add_argument("--missing-artifacts", type=Path, default=DEFAULT_MISSING_ARTIFACTS)
     parser.add_argument("--h02-acceptance", type=Path, default=DEFAULT_H02_ACCEPTANCE)
+    parser.add_argument("--source-freshness", type=Path, default=DEFAULT_SOURCE_FRESHNESS)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
 def _status(
     *,
     decision: dict[str, Any],
-    status_report: dict[str, Any],
+    permissions: dict[str, bool],
     remote_packet: dict[str, Any],
     safety_issues: Sequence[dict[str, str]],
 ) -> str:
@@ -185,7 +200,6 @@ def _status(
         return "blocked_handoff_input_safety_issues"
     if decision.get("status") == "pending_human_decision":
         return "blocked_until_f02_6_decision"
-    permissions = _permissions(status_report)
     if permissions.get("remote_training_allowed_now") is True and remote_packet.get("ready_to_run_remote_training") is True:
         return "ready_for_manual_remote_execution_review"
     return "blocked_formal_gate_handoff"
@@ -241,6 +255,7 @@ def _safety_issues(
     remote_packet: dict[str, Any],
     missing_artifacts: dict[str, Any],
     h02_acceptance: dict[str, Any],
+    source_freshness: dict[str, Any],
     stages: Sequence[dict[str, Any]],
     remote_steps: dict[str, dict[str, Any]],
     route_summary: dict[str, Any],
@@ -253,6 +268,7 @@ def _safety_issues(
         ("status_report", status_report),
         ("missing_artifacts", missing_artifacts),
         ("h02_acceptance", h02_acceptance),
+        ("source_freshness", source_freshness),
     ):
         if artifact.get("executes_commands") is True:
             issues.append(_issue(f"{name}_executes_commands", f"{name} must remain read-only"))
@@ -265,7 +281,7 @@ def _safety_issues(
         if artifact.get("formal_claim_allowed") is True:
             issues.append(_issue(f"{name}_allows_formal_claim", f"{name} must not allow formal claims"))
 
-    permissions = _permissions(status_report)
+    permissions = _permissions(status_report, source_freshness=source_freshness)
     pending = decision.get("status") == "pending_human_decision"
     if pending:
         for step_id, step in remote_steps.items():
@@ -275,6 +291,17 @@ def _safety_issues(
         issues.append(_issue("status_report_allows_local_training", "local training is forbidden for formal PPO"))
     if permissions.get("remote_training_allowed_now") is True and remote_packet.get("ready_to_run_remote_training") is not True:
         issues.append(_issue("status_report_allows_training_without_ready_packet", "remote training needs a ready remote packet"))
+    if not _source_freshness_ready_for_remote_preflight(source_freshness) and _remote_execution_allowed(
+        remote_steps=remote_steps,
+        stages=stages,
+        status_permissions=status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {},
+    ):
+        issues.append(
+            _issue(
+                "source_freshness_blocks_remote_execution",
+                "remote preflight/training cannot be allowed while source freshness requires regeneration",
+            )
+        )
     issues.extend(_remaining_gap_issues(post_plan=post_plan, status_report=status_report))
 
     for stage in stages:
