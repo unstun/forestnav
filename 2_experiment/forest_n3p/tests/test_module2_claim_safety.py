@@ -1490,7 +1490,7 @@ def _status_report_command_index_summary():
             "command_kind": "known_builder",
             "command_template": f"PYTHONPATH=2_experiment python -m builder_{index}",
         }
-        for index in range(16)
+        for index in range(17)
     }
     rows["claim_safety"] = {
         "stage_id": "regenerate_claim_gate_artifacts",
