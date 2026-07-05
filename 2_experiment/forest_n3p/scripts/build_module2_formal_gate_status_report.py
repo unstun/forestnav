@@ -1415,6 +1415,37 @@ def _decision_intake_safety_issues(decision_intake: dict[str, Any]) -> list[dict
                     "F02.6 decision impact summary must list every pre-training gate still required.",
                 )
             )
+    if summary["decision_evidence_matrix_present"] is not True:
+        issues.append(_issue("decision_intake_evidence_matrix_missing", "F02.6 intake must expose the packet decision evidence matrix summary."))
+    if summary["decision_evidence_matrix_id"] != "module2_f02_6_decision_evidence_matrix":
+        issues.append(_issue("decision_intake_evidence_matrix_id_invalid", "F02.6 decision evidence matrix id is invalid."))
+    if summary["decision_evidence_matrix_status"] != "ready_for_dr_sun_decision_not_authorization":
+        issues.append(_issue("decision_intake_evidence_matrix_status_invalid", "F02.6 decision evidence matrix must be ready for decision but not authorization."))
+    if summary["decision_evidence_matrix_route_count"] != 2:
+        issues.append(_issue("decision_intake_evidence_matrix_route_count_invalid", "F02.6 decision evidence matrix must include approve and reject routes."))
+    if not expected_decisions.issubset(set(summary["decision_evidence_matrix_route_decisions"])):
+        issues.append(_issue("decision_intake_evidence_matrix_route_decisions_incomplete", "F02.6 decision evidence matrix must include approve and reject decisions."))
+    if summary["decision_evidence_matrix_required_evidence_count"] < 7:
+        issues.append(_issue("decision_intake_evidence_matrix_required_evidence_incomplete", "F02.6 decision evidence matrix must preserve the current seven evidence rows."))
+    if summary["decision_evidence_matrix_missing_required_evidence_count"] != 0:
+        issues.append(_issue("decision_intake_evidence_matrix_missing_required_evidence", "F02.6 decision evidence matrix must not have missing evidence."))
+    if summary["decision_evidence_matrix_global_invalid_substitute_count"] == 0:
+        issues.append(_issue("decision_intake_evidence_matrix_invalid_substitutes_missing", "F02.6 decision evidence matrix must list invalid substitutes."))
+    for field in (
+        "decision_evidence_matrix_current_authorization_allowed_now",
+        "decision_evidence_matrix_remote_preflight_allowed_now",
+        "decision_evidence_matrix_remote_training_allowed_now",
+        "decision_evidence_matrix_local_training_allowed_now",
+        "decision_evidence_matrix_formal_claim_allowed_now",
+        "decision_evidence_matrix_paper_result_material_allowed_now",
+    ):
+        if summary[field] is not False:
+            issues.append(
+                _issue(
+                    f"decision_intake_{field}_not_false",
+                    "F02.6 decision evidence matrix must not authorize execution or result material.",
+                )
+            )
     record_status = summary["record_status"]
     if record_status == "pending_human_decision":
         if summary["next_blocked_lane"] != "decision":
