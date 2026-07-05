@@ -239,6 +239,72 @@ def _decision_intake_contract(gate_audit: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _next_human_decision_request(
+    *,
+    current_state: dict[str, Any],
+    decision_intake_contract: dict[str, Any],
+    post_decision_route_matrix: list[dict[str, Any]],
+) -> dict[str, Any]:
+    route_by_decision = {
+        str(route["decision"]): route
+        for route in post_decision_route_matrix
+        if isinstance(route, dict) and route.get("decision")
+    }
+    valid_decisions = _strings(decision_intake_contract.get("valid_decisions"))
+    return {
+        "status": "awaiting_dr_sun_decision"
+        if current_state.get("record_status") == "pending_human_decision"
+        else "decision_recorded",
+        "decision_owner_required": decision_intake_contract.get("decision_owner_required"),
+        "valid_decisions": valid_decisions,
+        "required_record_fields": _strings(
+            decision_intake_contract.get("required_record_fields_for_non_pending_decision")
+        ),
+        "current_allowed_action_ids": _strings(current_state.get("packet_current_allowed_action_ids")),
+        "current_blocked_action_ids": _strings(current_state.get("packet_current_blocked_action_ids")),
+        "post_decision_routes_are_current_authorization": current_state.get(
+            "packet_post_decision_routes_are_current_authorization"
+        )
+        is True,
+        "all_execution_disabled_now": all(
+            current_state.get(key) is False
+            for key in (
+                "packet_remote_preflight_allowed_now",
+                "packet_remote_training_allowed_now",
+                "packet_local_training_allowed_now",
+                "packet_formal_claim_allowed_now",
+                "packet_paper_result_material_allowed_now",
+                "status_report_remote_preflight_allowed_now",
+                "status_report_remote_training_allowed_now",
+                "status_report_local_training_allowed_now",
+                "status_report_formal_claim_allowed_now",
+                "remaining_remote_preflight_allowed_now",
+                "remaining_remote_training_allowed_now",
+                "remaining_local_training_allowed_now",
+                "remaining_formal_claim_allowed_now",
+            )
+        ),
+        "route_effects": {
+            decision: {
+                "next_lane_after_record": route_by_decision.get(decision, {}).get("next_lane_after_record"),
+                "allows_remote_preflight_now": route_by_decision.get(decision, {}).get(
+                    "allows_remote_preflight_now"
+                ),
+                "allows_remote_training_now": route_by_decision.get(decision, {}).get(
+                    "allows_remote_training_now"
+                ),
+                "allows_formal_claim_now": route_by_decision.get(decision, {}).get(
+                    "allows_formal_claim_now"
+                ),
+                "required_next_artifacts": _strings(
+                    route_by_decision.get(decision, {}).get("required_next_artifacts")
+                ),
+            }
+            for decision in valid_decisions
+        },
+    }
+
+
 def _post_decision_non_authorizations() -> list[dict[str, Any]]:
     return [
         {
