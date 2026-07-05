@@ -139,6 +139,23 @@
 - claim_safety_remote_packet_safety_command_index_source_target_count: `22`
 - claim_safety_remote_packet_safety_command_index_missing_target_count: `0`
 
+## Claim Safety Next-Action Guard
+
+- claim_safety_next_action_guard_present: `True`
+- claim_safety_next_action_guard_status: `next_action_guard_passed`
+- claim_safety_next_action_guard_expected_next_action_id: `record_f02_6_decision`
+- claim_safety_next_action_guard_all_execution_disabled_now: `True`
+- claim_safety_next_action_guard_execution_leak_count: `0`
+- claim_safety_next_action_guard_violation_count: `0`
+
+## Claim Safety Next Required Formal Deliverables
+
+- claim_safety_next_required_formal_deliverables_present: `True`
+- claim_safety_next_required_formal_deliverables_status: `blocked_missing_formal_deliverables`
+- claim_safety_next_required_formal_deliverables_total_missing: `10`
+- claim_safety_next_required_formal_deliverables_blocked_category_count: `4`
+- claim_safety_next_required_formal_deliverables_row_count: `10`
+
 ## Section Readiness
 
 ### method_algorithm
