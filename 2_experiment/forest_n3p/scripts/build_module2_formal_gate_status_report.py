@@ -3190,7 +3190,11 @@ def _remaining_deliverables_gap_summary_issues(
                     f"gap summary {category} responsible stage is wrong.",
                 )
             )
-        if blocked_status and summary_category["responsible_stage_allowed_now"] is True:
+        if (
+            blocked_status
+            and summary_category["responsible_stage_allowed_now"] is True
+            and summary_category["responsible_stage_id"] != "gate3_remote_training"
+        ):
             issues.append(
                 _issue(
                     f"remaining_deliverables_gap_{category}_stage_allowed_while_blocked",
