@@ -335,6 +335,134 @@ def _remote_steps(remote_packet: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return out
 
 
+def _protocol_lane_status_summary(protocol_lane_status: dict[str, Any]) -> dict[str, Any]:
+    current = (
+        protocol_lane_status.get("current_status")
+        if isinstance(protocol_lane_status.get("current_status"), dict)
+        else {}
+    )
+    return {
+        "present": bool(protocol_lane_status),
+        "status": str(protocol_lane_status.get("status") or ""),
+        "audit_issue_count": int(protocol_lane_status.get("audit_issue_count") or 0),
+        "not_paper_result_material": protocol_lane_status.get("not_paper_result_material"),
+        "executes_commands": protocol_lane_status.get("executes_commands"),
+        "runs_training": protocol_lane_status.get("runs_training"),
+        "runs_remote_preflight": protocol_lane_status.get("runs_remote_preflight"),
+        "local_training_allowed": protocol_lane_status.get("local_training_allowed"),
+        "formal_claim_allowed": protocol_lane_status.get("formal_claim_allowed"),
+        "paper_result_material_allowed": protocol_lane_status.get("paper_result_material_allowed"),
+        "next_blocked_lane": str(current.get("next_blocked_lane") or ""),
+        "decision_record_status": str(current.get("decision_record_status") or ""),
+        "selected_lane_id": current.get("selected_lane_id"),
+        "lane_count": int(current.get("lane_count") or 0),
+        "contract_drafting_allowed_now": bool(current.get("contract_drafting_allowed_now")),
+        "contract_approval_allowed_now": bool(current.get("contract_approval_allowed_now")),
+        "draft_contract_allows_training": bool(current.get("draft_contract_allows_training")),
+        "allowed_next_action_ids": _strings(current.get("allowed_next_action_ids")),
+        "blocked_action_ids": _strings(current.get("blocked_action_ids")),
+        "local_training_allowed_now": bool(current.get("local_training_allowed_now")),
+        "remote_training_allowed_now": bool(current.get("remote_training_allowed_now")),
+        "formal_claim_allowed_now": bool(current.get("formal_claim_allowed_now")),
+        "paper_result_material_allowed_now": bool(current.get("paper_result_material_allowed_now")),
+        "new_success_training_allowed_now": bool(current.get("new_success_training_allowed_now")),
+    }
+
+
+def _protocol_lane_pending(protocol_lane_status: dict[str, Any]) -> bool:
+    return (
+        protocol_lane_status.get("status") == EXPECTED_PROTOCOL_LANE_STATUS
+        and protocol_lane_status.get("next_blocked_lane") == "protocol_lane_decision"
+        and protocol_lane_status.get("decision_record_status") == "pending_protocol_lane_decision"
+    )
+
+
+def _block_remote_steps_for_protocol_lane(
+    remote_steps: dict[str, dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    out = {step_id: dict(step) for step_id, step in remote_steps.items()}
+    for step in out.values():
+        step["allowed_now"] = False
+        blockers = _strings(step.get("blocked_by"))
+        if "protocol_lane_decision_pending" not in blockers:
+            blockers.append("protocol_lane_decision_pending")
+        step["blocked_by"] = blockers
+    return out
+
+
+def _block_remote_stages_for_protocol_lane(stages: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    for stage in stages:
+        row = dict(stage)
+        if row.get("stage_id") in {
+            "approved_remote_preflight",
+            "regenerate_remote_execution_packet",
+            "gate3_remote_training",
+            "gate3_remote_audit_pullback",
+            "regenerate_h01_h02_formal_artifacts",
+            "regenerate_claim_gate_artifacts",
+        }:
+            row["source_allowed_now"] = False
+            blockers = _strings(row.get("blocked_by"))
+            if "protocol_lane_decision_pending" not in blockers:
+                blockers.append("protocol_lane_decision_pending")
+            row["blocked_by"] = blockers
+        out.append(row)
+    return out
+
+
+def _block_permissions_for_protocol_lane(permissions: dict[str, bool]) -> dict[str, bool]:
+    out = dict(permissions)
+    out["remote_preflight_allowed_now"] = False
+    out["remote_training_allowed_now"] = False
+    out["formal_claim_allowed_now"] = False
+    out["local_training_allowed_now"] = False
+    out["paper_result_material_allowed_now"] = False
+    out["new_success_training_allowed_now"] = False
+    return out
+
+
+def _protocol_lane_status_issues(protocol_lane_status: dict[str, Any]) -> list[dict[str, str]]:
+    if not protocol_lane_status["present"]:
+        return []
+    issues: list[dict[str, str]] = []
+    if protocol_lane_status["audit_issue_count"] != 0:
+        issues.append(_issue("protocol_lane_status_issues_open", "protocol-lane status report has open audit issues"))
+    if protocol_lane_status["executes_commands"] is True:
+        issues.append(_issue("protocol_lane_status_executes_commands", "protocol-lane status report must remain read-only"))
+    if protocol_lane_status["runs_training"] is True:
+        issues.append(_issue("protocol_lane_status_runs_training", "protocol-lane status report must not run training"))
+    if protocol_lane_status["runs_remote_preflight"] is True:
+        issues.append(_issue("protocol_lane_status_runs_remote_preflight", "protocol-lane status report must not run remote preflight"))
+    if protocol_lane_status["local_training_allowed"] is True:
+        issues.append(_issue("protocol_lane_status_allows_local_training", "protocol-lane status report must not allow local training"))
+    if protocol_lane_status["formal_claim_allowed"] is True:
+        issues.append(_issue("protocol_lane_status_allows_formal_claim", "protocol-lane status report must not allow formal claims"))
+    if _protocol_lane_pending(protocol_lane_status):
+        if protocol_lane_status["selected_lane_id"] is not None:
+            issues.append(_issue("protocol_lane_status_pending_has_selected_lane", "pending protocol lane must not have a selected lane"))
+        if protocol_lane_status["lane_count"] != len(EXPECTED_PROTOCOL_LANE_IDS):
+            issues.append(_issue("protocol_lane_status_lane_count_invalid", "protocol-lane matrix must expose four lanes"))
+        if protocol_lane_status["allowed_next_action_ids"] != [EXPECTED_PROTOCOL_LANE_NEXT_ACTION]:
+            issues.append(_issue("protocol_lane_status_allowed_actions_drift", "pending protocol lane may only allow record_protocol_lane_decision"))
+        for action in EXPECTED_PROTOCOL_LANE_BLOCKED_ACTIONS:
+            if action not in protocol_lane_status["blocked_action_ids"]:
+                issues.append(_issue(f"protocol_lane_status_missing_blocked_{action}", f"{action} must remain blocked"))
+        for field in (
+            "contract_drafting_allowed_now",
+            "contract_approval_allowed_now",
+            "draft_contract_allows_training",
+            "local_training_allowed_now",
+            "remote_training_allowed_now",
+            "formal_claim_allowed_now",
+            "paper_result_material_allowed_now",
+            "new_success_training_allowed_now",
+        ):
+            if protocol_lane_status[field] is True:
+                issues.append(_issue(f"protocol_lane_status_{field}_true", f"{field} must remain false while protocol lane is pending"))
+    return issues
+
+
 def _safety_issues(
     *,
     decision: dict[str, Any],
