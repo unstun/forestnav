@@ -433,7 +433,18 @@ def _status_report_issues(
                 "message": "Status report must expose next_action_guard_summary.",
             }
         )
-    if next_action_guard["status"] != "next_action_guard_passed":
+        return issues
+    pending_f02_6 = next_action_guard["pending_f02_6_decision"] is True
+    if not pending_f02_6:
+        if next_action_guard["status"] not in {"next_action_guard_not_applicable", "next_action_guard_passed"}:
+            issues.append(
+                {
+                    "issue_id": "status_report_next_action_guard_invalid_after_f02_6",
+                    "message": "After F02.6 closes, next-action guard should be not-applicable or passed.",
+                    "observed_status": next_action_guard["status"],
+                }
+            )
+    elif next_action_guard["status"] != "next_action_guard_passed":
         issues.append(
             {
                 "issue_id": "status_report_next_action_guard_not_passed",
@@ -441,7 +452,7 @@ def _status_report_issues(
                 "observed_status": next_action_guard["status"],
             }
         )
-    if next_action_guard["expected_next_action_id"] != "record_f02_6_decision":
+    if pending_f02_6 and next_action_guard["expected_next_action_id"] != "record_f02_6_decision":
         issues.append(
             {
                 "issue_id": "status_report_unexpected_next_action",
@@ -449,7 +460,9 @@ def _status_report_issues(
                 "observed_next_action_id": next_action_guard["expected_next_action_id"],
             }
         )
-    if next_action_guard["execution_leak_count"] > 0 or not next_action_guard["all_execution_disabled_now"]:
+    if pending_f02_6 and (
+        next_action_guard["execution_leak_count"] > 0 or not next_action_guard["all_execution_disabled_now"]
+    ):
         issues.append(
             {
                 "issue_id": "status_report_next_action_guard_execution_leak",
@@ -611,6 +624,9 @@ def _normalize_next_action_guard(raw: Any) -> dict[str, Any]:
     return {
         "present": bool(raw),
         "status": raw.get("status"),
+        "pending_f02_6_decision": raw.get("pending_f02_6_decision")
+        if isinstance(raw.get("pending_f02_6_decision"), bool)
+        else None,
         "expected_next_action_id": raw.get("expected_next_action_id"),
         "all_execution_disabled_now": bool(raw.get("all_execution_disabled_now")),
         "execution_leak_count": int(raw.get("execution_leak_count") or 0),
