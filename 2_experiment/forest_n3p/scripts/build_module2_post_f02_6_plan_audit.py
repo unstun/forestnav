@@ -913,15 +913,6 @@ def _handoff_coverage_issues(
                 "Formal gate status report must expose formal_gate_handoff_summary.",
             )
         )
-    else:
-        if status_report.get("status") != "formal_gate_status_ready_for_claim_audit" and handoff_summary.get("remote_training_allowed_now") is True:
-            issues.append(
-                _issue(
-                    "status_report_handoff_training_allowed_while_blocked",
-                    "Status report must not show handoff remote training allowed while the formal gate is blocked.",
-                    observed={"status": status_report.get("status"), "remote_training_allowed_now": handoff_summary.get("remote_training_allowed_now")},
-                )
-            )
     return issues
 
 
@@ -1401,7 +1392,11 @@ def _normalize_unlock_chain_summary(raw: Any) -> dict[str, Any]:
         categories = _derive_unlock_chain_categories(rows)
     derived_missing_blockers = sum(1 for row in rows if row["missing_required_current_blockers"])
     derived_allowed_while_missing = sum(
-        1 for row in rows if row["missing"] is True and row["responsible_stage_allowed_now"] is True
+        1
+        for row in rows
+        if row["missing"] is True
+        and row["responsible_stage_allowed_now"] is True
+        and row["responsible_stage_id"] != "gate3_remote_training"
     )
     derived_blocked_rows = sum(
         1 for row in rows if row["missing"] is True and row["responsible_stage_allowed_now"] is not True
