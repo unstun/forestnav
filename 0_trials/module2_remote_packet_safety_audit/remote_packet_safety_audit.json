@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_remote_packet_safety_audit",
-  "status": "remote_packet_safety_audit_passed",
-  "created_at_utc": "2026-07-05T19:51:50.717869+00:00",
-  "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+  "status": "remote_packet_safety_audit_failed",
+  "created_at_utc": "2026-07-06T02:38:40.462191+00:00",
+  "source_head": "9405da7d4ed712452f2de86e5ca9a4629145aab1",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -46,7 +46,7 @@
     "decision_gate_status": "f02_6_decision_gate_audit_passed",
     "f02_6_record_status": "approved",
     "decision_training_allowed_now": true,
-    "post_plan_audit_status": "post_f02_6_plan_audit_passed",
+    "post_plan_audit_status": "post_f02_6_plan_audit_failed",
     "post_plan_training_allowed_now": true,
     "post_plan_remote_preflight_allowed_now": true,
     "post_plan_status_report_status": "formal_gate_status_blocked",
@@ -83,40 +83,47 @@
     },
     "post_plan_status_report_handoff_summary": {
       "present": true,
-      "status": "ready_for_manual_remote_execution_review",
+      "status": "blocked_until_protocol_lane_decision",
       "transition_gate_status": "f02_6_transition_gate_audit_passed",
       "transition_gate_audit_issue_count": 0,
-      "next_handoff_action_id": "resolve_source_fresh_preflight",
-      "next_action_requires_dr_sun": false,
+      "next_handoff_action_id": "record_protocol_lane_decision",
+      "next_action_requires_dr_sun": true,
       "safety_issue_count": 0,
-      "remote_training_allowed_now": true,
-      "remote_preflight_allowed_now": true,
+      "remote_training_allowed_now": false,
+      "remote_preflight_allowed_now": false,
       "formal_claim_allowed_now": false,
       "remote_execution_steps": {
         "sync_to_remote": {
           "present": true,
-          "allowed_now": true,
+          "allowed_now": false,
           "runs_training": false,
-          "blocked_by": []
+          "blocked_by": [
+            "protocol_lane_decision_pending"
+          ]
         },
         "run_remote_preflight": {
           "present": true,
-          "allowed_now": true,
+          "allowed_now": false,
           "runs_training": false,
-          "blocked_by": []
+          "blocked_by": [
+            "protocol_lane_decision_pending"
+          ]
         },
         "run_remote_training": {
           "present": true,
-          "allowed_now": true,
+          "allowed_now": false,
           "runs_training": true,
-          "blocked_by": []
+          "blocked_by": [
+            "protocol_lane_decision_pending"
+          ]
         },
         "run_remote_audit": {
           "present": true,
           "allowed_now": false,
           "runs_training": false,
           "blocked_by": [
-            "remote_training_not_completed"
+            "remote_training_not_completed",
+            "protocol_lane_decision_pending"
           ]
         }
       }
@@ -129,8 +136,8 @@
       "row_count": 5,
       "row_consensus": {
         "local_training": false,
-        "remote_preflight": true,
-        "remote_training": true,
+        "remote_preflight": false,
+        "remote_training": false,
         "remote_audit": false,
         "formal_claim": false
       },
@@ -140,41 +147,49 @@
           "consensus_allowed_now": false,
           "allowed_now_by_source": {
             "formal_gate_gap_audit": false,
+            "protocol_lane_status": false,
             "status_report": false,
-            "handoff_bundle": false,
-            "remote_packet": false
+            "handoff_bundle": false
           }
         },
         "remote_preflight": {
           "consistent": true,
-          "consensus_allowed_now": true,
+          "consensus_allowed_now": false,
           "allowed_now_by_source": {
-            "status_report": true,
-            "remote_packet": true
+            "protocol_lane_status": false,
+            "status_report": false,
+            "handoff_bundle": false,
+            "remote_packet_superseded_by_protocol_lane": null,
+            "remote_packet_safety_superseded_by_protocol_lane": null
           }
         },
         "remote_training": {
           "consistent": true,
-          "consensus_allowed_now": true,
+          "consensus_allowed_now": false,
           "allowed_now_by_source": {
-            "decision_record": true,
-            "status_report": true,
-            "remote_packet": true
+            "protocol_lane_status": false,
+            "decision_record_superseded_by_protocol_lane": null,
+            "status_report": false,
+            "handoff_bundle": false,
+            "remote_packet_superseded_by_protocol_lane": null,
+            "remote_packet_safety_superseded_by_protocol_lane": null
           }
         },
         "remote_audit": {
           "consistent": true,
           "consensus_allowed_now": false,
           "allowed_now_by_source": {
+            "protocol_lane_status": false,
             "handoff_bundle": false,
-            "remote_packet": false,
-            "remote_packet_safety": false
+            "remote_packet_superseded_by_protocol_lane": null,
+            "remote_packet_safety_superseded_by_protocol_lane": null
           }
         },
         "formal_claim": {
           "consistent": true,
           "consensus_allowed_now": false,
           "allowed_now_by_source": {
+            "protocol_lane_status": false,
             "status_report": false,
             "handoff_bundle": false
           }
@@ -346,7 +361,7 @@
         "training": {
           "missing_count": 0,
           "responsible_stage_id": "gate3_remote_training",
-          "responsible_stage_allowed_now": true,
+          "responsible_stage_allowed_now": false,
           "missing_artifact_matrix_ids": []
         },
         "evaluation": {
@@ -386,7 +401,7 @@
         "training": {
           "missing_count": 0,
           "responsible_stage_id": "gate3_remote_training",
-          "responsible_stage_allowed_now": true,
+          "responsible_stage_allowed_now": false,
           "missing_artifact_matrix_ids": []
         },
         "evaluation": {
@@ -456,8 +471,92 @@
       "h02_paper_result_input_allowed": false
     }
   },
-  "audit_issue_count": 0,
-  "audit_issues": [],
+  "audit_issue_count": 9,
+  "audit_issues": [
+    {
+      "issue_id": "post_plan_handoff_sync_to_remote_allowed_mismatch",
+      "message": "Handoff remote step allowed_now must match the remote packet.",
+      "observed": {
+        "handoff": false,
+        "packet": true
+      }
+    },
+    {
+      "issue_id": "post_plan_handoff_sync_to_remote_blockers_mismatch",
+      "message": "Handoff remote step blocked_by must match the remote packet.",
+      "observed": {
+        "handoff": [
+          "protocol_lane_decision_pending"
+        ],
+        "packet": []
+      }
+    },
+    {
+      "issue_id": "post_plan_handoff_run_remote_preflight_allowed_mismatch",
+      "message": "Handoff remote step allowed_now must match the remote packet.",
+      "observed": {
+        "handoff": false,
+        "packet": true
+      }
+    },
+    {
+      "issue_id": "post_plan_handoff_run_remote_preflight_blockers_mismatch",
+      "message": "Handoff remote step blocked_by must match the remote packet.",
+      "observed": {
+        "handoff": [
+          "protocol_lane_decision_pending"
+        ],
+        "packet": []
+      }
+    },
+    {
+      "issue_id": "post_plan_handoff_run_remote_training_allowed_mismatch",
+      "message": "Handoff remote step allowed_now must match the remote packet.",
+      "observed": {
+        "handoff": false,
+        "packet": true
+      }
+    },
+    {
+      "issue_id": "post_plan_handoff_run_remote_training_blockers_mismatch",
+      "message": "Handoff remote step blocked_by must match the remote packet.",
+      "observed": {
+        "handoff": [
+          "protocol_lane_decision_pending"
+        ],
+        "packet": []
+      }
+    },
+    {
+      "issue_id": "post_plan_handoff_run_remote_audit_blockers_mismatch",
+      "message": "Handoff remote step blocked_by must match the remote packet.",
+      "observed": {
+        "handoff": [
+          "remote_training_not_completed",
+          "protocol_lane_decision_pending"
+        ],
+        "packet": [
+          "remote_training_not_completed"
+        ]
+      }
+    },
+    {
+      "issue_id": "post_plan_execution_veto_remote_preflight_packet_mismatch",
+      "message": "Post-plan execution veto consensus must match the remote packet allowed_now state.",
+      "observed": {
+        "execution_veto": false,
+        "packet": true
+      }
+    },
+    {
+      "issue_id": "post_plan_execution_veto_remote_training_packet_mismatch",
+      "message": "Post-plan execution veto consensus must match the remote packet allowed_now state.",
+      "observed": {
+        "execution_veto": false,
+        "packet": true
+      }
+    }
+  ],
   "expected_pullback_suffixes": [
     "train/final_model.zip",
     "train/summary.json",

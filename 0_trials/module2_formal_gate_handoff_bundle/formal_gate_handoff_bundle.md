@@ -109,7 +109,7 @@
 
 - present: `True`
 - missing_counts_by_formal_category: `{'training': 0, 'evaluation': 0, 'acceptance': 0, 'formal_acceptance': 1}`
-- next_blocked_lane: `source_fresh_preflight`
+- next_blocked_lane: `protocol_lane_decision`
 - h01_status: `ready_for_formal_run`
 - h02_status: `blocked_formal_output_acceptance`
 - training_missing_matrix_ids: `none`

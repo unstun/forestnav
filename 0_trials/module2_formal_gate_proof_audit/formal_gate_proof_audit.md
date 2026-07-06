@@ -24,15 +24,15 @@
 - remaining_deliverables_status: `formal_gate_deliverables_blocked`
 - remaining_missing_deliverable_count: `1`
 - remaining_open_category_count: `1`
-- source_freshness_ready_for_remote_preflight: `True`
-- source_freshness_status: `source_freshness_clean_current`
-- source_freshness_regeneration_required: `False`
+- source_freshness_ready_for_remote_preflight: `False`
+- source_freshness_status: `source_freshness_risks_recorded_gate_still_blocked`
+- source_freshness_regeneration_required: `True`
 
 ## Remaining Deliverables Top-Level Summary
 
 - present: `True`
 - missing_counts_by_formal_category: `{'training': 0, 'evaluation': 0, 'acceptance': 0, 'formal_acceptance': 1}`
-- next_blocked_lane: `source_fresh_preflight`
+- next_blocked_lane: `protocol_lane_decision`
 - h01_status: `ready_for_formal_run`
 - h02_status: `blocked_formal_output_acceptance`
 - h02_formal_output_accepted: `False`

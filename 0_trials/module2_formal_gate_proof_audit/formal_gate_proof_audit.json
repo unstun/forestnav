@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_proof_audit",
   "status": "formal_gate_proof_audit_blocked",
-  "created_at_utc": "2026-07-05T19:51:51.201890+00:00",
-  "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
+  "created_at_utc": "2026-07-06T02:38:37.139844+00:00",
+  "source_head": "9405da7d4ed712452f2de86e5ca9a4629145aab1",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -18,10 +18,10 @@
     "remaining_deliverables_status": "formal_gate_deliverables_blocked",
     "remaining_missing_deliverable_count": 1,
     "remaining_open_category_count": 1,
-    "source_freshness_ready_for_remote_preflight": true,
-    "source_freshness_status": "source_freshness_clean_current",
-    "source_freshness_regeneration_required": false,
-    "source_freshness_non_self_changed_records": 0,
+    "source_freshness_ready_for_remote_preflight": false,
+    "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
+    "source_freshness_regeneration_required": true,
+    "source_freshness_non_self_changed_records": 23,
     "source_freshness_self_artifact_only_lag_records": 0
   },
   "remaining_deliverables_top_level_summary": {
@@ -40,7 +40,7 @@
         "formal_acceptance:h02_formal_output_acceptance"
       ]
     },
-    "next_blocked_lane": "source_fresh_preflight",
+    "next_blocked_lane": "protocol_lane_decision",
     "h01_status": "ready_for_formal_run",
     "h02_status": "blocked_formal_output_acceptance",
     "h02_formal_output_accepted": false,

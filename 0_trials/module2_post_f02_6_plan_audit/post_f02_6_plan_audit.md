@@ -2,8 +2,8 @@
 
 This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
-- status: `post_f02_6_plan_audit_passed`
-- audit_issue_count: `0`
+- status: `post_f02_6_plan_audit_failed`
+- audit_issue_count: `7`
 - executes_commands: `False`
 - runs_training: `False`
 - runs_remote_preflight: `False`
@@ -48,7 +48,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - runs_remote_preflight: `False`
 - all_required_evidence_present: `False`
 - audit_issue_count: `0`
-- missing_counts_by_category: `{'decision': 0, 'decision_gate': 0, 'regeneration': 0, 'gate_sequence': 4, 'training': 0, 'evaluation': 0, 'acceptance': 0, 'evaluation_acceptance': 1, 'claim_gate': 1}`
+- missing_counts_by_category: `{'decision': 0, 'decision_gate': 0, 'regeneration': 22, 'gate_sequence': 4, 'training': 0, 'evaluation': 0, 'acceptance': 0, 'evaluation_acceptance': 1, 'claim_gate': 8}`
 
 ## Closure Checklist
 
@@ -56,7 +56,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - status: `formal_gate_closure_blocked`
 - runs_training: `False`
 - runs_remote_preflight: `False`
-- open_item_count: `7`
+- open_item_count: `8`
 - input_safety_issue_count: `0`
 
 ## Formal Gate Status Report
@@ -67,7 +67,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - runs_remote_preflight: `False`
 - formal_claim_allowed_now: `False`
 - local_training_allowed_now: `False`
-- input_safety_issue_count: `3`
+- input_safety_issue_count: `1`
 - next_blocked_lane_id: `source_fresh_preflight`
 
 ### Remaining Deliverables Gap Summary
@@ -93,15 +93,15 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
 - present: `True`
 - missing_counts_by_formal_category: `{'training': 0, 'evaluation': 0, 'acceptance': 0, 'formal_acceptance': 1}`
-- next_blocked_lane: `source_fresh_preflight`
+- next_blocked_lane: `protocol_lane_decision`
 - h01_status: `ready_for_formal_run`
 - h02_status: `blocked_formal_output_acceptance`
 - h02_paper_result_input_allowed: `False`
 
 ### Status Report Handoff Summary
 
-- status: `ready_for_manual_remote_execution_review`
-- remote_training_allowed_now: `True`
+- status: `blocked_until_protocol_lane_decision`
+- remote_training_allowed_now: `False`
 - safety_issue_count: `0`
 
 ### Status Report Execution Veto Matrix
@@ -113,8 +113,8 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 ### Status Report Remote Execution Steps
 
 - `local_training`: consensus_allowed_now=`False`
-- `remote_preflight`: consensus_allowed_now=`True`
-- `remote_training`: consensus_allowed_now=`True`
+- `remote_preflight`: consensus_allowed_now=`False`
+- `remote_training`: consensus_allowed_now=`False`
 - `remote_audit`: consensus_allowed_now=`False`
 - `formal_claim`: consensus_allowed_now=`False`
 
@@ -125,7 +125,13 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
 ## Audit Issues
 
-- none
+- `plan_source_freshness_requirement_mismatch`: Plan source freshness flag does not match source freshness audit.
+- `plan_source_regeneration_target_counts_mismatch`: Plan target counts by gate do not match source freshness audit.
+- `formal_gate_status_report_has_input_safety_issues`: Status report reports open input safety issues.
+- `formal_gate_status_report_sync_allowed_without_remote_permission`: Status report may surface remote sync only when a remote preflight/training lane is allowed.
+- `formal_gate_status_report_preflight_step_permission_mismatch`: Status report remote preflight step must match remote_preflight_allowed_now.
+- `formal_gate_status_report_training_step_permission_mismatch`: Status report remote training step must match remote_training_allowed_now.
+- `plan_remaining_deliverables_unlock_chain_summary_mismatch`: Plan unlock-chain summary must match the remaining-deliverables ledger.
 
 ## Claim Boundaries
 
