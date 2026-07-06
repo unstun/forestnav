@@ -2003,6 +2003,43 @@ def _handoff_bundle_safety_issues(handoff_bundle: dict[str, Any]) -> list[dict[s
     issues.extend(_formal_gate_requirement_stage_issues(handoff_bundle))
     if summary["safety_issue_count"] > 0:
         issues.append(_issue("handoff_bundle_safety_issues_open", "handoff bundle reports open safety issues."))
+    if (
+        summary["protocol_lane_next_success_attempt_artifact_category_counts"]
+        != EXPECTED_NEXT_SUCCESS_ARTIFACT_CATEGORY_COUNTS
+    ):
+        issues.append(
+            _issue(
+                "handoff_bundle_protocol_lane_next_artifact_category_counts_drift",
+                "handoff bundle must preserve protocol-lane next-attempt artifact category counts.",
+            )
+        )
+    if summary["protocol_lane_post_plan_artifact_category_counts"] != EXPECTED_NEXT_SUCCESS_ARTIFACT_CATEGORY_COUNTS:
+        issues.append(
+            _issue(
+                "handoff_bundle_protocol_lane_post_plan_category_counts_drift",
+                "handoff bundle must preserve post-plan next-attempt artifact category counts.",
+            )
+        )
+    if (
+        summary["protocol_lane_old_failed_run_artifacts_invalid_for_next_success_attempt"]
+        is not EXPECTED_OLD_FAILED_RUN_INVALID_FOR_NEXT_SUCCESS_ATTEMPT
+    ):
+        issues.append(
+            _issue(
+                "handoff_bundle_protocol_lane_old_failed_invalid_flag_drift",
+                "handoff bundle must preserve that old failed-run artifacts are invalid substitutes.",
+            )
+        )
+    if (
+        summary["protocol_lane_post_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"]
+        is not EXPECTED_OLD_FAILED_RUN_INVALID_FOR_NEXT_SUCCESS_ATTEMPT
+    ):
+        issues.append(
+            _issue(
+                "handoff_bundle_protocol_lane_post_plan_old_failed_invalid_flag_drift",
+                "handoff bundle post-plan summary must preserve that old failed-run artifacts are invalid substitutes.",
+            )
+        )
     pending = handoff_bundle.get("current_state", {}).get("decision_status") == "pending_human_decision" if isinstance(handoff_bundle.get("current_state"), dict) else False
     if pending:
         for step_id, step in summary["remote_execution_steps"].items():
