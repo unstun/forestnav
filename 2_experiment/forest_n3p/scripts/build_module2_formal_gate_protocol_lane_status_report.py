@@ -397,6 +397,14 @@ def _audit_issues(current: dict[str, Any]) -> list[dict[str, Any]]:
                 observed=proof_requirements,
             )
         )
+    if current["next_success_attempt_artifact_invalid_substitutes_by_id"] != EXPECTED_NEXT_SUCCESS_INVALID_SUBSTITUTES_BY_ID:
+        issues.append(
+            _issue(
+                "next_success_attempt_artifact_invalid_substitutes_drift",
+                "Next success-attempt invalid substitutes must preserve the formal-gate artifact contract.",
+                observed=current["next_success_attempt_artifact_invalid_substitutes_by_id"],
+            )
+        )
     if (
         current["old_failed_run_artifacts_invalid_for_next_success_attempt"]
         is not EXPECTED_OLD_FAILED_RUN_INVALID_FOR_NEXT_SUCCESS_ATTEMPT
