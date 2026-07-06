@@ -71,6 +71,7 @@ def build_manifest(config: FormalGateNextRoundRequirementsConfig) -> dict[str, A
     formal_acceptance = _formal_acceptance(h02=h02, remaining=remaining)
     permissions = _permissions(status_report=status_report, failure_triage=failure_triage)
     next_round = _next_round_matrix()
+    next_artifacts = _next_success_attempt_artifact_index()
     audit_issues = _audit_issues(
         failure_triage=failure_triage,
         current_failure=current_failure,
@@ -105,6 +106,7 @@ def build_manifest(config: FormalGateNextRoundRequirementsConfig) -> dict[str, A
         "blocked_formal_acceptance": formal_acceptance,
         "permissions_now": permissions,
         "next_round_requirements": next_round,
+        "next_success_attempt_artifact_index": next_artifacts,
         "audit_issue_count": len(audit_issues),
         "audit_issues": audit_issues,
         "claim_boundaries": [
@@ -338,6 +340,180 @@ def _next_round_matrix() -> dict[str, Any]:
     }
 
 
+def _next_success_attempt_artifact_index() -> dict[str, Any]:
+    rows = [
+        _artifact(
+            category="contract",
+            artifact_id="new_or_revised_research_contract",
+            status="missing_required_before_new_success_training",
+            expected_path=".pipeline/contracts/module2-<selected_protocol_lane>-<version>.md",
+            required_before="new_success_training",
+            blocked_until="record_protocol_lane_decision",
+            proof_requirement="contract status is approved or frozen and locks hypothesis, success signal, failure signal, budget, and protocol deltas",
+            invalid_substitutes=[
+                "chat-only approval",
+                "draft contract",
+                "editing the failed Gate3 result after seeing failure",
+            ],
+        ),
+        _artifact(
+            category="training",
+            artifact_id="train_final_model_zip",
+            status="not_created_for_next_success_attempt",
+            expected_path="0_trials/module2_gate3_formal/<next_attempt_id>/train/final_model.zip",
+            required_before="new_gate3_formal_audit",
+            blocked_until="approved_or_frozen_new_or_revised_contract",
+            proof_requirement="remote-produced PPO checkpoint pulled back from gpu3070ti-relay",
+            invalid_substitutes=[
+                "local PPO training output",
+                "failed warm-start checkpoint",
+                "checkpoint without manifest or hash provenance",
+            ],
+        ),
+        _artifact(
+            category="training",
+            artifact_id="train_summary_json",
+            status="not_created_for_next_success_attempt",
+            expected_path="0_trials/module2_gate3_formal/<next_attempt_id>/train/summary.json",
+            required_before="new_gate3_formal_audit",
+            blocked_until="approved_or_frozen_new_or_revised_contract",
+            proof_requirement="summary records protocol label, training budget, seed, and terminal-RS training signals",
+            invalid_substitutes=[
+                "stdout-only training summary",
+                "summary from the failed Gate3 attempt",
+                "summary without protocol label",
+            ],
+        ),
+        _artifact(
+            category="training",
+            artifact_id="train_training_manifest_json",
+            status="not_created_for_next_success_attempt",
+            expected_path="0_trials/module2_gate3_formal/<next_attempt_id>/train/training_manifest.json",
+            required_before="new_gate3_formal_audit",
+            blocked_until="approved_or_frozen_new_or_revised_contract",
+            proof_requirement="manifest records source head, host, command provenance, seed, and selected protocol lane",
+            invalid_substitutes=[
+                "manifest without source head",
+                "manifest from a different protocol lane",
+                "uncommitted chat note",
+            ],
+        ),
+        _artifact(
+            category="evaluation",
+            artifact_id="eval_gate3_eval_episodes_csv",
+            status="blocked_until_new_checkpoint",
+            expected_path="0_trials/module2_gate3_formal/<next_attempt_id>/eval/gate3_eval_episodes.csv",
+            required_before="new_gate3_formal_audit",
+            blocked_until="new_remote_ppo_checkpoint_bundle",
+            proof_requirement="per-episode formal Gate3 CSV with at least 64 episodes and protocol provenance",
+            invalid_substitutes=[
+                "H02 available-subset smoke CSV",
+                "no-warm failure rows reused for a warm-start claim",
+                "aggregate summary without per-episode rows",
+            ],
+        ),
+        _artifact(
+            category="evaluation",
+            artifact_id="eval_gate3_summary_json",
+            status="blocked_until_new_checkpoint",
+            expected_path="0_trials/module2_gate3_formal/<next_attempt_id>/eval/gate3_summary.json",
+            required_before="new_gate3_formal_audit",
+            blocked_until="new_remote_ppo_checkpoint_bundle",
+            proof_requirement="summary records terminal-RS success, collision, truncation, timing, seed, and protocol label",
+            invalid_substitutes=[
+                "summary from failed run",
+                "summary without timing fields",
+                "paper table preview",
+            ],
+        ),
+        _artifact(
+            category="acceptance",
+            artifact_id="gate3_trial_manifest_json",
+            status="blocked_until_new_eval",
+            expected_path="0_trials/module2_gate3_formal/<next_attempt_id>/gate3_trial_manifest.json",
+            required_before="h02_formal_output_acceptance",
+            blocked_until="new_formal_gate3_eval_bundle",
+            proof_requirement="trial manifest ties contract, train, eval, audit, source head, and selected protocol lane",
+            invalid_substitutes=[
+                "trial manifest from failed run",
+                "manifest without contract reference",
+                "manifest without evaluated checkpoint identity",
+            ],
+        ),
+        _artifact(
+            category="acceptance",
+            artifact_id="gate3_formal_audit_json",
+            status="blocked_until_new_eval",
+            expected_path="0_trials/module2_gate3_formal/<next_attempt_id>/gate3_formal_audit.json",
+            required_before="h02_formal_output_acceptance",
+            blocked_until="new_formal_gate3_eval_bundle",
+            proof_requirement="audit records formal_decision=pass for the new approved protocol attempt",
+            invalid_substitutes=[
+                "formal_decision=fail reinterpreted as success",
+                "audit marked smoke, preview, or candidate",
+                "audit from a different protocol lane",
+            ],
+        ),
+        _artifact(
+            category="acceptance",
+            artifact_id="pulled_back_checkpoint_hash_record",
+            status="blocked_until_new_eval",
+            expected_path="0_trials/module2_gate3_formal/<next_attempt_id>/train/final_model.zip.sha256 or .sha256.json",
+            required_before="h02_formal_output_acceptance",
+            blocked_until="new_formal_gate3_eval_bundle",
+            proof_requirement="hash record matches the pulled-back final_model.zip evaluated by Gate3",
+            invalid_substitutes=[
+                "checkpoint without hash record",
+                "hash for a different checkpoint",
+                "remote stdout without local pullback",
+            ],
+        ),
+        _artifact(
+            category="formal_acceptance",
+            artifact_id="h02_formal_output_acceptance",
+            status="blocked_until_new_gate3_pass",
+            expected_path="0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+            required_before="paper_result_material",
+            blocked_until="new_gate3_audit_and_hash_acceptance",
+            proof_requirement="H02 records formal_output_accepted=true, paper_result_input_allowed=true, PPO rows, and accepted checkpoint hash",
+            invalid_substitutes=[
+                "blocked H02 acceptance",
+                "formal-looking smoke table",
+                "PPO rows without checkpoint hash",
+            ],
+        ),
+    ]
+    return {
+        "status": "blocked_until_protocol_lane_decision_and_contract",
+        "artifact_count": len(rows),
+        "categories": ["contract", "training", "evaluation", "acceptance", "formal_acceptance"],
+        "rows": rows,
+    }
+
+
+def _artifact(
+    *,
+    category: str,
+    artifact_id: str,
+    status: str,
+    expected_path: str,
+    required_before: str,
+    blocked_until: str,
+    proof_requirement: str,
+    invalid_substitutes: list[str],
+) -> dict[str, Any]:
+    return {
+        "category": category,
+        "artifact_id": artifact_id,
+        "status": status,
+        "expected_path": expected_path,
+        "required_before": required_before,
+        "blocked_until": blocked_until,
+        "proof_requirement": proof_requirement,
+        "invalid_substitutes": invalid_substitutes,
+    }
+
+
 def _requirement(
     *,
     category: str,
@@ -488,6 +664,37 @@ def _markdown(manifest: dict[str, Any]) -> str:
         for item in row["acceptable_evidence"]:
             lines.append(f"  - {item}")
         lines.append("- invalid_substitutes:")
+        for item in row["invalid_substitutes"]:
+            lines.append(f"  - {item}")
+    artifact_index = manifest["next_success_attempt_artifact_index"]
+    lines.extend(
+        [
+            "",
+            "## Next Success Attempt Artifact Index",
+            "",
+            f"- status: `{artifact_index['status']}`",
+            f"- artifact_count: `{artifact_index['artifact_count']}`",
+            "",
+            "| category | artifact_id | status | expected_path | blocked_until |",
+            "|---|---|---|---|---|",
+        ]
+    )
+    for row in artifact_index["rows"]:
+        lines.append(
+            f"| `{row['category']}` | `{row['artifact_id']}` | `{row['status']}` | "
+            f"`{row['expected_path']}` | `{row['blocked_until']}` |"
+        )
+    lines.extend(["", "### Artifact Proof Requirements"])
+    for row in artifact_index["rows"]:
+        lines.extend(
+            [
+                "",
+                f"#### `{row['category']}:{row['artifact_id']}`",
+                f"- required_before: `{row['required_before']}`",
+                f"- proof_requirement: {row['proof_requirement']}",
+                "- invalid_substitutes:",
+            ]
+        )
         for item in row["invalid_substitutes"]:
             lines.append(f"  - {item}")
     lines.extend(
