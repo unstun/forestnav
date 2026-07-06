@@ -27,6 +27,8 @@ DEFAULT_PROTOCOL_LANE_STATUS_REPORT = Path(
 REMOTE_STEP_IDS = ("sync_to_remote", "run_remote_preflight", "run_remote_training", "run_remote_audit")
 EXPECTED_PROTOCOL_LANE_STATUS = "protocol_lane_status_blocked_pending_lane_decision"
 EXPECTED_PROTOCOL_LANE_NEXT_ACTION = "record_protocol_lane_decision"
+EXPECTED_PROTOCOL_LANE_CONTRACT_DRAFT_STATUS = "protocol_lane_status_ready_for_contract_draft"
+EXPECTED_PROTOCOL_LANE_CONTRACT_DRAFT_ACTION = "draft_new_or_revised_contract_after_lane_decision"
 EXPECTED_PROTOCOL_LANE_IDS = (
     "stronger_obstacle_summary_warm_start",
     "full_patch_cnn_policy",
@@ -318,12 +320,12 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
             "h02_formal_output_accepted": bool(h02_acceptance.get("formal_output_accepted")),
             "h02_paper_result_input_allowed": bool(h02_acceptance.get("paper_result_input_allowed")),
             "next_blocked_lane": protocol_lane_status["next_blocked_lane"]
-            if _protocol_lane_pending(protocol_lane_status)
+            if _protocol_lane_active(protocol_lane_status)
             else _next_blocked_lane_id(status_report),
             "effective_next_action_id": next_handoff_action["action_id"],
             "effective_next_action_requires_dr_sun": next_handoff_action["requires_dr_sun"],
             "legacy_f02_6_decision_action_ids": _legacy_f02_6_decision_action_ids(decision_intake),
-            "legacy_f02_6_decision_superseded_by_protocol_lane": _protocol_lane_pending(protocol_lane_status),
+            "legacy_f02_6_decision_superseded_by_protocol_lane": _protocol_lane_active(protocol_lane_status),
             **source_freshness_summary,
         },
         "permissions_now": permissions,
@@ -501,6 +503,21 @@ def _protocol_lane_pending(protocol_lane_status: dict[str, Any]) -> bool:
         and protocol_lane_status.get("next_blocked_lane") == "protocol_lane_decision"
         and protocol_lane_status.get("decision_record_status") == "pending_protocol_lane_decision"
     )
+
+
+def _protocol_lane_contract_draft_ready(protocol_lane_status: dict[str, Any]) -> bool:
+    return (
+        protocol_lane_status.get("status") == EXPECTED_PROTOCOL_LANE_CONTRACT_DRAFT_STATUS
+        and protocol_lane_status.get("next_blocked_lane") == "new_or_revised_contract"
+        and protocol_lane_status.get("decision_record_status") == "protocol_lane_decision_recorded"
+        and protocol_lane_status.get("selected_lane_id") in EXPECTED_PROTOCOL_LANE_IDS
+        and protocol_lane_status.get("allowed_next_action_ids")
+        == [EXPECTED_PROTOCOL_LANE_CONTRACT_DRAFT_ACTION]
+    )
+
+
+def _protocol_lane_active(protocol_lane_status: dict[str, Any]) -> bool:
+    return _protocol_lane_pending(protocol_lane_status) or _protocol_lane_contract_draft_ready(protocol_lane_status)
 
 
 def _block_remote_steps_for_protocol_lane(
