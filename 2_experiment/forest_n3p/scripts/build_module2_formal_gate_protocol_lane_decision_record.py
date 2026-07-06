@@ -62,7 +62,12 @@ def build_record(config: FormalGateProtocolLaneDecisionRecordConfig) -> dict[str
     selected_lane = str(config.selected_lane)
     _validate_packet(packet)
     _validate_selected_lane(selected_lane=selected_lane, valid_lanes=valid_lanes)
-    _validate_non_pending_decision(config=config, packet=packet)
+    decision_note_audit = _decision_note_audit(
+        selected_lane=selected_lane,
+        valid_lanes=valid_lanes,
+        decision_note=config.decision_note,
+    )
+    _validate_non_pending_decision(config=config, packet=packet, decision_note_audit=decision_note_audit)
     pending = selected_lane == PENDING
     status = "pending_protocol_lane_decision" if pending else "protocol_lane_decision_recorded"
     effective_contract_action = "none" if pending else config.contract_action
@@ -89,11 +94,7 @@ def build_record(config: FormalGateProtocolLaneDecisionRecordConfig) -> dict[str
         "valid_lane_ids": valid_lanes,
         "decider": config.decider,
         "decision_note": config.decision_note,
-        "decision_note_audit": _decision_note_audit(
-            selected_lane=selected_lane,
-            valid_lanes=valid_lanes,
-            decision_note=config.decision_note,
-        ),
+        "decision_note_audit": decision_note_audit,
         "contract_action": effective_contract_action,
         "training_authorization": TRAINING_AUTHORIZATION,
         "decision_record_is_not_training_authorization": True,
@@ -136,7 +137,12 @@ def _validate_selected_lane(*, selected_lane: str, valid_lanes: Sequence[str]) -
         raise ValueError(f"unsupported protocol lane {selected_lane!r}; expected one of {sorted(allowed)}")
 
 
-def _validate_non_pending_decision(*, config: FormalGateProtocolLaneDecisionRecordConfig, packet: dict[str, Any]) -> None:
+def _validate_non_pending_decision(
+    *,
+    config: FormalGateProtocolLaneDecisionRecordConfig,
+    packet: dict[str, Any],
+    decision_note_audit: dict[str, Any],
+) -> None:
     if config.selected_lane == PENDING:
         if config.contract_action != "none":
             raise ValueError("pending protocol lane decision must use --contract-action none")
@@ -148,6 +154,8 @@ def _validate_non_pending_decision(*, config: FormalGateProtocolLaneDecisionReco
     allowed_contract_actions = set(_strings(_nested(packet, "decision_record_schema", "allowed_contract_actions")))
     if config.contract_action not in allowed_contract_actions:
         raise ValueError(f"unsupported contract action {config.contract_action!r}; expected one of {sorted(allowed_contract_actions)}")
+    if decision_note_audit.get("quality_warning") is not None:
+        raise ValueError(f"protocol lane decision note is incomplete: {decision_note_audit['quality_warning']}")
 
 
 def _decision_note_audit(*, selected_lane: str, valid_lanes: Sequence[str], decision_note: str | None) -> dict[str, Any]:
@@ -161,7 +169,7 @@ def _decision_note_audit(*, selected_lane: str, valid_lanes: Sequence[str], deci
         "word_count": len(note.split()),
         "rejected_lane_ids_required": [] if selected_lane == PENDING else rejected_lane_ids,
         "mentions_selected_lane": selected_lane == PENDING or selected_lane.replace("_", "-") in normalized or selected_lane in normalized,
-        "mentions_failed_gate3": selected_lane == PENDING or "failed" in normalized or "0.53125" in normalized or "gate3" in normalized,
+        "mentions_failed_gate3": selected_lane == PENDING or _mentions_failed_gate3_basis(normalized),
         "mentions_contract_action": selected_lane == PENDING or "contract" in normalized,
         "mentions_rejected_lanes": _mentions_rejected_lanes(
             selected_lane=selected_lane,
@@ -186,11 +194,17 @@ def _mentions_rejected_lanes(*, selected_lane: str, rejected_lane_ids: Sequence[
     return has_rejection_signal and mentions_all_other_lanes
 
 
+def _mentions_failed_gate3_basis(normalized: str) -> bool:
+    has_failed_gate3 = "gate3" in normalized and any(token in normalized for token in ("fail", "failed", "failure"))
+    has_failure_metric = "0.53125" in normalized
+    has_threshold = "0.8" in normalized
+    return has_failed_gate3 and has_failure_metric and has_threshold
+
+
 def _mentions_evidence_artifacts(*, selected_lane: str, normalized: str) -> bool:
     if selected_lane == PENDING:
         return True
     artifact_markers = (
-        "artifact",
         "protocol_lane_matrix",
         "formal_gate_protocol_lane_matrix",
         "gate3_formal_audit",
@@ -209,8 +223,8 @@ def _quality_warning(*, selected_lane: str, rejected_lane_ids: Sequence[str], no
         return "missing_required_decision_note"
     if selected_lane not in normalized and selected_lane.replace("_", "-") not in normalized:
         missing.append("selected_lane")
-    if "failed" not in normalized and "0.53125" not in normalized and "gate3" not in normalized:
-        missing.append("failed_gate3_basis")
+    if not _mentions_failed_gate3_basis(normalized):
+        missing.append("failed_gate3_basis_0.53125_vs_0.8")
     if "contract" not in normalized:
         missing.append("contract_action")
     if not _mentions_rejected_lanes(
