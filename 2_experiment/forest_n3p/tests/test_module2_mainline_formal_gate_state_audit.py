@@ -25,6 +25,22 @@ def test_mainline_formal_gate_state_audit_accepts_current_blocked_state(tmp_path
     assert protocol["decision_record_status"] == "pending_protocol_lane_decision"
     assert protocol["selected_lane_id"] is None
     assert protocol["lane_count"] == 4
+    assert protocol["post_decision_contract_plan_summary_present"] is True
+    assert protocol["post_decision_contract_plan_status"] == "post_decision_contract_plan_ready_blocked_pending_lane_decision"
+    assert protocol["post_decision_contract_plan_required_section_count"] == 8
+    assert protocol["post_decision_contract_plan_shared_artifact_count"] == 10
+    assert protocol["post_decision_contract_plan_lane_count"] == 4
+    assert protocol["next_success_attempt_artifact_count"] == 10
+    assert protocol["next_success_attempt_artifact_category_counts"] == {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1,
+    }
+    assert protocol["next_success_attempt_artifact_ids_by_category"]["formal_acceptance"] == [
+        "h02_formal_output_acceptance"
+    ]
     assert protocol["allowed_next_action_ids"] == ["record_protocol_lane_decision"]
     assert protocol["blocked_action_ids"] == [
         "local_training",
@@ -50,6 +66,8 @@ def test_mainline_formal_gate_state_audit_accepts_current_blocked_state(tmp_path
         {"action_id": "formal_claim", "mentioned": True},
         {"action_id": "paper_result_material", "mentioned": True},
     ]
+    assert manifest["protocol_lane_status_post_plan_summary_mentioned"] is True
+    assert manifest["protocol_lane_status_next_artifact_category_counts_mentioned"] is True
     readiness = manifest["protocol_lane_readiness_summary"]
     assert readiness["artifact_name"] == "module2_formal_gate_protocol_lane_readiness"
     assert readiness["status"] == "protocol_lane_readiness_ready_for_dr_sun_decision"
@@ -195,6 +213,49 @@ def test_mainline_formal_gate_state_audit_fails_protocol_lane_authorization_leak
     issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
     assert "protocol_lane_status_authorization_leak" in issue_ids
     assert "protocol_lane_status_allowed_actions_drift" in issue_ids
+
+
+def test_mainline_formal_gate_state_audit_fails_protocol_status_post_plan_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit")
+    paths = _write_inputs(tmp_path)
+    protocol = json.loads(paths["protocol"].read_text(encoding="utf-8"))
+    current = protocol["current_status"]
+    current["post_decision_contract_plan_required_section_count"] = 7
+    current["post_decision_contract_plan_runs_training"] = True
+    current["post_decision_contract_plan_selected_lane_id"] = "full_patch_cnn_policy"
+    current["next_success_attempt_artifact_ids_by_category"]["evaluation"] = [
+        "eval_gate3_eval_episodes_csv"
+    ]
+    current["next_success_attempt_artifact_count"] = 9
+    current["next_success_attempt_artifact_category_counts"]["evaluation"] = 1
+    paths["protocol"].write_text(json.dumps(protocol), encoding="utf-8")
+
+    manifest = builder.build_manifest(_config(builder, tmp_path, paths))
+
+    assert manifest["status"] == "mainline_formal_gate_state_audit_failed"
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "protocol_lane_status_post_decision_contract_plan_required_section_count_drift" in issue_ids
+    assert "protocol_lane_status_post_plan_authorization_leak" in issue_ids
+    assert "protocol_lane_status_post_plan_selected_lane_present" in issue_ids
+    assert "protocol_lane_status_next_artifact_count_drift" in issue_ids
+    assert "protocol_lane_status_next_artifact_category_counts_drift" in issue_ids
+    assert "protocol_lane_status_next_artifact_ids_missing" in issue_ids
+
+
+def test_mainline_formal_gate_state_audit_fails_missing_protocol_status_post_plan_boundary(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit")
+    paths = _write_inputs(tmp_path, omit_protocol_lane_status_post_plan_boundary=True)
+
+    manifest = builder.build_manifest(_config(builder, tmp_path, paths))
+
+    assert manifest["status"] == "mainline_formal_gate_state_audit_failed"
+    assert manifest["protocol_lane_status_post_plan_summary_mentioned"] is False
+    assert manifest["protocol_lane_status_next_artifact_category_counts_mentioned"] is False
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "mainline_current_section_missing_protocol_status_post_plan_section_count" in issue_ids
+    assert "mainline_current_section_missing_protocol_status_post_plan_artifact_count" in issue_ids
+    assert "mainline_current_section_missing_protocol_status_post_plan_lane_count" in issue_ids
+    assert "mainline_current_section_missing_protocol_status_next_artifact_category_counts" in issue_ids
 
 
 def test_mainline_formal_gate_state_audit_fails_missing_protocol_lane_readiness_boundary(tmp_path):
@@ -376,6 +437,7 @@ def _write_inputs(
     extra_current_text="",
     omit_decision_matrix_boundary=False,
     omit_protocol_lane_boundary=False,
+    omit_protocol_lane_status_post_plan_boundary=False,
     omit_protocol_lane_readiness_boundary=False,
     omit_post_decision_contract_plan_boundary=False,
 ):
@@ -403,6 +465,16 @@ def _write_inputs(
             "blocked_action_ids 包括 `local_training`, `remote_success_training`, "
             "`remote_preflight_for_new_success_attempt`, `formal_claim`, `paper_result_material`; "
             "selected_lane_id 仍为 None, lane_count=4。"
+            + (
+                ""
+                if omit_protocol_lane_status_post_plan_boundary
+                else (
+                    "`protocol_lane_status_report` 继承 post-decision contract plan summary, "
+                    "required_contract_section_count=8, shared_next_success_attempt_artifact_count=10, "
+                    "lane_count=4, 下一轮 artifact 类别分布 "
+                    "`contract/training/evaluation/acceptance/formal_acceptance=1/3/2/3/1`。"
+                )
+            )
         )
     )
     readiness_text = (
@@ -584,6 +656,45 @@ def _protocol_lane_status():
             "formal_claim_allowed_now": False,
             "paper_result_material_allowed_now": False,
             "new_success_training_allowed_now": False,
+            "post_decision_contract_plan_summary_present": True,
+            "post_decision_contract_plan_status": "post_decision_contract_plan_ready_blocked_pending_lane_decision",
+            "post_decision_contract_plan_audit_issue_count": 0,
+            "post_decision_contract_plan_required_section_count": 8,
+            "post_decision_contract_plan_shared_artifact_count": 10,
+            "post_decision_contract_plan_lane_count": 4,
+            "post_decision_contract_plan_selected_lane_id": None,
+            "post_decision_contract_plan_writes_contract": False,
+            "post_decision_contract_plan_approves_contract": False,
+            "post_decision_contract_plan_runs_training": False,
+            "post_decision_contract_plan_runs_remote_preflight": False,
+            "post_decision_contract_plan_remote_training_allowed_now": False,
+            "post_decision_contract_plan_formal_claim_allowed": False,
+            "post_decision_contract_plan_paper_result_material_allowed": False,
+            "post_decision_contract_plan_gate_contract_drafting_allowed_now": False,
+            "next_success_attempt_artifact_status": "blocked_until_protocol_lane_decision_and_contract",
+            "next_success_attempt_artifact_count": 10,
+            "next_success_attempt_artifact_category_counts": {
+                "contract": 1,
+                "training": 3,
+                "evaluation": 2,
+                "acceptance": 3,
+                "formal_acceptance": 1,
+            },
+            "next_success_attempt_artifact_ids_by_category": {
+                "contract": ["new_or_revised_research_contract"],
+                "training": [
+                    "train_final_model_zip",
+                    "train_summary_json",
+                    "train_training_manifest_json",
+                ],
+                "evaluation": ["eval_gate3_eval_episodes_csv", "eval_gate3_summary_json"],
+                "acceptance": [
+                    "gate3_trial_manifest_json",
+                    "gate3_formal_audit_json",
+                    "pulled_back_checkpoint_hash_record",
+                ],
+                "formal_acceptance": ["h02_formal_output_acceptance"],
+            },
         },
     }
 

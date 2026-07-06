@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_mainline_formal_gate_state_audit",
-  "status": "mainline_formal_gate_state_consistent_blocked",
-  "created_at_utc": "2026-07-06T03:41:24.980342+00:00",
-  "source_head": "8914f505a1cfdf5723b2f075d61b3db4d0cc68b3+dirty",
+  "status": "mainline_formal_gate_state_audit_failed",
+  "created_at_utc": "2026-07-06T03:46:08.113819+00:00",
+  "source_head": "851c7a68bfe702771cf6c335dd326b9a8d939835+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -94,6 +94,52 @@
       "formal_claim",
       "paper_result_material"
     ],
+    "post_decision_contract_plan_summary_present": true,
+    "post_decision_contract_plan_status": "post_decision_contract_plan_ready_blocked_pending_lane_decision",
+    "post_decision_contract_plan_audit_issue_count": 0,
+    "post_decision_contract_plan_required_section_count": 8,
+    "post_decision_contract_plan_shared_artifact_count": 10,
+    "post_decision_contract_plan_lane_count": 4,
+    "post_decision_contract_plan_selected_lane_id": null,
+    "post_decision_contract_plan_writes_contract": false,
+    "post_decision_contract_plan_approves_contract": false,
+    "post_decision_contract_plan_runs_training": false,
+    "post_decision_contract_plan_runs_remote_preflight": false,
+    "post_decision_contract_plan_remote_training_allowed_now": false,
+    "post_decision_contract_plan_formal_claim_allowed": false,
+    "post_decision_contract_plan_paper_result_material_allowed": false,
+    "post_decision_contract_plan_gate_contract_drafting_allowed_now": false,
+    "next_success_attempt_artifact_status": "blocked_until_protocol_lane_decision_and_contract",
+    "next_success_attempt_artifact_count": 10,
+    "next_success_attempt_artifact_category_counts": {
+      "contract": 1,
+      "training": 3,
+      "evaluation": 2,
+      "acceptance": 3,
+      "formal_acceptance": 1
+    },
+    "next_success_attempt_artifact_ids_by_category": {
+      "contract": [
+        "new_or_revised_research_contract"
+      ],
+      "training": [
+        "train_final_model_zip",
+        "train_summary_json",
+        "train_training_manifest_json"
+      ],
+      "evaluation": [
+        "eval_gate3_eval_episodes_csv",
+        "eval_gate3_summary_json"
+      ],
+      "acceptance": [
+        "gate3_trial_manifest_json",
+        "gate3_formal_audit_json",
+        "pulled_back_checkpoint_hash_record"
+      ],
+      "formal_acceptance": [
+        "h02_formal_output_acceptance"
+      ]
+    },
     "contract_drafting_allowed_now": false,
     "contract_approval_allowed_now": false,
     "draft_contract_allows_training": false,
@@ -147,6 +193,8 @@
       "mentioned": true
     }
   ],
+  "protocol_lane_status_post_plan_summary_mentioned": false,
+  "protocol_lane_status_next_artifact_category_counts_mentioned": false,
   "protocol_lane_readiness_summary": {
     "present": true,
     "artifact_name": "module2_formal_gate_protocol_lane_readiness",
@@ -294,8 +342,35 @@
       "mentioned": false
     }
   ],
-  "audit_issue_count": 0,
-  "audit_issues": [],
+  "audit_issue_count": 4,
+  "audit_issues": [
+    {
+      "issue_id": "mainline_current_section_missing_protocol_status_post_plan_section_count",
+      "message": "Current formal-gate section must mention the protocol status report's inherited post-plan count.",
+      "post_decision_contract_plan_required_section_count": 8
+    },
+    {
+      "issue_id": "mainline_current_section_missing_protocol_status_post_plan_artifact_count",
+      "message": "Current formal-gate section must mention the protocol status report's inherited post-plan count.",
+      "post_decision_contract_plan_shared_artifact_count": 10
+    },
+    {
+      "issue_id": "mainline_current_section_missing_protocol_status_post_plan_lane_count",
+      "message": "Current formal-gate section must mention the protocol status report's inherited post-plan count.",
+      "post_decision_contract_plan_lane_count": 4
+    },
+    {
+      "issue_id": "mainline_current_section_missing_protocol_status_next_artifact_category_counts",
+      "message": "Current formal-gate section must mention the protocol status report's next-attempt artifact category counts.",
+      "expected_counts": {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1
+      }
+    }
+  ],
   "claim_boundaries": [
     "This audit only checks that the long-term mainline task book mirrors the current formal-gate state.",
     "It does not execute commands, run local training, run remote preflight, run remote PPO training, evaluate PPO, pull back artifacts, or write paper results.",
