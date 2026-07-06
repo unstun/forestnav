@@ -288,6 +288,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--formal-gate-status-report", type=Path, default=DEFAULT_FORMAL_GATE_STATUS_REPORT)
     parser.add_argument("--proof-summary-chain-audit", type=Path, default=DEFAULT_PROOF_SUMMARY_CHAIN_AUDIT)
     parser.add_argument("--protocol-lane-status-report", type=Path, default=DEFAULT_PROTOCOL_LANE_STATUS_REPORT)
+    parser.add_argument("--protocol-lane-readiness", type=Path, default=DEFAULT_PROTOCOL_LANE_READINESS)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
@@ -299,6 +300,7 @@ def _mainline_issues(
     next_required: dict[str, Any],
     decision_matrix: dict[str, Any],
     protocol_lane_status: dict[str, Any],
+    protocol_lane_readiness: dict[str, Any],
     deliverable_rows: Sequence[dict[str, Any]],
     proof_chain: dict[str, Any],
 ) -> list[dict[str, Any]]:
@@ -433,6 +435,33 @@ def _mainline_issues(
                     "action_id": action_id,
                 }
             )
+    if protocol_lane_readiness["artifact_name"] and protocol_lane_readiness["artifact_name"] not in current_section:
+        issues.append(
+            {
+                "issue_id": "mainline_current_section_missing_protocol_lane_readiness_artifact",
+                "message": "Current formal-gate section must mention the protocol-lane readiness packet artifact name.",
+                "artifact_name": protocol_lane_readiness["artifact_name"],
+            }
+        )
+    if protocol_lane_readiness["status"] and protocol_lane_readiness["status"] not in current_section:
+        issues.append(
+            {
+                "issue_id": "mainline_current_section_missing_protocol_lane_readiness_status",
+                "message": "Current formal-gate section must mention the readiness packet status.",
+                "readiness_status": protocol_lane_readiness["status"],
+            }
+        )
+    shared_count_token = str(protocol_lane_readiness["shared_next_success_attempt_artifact_count"])
+    if shared_count_token and shared_count_token not in current_section:
+        issues.append(
+            {
+                "issue_id": "mainline_current_section_missing_protocol_lane_readiness_shared_artifact_count",
+                "message": "Current formal-gate section must mention the readiness packet shared artifact count.",
+                "shared_next_success_attempt_artifact_count": protocol_lane_readiness[
+                    "shared_next_success_attempt_artifact_count"
+                ],
+            }
+        )
     proof_status = str(proof_chain.get("status", ""))
     if proof_status and proof_status not in mainline_text:
         issues.append(
@@ -449,6 +478,77 @@ def _mainline_issues(
                 "message": "Normalized deliverable row count must match total missing deliverables.",
                 "total_missing_deliverables": next_required["total_missing_deliverables"],
                 "row_count": len(deliverable_rows),
+            }
+        )
+    return issues
+
+
+def _protocol_lane_readiness_issues(protocol_lane_readiness: dict[str, Any]) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    if not protocol_lane_readiness["present"]:
+        issues.append(
+            {
+                "issue_id": "protocol_lane_readiness_missing",
+                "message": "Mainline audit must consume the protocol-lane readiness packet.",
+            }
+        )
+        return issues
+    if protocol_lane_readiness["artifact_name"] != EXPECTED_PROTOCOL_LANE_READINESS_ARTIFACT:
+        issues.append(
+            {
+                "issue_id": "protocol_lane_readiness_artifact_drift",
+                "message": "Protocol-lane readiness artifact name drifted.",
+                "artifact_name": protocol_lane_readiness["artifact_name"],
+            }
+        )
+    if protocol_lane_readiness["status"] != EXPECTED_PROTOCOL_LANE_READINESS_STATUS:
+        issues.append(
+            {
+                "issue_id": "protocol_lane_readiness_status_drift",
+                "message": "Readiness packet must stay ready for Dr Sun's decision, not become execution authorization.",
+                "status": protocol_lane_readiness["status"],
+            }
+        )
+    if protocol_lane_readiness["audit_issue_count"] != 0:
+        issues.append(
+            {
+                "issue_id": "protocol_lane_readiness_audit_issues_open",
+                "message": "Readiness packet must be audit-clean before mainline mirrors it.",
+                "audit_issue_count": protocol_lane_readiness["audit_issue_count"],
+            }
+        )
+    if protocol_lane_readiness["shared_next_success_attempt_artifact_count"] != (
+        EXPECTED_PROTOCOL_LANE_READINESS_SHARED_ARTIFACT_COUNT
+    ):
+        issues.append(
+            {
+                "issue_id": "protocol_lane_readiness_shared_artifact_count_drift",
+                "message": "Readiness packet must retain the 10-item next-success artifact index.",
+                "shared_next_success_attempt_artifact_count": protocol_lane_readiness[
+                    "shared_next_success_attempt_artifact_count"
+                ],
+            }
+        )
+    true_flags = [
+        key
+        for key in (
+            "runs_training",
+            "runs_remote_preflight",
+            "remote_training_allowed_now",
+            "formal_claim_allowed",
+            "paper_result_material_allowed",
+            "gate_remote_training_allowed_now",
+            "gate_formal_claim_allowed_now",
+            "gate_paper_result_material_allowed_now",
+        )
+        if protocol_lane_readiness.get(key) is True
+    ]
+    if true_flags:
+        issues.append(
+            {
+                "issue_id": "protocol_lane_readiness_authorization_leak",
+                "message": "Readiness packet must not authorize training, remote preflight, claims, or paper-result material.",
+                "true_flags": true_flags,
             }
         )
     return issues
