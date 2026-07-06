@@ -42,6 +42,7 @@ MODULE2_GATE_ARTIFACTS = (
     "0_trials/module2_v2_contract_promotion_packet/v2_contract_promotion_packet.json",
     "0_trials/module2_v2_contract_promotion_dry_run/promotion_apply_dry_run.json",
     "0_trials/module2_v2_contract_promotion_readiness_audit/v2_contract_promotion_readiness_audit.json",
+    "0_trials/module2_v2_contract_promotion_handoff_bundle/v2_contract_promotion_handoff_bundle.json",
     "0_trials/module2_v2_remote_execution_packet/v2_remote_execution_packet.json",
     "0_trials/module2_v2_formal_gate_remaining_evidence/v2_formal_gate_remaining_evidence.json",
     "0_trials/module2_v2_formal_gate_chain_audit/v2_formal_gate_chain_audit.json",
