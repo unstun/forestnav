@@ -319,11 +319,22 @@ def _record_command_templates(valid_lanes: Sequence[str]) -> list[dict[str, Any]
                 "PYTHONPATH=2_experiment python -m "
                 "forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record "
                 f"--selected-lane {lane} --decider 'Dr Sun' --contract-action <action> "
-                "--decision-note '<Dr Sun rationale: selected lane, failed Gate3 basis, rejected lanes, evidence artifacts, contract action>'"
+                f"--decision-note '{_decision_note_template(lane)}'"
             ),
         }
         for lane in valid_lanes
     ]
+
+
+def _decision_note_template(selected_lane: str) -> str:
+    return (
+        f"Select {selected_lane} because the failed Gate3 0.53125 result is below the 0.8 threshold; "
+        "reject <all other lane ids with one rationale each>; "
+        "use protocol_lane_matrix, gate3_formal_audit, formal_gate_next_round_requirements, "
+        "and h02_formal_acceptance artifacts as the evidence basis; "
+        "contract action is <draft_new_contract|draft_revised_contract|stop_success_attempts_and_record_negative_evidence>; "
+        "this decision does not authorize local training, remote preflight, remote training, formal claim, or paper result material."
+    )
 
 
 def _markdown(record: dict[str, Any]) -> str:
