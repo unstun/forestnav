@@ -815,11 +815,13 @@ def _protocol_lane_status_issues(protocol_lane_status: dict[str, Any]) -> list[d
             }
         )
         return issues
-    if protocol_lane_status["status"] != EXPECTED_PROTOCOL_LANE_STATUS:
+    pending = _protocol_lane_pending(protocol_lane_status)
+    recorded = _protocol_lane_contract_draft_ready(protocol_lane_status)
+    if not (pending or recorded):
         issues.append(
             {
                 "issue_id": "protocol_lane_status_drift",
-                "message": "Protocol-lane status must remain blocked pending Dr Sun's lane decision.",
+                "message": "Protocol-lane status must be either pending lane decision or ready for selected-lane contract draft.",
                 "observed_status": protocol_lane_status["status"],
             }
         )
@@ -831,27 +833,43 @@ def _protocol_lane_status_issues(protocol_lane_status: dict[str, Any]) -> list[d
                 "audit_issue_count": protocol_lane_status["audit_issue_count"],
             }
         )
-    if protocol_lane_status["next_blocked_lane"] != EXPECTED_PROTOCOL_LANE_NEXT_BLOCKED:
+    expected_next_blocked = (
+        EXPECTED_PROTOCOL_LANE_RECORDED_NEXT_BLOCKED if recorded else EXPECTED_PROTOCOL_LANE_NEXT_BLOCKED
+    )
+    if protocol_lane_status["next_blocked_lane"] != expected_next_blocked:
         issues.append(
             {
                 "issue_id": "protocol_lane_status_next_blocked_lane_drift",
-                "message": "Current blocked lane must remain protocol_lane_decision.",
+                "message": "Current blocked lane must match the protocol-lane state.",
                 "observed_next_blocked_lane": protocol_lane_status["next_blocked_lane"],
             }
         )
-    if protocol_lane_status["decision_record_status"] != EXPECTED_PROTOCOL_LANE_DECISION_RECORD_STATUS:
+    expected_record_status = (
+        EXPECTED_PROTOCOL_LANE_RECORDED_DECISION_RECORD_STATUS
+        if recorded
+        else EXPECTED_PROTOCOL_LANE_DECISION_RECORD_STATUS
+    )
+    if protocol_lane_status["decision_record_status"] != expected_record_status:
         issues.append(
             {
                 "issue_id": "protocol_lane_status_decision_record_not_pending",
-                "message": "Mainline audit currently mirrors the pending protocol-lane decision state.",
+                "message": "Protocol-lane decision record status does not match the mirrored gate state.",
                 "observed_decision_record_status": protocol_lane_status["decision_record_status"],
             }
         )
-    if protocol_lane_status["selected_lane_id"] is not None:
+    if pending and protocol_lane_status["selected_lane_id"] is not None:
         issues.append(
             {
                 "issue_id": "protocol_lane_status_selected_lane_present",
                 "message": "Pending protocol-lane state must not already have a selected lane.",
+                "selected_lane_id": protocol_lane_status["selected_lane_id"],
+            }
+        )
+    if recorded and protocol_lane_status["selected_lane_id"] not in EXPECTED_PROTOCOL_LANE_IDS:
+        issues.append(
+            {
+                "issue_id": "protocol_lane_status_selected_lane_invalid",
+                "message": "Recorded protocol-lane state must expose one selected lane.",
                 "selected_lane_id": protocol_lane_status["selected_lane_id"],
             }
         )
@@ -863,11 +881,16 @@ def _protocol_lane_status_issues(protocol_lane_status: dict[str, Any]) -> list[d
                 "lane_count": protocol_lane_status["lane_count"],
             }
         )
-    if protocol_lane_status["allowed_next_action_ids"] != list(EXPECTED_PROTOCOL_LANE_ALLOWED_NEXT_ACTIONS):
+    expected_allowed_actions = list(
+        EXPECTED_PROTOCOL_LANE_RECORDED_ALLOWED_NEXT_ACTIONS
+        if recorded
+        else EXPECTED_PROTOCOL_LANE_ALLOWED_NEXT_ACTIONS
+    )
+    if protocol_lane_status["allowed_next_action_ids"] != expected_allowed_actions:
         issues.append(
             {
                 "issue_id": "protocol_lane_status_allowed_actions_drift",
-                "message": "Pending protocol-lane state may only allow record_protocol_lane_decision.",
+                "message": "Protocol-lane state allowed actions drifted.",
                 "allowed_next_action_ids": protocol_lane_status["allowed_next_action_ids"],
             }
         )
@@ -884,12 +907,21 @@ def _protocol_lane_status_issues(protocol_lane_status: dict[str, Any]) -> list[d
             }
         )
     true_flags = [key for key in PROTOCOL_LANE_FALSE_FLAGS if protocol_lane_status.get(key) is True]
+    if pending and protocol_lane_status.get("contract_drafting_allowed_now") is True:
+        true_flags.append("contract_drafting_allowed_now")
     if true_flags:
         issues.append(
             {
                 "issue_id": "protocol_lane_status_authorization_leak",
                 "message": "Protocol-lane status must not authorize contract approval, training, preflight, claims, or paper-result material.",
                 "true_flags": true_flags,
+            }
+        )
+    if recorded and protocol_lane_status.get("contract_drafting_allowed_now") is not True:
+        issues.append(
+            {
+                "issue_id": "protocol_lane_status_contract_drafting_not_open",
+                "message": "Recorded protocol-lane state should open only contract drafting.",
             }
         )
     if protocol_lane_status["post_decision_contract_plan_summary_present"] is not True:
@@ -901,12 +933,16 @@ def _protocol_lane_status_issues(protocol_lane_status: dict[str, Any]) -> list[d
         )
     if (
         protocol_lane_status["post_decision_contract_plan_status"]
-        != EXPECTED_POST_DECISION_CONTRACT_PLAN_STATUS
+        != (
+            EXPECTED_POST_DECISION_CONTRACT_PLAN_RECORDED_STATUS
+            if recorded
+            else EXPECTED_POST_DECISION_CONTRACT_PLAN_STATUS
+        )
     ):
         issues.append(
             {
                 "issue_id": "protocol_lane_status_post_plan_status_drift",
-                "message": "Protocol-lane status report must mirror the pending post-decision contract plan status.",
+                "message": "Protocol-lane status report must mirror the post-decision contract plan status.",
                 "status": protocol_lane_status["post_decision_contract_plan_status"],
             }
         )
@@ -935,23 +971,32 @@ def _protocol_lane_status_issues(protocol_lane_status: dict[str, Any]) -> list[d
             "post_decision_contract_plan_remote_training_allowed_now",
             "post_decision_contract_plan_formal_claim_allowed",
             "post_decision_contract_plan_paper_result_material_allowed",
-            "post_decision_contract_plan_gate_contract_drafting_allowed_now",
         )
         if protocol_lane_status.get(key) is True
     ]
+    if pending and protocol_lane_status.get("post_decision_contract_plan_gate_contract_drafting_allowed_now") is True:
+        post_plan_true_flags.append("post_decision_contract_plan_gate_contract_drafting_allowed_now")
     if post_plan_true_flags:
         issues.append(
             {
                 "issue_id": "protocol_lane_status_post_plan_authorization_leak",
-                "message": "Protocol-lane status report's inherited post-plan summary must not authorize contract drafting, training, preflight, claims, or paper-result material while pending.",
+                "message": "Protocol-lane status report's inherited post-plan summary must not authorize execution, claims, or paper-result material.",
                 "true_flags": post_plan_true_flags,
             }
         )
-    if protocol_lane_status["post_decision_contract_plan_selected_lane_id"] is not None:
+    if pending and protocol_lane_status["post_decision_contract_plan_selected_lane_id"] is not None:
         issues.append(
             {
                 "issue_id": "protocol_lane_status_post_plan_selected_lane_present",
                 "message": "Protocol-lane status report must not expose a selected post-plan lane while the decision is pending.",
+                "selected_lane_id": protocol_lane_status["post_decision_contract_plan_selected_lane_id"],
+            }
+        )
+    if recorded and protocol_lane_status["post_decision_contract_plan_selected_lane_id"] not in EXPECTED_PROTOCOL_LANE_IDS:
+        issues.append(
+            {
+                "issue_id": "protocol_lane_status_post_plan_selected_lane_invalid",
+                "message": "Recorded protocol-lane status must expose the selected post-plan lane.",
                 "selected_lane_id": protocol_lane_status["post_decision_contract_plan_selected_lane_id"],
             }
         )
