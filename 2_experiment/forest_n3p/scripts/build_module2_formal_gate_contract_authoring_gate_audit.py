@@ -149,6 +149,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--decision-record", type=Path, default=DEFAULT_DECISION_RECORD)
     parser.add_argument("--contract-intake", type=Path, default=DEFAULT_CONTRACT_INTAKE)
     parser.add_argument("--next-round-requirements", type=Path, default=DEFAULT_NEXT_ROUND_REQUIREMENTS)
+    parser.add_argument("--post-decision-contract-plan", type=Path, default=DEFAULT_POST_DECISION_CONTRACT_PLAN)
     parser.add_argument("--existing-contract", type=Path, default=DEFAULT_EXISTING_CONTRACT)
     return parser.parse_args(list(argv) if argv is not None else None)
 
@@ -159,6 +160,7 @@ def _contract_gate(
     decision_record: dict[str, Any],
     contract_intake: dict[str, Any],
     next_round: dict[str, Any],
+    post_decision_plan: dict[str, Any],
     existing_contract: dict[str, Any],
 ) -> dict[str, Any]:
     record_status = decision_record.get("status")
@@ -173,6 +175,15 @@ def _contract_gate(
         "contract_action": decision_record.get("contract_action"),
         "contract_intake_status": contract_intake.get("status"),
         "next_round_requirements_status": next_round.get("status"),
+        "post_decision_contract_plan_status": post_decision_plan.get("status"),
+        "post_decision_contract_plan_selected_lane_id": post_decision_plan.get("gate_selected_lane_id"),
+        "post_decision_contract_plan_required_section_count": post_decision_plan.get(
+            "required_contract_section_count"
+        ),
+        "post_decision_contract_plan_lane_count": post_decision_plan.get("lane_count"),
+        "post_decision_contract_plan_shared_artifact_count": post_decision_plan.get(
+            "shared_next_success_attempt_artifact_count"
+        ),
         "existing_contract_status": existing_contract.get("status"),
         "existing_contract_version": existing_contract.get("version"),
         "existing_contract_usable_for_new_success_attempt": False,
@@ -207,6 +218,7 @@ def _audit_issues(
     decision_record: dict[str, Any],
     contract_intake: dict[str, Any],
     next_round: dict[str, Any],
+    post_decision_plan: dict[str, Any],
     existing_contract: dict[str, Any],
     contract_gate: dict[str, Any],
 ) -> list[dict[str, Any]]:
@@ -219,6 +231,7 @@ def _audit_issues(
         issues.append(_issue("contract_intake_not_ready", "Contract intake must be ready before contract authoring gate."))
     if next_round.get("status") != "formal_gate_next_round_requirements_ready":
         issues.append(_issue("next_round_requirements_not_ready", "Next-round requirements must be ready before contract authoring gate."))
+    issues.extend(_post_decision_plan_issues(post_decision_plan, contract_gate=contract_gate))
     for key in ("runs_training", "runs_remote_preflight", "formal_claim_allowed"):
         if decision_record.get(key) is not False:
             issues.append(_issue(f"decision_record_{key}_not_false", f"Decision record must keep {key}=false.", observed=decision_record.get(key)))
