@@ -968,6 +968,43 @@ def _protocol_lane_status_issues(protocol_lane_status: dict[str, Any]) -> list[d
                 "category_counts": protocol_lane_status["next_success_attempt_artifact_category_counts"],
             }
         )
+    if (
+        protocol_lane_status["post_decision_contract_plan_shared_artifact_category_counts"]
+        != EXPECTED_NEXT_SUCCESS_ARTIFACT_CATEGORY_COUNTS
+    ):
+        issues.append(
+            {
+                "issue_id": "protocol_lane_status_post_plan_shared_artifact_category_counts_drift",
+                "message": "Protocol-lane status report post-plan artifact category counts drifted.",
+                "category_counts": protocol_lane_status[
+                    "post_decision_contract_plan_shared_artifact_category_counts"
+                ],
+            }
+        )
+    if (
+        protocol_lane_status["post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"]
+        is not EXPECTED_OLD_FAILED_RUN_INVALID_FOR_NEXT_SUCCESS_ATTEMPT
+    ):
+        issues.append(
+            {
+                "issue_id": "protocol_lane_status_post_plan_old_failed_invalid_flag_drift",
+                "message": "Protocol-lane status report post-plan summary must keep old failed-run artifacts invalid for the next success attempt.",
+                "observed": protocol_lane_status[
+                    "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"
+                ],
+            }
+        )
+    if (
+        protocol_lane_status["old_failed_run_artifacts_invalid_for_next_success_attempt"]
+        is not EXPECTED_OLD_FAILED_RUN_INVALID_FOR_NEXT_SUCCESS_ATTEMPT
+    ):
+        issues.append(
+            {
+                "issue_id": "protocol_lane_status_old_failed_invalid_flag_drift",
+                "message": "Protocol-lane status report must keep old failed-run artifacts invalid for the next success attempt.",
+                "observed": protocol_lane_status["old_failed_run_artifacts_invalid_for_next_success_attempt"],
+            }
+        )
     missing_artifact_ids: list[str] = []
     ids_by_category = protocol_lane_status["next_success_attempt_artifact_ids_by_category"]
     for category, expected_ids in EXPECTED_NEXT_SUCCESS_ARTIFACT_IDS_BY_CATEGORY.items():
