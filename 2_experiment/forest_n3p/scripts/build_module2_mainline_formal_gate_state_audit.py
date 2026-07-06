@@ -1268,6 +1268,12 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"`{manifest['protocol_lane_readiness_summary']}`",
         f"- protocol_lane_readiness_artifact_mentioned: `{manifest['protocol_lane_readiness_artifact_mentioned']}`",
         f"- protocol_lane_readiness_status_mentioned: `{manifest['protocol_lane_readiness_status_mentioned']}`",
+        "- post_decision_contract_plan_summary: "
+        f"`{manifest['post_decision_contract_plan_summary']}`",
+        "- post_decision_contract_plan_artifact_mentioned: "
+        f"`{manifest['post_decision_contract_plan_artifact_mentioned']}`",
+        "- post_decision_contract_plan_status_mentioned: "
+        f"`{manifest['post_decision_contract_plan_status_mentioned']}`",
         f"- proof_summary_chain_status: `{manifest['proof_summary_chain_status']}`",
         "- proof_summary_handoff_single_next_action_consistency: "
         f"`{manifest['proof_summary_handoff_single_next_action_consistency']}`",
@@ -1332,6 +1338,22 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- gate_next_blocked_lane: `{readiness['gate_next_blocked_lane']}`",
             f"- gate_selected_lane_id: `{readiness['gate_selected_lane_id']}`",
             f"- gate_remote_training_allowed_now: `{readiness['gate_remote_training_allowed_now']}`",
+        ]
+    )
+    lines.extend(["", "## Post-Decision Contract Plan", ""])
+    post_plan = manifest["post_decision_contract_plan_summary"]
+    lines.extend(
+        [
+            f"- artifact_name: `{post_plan['artifact_name']}`",
+            f"- status: `{post_plan['status']}`",
+            f"- audit_issue_count: `{post_plan['audit_issue_count']}`",
+            f"- required_contract_section_count: `{post_plan['required_contract_section_count']}`",
+            "- shared_next_success_attempt_artifact_count: "
+            f"`{post_plan['shared_next_success_attempt_artifact_count']}`",
+            f"- lane_count: `{post_plan['lane_count']}`",
+            f"- gate_selected_lane_id: `{post_plan['gate_selected_lane_id']}`",
+            f"- gate_contract_drafting_allowed_now: `{post_plan['gate_contract_drafting_allowed_now']}`",
+            f"- gate_remote_training_allowed_now: `{post_plan['gate_remote_training_allowed_now']}`",
         ]
     )
     lines.extend(["", "## Current Boundary Tokens", ""])
