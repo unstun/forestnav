@@ -47,6 +47,24 @@ EXPECTED_NEXT_SUCCESS_ARTIFACT_CATEGORY_COUNTS = {
     "acceptance": 3,
     "formal_acceptance": 1,
 }
+EXPECTED_NEXT_SUCCESS_ARTIFACT_IDS_BY_CATEGORY = {
+    "contract": ["new_or_revised_research_contract"],
+    "training": [
+        "train_final_model_zip",
+        "train_summary_json",
+        "train_training_manifest_json",
+    ],
+    "evaluation": [
+        "eval_gate3_eval_episodes_csv",
+        "eval_gate3_summary_json",
+    ],
+    "acceptance": [
+        "gate3_trial_manifest_json",
+        "gate3_formal_audit_json",
+        "pulled_back_checkpoint_hash_record",
+    ],
+    "formal_acceptance": ["h02_formal_output_acceptance"],
+}
 EXPECTED_OLD_FAILED_RUN_INVALID_FOR_NEXT_SUCCESS_ATTEMPT = True
 EXPECTED_DECISION_EVIDENCE_MATRIX_ID = "module2_f02_6_decision_evidence_matrix"
 EXPECTED_DECISION_EVIDENCE_MATRIX_STATUS = "ready_for_dr_sun_decision_not_authorization"
@@ -355,6 +373,7 @@ def _protocol_lane_status_summary(protocol_lane_status: dict[str, Any]) -> dict[
         else {}
     )
     next_category_counts = current.get("next_success_attempt_artifact_category_counts")
+    next_artifact_ids = current.get("next_success_attempt_artifact_ids_by_category")
     post_plan_category_counts = current.get("post_decision_contract_plan_shared_artifact_category_counts")
     return {
         "present": bool(protocol_lane_status),
@@ -373,6 +392,7 @@ def _protocol_lane_status_summary(protocol_lane_status: dict[str, Any]) -> dict[
         "lane_count": int(current.get("lane_count") or 0),
         "next_success_attempt_artifact_count": int(current.get("next_success_attempt_artifact_count") or 0),
         "next_success_attempt_artifact_category_counts": _int_counts(next_category_counts),
+        "next_success_attempt_artifact_ids_by_category": _string_lists_by_key(next_artifact_ids),
         "post_decision_contract_plan_shared_artifact_count": int(
             current.get("post_decision_contract_plan_shared_artifact_count") or 0
         ),
@@ -482,6 +502,16 @@ def _protocol_lane_status_issues(protocol_lane_status: dict[str, Any]) -> list[d
                 _issue(
                     "protocol_lane_status_next_artifact_category_counts_drift",
                     "protocol-lane handoff must preserve next success-attempt artifact category counts",
+                )
+            )
+        if (
+            protocol_lane_status["next_success_attempt_artifact_ids_by_category"]
+            != EXPECTED_NEXT_SUCCESS_ARTIFACT_IDS_BY_CATEGORY
+        ):
+            issues.append(
+                _issue(
+                    "protocol_lane_status_next_artifact_ids_drift",
+                    "protocol-lane handoff must preserve concrete next success-attempt artifact ids",
                 )
             )
         if (
@@ -1313,6 +1343,12 @@ def _int_counts(value: Any) -> dict[str, int]:
     return {str(key): int(count or 0) for key, count in value.items() if key}
 
 
+def _string_lists_by_key(value: Any) -> dict[str, list[str]]:
+    if not isinstance(value, dict):
+        return {}
+    return {str(key): _strings(items) for key, items in value.items() if key}
+
+
 def _strings(value: Any) -> list[str]:
     if not isinstance(value, list):
         return []
@@ -1579,6 +1615,10 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.append(
         "- next_success_attempt_artifact_category_counts: "
         f"`{protocol_lane['next_success_attempt_artifact_category_counts']}`"
+    )
+    lines.append(
+        "- next_success_attempt_artifact_ids_by_category: "
+        f"`{protocol_lane['next_success_attempt_artifact_ids_by_category']}`"
     )
     lines.append(
         "- post_decision_contract_plan_shared_artifact_category_counts: "
