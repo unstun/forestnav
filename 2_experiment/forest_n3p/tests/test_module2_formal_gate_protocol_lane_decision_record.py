@@ -14,6 +14,8 @@ def test_protocol_lane_decision_record_defaults_to_pending_and_blocks_training(t
         [
             "--decision-packet",
             str(_decision_packet(tmp_path)),
+            "--next-round-requirements",
+            str(_next_round_requirements(tmp_path)),
             "--output-dir",
             str(tmp_path),
             "--manifest-out",
@@ -50,6 +52,20 @@ def test_protocol_lane_decision_record_defaults_to_pending_and_blocks_training(t
     assert record["current_authorization"]["current_allowed_action_ids"] == ["record_protocol_lane_decision"]
     assert "remote_success_training" in record["current_authorization"]["current_blocked_action_ids"]
     assert record["post_decision_requirements"]["new_or_revised_contract_required"] is False
+    assert record["next_success_attempt_requirements"]["source_status"] == "formal_gate_next_round_requirements_ready"
+    assert record["next_success_attempt_requirements"]["next_success_attempt_artifact_count"] == 10
+    assert record["next_success_attempt_requirements"]["next_success_attempt_artifact_category_counts"] == {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1,
+    }
+    assert record["next_success_attempt_requirements"]["old_failed_run_artifacts_invalid_for_next_success_attempt"] is True
+    assert record["post_decision_requirements"]["next_success_attempt_artifact_count"] == 10
+    assert record["post_decision_requirements"]["next_success_attempt_artifact_ids_by_category"]["contract"] == [
+        "new_or_revised_research_contract"
+    ]
     assert len(record["record_command_templates"]) == 4
     assert all(template["allowed_for_agent_now"] is False for template in record["record_command_templates"])
     assert all(template["runs_training"] is False for template in record["record_command_templates"])
@@ -63,6 +79,8 @@ def test_protocol_lane_decision_record_defaults_to_pending_and_blocks_training(t
     assert "allowed_for_agent_now: `False`" in markdown
     assert "runs_training: `False`" in markdown
     assert "Post-Decision Requirements" in markdown
+    assert "Next Success Attempt Requirements" in markdown
+    assert "next_success_attempt_artifact_count: `10`" in markdown
     assert "approved_or_frozen_contract" in markdown
     assert "paper_result_input_allowed_true" in markdown
 
@@ -74,6 +92,7 @@ def test_protocol_lane_decision_record_records_dr_sun_lane_choice_without_author
         builder.FormalGateProtocolLaneDecisionRecordConfig(
             output_dir=tmp_path,
             decision_packet_path=_decision_packet(tmp_path),
+            next_round_requirements_path=_next_round_requirements(tmp_path),
             selected_lane="hybrid_ppo_analytic_fallback",
             decider="Dr Sun",
             contract_action="draft_revised_contract",
@@ -109,6 +128,8 @@ def test_protocol_lane_decision_record_records_dr_sun_lane_choice_without_author
     ]
     assert record["post_decision_requirements"]["new_or_revised_contract_required"] is True
     assert "approved_or_frozen_contract" in record["post_decision_requirements"]["formal_training_still_requires"]
+    assert record["post_decision_requirements"]["next_success_attempt_artifact_count"] == 10
+    assert record["post_decision_requirements"]["old_failed_run_artifacts_invalid_for_next_success_attempt"] is True
 
 
 def test_protocol_lane_decision_record_rejects_incomplete_decision_note_quality(tmp_path):
@@ -119,6 +140,7 @@ def test_protocol_lane_decision_record_rejects_incomplete_decision_note_quality(
             builder.FormalGateProtocolLaneDecisionRecordConfig(
                 output_dir=tmp_path,
                 decision_packet_path=_decision_packet(tmp_path),
+                next_round_requirements_path=_next_round_requirements(tmp_path),
                 selected_lane="hybrid_ppo_analytic_fallback",
                 decider="Dr Sun",
                 contract_action="draft_revised_contract",
@@ -135,6 +157,7 @@ def test_protocol_lane_decision_record_rejects_non_dr_sun_decider(tmp_path):
             builder.FormalGateProtocolLaneDecisionRecordConfig(
                 output_dir=tmp_path,
                 decision_packet_path=_decision_packet(tmp_path),
+                next_round_requirements_path=_next_round_requirements(tmp_path),
                 selected_lane="full_patch_cnn_policy",
                 decider="Assistant",
                 contract_action="draft_new_contract",
@@ -151,6 +174,7 @@ def test_protocol_lane_decision_record_requires_note_and_contract_action(tmp_pat
             builder.FormalGateProtocolLaneDecisionRecordConfig(
                 output_dir=tmp_path,
                 decision_packet_path=_decision_packet(tmp_path),
+                next_round_requirements_path=_next_round_requirements(tmp_path),
                 selected_lane="full_patch_cnn_policy",
                 decider="Dr Sun",
                 contract_action="draft_new_contract",
@@ -161,6 +185,7 @@ def test_protocol_lane_decision_record_requires_note_and_contract_action(tmp_pat
             builder.FormalGateProtocolLaneDecisionRecordConfig(
                 output_dir=tmp_path,
                 decision_packet_path=_decision_packet(tmp_path),
+                next_round_requirements_path=_next_round_requirements(tmp_path),
                 selected_lane="full_patch_cnn_policy",
                 decider="Dr Sun",
                 contract_action="start_training",
@@ -177,6 +202,7 @@ def test_protocol_lane_decision_record_rejects_invalid_lane(tmp_path):
             builder.FormalGateProtocolLaneDecisionRecordConfig(
                 output_dir=tmp_path,
                 decision_packet_path=_decision_packet(tmp_path),
+                next_round_requirements_path=_next_round_requirements(tmp_path),
                 selected_lane="secret_lane",
             )
         )
@@ -228,6 +254,70 @@ def _decision_packet(tmp_path):
                     }
                     for lane_id in lane_ids
                 ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    return path
+
+
+def _next_round_requirements(tmp_path):
+    path = tmp_path / "next_round_requirements.json"
+    path.write_text(
+        json.dumps(
+            {
+                "status": "formal_gate_next_round_requirements_ready",
+                "protocol_gate_summary": {
+                    "protocol_status": "protocol_lane_status_blocked_pending_lane_decision",
+                    "decision_record_status": "pending_protocol_lane_decision",
+                    "selected_lane_id": None,
+                    "next_blocked_lane": "protocol_lane_decision",
+                    "allowed_next_action_ids": ["record_protocol_lane_decision"],
+                    "blocked_action_ids": [
+                        "local_training",
+                        "remote_success_training",
+                        "remote_preflight_for_new_success_attempt",
+                        "formal_claim",
+                        "paper_result_material",
+                    ],
+                    "new_success_training_allowed_now": False,
+                    "contract_drafting_allowed_now": False,
+                    "contract_approval_allowed_now": False,
+                    "next_success_attempt_artifact_status": "blocked_until_protocol_lane_decision_and_contract",
+                    "next_success_attempt_artifact_count": 10,
+                    "next_success_attempt_artifact_category_counts": {
+                        "contract": 1,
+                        "training": 3,
+                        "evaluation": 2,
+                        "acceptance": 3,
+                        "formal_acceptance": 1,
+                    },
+                    "next_success_attempt_artifact_ids_by_category": {
+                        "contract": ["new_or_revised_research_contract"],
+                        "training": [
+                            "train_final_model_zip",
+                            "train_summary_json",
+                            "train_training_manifest_json",
+                        ],
+                        "evaluation": ["eval_gate3_eval_episodes_csv", "eval_gate3_summary_json"],
+                        "acceptance": [
+                            "gate3_trial_manifest_json",
+                            "gate3_formal_audit_json",
+                            "pulled_back_checkpoint_hash_record",
+                        ],
+                        "formal_acceptance": ["h02_formal_output_acceptance"],
+                    },
+                },
+                "current_vs_next_attempt_reconciliation": {
+                    "current_failed_run_missing_counts": {
+                        "training": 0,
+                        "evaluation": 0,
+                        "acceptance": 0,
+                        "formal_acceptance": 1,
+                    },
+                    "old_failed_run_artifacts_invalid_for_next_success_attempt": True,
+                    "next_success_attempt_requires_protocol_lane_decision": True,
+                },
             }
         ),
         encoding="utf-8",
