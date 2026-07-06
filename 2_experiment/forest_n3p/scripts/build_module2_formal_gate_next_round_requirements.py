@@ -685,6 +685,8 @@ def _audit_issues(
     current_artifacts: dict[str, Any],
     formal_acceptance: dict[str, Any],
     permissions: dict[str, Any],
+    protocol_gate: dict[str, Any],
+    reconciliation: dict[str, Any],
 ) -> list[dict[str, str]]:
     issues: list[dict[str, str]] = []
     if failure_triage.get("status") != "formal_gate_failure_triage_ready":
@@ -714,6 +716,65 @@ def _audit_issues(
         issues.append(_issue("formal_claim_allowed", "Formal claim must remain blocked after failed Gate3."))
     if permissions["new_success_training_allowed_now"]:
         issues.append(_issue("new_success_training_allowed_without_contract", "New success training must be blocked until a new or revised contract is approved/frozen."))
+    if protocol_gate.get("protocol_status") != "protocol_lane_status_blocked_pending_lane_decision":
+        issues.append(_issue("protocol_lane_status_not_blocked", "Protocol lane status must stay blocked pending Dr Sun's lane decision."))
+    if protocol_gate.get("protocol_audit_issue_count") != 0:
+        issues.append(_issue("protocol_lane_audit_issues_open", "Protocol lane status report must have zero audit issues."))
+    if protocol_gate.get("next_blocked_lane") != "protocol_lane_decision":
+        issues.append(_issue("protocol_lane_next_blocked_drift", "Protocol lane next blocked lane must be protocol_lane_decision."))
+    if protocol_gate.get("decision_record_status") != "pending_protocol_lane_decision":
+        issues.append(_issue("protocol_lane_decision_record_not_pending", "Decision record must remain pending before Dr Sun selects a protocol lane."))
+    if protocol_gate.get("selected_lane_id") is not None:
+        issues.append(_issue("protocol_lane_selected_before_decision", "No protocol lane may be selected before record_protocol_lane_decision."))
+    if protocol_gate.get("allowed_next_action_ids") != ["record_protocol_lane_decision"]:
+        issues.append(_issue("protocol_lane_allowed_action_drift", "Only record_protocol_lane_decision is allowed now."))
+    for action_id in (
+        "local_training",
+        "remote_success_training",
+        "remote_preflight_for_new_success_attempt",
+        "formal_claim",
+        "paper_result_material",
+    ):
+        if action_id not in set(protocol_gate.get("blocked_action_ids", [])):
+            issues.append(_issue(f"protocol_lane_missing_blocked_{action_id}", f"Protocol lane status must block {action_id}."))
+    if protocol_gate.get("new_success_training_allowed_now") is not False:
+        issues.append(_issue("protocol_lane_allows_new_success_training", "Protocol lane status must not allow new success training yet."))
+    if protocol_gate.get("contract_drafting_allowed_now") is not False:
+        issues.append(_issue("protocol_lane_allows_contract_drafting", "Contract drafting must remain blocked until the lane decision is recorded."))
+    if protocol_gate.get("contract_approval_allowed_now") is not False:
+        issues.append(_issue("protocol_lane_allows_contract_approval", "Contract approval must remain blocked until the lane decision is recorded."))
+    if protocol_gate.get("post_decision_contract_plan_required_section_count") != 8:
+        issues.append(_issue("post_decision_contract_section_count_drift", "Post-decision contract plan must keep eight required sections."))
+    if protocol_gate.get("post_decision_contract_plan_shared_artifact_count") != 10:
+        issues.append(_issue("post_decision_shared_artifact_count_drift", "Post-decision contract plan must keep ten shared artifacts."))
+    if protocol_gate.get("post_decision_contract_plan_lane_count") != 4:
+        issues.append(_issue("post_decision_lane_count_drift", "Post-decision contract plan must keep four lanes."))
+    if protocol_gate.get("next_success_attempt_artifact_status") != "blocked_until_protocol_lane_decision_and_contract":
+        issues.append(_issue("protocol_next_attempt_status_drift", "Next success attempt artifacts must stay blocked until lane decision and contract."))
+    if protocol_gate.get("next_success_attempt_artifact_count") != 10:
+        issues.append(_issue("protocol_next_attempt_count_drift", "Protocol lane status must still require ten next-attempt artifacts."))
+    if protocol_gate.get("next_success_attempt_artifact_category_counts") != EXPECTED_NEXT_ATTEMPT_CATEGORY_COUNTS:
+        issues.append(_issue("protocol_next_attempt_category_counts_drift", "Protocol next-attempt artifact category counts drifted."))
+    if not protocol_gate.get("remote_safety_protocol_summary_present"):
+        issues.append(_issue("remote_safety_missing_protocol_summary", "Remote packet safety must echo protocol lane status before next-round requirements can pass."))
+    if protocol_gate.get("remote_safety_protocol_status") != protocol_gate.get("protocol_status"):
+        issues.append(_issue("remote_safety_protocol_status_mismatch", "Remote packet safety protocol status must match protocol lane status."))
+    if protocol_gate.get("remote_safety_protocol_next_blocked") != protocol_gate.get("next_blocked_lane"):
+        issues.append(_issue("remote_safety_protocol_next_blocked_mismatch", "Remote packet safety next-blocked lane must match protocol lane status."))
+    if protocol_gate.get("remote_safety_allowed_next_action_ids") != protocol_gate.get("allowed_next_action_ids"):
+        issues.append(_issue("remote_safety_allowed_action_mismatch", "Remote packet safety allowed action list must match protocol lane status."))
+    if protocol_gate.get("remote_safety_new_success_training_allowed_now") is not False:
+        issues.append(_issue("remote_safety_allows_new_success_training", "Remote packet safety must not allow new success training."))
+    if protocol_gate.get("remote_safety_category_counts") != protocol_gate.get("next_success_attempt_artifact_category_counts"):
+        issues.append(_issue("remote_safety_protocol_counts_mismatch", "Remote packet safety artifact counts must match protocol lane status."))
+    if not reconciliation.get("protocol_lane_artifact_counts_match_index"):
+        issues.append(_issue("protocol_artifact_counts_do_not_match_index", "Protocol lane category counts must match next success attempt artifact index."))
+    if not reconciliation.get("current_failed_run_training_eval_acceptance_closed"):
+        issues.append(_issue("current_failed_run_not_closed_for_failure_record", "Current failed run must have training/evaluation/acceptance closed before this handoff is authoritative."))
+    if not reconciliation.get("current_failed_run_formal_acceptance_open"):
+        issues.append(_issue("current_failed_run_formal_acceptance_not_open", "Failed run should remain blocked at formal acceptance, not accepted as paper input."))
+    if not reconciliation.get("old_failed_run_artifacts_invalid_for_next_success_attempt"):
+        issues.append(_issue("failed_run_artifacts_reusable_for_next_attempt", "Failed-run artifacts must be invalid substitutes for the next success attempt."))
     return _unique_issues(issues)
 
 
