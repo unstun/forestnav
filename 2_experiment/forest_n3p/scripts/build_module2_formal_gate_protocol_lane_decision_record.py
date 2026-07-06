@@ -14,9 +14,19 @@ DEFAULT_OUTPUT_DIR = Path("0_trials/module2_formal_gate_protocol_lane_decision_r
 DEFAULT_DECISION_PACKET = Path(
     "0_trials/module2_formal_gate_protocol_lane_decision_packet/formal_gate_protocol_lane_decision_packet.json"
 )
+DEFAULT_NEXT_ROUND_REQUIREMENTS = Path(
+    "0_trials/module2_formal_gate_next_round_requirements/formal_gate_next_round_requirements.json"
+)
 PENDING = "pending"
 DECISION_OWNER = "Dr Sun"
 TRAINING_AUTHORIZATION = "not_authorized_by_this_decision_record"
+EXPECTED_NEXT_SUCCESS_CATEGORY_COUNTS = {
+    "contract": 1,
+    "training": 3,
+    "evaluation": 2,
+    "acceptance": 3,
+    "formal_acceptance": 1,
+}
 
 
 @dataclass(frozen=True)
@@ -25,6 +35,7 @@ class FormalGateProtocolLaneDecisionRecordConfig:
     manifest_out: Path | None = None
     markdown_out: Path | None = None
     decision_packet_path: Path = DEFAULT_DECISION_PACKET
+    next_round_requirements_path: Path = DEFAULT_NEXT_ROUND_REQUIREMENTS
     selected_lane: str = PENDING
     decider: str | None = None
     decision_note: str | None = None
@@ -38,6 +49,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         manifest_out=args.manifest_out,
         markdown_out=args.markdown_out,
         decision_packet_path=args.decision_packet,
+        next_round_requirements_path=args.next_round_requirements,
         selected_lane=args.selected_lane,
         decider=args.decider,
         decision_note=args.decision_note,
@@ -58,9 +70,11 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 def build_record(config: FormalGateProtocolLaneDecisionRecordConfig) -> dict[str, Any]:
     packet = _read_json(config.decision_packet_path)
+    next_round_requirements = _read_json(config.next_round_requirements_path)
     valid_lanes = _strings(packet.get("valid_lane_ids"))
     selected_lane = str(config.selected_lane)
     _validate_packet(packet)
+    _validate_next_round_requirements(next_round_requirements)
     _validate_selected_lane(selected_lane=selected_lane, valid_lanes=valid_lanes)
     decision_note_audit = _decision_note_audit(
         selected_lane=selected_lane,
@@ -71,6 +85,7 @@ def build_record(config: FormalGateProtocolLaneDecisionRecordConfig) -> dict[str
     pending = selected_lane == PENDING
     status = "pending_protocol_lane_decision" if pending else "protocol_lane_decision_recorded"
     effective_contract_action = "none" if pending else config.contract_action
+    next_success_summary = _next_success_attempt_requirements_summary(next_round_requirements)
     return {
         "schema_version": 1,
         "record_name": "module2_formal_gate_protocol_lane_decision_record",
@@ -100,9 +115,13 @@ def build_record(config: FormalGateProtocolLaneDecisionRecordConfig) -> dict[str
         "decision_record_is_not_training_authorization": True,
         "decision_record_is_not_paper_result_material": True,
         "packet": _packet_summary(config.decision_packet_path, packet),
+        "next_success_attempt_requirements": next_success_summary,
         "selected_lane_summary": _selected_lane_summary(packet=packet, selected_lane=selected_lane),
         "current_authorization": _current_authorization(pending=pending),
-        "post_decision_requirements": _post_decision_requirements(selected_lane=selected_lane),
+        "post_decision_requirements": _post_decision_requirements(
+            selected_lane=selected_lane,
+            next_success_summary=next_success_summary,
+        ),
         "record_command_templates": _record_command_templates(valid_lanes),
         "audit_issue_count": 0,
         "audit_issues": [],
@@ -112,6 +131,7 @@ def build_record(config: FormalGateProtocolLaneDecisionRecordConfig) -> dict[str
 def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build the Module2 protocol-lane decision record.")
     parser.add_argument("--decision-packet", type=Path, default=DEFAULT_DECISION_PACKET)
+    parser.add_argument("--next-round-requirements", type=Path, default=DEFAULT_NEXT_ROUND_REQUIREMENTS)
     parser.add_argument("--selected-lane", default=PENDING)
     parser.add_argument("--decider", default=None)
     parser.add_argument("--decision-note", default=None)
@@ -129,6 +149,22 @@ def _validate_packet(packet: dict[str, Any]) -> None:
         raise ValueError("protocol lane decision packet must not run training")
     if bool(packet.get("remote_training_allowed_now")):
         raise ValueError("protocol lane decision packet must not allow remote training now")
+
+
+def _validate_next_round_requirements(next_round_requirements: dict[str, Any]) -> None:
+    if next_round_requirements.get("status") != "formal_gate_next_round_requirements_ready":
+        raise ValueError("next-round requirements must be ready before recording a protocol lane decision")
+    summary = _next_success_attempt_requirements_summary(next_round_requirements)
+    if summary["next_success_attempt_artifact_count"] != 10:
+        raise ValueError("next-round requirements must list exactly 10 next-success-attempt artifacts")
+    if summary["next_success_attempt_artifact_category_counts"] != EXPECTED_NEXT_SUCCESS_CATEGORY_COUNTS:
+        raise ValueError("next-round requirements category counts drifted")
+    if summary["next_success_attempt_status"] != "blocked_until_protocol_lane_decision_and_contract":
+        raise ValueError("next success attempt must remain blocked until protocol lane decision and contract")
+    if summary["old_failed_run_artifacts_invalid_for_next_success_attempt"] is not True:
+        raise ValueError("old failed-run artifacts must be marked invalid for the next success attempt")
+    if summary["new_success_training_allowed_now"] is not False:
+        raise ValueError("next-round requirements must not allow new success training now")
 
 
 def _validate_selected_lane(*, selected_lane: str, valid_lanes: Sequence[str]) -> None:
@@ -253,6 +289,54 @@ def _packet_summary(path: Path, packet: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _next_success_attempt_requirements_summary(next_round_requirements: dict[str, Any]) -> dict[str, Any]:
+    protocol_summary = (
+        next_round_requirements.get("protocol_gate_summary")
+        if isinstance(next_round_requirements.get("protocol_gate_summary"), dict)
+        else {}
+    )
+    reconciliation = (
+        next_round_requirements.get("current_vs_next_attempt_reconciliation")
+        if isinstance(next_round_requirements.get("current_vs_next_attempt_reconciliation"), dict)
+        else {}
+    )
+    category_counts = protocol_summary.get("next_success_attempt_artifact_category_counts")
+    category_counts = category_counts if isinstance(category_counts, dict) else {}
+    artifact_ids_by_category = protocol_summary.get("next_success_attempt_artifact_ids_by_category")
+    artifact_ids_by_category = artifact_ids_by_category if isinstance(artifact_ids_by_category, dict) else {}
+    current_failed_counts = reconciliation.get("current_failed_run_missing_counts")
+    current_failed_counts = current_failed_counts if isinstance(current_failed_counts, dict) else {}
+    return {
+        "source_status": next_round_requirements.get("status"),
+        "protocol_status": protocol_summary.get("protocol_status"),
+        "decision_record_status": protocol_summary.get("decision_record_status"),
+        "selected_lane_id": protocol_summary.get("selected_lane_id"),
+        "next_blocked_lane": protocol_summary.get("next_blocked_lane"),
+        "allowed_next_action_ids": _strings(protocol_summary.get("allowed_next_action_ids")),
+        "blocked_action_ids": _strings(protocol_summary.get("blocked_action_ids")),
+        "new_success_training_allowed_now": protocol_summary.get("new_success_training_allowed_now"),
+        "contract_drafting_allowed_now": protocol_summary.get("contract_drafting_allowed_now"),
+        "contract_approval_allowed_now": protocol_summary.get("contract_approval_allowed_now"),
+        "next_success_attempt_status": protocol_summary.get("next_success_attempt_artifact_status"),
+        "next_success_attempt_artifact_count": protocol_summary.get("next_success_attempt_artifact_count"),
+        "next_success_attempt_artifact_category_counts": {
+            str(key): int(value) for key, value in category_counts.items()
+        },
+        "next_success_attempt_artifact_ids_by_category": {
+            str(key): _strings(value) for key, value in artifact_ids_by_category.items()
+        },
+        "current_failed_run_missing_counts": {
+            str(key): int(value) for key, value in current_failed_counts.items()
+        },
+        "old_failed_run_artifacts_invalid_for_next_success_attempt": reconciliation.get(
+            "old_failed_run_artifacts_invalid_for_next_success_attempt"
+        ),
+        "next_success_attempt_requires_protocol_lane_decision": reconciliation.get(
+            "next_success_attempt_requires_protocol_lane_decision"
+        ),
+    }
+
+
 def _selected_lane_summary(*, packet: dict[str, Any], selected_lane: str) -> dict[str, Any] | None:
     if selected_lane == PENDING:
         return None
@@ -287,12 +371,23 @@ def _current_authorization(*, pending: bool) -> dict[str, Any]:
     }
 
 
-def _post_decision_requirements(*, selected_lane: str) -> dict[str, Any]:
+def _post_decision_requirements(*, selected_lane: str, next_success_summary: dict[str, Any]) -> dict[str, Any]:
     return {
         "selected_lane": selected_lane,
         "new_or_revised_contract_required": selected_lane != PENDING,
         "contract_status_required_before_training": ["approved", "frozen"],
         "draft_contract_allows_training": False,
+        "next_success_attempt_status": next_success_summary["next_success_attempt_status"],
+        "next_success_attempt_artifact_count": next_success_summary["next_success_attempt_artifact_count"],
+        "next_success_attempt_artifact_category_counts": next_success_summary[
+            "next_success_attempt_artifact_category_counts"
+        ],
+        "next_success_attempt_artifact_ids_by_category": next_success_summary[
+            "next_success_attempt_artifact_ids_by_category"
+        ],
+        "old_failed_run_artifacts_invalid_for_next_success_attempt": next_success_summary[
+            "old_failed_run_artifacts_invalid_for_next_success_attempt"
+        ],
         "formal_training_still_requires": [
             "approved_or_frozen_contract",
             "source_freshness_audit_after_contract",
@@ -377,14 +472,24 @@ def _markdown(record: dict[str, Any]) -> str:
             ]
         )
     requirements = record["post_decision_requirements"]
+    next_success = record["next_success_attempt_requirements"]
     lines.extend(
         [
+            "",
+            "## Next Success Attempt Requirements",
+            "",
+            f"- source_status: `{next_success['source_status']}`",
+            f"- next_success_attempt_status: `{next_success['next_success_attempt_status']}`",
+            f"- next_success_attempt_artifact_count: `{next_success['next_success_attempt_artifact_count']}`",
+            f"- next_success_attempt_artifact_category_counts: `{next_success['next_success_attempt_artifact_category_counts']}`",
+            f"- old_failed_run_artifacts_invalid_for_next_success_attempt: `{next_success['old_failed_run_artifacts_invalid_for_next_success_attempt']}`",
             "",
             "## Post-Decision Requirements",
             "",
             f"- new_or_revised_contract_required: `{requirements['new_or_revised_contract_required']}`",
             f"- contract_status_required_before_training: `{', '.join(requirements['contract_status_required_before_training'])}`",
             f"- draft_contract_allows_training: `{requirements['draft_contract_allows_training']}`",
+            f"- next_success_attempt_artifact_count: `{requirements['next_success_attempt_artifact_count']}`",
             "- formal_training_still_requires:",
         ]
     )
