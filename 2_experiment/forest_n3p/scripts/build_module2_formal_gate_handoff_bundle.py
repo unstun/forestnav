@@ -171,6 +171,11 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
         single_next_action_index=single_next_action_index,
         protocol_lane_status=protocol_lane_status,
     )
+    next_handoff_action = _next_handoff_action(
+        decision=decision,
+        status_report=status_report,
+        protocol_lane_status=protocol_lane_status,
+    )
     status = _status(
         decision=decision,
         permissions=permissions,
@@ -223,14 +228,14 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
             "next_blocked_lane": protocol_lane_status["next_blocked_lane"]
             if _protocol_lane_pending(protocol_lane_status)
             else _next_blocked_lane_id(status_report),
+            "effective_next_action_id": next_handoff_action["action_id"],
+            "effective_next_action_requires_dr_sun": next_handoff_action["requires_dr_sun"],
+            "legacy_f02_6_decision_action_ids": _legacy_f02_6_decision_action_ids(decision_intake),
+            "legacy_f02_6_decision_superseded_by_protocol_lane": _protocol_lane_pending(protocol_lane_status),
             **source_freshness_summary,
         },
         "permissions_now": permissions,
-        "next_handoff_action": _next_handoff_action(
-            decision=decision,
-            status_report=status_report,
-            protocol_lane_status=protocol_lane_status,
-        ),
+        "next_handoff_action": next_handoff_action,
         "single_next_action_index": single_next_action_index,
         "protocol_lane_status_summary": protocol_lane_status,
         "f02_6_route_handoff_summary": route_summary,
@@ -679,6 +684,8 @@ def _single_next_action_index(
             ],
             "current_allowed_action_ids": [EXPECTED_PROTOCOL_LANE_NEXT_ACTION],
             "current_blocked_action_ids": list(EXPECTED_PROTOCOL_LANE_BLOCKED_ACTIONS),
+            "legacy_f02_6_decision_action_ids": _legacy_f02_6_decision_action_ids(decision_intake),
+            "legacy_f02_6_decision_superseded_by_protocol_lane": True,
             "post_decision_routes_are_current_authorization": False,
             "all_execution_disabled_now": True,
             "record_command_templates": [],
@@ -742,6 +749,8 @@ def _single_next_action_index(
         ),
         "current_allowed_action_ids": _strings(next_request.get("current_allowed_action_ids")),
         "current_blocked_action_ids": _strings(next_request.get("current_blocked_action_ids")),
+        "legacy_f02_6_decision_action_ids": _legacy_f02_6_decision_action_ids(decision_intake),
+        "legacy_f02_6_decision_superseded_by_protocol_lane": False,
         "post_decision_routes_are_current_authorization": next_request.get(
             "post_decision_routes_are_current_authorization"
         )
@@ -794,6 +803,19 @@ def _record_command_templates(intake_contract: dict[str, Any]) -> list[dict[str,
     return out
 
 
+def _legacy_f02_6_decision_action_ids(decision_intake: dict[str, Any]) -> list[str]:
+    next_request = (
+        decision_intake.get("next_human_decision_request")
+        if isinstance(decision_intake.get("next_human_decision_request"), dict)
+        else {}
+    )
+    return [
+        action_id
+        for action_id in _strings(next_request.get("current_allowed_action_ids"))
+        if action_id == "record_f02_6_decision"
+    ]
+
+
 def _single_next_action_index_issues(index: dict[str, Any]) -> list[dict[str, str]]:
     if not index:
         return [_issue("single_next_action_index_missing", "handoff bundle must expose a single next-action index")]
@@ -820,6 +842,8 @@ def _single_next_action_index_issues(index: dict[str, Any]) -> list[dict[str, st
             issues.append(_issue("single_next_action_protocol_execution_not_disabled", "all execution must be disabled while protocol lane is pending"))
         if int(index.get("record_command_template_count") or 0) != 0:
             issues.append(_issue("single_next_action_protocol_command_template_count", "protocol-lane handoff should not expose executable command templates"))
+        if index.get("legacy_f02_6_decision_superseded_by_protocol_lane") is not True:
+            issues.append(_issue("single_next_action_protocol_legacy_f02_6_not_superseded", "protocol-lane pending handoff must mark legacy F02.6 actions as superseded"))
     if pending:
         if index.get("single_current_human_entry") is not True:
             issues.append(_issue("single_next_action_not_marked_human_entry", "pending F02.6 must be a single human-entry gate"))
@@ -1378,6 +1402,8 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- required_record_fields: `{', '.join(single['required_record_fields'])}`",
             f"- current_allowed_action_ids: `{', '.join(single['current_allowed_action_ids'])}`",
             f"- current_blocked_action_ids: `{', '.join(single['current_blocked_action_ids'])}`",
+            f"- legacy_f02_6_decision_action_ids: `{', '.join(single['legacy_f02_6_decision_action_ids'])}`",
+            f"- legacy_f02_6_decision_superseded_by_protocol_lane: `{single['legacy_f02_6_decision_superseded_by_protocol_lane']}`",
             f"- all_execution_disabled_now: `{single['all_execution_disabled_now']}`",
             f"- record_command_template_count: `{single['record_command_template_count']}`",
             f"- missing_deliverable_count: `{single['missing_deliverable_count']}`",
