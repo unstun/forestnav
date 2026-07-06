@@ -85,6 +85,10 @@
 - selected_lane_id: `None`
 - allowed_next_action_ids: `record_protocol_lane_decision`
 - blocked_action_ids: `local_training, remote_success_training, remote_preflight_for_new_success_attempt, formal_claim, paper_result_material`
+- next_success_attempt_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
+- post_decision_contract_plan_shared_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
+- old_failed_run_artifacts_invalid_for_next_success_attempt: `True`
+- post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt: `True`
 
 ## Handoff Stages
 

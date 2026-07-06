@@ -220,6 +220,25 @@ def test_formal_gate_handoff_bundle_blocks_remote_when_protocol_lane_pending(tmp
     assert manifest["current_state"]["effective_next_action_requires_dr_sun"] is True
     assert manifest["current_state"]["legacy_f02_6_decision_action_ids"] == ["record_f02_6_decision"]
     assert manifest["current_state"]["legacy_f02_6_decision_superseded_by_protocol_lane"] is True
+    protocol = manifest["protocol_lane_status_summary"]
+    assert protocol["next_success_attempt_artifact_category_counts"] == {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1,
+    }
+    assert protocol["post_decision_contract_plan_shared_artifact_category_counts"] == {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1,
+    }
+    assert protocol["old_failed_run_artifacts_invalid_for_next_success_attempt"] is True
+    assert protocol[
+        "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"
+    ] is True
     single = manifest["single_next_action_index"]
     assert single["status"] == "awaiting_dr_sun_protocol_lane_decision"
     assert single["single_current_human_entry"] is True
@@ -252,6 +271,27 @@ def test_formal_gate_handoff_bundle_blocks_remote_when_protocol_lane_pending(tmp
     assert stages["gate3_remote_training"]["source_allowed_now"] is False
     assert "protocol_lane_decision_pending" in stages["gate3_remote_training"]["blocked_by"]
     assert manifest["safety_issue_count"] == 0
+
+
+def test_formal_gate_handoff_bundle_rejects_protocol_lane_next_artifact_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_handoff_bundle")
+    config = _config(tmp_path, complete=True, protocol_pending=True)
+    protocol = json.loads(config.protocol_lane_status_report_path.read_text(encoding="utf-8"))
+    current = protocol["current_status"]
+    current["next_success_attempt_artifact_category_counts"]["training"] = 2
+    current["post_decision_contract_plan_shared_artifact_category_counts"]["evaluation"] = 1
+    current["old_failed_run_artifacts_invalid_for_next_success_attempt"] = False
+    current["post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"] = False
+    config.protocol_lane_status_report_path.write_text(json.dumps(protocol), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["safety_issues"]}
+    assert manifest["status"] == "blocked_handoff_input_safety_issues"
+    assert "protocol_lane_status_next_artifact_category_counts_drift" in issue_ids
+    assert "protocol_lane_status_post_plan_category_counts_drift" in issue_ids
+    assert "protocol_lane_status_old_failed_invalid_flag_drift" in issue_ids
+    assert "protocol_lane_status_post_plan_old_failed_invalid_flag_drift" in issue_ids
 
 
 def test_formal_gate_handoff_bundle_blocks_remote_when_source_freshness_stale(tmp_path):
@@ -816,6 +856,24 @@ def _protocol_lane_status(*, pending):
             else "protocol_lane_decision_recorded",
             "selected_lane_id": None if pending else "hybrid_ppo_analytic_fallback",
             "lane_count": 4,
+            "next_success_attempt_artifact_count": 10,
+            "next_success_attempt_artifact_category_counts": {
+                "contract": 1,
+                "training": 3,
+                "evaluation": 2,
+                "acceptance": 3,
+                "formal_acceptance": 1,
+            },
+            "post_decision_contract_plan_shared_artifact_count": 10,
+            "post_decision_contract_plan_shared_artifact_category_counts": {
+                "contract": 1,
+                "training": 3,
+                "evaluation": 2,
+                "acceptance": 3,
+                "formal_acceptance": 1,
+            },
+            "old_failed_run_artifacts_invalid_for_next_success_attempt": True,
+            "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt": True,
             "contract_drafting_allowed_now": False if pending else True,
             "contract_approval_allowed_now": False,
             "draft_contract_allows_training": False,
