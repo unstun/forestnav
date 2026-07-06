@@ -1,6 +1,6 @@
 ---
 topic: module2-stronger_obstacle_summary_warm_start
-status: approved
+status: draft
 version: v2-draft
 date: 2026-07-06
 origin: ai+local-source
@@ -16,10 +16,6 @@ paper_result_material_allowed_now: false
 allowed_status_before_training:
   - approved
   - frozen
-promotion_decider: Dr Sun
-approved_remote_alias: gpu3070ti-relay
-promotion_packet: 0_trials/module2_v2_contract_promotion_packet/v2_contract_promotion_packet.json
-contract_approved_for_source_freshness: true
 ---
 
 # Research Contract Draft: Module2 Stronger Obstacle-Summary Warm Start
