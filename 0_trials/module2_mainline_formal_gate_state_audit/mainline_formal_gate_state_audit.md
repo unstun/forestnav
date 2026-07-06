@@ -4,8 +4,8 @@ This file checks that the long-term Module2 mainline task book mirrors the curre
 
 - status: `mainline_formal_gate_state_consistent_blocked`
 - audit_issue_count: `0`
-- expected_next_action_id: `None`
-- expected_next_action_mentioned: `False`
+- expected_next_action_id: `record_protocol_lane_decision`
+- expected_next_action_mentioned: `True`
 - total_missing_deliverables: `1`
 - mainline_missing_deliverable_mention_count: `0`
 - f02_6_decision_evidence_matrix_summary: `{'present': True, 'matrix_id': 'module2_f02_6_decision_evidence_matrix', 'status': 'ready_for_dr_sun_decision_not_authorization', 'route_count': 2, 'route_decisions': ['approve_obstacle_summary_warm_start', 'reject_obstacle_summary_warm_start'], 'required_evidence_count': 7, 'satisfied_required_evidence_count': 7, 'missing_required_evidence_count': 0, 'missing_required_evidence_ids': [], 'source_issue_count': 0, 'global_invalid_substitute_count': 4, 'authorization_flags': {'current_authorization_allowed_now': False, 'remote_preflight_allowed_now': False, 'remote_training_allowed_now': False, 'local_training_allowed_now': False, 'formal_claim_allowed_now': False, 'paper_result_material_allowed_now': False}, 'evidence_counts_by_route': {'approve_obstacle_summary_warm_start': 4, 'reject_obstacle_summary_warm_start': 3}, 'invalid_substitute_counts_by_route': {'approve_obstacle_summary_warm_start': 4, 'reject_obstacle_summary_warm_start': 4}}`

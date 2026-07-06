@@ -75,8 +75,8 @@ def test_protocol_lane_decision_record_records_dr_sun_lane_choice_without_author
             decider="Dr Sun",
             contract_action="draft_revised_contract",
             decision_note=(
-                "Select hybrid_ppo_analytic_fallback because the failed Gate3 0.53125 result suggests "
-                "direct replacement is weak; reject stronger_obstacle_summary_warm_start, "
+                "Select hybrid_ppo_analytic_fallback because the failed Gate3 0.53125 result is below "
+                "the 0.8 threshold and suggests direct replacement is weak; reject stronger_obstacle_summary_warm_start, "
                 "full_patch_cnn_policy, and stop_or_reframe_module2_claim for this round; "
                 "use protocol_lane_matrix and gate3_formal_audit artifacts as the evidence basis; "
                 "draft revised contract before any training."
@@ -106,6 +106,22 @@ def test_protocol_lane_decision_record_records_dr_sun_lane_choice_without_author
     ]
     assert record["post_decision_requirements"]["new_or_revised_contract_required"] is True
     assert "approved_or_frozen_contract" in record["post_decision_requirements"]["formal_training_still_requires"]
+
+
+def test_protocol_lane_decision_record_rejects_incomplete_decision_note_quality(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record")
+
+    with pytest.raises(ValueError, match="decision note is incomplete"):
+        builder.build_record(
+            builder.FormalGateProtocolLaneDecisionRecordConfig(
+                output_dir=tmp_path,
+                decision_packet_path=_decision_packet(tmp_path),
+                selected_lane="hybrid_ppo_analytic_fallback",
+                decider="Dr Sun",
+                contract_action="draft_revised_contract",
+                decision_note="Select hybrid_ppo_analytic_fallback because Gate3 failed. Draft revised contract.",
+            )
+        )
 
 
 def test_protocol_lane_decision_record_rejects_non_dr_sun_decider(tmp_path):
