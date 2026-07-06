@@ -1888,6 +1888,10 @@ def _handoff_bundle_summary(handoff_bundle: dict[str, Any]) -> dict[str, Any]:
         "remote_preflight_allowed_now": bool(permissions.get("remote_preflight_allowed_now")),
         "formal_claim_allowed_now": bool(permissions.get("formal_claim_allowed_now")),
         "protocol_lane_status": protocol_summary.get("status"),
+        "protocol_lane_next_blocked_lane": protocol_summary.get("next_blocked_lane"),
+        "protocol_lane_decision_record_status": protocol_summary.get("decision_record_status"),
+        "protocol_lane_selected_lane_id": protocol_summary.get("selected_lane_id"),
+        "protocol_lane_allowed_next_action_ids": _strings(protocol_summary.get("allowed_next_action_ids")),
         "protocol_lane_next_success_attempt_artifact_category_counts": _int_counts(
             protocol_summary.get("next_success_attempt_artifact_category_counts")
         ),
@@ -1936,18 +1940,29 @@ def _next_action_guard_summary(
 ) -> dict[str, Any]:
     handoff_action = handoff_summary["next_handoff_action_id"]
     missing_action = missing_artifacts_handoff_summary["next_action_id"]
+    protocol_status = handoff_summary.get("protocol_lane_status")
+    protocol_record_status = handoff_summary.get("protocol_lane_decision_record_status")
+    protocol_allowed_actions = handoff_summary.get("protocol_lane_allowed_next_action_ids") or []
     pending_f02_6_decision = (
         decision.get("status") == "pending_human_decision"
         or decision_intake_summary["record_status"] == "pending_human_decision"
     )
     pending_protocol_lane_decision = (
-        handoff_action == "record_protocol_lane_decision"
-        or missing_action == "record_protocol_lane_decision"
+        protocol_status == "protocol_lane_status_blocked_pending_lane_decision"
+        and protocol_record_status == "pending_protocol_lane_decision"
+    )
+    protocol_lane_contract_draft_ready = (
+        protocol_status == "protocol_lane_status_ready_for_contract_draft"
+        and protocol_record_status == "protocol_lane_decision_recorded"
+        and protocol_allowed_actions == ["draft_new_or_revised_contract_after_lane_decision"]
     )
     pending = pending_f02_6_decision or pending_protocol_lane_decision
     if pending_protocol_lane_decision:
         expected_action = "record_protocol_lane_decision"
         expected_lane = "protocol_lane_decision"
+    elif protocol_lane_contract_draft_ready:
+        expected_action = "draft_new_or_revised_contract_after_lane_decision"
+        expected_lane = "new_or_revised_contract"
     elif pending_f02_6_decision:
         expected_action = "record_f02_6_decision"
         expected_lane = "decision"
@@ -2003,11 +2018,12 @@ def _next_action_guard_summary(
         and surface["allowed_now"] is True
     )
     violations: list[dict[str, str]] = []
-    if pending and handoff_summary["next_handoff_action_id"] != expected_action:
+    guard_active = pending or protocol_lane_contract_draft_ready
+    if guard_active and handoff_summary["next_handoff_action_id"] != expected_action:
         violations.append(
             _issue(
                 "next_action_guard_unexpected_handoff_action",
-                "Pending formal gate decision must hand off only to the current decision record action.",
+                "Formal gate handoff must point to the current allowed next action.",
             )
         )
     if pending and handoff_summary["next_action_requires_dr_sun"] is not True:
@@ -2046,13 +2062,14 @@ def _next_action_guard_summary(
             )
         )
     status = "next_action_guard_failed" if violations else "next_action_guard_passed"
-    if not pending:
+    if not guard_active:
         status = "next_action_guard_not_applicable"
     return {
         "present": True,
         "status": status,
         "pending_f02_6_decision": pending_f02_6_decision,
         "pending_protocol_lane_decision": pending_protocol_lane_decision,
+        "protocol_lane_contract_draft_ready": protocol_lane_contract_draft_ready,
         "next_blocked_lane_id": expected_lane,
         "expected_next_action_id": expected_action,
         "handoff_next_action_id": handoff_summary["next_handoff_action_id"],
