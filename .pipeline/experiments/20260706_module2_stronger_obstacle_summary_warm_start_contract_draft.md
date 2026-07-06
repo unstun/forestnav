@@ -43,12 +43,21 @@ The next success attempt still requires all fresh artifacts below:
 - `pulled_back_checkpoint_hash_record`
 - `h02_formal_output_acceptance`
 
-## Important Draft Gap
+## Important Draft Gap Update
 
-The current formal audit code still hard-codes the old v1 contract path. Before
-any v2 formal run can be accepted, the runner/evaluator/audit chain must record
-the approved v2 contract path in training, evaluation, trial, and audit
-artifacts.
+The initial draft recorded a formal-gate code gap: the
+runner/evaluator/audit chain needed to carry the approved v2 contract path in
+training, evaluation, trial, and audit artifacts. That path is now implemented
+for train/eval/trial/preflight/audit and covered by targeted preflight tests.
+
+The remaining blockers are not paper-writing blockers; they are execution-gate
+blockers:
+
+- v2 contract is still `draft`, not `approved` or `frozen`;
+- source-freshness and remote packet artifacts still need regeneration after
+  promotion;
+- remote preflight, remote training, Gate3 eval/audit pullback, checkpoint hash,
+  and H02 formal acceptance are still missing.
 
 ## Verification Plan For This Draft
 

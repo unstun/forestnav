@@ -43,10 +43,13 @@ claim, or result-table writing is authorized.
 | `2_experiment/forest_n3p/datasets/module2_rl_rs_bc/manifest_formal_v2.json:68-87` | Formal-v2 BC corpus: 83809 rows, 1032 source rows, Complex/Extreme split, oracle-A/B counts, SHA-256 recorded. |
 | `2_experiment/forest_n3p/datasets/module2_rl_rs_bc/manifest_formal_v2.json:127-174` | Formal-v2 collision audit has zero current/next/any collision rows, while v1 is invalidated and not paper-final. |
 | `2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/README.md:35-85` | Obstacle-summary BC checkpoint SHA-256 and closed-loop evidence; it is the current practical warm-start candidate but not sufficient without PPO improvement. |
-| `2_experiment/forest_n3p/scripts/train_rl_rs_ppo.py:92-129` | Existing PPO train entry exposes seed, device, curriculum, total timesteps, PPO hyperparameters, observation config, env config, and BC checkpoint path. |
+| `2_experiment/forest_n3p/scripts/train_rl_rs_ppo.py:78-89` and `:96-134` | Existing PPO train entry records the contract path and exposes seed, device, curriculum, total timesteps, PPO hyperparameters, observation config, env config, and BC checkpoint path. |
 | `2_experiment/forest_n3p/scripts/train_rl_rs_ppo.py:217-265` | Existing warm-start loader validates obstacle-summary BC checkpoint fields and records checkpoint SHA-256. |
-| `2_experiment/forest_n3p/scripts/eval_rl_rs_gate3.py:128-183` | Gate3 evaluator writes decision, success threshold, episode count, collision/truncation, timing, model SHA-256, and source head. |
-| `2_experiment/forest_n3p/scripts/audit_rl_rs_gate3_trial.py:14-24` and `:136-160` | Current audit code still hard-codes the old v1 contract path; v2 formal audit must be updated before any v2 run can be accepted. |
+| `2_experiment/forest_n3p/scripts/eval_rl_rs_gate3.py:61-84` and `:145-188` | Gate3 evaluator accepts `--contract-path` and writes it into the summary and config. |
+| `2_experiment/forest_n3p/scripts/run_rl_rs_gate3_trial.py:52-97`, `:120-205`, and `:246-310` | Gate3 trial runner accepts `--contract-path`, passes it into train/eval, and writes it into complete or incomplete trial manifests. |
+| `2_experiment/forest_n3p/scripts/audit_rl_rs_gate3_trial.py:39-54` and `:177-201` | Gate3 audit accepts `--contract-path` and blocks non-default v2 audits when the trial/train/eval contract fields do not match. |
+| `2_experiment/forest_n3p/scripts/preflight_rl_rs_gate3_formal_trial.py:34-73`, `:106-143`, and `:227-285` | Gate3 preflight packetizes contract path plus stronger PPO budget/stabilization parameters into the future runner command. |
+| `2_experiment/forest_n3p/tests/test_preflight_rl_rs_gate3_formal_trial.py:84-145` | Targeted preflight test proves the v2 draft contract path and stronger PPO parameters propagate while draft status still blocks execution. |
 | `0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.md:17-25` | Current remote resource evidence names `gpu3070ti-relay`, RTX 3070 Ti Laptop GPU, matching oracle parquet and BC checkpoint hashes; this evidence is readiness only, not training authorization. |
 
 ## 1. Protocol Lane
@@ -155,7 +158,7 @@ run:
 | Curriculum | train/eval `f03` | Train/eval remain `f03` to preserve Gate3 comparability. No post-hoc easier curriculum may be substituted. |
 | Observation and architecture | obstacle-summary extractor, 128/128/64 MLP | Preserve obstacle-summary extractor and 128/128/64 actor/value MLP. Patch-CNN requires a separate contract. |
 | Reward formula | Current `RewardConfig` defaults and enabled reward terms | No reward formula change is authorized by this draft. If reward weights are changed, create a revised contract before training. |
-| Audit contract path | Current audit script hard-codes v1 | Before formal v2 run, audit/eval/trial manifest must accept and record this v2 contract path. |
+| Contract path propagation | Earlier gate code was v1-path oriented | Current train/eval/trial/preflight/audit code accepts `--contract-path`; after approval, source-fresh and remote packet artifacts must be regenerated with this v2 path. |
 | Provenance | failed run source head was `unknown` in formal artifacts | v2 requires non-unknown source head, committed source, remote host, command, seed, source hashes, and checkpoint hashes. |
 
 These draft hyperparameters are not approved training parameters until Dr Sun
@@ -186,6 +189,7 @@ Draft PPO command block to be packetized after approval:
 ```bash
 PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.run_rl_rs_gate3_trial \
   --output-dir 0_trials/module2_gate3_formal/gate3_stronger_obstacle_summary_warm_start_v2_seed20260706 \
+  --contract-path .pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md \
   --seed 20260706 \
   --device cuda \
   --train-curriculum-preset f03 \
@@ -197,6 +201,16 @@ PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.run_rl_rs_gate3_t
   --train-n-steps 256 \
   --train-batch-size 256 \
   --train-n-epochs 8 \
+  --train-learning-rate 0.0001 \
+  --train-gamma 0.99 \
+  --train-gae-lambda 0.95 \
+  --train-clip-range 0.2 \
+  --train-ent-coef 0.01 \
+  --train-vf-coef 0.5 \
+  --train-max-grad-norm 0.5 \
+  --train-policy-net-arch 128,128,64 \
+  --train-value-net-arch 128,128,64 \
+  --train-checkpoint-freq 25000 \
   --eval-episodes 64 \
   --eval-min-episodes 64 \
   --eval-success-threshold 0.8 \
@@ -207,9 +221,10 @@ PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.run_rl_rs_gate3_t
   --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt
 ```
 
-Before this command can be run, the implementation must verify that the runner
-actually exposes every listed argument and writes the v2 contract path into
-training, evaluation, trial, and audit artifacts.
+Before this command can be run, the approved/frozen contract must be consumed by
+fresh source-freshness, remote packet, remote preflight, and downstream gate
+artifacts. The current preflight path can packetize these parameters, but this
+draft status still blocks execution.
 
 ## 7. Evaluation And Acceptance Plan
 
@@ -262,8 +277,9 @@ Before Dr Sun can promote this draft:
 - approve or edit the 500000-step / 4-env / seed `20260706` budget;
 - decide whether the unsafe-rollout failure thresholds
   (`collision_rate >= 0.30`, `truncation_rate >= 0.20`) should remain;
-- update the formal runner/audit path handling so v2 artifacts do not point to
-  the old v1 contract;
+- re-run the targeted preflight/audit contract-path tests after any contract
+  status promotion and verify generated packet commands still carry this v2
+  contract path and stronger PPO parameters;
 - regenerate source freshness, remote execution packet, remote preflight, and
   downstream gate artifacts after the approved/frozen contract commit.
 
