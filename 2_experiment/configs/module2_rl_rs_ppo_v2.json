@@ -1,0 +1,62 @@
+{
+  "_meta": {
+    "date": "2026-07-06",
+    "status": "proposed_pending_contract_v2",
+    "rationale": ".pipeline/survey/module2-ppo-implementation-rigor-references.md",
+    "note": "Recommended Module2 PPO v2 training parameters. NOT training authorization: remote formal runs still require an approved/frozen v2 Research Contract (hard rule #20). Values below override train_rl_rs_ppo.py argparse defaults, which are kept at v1 for reproducibility.",
+    "changes_vs_v1": {
+      "total_timesteps": "100k -> 500k (on-policy PPO without HER needs 5-10x the off-policy budget; TQC+HER parking converges at 100k)",
+      "gamma": "0.99 -> 0.98 (max_steps=32 short horizon)",
+      "rollout": "n_envs 1 -> 8, n_steps 128 -> 256 (rollout buffer 128 -> 2048, community-standard scale), batch_size 64 -> 256, n_epochs 4 -> 10",
+      "lr_schedule": "constant -> linear anneal to 0",
+      "features_extractor (lane A)": "21-dim hand-pooled summary -> full-patch CNN (fixes geometry blindness behind collision-dominated failures)",
+      "value_pretrain (lane B)": "critic pretraining under frozen BC actor before PPO (JSRL Fig.2: random critic destroys warm-started actor)"
+    }
+  },
+  "lane_a_patch_cnn": {
+    "train_args": {
+      "features-extractor": "patch_cnn",
+      "cnn-output-dim": 256,
+      "total-timesteps": 500000,
+      "n-envs": 8,
+      "n-steps": 256,
+      "batch-size": 256,
+      "n-epochs": 10,
+      "learning-rate": 0.0003,
+      "lr-schedule": "linear",
+      "gamma": 0.98,
+      "gae-lambda": 0.95,
+      "clip-range": 0.2,
+      "ent-coef": 0.0,
+      "vf-coef": 0.5,
+      "max-grad-norm": 0.5,
+      "curriculum-preset": "f03",
+      "seed": 20260704,
+      "checkpoint-freq": 50000
+    }
+  },
+  "lane_b_summary_warm_start_fixed": {
+    "train_args": {
+      "features-extractor": "summary",
+      "bc-checkpoint": "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt",
+      "value-pretrain-timesteps": 50000,
+      "total-timesteps": 500000,
+      "n-envs": 8,
+      "n-steps": 256,
+      "batch-size": 256,
+      "n-epochs": 10,
+      "learning-rate": 0.0001,
+      "lr-schedule": "linear",
+      "gamma": 0.98,
+      "gae-lambda": 0.95,
+      "clip-range": 0.2,
+      "ent-coef": 0.0,
+      "vf-coef": 0.5,
+      "max-grad-norm": 0.5,
+      "curriculum-preset": "f03",
+      "seed": 20260704,
+      "checkpoint-freq": 50000
+    },
+    "_note": "learning-rate lowered to 1e-4 to protect the BC prior during early PPO updates (offline-to-online fine-tuning practice)."
+  }
+}

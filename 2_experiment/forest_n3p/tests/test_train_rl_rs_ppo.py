@@ -13,7 +13,7 @@ from gymnasium import spaces
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv
 
-from forest_n3p.rl_rs.sb3_policy import RlRsObstacleSummaryExtractor
+from forest_n3p.rl_rs.sb3_policy import RlRsObstacleSummaryExtractor, RlRsPatchCnnExtractor
 from forest_n3p.scripts.train_bc_policy import _build_scalar_steering_mlp, _policy_features_from_scalar_and_patch
 from forest_n3p.scripts.train_rl_rs_ppo import (
     DEFAULT_CONTRACT_PATH,
@@ -23,6 +23,8 @@ from forest_n3p.scripts.train_rl_rs_ppo import (
     _parse_args,
     _policy_spec,
     _policy_kwargs,
+    _validate_arg_combination,
+    _value_pretrain,
     main as train_rl_rs_ppo_main,
 )
 
@@ -145,6 +147,108 @@ def test_obstacle_summary_bc_warm_start_matches_bc_normalized_action(tmp_path):
     assert record["status"] == "applied_obstacle_summary_bc"
     assert float(action.reshape(-1)[0]) == pytest.approx(expected, abs=1e-5)
     assert float(loaded_action.reshape(-1)[0]) == pytest.approx(expected, abs=1e-5)
+
+
+def test_patch_cnn_extractor_forward_shape_handles_tiny_patch():
+    observation_space = spaces.Dict(
+        {
+            "scalar": spaces.Box(low=-np.inf, high=np.inf, shape=(8,), dtype=np.float32),
+            "patch": spaces.Box(low=0.0, high=1.0, shape=(2, 5, 5), dtype=np.float32),
+        }
+    )
+    extractor = RlRsPatchCnnExtractor(observation_space, cnn_output_dim=32, scalar_scale=[0.5] * 8)
+
+    with torch.no_grad():
+        features = extractor(
+            {
+                "scalar": torch.ones((3, 8), dtype=torch.float32),
+                "patch": torch.rand((3, 2, 5, 5), dtype=torch.float32),
+            }
+        )
+
+    assert tuple(features.shape) == (3, 40)
+    assert torch.allclose(features[:, :8], torch.full((3, 8), 0.5))
+
+
+def test_train_rl_rs_ppo_patch_cnn_smoke_roundtrip(tmp_path):
+    rc = train_rl_rs_ppo_main(
+        [
+            "--allow-duplicate-openmp",
+            "--smoke",
+            "--features-extractor",
+            "patch_cnn",
+            "--cnn-output-dim",
+            "16",
+            "--lr-schedule",
+            "linear",
+            "--output-dir",
+            str(tmp_path),
+            "--seed",
+            "20260704",
+        ]
+    )
+
+    assert rc == 0
+    manifest = json.loads((tmp_path / "training_manifest.json").read_text(encoding="utf-8"))
+    assert manifest["config"]["features_extractor"] == "RlRsPatchCnnExtractor"
+    assert manifest["config"]["cnn_output_dim"] == 16
+    assert manifest["config"]["lr_schedule"] == "linear"
+    assert len(manifest["config"]["scalar_scale"]) == 8
+
+    loaded = PPO.load(tmp_path / "final_model.zip", device="cpu")
+    assert type(loaded.policy.features_extractor).__name__ == "RlRsPatchCnnExtractor"
+
+
+def test_patch_cnn_rejects_obstacle_summary_bc_checkpoint():
+    args = _parse_args(["--features-extractor", "patch_cnn", "--bc-checkpoint", str(BC_CHECKPOINT)])
+    with pytest.raises(ValueError, match="incompatible with --bc-checkpoint"):
+        _validate_arg_combination(args)
+
+
+def test_value_pretrain_requires_bc_checkpoint():
+    args = _parse_args(["--value-pretrain-timesteps", "8"])
+    with pytest.raises(ValueError, match="requires --bc-checkpoint"):
+        _validate_arg_combination(args)
+
+
+def test_value_pretrain_freezes_actor_and_updates_critic(tmp_path):
+    args = _parse_args(
+        [
+            "--smoke",
+            "--bc-checkpoint",
+            str(BC_CHECKPOINT),
+            "--output-dir",
+            str(tmp_path),
+            "--seed",
+            "20260704",
+        ]
+    )
+    _apply_smoke_overrides(args)
+    env = DummyVecEnv([_make_env_factory(args=args, output_dir=tmp_path, rank=0)])
+    model = PPO(
+        _policy_spec(args),
+        env,
+        n_steps=8,
+        batch_size=8,
+        n_epochs=1,
+        policy_kwargs=_policy_kwargs(args),
+        seed=20260704,
+        verbose=0,
+    )
+    _apply_obstacle_summary_bc_warm_start(model, BC_CHECKPOINT)
+    actor_before = {name: param.detach().clone() for name, param in model.policy.action_net.named_parameters()}
+    critic_before = {name: param.detach().clone() for name, param in model.policy.value_net.named_parameters()}
+
+    _value_pretrain(model, timesteps=8)
+    env.close()
+
+    for name, param in model.policy.action_net.named_parameters():
+        assert torch.equal(param.detach(), actor_before[name]), f"actor parameter {name} changed during value pretrain"
+    assert any(
+        not torch.equal(param.detach(), critic_before[name])
+        for name, param in model.policy.value_net.named_parameters()
+    ), "critic parameters did not update during value pretrain"
+    assert all(param.requires_grad for param in model.policy.parameters())
 
 
 def _bc_normalized_action(obs) -> float:

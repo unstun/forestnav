@@ -32,6 +32,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if bool(args.allow_duplicate_openmp):
         os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
     _apply_smoke_overrides(args)
+    _validate_arg_combination(args)
     contract_status = require_contract_ready(
         args.contract_path,
         allow_unapproved=bool(args.smoke),
@@ -47,7 +48,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     model = PPO(
         _policy_spec(args),
         env,
-        learning_rate=float(args.learning_rate),
+        learning_rate=_learning_rate(args),
         n_steps=int(args.n_steps),
         batch_size=int(args.batch_size),
         n_epochs=int(args.n_epochs),
@@ -67,6 +68,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     config["warm_start"] = warm_start
     config["warm_start_status"] = warm_start["status"]
     try:
+        if int(args.value_pretrain_timesteps) > 0:
+            _value_pretrain(model, timesteps=int(args.value_pretrain_timesteps))
         model.learn(total_timesteps=int(args.total_timesteps), callback=callbacks)
         final_model_path = output_dir / "final_model.zip"
         model.save(final_model_path)
@@ -109,6 +112,25 @@ def _parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser.add_argument("--allow-duplicate-openmp", action="store_true")
     parser.add_argument("--smoke", action="store_true", help="Run a tiny open-connector training smoke.")
     parser.add_argument("--bc-checkpoint", type=Path, default=None, help="Optional F02 obstacle-summary BC checkpoint for PPO actor initialization.")
+    parser.add_argument(
+        "--features-extractor",
+        choices=("summary", "patch_cnn"),
+        default="summary",
+        help="summary: 21-dim hand-pooled region statistics (F02 legacy); patch_cnn: full-patch CNN encoder.",
+    )
+    parser.add_argument("--cnn-output-dim", type=int, default=256, help="CNN feature dimension for --features-extractor patch_cnn.")
+    parser.add_argument(
+        "--lr-schedule",
+        choices=("constant", "linear"),
+        default="constant",
+        help="linear anneals the learning rate from --learning-rate to 0 over training.",
+    )
+    parser.add_argument(
+        "--value-pretrain-timesteps",
+        type=int,
+        default=0,
+        help="Freeze the warm-started actor and train only the value function for this many timesteps before PPO (requires --bc-checkpoint).",
+    )
     parser.add_argument("--curriculum-preset", choices=("open", "obstacle", "f03"), default="f03")
     parser.add_argument("--oracle-path", type=Path, default=Path("0_trials/module2_oracle_shape/oracle_connector_results.parquet"))
     parser.add_argument("--heldout-seed", type=int, default=20260704)
@@ -155,6 +177,56 @@ def _apply_smoke_overrides(args: argparse.Namespace) -> None:
     args.obs_patch_cells = 5
     args.max_steps = 4
     args.verbose = 0
+
+
+def _validate_arg_combination(args: argparse.Namespace) -> None:
+    if str(args.features_extractor) == "patch_cnn" and args.bc_checkpoint is not None:
+        raise ValueError(
+            "--features-extractor patch_cnn is incompatible with --bc-checkpoint: "
+            "the F02 BC checkpoint encodes obstacle-summary features, not CNN features."
+        )
+    if int(args.value_pretrain_timesteps) > 0 and args.bc_checkpoint is None:
+        raise ValueError("--value-pretrain-timesteps requires --bc-checkpoint (it exists to protect a warm-started actor).")
+    if int(args.value_pretrain_timesteps) < 0:
+        raise ValueError("--value-pretrain-timesteps must be non-negative")
+
+
+def _learning_rate(args: argparse.Namespace):
+    lr = float(args.learning_rate)
+    if str(args.lr_schedule) == "constant":
+        return lr
+
+    def _linear_schedule(progress_remaining: float) -> float:
+        return lr * float(progress_remaining)
+
+    return _linear_schedule
+
+
+def _value_pretrain(model: Any, *, timesteps: int) -> None:
+    """Train only the value function while the (warm-started) actor stays frozen.
+
+    JSRL-style guard: a randomly initialized critic emits a poor learning signal
+    that degrades a BC-initialized actor during early PPO updates, so the critic
+    is fitted first under the frozen actor's own state distribution.
+    """
+    frozen = _actor_parameters(model.policy)
+    for parameter in frozen:
+        parameter.requires_grad_(False)
+    try:
+        model.learn(total_timesteps=int(timesteps), reset_num_timesteps=True)
+    finally:
+        for parameter in frozen:
+            parameter.requires_grad_(True)
+        _rebuild_policy_optimizer(model.policy)
+
+
+def _actor_parameters(policy: Any) -> list[Any]:
+    parameters = list(policy.mlp_extractor.policy_net.parameters())
+    parameters.extend(policy.action_net.parameters())
+    log_std = getattr(policy, "log_std", None)
+    if log_std is not None:
+        parameters.append(log_std)
+    return parameters
 
 
 def _load_sb3():
@@ -211,19 +283,35 @@ def _sampler(args: argparse.Namespace, *, cfg: CurriculumContextConfig):
 
 def _policy_kwargs(args: argparse.Namespace) -> dict[str, Any]:
     import torch
-    from forest_n3p.rl_rs.sb3_policy import RlRsObstacleSummaryExtractor
+    from forest_n3p.rl_rs.sb3_policy import RlRsObstacleSummaryExtractor, RlRsPatchCnnExtractor
 
     kwargs = {
         "activation_fn": torch.nn.ReLU,
-        "features_extractor_class": RlRsObstacleSummaryExtractor,
         "net_arch": {
             "pi": list(_parse_ints(str(args.policy_net_arch))),
             "vf": list(_parse_ints(str(args.value_net_arch))),
         },
     }
+    if str(args.features_extractor) == "patch_cnn":
+        kwargs["features_extractor_class"] = RlRsPatchCnnExtractor
+        kwargs["features_extractor_kwargs"] = {
+            "cnn_output_dim": int(args.cnn_output_dim),
+            "scalar_scale": _scalar_scale(args),
+        }
+    else:
+        kwargs["features_extractor_class"] = RlRsObstacleSummaryExtractor
     if args.bc_checkpoint is not None:
         kwargs["use_tanh_action_head"] = True
     return kwargs
+
+
+def _scalar_scale(args: argparse.Namespace) -> list[float]:
+    """Fixed scaling for the 8 scalar features (dx, dy, distance, 4 already-bounded
+    trig terms, remaining_steps) so the CNN policy sees O(1) inputs without a
+    VecNormalize statistics file to keep in sync at evaluation time."""
+    distance_scale = 1.0 / max(float(args.obs_patch_size_m), 1e-6)
+    steps_scale = 1.0 / max(float(args.max_steps), 1.0)
+    return [distance_scale, distance_scale, distance_scale, 1.0, 1.0, 1.0, 1.0, steps_scale]
 
 
 def _apply_obstacle_summary_bc_warm_start(model: Any, checkpoint_path: Path) -> dict[str, Any]:
@@ -378,7 +466,11 @@ def _config_record(*, args: argparse.Namespace, raw_argv: Sequence[str], contrac
         "contract_status": str(contract_status),
         "seed": int(args.seed),
         "policy": "MultiInputPolicy" if args.bc_checkpoint is None else "RlRsMultiInputPolicy",
-        "features_extractor": "RlRsObstacleSummaryExtractor",
+        "features_extractor": "RlRsPatchCnnExtractor" if str(args.features_extractor) == "patch_cnn" else "RlRsObstacleSummaryExtractor",
+        "cnn_output_dim": int(args.cnn_output_dim) if str(args.features_extractor) == "patch_cnn" else None,
+        "scalar_scale": _scalar_scale(args) if str(args.features_extractor) == "patch_cnn" else None,
+        "lr_schedule": str(args.lr_schedule),
+        "value_pretrain_timesteps": int(args.value_pretrain_timesteps),
         "warm_start_status": "not_applied_f02_6_pending",
         "bc_checkpoint": None if args.bc_checkpoint is None else str(args.bc_checkpoint),
         "curriculum_preset": str(args.curriculum_preset),

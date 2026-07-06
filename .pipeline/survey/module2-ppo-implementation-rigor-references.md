@@ -65,3 +65,29 @@ retrieval: 2 个 Opus search agent(Dr Sun 点名,偏离 sonnet 默认规则)+ �
 
 与 07-04 失败诊断(collision 主导、rs_failure_node 0.25)相互印证:观测瓶颈(a)
 与碰撞失败模式自洽;(b) 解释 warm-start 只买到 +7.8pt。
+
+## 四、reward 对照审查(origin: ai+local,基于本项目代码 + HighwayEnv 源码,未改语义)
+
+事实(2026-07-06 读代码确认):curriculum.py 从不设置 `reward_config`,
+训练环境使用 `RewardConfig()` 全默认值(reward.py:52-66)——
+**实际训练 reward 是纯稀疏的**:success +1.0(须 terminal RS 成功且未碰撞)、
+collision -1.0、no_progress/oscillation/no_rs_terminal 各 -0.25;
+`distance_progress_scale` / `rs_distance_progress_scale` / `clearance_scale` /
+`curvature` / `path_length` / `step` 全部默认 0.0,shaping 项存在但从未启用。
+
+与 HighwayEnv parking_env(成熟对标)的差异清单:
+
+| 维度 | 本项目(实际训练用) | HighwayEnv parking |
+|---|---|---|
+| 密度 | 终局稀疏(中途恒 0) | 每步 dense:-加权 p-norm(位置+朝向+速度,p=0.5) |
+| 位置/朝向 shaping | 有钩子但 scale=0 未启用 | 核心信号 |
+| 碰撞惩罚量级 | -1(与 success 同量级) | -5(success 量级的 ~5 倍) |
+| 成功判据 | terminal RS 可对接检查(领域特有,合理) | reward 阈值 |
+
+含义:稀疏 reward + 32 步短 episode + on-policy PPO 无 HER,
+探索信号极弱——与 rs_failure_node 桶 0.25 的成功率自洽,
+是 (a)(b)(c) 之外的第四个独立可疑点 (d2)。
+**未做任何语义修改**;若 v2 契约决定启用 dense shaping,建议
+potential-based 形式(不改变最优策略)且逐项以 ablation 开关记录,
+现有 RewardTermSwitches 基建已支持。碰撞惩罚相对量级(-1 vs -5)
+也应作为 v2 契约的显式决策项。
