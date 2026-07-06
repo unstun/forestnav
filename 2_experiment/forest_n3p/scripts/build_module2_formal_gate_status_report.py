@@ -719,6 +719,15 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
                 remote_packet_safety_claim_gate_command_index_summary["missing_target_ids"]
             ),
             "next_action_guard_status": next_action_guard_summary["status"],
+            "effective_next_blocked_lane": next_action_guard_summary["next_blocked_lane_id"],
+            "effective_next_action_id": next_action_guard_summary["expected_next_action_id"],
+            "effective_next_action_requires_dr_sun": next_action_guard_summary["handoff_next_action_requires_dr_sun"],
+            "legacy_decision_intake_action_ids": decision_intake_summary[
+                "next_request_current_allowed_action_ids"
+            ],
+            "legacy_decision_intake_superseded_by_protocol_lane": next_action_guard_summary[
+                "pending_protocol_lane_decision"
+            ],
         },
         "permissions_now": permissions,
         "missing_counts_by_category": missing_artifacts.get("missing_counts_by_category") if isinstance(missing_artifacts.get("missing_counts_by_category"), dict) else {},
@@ -773,11 +782,16 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
             "Add tests for gate ordering, artifact inventory, and claim blocking.",
             "Do not run approved remote preflight, formal PPO training, H02 formal evaluation, pullback, or result-claim writing.",
         ],
+        "safe_work_without_protocol_lane_decision": [
+            "Maintain or harden read-only protocol-lane gate artifacts.",
+            "Record no lane selection unless Dr Sun explicitly provides the selected lane and rationale.",
+            "Do not run local training, remote preflight, remote training, H01/H02 formal evaluation, or paper result material.",
+        ],
         "claim_boundaries": [
             "This status report is an execution-orientation artifact, not a result table or paper appendix.",
             "It does not execute commands, remote preflight, training, evaluation, sync, audit, or pullback.",
-            "It must not be used to approve F02.6; only Dr Sun's decision record can do that.",
-            "Formal PPO training remains gpu3070ti-relay-only and blocked until F02.6, source freshness, and remote packet gates close.",
+            "It must not be used to record a protocol-lane or F02.6 decision; only Dr Sun's decision record can do that.",
+            "Formal PPO training remains gpu3070ti-relay-only and blocked until protocol-lane, contract, source freshness, and remote packet gates close.",
             "Formal result writing remains blocked until H02 acceptance, claim safety, paper readiness, and the closure checklist all pass after audited pullback hashes.",
             "The formal gate execution veto matrix must agree across status, handoff, remote packet, and remote packet safety before this report can become claim-ready.",
         ],
