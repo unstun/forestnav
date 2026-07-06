@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_remaining_deliverables",
   "status": "formal_gate_deliverables_blocked",
-  "created_at_utc": "2026-07-06T01:13:34.243717+00:00",
-  "source_head": "fba358edd30e030635161a566fd24aa1b2820fe3+dirty",
+  "created_at_utc": "2026-07-06T01:14:19.354817+00:00",
+  "source_head": "9fd83d14cc15127411516a781afaa2a413595c33+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -165,7 +165,6 @@
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
           "protocol_lane_decision_pending",
-          "f02_6_decision_not_approved",
           "remote_packet_not_ready"
         ],
         "next_required_evidence": [
@@ -1026,11 +1025,10 @@
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
           "protocol_lane_decision_pending",
-          "f02_6_decision_not_approved",
           "remote_packet_not_ready"
         ],
         "required_current_blockers": [
-          "f02_6_decision_not_approved",
+          "protocol_lane_decision_pending",
           "remote_packet_not_ready"
         ],
         "missing_required_current_blockers": [],
@@ -1054,11 +1052,10 @@
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
           "protocol_lane_decision_pending",
-          "f02_6_decision_not_approved",
           "remote_packet_not_ready"
         ],
         "required_current_blockers": [
-          "f02_6_decision_not_approved",
+          "protocol_lane_decision_pending",
           "remote_packet_not_ready"
         ],
         "missing_required_current_blockers": [],
@@ -1082,11 +1079,10 @@
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
           "protocol_lane_decision_pending",
-          "f02_6_decision_not_approved",
           "remote_packet_not_ready"
         ],
         "required_current_blockers": [
-          "f02_6_decision_not_approved",
+          "protocol_lane_decision_pending",
           "remote_packet_not_ready"
         ],
         "missing_required_current_blockers": [],
@@ -1301,7 +1297,6 @@
         "responsible_stage_allowed_now": false,
         "responsible_stage_blocked_by": [
           "protocol_lane_decision_pending",
-          "f02_6_decision_not_approved",
           "remote_packet_not_ready"
         ],
         "missing_matrix_ids": [],
@@ -1376,7 +1371,6 @@
       "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
         "protocol_lane_decision_pending",
-        "f02_6_decision_not_approved",
         "remote_packet_not_ready"
       ],
       "acceptable_evidence": [
@@ -1566,7 +1560,6 @@
       "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
         "protocol_lane_decision_pending",
-        "f02_6_decision_not_approved",
         "remote_packet_not_ready"
       ],
       "acceptance_predicates": [
@@ -1620,7 +1613,6 @@
       "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
         "protocol_lane_decision_pending",
-        "f02_6_decision_not_approved",
         "remote_packet_not_ready"
       ],
       "acceptance_predicates": [
@@ -1674,7 +1666,6 @@
       "responsible_stage_allowed_now": false,
       "responsible_stage_blocked_by": [
         "protocol_lane_decision_pending",
-        "f02_6_decision_not_approved",
         "remote_packet_not_ready"
       ],
       "acceptance_predicates": [

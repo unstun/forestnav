@@ -175,7 +175,7 @@ def test_remaining_deliverables_blocks_pending_formal_gate(tmp_path):
     assert production_plan["not_paper_result_material"] is True
     assert production_plan["runs_training"] is False
     assert production_plan["runs_remote_preflight"] is False
-    assert production_plan["post_plan_status"] == "blocked_until_f02_6_decision"
+    assert production_plan["post_plan_status"] == "blocked_until_protocol_lane_decision"
     assert production_plan["row_count"] == 10
     assert production_plan["rows_missing_production_stage"] == 0
     assert production_plan["rows_missing_materialization_stage"] == 0
@@ -210,7 +210,7 @@ def test_remaining_deliverables_blocks_pending_formal_gate(tmp_path):
     assert unlock_chain["rows_allowed_while_missing"] == 0
     unlock_rows = {row["matrix_id"]: row for row in unlock_chain["rows"]}
     assert unlock_rows["training:train_final_model_zip"]["required_current_blockers"] == [
-        "f02_6_decision_not_approved",
+        "protocol_lane_decision_pending",
         "remote_packet_not_ready",
     ]
     assert unlock_rows["training:train_final_model_zip"]["missing_required_current_blockers"] == []
@@ -704,7 +704,7 @@ def _closure_checklist(*, complete):
 
 def _remote_packet(*, complete):
     return {
-        "status": "ready_for_remote_training_packet_execution" if complete else "blocked_until_f02_6_decision",
+        "status": "ready_for_remote_training_packet_execution" if complete else "blocked_until_protocol_lane_decision",
         "executes_commands": False,
         "runs_training": False,
         "runs_remote_preflight": False,
@@ -800,7 +800,7 @@ def _source_freshness(*, complete):
 def _post_plan(*, complete):
     blocked_by = [] if complete else ["f02_6_decision_not_approved", "remote_packet_not_ready"]
     return {
-        "status": "ready_for_claim_gate" if complete else "blocked_until_f02_6_decision",
+        "status": "ready_for_claim_gate" if complete else "blocked_until_protocol_lane_decision",
         "executes_commands": False,
         "runs_training": False,
         "runs_remote_preflight": False,

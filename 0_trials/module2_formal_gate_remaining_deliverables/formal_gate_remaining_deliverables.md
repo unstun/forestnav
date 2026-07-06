@@ -3,7 +3,7 @@
 This ledger is read-only. It lists remaining formal training, evaluation, and acceptance deliverables; it does not execute commands or write paper results.
 
 - status: `formal_gate_deliverables_blocked`
-- source_head: `fba358edd30e030635161a566fd24aa1b2820fe3+dirty`
+- source_head: `9fd83d14cc15127411516a781afaa2a413595c33+dirty`
 - missing_deliverable_count: `1`
 - open_category_count: `1`
 - missing_counts_by_formal_category: `{'training': 0, 'evaluation': 0, 'acceptance': 0, 'formal_acceptance': 1}`
@@ -31,7 +31,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - local_training_allowed_now: `False`
 - remote_training_allowed_now: `False`
 - formal_claim_allowed_now: `False`
-- `training`: missing=`0`, stage=`gate3_remote_training`, stage_allowed_now=`False`, missing_artifacts=`none`, proof_commands=`none`, blocked_by=`protocol_lane_decision_pending, f02_6_decision_not_approved, remote_packet_not_ready`
+- `training`: missing=`0`, stage=`gate3_remote_training`, stage_allowed_now=`False`, missing_artifacts=`none`, proof_commands=`none`, blocked_by=`protocol_lane_decision_pending, remote_packet_not_ready`
 - `evaluation`: missing=`0`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`none`, proof_commands=`none`, blocked_by=`remote_training_not_completed, protocol_lane_decision_pending`
 - `acceptance`: missing=`0`, stage=`gate3_remote_audit_pullback`, stage_allowed_now=`False`, missing_artifacts=`none`, proof_commands=`none`, blocked_by=`remote_training_not_completed, protocol_lane_decision_pending`
 - `formal_acceptance`: missing=`1`, stage=`regenerate_h01_h02_formal_artifacts`, stage_allowed_now=`False`, missing_artifacts=`formal_acceptance:h02_formal_output_acceptance`, proof_commands=`h02_formal_output_acceptance_exists_nonempty, h02_formal_output_acceptance_status`, blocked_by=`protocol_lane_decision_pending, missing_remote_audit_pullback`
@@ -99,7 +99,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - missing_count: `0`
 - responsible_stage_id: `gate3_remote_training`
 - responsible_stage_allowed_now: `False`
-- responsible_stage_blocked_by: `protocol_lane_decision_pending, f02_6_decision_not_approved, remote_packet_not_ready`
+- responsible_stage_blocked_by: `protocol_lane_decision_pending, remote_packet_not_ready`
 - missing_artifacts:
   - none
 ### gap:evaluation
@@ -170,9 +170,9 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - blocked_row_count: `1`
 - rows_with_missing_required_blockers: `0`
 - rows_allowed_while_missing: `0`
-- `training:train_final_model_zip`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`f02_6_decision_not_approved, remote_packet_not_ready`, missing_required_current_blockers=`none`, unlock_sequence=`record_protocol_lane_decision -> approved_or_frozen_new_or_revised_contract -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training`
-- `training:train_summary_json`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`f02_6_decision_not_approved, remote_packet_not_ready`, missing_required_current_blockers=`none`, unlock_sequence=`record_protocol_lane_decision -> approved_or_frozen_new_or_revised_contract -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training`
-- `training:train_training_manifest_json`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`f02_6_decision_not_approved, remote_packet_not_ready`, missing_required_current_blockers=`none`, unlock_sequence=`record_protocol_lane_decision -> approved_or_frozen_new_or_revised_contract -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training`
+- `training:train_final_model_zip`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`protocol_lane_decision_pending, remote_packet_not_ready`, missing_required_current_blockers=`none`, unlock_sequence=`record_protocol_lane_decision -> approved_or_frozen_new_or_revised_contract -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training`
+- `training:train_summary_json`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`protocol_lane_decision_pending, remote_packet_not_ready`, missing_required_current_blockers=`none`, unlock_sequence=`record_protocol_lane_decision -> approved_or_frozen_new_or_revised_contract -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training`
+- `training:train_training_manifest_json`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`protocol_lane_decision_pending, remote_packet_not_ready`, missing_required_current_blockers=`none`, unlock_sequence=`record_protocol_lane_decision -> approved_or_frozen_new_or_revised_contract -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training`
 - `evaluation:eval_gate3_eval_episodes_csv`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`remote_training_not_completed`, missing_required_current_blockers=`none`, unlock_sequence=`record_protocol_lane_decision -> approved_or_frozen_new_or_revised_contract -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
 - `evaluation:eval_gate3_summary_json`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`remote_training_not_completed`, missing_required_current_blockers=`none`, unlock_sequence=`record_protocol_lane_decision -> approved_or_frozen_new_or_revised_contract -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
 - `acceptance:gate3_trial_manifest_json`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`remote_training_not_completed`, missing_required_current_blockers=`none`, unlock_sequence=`record_protocol_lane_decision -> approved_or_frozen_new_or_revised_contract -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
@@ -188,7 +188,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - missing_count: `0`
 - responsible_stage_id: `gate3_remote_training`
 - responsible_stage_allowed_now: `False`
-- responsible_stage_blocked_by: `protocol_lane_decision_pending, f02_6_decision_not_approved, remote_packet_not_ready`
+- responsible_stage_blocked_by: `protocol_lane_decision_pending, remote_packet_not_ready`
 - items:
   - `train_final_model_zip`: missing=`False`, exists=`True`, state=`present`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip`
   - `train_summary_json`: missing=`False`, exists=`True`, state=`present`, path=`0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/summary.json`
@@ -262,7 +262,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - current_state: `present`
 - responsible_stage_id: `gate3_remote_training`
 - responsible_stage_allowed_now: `False`
-- responsible_stage_blocked_by: `protocol_lane_decision_pending, f02_6_decision_not_approved, remote_packet_not_ready`
+- responsible_stage_blocked_by: `protocol_lane_decision_pending, remote_packet_not_ready`
 - acceptance_predicates:
   - expected_path exists in the local pulled-back formal Gate3 artifact tree
   - artifact state is not missing, blocked, smoke, preview, or candidate
@@ -285,7 +285,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - current_state: `present`
 - responsible_stage_id: `gate3_remote_training`
 - responsible_stage_allowed_now: `False`
-- responsible_stage_blocked_by: `protocol_lane_decision_pending, f02_6_decision_not_approved, remote_packet_not_ready`
+- responsible_stage_blocked_by: `protocol_lane_decision_pending, remote_packet_not_ready`
 - acceptance_predicates:
   - expected_path exists in the local pulled-back formal Gate3 artifact tree
   - artifact state is not missing, blocked, smoke, preview, or candidate
@@ -308,7 +308,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - current_state: `present`
 - responsible_stage_id: `gate3_remote_training`
 - responsible_stage_allowed_now: `False`
-- responsible_stage_blocked_by: `protocol_lane_decision_pending, f02_6_decision_not_approved, remote_packet_not_ready`
+- responsible_stage_blocked_by: `protocol_lane_decision_pending, remote_packet_not_ready`
 - acceptance_predicates:
   - expected_path exists in the local pulled-back formal Gate3 artifact tree
   - artifact state is not missing, blocked, smoke, preview, or candidate
