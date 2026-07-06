@@ -328,6 +328,15 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
         ],
         "formal_acceptance": ["h02_formal_output_acceptance"],
     }
+    assert handoff["protocol_lane_next_success_attempt_artifact_expected_paths_by_id"]["train_final_model_zip"] == (
+        "0_trials/module2_gate3_formal/<next_attempt_id>/train/final_model.zip"
+    )
+    assert handoff["protocol_lane_next_success_attempt_artifact_expected_paths_by_id"][
+        "h02_formal_output_acceptance"
+    ] == "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
+    assert "remote-produced PPO checkpoint" in handoff[
+        "protocol_lane_next_success_attempt_artifact_proof_requirements_by_id"
+    ]["train_final_model_zip"]
     assert handoff["protocol_lane_post_plan_artifact_category_counts"] == {
         "contract": 1,
         "training": 3,
@@ -1236,6 +1245,10 @@ def test_formal_gate_status_report_rejects_handoff_protocol_lane_artifact_drift(
     protocol = handoff["protocol_lane_status_summary"]
     protocol["next_success_attempt_artifact_category_counts"]["training"] = 2
     protocol["next_success_attempt_artifact_ids_by_category"]["training"] = ["train_final_model_zip"]
+    protocol["next_success_attempt_artifact_expected_paths_by_id"]["train_final_model_zip"] = (
+        "0_trials/wrong/final_model.zip"
+    )
+    protocol["next_success_attempt_artifact_proof_requirements_by_id"]["train_summary_json"] = ""
     protocol["post_decision_contract_plan_shared_artifact_category_counts"]["evaluation"] = 1
     protocol["old_failed_run_artifacts_invalid_for_next_success_attempt"] = False
     protocol["post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"] = False
@@ -1247,6 +1260,8 @@ def test_formal_gate_status_report_rejects_handoff_protocol_lane_artifact_drift(
     assert manifest["status"] == "formal_gate_status_blocked"
     assert "handoff_bundle_protocol_lane_next_artifact_category_counts_drift" in issue_ids
     assert "handoff_bundle_protocol_lane_next_artifact_ids_drift" in issue_ids
+    assert "handoff_bundle_protocol_lane_next_artifact_expected_paths_drift" in issue_ids
+    assert "handoff_bundle_protocol_lane_next_artifact_proof_requirement_empty" in issue_ids
     assert "handoff_bundle_protocol_lane_post_plan_category_counts_drift" in issue_ids
     assert "handoff_bundle_protocol_lane_old_failed_invalid_flag_drift" in issue_ids
     assert "handoff_bundle_protocol_lane_post_plan_old_failed_invalid_flag_drift" in issue_ids
@@ -2929,6 +2944,8 @@ def _handoff_bundle(*, complete, drift=False):
                 ],
                 "formal_acceptance": ["h02_formal_output_acceptance"],
             },
+            "next_success_attempt_artifact_expected_paths_by_id": _next_success_expected_paths_by_id(),
+            "next_success_attempt_artifact_proof_requirements_by_id": _next_success_proof_requirements_by_id(),
             "post_decision_contract_plan_shared_artifact_category_counts": {
                 "contract": 1,
                 "training": 3,
