@@ -381,6 +381,8 @@ def _input_safety_issues(
     post_plan: dict[str, Any],
     source_freshness: dict[str, Any],
     remaining_deliverables: dict[str, Any],
+    protocol_lane_status: dict[str, Any],
+    next_round_requirements: dict[str, Any],
     all_items_closed: bool,
 ) -> list[dict[str, str]]:
     issues: list[dict[str, str]] = []
@@ -390,6 +392,8 @@ def _input_safety_issues(
         ("post_plan", post_plan),
         ("source_freshness", source_freshness),
         ("remaining_deliverables", remaining_deliverables),
+        ("protocol_lane_status", protocol_lane_status),
+        ("next_round_requirements", next_round_requirements),
     ):
         if payload.get("executes_commands") is True:
             issues.append(_issue(f"{name}_executes_commands", f"{name} must be read-only for closure checklist input."))
@@ -401,7 +405,12 @@ def _input_safety_issues(
             issues.append(_issue(f"{name}_allows_local_training", f"{name} must preserve local-training prohibition."))
         if payload.get("formal_claim_allowed") is True:
             issues.append(_issue(f"{name}_allows_formal_claim", f"{name} must not allow formal claims."))
-    issues.extend(_post_plan_remote_stage_safety_issues(post_plan))
+    issues.extend(
+        _post_plan_remote_stage_safety_issues(
+            post_plan,
+            protocol_lane_status=protocol_lane_status,
+        )
+    )
     issues.extend(
         _remaining_deliverables_gap_issues(
             remaining_deliverables=remaining_deliverables,
@@ -445,29 +454,45 @@ def _post_plan_blocked_stage_ids(post_plan: dict[str, Any]) -> list[str]:
     return []
 
 
-def _post_plan_remote_stage_summary(post_plan: dict[str, Any]) -> dict[str, dict[str, Any]]:
+def _post_plan_remote_stage_summary(
+    post_plan: dict[str, Any],
+    *,
+    protocol_lane_status: dict[str, Any] | None = None,
+) -> dict[str, dict[str, Any]]:
     stages = {
         str(stage.get("stage_id")): stage
         for stage in post_plan.get("ordered_stages", ())
         if isinstance(stage, dict)
     }
+    protocol_pending = _protocol_lane_pending(protocol_lane_status or {})
     summary: dict[str, dict[str, Any]] = {}
     for stage_id in REMOTE_POST_PLAN_STAGE_IDS:
         stage = stages.get(stage_id, {})
+        raw_allowed_now = stage.get("allowed_now") if isinstance(stage.get("allowed_now"), bool) else None
+        blocked_by = _strings(stage.get("blocked_by"))
+        if protocol_pending and (stage.get("runs_training") is True or stage.get("runs_remote_preflight") is True):
+            blocked_by = _unique(blocked_by + ["protocol_lane_decision_pending"])
+        allowed_now = False if protocol_pending and stage_id in {"approved_remote_preflight", "gate3_remote_training"} else raw_allowed_now
         summary[stage_id] = {
             "present": bool(stage),
             "status": stage.get("status"),
-            "allowed_now": stage.get("allowed_now") if isinstance(stage.get("allowed_now"), bool) else None,
+            "raw_allowed_now": raw_allowed_now,
+            "allowed_now": allowed_now,
+            "vetoed_by_protocol_lane": bool(protocol_pending and raw_allowed_now is True),
             "runs_training": stage.get("runs_training") if isinstance(stage.get("runs_training"), bool) else None,
             "runs_remote_preflight": stage.get("runs_remote_preflight") if isinstance(stage.get("runs_remote_preflight"), bool) else None,
             "host": stage.get("host"),
-            "blocked_by": _strings(stage.get("blocked_by")),
+            "blocked_by": blocked_by,
         }
     return summary
 
 
-def _post_plan_remote_stage_safety_issues(post_plan: dict[str, Any]) -> list[dict[str, str]]:
-    summary = _post_plan_remote_stage_summary(post_plan)
+def _post_plan_remote_stage_safety_issues(
+    post_plan: dict[str, Any],
+    *,
+    protocol_lane_status: dict[str, Any],
+) -> list[dict[str, str]]:
+    summary = _post_plan_remote_stage_summary(post_plan, protocol_lane_status=protocol_lane_status)
     issues: list[dict[str, str]] = []
     for stage_id, stage in summary.items():
         if not stage["present"]:
@@ -490,6 +515,71 @@ def _post_plan_remote_stage_safety_issues(post_plan: dict[str, Any]) -> list[dic
         if (stage.get("runs_training") is True or stage.get("runs_remote_preflight") is True) and stage.get("host") != "gpu3070ti-relay":
             issues.append(_issue(f"post_plan_{stage_id}_wrong_host", f"{stage_id} must run only on gpu3070ti-relay."))
     return issues
+
+
+def _protocol_lane_current(protocol_lane_status: dict[str, Any]) -> dict[str, Any]:
+    current = protocol_lane_status.get("current_status")
+    return current if isinstance(current, dict) else {}
+
+
+def _protocol_lane_pending(protocol_lane_status: dict[str, Any]) -> bool:
+    current = _protocol_lane_current(protocol_lane_status)
+    return (
+        protocol_lane_status.get("status") == "protocol_lane_status_blocked_pending_lane_decision"
+        or current.get("decision_record_status") == "pending_protocol_lane_decision"
+        or current.get("next_blocked_lane") == "protocol_lane_decision"
+    )
+
+
+def _protocol_lane_current_summary(protocol_lane_status: dict[str, Any]) -> dict[str, Any]:
+    current = _protocol_lane_current(protocol_lane_status)
+    return {
+        "protocol_lane_status": protocol_lane_status.get("status"),
+        "protocol_lane_pending": _protocol_lane_pending(protocol_lane_status),
+        "protocol_lane_next_blocked_lane": current.get("next_blocked_lane"),
+        "protocol_lane_decision_record_status": current.get("decision_record_status"),
+        "protocol_lane_selected_lane_id": current.get("selected_lane_id"),
+        "protocol_lane_contract_drafting_allowed_now": current.get("contract_drafting_allowed_now"),
+        "protocol_lane_remote_training_allowed_now": current.get("remote_training_allowed_now"),
+        "protocol_lane_allowed_next_action_ids": _strings(current.get("allowed_next_action_ids")),
+        "protocol_lane_blocked_action_ids": _strings(current.get("blocked_action_ids")),
+    }
+
+
+def _next_round_requirements_summary(next_round_requirements: dict[str, Any]) -> dict[str, Any]:
+    permissions = (
+        next_round_requirements.get("permissions_now")
+        if isinstance(next_round_requirements.get("permissions_now"), dict)
+        else {}
+    )
+    requirements = (
+        next_round_requirements.get("next_round_requirements")
+        if isinstance(next_round_requirements.get("next_round_requirements"), dict)
+        else {}
+    )
+    rows = requirements.get("rows") if isinstance(requirements.get("rows"), list) else []
+    return {
+        "status": next_round_requirements.get("status"),
+        "requirements_status": requirements.get("status"),
+        "requirement_count": int(requirements.get("requirement_count") or 0),
+        "local_training_allowed_now": permissions.get("local_training_allowed_now"),
+        "remote_preflight_allowed_now": permissions.get("remote_preflight_allowed_now"),
+        "new_success_training_allowed_now": permissions.get("new_success_training_allowed_now"),
+        "new_or_revised_contract_required_before_new_success_training": permissions.get(
+            "new_or_revised_contract_required_before_new_success_training"
+        ),
+        "execution_veto_reason": permissions.get("execution_veto_reason"),
+        "rows": [
+            {
+                "category": row.get("category"),
+                "requirement_id": row.get("requirement_id"),
+                "status": row.get("status"),
+                "required_before": row.get("required_before"),
+            }
+            for row in rows
+            if isinstance(row, dict)
+        ],
+    }
 
 
 def _remaining_deliverables_gap_summary(remaining_deliverables: dict[str, Any]) -> dict[str, Any]:
