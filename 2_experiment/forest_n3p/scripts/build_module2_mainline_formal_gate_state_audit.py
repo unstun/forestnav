@@ -1028,6 +1028,34 @@ def _normalize_protocol_lane_status_report(raw: Any) -> dict[str, Any]:
     return normalized
 
 
+def _normalize_protocol_lane_readiness(raw: Any) -> dict[str, Any]:
+    raw = raw if isinstance(raw, dict) else {}
+    gate = raw.get("gate_state") if isinstance(raw.get("gate_state"), dict) else {}
+    return {
+        "present": bool(raw),
+        "artifact_name": str(raw.get("artifact_name") or ""),
+        "status": str(raw.get("status") or ""),
+        "audit_issue_count": int(raw.get("audit_issue_count") or 0),
+        "lane_count": int(raw.get("lane_count") or 0),
+        "shared_next_success_attempt_artifact_count": int(
+            raw.get("shared_next_success_attempt_artifact_count") or 0
+        ),
+        "not_paper_result_material": raw.get("not_paper_result_material"),
+        "executes_commands": raw.get("executes_commands"),
+        "runs_training": raw.get("runs_training"),
+        "runs_remote_preflight": raw.get("runs_remote_preflight"),
+        "remote_training_allowed_now": raw.get("remote_training_allowed_now"),
+        "formal_claim_allowed": raw.get("formal_claim_allowed"),
+        "paper_result_material_allowed": raw.get("paper_result_material_allowed"),
+        "gate_next_blocked_lane": str(gate.get("next_blocked_lane") or ""),
+        "gate_selected_lane_id": gate.get("selected_lane_id"),
+        "gate_decision_owner_required": str(gate.get("decision_owner_required") or ""),
+        "gate_remote_training_allowed_now": gate.get("remote_training_allowed_now"),
+        "gate_formal_claim_allowed_now": gate.get("formal_claim_allowed_now"),
+        "gate_paper_result_material_allowed_now": gate.get("paper_result_material_allowed_now"),
+    }
+
+
 def _strings(value: Any) -> list[str]:
     if not isinstance(value, list):
         return []
