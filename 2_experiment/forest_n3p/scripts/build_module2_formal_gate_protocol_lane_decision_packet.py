@@ -79,6 +79,7 @@ def build_manifest(config: FormalGateProtocolLaneDecisionPacketConfig) -> dict[s
         "valid_lane_ids": [lane["lane_id"] for lane in lanes],
         "lane_options": lanes,
         "decision_record_schema": decision_schema,
+        "record_command_templates": _record_command_templates(lanes),
         "current_allowed_actions": [
             "record_protocol_lane_decision",
             "draft_new_or_revised_contract_after_lane_decision",
@@ -215,11 +216,12 @@ def _decision_record_schema(lanes: list[dict[str, Any]]) -> dict[str, Any]:
         ],
         "decision_note_must_cover": [
             "selected_lane",
-            "failed_gate3_basis",
+            "failed_gate3_basis_0.53125_vs_0.8",
             "contract_action",
             "rejected_lanes",
             "evidence_artifact_basis",
         ],
+        "decision_note_template": _decision_note_template("<selected_lane_id>"),
         "training_authorization_must_be": "not_authorized_by_this_decision_packet",
         "invalid_records": [
             "selected_lane_id outside valid_lane_ids",
@@ -230,6 +232,42 @@ def _decision_record_schema(lanes: list[dict[str, Any]]) -> dict[str, Any]:
             "decision note that omits the evidence artifact basis",
         ],
     }
+
+
+def _record_command_templates(lanes: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        {
+            "selected_lane": str(lane["lane_id"]),
+            "allowed_for_agent_now": False,
+            "requires_dr_sun_decision": True,
+            "runs_training": False,
+            "runs_remote_preflight": False,
+            "contract_actions": [
+                "draft_new_contract",
+                "draft_revised_contract",
+                "stop_success_attempts_and_record_negative_evidence",
+            ],
+            "decision_note_template": _decision_note_template(str(lane["lane_id"])),
+            "template": (
+                "PYTHONPATH=2_experiment python -m "
+                "forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record "
+                f"--selected-lane {lane['lane_id']} --decider 'Dr Sun' --contract-action <contract_action> "
+                "--decision-note '<fill the decision_note_template verbatim with Dr Sun rationale>'"
+            ),
+        }
+        for lane in lanes
+    ]
+
+
+def _decision_note_template(selected_lane: str) -> str:
+    return (
+        f"Select {selected_lane} because the failed Gate3 0.53125 result is below the 0.8 threshold; "
+        "reject <all other lane ids with one rationale each>; "
+        "use protocol_lane_matrix, gate3_formal_audit, formal_gate_next_round_requirements, "
+        "and h02_formal_acceptance artifacts as the evidence basis; "
+        "contract action is <draft_new_contract|draft_revised_contract|stop_success_attempts_and_record_negative_evidence>; "
+        "this decision does not authorize local training, remote preflight, remote training, formal claim, or paper result material."
+    )
 
 
 def _audit_issues(
@@ -336,7 +374,20 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.extend(["", "## Decision Record Schema", ""])
     lines.append(f"- required_fields: `{', '.join(manifest['decision_record_schema']['required_fields'])}`")
     lines.append(f"- decision_note_must_cover: `{', '.join(manifest['decision_record_schema']['decision_note_must_cover'])}`")
+    lines.append(f"- decision_note_template: `{manifest['decision_record_schema']['decision_note_template']}`")
     lines.append(f"- training_authorization_must_be: `{manifest['decision_record_schema']['training_authorization_must_be']}`")
+    lines.extend(["", "## Record Command Templates", ""])
+    for template in manifest["record_command_templates"]:
+        lines.extend(
+            [
+                f"- selected_lane: `{template['selected_lane']}`",
+                f"  - allowed_for_agent_now: `{template['allowed_for_agent_now']}`",
+                f"  - runs_training: `{template['runs_training']}`",
+                f"  - runs_remote_preflight: `{template['runs_remote_preflight']}`",
+                f"  - decision_note_template: `{template['decision_note_template']}`",
+                f"  - template: `{template['template']}`",
+            ]
+        )
     lines.extend(["", "## Current Blocked Actions"])
     for action in manifest["current_blocked_actions"]:
         lines.append(f"- `{action}`")
