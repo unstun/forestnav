@@ -494,6 +494,8 @@ def _next_success_artifact_summary(next_round: dict[str, Any]) -> dict[str, Any]
     rows = rows if isinstance(rows, list) else []
     ids_by_category: dict[str, list[str]] = {}
     category_counts: dict[str, int] = {}
+    expected_paths_by_id: dict[str, str] = {}
+    proof_requirements_by_id: dict[str, str] = {}
     for row in rows:
         if not isinstance(row, dict):
             continue
@@ -503,11 +505,15 @@ def _next_success_artifact_summary(next_round: dict[str, Any]) -> dict[str, Any]
             continue
         ids_by_category.setdefault(category, []).append(artifact_id)
         category_counts[category] = category_counts.get(category, 0) + 1
+        expected_paths_by_id[artifact_id] = str(row.get("expected_path") or "")
+        proof_requirements_by_id[artifact_id] = str(row.get("proof_requirement") or "")
     return {
         "status": index.get("status"),
         "artifact_count": int(index.get("artifact_count") or len(rows)),
         "category_counts": category_counts,
         "artifact_ids_by_category": ids_by_category,
+        "expected_paths_by_id": expected_paths_by_id,
+        "proof_requirements_by_id": proof_requirements_by_id,
         "old_failed_run_artifacts_invalid_for_next_success_attempt": reconciliation.get(
             "old_failed_run_artifacts_invalid_for_next_success_attempt"
         ),
