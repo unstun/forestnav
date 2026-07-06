@@ -37,7 +37,7 @@ FORMAL_REQUIREMENT_PHASE_BY_CATEGORY = {
     "formal_acceptance": "evaluation_acceptance",
 }
 CURRENT_BLOCKER_REQUIREMENTS_BY_CATEGORY = {
-    "training": ("f02_6_decision_not_approved", "remote_packet_not_ready"),
+    "training": ("protocol_lane_decision_pending", "remote_packet_not_ready"),
     "evaluation": ("remote_training_not_completed",),
     "acceptance": ("remote_training_not_completed",),
     "formal_acceptance": ("missing_remote_audit_pullback",),
