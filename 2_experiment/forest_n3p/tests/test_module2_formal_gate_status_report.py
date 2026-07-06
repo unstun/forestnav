@@ -2982,6 +2982,40 @@ def _handoff_bundle(*, complete, drift=False):
     return payload
 
 
+def _next_success_expected_paths_by_id():
+    return {
+        "new_or_revised_research_contract": ".pipeline/contracts/module2-<selected_protocol_lane>-<version>.md",
+        "train_final_model_zip": "0_trials/module2_gate3_formal/<next_attempt_id>/train/final_model.zip",
+        "train_summary_json": "0_trials/module2_gate3_formal/<next_attempt_id>/train/summary.json",
+        "train_training_manifest_json": "0_trials/module2_gate3_formal/<next_attempt_id>/train/training_manifest.json",
+        "eval_gate3_eval_episodes_csv": "0_trials/module2_gate3_formal/<next_attempt_id>/eval/gate3_eval_episodes.csv",
+        "eval_gate3_summary_json": "0_trials/module2_gate3_formal/<next_attempt_id>/eval/gate3_summary.json",
+        "gate3_trial_manifest_json": "0_trials/module2_gate3_formal/<next_attempt_id>/gate3_trial_manifest.json",
+        "gate3_formal_audit_json": "0_trials/module2_gate3_formal/<next_attempt_id>/gate3_formal_audit.json",
+        "pulled_back_checkpoint_hash_record": (
+            "0_trials/module2_gate3_formal/<next_attempt_id>/train/final_model.zip.sha256 or .sha256.json"
+        ),
+        "h02_formal_output_acceptance": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+    }
+
+
+def _next_success_proof_requirements_by_id():
+    return {
+        "new_or_revised_research_contract": "contract status is approved or frozen",
+        "train_final_model_zip": "remote-produced PPO checkpoint pulled back from gpu3070ti-relay",
+        "train_summary_json": "summary records protocol label, training budget, seed, and terminal-RS training signals",
+        "train_training_manifest_json": "manifest records source head, host, command provenance, seed, and selected protocol lane",
+        "eval_gate3_eval_episodes_csv": "per-episode formal Gate3 CSV with at least 64 episodes and protocol provenance",
+        "eval_gate3_summary_json": "summary records terminal-RS success, collision, truncation, timing, seed, and protocol label",
+        "gate3_trial_manifest_json": "trial manifest ties contract, train, eval, audit, source head, and selected protocol lane",
+        "gate3_formal_audit_json": "audit records formal_decision=pass for the new approved protocol attempt",
+        "pulled_back_checkpoint_hash_record": "hash record matches the pulled-back final_model.zip evaluated by Gate3",
+        "h02_formal_output_acceptance": (
+            "H02 records formal_output_accepted=true, paper_result_input_allowed=true, PPO rows, and accepted checkpoint hash"
+        ),
+    }
+
+
 def _handoff_step(allowed, runs_training, blockers):
     return {
         "allowed_now": allowed,

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_protocol_lane_status_report",
   "status": "protocol_lane_status_blocked_pending_lane_decision",
-  "created_at_utc": "2026-07-06T04:56:17.101775+00:00",
-  "source_head": "c99a726130b0e9c5e4067fac6c068fdc736b456c+dirty",
+  "created_at_utc": "2026-07-06T05:32:05.273344+00:00",
+  "source_head": "200c5942cb153d4b33de38891c0326e8b75e83f7+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -93,6 +93,30 @@
       "formal_acceptance": [
         "h02_formal_output_acceptance"
       ]
+    },
+    "next_success_attempt_artifact_expected_paths_by_id": {
+      "new_or_revised_research_contract": ".pipeline/contracts/module2-<selected_protocol_lane>-<version>.md",
+      "train_final_model_zip": "0_trials/module2_gate3_formal/<next_attempt_id>/train/final_model.zip",
+      "train_summary_json": "0_trials/module2_gate3_formal/<next_attempt_id>/train/summary.json",
+      "train_training_manifest_json": "0_trials/module2_gate3_formal/<next_attempt_id>/train/training_manifest.json",
+      "eval_gate3_eval_episodes_csv": "0_trials/module2_gate3_formal/<next_attempt_id>/eval/gate3_eval_episodes.csv",
+      "eval_gate3_summary_json": "0_trials/module2_gate3_formal/<next_attempt_id>/eval/gate3_summary.json",
+      "gate3_trial_manifest_json": "0_trials/module2_gate3_formal/<next_attempt_id>/gate3_trial_manifest.json",
+      "gate3_formal_audit_json": "0_trials/module2_gate3_formal/<next_attempt_id>/gate3_formal_audit.json",
+      "pulled_back_checkpoint_hash_record": "0_trials/module2_gate3_formal/<next_attempt_id>/train/final_model.zip.sha256 or .sha256.json",
+      "h02_formal_output_acceptance": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
+    },
+    "next_success_attempt_artifact_proof_requirements_by_id": {
+      "new_or_revised_research_contract": "contract status is approved or frozen and locks hypothesis, success signal, failure signal, budget, and protocol deltas",
+      "train_final_model_zip": "remote-produced PPO checkpoint pulled back from gpu3070ti-relay",
+      "train_summary_json": "summary records protocol label, training budget, seed, and terminal-RS training signals",
+      "train_training_manifest_json": "manifest records source head, host, command provenance, seed, and selected protocol lane",
+      "eval_gate3_eval_episodes_csv": "per-episode formal Gate3 CSV with at least 64 episodes and protocol provenance",
+      "eval_gate3_summary_json": "summary records terminal-RS success, collision, truncation, timing, seed, and protocol label",
+      "gate3_trial_manifest_json": "trial manifest ties contract, train, eval, audit, source head, and selected protocol lane",
+      "gate3_formal_audit_json": "audit records formal_decision=pass for the new approved protocol attempt",
+      "pulled_back_checkpoint_hash_record": "hash record matches the pulled-back final_model.zip evaluated by Gate3",
+      "h02_formal_output_acceptance": "H02 records formal_output_accepted=true, paper_result_input_allowed=true, PPO rows, and accepted checkpoint hash"
     },
     "old_failed_run_artifacts_invalid_for_next_success_attempt": true,
     "allowed_next_action_ids": [

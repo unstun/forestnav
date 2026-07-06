@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `463fa302b22a7241a534b08b6340ee17ccae4563+dirty`
+- source_head: `200c5942cb153d4b33de38891c0326e8b75e83f7+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -528,6 +528,8 @@ This file is a read-only formal-gate status report. It does not execute commands
 - remote_training_allowed_now: `False`
 - protocol_lane_next_success_attempt_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
 - protocol_lane_next_success_attempt_artifact_ids_by_category: `{'contract': ['new_or_revised_research_contract'], 'training': ['train_final_model_zip', 'train_summary_json', 'train_training_manifest_json'], 'evaluation': ['eval_gate3_eval_episodes_csv', 'eval_gate3_summary_json'], 'acceptance': ['gate3_trial_manifest_json', 'gate3_formal_audit_json', 'pulled_back_checkpoint_hash_record'], 'formal_acceptance': ['h02_formal_output_acceptance']}`
+- protocol_lane_next_success_attempt_artifact_expected_paths_by_id: `{'new_or_revised_research_contract': '.pipeline/contracts/module2-<selected_protocol_lane>-<version>.md', 'train_final_model_zip': '0_trials/module2_gate3_formal/<next_attempt_id>/train/final_model.zip', 'train_summary_json': '0_trials/module2_gate3_formal/<next_attempt_id>/train/summary.json', 'train_training_manifest_json': '0_trials/module2_gate3_formal/<next_attempt_id>/train/training_manifest.json', 'eval_gate3_eval_episodes_csv': '0_trials/module2_gate3_formal/<next_attempt_id>/eval/gate3_eval_episodes.csv', 'eval_gate3_summary_json': '0_trials/module2_gate3_formal/<next_attempt_id>/eval/gate3_summary.json', 'gate3_trial_manifest_json': '0_trials/module2_gate3_formal/<next_attempt_id>/gate3_trial_manifest.json', 'gate3_formal_audit_json': '0_trials/module2_gate3_formal/<next_attempt_id>/gate3_formal_audit.json', 'pulled_back_checkpoint_hash_record': '0_trials/module2_gate3_formal/<next_attempt_id>/train/final_model.zip.sha256 or .sha256.json', 'h02_formal_output_acceptance': '0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json'}`
+- protocol_lane_next_success_attempt_artifact_proof_requirement_count: `10`
 - protocol_lane_post_plan_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
 - protocol_lane_old_failed_run_artifacts_invalid_for_next_success_attempt: `True`
 - protocol_lane_post_plan_old_failed_run_artifacts_invalid_for_next_success_attempt: `True`

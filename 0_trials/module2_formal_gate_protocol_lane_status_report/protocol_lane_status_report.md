@@ -12,6 +12,8 @@ This file summarizes protocol-lane gates; it is not paper result material.
 - formal_claim_allowed_now: `False`
 - next_success_attempt_artifact_count: `10`
 - next_success_attempt_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
+- next_success_attempt_artifact_expected_paths_by_id: `{'new_or_revised_research_contract': '.pipeline/contracts/module2-<selected_protocol_lane>-<version>.md', 'train_final_model_zip': '0_trials/module2_gate3_formal/<next_attempt_id>/train/final_model.zip', 'train_summary_json': '0_trials/module2_gate3_formal/<next_attempt_id>/train/summary.json', 'train_training_manifest_json': '0_trials/module2_gate3_formal/<next_attempt_id>/train/training_manifest.json', 'eval_gate3_eval_episodes_csv': '0_trials/module2_gate3_formal/<next_attempt_id>/eval/gate3_eval_episodes.csv', 'eval_gate3_summary_json': '0_trials/module2_gate3_formal/<next_attempt_id>/eval/gate3_summary.json', 'gate3_trial_manifest_json': '0_trials/module2_gate3_formal/<next_attempt_id>/gate3_trial_manifest.json', 'gate3_formal_audit_json': '0_trials/module2_gate3_formal/<next_attempt_id>/gate3_formal_audit.json', 'pulled_back_checkpoint_hash_record': '0_trials/module2_gate3_formal/<next_attempt_id>/train/final_model.zip.sha256 or .sha256.json', 'h02_formal_output_acceptance': '0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json'}`
+- next_success_attempt_artifact_proof_requirement_count: `10`
 - old_failed_run_artifacts_invalid_for_next_success_attempt: `True`
 
 ## Post-Decision Contract Plan
