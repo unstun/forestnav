@@ -61,6 +61,21 @@ def test_mainline_formal_gate_state_audit_accepts_current_blocked_state(tmp_path
     assert manifest["protocol_lane_readiness_artifact_mentioned"] is True
     assert manifest["protocol_lane_readiness_status_mentioned"] is True
     assert manifest["protocol_lane_readiness_shared_artifact_count_mentioned"] is True
+    post_plan = manifest["post_decision_contract_plan_summary"]
+    assert post_plan["artifact_name"] == "module2_formal_gate_post_decision_contract_plan"
+    assert post_plan["status"] == "post_decision_contract_plan_ready_blocked_pending_lane_decision"
+    assert post_plan["audit_issue_count"] == 0
+    assert post_plan["required_contract_section_count"] == 8
+    assert post_plan["shared_next_success_attempt_artifact_count"] == 10
+    assert post_plan["lane_count"] == 4
+    assert post_plan["gate_selected_lane_id"] is None
+    assert post_plan["gate_contract_drafting_allowed_now"] is False
+    assert post_plan["gate_remote_training_allowed_now"] is False
+    assert manifest["post_decision_contract_plan_artifact_mentioned"] is True
+    assert manifest["post_decision_contract_plan_status_mentioned"] is True
+    assert manifest["post_decision_contract_plan_required_section_count_mentioned"] is True
+    assert manifest["post_decision_contract_plan_shared_artifact_count_mentioned"] is True
+    assert manifest["post_decision_contract_plan_lane_count_mentioned"] is True
     assert manifest["total_missing_deliverables"] == 10
     assert manifest["mainline_missing_deliverable_mention_count"] == 0
     matrix = manifest["f02_6_decision_evidence_matrix_summary"]
@@ -212,6 +227,38 @@ def test_mainline_formal_gate_state_audit_fails_protocol_lane_readiness_authoriz
     assert "protocol_lane_readiness_authorization_leak" in issue_ids
 
 
+def test_mainline_formal_gate_state_audit_fails_missing_post_decision_contract_plan_boundary(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit")
+    paths = _write_inputs(tmp_path, omit_post_decision_contract_plan_boundary=True)
+
+    manifest = builder.build_manifest(_config(builder, tmp_path, paths))
+
+    assert manifest["status"] == "mainline_formal_gate_state_audit_failed"
+    assert manifest["post_decision_contract_plan_artifact_mentioned"] is False
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "mainline_current_section_missing_post_decision_contract_plan_artifact" in issue_ids
+    assert "mainline_current_section_missing_post_decision_contract_plan_status" in issue_ids
+    assert "mainline_current_section_missing_post_decision_contract_section_count" in issue_ids
+    assert "mainline_current_section_missing_post_decision_contract_shared_artifact_count" in issue_ids
+    assert "mainline_current_section_missing_post_decision_contract_lane_count" in issue_ids
+
+
+def test_mainline_formal_gate_state_audit_fails_post_decision_contract_plan_authorization_leak(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit")
+    paths = _write_inputs(tmp_path)
+    plan = json.loads(paths["post_plan"].read_text(encoding="utf-8"))
+    plan["writes_contract"] = True
+    plan["gate_state"]["remote_training_allowed_now"] = True
+    paths["post_plan"].write_text(json.dumps(plan), encoding="utf-8")
+
+    manifest = builder.build_manifest(_config(builder, tmp_path, paths))
+
+    assert manifest["status"] == "mainline_formal_gate_state_audit_failed"
+    assert manifest["post_decision_contract_plan_summary"]["writes_contract"] is True
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "post_decision_contract_plan_authorization_leak" in issue_ids
+
+
 def test_mainline_formal_gate_state_audit_fails_current_section_allowed_token(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit")
     paths = _write_inputs(tmp_path, extra_current_text=" remote_training_allowed=true")
@@ -281,6 +328,8 @@ def test_mainline_formal_gate_state_audit_cli_writes_json_and_markdown(tmp_path)
             str(paths["protocol"]),
             "--protocol-lane-readiness",
             str(paths["readiness"]),
+            "--post-decision-contract-plan",
+            str(paths["post_plan"]),
         ]
     )
 
@@ -303,6 +352,9 @@ def test_mainline_formal_gate_state_audit_cli_writes_json_and_markdown(tmp_path)
     assert "Protocol Lane Readiness" in markdown
     assert "module2_formal_gate_protocol_lane_readiness" in markdown
     assert "protocol_lane_readiness_ready_for_dr_sun_decision" in markdown
+    assert "Post-Decision Contract Plan" in markdown
+    assert "module2_formal_gate_post_decision_contract_plan" in markdown
+    assert "post_decision_contract_plan_ready_blocked_pending_lane_decision" in markdown
 
 
 def _config(builder, tmp_path, paths):
@@ -313,6 +365,7 @@ def _config(builder, tmp_path, paths):
         proof_summary_chain_audit_path=paths["proof"],
         protocol_lane_status_report_path=paths["protocol"],
         protocol_lane_readiness_path=paths["readiness"],
+        post_decision_contract_plan_path=paths["post_plan"],
     )
 
 
@@ -324,6 +377,7 @@ def _write_inputs(
     omit_decision_matrix_boundary=False,
     omit_protocol_lane_boundary=False,
     omit_protocol_lane_readiness_boundary=False,
+    omit_post_decision_contract_plan_boundary=False,
 ):
     paths = {
         "mainline": tmp_path / "mainline.md",
@@ -331,6 +385,7 @@ def _write_inputs(
         "proof": tmp_path / "proof.json",
         "protocol": tmp_path / "protocol.json",
         "readiness": tmp_path / "readiness.json",
+        "post_plan": tmp_path / "post_plan.json",
     }
     rows = _deliverable_rows()
     artifact_ids = [row["artifact_id"] for row in rows if row["artifact_id"] != omit_artifact_id]
@@ -360,6 +415,16 @@ def _write_inputs(
             "不是训练、远端预检、formal claim 或论文结果授权。"
         )
     )
+    post_plan_text = (
+        ""
+        if omit_post_decision_contract_plan_boundary
+        else (
+            "Post-decision contract plan `module2_formal_gate_post_decision_contract_plan` 当前为 "
+            "`post_decision_contract_plan_ready_blocked_pending_lane_decision`, audit_issue_count=0, "
+            "required_contract_section_count=8, shared_next_success_attempt_artifact_count=10, lane_count=4; "
+            "plan 不写 contract、不批准 contract、不训练、不远端预检、不写 formal claim 或论文结果授权。"
+        )
+    )
     current_line = (
         "- 2026-07-05: 当前 formal gate 下一步清单已同步到主任务书。"
         "唯一允许动作仍是 `record_f02_6_decision`; "
@@ -379,6 +444,7 @@ def _write_inputs(
         )
         + protocol_lane_text
         + readiness_text
+        + post_plan_text
         + f"{extra_current_text}"
     )
     paths["mainline"].write_text("# mainline\n\n" + current_line + "\n", encoding="utf-8")
@@ -458,6 +524,7 @@ def _write_inputs(
     )
     paths["protocol"].write_text(json.dumps(_protocol_lane_status()), encoding="utf-8")
     paths["readiness"].write_text(json.dumps(_protocol_lane_readiness()), encoding="utf-8")
+    paths["post_plan"].write_text(json.dumps(_post_decision_contract_plan()), encoding="utf-8")
     return paths
 
 
@@ -542,5 +609,32 @@ def _protocol_lane_readiness():
             "remote_training_allowed_now": False,
             "formal_claim_allowed_now": False,
             "paper_result_material_allowed_now": False,
+        },
+    }
+
+
+def _post_decision_contract_plan():
+    return {
+        "artifact_name": "module2_formal_gate_post_decision_contract_plan",
+        "status": "post_decision_contract_plan_ready_blocked_pending_lane_decision",
+        "audit_issue_count": 0,
+        "required_contract_section_count": 8,
+        "shared_next_success_attempt_artifact_count": 10,
+        "lane_count": 4,
+        "not_paper_result_material": True,
+        "executes_commands": False,
+        "writes_contract": False,
+        "approves_contract": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "remote_training_allowed_now": False,
+        "formal_claim_allowed": False,
+        "paper_result_material_allowed": False,
+        "gate_state": {
+            "next_blocked_lane": "protocol_lane_decision",
+            "selected_lane_id": None,
+            "contract_drafting_allowed_now": False,
+            "remote_training_allowed_now": False,
+            "formal_claim_allowed_now": False,
         },
     }
