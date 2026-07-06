@@ -337,6 +337,18 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert "remote-produced PPO checkpoint" in handoff[
         "protocol_lane_next_success_attempt_artifact_proof_requirements_by_id"
     ]["train_final_model_zip"]
+    assert handoff["protocol_lane_next_success_attempt_artifact_invalid_substitutes_by_id"]["train_final_model_zip"] == [
+        "local PPO training output",
+        "failed warm-start checkpoint",
+        "checkpoint without manifest or hash provenance",
+    ]
+    assert handoff["protocol_lane_next_success_attempt_artifact_invalid_substitutes_by_id"][
+        "h02_formal_output_acceptance"
+    ] == [
+        "blocked H02 acceptance",
+        "formal-looking smoke table",
+        "PPO rows without checkpoint hash",
+    ]
     assert handoff["protocol_lane_post_plan_artifact_category_counts"] == {
         "contract": 1,
         "training": 3,
@@ -1249,6 +1261,9 @@ def test_formal_gate_status_report_rejects_handoff_protocol_lane_artifact_drift(
         "0_trials/wrong/final_model.zip"
     )
     protocol["next_success_attempt_artifact_proof_requirements_by_id"]["train_summary_json"] = ""
+    protocol["next_success_attempt_artifact_invalid_substitutes_by_id"]["train_final_model_zip"] = [
+        "local PPO training output"
+    ]
     protocol["post_decision_contract_plan_shared_artifact_category_counts"]["evaluation"] = 1
     protocol["old_failed_run_artifacts_invalid_for_next_success_attempt"] = False
     protocol["post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"] = False
@@ -1262,6 +1277,7 @@ def test_formal_gate_status_report_rejects_handoff_protocol_lane_artifact_drift(
     assert "handoff_bundle_protocol_lane_next_artifact_ids_drift" in issue_ids
     assert "handoff_bundle_protocol_lane_next_artifact_expected_paths_drift" in issue_ids
     assert "handoff_bundle_protocol_lane_next_artifact_proof_requirement_empty" in issue_ids
+    assert "handoff_bundle_protocol_lane_next_artifact_invalid_substitutes_drift" in issue_ids
     assert "handoff_bundle_protocol_lane_post_plan_category_counts_drift" in issue_ids
     assert "handoff_bundle_protocol_lane_old_failed_invalid_flag_drift" in issue_ids
     assert "handoff_bundle_protocol_lane_post_plan_old_failed_invalid_flag_drift" in issue_ids
@@ -1645,6 +1661,7 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
     assert "proof_h02_paper_result_input_allowed" in markdown
     assert "remote_proof_matches_proof_audit" in markdown
     assert "training:train_final_model_zip" in markdown
+    assert "protocol_lane_next_success_attempt_artifact_invalid_substitutes_by_id" in markdown
     assert "decision_owner_required" in markdown
     assert "decision_note_required" in markdown
     assert "does not execute commands" in markdown
@@ -2946,6 +2963,7 @@ def _handoff_bundle(*, complete, drift=False):
             },
             "next_success_attempt_artifact_expected_paths_by_id": _next_success_expected_paths_by_id(),
             "next_success_attempt_artifact_proof_requirements_by_id": _next_success_proof_requirements_by_id(),
+            "next_success_attempt_artifact_invalid_substitutes_by_id": _next_success_invalid_substitutes_by_id(),
             "post_decision_contract_plan_shared_artifact_category_counts": {
                 "contract": 1,
                 "training": 3,
@@ -3013,6 +3031,61 @@ def _next_success_proof_requirements_by_id():
         "h02_formal_output_acceptance": (
             "H02 records formal_output_accepted=true, paper_result_input_allowed=true, PPO rows, and accepted checkpoint hash"
         ),
+    }
+
+
+def _next_success_invalid_substitutes_by_id():
+    return {
+        "new_or_revised_research_contract": [
+            "chat-only approval",
+            "draft contract",
+            "editing the failed Gate3 result after seeing failure",
+        ],
+        "train_final_model_zip": [
+            "local PPO training output",
+            "failed warm-start checkpoint",
+            "checkpoint without manifest or hash provenance",
+        ],
+        "train_summary_json": [
+            "stdout-only training summary",
+            "summary from the failed Gate3 attempt",
+            "summary without protocol label",
+        ],
+        "train_training_manifest_json": [
+            "manifest without source head",
+            "manifest from a different protocol lane",
+            "uncommitted chat note",
+        ],
+        "eval_gate3_eval_episodes_csv": [
+            "H02 available-subset smoke CSV",
+            "no-warm failure rows reused for a warm-start claim",
+            "aggregate summary without per-episode rows",
+        ],
+        "eval_gate3_summary_json": [
+            "summary from failed run",
+            "summary without timing fields",
+            "paper table preview",
+        ],
+        "gate3_trial_manifest_json": [
+            "trial manifest from failed run",
+            "manifest without contract reference",
+            "manifest without evaluated checkpoint identity",
+        ],
+        "gate3_formal_audit_json": [
+            "formal_decision=fail reinterpreted as success",
+            "audit marked smoke, preview, or candidate",
+            "audit from a different protocol lane",
+        ],
+        "pulled_back_checkpoint_hash_record": [
+            "checkpoint without hash record",
+            "hash for a different checkpoint",
+            "remote stdout without local pullback",
+        ],
+        "h02_formal_output_acceptance": [
+            "blocked H02 acceptance",
+            "formal-looking smoke table",
+            "PPO rows without checkpoint hash",
+        ],
     }
 
 

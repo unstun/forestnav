@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_handoff_bundle",
   "status": "blocked_until_protocol_lane_decision",
-  "created_at_utc": "2026-07-06T05:32:10.213025+00:00",
-  "source_head": "200c5942cb153d4b33de38891c0326e8b75e83f7+dirty",
+  "created_at_utc": "2026-07-06T05:47:55.928838+00:00",
+  "source_head": "0e911032f373045cbd2ed7db23589cc91f120263+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -207,6 +207,58 @@
       "gate3_formal_audit_json": "audit records formal_decision=pass for the new approved protocol attempt",
       "pulled_back_checkpoint_hash_record": "hash record matches the pulled-back final_model.zip evaluated by Gate3",
       "h02_formal_output_acceptance": "H02 records formal_output_accepted=true, paper_result_input_allowed=true, PPO rows, and accepted checkpoint hash"
+    },
+    "next_success_attempt_artifact_invalid_substitutes_by_id": {
+      "new_or_revised_research_contract": [
+        "chat-only approval",
+        "draft contract",
+        "editing the failed Gate3 result after seeing failure"
+      ],
+      "train_final_model_zip": [
+        "local PPO training output",
+        "failed warm-start checkpoint",
+        "checkpoint without manifest or hash provenance"
+      ],
+      "train_summary_json": [
+        "stdout-only training summary",
+        "summary from the failed Gate3 attempt",
+        "summary without protocol label"
+      ],
+      "train_training_manifest_json": [
+        "manifest without source head",
+        "manifest from a different protocol lane",
+        "uncommitted chat note"
+      ],
+      "eval_gate3_eval_episodes_csv": [
+        "H02 available-subset smoke CSV",
+        "no-warm failure rows reused for a warm-start claim",
+        "aggregate summary without per-episode rows"
+      ],
+      "eval_gate3_summary_json": [
+        "summary from failed run",
+        "summary without timing fields",
+        "paper table preview"
+      ],
+      "gate3_trial_manifest_json": [
+        "trial manifest from failed run",
+        "manifest without contract reference",
+        "manifest without evaluated checkpoint identity"
+      ],
+      "gate3_formal_audit_json": [
+        "formal_decision=fail reinterpreted as success",
+        "audit marked smoke, preview, or candidate",
+        "audit from a different protocol lane"
+      ],
+      "pulled_back_checkpoint_hash_record": [
+        "checkpoint without hash record",
+        "hash for a different checkpoint",
+        "remote stdout without local pullback"
+      ],
+      "h02_formal_output_acceptance": [
+        "blocked H02 acceptance",
+        "formal-looking smoke table",
+        "PPO rows without checkpoint hash"
+      ]
     },
     "post_decision_contract_plan_shared_artifact_count": 10,
     "post_decision_contract_plan_shared_artifact_category_counts": {
