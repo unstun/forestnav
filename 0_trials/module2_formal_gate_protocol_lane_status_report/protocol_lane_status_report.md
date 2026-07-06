@@ -12,6 +12,7 @@ This file summarizes protocol-lane gates; it is not paper result material.
 - formal_claim_allowed_now: `False`
 - next_success_attempt_artifact_count: `10`
 - next_success_attempt_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
+- old_failed_run_artifacts_invalid_for_next_success_attempt: `True`
 
 ## Post-Decision Contract Plan
 
@@ -19,6 +20,8 @@ This file summarizes protocol-lane gates; it is not paper result material.
 - audit_issue_count: `0`
 - required_contract_section_count: `8`
 - shared_next_success_attempt_artifact_count: `10`
+- shared_next_success_attempt_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
+- old_failed_run_artifacts_invalid_for_next_success_attempt: `True`
 - lane_count: `4`
 - selected_lane_id: `None`
 - writes_contract: `False`

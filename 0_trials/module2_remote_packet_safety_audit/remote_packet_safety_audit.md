@@ -2,8 +2,8 @@
 
 This file audits the remote formal execution packet. It does not execute any command.
 
-- status: `remote_packet_safety_audit_passed`
-- audit_issue_count: `0`
+- status: `remote_packet_safety_audit_failed`
+- audit_issue_count: `3`
 - packet_status: `blocked_until_protocol_lane_decision`
 - remote_training_allowed_now: `False`
 - pullback_artifact_count: `7`
@@ -31,10 +31,13 @@ This file audits the remote formal execution packet. It does not execute any com
 - post_plan_protocol_lane_allowed_next_actions: `['record_protocol_lane_decision']`
 - post_plan_protocol_lane_new_success_training_allowed_now: `False`
 - post_plan_protocol_lane_next_attempt_artifact_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
+- post_plan_protocol_lane_old_failed_run_artifacts_invalid: `None`
 
 ## Audit Issues
 
-- none
+- `protocol_lane_shared_artifact_category_counts_drift`: Protocol contract plan must keep the contract/training/evaluation/acceptance/formal_acceptance split.
+- `protocol_lane_post_plan_old_failed_invalid_flag_drift`: Protocol contract plan must preserve that old failed-run artifacts are invalid substitutes.
+- `protocol_lane_old_failed_invalid_flag_drift`: Protocol lane status must preserve that old failed-run artifacts are invalid substitutes.
 
 ## Claim Boundaries
 

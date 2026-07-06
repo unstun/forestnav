@@ -286,6 +286,22 @@ def test_mainline_formal_gate_state_audit_fails_missing_protocol_status_post_pla
     assert "mainline_current_section_missing_protocol_status_next_artifact_category_counts" in issue_ids
 
 
+def test_mainline_formal_gate_state_audit_fails_missing_old_failed_invalid_boundary(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit")
+    paths = _write_inputs(tmp_path)
+    mainline = paths["mainline"].read_text(encoding="utf-8")
+    paths["mainline"].write_text(
+        mainline.replace("old_failed_run_artifacts_invalid_for_next_success_attempt=true", ""),
+        encoding="utf-8",
+    )
+
+    manifest = builder.build_manifest(_config(builder, tmp_path, paths))
+
+    assert manifest["status"] == "mainline_formal_gate_state_audit_failed"
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "mainline_current_section_missing_old_failed_invalid_boundary" in issue_ids
+
+
 def test_mainline_formal_gate_state_audit_fails_missing_protocol_lane_readiness_boundary(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_mainline_formal_gate_state_audit")
     paths = _write_inputs(tmp_path, omit_protocol_lane_readiness_boundary=True)
