@@ -19,6 +19,12 @@ DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_
 DEFAULT_REMAINING_DELIVERABLES = Path(
     "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json"
 )
+DEFAULT_PROTOCOL_LANE_STATUS = Path(
+    "0_trials/module2_formal_gate_protocol_lane_status_report/protocol_lane_status_report.json"
+)
+DEFAULT_NEXT_ROUND_REQUIREMENTS = Path(
+    "0_trials/module2_formal_gate_next_round_requirements/formal_gate_next_round_requirements.json"
+)
 REMOTE_POST_PLAN_STAGE_IDS = (
     "approved_remote_preflight",
     "gate3_remote_training",
@@ -36,6 +42,8 @@ class FormalGateClosureChecklistConfig:
     post_plan_path: Path = DEFAULT_POST_PLAN
     source_freshness_path: Path = DEFAULT_SOURCE_FRESHNESS
     remaining_deliverables_path: Path = DEFAULT_REMAINING_DELIVERABLES
+    protocol_lane_status_path: Path = DEFAULT_PROTOCOL_LANE_STATUS
+    next_round_requirements_path: Path = DEFAULT_NEXT_ROUND_REQUIREMENTS
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -49,6 +57,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         post_plan_path=args.post_plan,
         source_freshness_path=args.source_freshness_audit,
         remaining_deliverables_path=args.remaining_deliverables,
+        protocol_lane_status_path=args.protocol_lane_status_report,
+        next_round_requirements_path=args.next_round_requirements,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -69,8 +79,15 @@ def build_manifest(config: FormalGateClosureChecklistConfig) -> dict[str, Any]:
     post_plan = _read_json(config.post_plan_path)
     source_freshness = _read_json(config.source_freshness_path)
     remaining_deliverables = _read_json(config.remaining_deliverables_path)
+    protocol_lane_status = _read_json(config.protocol_lane_status_path)
+    next_round_requirements = _read_json(config.next_round_requirements_path)
     missing_groups = _missing_groups(missing_artifacts)
-    checklist = _closure_checklist(missing_groups=missing_groups, formal_gate=formal_gate, post_plan=post_plan)
+    checklist = _closure_checklist(
+        missing_groups=missing_groups,
+        formal_gate=formal_gate,
+        post_plan=post_plan,
+        protocol_lane_status=protocol_lane_status,
+    )
     all_items_closed = all(item["complete"] for item in checklist)
     safety_issues = _input_safety_issues(
         missing_artifacts=missing_artifacts,
@@ -78,6 +95,8 @@ def build_manifest(config: FormalGateClosureChecklistConfig) -> dict[str, Any]:
         post_plan=post_plan,
         source_freshness=source_freshness,
         remaining_deliverables=remaining_deliverables,
+        protocol_lane_status=protocol_lane_status,
+        next_round_requirements=next_round_requirements,
         all_items_closed=all_items_closed,
     )
     gate_status = str(formal_gate.get("status") or "")
@@ -100,6 +119,8 @@ def build_manifest(config: FormalGateClosureChecklistConfig) -> dict[str, Any]:
             "post_f02_6_regeneration_plan": str(config.post_plan_path),
             "source_freshness_audit": str(config.source_freshness_path),
             "formal_gate_remaining_deliverables": str(config.remaining_deliverables_path),
+            "protocol_lane_status_report": str(config.protocol_lane_status_path),
+            "formal_gate_next_round_requirements": str(config.next_round_requirements_path),
         },
         "current_gate_summary": {
             "formal_gate_status": formal_gate.get("status"),
@@ -112,6 +133,7 @@ def build_manifest(config: FormalGateClosureChecklistConfig) -> dict[str, Any]:
             "source_regeneration_target_count": len(source_freshness.get("ordered_regeneration_targets") if isinstance(source_freshness.get("ordered_regeneration_targets"), list) else []),
             "remaining_deliverables_gap_total_missing": _remaining_deliverables_gap_summary(remaining_deliverables)["total_missing_deliverables"],
             "remaining_deliverables_gap_open_category_count": _remaining_deliverables_gap_summary(remaining_deliverables)["open_category_count"],
+            **_protocol_lane_current_summary(protocol_lane_status),
         },
         "closure_item_count": len(checklist),
         "open_item_count": sum(1 for item in checklist if not item["complete"]),
@@ -120,18 +142,22 @@ def build_manifest(config: FormalGateClosureChecklistConfig) -> dict[str, Any]:
         "acceptance_artifacts_required": _artifacts_for_category(missing_groups, "acceptance"),
         "evaluation_acceptance_required": _artifacts_for_category(missing_groups, "evaluation_acceptance"),
         "claim_gate_artifacts_required": _artifacts_for_category(missing_groups, "claim_gate"),
-        "post_plan_remote_stage_summary": _post_plan_remote_stage_summary(post_plan),
+        "post_plan_remote_stage_summary": _post_plan_remote_stage_summary(
+            post_plan,
+            protocol_lane_status=protocol_lane_status,
+        ),
         "remaining_deliverables_gap_summary": _remaining_deliverables_gap_summary(remaining_deliverables),
         "post_plan_remaining_deliverables_gap_summary": _normalize_gap_summary(
             post_plan.get("remaining_deliverables_gap_summary")
         ),
+        "next_round_requirements_summary": _next_round_requirements_summary(next_round_requirements),
         "closure_checklist": checklist,
         "input_safety_issue_count": len(safety_issues),
         "input_safety_issues": safety_issues,
         "claim_boundaries": [
             "This checklist is a formal-gate execution ledger, not a result table, paper appendix, or permission to train.",
             "It does not execute local commands, remote preflight, remote training, remote audit, sync, pullback, or evaluation.",
-            "The only training item in the checklist remains gpu3070ti-relay-only and blocked until F02.6 and source-fresh preflight gates close.",
+            "The only training item in the checklist remains gpu3070ti-relay-only and blocked until protocol-lane, contract, and source-fresh preflight gates close.",
             "A closed checklist is still not a paper claim unless H02 formal acceptance and claim safety pass after audited pullback hashes are recorded.",
         ],
     }
@@ -147,6 +173,8 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--post-plan", type=Path, default=DEFAULT_POST_PLAN)
     parser.add_argument("--source-freshness-audit", type=Path, default=DEFAULT_SOURCE_FRESHNESS)
     parser.add_argument("--remaining-deliverables", type=Path, default=DEFAULT_REMAINING_DELIVERABLES)
+    parser.add_argument("--protocol-lane-status-report", type=Path, default=DEFAULT_PROTOCOL_LANE_STATUS)
+    parser.add_argument("--next-round-requirements", type=Path, default=DEFAULT_NEXT_ROUND_REQUIREMENTS)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
@@ -155,6 +183,7 @@ def _closure_checklist(
     missing_groups: Sequence[dict[str, Any]],
     formal_gate: dict[str, Any],
     post_plan: dict[str, Any],
+    protocol_lane_status: dict[str, Any],
 ) -> list[dict[str, Any]]:
     groups = {str(group.get("group_id")): group for group in missing_groups}
     ordered_next_steps = {
@@ -167,7 +196,19 @@ def _closure_checklist(
         for stage in post_plan.get("ordered_stages", ())
         if isinstance(stage, dict)
     }
+    protocol_pending = _protocol_lane_pending(protocol_lane_status)
+    protocol_blockers = ["protocol_lane_decision_pending"] if protocol_pending else []
     return [
+        _item(
+            checklist_id="protocol_lane_decision",
+            phase="decision",
+            group=None,
+            formal_step=None,
+            post_stage=None,
+            completion_signal="Dr Sun records selected_lane_id, failed Gate3 basis, rejected-lane rationales, evidence basis, and contract action.",
+            next_action="Record protocol_lane_decision before contract drafting, remote preflight, remote training, formal claim, or paper result material.",
+            extra_blockers=protocol_blockers,
+        ),
         _item(
             checklist_id="F02.6_decision",
             phase="decision",
@@ -185,6 +226,7 @@ def _closure_checklist(
             post_stage=post_stages.get("regenerate_preflight_gate_artifacts"),
             completion_signal="All approved_remote_preflight source-fresh targets are regenerated from the current head.",
             next_action="Regenerate source freshness targets only after F02.6 is closed.",
+            extra_blockers=protocol_blockers,
         ),
         _item(
             checklist_id="approved_remote_preflight_and_packet",
@@ -194,6 +236,7 @@ def _closure_checklist(
             post_stage=post_stages.get("approved_remote_preflight"),
             completion_signal="Approved gpu3070ti preflight passes and the remote execution packet becomes ready.",
             next_action="Run only the approved remote preflight path; do not train locally.",
+            extra_blockers=protocol_blockers,
         ),
         _item(
             checklist_id="gate3_remote_training_outputs",
@@ -205,6 +248,7 @@ def _closure_checklist(
             next_action="Run formal PPO only on gpu3070ti-relay after the packet reports ready.",
             runs_training=True,
             host="gpu3070ti-relay",
+            extra_blockers=protocol_blockers,
         ),
         _item(
             checklist_id="gate3_formal_eval_outputs",
@@ -214,6 +258,7 @@ def _closure_checklist(
             post_stage=post_stages.get("gate3_remote_audit_pullback"),
             completion_signal="Formal Gate3 eval CSV and summary are present in the pulled-back trial directory.",
             next_action="Audit and pull back evaluation outputs with the remote formal trial.",
+            extra_blockers=protocol_blockers,
         ),
         _item(
             checklist_id="gate3_audit_pullback_hashes",
@@ -223,6 +268,7 @@ def _closure_checklist(
             post_stage=post_stages.get("gate3_remote_audit_pullback"),
             completion_signal="Trial manifest, formal audit, and checkpoint SHA-256 record are present.",
             next_action="Record pullback hashes before any H01/H02 or claim gate regeneration.",
+            extra_blockers=protocol_blockers,
         ),
         _item(
             checklist_id="h01_h02_formal_acceptance",
@@ -232,6 +278,7 @@ def _closure_checklist(
             post_stage=post_stages.get("regenerate_h01_h02_formal_artifacts"),
             completion_signal="H01 exposes the formal run command and H02 accepts formal-scale PPO outputs.",
             next_action="Regenerate H01/H02 after audited checkpoint pullback, not before.",
+            extra_blockers=protocol_blockers,
         ),
         _item(
             checklist_id="claim_gate_regeneration",
@@ -241,6 +288,7 @@ def _closure_checklist(
             post_stage=post_stages.get("regenerate_claim_gate_artifacts"),
             completion_signal="Claim safety, missing-artifacts inventory, and paper readiness are regenerated after H02 acceptance.",
             next_action="Only then can formal result writing be considered; this checklist itself does not allow claims.",
+            extra_blockers=protocol_blockers,
         ),
     ]
 
@@ -256,18 +304,21 @@ def _item(
     next_action: str,
     runs_training: bool = False,
     host: str | None = None,
+    extra_blockers: Sequence[str] = (),
 ) -> dict[str, Any]:
     group = group or {}
     required_items = _group_items(group)
     missing_items = [item for item in required_items if item.get("missing")]
     formal_blockers = _strings((formal_step or {}).get("blocked_by"))
     post_blockers = _strings((post_stage or {}).get("blocked_by"))
-    blocked_by = _unique(_strings(group.get("blocked_by")) + formal_blockers + post_blockers)
+    blocked_by = _unique(_strings(group.get("blocked_by")) + formal_blockers + post_blockers + list(extra_blockers))
     formal_step_complete = (formal_step or {}).get("status") == "complete"
-    if formal_step_complete:
+    if formal_step_complete and not extra_blockers:
         missing_items = []
         blocked_by = []
-    complete = formal_step_complete or (bool(group.get("complete")) and not missing_items and not blocked_by)
+    complete = (formal_step_complete and not extra_blockers) or (
+        bool(group.get("complete")) and not missing_items and not blocked_by
+    )
     return {
         "checklist_id": checklist_id,
         "phase": phase,
