@@ -180,7 +180,7 @@ def build_manifest(config: FormalGatePostDecisionContractPlanConfig) -> dict[str
         "audit_issues": issues,
         "claim_boundaries": [
             "This artifact is a post-decision contract planning index, not a contract draft.",
-            "It does not select a protocol lane and does not authorize contract authoring while selected_lane_id is None.",
+            "It may carry the recorded protocol lane context, but it does not write or approve a contract.",
             "It does not authorize local training, remote preflight, remote training, formal claims, or paper result material.",
             "Any success lane still needs a selected lane, an approved/frozen new or revised contract, remote training artifacts, formal Gate3 pass, checkpoint hash, and H02 acceptance.",
         ],
