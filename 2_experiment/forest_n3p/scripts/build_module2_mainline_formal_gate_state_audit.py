@@ -259,7 +259,7 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
         "protocol_lane_status_mentioned": protocol_lane_status["status"] in current_section,
         "protocol_lane_next_blocked_mentioned": protocol_lane_status["next_blocked_lane"] in current_section,
         "protocol_lane_next_action_mentioned": all(
-            action in current_section for action in EXPECTED_PROTOCOL_LANE_ALLOWED_NEXT_ACTIONS
+            action in current_section for action in protocol_lane_status["allowed_next_action_ids"]
         ),
         "protocol_lane_decision_record_status_mentioned": (
             protocol_lane_status["decision_record_status"] in current_section
