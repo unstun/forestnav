@@ -53,6 +53,15 @@ def test_protocol_lane_status_report_blocks_pending_lane_decision(tmp_path):
         "train_summary_json",
         "train_training_manifest_json",
     ]
+    assert state["next_success_attempt_artifact_expected_paths_by_id"]["train_final_model_zip"] == (
+        "0_trials/module2_gate3_formal/<next_attempt_id>/train/final_model.zip"
+    )
+    assert state["next_success_attempt_artifact_expected_paths_by_id"]["h02_formal_output_acceptance"] == (
+        "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
+    )
+    assert "remote-produced PPO checkpoint" in state[
+        "next_success_attempt_artifact_proof_requirements_by_id"
+    ]["train_final_model_zip"]
     assert state["old_failed_run_artifacts_invalid_for_next_success_attempt"] is True
     assert state["allowed_next_action_ids"] == ["record_protocol_lane_decision"]
     assert "remote_success_training" in state["blocked_action_ids"]
@@ -136,6 +145,10 @@ def test_protocol_lane_status_report_catches_post_plan_count_and_authorization_d
         if row["artifact_id"] != "eval_gate3_summary_json"
     ]
     next_round["next_success_attempt_artifact_index"]["artifact_count"] = 9
+    next_round["next_success_attempt_artifact_index"]["rows"][0]["expected_path"] = (
+        "0_trials/wrong_contract.md"
+    )
+    next_round["next_success_attempt_artifact_index"]["rows"][1]["proof_requirement"] = ""
     next_round["current_vs_next_attempt_reconciliation"][
         "old_failed_run_artifacts_invalid_for_next_success_attempt"
     ] = False
@@ -152,6 +165,8 @@ def test_protocol_lane_status_report_catches_post_plan_count_and_authorization_d
     assert "post_decision_contract_plan_selected_lane_while_pending" in issue_ids
     assert "next_success_attempt_artifact_count_drift" in issue_ids
     assert "next_success_attempt_artifact_category_counts_drift" in issue_ids
+    assert "next_success_attempt_artifact_expected_paths_drift" in issue_ids
+    assert "next_success_attempt_artifact_proof_requirement_empty" in issue_ids
     assert "old_failed_run_artifacts_invalid_flag_drift" in issue_ids
 
 
