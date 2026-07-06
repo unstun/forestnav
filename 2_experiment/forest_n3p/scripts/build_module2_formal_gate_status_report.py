@@ -37,6 +37,14 @@ REMOTE_EXECUTION_STEP_IDS = (
     "run_remote_training",
     "run_remote_audit",
 )
+EXPECTED_NEXT_SUCCESS_ARTIFACT_CATEGORY_COUNTS = {
+    "contract": 1,
+    "training": 3,
+    "evaluation": 2,
+    "acceptance": 3,
+    "formal_acceptance": 1,
+}
+EXPECTED_OLD_FAILED_RUN_INVALID_FOR_NEXT_SUCCESS_ATTEMPT = True
 REMOTE_PREFLIGHT_REQUIREMENT_IDS = (
     "f02_6_decision_closed_for_preflight",
     "approved_remote_preflight_manifest",
