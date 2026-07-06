@@ -803,6 +803,8 @@ def test_remote_packet_safety_audit_cli_writes_json_and_markdown(tmp_path):
     assert "post_plan_execution_veto_remote_training_allowed_now" in markdown
     assert "post_plan_command_index_row_count" in markdown
     assert "post_plan_remaining_deliverables_gap_total_missing" in markdown
+    assert "post_plan_protocol_lane_next_blocked" in markdown
+    assert "protocol_lane_decision" in markdown
     assert "does not execute any command" in markdown
 
 
