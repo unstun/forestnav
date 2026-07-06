@@ -166,7 +166,7 @@ def test_protocol_lane_status_report_catches_post_plan_count_and_authorization_d
     assert "next_success_attempt_artifact_count_drift" in issue_ids
     assert "next_success_attempt_artifact_category_counts_drift" in issue_ids
     assert "next_success_attempt_artifact_expected_paths_drift" in issue_ids
-    assert "next_success_attempt_artifact_proof_requirement_empty" in issue_ids
+    assert "next_success_attempt_artifact_proof_requirements_missing" in issue_ids
     assert "old_failed_run_artifacts_invalid_flag_drift" in issue_ids
 
 
