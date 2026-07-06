@@ -44,14 +44,16 @@ CURRENT_BLOCKER_REQUIREMENTS_BY_CATEGORY = {
 }
 UNLOCK_SEQUENCE_BY_CATEGORY = {
     "training": (
-        "record_f02_6_decision",
+        "record_protocol_lane_decision",
+        "approved_or_frozen_new_or_revised_contract",
         "source_freshness_ready_for_remote_preflight",
         "remote_formal_execution_packet_ready",
         "approved_remote_preflight",
         "gate3_remote_training",
     ),
     "evaluation": (
-        "record_f02_6_decision",
+        "record_protocol_lane_decision",
+        "approved_or_frozen_new_or_revised_contract",
         "source_freshness_ready_for_remote_preflight",
         "remote_formal_execution_packet_ready",
         "approved_remote_preflight",
@@ -59,7 +61,8 @@ UNLOCK_SEQUENCE_BY_CATEGORY = {
         "gate3_remote_audit_pullback",
     ),
     "acceptance": (
-        "record_f02_6_decision",
+        "record_protocol_lane_decision",
+        "approved_or_frozen_new_or_revised_contract",
         "source_freshness_ready_for_remote_preflight",
         "remote_formal_execution_packet_ready",
         "approved_remote_preflight",
@@ -599,7 +602,7 @@ def _acceptance_predicates(*, category: str, artifact_id: str) -> list[str]:
     generic = [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
         "artifact state is not missing, blocked, smoke, preview, or candidate",
-        "artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure",
+        "artifact provenance traces to the approved gpu3070ti-relay formal run after protocol lane decision and approved/frozen contract",
     ]
     specific = {
         "train_final_model_zip": [
