@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_mainline_formal_gate_state_audit",
-  "status": "mainline_formal_gate_state_audit_failed",
-  "created_at_utc": "2026-07-06T03:46:08.113819+00:00",
-  "source_head": "851c7a68bfe702771cf6c335dd326b9a8d939835+dirty",
+  "status": "mainline_formal_gate_state_consistent_blocked",
+  "created_at_utc": "2026-07-06T03:46:49.254268+00:00",
+  "source_head": "189fb72eb0e99d2852399f46bc39c03871a4c2d1+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -193,8 +193,8 @@
       "mentioned": true
     }
   ],
-  "protocol_lane_status_post_plan_summary_mentioned": false,
-  "protocol_lane_status_next_artifact_category_counts_mentioned": false,
+  "protocol_lane_status_post_plan_summary_mentioned": true,
+  "protocol_lane_status_next_artifact_category_counts_mentioned": true,
   "protocol_lane_readiness_summary": {
     "present": true,
     "artifact_name": "module2_formal_gate_protocol_lane_readiness",
@@ -342,35 +342,8 @@
       "mentioned": false
     }
   ],
-  "audit_issue_count": 4,
-  "audit_issues": [
-    {
-      "issue_id": "mainline_current_section_missing_protocol_status_post_plan_section_count",
-      "message": "Current formal-gate section must mention the protocol status report's inherited post-plan count.",
-      "post_decision_contract_plan_required_section_count": 8
-    },
-    {
-      "issue_id": "mainline_current_section_missing_protocol_status_post_plan_artifact_count",
-      "message": "Current formal-gate section must mention the protocol status report's inherited post-plan count.",
-      "post_decision_contract_plan_shared_artifact_count": 10
-    },
-    {
-      "issue_id": "mainline_current_section_missing_protocol_status_post_plan_lane_count",
-      "message": "Current formal-gate section must mention the protocol status report's inherited post-plan count.",
-      "post_decision_contract_plan_lane_count": 4
-    },
-    {
-      "issue_id": "mainline_current_section_missing_protocol_status_next_artifact_category_counts",
-      "message": "Current formal-gate section must mention the protocol status report's next-attempt artifact category counts.",
-      "expected_counts": {
-        "contract": 1,
-        "training": 3,
-        "evaluation": 2,
-        "acceptance": 3,
-        "formal_acceptance": 1
-      }
-    }
-  ],
+  "audit_issue_count": 0,
+  "audit_issues": [],
   "claim_boundaries": [
     "This audit only checks that the long-term mainline task book mirrors the current formal-gate state.",
     "It does not execute commands, run local training, run remote preflight, run remote PPO training, evaluate PPO, pull back artifacts, or write paper results.",

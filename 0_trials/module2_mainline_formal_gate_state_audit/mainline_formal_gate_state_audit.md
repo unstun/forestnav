@@ -2,8 +2,8 @@
 
 This file checks that the long-term Module2 mainline task book mirrors the current formal-gate state. It is not a training run, remote preflight, formal evaluation, or paper result.
 
-- status: `mainline_formal_gate_state_audit_failed`
-- audit_issue_count: `4`
+- status: `mainline_formal_gate_state_consistent_blocked`
+- audit_issue_count: `0`
 - expected_next_action_id: `record_protocol_lane_decision`
 - expected_next_action_mentioned: `True`
 - total_missing_deliverables: `1`
@@ -30,10 +30,7 @@ This file checks that the long-term Module2 mainline task book mirrors the curre
 
 ## Audit Issues
 
-- `mainline_current_section_missing_protocol_status_post_plan_section_count`: Current formal-gate section must mention the protocol status report's inherited post-plan count.
-- `mainline_current_section_missing_protocol_status_post_plan_artifact_count`: Current formal-gate section must mention the protocol status report's inherited post-plan count.
-- `mainline_current_section_missing_protocol_status_post_plan_lane_count`: Current formal-gate section must mention the protocol status report's inherited post-plan count.
-- `mainline_current_section_missing_protocol_status_next_artifact_category_counts`: Current formal-gate section must mention the protocol status report's next-attempt artifact category counts.
+- none
 
 ## Missing Formal Deliverables
 
