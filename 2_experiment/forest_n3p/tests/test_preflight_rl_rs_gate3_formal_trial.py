@@ -94,6 +94,22 @@ def test_gate3_formal_preflight_propagates_v2_contract_but_blocks_draft_status(t
             str(manifest_path),
             "--contract-path",
             str(V2_DRAFT_CONTRACT),
+            "--train-total-timesteps",
+            "500000",
+            "--train-n-envs",
+            "4",
+            "--train-n-steps",
+            "256",
+            "--train-batch-size",
+            "256",
+            "--train-n-epochs",
+            "8",
+            "--train-learning-rate",
+            "0.0001",
+            "--train-ent-coef",
+            "0.01",
+            "--train-checkpoint-freq",
+            "25000",
             "--bc-checkpoint",
             str(BC_CHECKPOINT),
             "--warm-start-decision",
@@ -107,8 +123,24 @@ def test_gate3_formal_preflight_propagates_v2_contract_but_blocks_draft_status(t
     assert manifest["contract"] == str(V2_DRAFT_CONTRACT)
     assert manifest["contract_status"] == "draft"
     assert manifest["protocol"]["contract"] == str(V2_DRAFT_CONTRACT)
+    assert manifest["protocol"]["train_total_timesteps"] == 500000
+    assert manifest["protocol"]["train_n_envs"] == 4
+    assert manifest["protocol"]["train_n_steps"] == 256
+    assert manifest["protocol"]["train_batch_size"] == 256
+    assert manifest["protocol"]["train_n_epochs"] == 8
+    assert manifest["protocol"]["train_learning_rate"] == 0.0001
+    assert manifest["protocol"]["train_ent_coef"] == 0.01
+    assert manifest["protocol"]["train_checkpoint_freq"] == 25000
     assert manifest["preflight_status"] == "blocked"
     assert manifest["formal_trial_ready"] is False
     assert "contract_not_approved" in reason_codes
     assert f"--contract-path {V2_DRAFT_CONTRACT}" in manifest["runner_command"]
+    assert "--train-total-timesteps 500000" in manifest["runner_command"]
+    assert "--train-n-envs 4" in manifest["runner_command"]
+    assert "--train-n-steps 256" in manifest["runner_command"]
+    assert "--train-batch-size 256" in manifest["runner_command"]
+    assert "--train-n-epochs 8" in manifest["runner_command"]
+    assert "--train-learning-rate 0.0001" in manifest["runner_command"]
+    assert "--train-ent-coef 0.01" in manifest["runner_command"]
+    assert "--train-checkpoint-freq 25000" in manifest["runner_command"]
     assert f"--contract-path {V2_DRAFT_CONTRACT}" in manifest["audit_command"]
