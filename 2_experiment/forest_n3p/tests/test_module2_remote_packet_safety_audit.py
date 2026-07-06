@@ -512,6 +512,67 @@ def test_remote_packet_safety_audit_requires_proof_audit_deliverables_summary(tm
     assert "post_plan_status_report_missing_proof_audit_deliverables_summary" in issue_ids
 
 
+def test_remote_packet_safety_audit_requires_protocol_lane_status_summary(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
+    plan_audit = _plan_audit_payload()
+    plan_audit.pop("protocol_lane_status_summary")
+
+    manifest = auditor.build_manifest(
+        auditor.RemotePacketSafetyAuditConfig(
+            output_dir=tmp_path,
+            remote_packet_path=_json(tmp_path, "packet.json", _packet_payload()),
+            decision_gate_audit_path=_json(tmp_path, "decision_gate.json", _decision_gate_payload()),
+            post_plan_audit_path=_json(tmp_path, "plan_audit.json", plan_audit),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "remote_packet_safety_audit_failed"
+    assert "post_plan_missing_protocol_lane_status_summary" in issue_ids
+
+
+def test_remote_packet_safety_audit_rejects_protocol_lane_authorization_drift(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
+    plan_audit = _plan_audit_payload()
+    protocol_summary = plan_audit["protocol_lane_status_summary"]
+    protocol_summary["status"] = "protocol_lane_status_ready"
+    protocol_summary["next_blocked_lane"] = "remote_training"
+    protocol_summary["selected_lane_id"] = "stronger_obstacle_summary_warm_start"
+    protocol_summary["allowed_next_action_ids"] = ["run_remote_training"]
+    protocol_summary["blocked_action_ids"] = ["formal_claim"]
+    protocol_summary["remote_training_allowed_now"] = True
+    protocol_summary["new_success_training_allowed_now"] = True
+    protocol_summary["formal_claim_allowed_now"] = True
+    protocol_summary["paper_result_material_allowed_now"] = True
+    protocol_summary["post_decision_contract_plan_runs_training"] = True
+    protocol_summary["post_decision_contract_plan_formal_claim_allowed"] = True
+    protocol_summary["next_success_attempt_artifact_count"] = 3
+
+    manifest = auditor.build_manifest(
+        auditor.RemotePacketSafetyAuditConfig(
+            output_dir=tmp_path,
+            remote_packet_path=_json(tmp_path, "packet.json", _packet_payload()),
+            decision_gate_audit_path=_json(tmp_path, "decision_gate.json", _decision_gate_payload()),
+            post_plan_audit_path=_json(tmp_path, "plan_audit.json", plan_audit),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "remote_packet_safety_audit_failed"
+    assert "protocol_lane_status_unexpected" in issue_ids
+    assert "protocol_lane_next_blocked_drift" in issue_ids
+    assert "protocol_lane_selected_before_decision" in issue_ids
+    assert "protocol_lane_allowed_actions_drift" in issue_ids
+    assert "protocol_lane_missing_blocked_actions" in issue_ids
+    assert "protocol_lane_remote_training_allowed_now_not_false" in issue_ids
+    assert "protocol_lane_allows_new_success_training" in issue_ids
+    assert "protocol_lane_allows_formal_claim" in issue_ids
+    assert "protocol_lane_allows_paper_result_material" in issue_ids
+    assert "protocol_lane_post_decision_contract_plan_runs_training_not_false" in issue_ids
+    assert "protocol_lane_post_decision_contract_plan_formal_claim_allowed_not_false" in issue_ids
+    assert "protocol_lane_next_attempt_artifact_count_drift" in issue_ids
+
+
 def test_remote_packet_safety_audit_rejects_proof_audit_deliverables_summary_drift(tmp_path):
     auditor = import_module("forest_n3p.scripts.build_module2_remote_packet_safety_audit")
     plan_audit = _plan_audit_payload()
