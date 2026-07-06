@@ -32,7 +32,7 @@ DEFAULT_PREFLIGHT_MANIFEST = Path(
     "gate3_preflight_manifest.json"
 )
 DEFAULT_GPU_ALIAS = "gpu3070ti-relay"
-DEFAULT_REMOTE_WORKDIR = "~/ForestNav"
+DEFAULT_REMOTE_WORKDIR = "/home/ubuntu/ForestNav"
 DEFAULT_REMOTE_PYTHON = ".venv/bin/python"
 DEFAULT_LOCAL_ROOT = Path("/Users/sun/tongbu/study/phdproject/ForestNav")
 READY_READINESS_STATUS = "v2_contract_ready_for_source_freshness"

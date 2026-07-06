@@ -52,6 +52,7 @@ def test_v2_remote_execution_packet_allows_only_preflight_after_readiness_and_so
     assert packet["command_plan"]["sync_to_remote"]["allowed_now"] is True
     assert packet["command_plan"]["run_remote_preflight"]["allowed_now"] is True
     assert packet["command_plan"]["run_remote_training"]["allowed_now"] is False
+    assert "cd /home/ubuntu/ForestNav" in packet["command_plan"]["run_remote_preflight"]["command"]
     assert "v2_remote_preflight_not_ready" in packet["command_plan"]["run_remote_training"]["blocked_by"]
     assert packet["expected_pullback_artifacts"][0].endswith("train/final_model.zip")
 
