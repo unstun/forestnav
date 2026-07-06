@@ -89,6 +89,7 @@ EXPECTED_NEXT_SUCCESS_ARTIFACT_CATEGORY_COUNTS = {
     "acceptance": 3,
     "formal_acceptance": 1,
 }
+EXPECTED_OLD_FAILED_RUN_INVALID_FOR_NEXT_SUCCESS_ATTEMPT = True
 EXPECTED_NEXT_SUCCESS_ARTIFACT_IDS_BY_CATEGORY = {
     "contract": ("new_or_revised_research_contract",),
     "training": ("train_final_model_zip", "train_summary_json", "train_training_manifest_json"),
@@ -825,6 +826,30 @@ def _protocol_lane_status_issues(
                     observed={field: summary[field], "expected": expected},
                 )
             )
+    if (
+        summary["post_decision_contract_plan_shared_artifact_category_counts"]
+        != EXPECTED_NEXT_SUCCESS_ARTIFACT_CATEGORY_COUNTS
+    ):
+        issues.append(
+            _issue(
+                "protocol_lane_status_post_plan_shared_artifact_category_counts_drift",
+                "Protocol-lane status post-plan artifact category counts must stay at 1/3/2/3/1.",
+                observed=summary["post_decision_contract_plan_shared_artifact_category_counts"],
+            )
+        )
+    if (
+        summary["post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"]
+        is not EXPECTED_OLD_FAILED_RUN_INVALID_FOR_NEXT_SUCCESS_ATTEMPT
+    ):
+        issues.append(
+            _issue(
+                "protocol_lane_status_post_plan_old_failed_invalid_flag_drift",
+                "Protocol-lane status post-plan summary must keep old failed-run artifacts invalid for the next success attempt.",
+                observed=summary[
+                    "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"
+                ],
+            )
+        )
     if any(summary.get(field) is True for field in PROTOCOL_POST_PLAN_FALSE_FIELDS):
         issues.append(
             _issue(
@@ -848,6 +873,17 @@ def _protocol_lane_status_issues(
                 "protocol_lane_status_next_artifact_category_counts_drift",
                 "Protocol-lane status next-attempt artifact category counts must stay at 1/3/2/3/1.",
                 observed=summary["next_success_attempt_artifact_category_counts"],
+            )
+        )
+    if (
+        summary["old_failed_run_artifacts_invalid_for_next_success_attempt"]
+        is not EXPECTED_OLD_FAILED_RUN_INVALID_FOR_NEXT_SUCCESS_ATTEMPT
+    ):
+        issues.append(
+            _issue(
+                "protocol_lane_status_old_failed_invalid_flag_drift",
+                "Protocol-lane status must keep old failed-run artifacts invalid for the next success attempt.",
+                observed=summary["old_failed_run_artifacts_invalid_for_next_success_attempt"],
             )
         )
     missing_artifact_ids: dict[str, list[str]] = {}
@@ -1466,6 +1502,7 @@ def _status_report_summary(path: Path, status_report: dict[str, Any]) -> dict[st
 def _protocol_lane_status_summary(path: Path, protocol_lane_status: dict[str, Any]) -> dict[str, Any]:
     current = protocol_lane_status.get("current_status") if isinstance(protocol_lane_status.get("current_status"), dict) else {}
     category_counts = current.get("next_success_attempt_artifact_category_counts")
+    post_plan_category_counts = current.get("post_decision_contract_plan_shared_artifact_category_counts")
     ids_by_category = current.get("next_success_attempt_artifact_ids_by_category")
     return {
         "path": str(path),
@@ -1495,6 +1532,21 @@ def _protocol_lane_status_summary(path: Path, protocol_lane_status: dict[str, An
         "post_decision_contract_plan_shared_artifact_count": int(
             current.get("post_decision_contract_plan_shared_artifact_count") or 0
         ),
+        "post_decision_contract_plan_shared_artifact_category_counts": {
+            str(category): int(count or 0)
+            for category, count in post_plan_category_counts.items()
+            if category
+        }
+        if isinstance(post_plan_category_counts, dict)
+        else {},
+        "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt": current.get(
+            "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"
+        )
+        if isinstance(
+            current.get("post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"),
+            bool,
+        )
+        else None,
         "post_decision_contract_plan_lane_count": int(
             current.get("post_decision_contract_plan_lane_count") or 0
         ),
@@ -1530,6 +1582,11 @@ def _protocol_lane_status_summary(path: Path, protocol_lane_status: dict[str, An
         }
         if isinstance(ids_by_category, dict)
         else {},
+        "old_failed_run_artifacts_invalid_for_next_success_attempt": current.get(
+            "old_failed_run_artifacts_invalid_for_next_success_attempt"
+        )
+        if isinstance(current.get("old_failed_run_artifacts_invalid_for_next_success_attempt"), bool)
+        else None,
         "contract_drafting_allowed_now": current.get("contract_drafting_allowed_now"),
         "contract_approval_allowed_now": current.get("contract_approval_allowed_now"),
         "draft_contract_allows_training": current.get("draft_contract_allows_training"),
@@ -2014,10 +2071,15 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- post_decision_contract_plan_status: `{manifest['protocol_lane_status_summary']['post_decision_contract_plan_status']}`",
             f"- post_decision_contract_plan_required_section_count: `{manifest['protocol_lane_status_summary']['post_decision_contract_plan_required_section_count']}`",
             f"- post_decision_contract_plan_shared_artifact_count: `{manifest['protocol_lane_status_summary']['post_decision_contract_plan_shared_artifact_count']}`",
+            f"- post_decision_contract_plan_shared_artifact_category_counts: `{manifest['protocol_lane_status_summary']['post_decision_contract_plan_shared_artifact_category_counts']}`",
+            "- post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt: "
+            f"`{manifest['protocol_lane_status_summary']['post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt']}`",
             f"- post_decision_contract_plan_lane_count: `{manifest['protocol_lane_status_summary']['post_decision_contract_plan_lane_count']}`",
             f"- next_success_attempt_artifact_count: `{manifest['protocol_lane_status_summary']['next_success_attempt_artifact_count']}`",
             f"- next_success_attempt_artifact_category_counts: `{manifest['protocol_lane_status_summary']['next_success_attempt_artifact_category_counts']}`",
             f"- next_success_attempt_artifact_ids_by_category: `{manifest['protocol_lane_status_summary']['next_success_attempt_artifact_ids_by_category']}`",
+            "- old_failed_run_artifacts_invalid_for_next_success_attempt: "
+            f"`{manifest['protocol_lane_status_summary']['old_failed_run_artifacts_invalid_for_next_success_attempt']}`",
             f"- remote_training_allowed_now: `{manifest['protocol_lane_status_summary']['remote_training_allowed_now']}`",
             f"- formal_claim_allowed_now: `{manifest['protocol_lane_status_summary']['formal_claim_allowed_now']}`",
             f"- paper_result_material_allowed_now: `{manifest['protocol_lane_status_summary']['paper_result_material_allowed_now']}`",
