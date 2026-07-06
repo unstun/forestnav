@@ -26,6 +26,25 @@ def test_protocol_lane_status_report_blocks_pending_lane_decision(tmp_path):
     assert state["contract_authoring_gate_status"] == "contract_authoring_gate_blocked_pending_lane_decision"
     assert state["selected_lane_id"] is None
     assert state["contract_drafting_allowed_now"] is False
+    assert state["post_decision_contract_plan_status"] == "post_decision_contract_plan_ready_blocked_pending_lane_decision"
+    assert state["post_decision_contract_plan_required_section_count"] == 8
+    assert state["post_decision_contract_plan_shared_artifact_count"] == 10
+    assert state["post_decision_contract_plan_lane_count"] == 4
+    assert state["post_decision_contract_plan_selected_lane_id"] is None
+    assert state["post_decision_contract_plan_runs_training"] is False
+    assert state["next_success_attempt_artifact_count"] == 10
+    assert state["next_success_attempt_artifact_category_counts"] == {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1,
+    }
+    assert state["next_success_attempt_artifact_ids_by_category"]["training"] == [
+        "train_final_model_zip",
+        "train_summary_json",
+        "train_training_manifest_json",
+    ]
     assert state["allowed_next_action_ids"] == ["record_protocol_lane_decision"]
     assert "remote_success_training" in state["blocked_action_ids"]
     assert state["new_success_training_allowed_now"] is False
@@ -48,6 +67,8 @@ def test_protocol_lane_status_report_allows_contract_draft_only_after_recorded_l
     assert state["contract_drafting_allowed_now"] is True
     assert state["contract_approval_allowed_now"] is False
     assert state["draft_contract_allows_training"] is False
+    assert state["post_decision_contract_plan_status"] == "post_decision_contract_plan_ready_for_contract_draft"
+    assert state["post_decision_contract_plan_selected_lane_id"] == "hybrid_ppo_analytic_fallback"
     assert state["allowed_next_action_ids"] == ["draft_new_or_revised_contract_after_lane_decision"]
     assert manifest["audit_issue_count"] == 0
 
@@ -83,6 +104,34 @@ def test_protocol_lane_status_report_catches_recorded_lane_that_skips_contract_d
     assert manifest["status"] == "protocol_lane_status_report_audit_failed"
     assert "recorded_allowed_actions_not_contract_draft_only" in issue_ids
     assert "allowed_actions_include_blocked_execution_or_claim" in issue_ids
+
+
+def test_protocol_lane_status_report_catches_post_plan_count_and_authorization_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_protocol_lane_status_report")
+    config = _config(tmp_path, recorded=False)
+    contract_gate = json.loads(config.contract_authoring_gate_audit_path.read_text(encoding="utf-8"))
+    contract_gate["post_decision_contract_plan_summary"]["required_contract_section_count"] = 7
+    contract_gate["post_decision_contract_plan_summary"]["runs_training"] = True
+    contract_gate["post_decision_contract_plan_summary"]["gate_selected_lane_id"] = "full_patch_cnn_policy"
+    config.contract_authoring_gate_audit_path.write_text(json.dumps(contract_gate), encoding="utf-8")
+    next_round = json.loads(config.next_round_requirements_path.read_text(encoding="utf-8"))
+    next_round["next_success_attempt_artifact_index"]["rows"] = [
+        row
+        for row in next_round["next_success_attempt_artifact_index"]["rows"]
+        if row["artifact_id"] != "eval_gate3_summary_json"
+    ]
+    next_round["next_success_attempt_artifact_index"]["artifact_count"] = 9
+    config.next_round_requirements_path.write_text(json.dumps(next_round), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "protocol_lane_status_report_audit_failed"
+    assert "post_decision_contract_plan_required_section_count_drift" in issue_ids
+    assert "post_decision_contract_plan_authorization_leak" in issue_ids
+    assert "post_decision_contract_plan_selected_lane_while_pending" in issue_ids
+    assert "next_success_attempt_artifact_count_drift" in issue_ids
+    assert "next_success_attempt_artifact_category_counts_drift" in issue_ids
 
 
 def test_protocol_lane_status_report_cli_writes_json_and_markdown(tmp_path):
@@ -125,6 +174,13 @@ def test_protocol_lane_status_report_cli_writes_json_and_markdown(tmp_path):
     assert "paper_result_material_allowed_now: `False`" in markdown
     assert "new_success_training_allowed_now: `False`" in markdown
     assert "draft_contract_allows_training: `False`" in markdown
+    assert "Post-Decision Contract Plan" in markdown
+    assert "required_contract_section_count: `8`" in markdown
+    assert "shared_next_success_attempt_artifact_count: `10`" in markdown
+    assert "Missing Next-Attempt Artifacts" in markdown
+    assert "training: `train_final_model_zip`, `train_summary_json`, `train_training_manifest_json`" in markdown
+    assert "evaluation: `eval_gate3_eval_episodes_csv`, `eval_gate3_summary_json`" in markdown
+    assert "formal_acceptance: `h02_formal_output_acceptance`" in markdown
     assert "Claim Boundaries" in markdown
     assert "Current allowed actions do not include local training, remote training, formal claims, or paper result material." in markdown
 
@@ -173,14 +229,25 @@ def _decision_gate(*, recorded):
 
 
 def _contract_gate(*, recorded):
+    post_plan_status = (
+        "post_decision_contract_plan_ready_for_contract_draft"
+        if recorded
+        else "post_decision_contract_plan_ready_blocked_pending_lane_decision"
+    )
+    selected_lane = "hybrid_ppo_analytic_fallback" if recorded else None
     return {
         "status": "contract_authoring_gate_ready_for_contract_draft" if recorded else "contract_authoring_gate_blocked_pending_lane_decision",
         "audit_issue_count": 0,
         "contract_gate": {
-            "selected_lane_id": "hybrid_ppo_analytic_fallback" if recorded else None,
+            "selected_lane_id": selected_lane,
             "contract_drafting_allowed_now": recorded,
             "contract_approval_allowed_now": False,
             "draft_contract_allows_training": False,
+            "post_decision_contract_plan_status": post_plan_status,
+            "post_decision_contract_plan_selected_lane_id": selected_lane,
+            "post_decision_contract_plan_required_section_count": 8,
+            "post_decision_contract_plan_lane_count": 4,
+            "post_decision_contract_plan_shared_artifact_count": 10,
             "allowed_next_action_ids": ["draft_new_or_revised_contract_after_lane_decision"] if recorded else ["record_protocol_lane_decision"],
             "blocked_action_ids": [
                 "local_training",
@@ -190,6 +257,26 @@ def _contract_gate(*, recorded):
                 "paper_result_material",
             ],
         },
+        "post_decision_contract_plan_summary": {
+            "present": True,
+            "artifact_name": "module2_formal_gate_post_decision_contract_plan",
+            "status": post_plan_status,
+            "audit_issue_count": 0,
+            "required_contract_section_count": 8,
+            "shared_next_success_attempt_artifact_count": 10,
+            "lane_count": 4,
+            "writes_contract": False,
+            "approves_contract": False,
+            "runs_training": False,
+            "runs_remote_preflight": False,
+            "remote_training_allowed_now": False,
+            "formal_claim_allowed": False,
+            "paper_result_material_allowed": False,
+            "gate_selected_lane_id": selected_lane,
+            "gate_contract_drafting_allowed_now": recorded,
+            "gate_remote_training_allowed_now": False,
+            "gate_formal_claim_allowed_now": False,
+        },
     }
 
 
@@ -198,4 +285,22 @@ def _lane_matrix():
 
 
 def _next_round():
-    return {"status": "formal_gate_next_round_requirements_ready"}
+    return {
+        "status": "formal_gate_next_round_requirements_ready",
+        "next_success_attempt_artifact_index": {
+            "status": "blocked_until_protocol_lane_decision_and_contract",
+            "artifact_count": 10,
+            "rows": [
+                {"category": "contract", "artifact_id": "new_or_revised_research_contract"},
+                {"category": "training", "artifact_id": "train_final_model_zip"},
+                {"category": "training", "artifact_id": "train_summary_json"},
+                {"category": "training", "artifact_id": "train_training_manifest_json"},
+                {"category": "evaluation", "artifact_id": "eval_gate3_eval_episodes_csv"},
+                {"category": "evaluation", "artifact_id": "eval_gate3_summary_json"},
+                {"category": "acceptance", "artifact_id": "gate3_trial_manifest_json"},
+                {"category": "acceptance", "artifact_id": "gate3_formal_audit_json"},
+                {"category": "acceptance", "artifact_id": "pulled_back_checkpoint_hash_record"},
+                {"category": "formal_acceptance", "artifact_id": "h02_formal_output_acceptance"},
+            ],
+        },
+    }

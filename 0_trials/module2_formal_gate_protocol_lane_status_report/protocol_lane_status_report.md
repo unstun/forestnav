@@ -10,6 +10,32 @@ This file summarizes protocol-lane gates; it is not paper result material.
 - contract_drafting_allowed_now: `False`
 - remote_training_allowed_now: `False`
 - formal_claim_allowed_now: `False`
+- next_success_attempt_artifact_count: `10`
+- next_success_attempt_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
+
+## Post-Decision Contract Plan
+
+- status: `post_decision_contract_plan_ready_blocked_pending_lane_decision`
+- audit_issue_count: `0`
+- required_contract_section_count: `8`
+- shared_next_success_attempt_artifact_count: `10`
+- lane_count: `4`
+- selected_lane_id: `None`
+- writes_contract: `False`
+- approves_contract: `False`
+- runs_training: `False`
+- runs_remote_preflight: `False`
+- formal_claim_allowed: `False`
+- paper_result_material_allowed: `False`
+
+## Missing Next-Attempt Artifacts
+
+- index_status: `blocked_until_protocol_lane_decision_and_contract`
+- contract: `new_or_revised_research_contract`
+- training: `train_final_model_zip`, `train_summary_json`, `train_training_manifest_json`
+- evaluation: `eval_gate3_eval_episodes_csv`, `eval_gate3_summary_json`
+- acceptance: `gate3_trial_manifest_json`, `gate3_formal_audit_json`, `pulled_back_checkpoint_hash_record`
+- formal_acceptance: `h02_formal_output_acceptance`
 
 ## Safety Flags
 
