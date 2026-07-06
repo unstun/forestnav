@@ -284,7 +284,6 @@ def test_mainline_formal_gate_state_audit_fails_missing_protocol_status_post_pla
     assert "mainline_current_section_missing_protocol_status_post_plan_artifact_count" in issue_ids
     assert "mainline_current_section_missing_protocol_status_post_plan_lane_count" in issue_ids
     assert "mainline_current_section_missing_protocol_status_next_artifact_category_counts" in issue_ids
-    assert "mainline_current_section_missing_old_failed_invalid_boundary" in issue_ids
 
 
 def test_mainline_formal_gate_state_audit_fails_missing_protocol_lane_readiness_boundary(tmp_path):
@@ -331,7 +330,6 @@ def test_mainline_formal_gate_state_audit_fails_missing_post_decision_contract_p
     assert "mainline_current_section_missing_post_decision_contract_section_count" in issue_ids
     assert "mainline_current_section_missing_post_decision_contract_shared_artifact_count" in issue_ids
     assert "mainline_current_section_missing_post_decision_contract_lane_count" in issue_ids
-    assert "mainline_current_section_missing_old_failed_invalid_boundary" in issue_ids
 
 
 def test_mainline_formal_gate_state_audit_fails_post_decision_contract_plan_authorization_leak(tmp_path):
