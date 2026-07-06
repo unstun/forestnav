@@ -12,8 +12,9 @@ from pathlib import Path
 from typing import Any
 
 
-CONTRACT_PATH = Path(".pipeline/contracts/module2-ppo-funnel-expansion.md")
+DEFAULT_CONTRACT_PATH = Path(".pipeline/contracts/module2-ppo-funnel-expansion.md")
 DEFAULT_ORACLE_PATH = Path("0_trials/module2_oracle_shape/oracle_connector_results.parquet")
+ALLOWED_CONTRACT_STATUSES = {"approved", "frozen"}
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -34,6 +35,7 @@ def _parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Prepare a formal Module2 F03 Gate #3 PPO trial protocol without running training.")
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--manifest-out", type=Path, default=None)
+    parser.add_argument("--contract-path", type=Path, default=DEFAULT_CONTRACT_PATH)
     parser.add_argument("--seed", type=int, default=20260704)
     parser.add_argument("--device", default="auto")
     parser.add_argument("--allow-duplicate-openmp", action="store_true")
@@ -73,8 +75,8 @@ def build_preflight_manifest(*, args: argparse.Namespace, raw_argv: Sequence[str
         "execution_host": socket.gethostname(),
         "source_head": _source_head(),
         "command": _join_command(["python", "-m", "forest_n3p.scripts.preflight_rl_rs_gate3_formal_trial", *raw_argv]),
-        "contract": str(CONTRACT_PATH),
-        "contract_status": _contract_status(CONTRACT_PATH),
+        "contract": str(args.contract_path),
+        "contract_status": _contract_status(args.contract_path),
         "output_dir": str(output_dir),
         "manifest_out": str(manifest_out),
         "preflight_status": "ready" if not blockers else "blocked",
@@ -100,6 +102,7 @@ def _protocol_record(*, args: argparse.Namespace, output_dir: Path) -> dict[str,
         "smoke": False,
         "formal_gate_claim_expected": False,
         "formal_audit_required": True,
+        "contract": str(args.contract_path),
         "seed": int(args.seed),
         "device": str(args.device),
         "bc_checkpoint": None if args.bc_checkpoint is None else str(args.bc_checkpoint),
@@ -123,9 +126,16 @@ def _protocol_record(*, args: argparse.Namespace, output_dir: Path) -> dict[str,
 
 def _formal_blockers(*, args: argparse.Namespace, output_dir: Path, protocol: dict[str, Any]) -> list[dict[str, Any]]:
     blockers: list[dict[str, Any]] = []
-    contract_status = _contract_status(CONTRACT_PATH)
-    if contract_status != "approved":
-        blockers.append(_reason("contract_not_approved", f"contract status is {contract_status!r}", observed=contract_status, expected="approved"))
+    contract_status = _contract_status(args.contract_path)
+    if contract_status not in ALLOWED_CONTRACT_STATUSES:
+        blockers.append(
+            _reason(
+                "contract_not_approved",
+                f"contract status is {contract_status!r}",
+                observed=contract_status,
+                expected="approved or frozen",
+            )
+        )
     if not Path(args.oracle_path).exists():
         blockers.append(_reason("missing_oracle_path", f"oracle path does not exist: {args.oracle_path}", observed=str(args.oracle_path)))
     if args.bc_checkpoint is not None and not Path(args.bc_checkpoint).exists():
@@ -201,6 +211,8 @@ def _runner_argv(*, args: argparse.Namespace, output_dir: Path) -> list[str]:
         "forest_n3p.scripts.run_rl_rs_gate3_trial",
         "--output-dir",
         str(output_dir),
+        "--contract-path",
+        str(args.contract_path),
         "--seed",
         str(args.seed),
         "--device",
@@ -250,6 +262,8 @@ def _audit_argv(*, args: argparse.Namespace, output_dir: Path) -> list[str]:
         "forest_n3p.scripts.audit_rl_rs_gate3_trial",
         "--trial-dir",
         str(output_dir),
+        "--contract-path",
+        str(args.contract_path),
         "--min-formal-episodes",
         str(args.eval_min_episodes),
         "--required-success-threshold",
