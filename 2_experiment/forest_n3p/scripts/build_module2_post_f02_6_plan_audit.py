@@ -1463,6 +1463,84 @@ def _status_report_summary(path: Path, status_report: dict[str, Any]) -> dict[st
     }
 
 
+def _protocol_lane_status_summary(path: Path, protocol_lane_status: dict[str, Any]) -> dict[str, Any]:
+    current = protocol_lane_status.get("current_status") if isinstance(protocol_lane_status.get("current_status"), dict) else {}
+    category_counts = current.get("next_success_attempt_artifact_category_counts")
+    ids_by_category = current.get("next_success_attempt_artifact_ids_by_category")
+    return {
+        "path": str(path),
+        "exists": Path(path).is_file(),
+        "status": protocol_lane_status.get("status"),
+        "audit_issue_count": int(protocol_lane_status.get("audit_issue_count") or 0),
+        "not_paper_result_material": protocol_lane_status.get("not_paper_result_material"),
+        "executes_commands": protocol_lane_status.get("executes_commands"),
+        "runs_training": protocol_lane_status.get("runs_training"),
+        "runs_remote_preflight": protocol_lane_status.get("runs_remote_preflight"),
+        "local_training_allowed": protocol_lane_status.get("local_training_allowed"),
+        "remote_training_allowed_now": protocol_lane_status.get("remote_training_allowed_now"),
+        "formal_claim_allowed": protocol_lane_status.get("formal_claim_allowed"),
+        "paper_result_material_allowed": protocol_lane_status.get("paper_result_material_allowed"),
+        "next_blocked_lane": current.get("next_blocked_lane"),
+        "selected_lane_id": current.get("selected_lane_id"),
+        "allowed_next_action_ids": _strings(current.get("allowed_next_action_ids")),
+        "blocked_action_ids": _strings(current.get("blocked_action_ids")),
+        "post_decision_contract_plan_summary_present": current.get("post_decision_contract_plan_summary_present"),
+        "post_decision_contract_plan_status": current.get("post_decision_contract_plan_status"),
+        "post_decision_contract_plan_audit_issue_count": int(
+            current.get("post_decision_contract_plan_audit_issue_count") or 0
+        ),
+        "post_decision_contract_plan_required_section_count": int(
+            current.get("post_decision_contract_plan_required_section_count") or 0
+        ),
+        "post_decision_contract_plan_shared_artifact_count": int(
+            current.get("post_decision_contract_plan_shared_artifact_count") or 0
+        ),
+        "post_decision_contract_plan_lane_count": int(
+            current.get("post_decision_contract_plan_lane_count") or 0
+        ),
+        "post_decision_contract_plan_writes_contract": current.get("post_decision_contract_plan_writes_contract"),
+        "post_decision_contract_plan_approves_contract": current.get("post_decision_contract_plan_approves_contract"),
+        "post_decision_contract_plan_runs_training": current.get("post_decision_contract_plan_runs_training"),
+        "post_decision_contract_plan_runs_remote_preflight": current.get("post_decision_contract_plan_runs_remote_preflight"),
+        "post_decision_contract_plan_remote_training_allowed_now": current.get(
+            "post_decision_contract_plan_remote_training_allowed_now"
+        ),
+        "post_decision_contract_plan_formal_claim_allowed": current.get(
+            "post_decision_contract_plan_formal_claim_allowed"
+        ),
+        "post_decision_contract_plan_paper_result_material_allowed": current.get(
+            "post_decision_contract_plan_paper_result_material_allowed"
+        ),
+        "post_decision_contract_plan_gate_contract_drafting_allowed_now": current.get(
+            "post_decision_contract_plan_gate_contract_drafting_allowed_now"
+        ),
+        "next_success_attempt_artifact_status": current.get("next_success_attempt_artifact_status"),
+        "next_success_attempt_artifact_count": int(current.get("next_success_attempt_artifact_count") or 0),
+        "next_success_attempt_artifact_category_counts": {
+            str(category): int(count or 0)
+            for category, count in category_counts.items()
+            if category
+        }
+        if isinstance(category_counts, dict)
+        else {},
+        "next_success_attempt_artifact_ids_by_category": {
+            str(category): [str(artifact_id) for artifact_id in artifact_ids if artifact_id]
+            for category, artifact_ids in ids_by_category.items()
+            if category and isinstance(artifact_ids, list)
+        }
+        if isinstance(ids_by_category, dict)
+        else {},
+        "contract_drafting_allowed_now": current.get("contract_drafting_allowed_now"),
+        "contract_approval_allowed_now": current.get("contract_approval_allowed_now"),
+        "draft_contract_allows_training": current.get("draft_contract_allows_training"),
+        "local_training_allowed_now": current.get("local_training_allowed_now"),
+        "remote_training_allowed_now": current.get("remote_training_allowed_now"),
+        "formal_claim_allowed_now": current.get("formal_claim_allowed_now"),
+        "paper_result_material_allowed_now": current.get("paper_result_material_allowed_now"),
+        "new_success_training_allowed_now": current.get("new_success_training_allowed_now"),
+    }
+
+
 def _remaining_deliverables_gap_summary(path: Path | None, remaining_deliverables: dict[str, Any]) -> dict[str, Any]:
     summary = _normalize_gap_summary(remaining_deliverables.get("deliverable_gap_summary"))
     summary["path"] = str(path) if path else None
