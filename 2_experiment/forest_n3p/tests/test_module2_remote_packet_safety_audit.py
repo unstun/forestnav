@@ -102,6 +102,16 @@ def test_remote_packet_safety_audit_passes_current_blocked_packet(tmp_path):
     assert protocol_summary["new_success_training_allowed_now"] is False
     assert protocol_summary["post_decision_contract_plan_status"] == "post_decision_contract_plan_ready_blocked_pending_lane_decision"
     assert protocol_summary["post_decision_contract_plan_shared_artifact_count"] == 10
+    assert protocol_summary["post_decision_contract_plan_shared_artifact_category_counts"] == {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1,
+    }
+    assert protocol_summary[
+        "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"
+    ] is True
     assert protocol_summary["post_decision_contract_plan_lane_count"] == 4
     assert protocol_summary["next_success_attempt_artifact_count"] == 10
     assert protocol_summary["next_success_attempt_artifact_category_counts"] == {
@@ -111,6 +121,7 @@ def test_remote_packet_safety_audit_passes_current_blocked_packet(tmp_path):
         "acceptance": 3,
         "formal_acceptance": 1,
     }
+    assert protocol_summary["old_failed_run_artifacts_invalid_for_next_success_attempt"] is True
     status_steps = manifest["cross_gate_summary"]["post_plan_status_report_remote_execution_step_summary"]
     assert status_steps["sync_to_remote"]["blocked_by"] == ["requires_dr_sun_approval"]
     assert status_steps["run_remote_training"]["blocked_by"] == ["requires_dr_sun_approval", "remote_packet_not_ready"]
@@ -546,7 +557,13 @@ def test_remote_packet_safety_audit_rejects_protocol_lane_authorization_drift(tm
     protocol_summary["paper_result_material_allowed_now"] = True
     protocol_summary["post_decision_contract_plan_runs_training"] = True
     protocol_summary["post_decision_contract_plan_formal_claim_allowed"] = True
+    protocol_summary["post_decision_contract_plan_shared_artifact_category_counts"]["training"] = 2
+    protocol_summary[
+        "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"
+    ] = False
     protocol_summary["next_success_attempt_artifact_count"] = 3
+    protocol_summary["next_success_attempt_artifact_category_counts"]["evaluation"] = 1
+    protocol_summary["old_failed_run_artifacts_invalid_for_next_success_attempt"] = False
 
     manifest = auditor.build_manifest(
         auditor.RemotePacketSafetyAuditConfig(
@@ -570,7 +587,11 @@ def test_remote_packet_safety_audit_rejects_protocol_lane_authorization_drift(tm
     assert "protocol_lane_allows_paper_result_material" in issue_ids
     assert "protocol_lane_post_decision_contract_plan_runs_training_not_false" in issue_ids
     assert "protocol_lane_post_decision_contract_plan_formal_claim_allowed_not_false" in issue_ids
+    assert "protocol_lane_shared_artifact_category_counts_drift" in issue_ids
+    assert "protocol_lane_post_plan_old_failed_invalid_flag_drift" in issue_ids
     assert "protocol_lane_next_attempt_artifact_count_drift" in issue_ids
+    assert "protocol_lane_next_attempt_category_counts_drift" in issue_ids
+    assert "protocol_lane_old_failed_invalid_flag_drift" in issue_ids
 
 
 def test_remote_packet_safety_audit_rejects_proof_audit_deliverables_summary_drift(tmp_path):
@@ -1127,6 +1148,14 @@ def _protocol_lane_status_summary():
         "post_decision_contract_plan_audit_issue_count": 0,
         "post_decision_contract_plan_required_section_count": 8,
         "post_decision_contract_plan_shared_artifact_count": 10,
+        "post_decision_contract_plan_shared_artifact_category_counts": {
+            "contract": 1,
+            "training": 3,
+            "evaluation": 2,
+            "acceptance": 3,
+            "formal_acceptance": 1,
+        },
+        "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt": True,
         "post_decision_contract_plan_lane_count": 4,
         "post_decision_contract_plan_runs_training": False,
         "post_decision_contract_plan_runs_remote_preflight": False,
@@ -1148,6 +1177,7 @@ def _protocol_lane_status_summary():
             "acceptance": ["gate3_trial_manifest_json", "gate3_formal_audit_json", "pulled_back_checkpoint_hash_record"],
             "formal_acceptance": ["h02_formal_output_acceptance"],
         },
+        "old_failed_run_artifacts_invalid_for_next_success_attempt": True,
     }
 
 
