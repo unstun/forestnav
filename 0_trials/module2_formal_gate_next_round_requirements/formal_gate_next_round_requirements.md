@@ -125,6 +125,106 @@ This file is a formal-gate planning artifact, not paper result material.
   - formal-looking tables generated from smoke scale
   - PPO rows without checkpoint hash
 
+## Next Success Attempt Artifact Index
+
+- status: `blocked_until_protocol_lane_decision_and_contract`
+- artifact_count: `10`
+
+| category | artifact_id | status | expected_path | blocked_until |
+|---|---|---|---|---|
+| `contract` | `new_or_revised_research_contract` | `missing_required_before_new_success_training` | `.pipeline/contracts/module2-<selected_protocol_lane>-<version>.md` | `record_protocol_lane_decision` |
+| `training` | `train_final_model_zip` | `not_created_for_next_success_attempt` | `0_trials/module2_gate3_formal/<next_attempt_id>/train/final_model.zip` | `approved_or_frozen_new_or_revised_contract` |
+| `training` | `train_summary_json` | `not_created_for_next_success_attempt` | `0_trials/module2_gate3_formal/<next_attempt_id>/train/summary.json` | `approved_or_frozen_new_or_revised_contract` |
+| `training` | `train_training_manifest_json` | `not_created_for_next_success_attempt` | `0_trials/module2_gate3_formal/<next_attempt_id>/train/training_manifest.json` | `approved_or_frozen_new_or_revised_contract` |
+| `evaluation` | `eval_gate3_eval_episodes_csv` | `blocked_until_new_checkpoint` | `0_trials/module2_gate3_formal/<next_attempt_id>/eval/gate3_eval_episodes.csv` | `new_remote_ppo_checkpoint_bundle` |
+| `evaluation` | `eval_gate3_summary_json` | `blocked_until_new_checkpoint` | `0_trials/module2_gate3_formal/<next_attempt_id>/eval/gate3_summary.json` | `new_remote_ppo_checkpoint_bundle` |
+| `acceptance` | `gate3_trial_manifest_json` | `blocked_until_new_eval` | `0_trials/module2_gate3_formal/<next_attempt_id>/gate3_trial_manifest.json` | `new_formal_gate3_eval_bundle` |
+| `acceptance` | `gate3_formal_audit_json` | `blocked_until_new_eval` | `0_trials/module2_gate3_formal/<next_attempt_id>/gate3_formal_audit.json` | `new_formal_gate3_eval_bundle` |
+| `acceptance` | `pulled_back_checkpoint_hash_record` | `blocked_until_new_eval` | `0_trials/module2_gate3_formal/<next_attempt_id>/train/final_model.zip.sha256 or .sha256.json` | `new_formal_gate3_eval_bundle` |
+| `formal_acceptance` | `h02_formal_output_acceptance` | `blocked_until_new_gate3_pass` | `0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json` | `new_gate3_audit_and_hash_acceptance` |
+
+### Artifact Proof Requirements
+
+#### `contract:new_or_revised_research_contract`
+- required_before: `new_success_training`
+- proof_requirement: contract status is approved or frozen and locks hypothesis, success signal, failure signal, budget, and protocol deltas
+- invalid_substitutes:
+  - chat-only approval
+  - draft contract
+  - editing the failed Gate3 result after seeing failure
+
+#### `training:train_final_model_zip`
+- required_before: `new_gate3_formal_audit`
+- proof_requirement: remote-produced PPO checkpoint pulled back from gpu3070ti-relay
+- invalid_substitutes:
+  - local PPO training output
+  - failed warm-start checkpoint
+  - checkpoint without manifest or hash provenance
+
+#### `training:train_summary_json`
+- required_before: `new_gate3_formal_audit`
+- proof_requirement: summary records protocol label, training budget, seed, and terminal-RS training signals
+- invalid_substitutes:
+  - stdout-only training summary
+  - summary from the failed Gate3 attempt
+  - summary without protocol label
+
+#### `training:train_training_manifest_json`
+- required_before: `new_gate3_formal_audit`
+- proof_requirement: manifest records source head, host, command provenance, seed, and selected protocol lane
+- invalid_substitutes:
+  - manifest without source head
+  - manifest from a different protocol lane
+  - uncommitted chat note
+
+#### `evaluation:eval_gate3_eval_episodes_csv`
+- required_before: `new_gate3_formal_audit`
+- proof_requirement: per-episode formal Gate3 CSV with at least 64 episodes and protocol provenance
+- invalid_substitutes:
+  - H02 available-subset smoke CSV
+  - no-warm failure rows reused for a warm-start claim
+  - aggregate summary without per-episode rows
+
+#### `evaluation:eval_gate3_summary_json`
+- required_before: `new_gate3_formal_audit`
+- proof_requirement: summary records terminal-RS success, collision, truncation, timing, seed, and protocol label
+- invalid_substitutes:
+  - summary from failed run
+  - summary without timing fields
+  - paper table preview
+
+#### `acceptance:gate3_trial_manifest_json`
+- required_before: `h02_formal_output_acceptance`
+- proof_requirement: trial manifest ties contract, train, eval, audit, source head, and selected protocol lane
+- invalid_substitutes:
+  - trial manifest from failed run
+  - manifest without contract reference
+  - manifest without evaluated checkpoint identity
+
+#### `acceptance:gate3_formal_audit_json`
+- required_before: `h02_formal_output_acceptance`
+- proof_requirement: audit records formal_decision=pass for the new approved protocol attempt
+- invalid_substitutes:
+  - formal_decision=fail reinterpreted as success
+  - audit marked smoke, preview, or candidate
+  - audit from a different protocol lane
+
+#### `acceptance:pulled_back_checkpoint_hash_record`
+- required_before: `h02_formal_output_acceptance`
+- proof_requirement: hash record matches the pulled-back final_model.zip evaluated by Gate3
+- invalid_substitutes:
+  - checkpoint without hash record
+  - hash for a different checkpoint
+  - remote stdout without local pullback
+
+#### `formal_acceptance:h02_formal_output_acceptance`
+- required_before: `paper_result_material`
+- proof_requirement: H02 records formal_output_accepted=true, paper_result_input_allowed=true, PPO rows, and accepted checkpoint hash
+- invalid_substitutes:
+  - blocked H02 acceptance
+  - formal-looking smoke table
+  - PPO rows without checkpoint hash
+
 ## Boundaries
 - This artifact is a formal-gate planning artifact, not a paper result table or appendix.
 - The failed warm-start PPO Gate3 checkpoint is negative formal evidence, not a successful PPO replacement for RS.

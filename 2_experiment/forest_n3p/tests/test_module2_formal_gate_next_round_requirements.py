@@ -89,6 +89,45 @@ def test_next_round_requirements_blocks_new_success_attempt_until_contract(tmp_p
     assert rows["new_gate3_audit_and_hash_acceptance"]["status"] == "blocked_until_new_eval"
     assert rows["h02_formal_output_acceptance"]["status"] == "blocked_until_new_gate3_pass"
 
+    artifact_index = manifest["next_success_attempt_artifact_index"]
+    assert artifact_index["status"] == "blocked_until_protocol_lane_decision_and_contract"
+    assert artifact_index["artifact_count"] == 10
+    assert artifact_index["categories"] == [
+        "contract",
+        "training",
+        "evaluation",
+        "acceptance",
+        "formal_acceptance",
+    ]
+    artifact_rows = {row["artifact_id"]: row for row in artifact_index["rows"]}
+    assert set(artifact_rows) == {
+        "new_or_revised_research_contract",
+        "train_final_model_zip",
+        "train_summary_json",
+        "train_training_manifest_json",
+        "eval_gate3_eval_episodes_csv",
+        "eval_gate3_summary_json",
+        "gate3_trial_manifest_json",
+        "gate3_formal_audit_json",
+        "pulled_back_checkpoint_hash_record",
+        "h02_formal_output_acceptance",
+    }
+    assert artifact_rows["new_or_revised_research_contract"]["blocked_until"] == (
+        "record_protocol_lane_decision"
+    )
+    assert artifact_rows["train_final_model_zip"]["category"] == "training"
+    assert artifact_rows["train_final_model_zip"]["expected_path"] == (
+        "0_trials/module2_gate3_formal/<next_attempt_id>/train/final_model.zip"
+    )
+    assert "local PPO training output" in artifact_rows["train_final_model_zip"]["invalid_substitutes"]
+    assert artifact_rows["eval_gate3_eval_episodes_csv"]["category"] == "evaluation"
+    assert artifact_rows["eval_gate3_eval_episodes_csv"]["blocked_until"] == (
+        "new_remote_ppo_checkpoint_bundle"
+    )
+    assert artifact_rows["gate3_formal_audit_json"]["category"] == "acceptance"
+    assert "formal_decision=pass" in artifact_rows["gate3_formal_audit_json"]["proof_requirement"]
+    assert artifact_rows["h02_formal_output_acceptance"]["required_before"] == "paper_result_material"
+
     assert manifest["audit_issue_count"] == 0
     assert manifest["audit_issues"] == []
     assert any("Local PPO training remains disallowed" in item for item in manifest["claim_boundaries"])
@@ -187,6 +226,14 @@ def test_next_round_requirements_cli_writes_json_and_markdown(tmp_path):
     assert "train/final_model.zip.sha256 or equivalent hash manifest matches the pulled-back checkpoint" in markdown
     assert "### `formal_acceptance:h02_formal_output_acceptance`" in markdown
     assert "formal PPO rows are present and include the accepted checkpoint hash" in markdown
+    assert "## Next Success Attempt Artifact Index" in markdown
+    assert "artifact_count: `10`" in markdown
+    assert "`train_final_model_zip`" in markdown
+    assert "`eval_gate3_eval_episodes_csv`" in markdown
+    assert "`gate3_formal_audit_json`" in markdown
+    assert "0_trials/module2_gate3_formal/<next_attempt_id>/train/final_model.zip" in markdown
+    assert "#### `acceptance:gate3_formal_audit_json`" in markdown
+    assert "audit records formal_decision=pass for the new approved protocol attempt" in markdown
 
 
 def _config(tmp_path):
