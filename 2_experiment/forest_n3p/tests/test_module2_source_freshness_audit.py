@@ -32,13 +32,16 @@ def test_source_freshness_audit_records_stale_and_dirty_artifacts_as_regeneratio
     assert manifest["formal_claim_allowed"] is False
     assert manifest["regeneration_required_before_remote_formal_execution"] is True
     assert manifest["blocking_regeneration_required_before_remote_formal_execution"] is True
-    assert manifest["blocking_regeneration_target_count"] == 3
-    assert len(manifest["blocking_ordered_regeneration_targets"]) == 3
+    assert manifest["blocking_regeneration_target_count"] == 1
+    assert len(manifest["blocking_ordered_regeneration_targets"]) == 1
     assert manifest["risk_counts"]["current_dirty"] == 1
     assert manifest["risk_counts"]["unknown_or_missing_commit"] == 1
     assert manifest["risk_counts"]["missing_source_head"] == 1
     targets = {item["artifact_id"]: item for item in manifest["ordered_regeneration_targets"]}
+    blockers = {item["artifact_id"]: item for item in manifest["blocking_ordered_regeneration_targets"]}
+    assert set(blockers) == {"current_dirty"}
     assert targets["current_dirty"]["required_before"] == "approved_remote_preflight"
+    assert targets["current_dirty"]["blocking_regeneration_required_before_remote_formal_execution"] is True
     assert targets["current_dirty"]["source_head"] == f"{current_head}+dirty"
     assert targets["current_dirty"]["source_commit"] == current_head
     assert targets["current_dirty"]["source_head_dirty"] is True
@@ -46,8 +49,10 @@ def test_source_freshness_audit_records_stale_and_dirty_artifacts_as_regeneratio
     assert targets["current_dirty"]["matches_current_head"] is True
     assert targets["current_dirty"]["current_head"] == current_head
     assert targets["missing_commit"]["required_before"] == "formal_h01_h02"
+    assert targets["missing_commit"]["blocking_regeneration_required_before_remote_formal_execution"] is False
     assert targets["missing_commit"]["source_commit_exists"] is False
     assert targets["missing_source"]["required_before"] == "formal_claim_gate"
+    assert targets["missing_source"]["blocking_regeneration_required_before_remote_formal_execution"] is False
     assert targets["missing_source"]["source_head"] is None
     assert "not a training run or paper result" in " ".join(manifest["claim_boundaries"])
 
@@ -180,6 +185,37 @@ def test_source_freshness_audit_allows_tracked_artifact_batch_lag(tmp_path, monk
         assert record["tracked_artifact_only_lag"] is True
         assert record["blocking_changed_path_count_since_source"] == 0
         assert record["blocking_regeneration_required_before_remote_formal_execution"] is False
+
+
+def test_source_freshness_audit_allows_remote_preflight_when_only_later_risks_remain(tmp_path, monkeypatch):
+    builder = import_module("forest_n3p.scripts.build_module2_source_freshness_audit")
+    current_head = "b" * 40
+    claim_path = _artifact(tmp_path, "claim.json", status="blocked", source_head="a" * 40)
+
+    monkeypatch.setattr(builder, "_current_head", lambda: current_head)
+    monkeypatch.setattr(builder, "_commit_exists", lambda commit: True)
+    monkeypatch.setattr(builder, "_commits_since_source", lambda source, current: 3, raising=False)
+    monkeypatch.setattr(
+        builder,
+        "_changed_paths_since_source",
+        lambda source, current: ["2_experiment/forest_n3p/claim_gate.py"],
+        raising=False,
+    )
+
+    manifest = builder.build_manifest(
+        builder.SourceFreshnessAuditConfig(
+            output_dir=tmp_path,
+            artifacts=[
+                builder.ArtifactTarget("claim_gate", "claim", claim_path, "formal_claim_gate"),
+            ],
+        )
+    )
+
+    assert manifest["status"] == "source_freshness_remote_preflight_scope_ready_with_later_risks"
+    assert manifest["blocking_regeneration_required_before_remote_formal_execution"] is False
+    assert manifest["blocking_regeneration_target_count"] == 0
+    assert manifest["ordered_regeneration_targets"][0]["required_before"] == "formal_claim_gate"
+    assert manifest["ordered_regeneration_targets"][0]["blocking_regeneration_required_before_remote_formal_execution"] is False
 
 
 def test_source_freshness_audit_treats_known_module2_gate_artifacts_as_tracked_lag(tmp_path, monkeypatch):
@@ -339,14 +375,16 @@ def test_source_freshness_audit_cli_writes_json_and_markdown(tmp_path):
     assert "formal_gate_proof_summary_chain_audit" in artifact_ids
     assert "mainline_formal_gate_state_audit" in artifact_ids
     assert "formal_gate_handoff_bundle" in artifact_ids
-    assert records["f02_6_warm_start_decision_packet"]["required_before"] == "approved_remote_preflight"
-    assert records["f02_6_decision_intake"]["required_before"] == "approved_remote_preflight"
-    assert records["f02_6_transition_gate_audit"]["required_before"] == "approved_remote_preflight"
-    assert records["formal_gate_closure_checklist"]["required_before"] == "approved_remote_preflight"
-    assert records["post_f02_6_regeneration_plan"]["required_before"] == "approved_remote_preflight"
-    assert records["post_f02_6_plan_audit"]["required_before"] == "approved_remote_preflight"
-    assert records["remote_packet_safety_audit"]["required_before"] == "approved_remote_preflight"
-    assert records["formal_gate_handoff_bundle"]["required_before"] == "approved_remote_preflight"
+    assert "v2_contract_readiness_gate" in artifact_ids
+    assert records["v2_contract_readiness_gate"]["required_before"] == "approved_remote_preflight"
+    assert records["f02_6_warm_start_decision_packet"]["required_before"] == "legacy_context_only"
+    assert records["f02_6_decision_intake"]["required_before"] == "legacy_context_only"
+    assert records["f02_6_transition_gate_audit"]["required_before"] == "legacy_context_only"
+    assert records["formal_gate_closure_checklist"]["required_before"] == "legacy_context_only"
+    assert records["post_f02_6_regeneration_plan"]["required_before"] == "legacy_context_only"
+    assert records["post_f02_6_plan_audit"]["required_before"] == "legacy_context_only"
+    assert records["remote_packet_safety_audit"]["required_before"] == "legacy_context_only"
+    assert records["formal_gate_handoff_bundle"]["required_before"] == "legacy_context_only"
     assert records["claim_safety"]["required_before"] == "formal_claim_gate"
     assert records["paper_readiness"]["required_before"] == "formal_claim_gate"
     assert records["formal_gate_status_report"]["required_before"] == "formal_claim_gate"
@@ -355,24 +393,26 @@ def test_source_freshness_audit_cli_writes_json_and_markdown(tmp_path):
     assert records["formal_gate_proof_summary_chain_audit"]["required_before"] == "formal_claim_gate"
     assert records["mainline_formal_gate_state_audit"]["required_before"] == "formal_claim_gate"
     required_before = {target["artifact_id"]: target["required_before"] for target in manifest["ordered_regeneration_targets"]}
+    if records["v2_contract_readiness_gate"]["freshness_state"] != "current_clean":
+        assert required_before.get("v2_contract_readiness_gate") == "approved_remote_preflight"
     if records["f02_6_warm_start_decision_packet"]["freshness_state"] != "current_clean":
-        assert required_before.get("f02_6_warm_start_decision_packet") == "approved_remote_preflight"
+        assert required_before.get("f02_6_warm_start_decision_packet") == "legacy_context_only"
     if records["f02_6_decision_intake"]["freshness_state"] != "current_clean":
-        assert required_before.get("f02_6_decision_intake") == "approved_remote_preflight"
+        assert required_before.get("f02_6_decision_intake") == "legacy_context_only"
     if records["f02_6_decision_gate_audit"]["freshness_state"] != "current_clean":
-        assert required_before.get("f02_6_decision_gate_audit") == "approved_remote_preflight"
+        assert required_before.get("f02_6_decision_gate_audit") == "legacy_context_only"
     if records["f02_6_transition_gate_audit"]["freshness_state"] != "current_clean":
-        assert required_before.get("f02_6_transition_gate_audit") == "approved_remote_preflight"
+        assert required_before.get("f02_6_transition_gate_audit") == "legacy_context_only"
     if records["formal_gate_closure_checklist"]["freshness_state"] != "current_clean":
-        assert required_before.get("formal_gate_closure_checklist") == "approved_remote_preflight"
+        assert required_before.get("formal_gate_closure_checklist") == "legacy_context_only"
     if records["post_f02_6_regeneration_plan"]["freshness_state"] != "current_clean":
-        assert required_before.get("post_f02_6_regeneration_plan") == "approved_remote_preflight"
+        assert required_before.get("post_f02_6_regeneration_plan") == "legacy_context_only"
     if records["post_f02_6_plan_audit"]["freshness_state"] != "current_clean":
-        assert required_before.get("post_f02_6_plan_audit") == "approved_remote_preflight"
+        assert required_before.get("post_f02_6_plan_audit") == "legacy_context_only"
     if records["remote_packet_safety_audit"]["freshness_state"] != "current_clean":
-        assert required_before.get("remote_packet_safety_audit") == "approved_remote_preflight"
+        assert required_before.get("remote_packet_safety_audit") == "legacy_context_only"
     if records["formal_gate_handoff_bundle"]["freshness_state"] != "current_clean":
-        assert required_before.get("formal_gate_handoff_bundle") == "approved_remote_preflight"
+        assert required_before.get("formal_gate_handoff_bundle") == "legacy_context_only"
     if records["claim_safety"]["freshness_state"] != "current_clean":
         assert required_before.get("claim_safety") == "formal_claim_gate"
     if records["paper_readiness"]["freshness_state"] != "current_clean":

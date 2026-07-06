@@ -39,7 +39,7 @@ def test_v2_remote_execution_packet_allows_only_preflight_after_readiness_and_so
             tmp_path,
             contract_status="approved",
             readiness_status="v2_contract_ready_for_source_freshness",
-            source_status="source_freshness_clean_current",
+            source_status="source_freshness_remote_preflight_scope_ready_with_later_risks",
         )
     )
 
