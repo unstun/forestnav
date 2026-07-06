@@ -157,6 +157,12 @@ def _current_status(
     next_round: dict[str, Any],
 ) -> dict[str, Any]:
     contract_gate_state = contract_gate.get("contract_gate") if isinstance(contract_gate.get("contract_gate"), dict) else {}
+    post_plan = (
+        contract_gate.get("post_decision_contract_plan_summary")
+        if isinstance(contract_gate.get("post_decision_contract_plan_summary"), dict)
+        else {}
+    )
+    artifact_summary = _next_success_artifact_summary(next_round)
     allowed_actions = _strings(contract_gate_state.get("allowed_next_action_ids"))
     blocked_actions = _strings(contract_gate_state.get("blocked_action_ids"))
     selected_lane = decision_record.get("selected_lane_id")
@@ -178,6 +184,43 @@ def _current_status(
         "contract_drafting_allowed_now": bool(contract_gate_state.get("contract_drafting_allowed_now")),
         "contract_approval_allowed_now": bool(contract_gate_state.get("contract_approval_allowed_now")),
         "draft_contract_allows_training": bool(contract_gate_state.get("draft_contract_allows_training")),
+        "post_decision_contract_plan_summary_present": bool(post_plan),
+        "post_decision_contract_plan_artifact_name": post_plan.get("artifact_name"),
+        "post_decision_contract_plan_status": post_plan.get("status")
+        or contract_gate_state.get("post_decision_contract_plan_status"),
+        "post_decision_contract_plan_audit_issue_count": int(post_plan.get("audit_issue_count") or 0),
+        "post_decision_contract_plan_required_section_count": int(
+            post_plan.get("required_contract_section_count")
+            or contract_gate_state.get("post_decision_contract_plan_required_section_count")
+            or 0
+        ),
+        "post_decision_contract_plan_shared_artifact_count": int(
+            post_plan.get("shared_next_success_attempt_artifact_count")
+            or contract_gate_state.get("post_decision_contract_plan_shared_artifact_count")
+            or 0
+        ),
+        "post_decision_contract_plan_lane_count": int(
+            post_plan.get("lane_count") or contract_gate_state.get("post_decision_contract_plan_lane_count") or 0
+        ),
+        "post_decision_contract_plan_selected_lane_id": post_plan.get("gate_selected_lane_id")
+        if post_plan
+        else contract_gate_state.get("post_decision_contract_plan_selected_lane_id"),
+        "post_decision_contract_plan_writes_contract": post_plan.get("writes_contract"),
+        "post_decision_contract_plan_approves_contract": post_plan.get("approves_contract"),
+        "post_decision_contract_plan_runs_training": post_plan.get("runs_training"),
+        "post_decision_contract_plan_runs_remote_preflight": post_plan.get("runs_remote_preflight"),
+        "post_decision_contract_plan_remote_training_allowed_now": post_plan.get("remote_training_allowed_now"),
+        "post_decision_contract_plan_formal_claim_allowed": post_plan.get("formal_claim_allowed"),
+        "post_decision_contract_plan_paper_result_material_allowed": post_plan.get(
+            "paper_result_material_allowed"
+        ),
+        "post_decision_contract_plan_gate_contract_drafting_allowed_now": post_plan.get(
+            "gate_contract_drafting_allowed_now"
+        ),
+        "next_success_attempt_artifact_status": artifact_summary["status"],
+        "next_success_attempt_artifact_count": artifact_summary["artifact_count"],
+        "next_success_attempt_artifact_category_counts": artifact_summary["category_counts"],
+        "next_success_attempt_artifact_ids_by_category": artifact_summary["artifact_ids_by_category"],
         "allowed_next_action_ids": allowed_actions,
         "blocked_action_ids": blocked_actions,
         "local_training_allowed_now": bool(decision_record.get("local_training_allowed_now")),
