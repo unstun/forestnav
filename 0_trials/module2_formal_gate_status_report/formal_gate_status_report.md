@@ -3,8 +3,8 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `907967a2916991fb90dda398f9499ef7c622960c+dirty`
-- input_safety_issue_count: `5`
+- source_head: `bcee0d6d18b82a32d19fe0d45e99b0f217e4b14c+dirty`
+- input_safety_issue_count: `2`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
 - remote_training_allowed_now: `False`
@@ -162,12 +162,12 @@ This file is a read-only formal-gate status report. It does not execute commands
 - remote_packet_safety_command_index_row_count: `23`
 - remote_packet_safety_command_index_source_target_count: `23`
 - remote_packet_safety_command_index_missing_target_count: `0`
-- next_action_guard_status: `next_action_guard_failed`
-- effective_next_blocked_lane: `protocol_lane_decision`
-- effective_next_action_id: `record_protocol_lane_decision`
+- next_action_guard_status: `next_action_guard_passed`
+- effective_next_blocked_lane: `new_or_revised_contract`
+- effective_next_action_id: `draft_new_or_revised_contract_after_lane_decision`
 - effective_next_action_requires_dr_sun: `False`
 - legacy_decision_intake_action_ids: `['record_f02_6_decision']`
-- legacy_decision_intake_superseded_by_protocol_lane: `True`
+- legacy_decision_intake_superseded_by_protocol_lane: `False`
 
 ## Next Blocked Lane
 
@@ -221,18 +221,16 @@ This file is a read-only formal-gate status report. It does not execute commands
 ## Next Action Guard
 
 - present: `True`
-- status: `next_action_guard_failed`
+- status: `next_action_guard_passed`
 - pending_f02_6_decision: `False`
-- expected_next_action_id: `record_protocol_lane_decision`
+- expected_next_action_id: `draft_new_or_revised_contract_after_lane_decision`
 - handoff_next_action_id: `draft_new_or_revised_contract_after_lane_decision`
 - missing_artifacts_next_action_id: `record_protocol_lane_decision`
 - all_execution_disabled_now: `True`
 - execution_leak_count: `0`
 - remote_execution_allowed_count: `0`
 - remote_stage_allowed_count: `0`
-- violation `next_action_guard_unexpected_handoff_action`: Pending formal gate decision must hand off only to the current decision record action.
-- violation `next_action_guard_handoff_action_not_dr_sun_gated`: Pending formal gate decision handoff must remain gated by Dr Sun.
-- violation `next_action_guard_protocol_lane_not_dr_sun_gated`: Protocol-lane decision handoff must require Dr Sun.
+- violations: `none`
 
 ## Formal Gate Lanes
 
@@ -583,9 +581,6 @@ This file is a read-only formal-gate status report. It does not execute commands
 
 - `mainline_formal_gate_state_audit_failed`: mainline formal gate state audit must not be failed.
 - `mainline_formal_gate_state_audit_issues_open`: mainline formal gate state audit issues must be resolved before status reporting.
-- `next_action_guard_unexpected_handoff_action`: Pending formal gate decision must hand off only to the current decision record action.
-- `next_action_guard_handoff_action_not_dr_sun_gated`: Pending formal gate decision handoff must remain gated by Dr Sun.
-- `next_action_guard_protocol_lane_not_dr_sun_gated`: Protocol-lane decision handoff must require Dr Sun.
 
 ## Safe Work Without F02.6 Decision
 

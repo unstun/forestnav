@@ -660,6 +660,11 @@ def _post_decision_contract_plan_issues(plan: dict[str, Any]) -> list[dict[str, 
             }
         )
         return issues
+    pending = plan["status"] == EXPECTED_POST_DECISION_CONTRACT_PLAN_STATUS
+    recorded = (
+        plan["status"] == EXPECTED_POST_DECISION_CONTRACT_PLAN_RECORDED_STATUS
+        and plan["gate_selected_lane_id"] in EXPECTED_PROTOCOL_LANE_IDS
+    )
     if plan["artifact_name"] != EXPECTED_POST_DECISION_CONTRACT_PLAN_ARTIFACT:
         issues.append(
             {
@@ -668,11 +673,11 @@ def _post_decision_contract_plan_issues(plan: dict[str, Any]) -> list[dict[str, 
                 "artifact_name": plan["artifact_name"],
             }
         )
-    if plan["status"] != EXPECTED_POST_DECISION_CONTRACT_PLAN_STATUS:
+    if not (pending or recorded):
         issues.append(
             {
                 "issue_id": "post_decision_contract_plan_status_drift",
-                "message": "Post-decision contract plan must remain blocked pending protocol-lane decision.",
+                "message": "Post-decision contract plan must be pending lane decision or ready for selected-lane contract draft.",
                 "status": plan["status"],
             }
         )
@@ -709,12 +714,13 @@ def _post_decision_contract_plan_issues(plan: dict[str, Any]) -> list[dict[str, 
             "remote_training_allowed_now",
             "formal_claim_allowed",
             "paper_result_material_allowed",
-            "gate_contract_drafting_allowed_now",
             "gate_remote_training_allowed_now",
             "gate_formal_claim_allowed_now",
         )
         if plan.get(key) is True
     ]
+    if pending and plan.get("gate_contract_drafting_allowed_now") is True:
+        true_flags.append("gate_contract_drafting_allowed_now")
     if true_flags:
         issues.append(
             {
@@ -723,12 +729,19 @@ def _post_decision_contract_plan_issues(plan: dict[str, Any]) -> list[dict[str, 
                 "true_flags": true_flags,
             }
         )
-    if plan["gate_selected_lane_id"] is not None:
+    if pending and plan["gate_selected_lane_id"] is not None:
         issues.append(
             {
                 "issue_id": "post_decision_contract_plan_selected_lane_present",
                 "message": "Post-decision plan mirrored by mainline must not select a lane while protocol decision is pending.",
                 "selected_lane_id": plan["gate_selected_lane_id"],
+            }
+        )
+    if recorded and plan["gate_contract_drafting_allowed_now"] is not True:
+        issues.append(
+            {
+                "issue_id": "post_decision_contract_plan_contract_drafting_not_open",
+                "message": "Recorded post-decision plan should open only contract drafting.",
             }
         )
     return issues
