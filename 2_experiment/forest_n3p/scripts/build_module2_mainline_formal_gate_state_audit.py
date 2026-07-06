@@ -22,6 +22,9 @@ DEFAULT_PROOF_SUMMARY_CHAIN_AUDIT = Path(
 DEFAULT_PROTOCOL_LANE_STATUS_REPORT = Path(
     "0_trials/module2_formal_gate_protocol_lane_status_report/protocol_lane_status_report.json"
 )
+DEFAULT_PROTOCOL_LANE_READINESS = Path(
+    "0_trials/module2_formal_gate_protocol_lane_readiness/protocol_lane_readiness.json"
+)
 
 CURRENT_STATE_MARKER = "当前 formal gate 下一步清单已同步到主任务书"
 EXPECTED_DECISION_EVIDENCE_MATRIX_ID = "module2_f02_6_decision_evidence_matrix"
@@ -73,6 +76,9 @@ EXPECTED_PROTOCOL_LANE_BLOCKED_ACTIONS = (
     "formal_claim",
     "paper_result_material",
 )
+EXPECTED_PROTOCOL_LANE_READINESS_STATUS = "protocol_lane_readiness_ready_for_dr_sun_decision"
+EXPECTED_PROTOCOL_LANE_READINESS_ARTIFACT = "module2_formal_gate_protocol_lane_readiness"
+EXPECTED_PROTOCOL_LANE_READINESS_SHARED_ARTIFACT_COUNT = 10
 PROTOCOL_LANE_FALSE_FLAGS = (
     "contract_drafting_allowed_now",
     "contract_approval_allowed_now",
@@ -94,6 +100,7 @@ class MainlineFormalGateStateAuditConfig:
     formal_gate_status_report_path: Path = DEFAULT_FORMAL_GATE_STATUS_REPORT
     proof_summary_chain_audit_path: Path = DEFAULT_PROOF_SUMMARY_CHAIN_AUDIT
     protocol_lane_status_report_path: Path = DEFAULT_PROTOCOL_LANE_STATUS_REPORT
+    protocol_lane_readiness_path: Path = DEFAULT_PROTOCOL_LANE_READINESS
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -106,6 +113,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         formal_gate_status_report_path=args.formal_gate_status_report,
         proof_summary_chain_audit_path=args.proof_summary_chain_audit,
         protocol_lane_status_report_path=args.protocol_lane_status_report,
+        protocol_lane_readiness_path=args.protocol_lane_readiness,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -133,6 +141,9 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
     protocol_lane_status = _normalize_protocol_lane_status_report(
         _read_json(config.protocol_lane_status_report_path)
     )
+    protocol_lane_readiness = _normalize_protocol_lane_readiness(
+        _read_json(config.protocol_lane_readiness_path)
+    )
     next_action_guard = _normalize_next_action_guard(status_report.get("next_action_guard_summary"))
     next_required = _normalize_next_required_deliverables(status_report.get("next_required_formal_deliverables"))
     decision_matrix = _normalize_decision_evidence_matrix_summary(
@@ -148,12 +159,14 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
             next_required=next_required,
             decision_matrix=decision_matrix,
             protocol_lane_status=protocol_lane_status,
+            protocol_lane_readiness=protocol_lane_readiness,
             deliverable_rows=deliverable_rows,
             proof_chain=proof_chain,
         )
         + _status_report_issues(next_action_guard=next_action_guard, next_required=next_required)
         + _decision_evidence_matrix_issues(decision_matrix)
         + _protocol_lane_status_issues(protocol_lane_status)
+        + _protocol_lane_readiness_issues(protocol_lane_readiness)
         + _proof_chain_issues(proof_chain)
     )
     issues = _unique_issues(issues)
@@ -186,6 +199,7 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
             "formal_gate_status_report": str(config.formal_gate_status_report_path),
             "proof_summary_chain_audit": str(config.proof_summary_chain_audit_path),
             "protocol_lane_status_report": str(config.protocol_lane_status_report_path),
+            "protocol_lane_readiness": str(config.protocol_lane_readiness_path),
         },
         "mainline_current_state_section_present": bool(current_section),
         "expected_next_action_id": expected_next_action_id,
@@ -219,6 +233,12 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
             {"action_id": action_id, "mentioned": action_id in current_section}
             for action_id in EXPECTED_PROTOCOL_LANE_BLOCKED_ACTIONS
         ],
+        "protocol_lane_readiness_summary": protocol_lane_readiness,
+        "protocol_lane_readiness_artifact_mentioned": protocol_lane_readiness["artifact_name"] in current_section,
+        "protocol_lane_readiness_status_mentioned": protocol_lane_readiness["status"] in current_section,
+        "protocol_lane_readiness_shared_artifact_count_mentioned": (
+            str(protocol_lane_readiness["shared_next_success_attempt_artifact_count"]) in current_section
+        ),
         "mainline_missing_deliverable_mention_count": sum(1 for row in deliverable_rows if not row["mentioned"]),
         "deliverable_rows": deliverable_rows,
         "deliverable_rows_by_matrix_id": {row["matrix_id"]: row for row in deliverable_rows},
