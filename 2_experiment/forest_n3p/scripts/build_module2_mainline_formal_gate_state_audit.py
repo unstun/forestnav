@@ -87,6 +87,24 @@ EXPECTED_POST_DECISION_CONTRACT_PLAN_ARTIFACT = "module2_formal_gate_post_decisi
 EXPECTED_POST_DECISION_CONTRACT_SECTION_COUNT = 8
 EXPECTED_POST_DECISION_CONTRACT_LANE_COUNT = 4
 EXPECTED_POST_DECISION_CONTRACT_SHARED_ARTIFACT_COUNT = 10
+EXPECTED_NEXT_SUCCESS_ARTIFACT_CATEGORY_COUNTS = {
+    "contract": 1,
+    "training": 3,
+    "evaluation": 2,
+    "acceptance": 3,
+    "formal_acceptance": 1,
+}
+EXPECTED_NEXT_SUCCESS_ARTIFACT_IDS_BY_CATEGORY = {
+    "contract": ("new_or_revised_research_contract",),
+    "training": ("train_final_model_zip", "train_summary_json", "train_training_manifest_json"),
+    "evaluation": ("eval_gate3_eval_episodes_csv", "eval_gate3_summary_json"),
+    "acceptance": (
+        "gate3_trial_manifest_json",
+        "gate3_formal_audit_json",
+        "pulled_back_checkpoint_hash_record",
+    ),
+    "formal_acceptance": ("h02_formal_output_acceptance",),
+}
 PROTOCOL_LANE_FALSE_FLAGS = (
     "contract_drafting_allowed_now",
     "contract_approval_allowed_now",
