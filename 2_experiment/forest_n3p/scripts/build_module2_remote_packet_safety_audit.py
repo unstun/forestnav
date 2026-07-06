@@ -49,6 +49,23 @@ CLAIM_GATE_REGENERATION_ARTIFACT_IDS = (
     "claim_safety",
     "paper_readiness",
 )
+EXPECTED_PROTOCOL_STATUS = "protocol_lane_status_blocked_pending_lane_decision"
+EXPECTED_PROTOCOL_NEXT_BLOCKED = "protocol_lane_decision"
+EXPECTED_PROTOCOL_ALLOWED_ACTIONS = ("record_protocol_lane_decision",)
+EXPECTED_PROTOCOL_BLOCKED_ACTIONS = (
+    "local_training",
+    "remote_success_training",
+    "remote_preflight_for_new_success_attempt",
+    "formal_claim",
+    "paper_result_material",
+)
+EXPECTED_NEXT_ATTEMPT_CATEGORY_COUNTS = {
+    "contract": 1,
+    "training": 3,
+    "evaluation": 2,
+    "acceptance": 3,
+    "formal_acceptance": 1,
+}
 
 
 @dataclass(frozen=True)
@@ -406,6 +423,24 @@ def _cross_gate_issues(*, packet: dict[str, Any], decision_gate: dict[str, Any],
     status_proof_deliverables = _normalize_proof_deliverables_summary(
         status_summary.get("proof_audit_deliverables_summary")
     )
+    protocol_summary = _normalize_protocol_lane_status_summary(plan_audit.get("protocol_lane_status_summary"))
+    if plan_audit and not protocol_summary["present"]:
+        issues.append(
+            _issue(
+                "post_plan_missing_protocol_lane_status_summary",
+                "Post-F02.6 plan audit must expose protocol_lane_status_summary before remote packet safety can pass.",
+            )
+        )
+    if protocol_summary["present"]:
+        issues.extend(_protocol_lane_status_issues(protocol_summary))
+        if protocol_summary.get("remote_training_allowed_now") is not False and _step(packet.get("execution_steps", {}), "run_remote_training").get("allowed_now") is True:
+            issues.append(_issue("protocol_lane_allows_training_and_packet_allows_training", "Protocol lane status must not authorize remote training before lane decision and contract approval."))
+        if protocol_summary.get("new_success_training_allowed_now") is True:
+            issues.append(_issue("protocol_lane_allows_new_success_training", "New success training must remain blocked until protocol lane decision and approved/frozen contract."))
+        if protocol_summary.get("formal_claim_allowed_now") is True:
+            issues.append(_issue("protocol_lane_allows_formal_claim", "Protocol lane status must not allow formal claims while lane decision is pending."))
+        if protocol_summary.get("paper_result_material_allowed_now") is True:
+            issues.append(_issue("protocol_lane_allows_paper_result_material", "Protocol lane status must not allow paper result material while lane decision is pending."))
     if plan_audit and status_summary and not status_step_summary:
         issues.append(_issue("post_plan_missing_status_report_remote_step_summary", "Post-F02.6 plan audit must forward status report remote execution step summary."))
     if plan_audit and status_summary and not handoff_summary:
@@ -720,6 +755,7 @@ def _cross_gate_summary(*, decision_gate: dict[str, Any], plan_audit: dict[str, 
     status_proof_deliverables = _normalize_proof_deliverables_summary(
         status_summary.get("proof_audit_deliverables_summary")
     )
+    protocol_summary = _normalize_protocol_lane_status_summary(plan_audit.get("protocol_lane_status_summary"))
     return {
         "decision_gate_status": decision_gate.get("status"),
         "f02_6_record_status": decision.get("record_status"),
@@ -739,7 +775,150 @@ def _cross_gate_summary(*, decision_gate: dict[str, Any], plan_audit: dict[str, 
         "post_plan_status_report_remaining_deliverables_gap_summary": status_gap,
         "post_plan_proof_audit_deliverables_summary": plan_proof_deliverables,
         "post_plan_status_report_proof_audit_deliverables_summary": status_proof_deliverables,
+        "post_plan_protocol_lane_status_summary": protocol_summary,
     }
+
+
+def _normalize_protocol_lane_status_summary(raw: Any) -> dict[str, Any]:
+    summary = raw if isinstance(raw, dict) else {}
+    return {
+        "present": bool(summary),
+        "status": summary.get("status"),
+        "audit_issue_count": int(summary.get("audit_issue_count") or 0),
+        "next_blocked_lane": summary.get("next_blocked_lane"),
+        "selected_lane_id": summary.get("selected_lane_id"),
+        "allowed_next_action_ids": _strings(summary.get("allowed_next_action_ids")),
+        "blocked_action_ids": _strings(summary.get("blocked_action_ids")),
+        "remote_training_allowed_now": summary.get("remote_training_allowed_now")
+        if isinstance(summary.get("remote_training_allowed_now"), bool)
+        else None,
+        "local_training_allowed_now": summary.get("local_training_allowed_now")
+        if isinstance(summary.get("local_training_allowed_now"), bool)
+        else None,
+        "formal_claim_allowed_now": summary.get("formal_claim_allowed_now")
+        if isinstance(summary.get("formal_claim_allowed_now"), bool)
+        else None,
+        "paper_result_material_allowed_now": summary.get("paper_result_material_allowed_now")
+        if isinstance(summary.get("paper_result_material_allowed_now"), bool)
+        else None,
+        "new_success_training_allowed_now": summary.get("new_success_training_allowed_now")
+        if isinstance(summary.get("new_success_training_allowed_now"), bool)
+        else None,
+        "post_decision_contract_plan_summary_present": summary.get("post_decision_contract_plan_summary_present")
+        if isinstance(summary.get("post_decision_contract_plan_summary_present"), bool)
+        else None,
+        "post_decision_contract_plan_status": summary.get("post_decision_contract_plan_status"),
+        "post_decision_contract_plan_audit_issue_count": int(summary.get("post_decision_contract_plan_audit_issue_count") or 0),
+        "post_decision_contract_plan_required_section_count": int(summary.get("post_decision_contract_plan_required_section_count") or 0),
+        "post_decision_contract_plan_shared_artifact_count": int(summary.get("post_decision_contract_plan_shared_artifact_count") or 0),
+        "post_decision_contract_plan_lane_count": int(summary.get("post_decision_contract_plan_lane_count") or 0),
+        "post_decision_contract_plan_runs_training": summary.get("post_decision_contract_plan_runs_training")
+        if isinstance(summary.get("post_decision_contract_plan_runs_training"), bool)
+        else None,
+        "post_decision_contract_plan_runs_remote_preflight": summary.get("post_decision_contract_plan_runs_remote_preflight")
+        if isinstance(summary.get("post_decision_contract_plan_runs_remote_preflight"), bool)
+        else None,
+        "post_decision_contract_plan_formal_claim_allowed": summary.get("post_decision_contract_plan_formal_claim_allowed")
+        if isinstance(summary.get("post_decision_contract_plan_formal_claim_allowed"), bool)
+        else None,
+        "post_decision_contract_plan_paper_result_material_allowed": summary.get("post_decision_contract_plan_paper_result_material_allowed")
+        if isinstance(summary.get("post_decision_contract_plan_paper_result_material_allowed"), bool)
+        else None,
+        "next_success_attempt_artifact_status": summary.get("next_success_attempt_artifact_status"),
+        "next_success_attempt_artifact_count": int(summary.get("next_success_attempt_artifact_count") or 0),
+        "next_success_attempt_artifact_category_counts": {
+            str(category): int(count or 0)
+            for category, count in summary.get("next_success_attempt_artifact_category_counts", {}).items()
+            if category
+        }
+        if isinstance(summary.get("next_success_attempt_artifact_category_counts"), dict)
+        else {},
+        "next_success_attempt_artifact_ids_by_category": {
+            str(category): [str(item) for item in ids if item]
+            for category, ids in summary.get("next_success_attempt_artifact_ids_by_category", {}).items()
+            if category and isinstance(ids, list)
+        }
+        if isinstance(summary.get("next_success_attempt_artifact_ids_by_category"), dict)
+        else {},
+    }
+
+
+def _protocol_lane_status_issues(summary: dict[str, Any]) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    if summary.get("status") != EXPECTED_PROTOCOL_STATUS:
+        issues.append(_issue("protocol_lane_status_unexpected", "Protocol lane status must remain blocked pending lane decision.", observed=summary.get("status")))
+    if summary.get("audit_issue_count") != 0:
+        issues.append(_issue("protocol_lane_status_audit_issues_open", "Protocol lane status report must have zero audit issues.", observed=summary.get("audit_issue_count")))
+    if summary.get("next_blocked_lane") != EXPECTED_PROTOCOL_NEXT_BLOCKED:
+        issues.append(_issue("protocol_lane_next_blocked_drift", "Protocol lane status must block on protocol_lane_decision.", observed=summary.get("next_blocked_lane")))
+    if summary.get("selected_lane_id") is not None:
+        issues.append(_issue("protocol_lane_selected_before_decision", "Protocol lane must not be selected before Dr Sun records the decision.", observed=summary.get("selected_lane_id")))
+    if summary.get("allowed_next_action_ids") != list(EXPECTED_PROTOCOL_ALLOWED_ACTIONS):
+        issues.append(_issue("protocol_lane_allowed_actions_drift", "Only record_protocol_lane_decision is allowed now.", observed=summary.get("allowed_next_action_ids")))
+    blocked_actions = set(summary.get("blocked_action_ids", []))
+    missing_blocked = sorted(set(EXPECTED_PROTOCOL_BLOCKED_ACTIONS) - blocked_actions)
+    if missing_blocked:
+        issues.append(_issue("protocol_lane_missing_blocked_actions", "Protocol lane status must list all blocked execution/claim actions.", observed=missing_blocked))
+    for permission_key in (
+        "remote_training_allowed_now",
+        "local_training_allowed_now",
+        "formal_claim_allowed_now",
+        "paper_result_material_allowed_now",
+        "new_success_training_allowed_now",
+    ):
+        if summary.get(permission_key) is not False:
+            issues.append(_issue(f"protocol_lane_{permission_key}_not_false", f"Protocol lane permission {permission_key} must be false.", observed=summary.get(permission_key)))
+    if summary.get("post_decision_contract_plan_summary_present") is not True:
+        issues.append(_issue("protocol_lane_missing_post_decision_contract_plan", "Protocol lane status must include post-decision contract plan summary."))
+    if summary.get("post_decision_contract_plan_status") != "post_decision_contract_plan_ready_blocked_pending_lane_decision":
+        issues.append(
+            _issue(
+                "protocol_lane_post_decision_contract_plan_status_drift",
+                "Post-decision contract plan must remain ready but blocked pending lane decision.",
+                observed=summary.get("post_decision_contract_plan_status"),
+            )
+        )
+    if summary.get("post_decision_contract_plan_audit_issue_count") != 0:
+        issues.append(
+            _issue(
+                "protocol_lane_post_decision_contract_plan_audit_issues_open",
+                "Post-decision contract plan summary must have zero audit issues.",
+                observed=summary.get("post_decision_contract_plan_audit_issue_count"),
+            )
+        )
+    if summary.get("post_decision_contract_plan_required_section_count") != 8:
+        issues.append(_issue("protocol_lane_contract_section_count_drift", "Protocol contract plan must keep eight required sections.", observed=summary.get("post_decision_contract_plan_required_section_count")))
+    if summary.get("post_decision_contract_plan_shared_artifact_count") != 10:
+        issues.append(_issue("protocol_lane_shared_artifact_count_drift", "Protocol contract plan must keep ten shared next-attempt artifacts.", observed=summary.get("post_decision_contract_plan_shared_artifact_count")))
+    if summary.get("post_decision_contract_plan_lane_count") != 4:
+        issues.append(_issue("protocol_lane_count_drift", "Protocol lane matrix must keep four candidate lanes.", observed=summary.get("post_decision_contract_plan_lane_count")))
+    for plan_key in (
+        "post_decision_contract_plan_runs_training",
+        "post_decision_contract_plan_runs_remote_preflight",
+        "post_decision_contract_plan_formal_claim_allowed",
+        "post_decision_contract_plan_paper_result_material_allowed",
+    ):
+        if summary.get(plan_key) is not False:
+            issues.append(_issue(f"protocol_lane_{plan_key}_not_false", f"Post-decision contract plan field {plan_key} must be false.", observed=summary.get(plan_key)))
+    if summary.get("next_success_attempt_artifact_status") != "blocked_until_protocol_lane_decision_and_contract":
+        issues.append(
+            _issue(
+                "protocol_lane_next_attempt_artifact_status_drift",
+                "Next-attempt artifacts must remain blocked until protocol lane decision and contract.",
+                observed=summary.get("next_success_attempt_artifact_status"),
+            )
+        )
+    if summary.get("next_success_attempt_artifact_count") != 10:
+        issues.append(_issue("protocol_lane_next_attempt_artifact_count_drift", "Next success attempt must still require ten artifacts.", observed=summary.get("next_success_attempt_artifact_count")))
+    if summary.get("next_success_attempt_artifact_category_counts") != EXPECTED_NEXT_ATTEMPT_CATEGORY_COUNTS:
+        issues.append(
+            _issue(
+                "protocol_lane_next_attempt_category_counts_drift",
+                "Next success attempt artifact category counts drifted.",
+                observed=summary.get("next_success_attempt_artifact_category_counts"),
+            )
+        )
+    return issues
 
 
 def _normalize_command_index_summary(raw: Any) -> dict[str, Any]:
