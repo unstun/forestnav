@@ -66,6 +66,7 @@ EXPECTED_NEXT_ATTEMPT_CATEGORY_COUNTS = {
     "acceptance": 3,
     "formal_acceptance": 1,
 }
+EXPECTED_OLD_FAILED_RUN_INVALID_FOR_NEXT_SUCCESS_ATTEMPT = True
 
 
 @dataclass(frozen=True)
@@ -811,6 +812,18 @@ def _normalize_protocol_lane_status_summary(raw: Any) -> dict[str, Any]:
         "post_decision_contract_plan_audit_issue_count": int(summary.get("post_decision_contract_plan_audit_issue_count") or 0),
         "post_decision_contract_plan_required_section_count": int(summary.get("post_decision_contract_plan_required_section_count") or 0),
         "post_decision_contract_plan_shared_artifact_count": int(summary.get("post_decision_contract_plan_shared_artifact_count") or 0),
+        "post_decision_contract_plan_shared_artifact_category_counts": {
+            str(category): int(count or 0)
+            for category, count in summary.get("post_decision_contract_plan_shared_artifact_category_counts", {}).items()
+            if category
+        }
+        if isinstance(summary.get("post_decision_contract_plan_shared_artifact_category_counts"), dict)
+        else {},
+        "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt": summary.get(
+            "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"
+        )
+        if isinstance(summary.get("post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"), bool)
+        else None,
         "post_decision_contract_plan_lane_count": int(summary.get("post_decision_contract_plan_lane_count") or 0),
         "post_decision_contract_plan_runs_training": summary.get("post_decision_contract_plan_runs_training")
         if isinstance(summary.get("post_decision_contract_plan_runs_training"), bool)
@@ -840,6 +853,11 @@ def _normalize_protocol_lane_status_summary(raw: Any) -> dict[str, Any]:
         }
         if isinstance(summary.get("next_success_attempt_artifact_ids_by_category"), dict)
         else {},
+        "old_failed_run_artifacts_invalid_for_next_success_attempt": summary.get(
+            "old_failed_run_artifacts_invalid_for_next_success_attempt"
+        )
+        if isinstance(summary.get("old_failed_run_artifacts_invalid_for_next_success_attempt"), bool)
+        else None,
     }
 
 
@@ -890,6 +908,25 @@ def _protocol_lane_status_issues(summary: dict[str, Any]) -> list[dict[str, Any]
         issues.append(_issue("protocol_lane_contract_section_count_drift", "Protocol contract plan must keep eight required sections.", observed=summary.get("post_decision_contract_plan_required_section_count")))
     if summary.get("post_decision_contract_plan_shared_artifact_count") != 10:
         issues.append(_issue("protocol_lane_shared_artifact_count_drift", "Protocol contract plan must keep ten shared next-attempt artifacts.", observed=summary.get("post_decision_contract_plan_shared_artifact_count")))
+    if summary.get("post_decision_contract_plan_shared_artifact_category_counts") != EXPECTED_NEXT_ATTEMPT_CATEGORY_COUNTS:
+        issues.append(
+            _issue(
+                "protocol_lane_shared_artifact_category_counts_drift",
+                "Protocol contract plan must keep the contract/training/evaluation/acceptance/formal_acceptance split.",
+                observed=summary.get("post_decision_contract_plan_shared_artifact_category_counts"),
+            )
+        )
+    if (
+        summary.get("post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt")
+        is not EXPECTED_OLD_FAILED_RUN_INVALID_FOR_NEXT_SUCCESS_ATTEMPT
+    ):
+        issues.append(
+            _issue(
+                "protocol_lane_post_plan_old_failed_invalid_flag_drift",
+                "Protocol contract plan must preserve that old failed-run artifacts are invalid substitutes.",
+                observed=summary.get("post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"),
+            )
+        )
     if summary.get("post_decision_contract_plan_lane_count") != 4:
         issues.append(_issue("protocol_lane_count_drift", "Protocol lane matrix must keep four candidate lanes.", observed=summary.get("post_decision_contract_plan_lane_count")))
     for plan_key in (
@@ -916,6 +953,17 @@ def _protocol_lane_status_issues(summary: dict[str, Any]) -> list[dict[str, Any]
                 "protocol_lane_next_attempt_category_counts_drift",
                 "Next success attempt artifact category counts drifted.",
                 observed=summary.get("next_success_attempt_artifact_category_counts"),
+            )
+        )
+    if (
+        summary.get("old_failed_run_artifacts_invalid_for_next_success_attempt")
+        is not EXPECTED_OLD_FAILED_RUN_INVALID_FOR_NEXT_SUCCESS_ATTEMPT
+    ):
+        issues.append(
+            _issue(
+                "protocol_lane_old_failed_invalid_flag_drift",
+                "Protocol lane status must preserve that old failed-run artifacts are invalid substitutes.",
+                observed=summary.get("old_failed_run_artifacts_invalid_for_next_success_attempt"),
             )
         )
     return issues
@@ -1143,6 +1191,7 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- post_plan_protocol_lane_allowed_next_actions: `{manifest['cross_gate_summary']['post_plan_protocol_lane_status_summary'].get('allowed_next_action_ids')}`",
         f"- post_plan_protocol_lane_new_success_training_allowed_now: `{manifest['cross_gate_summary']['post_plan_protocol_lane_status_summary'].get('new_success_training_allowed_now')}`",
         f"- post_plan_protocol_lane_next_attempt_artifact_counts: `{manifest['cross_gate_summary']['post_plan_protocol_lane_status_summary'].get('next_success_attempt_artifact_category_counts')}`",
+        f"- post_plan_protocol_lane_old_failed_run_artifacts_invalid: `{manifest['cross_gate_summary']['post_plan_protocol_lane_status_summary'].get('old_failed_run_artifacts_invalid_for_next_success_attempt')}`",
         "",
         "## Audit Issues",
         "",
