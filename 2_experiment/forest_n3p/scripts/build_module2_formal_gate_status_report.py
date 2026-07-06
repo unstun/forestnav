@@ -1949,7 +1949,7 @@ def _next_action_guard_summary(
     )
     pending_protocol_lane_decision = (
         protocol_status == "protocol_lane_status_blocked_pending_lane_decision"
-        and protocol_record_status == "pending_protocol_lane_decision"
+        and protocol_record_status in {None, "", "pending_protocol_lane_decision"}
     )
     protocol_lane_contract_draft_ready = (
         protocol_status == "protocol_lane_status_ready_for_contract_draft"
