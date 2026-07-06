@@ -24,6 +24,9 @@ from forest_n3p.rl_rs.obs import ObservationConfig
 from forest_n3p.rl_rs.training_logging import RlRsEpisodeLoggingWrapper, file_sha256
 
 
+DEFAULT_CONTRACT_PATH = ".pipeline/contracts/module2-ppo-funnel-expansion.md"
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     raw_argv = list(sys.argv[1:] if argv is None else argv)
     args = _parse_args(raw_argv)
@@ -59,6 +62,7 @@ def _parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Evaluate Module2 RL-RS PPO Gate #3 terminal-RS-connectable success.")
     parser.add_argument("--model", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--contract-path", default=DEFAULT_CONTRACT_PATH)
     parser.add_argument("--seed", type=int, default=20260704)
     parser.add_argument("--device", default="auto")
     parser.add_argument("--allow-duplicate-openmp", action="store_true")
@@ -138,7 +142,7 @@ def _gate_summary(*, args: argparse.Namespace, raw_argv: Sequence[str], rows: li
     return {
         "schema_version": 1,
         "gate_name": "module2_f03_gate3",
-        "contract": ".pipeline/contracts/module2-ppo-funnel-expansion.md",
+        "contract": str(args.contract_path),
         "decision": decision,
         "decision_rule": "pass iff episodes >= min_episodes and terminal_rs_success_rate >= success_threshold",
         "success_threshold": threshold,
@@ -160,6 +164,7 @@ def _gate_summary(*, args: argparse.Namespace, raw_argv: Sequence[str], rows: li
         "source_head": _source_head(),
         "config": {
             "command": " ".join(["python -m forest_n3p.scripts.eval_rl_rs_gate3", *raw_argv]),
+            "contract": str(args.contract_path),
             "seed": int(args.seed),
             "device": str(args.device),
             "curriculum_preset": str(args.curriculum_preset),
