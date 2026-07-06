@@ -44,6 +44,7 @@ MODULE2_GATE_ARTIFACTS = (
     "0_trials/module2_v2_remote_execution_packet/v2_remote_execution_packet.json",
     "0_trials/module2_v2_formal_gate_remaining_evidence/v2_formal_gate_remaining_evidence.json",
     "0_trials/module2_v2_formal_gate_chain_audit/v2_formal_gate_chain_audit.json",
+    "0_trials/module2_v2_post_promotion_regeneration_plan/v2_post_promotion_regeneration_plan.json",
     "0_trials/module2_source_freshness_audit/source_freshness_audit.json",
 )
 
