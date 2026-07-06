@@ -473,7 +473,7 @@ def _failed_gate3_basis(summary: dict[str, Any]) -> dict[str, Any]:
     return {
         "decision": summary.get("decision") or summary.get("formal_decision"),
         "episodes": _int(summary.get("episodes") or summary.get("episode_count")),
-        "terminal_rs_successes": _int(summary.get("terminal_rs_successes")),
+        "terminal_rs_successes": _int(summary.get("terminal_rs_successes") or summary.get("terminal_rs_success")),
         "terminal_rs_success_rate": rate,
         "required_success_threshold": threshold,
         "threshold_deficit": None if rate is None or threshold is None else round(max(0.0, threshold - rate), 12),
