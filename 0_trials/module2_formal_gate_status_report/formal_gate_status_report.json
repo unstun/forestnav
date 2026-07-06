@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_status_report",
   "status": "formal_gate_status_blocked",
-  "created_at_utc": "2026-07-06T00:11:42.310864+00:00",
-  "source_head": "55afd87dfdd95af8ad78eef409d10f98342fc777",
+  "created_at_utc": "2026-07-06T00:17:52.700499+00:00",
+  "source_head": "d111b6a0bdc806bdf8050f68b609d1e2dd02e5ea+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -219,7 +219,7 @@
     "remote_packet_safety_command_index_row_count": 23,
     "remote_packet_safety_command_index_source_target_count": 23,
     "remote_packet_safety_command_index_missing_target_count": 0,
-    "next_action_guard_status": "next_action_guard_not_applicable"
+    "next_action_guard_status": "next_action_guard_passed"
   },
   "permissions_now": {
     "f02_6_decision_closed": true,
@@ -2530,19 +2530,23 @@
   },
   "next_action_guard_summary": {
     "present": true,
-    "status": "next_action_guard_not_applicable",
+    "status": "next_action_guard_passed",
     "pending_f02_6_decision": false,
-    "next_blocked_lane_id": "remote_packet_preflight",
-    "expected_next_action_id": null,
+    "pending_protocol_lane_decision": true,
+    "next_blocked_lane_id": "protocol_lane_decision",
+    "expected_next_action_id": "record_protocol_lane_decision",
     "handoff_next_action_id": "record_protocol_lane_decision",
     "handoff_next_action_requires_dr_sun": true,
     "missing_artifacts_next_action_id": "record_protocol_lane_decision",
     "decision_intake_next_blocked_lane": "remote_packet_preflight",
-    "all_execution_disabled_now": false,
-    "execution_leak_count": 8,
-    "remote_execution_allowed_count": 3,
-    "remote_stage_allowed_count": 2,
-    "execution_leak_surface_ids": [
+    "execution_veto_applied": true,
+    "all_execution_disabled_now": true,
+    "execution_leak_count": 0,
+    "raw_execution_leak_count": 8,
+    "remote_execution_allowed_count": 0,
+    "remote_stage_allowed_count": 0,
+    "execution_leak_surface_ids": [],
+    "raw_execution_leak_surface_ids": [
       "decision_intake_remote_preflight_allowed_now",
       "decision_intake_remote_training_allowed_now",
       "remote_packet_ready_to_run_remote_training",
@@ -2555,75 +2559,111 @@
     "execution_surfaces": [
       {
         "surface_id": "decision_remote_preflight_allowed_now",
-        "allowed_now": false
+        "raw_allowed_now": false,
+        "allowed_now": false,
+        "vetoed_by": null
       },
       {
         "surface_id": "decision_remote_training_allowed_now",
-        "allowed_now": false
+        "raw_allowed_now": false,
+        "allowed_now": false,
+        "vetoed_by": null
       },
       {
         "surface_id": "decision_intake_remote_preflight_allowed_now",
-        "allowed_now": true
+        "raw_allowed_now": true,
+        "allowed_now": false,
+        "vetoed_by": "formal_gate_execution_veto"
       },
       {
         "surface_id": "decision_intake_remote_training_allowed_now",
-        "allowed_now": true
+        "raw_allowed_now": true,
+        "allowed_now": false,
+        "vetoed_by": "formal_gate_execution_veto"
       },
       {
         "surface_id": "decision_intake_formal_claim_allowed_now",
-        "allowed_now": false
+        "raw_allowed_now": false,
+        "allowed_now": false,
+        "vetoed_by": null
       },
       {
         "surface_id": "handoff_remote_preflight_allowed_now",
-        "allowed_now": false
+        "raw_allowed_now": false,
+        "allowed_now": false,
+        "vetoed_by": null
       },
       {
         "surface_id": "handoff_remote_training_allowed_now",
-        "allowed_now": false
+        "raw_allowed_now": false,
+        "allowed_now": false,
+        "vetoed_by": null
       },
       {
         "surface_id": "handoff_formal_claim_allowed_now",
-        "allowed_now": false
+        "raw_allowed_now": false,
+        "allowed_now": false,
+        "vetoed_by": null
       },
       {
         "surface_id": "missing_artifacts_remote_training_allowed_now",
-        "allowed_now": false
+        "raw_allowed_now": false,
+        "allowed_now": false,
+        "vetoed_by": null
       },
       {
         "surface_id": "missing_artifacts_formal_result_material_allowed_now",
-        "allowed_now": false
+        "raw_allowed_now": false,
+        "allowed_now": false,
+        "vetoed_by": null
       },
       {
         "surface_id": "remote_packet_ready_to_run_remote_training",
-        "allowed_now": true
+        "raw_allowed_now": true,
+        "allowed_now": false,
+        "vetoed_by": "formal_gate_execution_veto"
       },
       {
         "surface_id": "remote_execution_step:sync_to_remote",
-        "allowed_now": true
+        "raw_allowed_now": true,
+        "allowed_now": false,
+        "vetoed_by": "formal_gate_execution_veto"
       },
       {
         "surface_id": "remote_execution_step:run_remote_preflight",
-        "allowed_now": true
+        "raw_allowed_now": true,
+        "allowed_now": false,
+        "vetoed_by": "formal_gate_execution_veto"
       },
       {
         "surface_id": "remote_execution_step:run_remote_training",
-        "allowed_now": true
+        "raw_allowed_now": true,
+        "allowed_now": false,
+        "vetoed_by": "formal_gate_execution_veto"
       },
       {
         "surface_id": "remote_execution_step:run_remote_audit",
-        "allowed_now": false
+        "raw_allowed_now": false,
+        "allowed_now": false,
+        "vetoed_by": null
       },
       {
         "surface_id": "closure_remote_stage:approved_remote_preflight",
-        "allowed_now": true
+        "raw_allowed_now": true,
+        "allowed_now": false,
+        "vetoed_by": "formal_gate_execution_veto"
       },
       {
         "surface_id": "closure_remote_stage:gate3_remote_training",
-        "allowed_now": true
+        "raw_allowed_now": true,
+        "allowed_now": false,
+        "vetoed_by": "formal_gate_execution_veto"
       },
       {
         "surface_id": "closure_remote_stage:gate3_remote_audit_pullback",
-        "allowed_now": false
+        "raw_allowed_now": false,
+        "allowed_now": false,
+        "vetoed_by": null
       }
     ],
     "violation_count": 0,
