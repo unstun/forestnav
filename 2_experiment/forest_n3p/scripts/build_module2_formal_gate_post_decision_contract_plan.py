@@ -38,6 +38,13 @@ EXPECTED_REQUIRED_CONTRACT_SECTIONS = (
     "paper_claim_boundary",
 )
 EXPECTED_SUCCESS_ARTIFACT_COUNT = 10
+EXPECTED_SUCCESS_ARTIFACT_CATEGORY_COUNTS = {
+    "contract": 1,
+    "training": 3,
+    "evaluation": 2,
+    "acceptance": 3,
+    "formal_acceptance": 1,
+}
 BLOCKED_ACTIONS = (
     "local_training",
     "remote_success_training",
@@ -96,6 +103,7 @@ def build_manifest(config: FormalGatePostDecisionContractPlanConfig) -> dict[str
 
     required_sections = _required_contract_sections(contract_intake)
     shared_artifacts = _shared_next_success_artifacts(readiness, next_round)
+    next_round_summary = _next_round_summary(next_round=next_round, shared_artifacts=shared_artifacts)
     gate = _gate_state(readiness=readiness, contract_authoring_gate=contract_authoring_gate, next_round=next_round)
     lane_rows = _lane_contract_rows(
         readiness=readiness,
@@ -111,6 +119,7 @@ def build_manifest(config: FormalGatePostDecisionContractPlanConfig) -> dict[str
         required_sections=required_sections,
         lane_rows=lane_rows,
         shared_artifacts=shared_artifacts,
+        next_round_summary=next_round_summary,
     )
     return {
         "schema_version": 1,
@@ -139,6 +148,12 @@ def build_manifest(config: FormalGatePostDecisionContractPlanConfig) -> dict[str
         "required_contract_section_count": len(required_sections),
         "required_contract_sections": required_sections,
         "shared_next_success_attempt_artifact_count": len(shared_artifacts),
+        "shared_next_success_attempt_artifact_category_counts": next_round_summary[
+            "next_success_attempt_artifact_category_counts"
+        ],
+        "old_failed_run_artifacts_invalid_for_next_success_attempt": next_round_summary[
+            "old_failed_run_artifacts_invalid_for_next_success_attempt"
+        ],
         "shared_next_success_attempt_artifacts": shared_artifacts,
         "lane_count": len(lane_rows),
         "lane_contract_plans": lane_rows,
@@ -351,6 +366,43 @@ def _shared_next_success_artifacts(
     return out
 
 
+def _next_round_summary(*, next_round: dict[str, Any], shared_artifacts: Sequence[dict[str, Any]]) -> dict[str, Any]:
+    protocol_summary = (
+        next_round.get("protocol_gate_summary")
+        if isinstance(next_round.get("protocol_gate_summary"), dict)
+        else {}
+    )
+    reconciliation = (
+        next_round.get("current_vs_next_attempt_reconciliation")
+        if isinstance(next_round.get("current_vs_next_attempt_reconciliation"), dict)
+        else {}
+    )
+    category_counts = protocol_summary.get("next_success_attempt_artifact_category_counts")
+    if not isinstance(category_counts, dict):
+        category_counts = _artifact_category_counts(shared_artifacts)
+    return {
+        "next_success_attempt_artifact_count": protocol_summary.get(
+            "next_success_attempt_artifact_count",
+            len(shared_artifacts),
+        ),
+        "next_success_attempt_artifact_category_counts": {
+            str(category): int(count) for category, count in category_counts.items()
+        },
+        "old_failed_run_artifacts_invalid_for_next_success_attempt": reconciliation.get(
+            "old_failed_run_artifacts_invalid_for_next_success_attempt"
+        ),
+    }
+
+
+def _artifact_category_counts(shared_artifacts: Sequence[dict[str, Any]]) -> dict[str, int]:
+    counts = {category: 0 for category in EXPECTED_SUCCESS_ARTIFACT_CATEGORY_COUNTS}
+    for artifact in shared_artifacts:
+        category = str(artifact.get("category") or "")
+        if category:
+            counts[category] = counts.get(category, 0) + 1
+    return counts
+
+
 def _status(*, issues: Sequence[dict[str, Any]], gate: dict[str, Any]) -> str:
     if issues:
         return "post_decision_contract_plan_audit_failed"
@@ -371,6 +423,7 @@ def _audit_issues(
     required_sections: Sequence[dict[str, Any]],
     lane_rows: Sequence[dict[str, Any]],
     shared_artifacts: Sequence[dict[str, Any]],
+    next_round_summary: dict[str, Any],
 ) -> list[dict[str, Any]]:
     issues: list[dict[str, Any]] = []
     if readiness.get("status") != "protocol_lane_readiness_ready_for_dr_sun_decision":
@@ -429,6 +482,22 @@ def _audit_issues(
                 "shared_artifact_count_invalid",
                 "Success-lane artifact index must retain all 10 next-attempt artifacts.",
                 observed=len(shared_artifacts),
+            )
+        )
+    if next_round_summary["next_success_attempt_artifact_category_counts"] != EXPECTED_SUCCESS_ARTIFACT_CATEGORY_COUNTS:
+        issues.append(
+            _issue(
+                "shared_artifact_category_counts_invalid",
+                "Success-lane artifact category counts must remain contract/training/evaluation/acceptance/formal_acceptance=1/3/2/3/1.",
+                observed=next_round_summary["next_success_attempt_artifact_category_counts"],
+            )
+        )
+    if next_round_summary["old_failed_run_artifacts_invalid_for_next_success_attempt"] is not True:
+        issues.append(
+            _issue(
+                "old_failed_run_artifacts_not_marked_invalid",
+                "Post-decision contract plan must preserve that old failed-run artifacts are invalid for the next success attempt.",
+                observed=next_round_summary["old_failed_run_artifacts_invalid_for_next_success_attempt"],
             )
         )
     for row in lane_rows:
@@ -502,6 +571,14 @@ def _markdown(manifest: dict[str, Any]) -> str:
         lines.extend(f"  - {item}" for item in lane["invalid_substitutes"])
         lines.append("")
     lines.extend(["## Shared Next Success Attempt Artifacts", ""])
+    lines.append(
+        "- shared_next_success_attempt_artifact_category_counts: "
+        f"`{manifest['shared_next_success_attempt_artifact_category_counts']}`"
+    )
+    lines.append(
+        "- old_failed_run_artifacts_invalid_for_next_success_attempt: "
+        f"`{manifest['old_failed_run_artifacts_invalid_for_next_success_attempt']}`"
+    )
     for artifact in manifest["shared_next_success_attempt_artifacts"]:
         lines.append(
             f"- `{artifact['artifact_id']}` ({artifact['category']}): "
