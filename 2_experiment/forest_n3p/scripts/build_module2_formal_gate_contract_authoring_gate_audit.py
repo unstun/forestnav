@@ -37,6 +37,13 @@ EXPECTED_POST_DECISION_CONTRACT_PLAN_STATUSES = {
 EXPECTED_POST_DECISION_CONTRACT_SECTION_COUNT = 8
 EXPECTED_POST_DECISION_CONTRACT_LANE_COUNT = 4
 EXPECTED_POST_DECISION_CONTRACT_SHARED_ARTIFACT_COUNT = 10
+EXPECTED_POST_DECISION_CONTRACT_SHARED_ARTIFACT_CATEGORY_COUNTS = {
+    "contract": 1,
+    "training": 3,
+    "evaluation": 2,
+    "acceptance": 3,
+    "formal_acceptance": 1,
+}
 
 
 @dataclass(frozen=True)
@@ -184,6 +191,12 @@ def _contract_gate(
         "post_decision_contract_plan_shared_artifact_count": post_decision_plan.get(
             "shared_next_success_attempt_artifact_count"
         ),
+        "post_decision_contract_plan_shared_artifact_category_counts": post_decision_plan.get(
+            "shared_next_success_attempt_artifact_category_counts"
+        ),
+        "post_decision_contract_plan_old_failed_run_artifacts_invalid": post_decision_plan.get(
+            "old_failed_run_artifacts_invalid_for_next_success_attempt"
+        ),
         "existing_contract_status": existing_contract.get("status"),
         "existing_contract_version": existing_contract.get("version"),
         "existing_contract_usable_for_new_success_attempt": False,
@@ -311,6 +324,14 @@ def _post_decision_plan_summary(raw: dict[str, Any]) -> dict[str, Any]:
         "shared_next_success_attempt_artifact_count": int(
             raw.get("shared_next_success_attempt_artifact_count") or 0
         ),
+        "shared_next_success_attempt_artifact_category_counts": raw.get(
+            "shared_next_success_attempt_artifact_category_counts"
+        )
+        if isinstance(raw.get("shared_next_success_attempt_artifact_category_counts"), dict)
+        else {},
+        "old_failed_run_artifacts_invalid_for_next_success_attempt": raw.get(
+            "old_failed_run_artifacts_invalid_for_next_success_attempt"
+        ),
         "lane_count": int(raw.get("lane_count") or 0),
         "writes_contract": raw.get("writes_contract"),
         "approves_contract": raw.get("approves_contract"),
@@ -370,6 +391,25 @@ def _post_decision_plan_issues(
                     observed=post_decision_plan[key],
                 )
             )
+    if (
+        post_decision_plan["shared_next_success_attempt_artifact_category_counts"]
+        != EXPECTED_POST_DECISION_CONTRACT_SHARED_ARTIFACT_CATEGORY_COUNTS
+    ):
+        issues.append(
+            _issue(
+                "post_decision_contract_plan_shared_artifact_category_counts_drift",
+                "Post-decision contract plan must preserve next-success category counts 1/3/2/3/1.",
+                observed=post_decision_plan["shared_next_success_attempt_artifact_category_counts"],
+            )
+        )
+    if post_decision_plan["old_failed_run_artifacts_invalid_for_next_success_attempt"] is not True:
+        issues.append(
+            _issue(
+                "post_decision_contract_plan_old_failed_run_invalid_missing",
+                "Post-decision contract plan must state old failed-run artifacts are invalid substitutes.",
+                observed=post_decision_plan["old_failed_run_artifacts_invalid_for_next_success_attempt"],
+            )
+        )
     true_flags = [
         key
         for key in (
@@ -470,6 +510,10 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"`{manifest['post_decision_contract_plan_summary']['required_contract_section_count']}`",
             "- shared_next_success_attempt_artifact_count: "
             f"`{manifest['post_decision_contract_plan_summary']['shared_next_success_attempt_artifact_count']}`",
+            "- shared_next_success_attempt_artifact_category_counts: "
+            f"`{manifest['post_decision_contract_plan_summary']['shared_next_success_attempt_artifact_category_counts']}`",
+            "- old_failed_run_artifacts_invalid_for_next_success_attempt: "
+            f"`{manifest['post_decision_contract_plan_summary']['old_failed_run_artifacts_invalid_for_next_success_attempt']}`",
             f"- lane_count: `{manifest['post_decision_contract_plan_summary']['lane_count']}`",
             f"- gate_selected_lane_id: `{manifest['post_decision_contract_plan_summary']['gate_selected_lane_id']}`",
             "- gate_contract_drafting_allowed_now: "
