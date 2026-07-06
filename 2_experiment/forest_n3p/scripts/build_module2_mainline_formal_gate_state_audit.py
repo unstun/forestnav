@@ -267,6 +267,19 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
             {"action_id": action_id, "mentioned": action_id in current_section}
             for action_id in EXPECTED_PROTOCOL_LANE_BLOCKED_ACTIONS
         ],
+        "protocol_lane_status_post_plan_summary_mentioned": (
+            "protocol_lane_status_report" in current_section
+            and "post-decision contract plan summary" in current_section
+            and str(protocol_lane_status["post_decision_contract_plan_required_section_count"])
+            in current_section
+            and str(protocol_lane_status["post_decision_contract_plan_shared_artifact_count"])
+            in current_section
+            and str(protocol_lane_status["post_decision_contract_plan_lane_count"]) in current_section
+        ),
+        "protocol_lane_status_next_artifact_category_counts_mentioned": (
+            "contract/training/evaluation/acceptance/formal_acceptance=1/3/2/3/1"
+            in current_section
+        ),
         "protocol_lane_readiness_summary": protocol_lane_readiness,
         "protocol_lane_readiness_artifact_mentioned": protocol_lane_readiness["artifact_name"] in current_section,
         "protocol_lane_readiness_status_mentioned": protocol_lane_readiness["status"] in current_section,
