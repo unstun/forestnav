@@ -1085,6 +1085,10 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- protocol_lane_status_mentioned: `{manifest['protocol_lane_status_mentioned']}`",
         f"- protocol_lane_next_blocked_mentioned: `{manifest['protocol_lane_next_blocked_mentioned']}`",
         f"- protocol_lane_next_action_mentioned: `{manifest['protocol_lane_next_action_mentioned']}`",
+        "- protocol_lane_readiness_summary: "
+        f"`{manifest['protocol_lane_readiness_summary']}`",
+        f"- protocol_lane_readiness_artifact_mentioned: `{manifest['protocol_lane_readiness_artifact_mentioned']}`",
+        f"- protocol_lane_readiness_status_mentioned: `{manifest['protocol_lane_readiness_status_mentioned']}`",
         f"- proof_summary_chain_status: `{manifest['proof_summary_chain_status']}`",
         "- proof_summary_handoff_single_next_action_consistency: "
         f"`{manifest['proof_summary_handoff_single_next_action_consistency']}`",
@@ -1136,6 +1140,21 @@ def _markdown(manifest: dict[str, Any]) -> str:
         lines.append(f"- lane `{row['lane_id']}`: mentioned=`{row['mentioned']}`")
     for row in manifest["protocol_lane_blocked_action_mentions"]:
         lines.append(f"- blocked action `{row['action_id']}`: mentioned=`{row['mentioned']}`")
+    lines.extend(["", "## Protocol Lane Readiness", ""])
+    readiness = manifest["protocol_lane_readiness_summary"]
+    lines.extend(
+        [
+            f"- artifact_name: `{readiness['artifact_name']}`",
+            f"- status: `{readiness['status']}`",
+            f"- audit_issue_count: `{readiness['audit_issue_count']}`",
+            f"- lane_count: `{readiness['lane_count']}`",
+            "- shared_next_success_attempt_artifact_count: "
+            f"`{readiness['shared_next_success_attempt_artifact_count']}`",
+            f"- gate_next_blocked_lane: `{readiness['gate_next_blocked_lane']}`",
+            f"- gate_selected_lane_id: `{readiness['gate_selected_lane_id']}`",
+            f"- gate_remote_training_allowed_now: `{readiness['gate_remote_training_allowed_now']}`",
+        ]
+    )
     lines.extend(["", "## Current Boundary Tokens", ""])
     for row in manifest["current_boundary_tokens"]:
         lines.append(f"- `{row['token']}`: mentioned=`{row['mentioned']}`")
