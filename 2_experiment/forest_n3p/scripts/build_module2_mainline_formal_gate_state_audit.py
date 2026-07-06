@@ -492,7 +492,11 @@ def _mainline_issues(
             }
         )
     shared_count_token = str(protocol_lane_readiness["shared_next_success_attempt_artifact_count"])
-    if shared_count_token and shared_count_token not in current_section:
+    readiness_context_present = (
+        protocol_lane_readiness["artifact_name"] in current_section
+        and protocol_lane_readiness["status"] in current_section
+    )
+    if shared_count_token and (not readiness_context_present or shared_count_token not in current_section):
         issues.append(
             {
                 "issue_id": "mainline_current_section_missing_protocol_lane_readiness_shared_artifact_count",
@@ -527,7 +531,11 @@ def _mainline_issues(
         ("lane_count", "mainline_current_section_missing_post_decision_contract_lane_count"),
     ):
         token = str(post_decision_contract_plan[key])
-        if token and token not in current_section:
+        post_plan_context_present = (
+            post_decision_contract_plan["artifact_name"] in current_section
+            and post_decision_contract_plan["status"] in current_section
+        )
+        if token and (not post_plan_context_present or token not in current_section):
             issues.append(
                 {
                     "issue_id": issue_id,
