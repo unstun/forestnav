@@ -246,6 +246,15 @@ def test_formal_gate_handoff_bundle_blocks_remote_when_protocol_lane_pending(tmp
         ],
         "formal_acceptance": ["h02_formal_output_acceptance"],
     }
+    assert protocol["next_success_attempt_artifact_expected_paths_by_id"]["train_final_model_zip"] == (
+        "0_trials/module2_gate3_formal/<next_attempt_id>/train/final_model.zip"
+    )
+    assert protocol["next_success_attempt_artifact_expected_paths_by_id"]["h02_formal_output_acceptance"] == (
+        "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
+    )
+    assert "remote-produced PPO checkpoint" in protocol[
+        "next_success_attempt_artifact_proof_requirements_by_id"
+    ]["train_final_model_zip"]
     assert protocol["post_decision_contract_plan_shared_artifact_category_counts"] == {
         "contract": 1,
         "training": 3,
@@ -298,6 +307,10 @@ def test_formal_gate_handoff_bundle_rejects_protocol_lane_next_artifact_drift(tm
     current = protocol["current_status"]
     current["next_success_attempt_artifact_category_counts"]["training"] = 2
     current["next_success_attempt_artifact_ids_by_category"]["training"] = ["train_final_model_zip"]
+    current["next_success_attempt_artifact_expected_paths_by_id"]["train_final_model_zip"] = (
+        "0_trials/wrong/final_model.zip"
+    )
+    current["next_success_attempt_artifact_proof_requirements_by_id"]["train_summary_json"] = ""
     current["post_decision_contract_plan_shared_artifact_category_counts"]["evaluation"] = 1
     current["old_failed_run_artifacts_invalid_for_next_success_attempt"] = False
     current["post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"] = False
@@ -309,6 +322,8 @@ def test_formal_gate_handoff_bundle_rejects_protocol_lane_next_artifact_drift(tm
     assert manifest["status"] == "blocked_handoff_input_safety_issues"
     assert "protocol_lane_status_next_artifact_category_counts_drift" in issue_ids
     assert "protocol_lane_status_next_artifact_ids_drift" in issue_ids
+    assert "protocol_lane_status_next_artifact_expected_paths_drift" in issue_ids
+    assert "protocol_lane_status_next_artifact_proof_requirement_empty" in issue_ids
     assert "protocol_lane_status_post_plan_category_counts_drift" in issue_ids
     assert "protocol_lane_status_old_failed_invalid_flag_drift" in issue_ids
     assert "protocol_lane_status_post_plan_old_failed_invalid_flag_drift" in issue_ids
@@ -902,6 +917,8 @@ def _protocol_lane_status(*, pending):
                 ],
                 "formal_acceptance": ["h02_formal_output_acceptance"],
             },
+            "next_success_attempt_artifact_expected_paths_by_id": _next_success_expected_paths_by_id(),
+            "next_success_attempt_artifact_proof_requirements_by_id": _next_success_proof_requirements_by_id(),
             "post_decision_contract_plan_shared_artifact_count": 10,
             "post_decision_contract_plan_shared_artifact_category_counts": {
                 "contract": 1,
@@ -931,6 +948,40 @@ def _protocol_lane_status(*, pending):
             "paper_result_material_allowed_now": False,
             "new_success_training_allowed_now": False,
         },
+    }
+
+
+def _next_success_expected_paths_by_id():
+    return {
+        "new_or_revised_research_contract": ".pipeline/contracts/module2-<selected_protocol_lane>-<version>.md",
+        "train_final_model_zip": "0_trials/module2_gate3_formal/<next_attempt_id>/train/final_model.zip",
+        "train_summary_json": "0_trials/module2_gate3_formal/<next_attempt_id>/train/summary.json",
+        "train_training_manifest_json": "0_trials/module2_gate3_formal/<next_attempt_id>/train/training_manifest.json",
+        "eval_gate3_eval_episodes_csv": "0_trials/module2_gate3_formal/<next_attempt_id>/eval/gate3_eval_episodes.csv",
+        "eval_gate3_summary_json": "0_trials/module2_gate3_formal/<next_attempt_id>/eval/gate3_summary.json",
+        "gate3_trial_manifest_json": "0_trials/module2_gate3_formal/<next_attempt_id>/gate3_trial_manifest.json",
+        "gate3_formal_audit_json": "0_trials/module2_gate3_formal/<next_attempt_id>/gate3_formal_audit.json",
+        "pulled_back_checkpoint_hash_record": (
+            "0_trials/module2_gate3_formal/<next_attempt_id>/train/final_model.zip.sha256 or .sha256.json"
+        ),
+        "h02_formal_output_acceptance": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+    }
+
+
+def _next_success_proof_requirements_by_id():
+    return {
+        "new_or_revised_research_contract": "contract status is approved or frozen",
+        "train_final_model_zip": "remote-produced PPO checkpoint pulled back from gpu3070ti-relay",
+        "train_summary_json": "summary records protocol label, training budget, seed, and terminal-RS training signals",
+        "train_training_manifest_json": "manifest records source head, host, command provenance, seed, and selected protocol lane",
+        "eval_gate3_eval_episodes_csv": "per-episode formal Gate3 CSV with at least 64 episodes and protocol provenance",
+        "eval_gate3_summary_json": "summary records terminal-RS success, collision, truncation, timing, seed, and protocol label",
+        "gate3_trial_manifest_json": "trial manifest ties contract, train, eval, audit, source head, and selected protocol lane",
+        "gate3_formal_audit_json": "audit records formal_decision=pass for the new approved protocol attempt",
+        "pulled_back_checkpoint_hash_record": "hash record matches the pulled-back final_model.zip evaluated by Gate3",
+        "h02_formal_output_acceptance": (
+            "H02 records formal_output_accepted=true, paper_result_input_allowed=true, PPO rows, and accepted checkpoint hash"
+        ),
     }
 
 
