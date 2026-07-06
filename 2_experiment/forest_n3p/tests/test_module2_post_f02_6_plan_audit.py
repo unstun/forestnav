@@ -19,6 +19,11 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
             missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
             closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
             status_report_path=_json(tmp_path, "status_report.json", _status_report_payload(ready=False)),
+            protocol_lane_status_report_path=_json(
+                tmp_path,
+                "protocol_lane_status.json",
+                _protocol_lane_status_payload(),
+            ),
             remaining_deliverables_path=_json(
                 tmp_path,
                 "remaining_deliverables.json",
@@ -77,6 +82,37 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
     assert manifest["status_report_summary"]["formal_gate_execution_veto_summary"]["all_rows_consistent"] is True
     assert manifest["status_report_summary"]["formal_gate_execution_veto_summary"]["row_consensus"]["remote_training"] is False
     assert manifest["status_report_summary"]["formal_gate_execution_veto_summary"]["row_consensus"]["formal_claim"] is False
+    protocol = manifest["protocol_lane_status_summary"]
+    assert manifest["inputs"]["protocol_lane_status_report"].endswith("protocol_lane_status.json")
+    assert protocol["status"] == "protocol_lane_status_blocked_pending_lane_decision"
+    assert protocol["audit_issue_count"] == 0
+    assert protocol["next_blocked_lane"] == "protocol_lane_decision"
+    assert protocol["selected_lane_id"] is None
+    assert protocol["allowed_next_action_ids"] == ["record_protocol_lane_decision"]
+    assert protocol["blocked_action_ids"] == [
+        "local_training",
+        "remote_success_training",
+        "remote_preflight_for_new_success_attempt",
+        "formal_claim",
+        "paper_result_material",
+    ]
+    assert protocol["post_decision_contract_plan_status"] == "post_decision_contract_plan_ready_blocked_pending_lane_decision"
+    assert protocol["post_decision_contract_plan_required_section_count"] == 8
+    assert protocol["post_decision_contract_plan_shared_artifact_count"] == 10
+    assert protocol["post_decision_contract_plan_lane_count"] == 4
+    assert protocol["next_success_attempt_artifact_count"] == 10
+    assert protocol["next_success_attempt_artifact_category_counts"] == {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1,
+    }
+    assert protocol["next_success_attempt_artifact_ids_by_category"]["training"] == [
+        "train_final_model_zip",
+        "train_summary_json",
+        "train_training_manifest_json",
+    ]
     assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
     assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 4
     unlock_chain = manifest["remaining_deliverables_unlock_chain_summary"]
