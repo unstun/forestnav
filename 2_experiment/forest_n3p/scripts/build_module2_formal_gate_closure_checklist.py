@@ -208,6 +208,7 @@ def _closure_checklist(
             completion_signal="Dr Sun records selected_lane_id, failed Gate3 basis, rejected-lane rationales, evidence basis, and contract action.",
             next_action="Record protocol_lane_decision before contract drafting, remote preflight, remote training, formal claim, or paper result material.",
             extra_blockers=protocol_blockers,
+            complete_when_unblocked=True,
         ),
         _item(
             checklist_id="F02.6_decision",
@@ -305,6 +306,7 @@ def _item(
     runs_training: bool = False,
     host: str | None = None,
     extra_blockers: Sequence[str] = (),
+    complete_when_unblocked: bool = False,
 ) -> dict[str, Any]:
     group = group or {}
     required_items = _group_items(group)
@@ -318,7 +320,7 @@ def _item(
         blocked_by = []
     complete = (formal_step_complete and not extra_blockers) or (
         bool(group.get("complete")) and not missing_items and not blocked_by
-    )
+    ) or (complete_when_unblocked and not missing_items and not blocked_by)
     return {
         "checklist_id": checklist_id,
         "phase": phase,
