@@ -10,6 +10,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from forest_n3p.scripts._module2_contract_gate import ALLOWED_CONTRACT_STATUSES, contract_status
+
 
 DEFAULT_CONTRACT_PATH = ".pipeline/contracts/module2-ppo-funnel-expansion.md"
 
@@ -89,6 +91,16 @@ def audit_trial(
         expected_contract_path=str(expected_contract_path),
         blockers=blockers,
     )
+    expected_contract_status = contract_status(expected_contract_path)
+    if expected_contract_status not in ALLOWED_CONTRACT_STATUSES:
+        blockers.append(
+            _reason(
+                "contract_status_not_approved_or_frozen",
+                f"expected contract status is {expected_contract_status!r}",
+                observed=expected_contract_status,
+                expected=sorted(ALLOWED_CONTRACT_STATUSES),
+            )
+        )
     train_curriculum = str(train_cfg.get("curriculum_preset", "unknown"))
     eval_curriculum = str(eval_cfg.get("curriculum_preset", "unknown"))
     if train_curriculum != str(required_train_curriculum):
@@ -156,6 +168,7 @@ def audit_trial(
         "command": " ".join(["python -m forest_n3p.scripts.audit_rl_rs_gate3_trial", *raw_argv]),
         "trial_dir": str(trial_dir),
         "contract": str(expected_contract_path),
+        "contract_status": expected_contract_status,
         "formal_decision": formal_decision,
         "formal_claim_allowed": formal_decision in {"pass", "fail"},
         "formal_blockers": blockers,
