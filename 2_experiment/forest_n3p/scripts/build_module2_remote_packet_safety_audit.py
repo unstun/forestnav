@@ -130,9 +130,9 @@ def build_manifest(config: RemotePacketSafetyAuditConfig) -> dict[str, Any]:
         "expected_pullback_suffixes": list(EXPECTED_PULLBACK_SUFFIXES),
         "claim_boundaries": [
             "This audit validates the remote execution packet; it does not execute sync, preflight, training, audit, or pullback commands.",
-            "A passing audit is not permission to train while F02.6 remains pending.",
+            "A passing audit is not permission to train while protocol_lane_decision remains pending.",
             "A passing audit is not a paper result or formal performance claim.",
-            "Remote training must remain gpu3070ti-relay-only and must still be followed by audit, pullback, H01/H02 regeneration, and claim gates.",
+            "Remote training must remain gpu3070ti-relay-only and must still be preceded by protocol-lane decision, approved/frozen contract, audit, pullback, H01/H02 regeneration, and claim gates.",
         ],
     }
 
