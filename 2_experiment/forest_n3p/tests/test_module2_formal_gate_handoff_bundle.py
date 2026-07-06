@@ -228,6 +228,24 @@ def test_formal_gate_handoff_bundle_blocks_remote_when_protocol_lane_pending(tmp
         "acceptance": 3,
         "formal_acceptance": 1,
     }
+    assert protocol["next_success_attempt_artifact_ids_by_category"] == {
+        "contract": ["new_or_revised_research_contract"],
+        "training": [
+            "train_final_model_zip",
+            "train_summary_json",
+            "train_training_manifest_json",
+        ],
+        "evaluation": [
+            "eval_gate3_eval_episodes_csv",
+            "eval_gate3_summary_json",
+        ],
+        "acceptance": [
+            "gate3_trial_manifest_json",
+            "gate3_formal_audit_json",
+            "pulled_back_checkpoint_hash_record",
+        ],
+        "formal_acceptance": ["h02_formal_output_acceptance"],
+    }
     assert protocol["post_decision_contract_plan_shared_artifact_category_counts"] == {
         "contract": 1,
         "training": 3,
@@ -279,6 +297,7 @@ def test_formal_gate_handoff_bundle_rejects_protocol_lane_next_artifact_drift(tm
     protocol = json.loads(config.protocol_lane_status_report_path.read_text(encoding="utf-8"))
     current = protocol["current_status"]
     current["next_success_attempt_artifact_category_counts"]["training"] = 2
+    current["next_success_attempt_artifact_ids_by_category"]["training"] = ["train_final_model_zip"]
     current["post_decision_contract_plan_shared_artifact_category_counts"]["evaluation"] = 1
     current["old_failed_run_artifacts_invalid_for_next_success_attempt"] = False
     current["post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"] = False
@@ -289,6 +308,7 @@ def test_formal_gate_handoff_bundle_rejects_protocol_lane_next_artifact_drift(tm
     issue_ids = {issue["issue_id"] for issue in manifest["safety_issues"]}
     assert manifest["status"] == "blocked_handoff_input_safety_issues"
     assert "protocol_lane_status_next_artifact_category_counts_drift" in issue_ids
+    assert "protocol_lane_status_next_artifact_ids_drift" in issue_ids
     assert "protocol_lane_status_post_plan_category_counts_drift" in issue_ids
     assert "protocol_lane_status_old_failed_invalid_flag_drift" in issue_ids
     assert "protocol_lane_status_post_plan_old_failed_invalid_flag_drift" in issue_ids
@@ -863,6 +883,24 @@ def _protocol_lane_status(*, pending):
                 "evaluation": 2,
                 "acceptance": 3,
                 "formal_acceptance": 1,
+            },
+            "next_success_attempt_artifact_ids_by_category": {
+                "contract": ["new_or_revised_research_contract"],
+                "training": [
+                    "train_final_model_zip",
+                    "train_summary_json",
+                    "train_training_manifest_json",
+                ],
+                "evaluation": [
+                    "eval_gate3_eval_episodes_csv",
+                    "eval_gate3_summary_json",
+                ],
+                "acceptance": [
+                    "gate3_trial_manifest_json",
+                    "gate3_formal_audit_json",
+                    "pulled_back_checkpoint_hash_record",
+                ],
+                "formal_acceptance": ["h02_formal_output_acceptance"],
             },
             "post_decision_contract_plan_shared_artifact_count": 10,
             "post_decision_contract_plan_shared_artifact_category_counts": {
