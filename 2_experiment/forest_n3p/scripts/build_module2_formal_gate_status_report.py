@@ -1778,6 +1778,11 @@ def _handoff_bundle_summary(handoff_bundle: dict[str, Any]) -> dict[str, Any]:
     next_action = handoff_bundle.get("next_handoff_action") if isinstance(handoff_bundle.get("next_handoff_action"), dict) else {}
     steps = handoff_bundle.get("remote_execution_steps") if isinstance(handoff_bundle.get("remote_execution_steps"), dict) else {}
     current_state = handoff_bundle.get("current_state") if isinstance(handoff_bundle.get("current_state"), dict) else {}
+    protocol_summary = (
+        handoff_bundle.get("protocol_lane_status_summary")
+        if isinstance(handoff_bundle.get("protocol_lane_status_summary"), dict)
+        else {}
+    )
     step_summary: dict[str, dict[str, Any]] = {}
     for step_id in REMOTE_EXECUTION_STEP_IDS:
         step = steps.get(step_id) if isinstance(steps.get(step_id), dict) else {}
@@ -1798,6 +1803,26 @@ def _handoff_bundle_summary(handoff_bundle: dict[str, Any]) -> dict[str, Any]:
         "remote_training_allowed_now": bool(permissions.get("remote_training_allowed_now")),
         "remote_preflight_allowed_now": bool(permissions.get("remote_preflight_allowed_now")),
         "formal_claim_allowed_now": bool(permissions.get("formal_claim_allowed_now")),
+        "protocol_lane_status": protocol_summary.get("status"),
+        "protocol_lane_next_success_attempt_artifact_category_counts": _int_counts(
+            protocol_summary.get("next_success_attempt_artifact_category_counts")
+        ),
+        "protocol_lane_post_plan_artifact_category_counts": _int_counts(
+            protocol_summary.get("post_decision_contract_plan_shared_artifact_category_counts")
+        ),
+        "protocol_lane_old_failed_run_artifacts_invalid_for_next_success_attempt": protocol_summary.get(
+            "old_failed_run_artifacts_invalid_for_next_success_attempt"
+        )
+        if isinstance(protocol_summary.get("old_failed_run_artifacts_invalid_for_next_success_attempt"), bool)
+        else None,
+        "protocol_lane_post_plan_old_failed_run_artifacts_invalid_for_next_success_attempt": protocol_summary.get(
+            "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"
+        )
+        if isinstance(
+            protocol_summary.get("post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"),
+            bool,
+        )
+        else None,
         "remote_execution_steps": step_summary,
     }
 
