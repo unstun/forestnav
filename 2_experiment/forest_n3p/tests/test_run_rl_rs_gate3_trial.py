@@ -32,6 +32,7 @@ def test_run_rl_rs_gate3_trial_smoke_trains_evaluates_and_writes_manifest(tmp_pa
     assert manifest["status"] == "complete"
     assert manifest["smoke"] is True
     assert manifest["formal_gate_claim"] is False
+    assert manifest["contract"] == "0_trials/custom_contract.md"
     assert manifest["warm_start_status"] == "not_applied_f02_6_pending"
     assert manifest["train_output_dir"] == "train"
     assert manifest["eval_output_dir"] == "eval"
@@ -39,3 +40,5 @@ def test_run_rl_rs_gate3_trial_smoke_trains_evaluates_and_writes_manifest(tmp_pa
     assert manifest["eval_summary"] == "eval/gate3_summary.json"
     assert manifest["gate3_decision"] == "pass"
     assert manifest["terminal_rs_success_rate"] >= 0.8
+    assert manifest["train_config"]["contract"] == "0_trials/custom_contract.md"
+    assert manifest["eval_config"]["contract"] == "0_trials/custom_contract.md"

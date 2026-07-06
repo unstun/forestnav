@@ -16,6 +16,7 @@ from stable_baselines3.common.vec_env import DummyVecEnv
 from forest_n3p.rl_rs.sb3_policy import RlRsObstacleSummaryExtractor
 from forest_n3p.scripts.train_bc_policy import _build_scalar_steering_mlp, _policy_features_from_scalar_and_patch
 from forest_n3p.scripts.train_rl_rs_ppo import (
+    DEFAULT_CONTRACT_PATH,
     _apply_obstacle_summary_bc_warm_start,
     _apply_smoke_overrides,
     _make_env_factory,
@@ -76,9 +77,12 @@ def test_train_rl_rs_ppo_smoke_writes_model_manifest_and_episode_csv(tmp_path):
     manifest = json.loads((tmp_path / "training_manifest.json").read_text(encoding="utf-8"))
     assert manifest["schema_version"] == 1
     assert manifest["config"]["smoke"] is True
+    assert manifest["config"]["contract"] == DEFAULT_CONTRACT_PATH
     assert manifest["config"]["policy"] == "MultiInputPolicy"
     assert "2_experiment/forest_n3p/scripts/train_rl_rs_ppo.py" in manifest["source_hashes"]
     assert any(checkpoint["path"] == "final_model.zip" for checkpoint in manifest["checkpoints"])
+    summary = json.loads((tmp_path / "summary.json").read_text(encoding="utf-8"))
+    assert summary["contract"] == DEFAULT_CONTRACT_PATH
 
     episode_csv = tmp_path / "episodes_env0.csv"
     rows = list(csv.DictReader(episode_csv.open(newline="", encoding="utf-8")))
