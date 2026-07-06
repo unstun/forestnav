@@ -53,6 +53,9 @@ def test_protocol_lane_decision_record_defaults_to_pending_and_blocks_training(t
     assert len(record["record_command_templates"]) == 4
     assert all(template["allowed_for_agent_now"] is False for template in record["record_command_templates"])
     assert all(template["runs_training"] is False for template in record["record_command_templates"])
+    assert all("0.53125" in template["template"] for template in record["record_command_templates"])
+    assert all("0.8" in template["template"] for template in record["record_command_templates"])
+    assert all("does not authorize local training" in template["template"] for template in record["record_command_templates"])
     assert "pending_protocol_lane_decision" in markdown
     assert "decision_record_is_not_training_authorization: `True`" in markdown
     assert "Record Command Templates" in markdown

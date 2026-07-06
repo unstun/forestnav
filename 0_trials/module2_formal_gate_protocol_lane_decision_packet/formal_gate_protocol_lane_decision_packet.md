@@ -150,8 +150,36 @@ This file is a formal-gate decision packet, not paper result material.
 ## Decision Record Schema
 
 - required_fields: `decider, decision_timestamp_utc, selected_lane_id, decision_summary, justification_against_failed_gate3, rejected_lane_rationale, evidence_artifact_basis, claim_scope_after_decision, contract_action, training_authorization`
-- decision_note_must_cover: `selected_lane, failed_gate3_basis, contract_action, rejected_lanes, evidence_artifact_basis`
+- decision_note_must_cover: `selected_lane, failed_gate3_basis_0.53125_vs_0.8, contract_action, rejected_lanes, evidence_artifact_basis`
+- decision_note_template: `Select <selected_lane_id> because the failed Gate3 0.53125 result is below the 0.8 threshold; reject <all other lane ids with one rationale each>; use protocol_lane_matrix, gate3_formal_audit, formal_gate_next_round_requirements, and h02_formal_acceptance artifacts as the evidence basis; contract action is <draft_new_contract|draft_revised_contract|stop_success_attempts_and_record_negative_evidence>; this decision does not authorize local training, remote preflight, remote training, formal claim, or paper result material.`
 - training_authorization_must_be: `not_authorized_by_this_decision_packet`
+
+## Record Command Templates
+
+- selected_lane: `stronger_obstacle_summary_warm_start`
+  - allowed_for_agent_now: `False`
+  - runs_training: `False`
+  - runs_remote_preflight: `False`
+  - decision_note_template: `Select stronger_obstacle_summary_warm_start because the failed Gate3 0.53125 result is below the 0.8 threshold; reject <all other lane ids with one rationale each>; use protocol_lane_matrix, gate3_formal_audit, formal_gate_next_round_requirements, and h02_formal_acceptance artifacts as the evidence basis; contract action is <draft_new_contract|draft_revised_contract|stop_success_attempts_and_record_negative_evidence>; this decision does not authorize local training, remote preflight, remote training, formal claim, or paper result material.`
+  - template: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record --selected-lane stronger_obstacle_summary_warm_start --decider 'Dr Sun' --contract-action <contract_action> --decision-note '<fill the decision_note_template verbatim with Dr Sun rationale>'`
+- selected_lane: `full_patch_cnn_policy`
+  - allowed_for_agent_now: `False`
+  - runs_training: `False`
+  - runs_remote_preflight: `False`
+  - decision_note_template: `Select full_patch_cnn_policy because the failed Gate3 0.53125 result is below the 0.8 threshold; reject <all other lane ids with one rationale each>; use protocol_lane_matrix, gate3_formal_audit, formal_gate_next_round_requirements, and h02_formal_acceptance artifacts as the evidence basis; contract action is <draft_new_contract|draft_revised_contract|stop_success_attempts_and_record_negative_evidence>; this decision does not authorize local training, remote preflight, remote training, formal claim, or paper result material.`
+  - template: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record --selected-lane full_patch_cnn_policy --decider 'Dr Sun' --contract-action <contract_action> --decision-note '<fill the decision_note_template verbatim with Dr Sun rationale>'`
+- selected_lane: `hybrid_ppo_analytic_fallback`
+  - allowed_for_agent_now: `False`
+  - runs_training: `False`
+  - runs_remote_preflight: `False`
+  - decision_note_template: `Select hybrid_ppo_analytic_fallback because the failed Gate3 0.53125 result is below the 0.8 threshold; reject <all other lane ids with one rationale each>; use protocol_lane_matrix, gate3_formal_audit, formal_gate_next_round_requirements, and h02_formal_acceptance artifacts as the evidence basis; contract action is <draft_new_contract|draft_revised_contract|stop_success_attempts_and_record_negative_evidence>; this decision does not authorize local training, remote preflight, remote training, formal claim, or paper result material.`
+  - template: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record --selected-lane hybrid_ppo_analytic_fallback --decider 'Dr Sun' --contract-action <contract_action> --decision-note '<fill the decision_note_template verbatim with Dr Sun rationale>'`
+- selected_lane: `stop_or_reframe_module2_claim`
+  - allowed_for_agent_now: `False`
+  - runs_training: `False`
+  - runs_remote_preflight: `False`
+  - decision_note_template: `Select stop_or_reframe_module2_claim because the failed Gate3 0.53125 result is below the 0.8 threshold; reject <all other lane ids with one rationale each>; use protocol_lane_matrix, gate3_formal_audit, formal_gate_next_round_requirements, and h02_formal_acceptance artifacts as the evidence basis; contract action is <draft_new_contract|draft_revised_contract|stop_success_attempts_and_record_negative_evidence>; this decision does not authorize local training, remote preflight, remote training, formal claim, or paper result material.`
+  - template: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record --selected-lane stop_or_reframe_module2_claim --decider 'Dr Sun' --contract-action <contract_action> --decision-note '<fill the decision_note_template verbatim with Dr Sun rationale>'`
 
 ## Current Blocked Actions
 - `local_training`
