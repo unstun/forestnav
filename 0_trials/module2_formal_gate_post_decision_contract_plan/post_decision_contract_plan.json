@@ -1,0 +1,706 @@
+{
+  "schema_version": 1,
+  "artifact_name": "module2_formal_gate_post_decision_contract_plan",
+  "status": "post_decision_contract_plan_ready_blocked_pending_lane_decision",
+  "created_at_utc": "2026-07-06T03:13:13.935434+00:00",
+  "source_head": "78c03ea2e889cd92141fdea55d24e6da2a22025a+dirty",
+  "not_paper_result_material": true,
+  "executes_commands": false,
+  "writes_contract": false,
+  "approves_contract": false,
+  "runs_training": false,
+  "runs_remote_preflight": false,
+  "runs_remote_audit": false,
+  "local_training_allowed": false,
+  "remote_training_allowed_now": false,
+  "formal_claim_allowed": false,
+  "paper_result_material_allowed": false,
+  "inputs": {
+    "protocol_lane_readiness": "0_trials/module2_formal_gate_protocol_lane_readiness/protocol_lane_readiness.json",
+    "contract_intake": "0_trials/module2_formal_gate_contract_intake/formal_gate_contract_intake.json",
+    "contract_authoring_gate": "0_trials/module2_formal_gate_contract_authoring_gate_audit/contract_authoring_gate_audit.json",
+    "next_round_requirements": "0_trials/module2_formal_gate_next_round_requirements/formal_gate_next_round_requirements.json"
+  },
+  "gate_state": {
+    "next_blocked_lane": "protocol_lane_decision",
+    "selected_lane_id": null,
+    "decision_owner_required": "Dr Sun",
+    "decision_record_status": "pending_protocol_lane_decision",
+    "contract_authoring_gate_status": "contract_authoring_gate_blocked_pending_lane_decision",
+    "contract_drafting_allowed_now": false,
+    "contract_approval_allowed_now": false,
+    "draft_contract_allows_training": false,
+    "new_or_revised_contract_required_before_training": true,
+    "local_training_allowed_now": false,
+    "remote_preflight_allowed_now": false,
+    "remote_training_allowed_now": false,
+    "formal_claim_allowed_now": false,
+    "paper_result_material_allowed_now": false,
+    "allowed_next_action_ids": [
+      "record_protocol_lane_decision"
+    ],
+    "blocked_action_ids": [
+      "local_training",
+      "remote_success_training",
+      "remote_preflight_for_new_success_attempt",
+      "formal_claim",
+      "paper_result_material"
+    ],
+    "post_decision_plan_authorizes_lane_selection": false,
+    "post_decision_plan_authorizes_contract_write": false,
+    "post_decision_plan_authorizes_training": false
+  },
+  "required_contract_section_count": 8,
+  "required_contract_sections": [
+    {
+      "section_id": "protocol_lane",
+      "status_before_lane_decision": "awaiting_dr_sun_decision",
+      "prompt": "Lock protocol_lane before any new success-attempt training.",
+      "must_be_locked_before_training": true
+    },
+    {
+      "section_id": "hypothesis",
+      "status_before_lane_decision": "awaiting_dr_sun_decision",
+      "prompt": "Lock hypothesis before any new success-attempt training.",
+      "must_be_locked_before_training": true
+    },
+    {
+      "section_id": "success_signal",
+      "status_before_lane_decision": "awaiting_dr_sun_decision",
+      "prompt": "Lock success_signal before any new success-attempt training.",
+      "must_be_locked_before_training": true
+    },
+    {
+      "section_id": "failure_signal",
+      "status_before_lane_decision": "awaiting_dr_sun_decision",
+      "prompt": "Lock failure_signal before any new success-attempt training.",
+      "must_be_locked_before_training": true
+    },
+    {
+      "section_id": "protocol_delta_from_failed_run",
+      "status_before_lane_decision": "awaiting_dr_sun_decision",
+      "prompt": "Lock protocol_delta_from_failed_run before any new success-attempt training.",
+      "must_be_locked_before_training": true
+    },
+    {
+      "section_id": "training_budget_and_seed_policy",
+      "status_before_lane_decision": "awaiting_dr_sun_decision",
+      "prompt": "Lock training_budget_and_seed_policy before any new success-attempt training.",
+      "must_be_locked_before_training": true
+    },
+    {
+      "section_id": "evaluation_and_acceptance_plan",
+      "status_before_lane_decision": "awaiting_dr_sun_decision",
+      "prompt": "Lock evaluation_and_acceptance_plan before any new success-attempt training.",
+      "must_be_locked_before_training": true
+    },
+    {
+      "section_id": "paper_claim_boundary",
+      "status_before_lane_decision": "awaiting_dr_sun_decision",
+      "prompt": "Lock paper_claim_boundary before any new success-attempt training.",
+      "must_be_locked_before_training": true
+    }
+  ],
+  "shared_next_success_attempt_artifact_count": 10,
+  "shared_next_success_attempt_artifacts": [
+    {
+      "category": "contract",
+      "artifact_id": "new_or_revised_research_contract",
+      "status": "missing_required_before_new_success_training",
+      "expected_path": ".pipeline/contracts/module2-<selected_protocol_lane>-<version>.md",
+      "required_before": "new_success_training",
+      "blocked_until": "record_protocol_lane_decision",
+      "proof_requirement": "contract status is approved or frozen and locks hypothesis, success signal, failure signal, budget, and protocol deltas",
+      "invalid_substitutes": [
+        "chat-only approval",
+        "draft contract",
+        "editing the failed Gate3 result after seeing failure"
+      ]
+    },
+    {
+      "category": "training",
+      "artifact_id": "train_final_model_zip",
+      "status": "not_created_for_next_success_attempt",
+      "expected_path": "0_trials/module2_gate3_formal/<next_attempt_id>/train/final_model.zip",
+      "required_before": "new_gate3_formal_audit",
+      "blocked_until": "approved_or_frozen_new_or_revised_contract",
+      "proof_requirement": "remote-produced PPO checkpoint pulled back from gpu3070ti-relay",
+      "invalid_substitutes": [
+        "local PPO training output",
+        "failed warm-start checkpoint",
+        "checkpoint without manifest or hash provenance"
+      ]
+    },
+    {
+      "category": "training",
+      "artifact_id": "train_summary_json",
+      "status": "not_created_for_next_success_attempt",
+      "expected_path": "0_trials/module2_gate3_formal/<next_attempt_id>/train/summary.json",
+      "required_before": "new_gate3_formal_audit",
+      "blocked_until": "approved_or_frozen_new_or_revised_contract",
+      "proof_requirement": "summary records protocol label, training budget, seed, and terminal-RS training signals",
+      "invalid_substitutes": [
+        "stdout-only training summary",
+        "summary from the failed Gate3 attempt",
+        "summary without protocol label"
+      ]
+    },
+    {
+      "category": "training",
+      "artifact_id": "train_training_manifest_json",
+      "status": "not_created_for_next_success_attempt",
+      "expected_path": "0_trials/module2_gate3_formal/<next_attempt_id>/train/training_manifest.json",
+      "required_before": "new_gate3_formal_audit",
+      "blocked_until": "approved_or_frozen_new_or_revised_contract",
+      "proof_requirement": "manifest records source head, host, command provenance, seed, and selected protocol lane",
+      "invalid_substitutes": [
+        "manifest without source head",
+        "manifest from a different protocol lane",
+        "uncommitted chat note"
+      ]
+    },
+    {
+      "category": "evaluation",
+      "artifact_id": "eval_gate3_eval_episodes_csv",
+      "status": "blocked_until_new_checkpoint",
+      "expected_path": "0_trials/module2_gate3_formal/<next_attempt_id>/eval/gate3_eval_episodes.csv",
+      "required_before": "new_gate3_formal_audit",
+      "blocked_until": "new_remote_ppo_checkpoint_bundle",
+      "proof_requirement": "per-episode formal Gate3 CSV with at least 64 episodes and protocol provenance",
+      "invalid_substitutes": [
+        "H02 available-subset smoke CSV",
+        "no-warm failure rows reused for a warm-start claim",
+        "aggregate summary without per-episode rows"
+      ]
+    },
+    {
+      "category": "evaluation",
+      "artifact_id": "eval_gate3_summary_json",
+      "status": "blocked_until_new_checkpoint",
+      "expected_path": "0_trials/module2_gate3_formal/<next_attempt_id>/eval/gate3_summary.json",
+      "required_before": "new_gate3_formal_audit",
+      "blocked_until": "new_remote_ppo_checkpoint_bundle",
+      "proof_requirement": "summary records terminal-RS success, collision, truncation, timing, seed, and protocol label",
+      "invalid_substitutes": [
+        "summary from failed run",
+        "summary without timing fields",
+        "paper table preview"
+      ]
+    },
+    {
+      "category": "acceptance",
+      "artifact_id": "gate3_trial_manifest_json",
+      "status": "blocked_until_new_eval",
+      "expected_path": "0_trials/module2_gate3_formal/<next_attempt_id>/gate3_trial_manifest.json",
+      "required_before": "h02_formal_output_acceptance",
+      "blocked_until": "new_formal_gate3_eval_bundle",
+      "proof_requirement": "trial manifest ties contract, train, eval, audit, source head, and selected protocol lane",
+      "invalid_substitutes": [
+        "trial manifest from failed run",
+        "manifest without contract reference",
+        "manifest without evaluated checkpoint identity"
+      ]
+    },
+    {
+      "category": "acceptance",
+      "artifact_id": "gate3_formal_audit_json",
+      "status": "blocked_until_new_eval",
+      "expected_path": "0_trials/module2_gate3_formal/<next_attempt_id>/gate3_formal_audit.json",
+      "required_before": "h02_formal_output_acceptance",
+      "blocked_until": "new_formal_gate3_eval_bundle",
+      "proof_requirement": "audit records formal_decision=pass for the new approved protocol attempt",
+      "invalid_substitutes": [
+        "formal_decision=fail reinterpreted as success",
+        "audit marked smoke, preview, or candidate",
+        "audit from a different protocol lane"
+      ]
+    },
+    {
+      "category": "acceptance",
+      "artifact_id": "pulled_back_checkpoint_hash_record",
+      "status": "blocked_until_new_eval",
+      "expected_path": "0_trials/module2_gate3_formal/<next_attempt_id>/train/final_model.zip.sha256 or .sha256.json",
+      "required_before": "h02_formal_output_acceptance",
+      "blocked_until": "new_formal_gate3_eval_bundle",
+      "proof_requirement": "hash record matches the pulled-back final_model.zip evaluated by Gate3",
+      "invalid_substitutes": [
+        "checkpoint without hash record",
+        "hash for a different checkpoint",
+        "remote stdout without local pullback"
+      ]
+    },
+    {
+      "category": "formal_acceptance",
+      "artifact_id": "h02_formal_output_acceptance",
+      "status": "blocked_until_new_gate3_pass",
+      "expected_path": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
+      "required_before": "paper_result_material",
+      "blocked_until": "new_gate3_audit_and_hash_acceptance",
+      "proof_requirement": "H02 records formal_output_accepted=true, paper_result_input_allowed=true, PPO rows, and accepted checkpoint hash",
+      "invalid_substitutes": [
+        "blocked H02 acceptance",
+        "formal-looking smoke table",
+        "PPO rows without checkpoint hash"
+      ]
+    }
+  ],
+  "lane_count": 4,
+  "lane_contract_plans": [
+    {
+      "lane_id": "stronger_obstacle_summary_warm_start",
+      "present_in_readiness": true,
+      "claim_scope": "direct PPO replacement attempt remains possible only if the new contract preserves the replacement claim boundary",
+      "decision_required_before_use": true,
+      "agent_may_select_lane_now": false,
+      "contract_write_allowed_now": false,
+      "contract_approval_allowed_now": false,
+      "remote_training_allowed_now": false,
+      "post_decision_contract_action": "draft_new_or_revised_contract_then_remote_training_packet",
+      "expected_contract_path_template": ".pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md",
+      "new_success_training_required_if_selected": true,
+      "section_plan": [
+        {
+          "section_id": "protocol_lane",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "Lock selected protocol lane as stronger_obstacle_summary_warm_start and cite the failed Gate3 0.53125 vs 0.8 basis.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": true
+        },
+        {
+          "section_id": "hypothesis",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "direct PPO replacement attempt remains possible only if the new contract preserves the replacement claim boundary",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": false
+        },
+        {
+          "section_id": "success_signal",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "Define the lane-specific formal Gate3 and H02 acceptance signal before training.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": false
+        },
+        {
+          "section_id": "failure_signal",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "Define lane-specific independent failure criteria before observing any new run.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": true
+        },
+        {
+          "section_id": "protocol_delta_from_failed_run",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "warm-start dataset source and acceptance checks; PPO stabilization changes; curriculum and reward deltas; budget and seed policy",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": true
+        },
+        {
+          "section_id": "training_budget_and_seed_policy",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "Lock remote-only budget, seed policy, checkpoint path, manifest, and hash requirements.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": false
+        },
+        {
+          "section_id": "evaluation_and_acceptance_plan",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "Lock formal Gate3 eval, audit, checkpoint hash, and H02 acceptance requirements.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": false
+        },
+        {
+          "section_id": "paper_claim_boundary",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "State exactly which paper claim is allowed and which success wording remains blocked.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": true
+        }
+      ],
+      "required_decision_justification": [
+        "why this lane is justified after observing the failed warm-start Gate3 run",
+        "which claim wording remains allowed if this lane is selected",
+        "which prior failed artifacts are only negative evidence and cannot be reused as success evidence",
+        "why direct PPO replacement is still plausible under compact obstacle-summary features"
+      ],
+      "required_contract_deltas": [
+        "warm-start dataset source and acceptance checks",
+        "PPO stabilization changes",
+        "curriculum and reward deltas",
+        "budget and seed policy"
+      ],
+      "required_training_evidence": [
+        "new remote checkpoint bundle under a new attempt directory",
+        "new train/summary.json with protocol label and terminal-RS training signals",
+        "new training_manifest.json with source head, remote host, command, seed, and warm-start provenance"
+      ],
+      "required_evaluation_evidence": [
+        "new formal Gate3 eval CSV with at least 64 episodes",
+        "new gate3_summary.json with terminal-RS success, collision, truncation, and timing fields"
+      ],
+      "required_acceptance_evidence": [
+        "formal_decision=pass in the new gate3_formal_audit.json",
+        "checkpoint hash tied to the evaluated checkpoint",
+        "H02 formal_output_accepted=true with PPO rows and checkpoint hash"
+      ],
+      "invalid_substitutes": [
+        "the failed warm-start checkpoint",
+        "more prose explaining the failed result",
+        "local PPO training output",
+        "H02 smoke rows without formal PPO rows"
+      ],
+      "next_success_attempt_artifact_ids": [
+        "new_or_revised_research_contract",
+        "train_final_model_zip",
+        "train_summary_json",
+        "train_training_manifest_json",
+        "eval_gate3_eval_episodes_csv",
+        "eval_gate3_summary_json",
+        "gate3_trial_manifest_json",
+        "gate3_formal_audit_json",
+        "pulled_back_checkpoint_hash_record",
+        "h02_formal_output_acceptance"
+      ]
+    },
+    {
+      "lane_id": "full_patch_cnn_policy",
+      "present_in_readiness": true,
+      "claim_scope": "direct PPO replacement claim changes substantially and must be re-registered as an observation/architecture delta",
+      "decision_required_before_use": true,
+      "agent_may_select_lane_now": false,
+      "contract_write_allowed_now": false,
+      "contract_approval_allowed_now": false,
+      "remote_training_allowed_now": false,
+      "post_decision_contract_action": "draft_new_or_revised_contract_then_remote_training_packet",
+      "expected_contract_path_template": ".pipeline/contracts/module2-full_patch_cnn_policy-v2.md",
+      "new_success_training_required_if_selected": true,
+      "section_plan": [
+        {
+          "section_id": "protocol_lane",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "Lock selected protocol lane as full_patch_cnn_policy and cite the failed Gate3 0.53125 vs 0.8 basis.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": true
+        },
+        {
+          "section_id": "hypothesis",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "direct PPO replacement claim changes substantially and must be re-registered as an observation/architecture delta",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": false
+        },
+        {
+          "section_id": "success_signal",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "Define the lane-specific formal Gate3 and H02 acceptance signal before training.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": false
+        },
+        {
+          "section_id": "failure_signal",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "Define lane-specific independent failure criteria before observing any new run.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": true
+        },
+        {
+          "section_id": "protocol_delta_from_failed_run",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "observation tensor definition; CNN architecture and inference budget; comparison fairness against RS/analytic baselines; new H01/H02 schema fields if telemetry changes",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": true
+        },
+        {
+          "section_id": "training_budget_and_seed_policy",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "Lock remote-only budget, seed policy, checkpoint path, manifest, and hash requirements.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": false
+        },
+        {
+          "section_id": "evaluation_and_acceptance_plan",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "Lock formal Gate3 eval, audit, checkpoint hash, and H02 acceptance requirements.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": false
+        },
+        {
+          "section_id": "paper_claim_boundary",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "State exactly which paper claim is allowed and which success wording remains blocked.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": true
+        }
+      ],
+      "required_decision_justification": [
+        "why this lane is justified after observing the failed warm-start Gate3 run",
+        "which claim wording remains allowed if this lane is selected",
+        "which prior failed artifacts are only negative evidence and cannot be reused as success evidence",
+        "why architecture/observation change is necessary and how it changes fairness against RS"
+      ],
+      "required_contract_deltas": [
+        "observation tensor definition",
+        "CNN architecture and inference budget",
+        "comparison fairness against RS/analytic baselines",
+        "new H01/H02 schema fields if telemetry changes"
+      ],
+      "required_training_evidence": [
+        "remote training packet with CNN dependencies and deterministic config",
+        "checkpoint bundle with architecture metadata",
+        "training manifest recording observation schema version"
+      ],
+      "required_evaluation_evidence": [
+        "formal Gate3 eval using the same observation schema as training",
+        "timing budget evidence for CNN inference",
+        "per-episode records exposing failure modes beyond success rate"
+      ],
+      "required_acceptance_evidence": [
+        "audit proving formal pass under the CNN protocol",
+        "H02 rows that identify the CNN PPO method and checkpoint hash",
+        "claim boundary stating this is not the same protocol as the failed compact policy"
+      ],
+      "invalid_substitutes": [
+        "using compact-policy failure as CNN success evidence",
+        "architecture change without revised contract",
+        "timing-unchecked CNN results",
+        "paper table without method/schema distinction"
+      ],
+      "next_success_attempt_artifact_ids": [
+        "new_or_revised_research_contract",
+        "train_final_model_zip",
+        "train_summary_json",
+        "train_training_manifest_json",
+        "eval_gate3_eval_episodes_csv",
+        "eval_gate3_summary_json",
+        "gate3_trial_manifest_json",
+        "gate3_formal_audit_json",
+        "pulled_back_checkpoint_hash_record",
+        "h02_formal_output_acceptance"
+      ]
+    },
+    {
+      "lane_id": "hybrid_ppo_analytic_fallback",
+      "present_in_readiness": true,
+      "claim_scope": "claim likely changes from PPO replacing RS to PPO assisting/selecting/recovering around analytic planning",
+      "decision_required_before_use": true,
+      "agent_may_select_lane_now": false,
+      "contract_write_allowed_now": false,
+      "contract_approval_allowed_now": false,
+      "remote_training_allowed_now": false,
+      "post_decision_contract_action": "draft_new_or_revised_contract_then_remote_training_packet",
+      "expected_contract_path_template": ".pipeline/contracts/module2-hybrid_ppo_analytic_fallback-v2.md",
+      "new_success_training_required_if_selected": true,
+      "section_plan": [
+        {
+          "section_id": "protocol_lane",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "Lock selected protocol lane as hybrid_ppo_analytic_fallback and cite the failed Gate3 0.53125 vs 0.8 basis.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": true
+        },
+        {
+          "section_id": "hypothesis",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "claim likely changes from PPO replacing RS to PPO assisting/selecting/recovering around analytic planning",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": false
+        },
+        {
+          "section_id": "success_signal",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "Define the lane-specific formal Gate3 and H02 acceptance signal before training.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": false
+        },
+        {
+          "section_id": "failure_signal",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "Define lane-specific independent failure criteria before observing any new run.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": true
+        },
+        {
+          "section_id": "protocol_delta_from_failed_run",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "hybrid control handoff rule; fallback usage metric; success signal that separates PPO-only from analytic-assisted success; paper claim boundary for hybrid assistance",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": true
+        },
+        {
+          "section_id": "training_budget_and_seed_policy",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "Lock remote-only budget, seed policy, checkpoint path, manifest, and hash requirements.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": false
+        },
+        {
+          "section_id": "evaluation_and_acceptance_plan",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "Lock formal Gate3 eval, audit, checkpoint hash, and H02 acceptance requirements.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": false
+        },
+        {
+          "section_id": "paper_claim_boundary",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "State exactly which paper claim is allowed and which success wording remains blocked.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": true
+        }
+      ],
+      "required_decision_justification": [
+        "why this lane is justified after observing the failed warm-start Gate3 run",
+        "which claim wording remains allowed if this lane is selected",
+        "which prior failed artifacts are only negative evidence and cannot be reused as success evidence",
+        "whether the target claim changes from replacement to analytic-assisted hybrid control"
+      ],
+      "required_contract_deltas": [
+        "hybrid control handoff rule",
+        "fallback usage metric",
+        "success signal that separates PPO-only from analytic-assisted success",
+        "paper claim boundary for hybrid assistance"
+      ],
+      "required_training_evidence": [
+        "remote checkpoint for the learned selector/recovery policy",
+        "training manifest recording analytic fallback interface",
+        "logs that expose fallback-trigger distribution"
+      ],
+      "required_evaluation_evidence": [
+        "formal eval with fallback usage columns",
+        "paired PPO-only / hybrid / RS baseline comparison if claiming assistance",
+        "collision and recovery metrics tied to fallback events"
+      ],
+      "required_acceptance_evidence": [
+        "formal audit using hybrid-specific success and failure signals",
+        "H02 rows that expose fallback usage and checkpoint hash",
+        "claim safety artifact that prevents wording as pure RS replacement unless proven"
+      ],
+      "invalid_substitutes": [
+        "calling hybrid success direct PPO replacement",
+        "hiding RS/analytic fallback calls inside aggregate success",
+        "using direct-replacement threshold without a hybrid contract",
+        "paper prose that omits fallback usage"
+      ],
+      "next_success_attempt_artifact_ids": [
+        "new_or_revised_research_contract",
+        "train_final_model_zip",
+        "train_summary_json",
+        "train_training_manifest_json",
+        "eval_gate3_eval_episodes_csv",
+        "eval_gate3_summary_json",
+        "gate3_trial_manifest_json",
+        "gate3_formal_audit_json",
+        "pulled_back_checkpoint_hash_record",
+        "h02_formal_output_acceptance"
+      ]
+    },
+    {
+      "lane_id": "stop_or_reframe_module2_claim",
+      "present_in_readiness": true,
+      "claim_scope": "no new success-attempt training; use failure as negative evidence or reframe the module2 contribution",
+      "decision_required_before_use": true,
+      "agent_may_select_lane_now": false,
+      "contract_write_allowed_now": false,
+      "contract_approval_allowed_now": false,
+      "remote_training_allowed_now": false,
+      "post_decision_contract_action": "draft_stop_or_reframe_contract",
+      "expected_contract_path_template": ".pipeline/contracts/module2-stop_or_reframe_module2_claim-v2.md",
+      "new_success_training_required_if_selected": false,
+      "section_plan": [
+        {
+          "section_id": "protocol_lane",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "Lock selected protocol lane as stop_or_reframe_module2_claim and cite the failed Gate3 0.53125 vs 0.8 basis.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": true
+        },
+        {
+          "section_id": "hypothesis",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "no new success-attempt training; use failure as negative evidence or reframe the module2 contribution",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": false
+        },
+        {
+          "section_id": "success_signal",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "No new success signal; define the negative/reframe evidence scope.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": false
+        },
+        {
+          "section_id": "failure_signal",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "Define lane-specific independent failure criteria before observing any new run.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": true
+        },
+        {
+          "section_id": "protocol_delta_from_failed_run",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "stop criterion; negative-result scope; allowed paper claim after failure; archival requirements for failed checkpoint and audit",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": true
+        },
+        {
+          "section_id": "training_budget_and_seed_policy",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "State that no new success-attempt training is planned under this lane.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": false
+        },
+        {
+          "section_id": "evaluation_and_acceptance_plan",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "Lock formal Gate3 eval, audit, checkpoint hash, and H02 acceptance requirements.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": false
+        },
+        {
+          "section_id": "paper_claim_boundary",
+          "status_before_lane_decision": "awaiting_dr_sun_decision",
+          "prompt": "State exactly which paper claim is allowed and which success wording remains blocked.",
+          "must_be_locked_before_training": true,
+          "must_reference_failed_gate3": true
+        }
+      ],
+      "required_decision_justification": [
+        "why this lane is justified after observing the failed warm-start Gate3 run",
+        "which claim wording remains allowed if this lane is selected",
+        "which prior failed artifacts are only negative evidence and cannot be reused as success evidence",
+        "why no new success-attempt training is warranted and what negative-result claim remains"
+      ],
+      "required_contract_deltas": [
+        "stop criterion",
+        "negative-result scope",
+        "allowed paper claim after failure",
+        "archival requirements for failed checkpoint and audit"
+      ],
+      "required_training_evidence": [
+        "no new training evidence required if the contract explicitly stops success attempts"
+      ],
+      "required_evaluation_evidence": [
+        "existing failed formal Gate3 audit retained as negative evidence",
+        "failure-mode analysis from existing eval CSV/logs only"
+      ],
+      "required_acceptance_evidence": [
+        "claim safety audit blocks success wording",
+        "H02 remains blocked for success results",
+        "paper-readiness artifact, if later used, is scoped to negative evidence only"
+      ],
+      "invalid_substitutes": [
+        "quietly dropping failed PPO without recording the stop decision",
+        "writing a positive replacement claim from failed evidence",
+        "running new training while pretending the lane was stop/reframe"
+      ],
+      "next_success_attempt_artifact_ids": []
+    }
+  ],
+  "audit_issue_count": 0,
+  "audit_issues": [],
+  "claim_boundaries": [
+    "This artifact is a post-decision contract planning index, not a contract draft.",
+    "It does not select a protocol lane and does not authorize contract authoring while selected_lane_id is None.",
+    "It does not authorize local training, remote preflight, remote training, formal claims, or paper result material.",
+    "Any success lane still needs a selected lane, an approved/frozen new or revised contract, remote training artifacts, formal Gate3 pass, checkpoint hash, and H02 acceptance."
+  ]
+}
