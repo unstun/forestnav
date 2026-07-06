@@ -31,6 +31,16 @@ This file audits whether contract authoring may proceed; it is not paper result 
 - version: `v1`
 - usable_for_new_success_attempt: `False`
 
+## Post-Decision Contract Plan
+
+- status: `post_decision_contract_plan_ready_blocked_pending_lane_decision`
+- audit_issue_count: `0`
+- required_contract_section_count: `8`
+- shared_next_success_attempt_artifact_count: `10`
+- lane_count: `4`
+- gate_selected_lane_id: `None`
+- gate_contract_drafting_allowed_now: `False`
+
 ## Required Contract Sections
 - `protocol_lane`
 - `hypothesis`

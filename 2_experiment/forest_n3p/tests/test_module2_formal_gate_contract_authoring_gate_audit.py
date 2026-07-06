@@ -28,11 +28,30 @@ def test_contract_authoring_gate_blocks_while_protocol_lane_pending(tmp_path):
     assert gate["draft_contract_allows_training"] is False
     assert gate["allowed_next_action_ids"] == ["record_protocol_lane_decision"]
     assert "remote_success_training" in gate["blocked_action_ids"]
+    assert gate["post_decision_contract_plan_status"] == "post_decision_contract_plan_ready_blocked_pending_lane_decision"
+    assert gate["post_decision_contract_plan_selected_lane_id"] is None
+    assert gate["post_decision_contract_plan_required_section_count"] == 8
+    assert gate["post_decision_contract_plan_lane_count"] == 4
+    assert gate["post_decision_contract_plan_shared_artifact_count"] == 10
+    post_plan = manifest["post_decision_contract_plan_summary"]
+    assert post_plan["artifact_name"] == "module2_formal_gate_post_decision_contract_plan"
+    assert post_plan["audit_issue_count"] == 0
+    assert post_plan["writes_contract"] is False
+    assert post_plan["runs_training"] is False
     existing = manifest["existing_contract_summary"]
     assert existing["status"] == "approved"
     assert existing["version"] == "v1"
     assert existing["usable_for_new_success_attempt"] is False
-    assert manifest["required_contract_sections"] == ["hypothesis", "success_signal", "failure_signal"]
+    assert manifest["required_contract_sections"] == [
+        "protocol_lane",
+        "hypothesis",
+        "success_signal",
+        "failure_signal",
+        "protocol_delta_from_failed_run",
+        "training_budget_and_seed_policy",
+        "evaluation_and_acceptance_plan",
+        "paper_claim_boundary",
+    ]
     assert manifest["audit_issue_count"] == 0
     assert manifest["audit_issues"] == []
 
@@ -52,6 +71,8 @@ def test_contract_authoring_gate_allows_draft_after_recorded_lane_but_not_traini
     assert gate["contract_approval_allowed_now"] is False
     assert gate["draft_contract_allows_training"] is False
     assert gate["allowed_next_action_ids"] == ["draft_new_or_revised_contract_after_lane_decision"]
+    assert gate["post_decision_contract_plan_status"] == "post_decision_contract_plan_ready_for_contract_draft"
+    assert gate["post_decision_contract_plan_selected_lane_id"] == "hybrid_ppo_analytic_fallback"
     assert manifest["audit_issue_count"] == 0
 
 
@@ -69,6 +90,51 @@ def test_contract_authoring_gate_catches_pending_decision_that_allows_contract_o
     assert manifest["status"] == "contract_authoring_gate_audit_failed"
     assert "pending_decision_has_contract_action" in issue_ids
     assert "decision_record_remote_training_allowed_now_not_false" in issue_ids
+
+
+def test_contract_authoring_gate_catches_post_decision_plan_authorization_leak(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_formal_gate_contract_authoring_gate_audit")
+    config = _config(tmp_path, recorded=False)
+    plan = json.loads(config.post_decision_contract_plan_path.read_text(encoding="utf-8"))
+    plan["writes_contract"] = True
+    plan["gate_state"]["remote_training_allowed_now"] = True
+    config.post_decision_contract_plan_path.write_text(json.dumps(plan), encoding="utf-8")
+
+    manifest = auditor.build_manifest(config)
+
+    assert manifest["status"] == "contract_authoring_gate_audit_failed"
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "post_decision_contract_plan_authorization_leak" in issue_ids
+
+
+def test_contract_authoring_gate_catches_post_decision_plan_count_drift(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_formal_gate_contract_authoring_gate_audit")
+    config = _config(tmp_path, recorded=False)
+    plan = json.loads(config.post_decision_contract_plan_path.read_text(encoding="utf-8"))
+    plan["required_contract_section_count"] = 7
+    plan["lane_count"] = 3
+    config.post_decision_contract_plan_path.write_text(json.dumps(plan), encoding="utf-8")
+
+    manifest = auditor.build_manifest(config)
+
+    assert manifest["status"] == "contract_authoring_gate_audit_failed"
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "post_decision_contract_plan_required_contract_section_count_drift" in issue_ids
+    assert "post_decision_contract_plan_lane_count_drift" in issue_ids
+
+
+def test_contract_authoring_gate_catches_post_decision_plan_missing_selected_lane_after_record(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_formal_gate_contract_authoring_gate_audit")
+    config = _config(tmp_path, recorded=True)
+    plan = json.loads(config.post_decision_contract_plan_path.read_text(encoding="utf-8"))
+    plan["gate_state"]["selected_lane_id"] = None
+    config.post_decision_contract_plan_path.write_text(json.dumps(plan), encoding="utf-8")
+
+    manifest = auditor.build_manifest(config)
+
+    assert manifest["status"] == "contract_authoring_gate_audit_failed"
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "post_decision_contract_plan_missing_selected_lane_after_record" in issue_ids
 
 
 def test_contract_authoring_gate_cli_writes_json_and_markdown(tmp_path):
@@ -93,6 +159,8 @@ def test_contract_authoring_gate_cli_writes_json_and_markdown(tmp_path):
             str(config.contract_intake_path),
             "--next-round-requirements",
             str(config.next_round_requirements_path),
+            "--post-decision-contract-plan",
+            str(config.post_decision_contract_plan_path),
             "--existing-contract",
             str(config.existing_contract_path),
         ]
@@ -109,6 +177,9 @@ def test_contract_authoring_gate_cli_writes_json_and_markdown(tmp_path):
     assert "record_protocol_lane_decision" in markdown
     assert "blocked_action_ids" in markdown
     assert "remote_success_training" in markdown
+    assert "Post-Decision Contract Plan" in markdown
+    assert "post_decision_contract_plan_ready_blocked_pending_lane_decision" in markdown
+    assert "required_contract_section_count: `8`" in markdown
     assert "Required Contract Sections" in markdown
     assert "failure_signal" in markdown
     assert "Claim Boundaries" in markdown
@@ -123,6 +194,11 @@ def _config(tmp_path, *, recorded):
         decision_record_path=_json(tmp_path, "decision_record.json", _decision_record(recorded=recorded)),
         contract_intake_path=_json(tmp_path, "contract_intake.json", _contract_intake()),
         next_round_requirements_path=_json(tmp_path, "next_round.json", _next_round()),
+        post_decision_contract_plan_path=_json(
+            tmp_path,
+            "post_decision_contract_plan.json",
+            _post_decision_contract_plan(recorded=recorded),
+        ),
         existing_contract_path=_contract(tmp_path),
     )
 
@@ -159,13 +235,50 @@ def _contract_intake():
     return {
         "status": "formal_gate_contract_intake_ready_for_dr_sun",
         "contract_output_requirements": {
-            "required_sections": ["hypothesis", "success_signal", "failure_signal"]
+            "required_sections": [
+                "protocol_lane",
+                "hypothesis",
+                "success_signal",
+                "failure_signal",
+                "protocol_delta_from_failed_run",
+                "training_budget_and_seed_policy",
+                "evaluation_and_acceptance_plan",
+                "paper_claim_boundary",
+            ]
         },
     }
 
 
 def _next_round():
     return {"status": "formal_gate_next_round_requirements_ready"}
+
+
+def _post_decision_contract_plan(*, recorded):
+    return {
+        "artifact_name": "module2_formal_gate_post_decision_contract_plan",
+        "status": (
+            "post_decision_contract_plan_ready_for_contract_draft"
+            if recorded
+            else "post_decision_contract_plan_ready_blocked_pending_lane_decision"
+        ),
+        "audit_issue_count": 0,
+        "required_contract_section_count": 8,
+        "shared_next_success_attempt_artifact_count": 10,
+        "lane_count": 4,
+        "writes_contract": False,
+        "approves_contract": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "remote_training_allowed_now": False,
+        "formal_claim_allowed": False,
+        "paper_result_material_allowed": False,
+        "gate_state": {
+            "selected_lane_id": "hybrid_ppo_analytic_fallback" if recorded else None,
+            "contract_drafting_allowed_now": recorded,
+            "remote_training_allowed_now": False,
+            "formal_claim_allowed_now": False,
+        },
+    }
 
 
 def _contract(tmp_path):
