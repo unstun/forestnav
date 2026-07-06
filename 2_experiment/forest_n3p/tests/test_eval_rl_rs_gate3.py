@@ -75,7 +75,7 @@ def test_eval_rl_rs_gate3_smoke_loads_model_runs_deterministic_episodes_and_writ
 
 
 def test_eval_rl_rs_gate3_blocks_draft_contract_before_loading_model(tmp_path):
-    with pytest.raises(ValueError, match="requires contract status approved or frozen"):
+    with pytest.raises(ValueError, match="requires contract status approved or approved_by_dr_sun or frozen"):
         eval_gate3_main(
             [
                 "--model",

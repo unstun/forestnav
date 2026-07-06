@@ -1,0 +1,127 @@
+{
+  "checkpoints": [
+    {
+      "path": "final_model.zip",
+      "sha256": "fa71dfc070e3d1ab7bda42ea5c8b8ad97ffc8fadcdf7502e75002c959d7e2fa3",
+      "size_bytes": 5562422
+    },
+    {
+      "path": "rl_rs_ppo_256_steps.zip",
+      "sha256": "993f84b7d96e4394f8369ee3e02c2b7816c43edf0f56258a181d330f2251f4d5",
+      "size_bytes": 2005456
+    },
+    {
+      "path": "rl_rs_ppo_512_steps.zip",
+      "sha256": "669c98388297cce9c9941eb6b742f5b85ddb2fa11bb0015ee588f9038e6730fe",
+      "size_bytes": 2005519
+    }
+  ],
+  "command": "python -m forest_n3p.scripts.train_rl_rs_ppo --allow-duplicate-openmp --output-dir 0_trials/module2_encoder_pilot/smoke_R5/train --contract-path .pipeline/contracts/module2-encoder-pilot-v3.md --seed 20260707 --device auto --features-extractor transformer --reward-config 2_experiment/configs/module2_encoder_pilot_reward_dense.json --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260707 --n-envs 2 --total-timesteps 512 --n-steps 256 --batch-size 256 --n-epochs 10 --learning-rate 0.0003 --gamma 0.98 --gae-lambda 0.95 --clip-range 0.2 --ent-coef 0.01 --max-grad-norm 0.5 --lr-schedule linear --checkpoint-freq 256 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32",
+  "config": {
+    "allow_duplicate_openmp": true,
+    "batch_size": 256,
+    "bc_checkpoint": null,
+    "checkpoint_freq": 256,
+    "clip_range": 0.2,
+    "cnn_output_dim": null,
+    "command": "python -m forest_n3p.scripts.train_rl_rs_ppo --allow-duplicate-openmp --output-dir 0_trials/module2_encoder_pilot/smoke_R5/train --contract-path .pipeline/contracts/module2-encoder-pilot-v3.md --seed 20260707 --device auto --features-extractor transformer --reward-config 2_experiment/configs/module2_encoder_pilot_reward_dense.json --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260707 --n-envs 2 --total-timesteps 512 --n-steps 256 --batch-size 256 --n-epochs 10 --learning-rate 0.0003 --gamma 0.98 --gae-lambda 0.95 --clip-range 0.2 --ent-coef 0.01 --max-grad-norm 0.5 --lr-schedule linear --checkpoint-freq 256 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32",
+    "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+    "contract_status": "approved_by_dr_sun",
+    "curriculum_preset": "f03",
+    "device": "auto",
+    "ent_coef": 0.01,
+    "env_config": {
+      "action_step_m": 0.3,
+      "collision_sample_step_m": 0.1,
+      "max_steps": 32,
+      "terminal_check_every": 1,
+      "theta_bins": 72
+    },
+    "features_extractor": "RlRsPatchTransformerExtractor",
+    "gae_lambda": 0.95,
+    "gamma": 0.98,
+    "heldout_seed": 20260707,
+    "learning_rate": 0.0003,
+    "lr_schedule": "linear",
+    "max_grad_norm": 0.5,
+    "n_envs": 2,
+    "n_epochs": 10,
+    "n_steps": 256,
+    "observation_config": {
+      "edt_clip_m": 2.0,
+      "include_edt": true,
+      "patch_cells": 64,
+      "patch_size_m": 6.4
+    },
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "policy": "MultiInputPolicy",
+    "policy_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "reward_config": {
+      "clearance_scale": 0.1,
+      "clearance_target_m": 0.5,
+      "collision_penalty": -1.0,
+      "curvature_rate_penalty_scale": 0.0,
+      "distance_progress_scale": 0.2,
+      "enabled_terms": {
+        "clearance": true,
+        "collision": true,
+        "curvature": true,
+        "path_length": true,
+        "progress": true,
+        "rs_progress": true,
+        "step": true,
+        "success": true,
+        "terminal": true
+      },
+      "no_progress_penalty": -0.25,
+      "oscillation_penalty": -0.25,
+      "path_length_penalty_scale": 0.0,
+      "rs_distance_progress_scale": 0.0,
+      "step_penalty": -0.01,
+      "terminal_rs_failure_penalty": -0.25,
+      "terminal_rs_success": 1.0
+    },
+    "reward_config_path": "2_experiment/configs/module2_encoder_pilot_reward_dense.json",
+    "scalar_scale": [
+      0.15625,
+      0.15625,
+      0.15625,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      0.03125
+    ],
+    "seed": 20260707,
+    "smoke": false,
+    "tensorboard_log": null,
+    "total_timesteps": 512,
+    "value_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "value_pretrain_timesteps": 0,
+    "vf_coef": 0.5,
+    "warm_start": {
+      "status": "not_applied_f02_6_pending"
+    },
+    "warm_start_status": "not_applied_f02_6_pending"
+  },
+  "created_at_utc": "2026-07-06T14:26:49.321372+00:00",
+  "schema_version": 1,
+  "source_hashes": {
+    "2_experiment/forest_n3p/rl_rs/curriculum.py": "8dc8cf3f504d84764a989845c6539b35fc041e48b464cba893e52b865dde01fb",
+    "2_experiment/forest_n3p/rl_rs/env.py": "76724a9092225427509bc5ef3c38252dcf938942a74dbfba3c9e3aa0fa72b819",
+    "2_experiment/forest_n3p/rl_rs/gym_env.py": "a1427f246736d14d51106092c6d2bcff7a73d19ebb5d4b63edea13432f6cce15",
+    "2_experiment/forest_n3p/rl_rs/reward.py": "e84618302aa63ba132a0cbf58358fcec3406069b7bc13eeb628bbe59e4f36b4b",
+    "2_experiment/forest_n3p/rl_rs/sb3_policy.py": "63d21f2c602ba7b04ed47f6141bf0a93b824dd70f4a7dbf5a0c6d0cfee785b0e",
+    "2_experiment/forest_n3p/rl_rs/training_logging.py": "140a5d8f527a3a19ebabcd63f1dd008fea708a115709500a6d9ede049dfd59e9",
+    "2_experiment/forest_n3p/scripts/_module2_contract_gate.py": "82e3d8c9690a09dcf873b1d7fd5a9b34200854a0fb8af6d8f7d2c0b6d66280be",
+    "2_experiment/forest_n3p/scripts/train_rl_rs_ppo.py": "d9507082cf59ff65769f6a69616c9e5ec08788bfd55cf8cdddaabbd4f386418c"
+  }
+}
