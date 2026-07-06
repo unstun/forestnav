@@ -805,6 +805,25 @@ def _protocol_lane_readiness_issues(protocol_lane_readiness: dict[str, Any]) -> 
     return issues
 
 
+def _protocol_lane_pending(protocol_lane_status: dict[str, Any]) -> bool:
+    return (
+        protocol_lane_status["status"] == EXPECTED_PROTOCOL_LANE_STATUS
+        and protocol_lane_status["next_blocked_lane"] == EXPECTED_PROTOCOL_LANE_NEXT_BLOCKED
+        and protocol_lane_status["decision_record_status"] == EXPECTED_PROTOCOL_LANE_DECISION_RECORD_STATUS
+    )
+
+
+def _protocol_lane_contract_draft_ready(protocol_lane_status: dict[str, Any]) -> bool:
+    return (
+        protocol_lane_status["status"] == EXPECTED_PROTOCOL_LANE_RECORDED_STATUS
+        and protocol_lane_status["next_blocked_lane"] == EXPECTED_PROTOCOL_LANE_RECORDED_NEXT_BLOCKED
+        and protocol_lane_status["decision_record_status"] == EXPECTED_PROTOCOL_LANE_RECORDED_DECISION_RECORD_STATUS
+        and protocol_lane_status["selected_lane_id"] in EXPECTED_PROTOCOL_LANE_IDS
+        and protocol_lane_status["allowed_next_action_ids"]
+        == list(EXPECTED_PROTOCOL_LANE_RECORDED_ALLOWED_NEXT_ACTIONS)
+    )
+
+
 def _protocol_lane_status_issues(protocol_lane_status: dict[str, Any]) -> list[dict[str, Any]]:
     issues: list[dict[str, Any]] = []
     if not protocol_lane_status["present"]:
