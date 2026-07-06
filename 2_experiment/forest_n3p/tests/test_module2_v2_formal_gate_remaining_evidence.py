@@ -17,6 +17,7 @@ def test_v2_formal_gate_remaining_evidence_blocks_on_draft_contract(tmp_path):
     assert manifest["permissions_now"]["local_training_allowed_now"] is False
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
     assert manifest["failed_gate3_basis"]["terminal_rs_success_rate"] == 0.53125
+    assert manifest["failed_gate3_basis"]["terminal_rs_successes"] == 34
     assert manifest["failed_gate3_basis"]["required_success_threshold"] == 0.8
     assert manifest["failed_gate3_basis"]["usable_as_success_evidence"] is False
     assert "v2_contract_not_promoted" in _issue_ids(manifest)
