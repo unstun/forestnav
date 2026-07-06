@@ -16,6 +16,9 @@ from forest_n3p.scripts.eval_rl_rs_gate3 import main as eval_gate3_main
 from forest_n3p.scripts.train_rl_rs_ppo import main as train_rl_rs_ppo_main
 
 
+DEFAULT_CONTRACT_PATH = ".pipeline/contracts/module2-ppo-funnel-expansion.md"
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     raw_argv = list(sys.argv[1:] if argv is None else argv)
     args = _parse_args(raw_argv)
@@ -49,6 +52,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 def _parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run a full Module2 F03 Gate #3 PPO train-then-eval trial.")
     parser.add_argument("--output-dir", type=Path, default=Path("0_trials/module2_ppo_gate3_trial"))
+    parser.add_argument("--contract-path", default=DEFAULT_CONTRACT_PATH)
     parser.add_argument("--seed", type=int, default=20260704)
     parser.add_argument("--device", default="auto")
     parser.add_argument("--allow-duplicate-openmp", action="store_true")
@@ -117,6 +121,8 @@ def _train_argv(*, args: argparse.Namespace, train_dir: Path) -> list[str]:
     argv = [
         "--output-dir",
         str(train_dir),
+        "--contract-path",
+        str(args.contract_path),
         "--seed",
         str(args.seed),
         "--device",
@@ -195,6 +201,8 @@ def _eval_argv(*, args: argparse.Namespace, model_path: Path, eval_dir: Path) ->
         str(model_path),
         "--output-dir",
         str(eval_dir),
+        "--contract-path",
+        str(args.contract_path),
         "--seed",
         str(args.seed),
         "--device",
@@ -249,6 +257,7 @@ def _trial_manifest(*, args: argparse.Namespace, raw_argv: Sequence[str], output
         "execution_host": socket.gethostname(),
         "source_head": _source_head(),
         "command": " ".join(["python -m forest_n3p.scripts.run_rl_rs_gate3_trial", *raw_argv]),
+        "contract": str(args.contract_path),
         "smoke": bool(args.smoke),
         "formal_gate_claim": False,
         "formal_gate_boundary": "runner produces auditable train/eval evidence only; formal Gate #3 judgment requires protocol review",
@@ -289,6 +298,7 @@ def _write_incomplete_manifest(
         "execution_host": socket.gethostname(),
         "source_head": _source_head(),
         "command": " ".join(["python -m forest_n3p.scripts.run_rl_rs_gate3_trial", *raw_argv]),
+        "contract": str(args.contract_path),
         "smoke": bool(args.smoke),
         "formal_gate_claim": False,
         "warm_start_status": "unknown",
