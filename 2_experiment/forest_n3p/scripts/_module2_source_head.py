@@ -39,6 +39,7 @@ MODULE2_GATE_ARTIFACTS = (
     "0_trials/module2_formal_gate_contract_authoring_gate_audit/contract_authoring_gate_audit.json",
     "0_trials/module2_formal_gate_protocol_lane_status_report/protocol_lane_status_report.json",
     "0_trials/module2_v2_contract_readiness_gate/v2_contract_readiness_gate.json",
+    "0_trials/module2_v2_contract_promotion_packet/v2_contract_promotion_packet.json",
     "0_trials/module2_source_freshness_audit/source_freshness_audit.json",
 )
 
