@@ -48,11 +48,20 @@ This file records the lane-decision state; it is not paper result material.
   - runs_remote_preflight: `False`
   - template: `PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_record --selected-lane stop_or_reframe_module2_claim --decider 'Dr Sun' --contract-action <action> --decision-note 'Select stop_or_reframe_module2_claim because the failed Gate3 0.53125 result is below the 0.8 threshold; reject <all other lane ids with one rationale each>; use protocol_lane_matrix, gate3_formal_audit, formal_gate_next_round_requirements, and h02_formal_acceptance artifacts as the evidence basis; contract action is <draft_new_contract|draft_revised_contract|stop_success_attempts_and_record_negative_evidence>; this decision does not authorize local training, remote preflight, remote training, formal claim, or paper result material.'`
 
+## Next Success Attempt Requirements
+
+- source_status: `formal_gate_next_round_requirements_ready`
+- next_success_attempt_status: `blocked_until_protocol_lane_decision_and_contract`
+- next_success_attempt_artifact_count: `10`
+- next_success_attempt_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
+- old_failed_run_artifacts_invalid_for_next_success_attempt: `True`
+
 ## Post-Decision Requirements
 
 - new_or_revised_contract_required: `False`
 - contract_status_required_before_training: `approved, frozen`
 - draft_contract_allows_training: `False`
+- next_success_attempt_artifact_count: `10`
 - formal_training_still_requires:
   - approved_or_frozen_contract
   - source_freshness_audit_after_contract

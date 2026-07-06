@@ -2,8 +2,8 @@
   "schema_version": 1,
   "record_name": "module2_formal_gate_protocol_lane_decision_record",
   "status": "pending_protocol_lane_decision",
-  "created_at_utc": "2026-07-06T00:59:24.412559+00:00",
-  "source_head": "849bc20581dab04dbc5954387ffa7a9996dc0d9a",
+  "created_at_utc": "2026-07-06T04:37:24.178268+00:00",
+  "source_head": "02c33d22dc699ecf70eac9a76048ad7982dcc63b+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -67,6 +67,65 @@
     ],
     "training_authorization_must_be": "not_authorized_by_this_decision_packet"
   },
+  "next_success_attempt_requirements": {
+    "source_status": "formal_gate_next_round_requirements_ready",
+    "protocol_status": "protocol_lane_status_blocked_pending_lane_decision",
+    "decision_record_status": "pending_protocol_lane_decision",
+    "selected_lane_id": null,
+    "next_blocked_lane": "protocol_lane_decision",
+    "allowed_next_action_ids": [
+      "record_protocol_lane_decision"
+    ],
+    "blocked_action_ids": [
+      "local_training",
+      "remote_success_training",
+      "remote_preflight_for_new_success_attempt",
+      "formal_claim",
+      "paper_result_material"
+    ],
+    "new_success_training_allowed_now": false,
+    "contract_drafting_allowed_now": false,
+    "contract_approval_allowed_now": false,
+    "next_success_attempt_status": "blocked_until_protocol_lane_decision_and_contract",
+    "next_success_attempt_artifact_count": 10,
+    "next_success_attempt_artifact_category_counts": {
+      "contract": 1,
+      "training": 3,
+      "evaluation": 2,
+      "acceptance": 3,
+      "formal_acceptance": 1
+    },
+    "next_success_attempt_artifact_ids_by_category": {
+      "contract": [
+        "new_or_revised_research_contract"
+      ],
+      "training": [
+        "train_final_model_zip",
+        "train_summary_json",
+        "train_training_manifest_json"
+      ],
+      "evaluation": [
+        "eval_gate3_eval_episodes_csv",
+        "eval_gate3_summary_json"
+      ],
+      "acceptance": [
+        "gate3_trial_manifest_json",
+        "gate3_formal_audit_json",
+        "pulled_back_checkpoint_hash_record"
+      ],
+      "formal_acceptance": [
+        "h02_formal_output_acceptance"
+      ]
+    },
+    "current_failed_run_missing_counts": {
+      "training": 0,
+      "evaluation": 0,
+      "acceptance": 0,
+      "formal_acceptance": 1
+    },
+    "old_failed_run_artifacts_invalid_for_next_success_attempt": true,
+    "next_success_attempt_requires_protocol_lane_decision": true
+  },
   "selected_lane_summary": null,
   "current_authorization": {
     "authorization_status": "blocked_until_dr_sun_lane_decision",
@@ -93,6 +152,38 @@
       "frozen"
     ],
     "draft_contract_allows_training": false,
+    "next_success_attempt_status": "blocked_until_protocol_lane_decision_and_contract",
+    "next_success_attempt_artifact_count": 10,
+    "next_success_attempt_artifact_category_counts": {
+      "contract": 1,
+      "training": 3,
+      "evaluation": 2,
+      "acceptance": 3,
+      "formal_acceptance": 1
+    },
+    "next_success_attempt_artifact_ids_by_category": {
+      "contract": [
+        "new_or_revised_research_contract"
+      ],
+      "training": [
+        "train_final_model_zip",
+        "train_summary_json",
+        "train_training_manifest_json"
+      ],
+      "evaluation": [
+        "eval_gate3_eval_episodes_csv",
+        "eval_gate3_summary_json"
+      ],
+      "acceptance": [
+        "gate3_trial_manifest_json",
+        "gate3_formal_audit_json",
+        "pulled_back_checkpoint_hash_record"
+      ],
+      "formal_acceptance": [
+        "h02_formal_output_acceptance"
+      ]
+    },
+    "old_failed_run_artifacts_invalid_for_next_success_attempt": true,
     "formal_training_still_requires": [
       "approved_or_frozen_contract",
       "source_freshness_audit_after_contract",

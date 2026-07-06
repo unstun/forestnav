@@ -30,6 +30,8 @@ def test_protocol_lane_decision_gate_audit_accepts_pending_record_without_author
     assert manifest["decision_state"]["training_authorization"] == "not_authorized_by_this_decision_record"
     assert manifest["decision_state"]["remote_training_allowed_now"] is False
     assert manifest["decision_state"]["formal_claim_allowed_now"] is False
+    assert manifest["decision_state"]["next_success_attempt_artifact_count"] == 10
+    assert manifest["decision_state"]["old_failed_run_artifacts_invalid_for_next_success_attempt"] is True
     assert manifest["decision_note_audit_summary"]["gate_review_status"] == "not_required_while_pending"
     assert manifest["decision_note_audit_summary"]["gate_requires_note_quality"] is False
     assert manifest["allowed_next_human_actions"][0]["action_id"] == "record_protocol_lane_decision"
@@ -64,6 +66,15 @@ def test_protocol_lane_decision_gate_audit_accepts_recorded_lane_without_executi
         }
     ]
     assert manifest["post_decision_gate_requirements"]["new_or_revised_contract_required"] is True
+    assert manifest["post_decision_gate_requirements"]["next_success_attempt_artifact_count"] == 10
+    assert manifest["post_decision_gate_requirements"]["next_success_attempt_artifact_category_counts"] == {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1,
+    }
+    assert manifest["post_decision_gate_requirements"]["old_failed_run_artifacts_invalid_for_next_success_attempt"] is True
     assert "approved_or_frozen_contract" in manifest["post_decision_gate_requirements"]["formal_training_still_requires"]
 
 
@@ -116,6 +127,33 @@ def test_protocol_lane_decision_gate_audit_catches_recorded_note_and_decider_dri
     assert "recorded_contract_action_missing" in issue_ids
 
 
+def test_protocol_lane_decision_gate_audit_catches_next_success_requirement_drift(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_gate_audit")
+    record = _record(status="protocol_lane_decision_recorded")
+    record["next_success_attempt_requirements"]["next_success_attempt_artifact_count"] = 9
+    record["next_success_attempt_requirements"]["next_success_attempt_artifact_category_counts"]["training"] = 2
+    record["next_success_attempt_requirements"]["old_failed_run_artifacts_invalid_for_next_success_attempt"] = False
+    record["next_success_attempt_requirements"]["new_success_training_allowed_now"] = True
+    record["post_decision_requirements"]["next_success_attempt_artifact_count"] = 9
+    record["post_decision_requirements"]["old_failed_run_artifacts_invalid_for_next_success_attempt"] = False
+
+    manifest = auditor.build_manifest(
+        auditor.FormalGateProtocolLaneDecisionGateAuditConfig(
+            output_dir=tmp_path,
+            decision_packet_path=_json(tmp_path, "packet.json", _packet()),
+            decision_record_path=_json(tmp_path, "record.json", record),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "record_next_success_artifact_count_drift" in issue_ids
+    assert "record_next_success_category_counts_drift" in issue_ids
+    assert "record_old_failed_run_artifacts_not_marked_invalid" in issue_ids
+    assert "record_next_success_training_allowed_now" in issue_ids
+    assert "record_post_decision_next_artifact_count_missing" in issue_ids
+    assert "record_post_decision_old_failed_run_invalid_missing" in issue_ids
+
+
 def test_protocol_lane_decision_gate_audit_cli_writes_json_and_markdown(tmp_path):
     auditor = import_module("forest_n3p.scripts.build_module2_formal_gate_protocol_lane_decision_gate_audit")
     manifest_path = tmp_path / "audit.json"
@@ -148,6 +186,8 @@ def test_protocol_lane_decision_gate_audit_cli_writes_json_and_markdown(tmp_path
     assert "gate_review_status: `not_required_while_pending`" in markdown
     assert "Post-Decision Gate Requirements" in markdown
     assert "approved_or_frozen_contract" in markdown
+    assert "next_success_attempt_artifact_count: `10`" in markdown
+    assert "old_failed_run_artifacts_invalid_for_next_success_attempt: `True`" in markdown
     assert "Claim Boundaries" in markdown
     assert "A clean pending audit is not training authorization." in markdown
 
@@ -243,14 +283,77 @@ def _record(*, status: str):
             "formal_claim_allowed_now": False,
             "paper_result_material_allowed_now": False,
         },
+        "next_success_attempt_requirements": _next_success_attempt_requirements(),
         "post_decision_requirements": {
             "new_or_revised_contract_required": not pending,
             "contract_status_required_before_training": ["approved", "frozen"],
             "draft_contract_allows_training": False,
+            "next_success_attempt_artifact_count": 10,
+            "next_success_attempt_artifact_category_counts": {
+                "contract": 1,
+                "training": 3,
+                "evaluation": 2,
+                "acceptance": 3,
+                "formal_acceptance": 1,
+            },
+            "old_failed_run_artifacts_invalid_for_next_success_attempt": True,
             "formal_training_still_requires": [
                 "approved_or_frozen_contract",
                 "source_freshness_audit_after_contract",
             ],
             "paper_result_still_requires": ["h02_formal_output_accepted_true"],
         },
+    }
+
+
+def _next_success_attempt_requirements():
+    return {
+        "source_status": "formal_gate_next_round_requirements_ready",
+        "protocol_status": "protocol_lane_status_blocked_pending_lane_decision",
+        "decision_record_status": "pending_protocol_lane_decision",
+        "selected_lane_id": None,
+        "next_blocked_lane": "protocol_lane_decision",
+        "allowed_next_action_ids": ["record_protocol_lane_decision"],
+        "blocked_action_ids": [
+            "local_training",
+            "remote_success_training",
+            "remote_preflight_for_new_success_attempt",
+            "formal_claim",
+            "paper_result_material",
+        ],
+        "new_success_training_allowed_now": False,
+        "contract_drafting_allowed_now": False,
+        "contract_approval_allowed_now": False,
+        "next_success_attempt_status": "blocked_until_protocol_lane_decision_and_contract",
+        "next_success_attempt_artifact_count": 10,
+        "next_success_attempt_artifact_category_counts": {
+            "contract": 1,
+            "training": 3,
+            "evaluation": 2,
+            "acceptance": 3,
+            "formal_acceptance": 1,
+        },
+        "next_success_attempt_artifact_ids_by_category": {
+            "contract": ["new_or_revised_research_contract"],
+            "training": [
+                "train_final_model_zip",
+                "train_summary_json",
+                "train_training_manifest_json",
+            ],
+            "evaluation": ["eval_gate3_eval_episodes_csv", "eval_gate3_summary_json"],
+            "acceptance": [
+                "gate3_trial_manifest_json",
+                "gate3_formal_audit_json",
+                "pulled_back_checkpoint_hash_record",
+            ],
+            "formal_acceptance": ["h02_formal_output_acceptance"],
+        },
+        "current_failed_run_missing_counts": {
+            "training": 0,
+            "evaluation": 0,
+            "acceptance": 0,
+            "formal_acceptance": 1,
+        },
+        "old_failed_run_artifacts_invalid_for_next_success_attempt": True,
+        "next_success_attempt_requires_protocol_lane_decision": True,
     }

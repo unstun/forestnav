@@ -10,6 +10,8 @@ This file audits the protocol-lane decision gate; it is not paper result materia
 - training_authorization: `not_authorized_by_this_decision_record`
 - remote_training_allowed_now: `False`
 - formal_claim_allowed_now: `False`
+- next_success_attempt_artifact_count: `10`
+- old_failed_run_artifacts_invalid_for_next_success_attempt: `True`
 
 ## Decision Note Audit
 
@@ -39,6 +41,9 @@ This file audits the protocol-lane decision gate; it is not paper result materia
 - new_or_revised_contract_required: `False`
 - contract_status_required_before_training: `approved, frozen`
 - draft_contract_allows_training: `False`
+- next_success_attempt_artifact_count: `10`
+- next_success_attempt_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
+- old_failed_run_artifacts_invalid_for_next_success_attempt: `True`
 - formal_training_still_requires:
   - approved_or_frozen_contract
   - source_freshness_audit_after_contract
