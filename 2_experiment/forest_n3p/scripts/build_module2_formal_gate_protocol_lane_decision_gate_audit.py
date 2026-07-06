@@ -20,6 +20,13 @@ DEFAULT_DECISION_RECORD = Path(
 DECISION_OWNER = "Dr Sun"
 PENDING_STATUS = "pending_protocol_lane_decision"
 RECORDED_STATUS = "protocol_lane_decision_recorded"
+EXPECTED_NEXT_SUCCESS_CATEGORY_COUNTS = {
+    "contract": 1,
+    "training": 3,
+    "evaluation": 2,
+    "acceptance": 3,
+    "formal_acceptance": 1,
+}
 
 
 @dataclass(frozen=True)
@@ -175,6 +182,7 @@ def _record_issues(*, record: dict[str, Any], packet: dict[str, Any]) -> list[di
         issues.append(_issue("record_packet_lane_set_mismatch", "Decision record valid lanes must match decision packet."))
     issues.extend(_authorization_issues(record))
     issues.extend(_decision_note_issues(record))
+    issues.extend(_next_success_attempt_requirement_issues(record))
     return issues
 
 
@@ -252,7 +260,120 @@ def _decision_note_issues(record: dict[str, Any]) -> list[dict[str, Any]]:
     return issues
 
 
+def _next_success_attempt_requirement_issues(record: dict[str, Any]) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    summary = record.get("next_success_attempt_requirements")
+    if not isinstance(summary, dict):
+        return [
+            _issue(
+                "record_missing_next_success_attempt_requirements",
+                "Decision record must carry next-success-attempt artifact requirements.",
+            )
+        ]
+    if summary.get("source_status") != "formal_gate_next_round_requirements_ready":
+        issues.append(
+            _issue(
+                "record_next_success_requirements_not_ready",
+                "Decision record must consume a ready next-round requirements artifact.",
+                observed=summary.get("source_status"),
+            )
+        )
+    if summary.get("next_success_attempt_status") != "blocked_until_protocol_lane_decision_and_contract":
+        issues.append(
+            _issue(
+                "record_next_success_status_drift",
+                "Next success attempt must remain blocked until protocol lane decision and contract.",
+                observed=summary.get("next_success_attempt_status"),
+            )
+        )
+    if summary.get("next_success_attempt_artifact_count") != 10:
+        issues.append(
+            _issue(
+                "record_next_success_artifact_count_drift",
+                "Decision record must require exactly 10 next-success-attempt artifacts.",
+                observed=summary.get("next_success_attempt_artifact_count"),
+            )
+        )
+    category_counts = (
+        summary.get("next_success_attempt_artifact_category_counts")
+        if isinstance(summary.get("next_success_attempt_artifact_category_counts"), dict)
+        else {}
+    )
+    if category_counts != EXPECTED_NEXT_SUCCESS_CATEGORY_COUNTS:
+        issues.append(
+            _issue(
+                "record_next_success_category_counts_drift",
+                "Next-success artifact category counts must remain contract/training/evaluation/acceptance/formal_acceptance=1/3/2/3/1.",
+                observed=category_counts,
+            )
+        )
+    ids_by_category = (
+        summary.get("next_success_attempt_artifact_ids_by_category")
+        if isinstance(summary.get("next_success_attempt_artifact_ids_by_category"), dict)
+        else {}
+    )
+    expected_ids = {
+        "contract": ["new_or_revised_research_contract"],
+        "training": ["train_final_model_zip", "train_summary_json", "train_training_manifest_json"],
+        "evaluation": ["eval_gate3_eval_episodes_csv", "eval_gate3_summary_json"],
+        "acceptance": [
+            "gate3_trial_manifest_json",
+            "gate3_formal_audit_json",
+            "pulled_back_checkpoint_hash_record",
+        ],
+        "formal_acceptance": ["h02_formal_output_acceptance"],
+    }
+    for category, expected in expected_ids.items():
+        if _strings(ids_by_category.get(category)) != expected:
+            issues.append(
+                _issue(
+                    f"record_next_success_{category}_artifact_ids_drift",
+                    f"Next-success {category} artifact ids drifted.",
+                    observed=ids_by_category.get(category),
+                )
+            )
+    if summary.get("old_failed_run_artifacts_invalid_for_next_success_attempt") is not True:
+        issues.append(
+            _issue(
+                "record_old_failed_run_artifacts_not_marked_invalid",
+                "Decision record must mark old failed-run artifacts invalid for the next success attempt.",
+                observed=summary.get("old_failed_run_artifacts_invalid_for_next_success_attempt"),
+            )
+        )
+    if summary.get("new_success_training_allowed_now") is not False:
+        issues.append(
+            _issue(
+                "record_next_success_training_allowed_now",
+                "Decision record must not allow new success training now.",
+                observed=summary.get("new_success_training_allowed_now"),
+            )
+        )
+    req = record.get("post_decision_requirements") if isinstance(record.get("post_decision_requirements"), dict) else {}
+    if req.get("next_success_attempt_artifact_count") != 10:
+        issues.append(
+            _issue(
+                "record_post_decision_next_artifact_count_missing",
+                "Post-decision requirements must mirror the 10 next-success artifacts.",
+                observed=req.get("next_success_attempt_artifact_count"),
+            )
+        )
+    if req.get("old_failed_run_artifacts_invalid_for_next_success_attempt") is not True:
+        issues.append(
+            _issue(
+                "record_post_decision_old_failed_run_invalid_missing",
+                "Post-decision requirements must state old failed-run artifacts are invalid substitutes.",
+                observed=req.get("old_failed_run_artifacts_invalid_for_next_success_attempt"),
+            )
+        )
+    return issues
+
+
 def _decision_state(*, packet: dict[str, Any], record: dict[str, Any]) -> dict[str, Any]:
+    next_success = (
+        record.get("next_success_attempt_requirements")
+        if isinstance(record.get("next_success_attempt_requirements"), dict)
+        else {}
+    )
     return {
         "packet_status": packet.get("status"),
         "record_status": record.get("status"),
@@ -267,6 +388,10 @@ def _decision_state(*, packet: dict[str, Any], record: dict[str, Any]) -> dict[s
         "local_training_allowed_now": bool(record.get("local_training_allowed_now")),
         "formal_claim_allowed_now": bool(record.get("formal_claim_allowed_now")),
         "paper_result_material_allowed_now": bool(record.get("paper_result_material_allowed_now")),
+        "next_success_attempt_artifact_count": next_success.get("next_success_attempt_artifact_count"),
+        "old_failed_run_artifacts_invalid_for_next_success_attempt": next_success.get(
+            "old_failed_run_artifacts_invalid_for_next_success_attempt"
+        ),
     }
 
 
@@ -323,6 +448,13 @@ def _post_decision_gate_requirements(record: dict[str, Any]) -> dict[str, Any]:
         "new_or_revised_contract_required": bool(req.get("new_or_revised_contract_required")),
         "contract_status_required_before_training": _strings(req.get("contract_status_required_before_training")),
         "draft_contract_allows_training": bool(req.get("draft_contract_allows_training")),
+        "next_success_attempt_artifact_count": req.get("next_success_attempt_artifact_count"),
+        "next_success_attempt_artifact_category_counts": req.get("next_success_attempt_artifact_category_counts")
+        if isinstance(req.get("next_success_attempt_artifact_category_counts"), dict)
+        else {},
+        "old_failed_run_artifacts_invalid_for_next_success_attempt": req.get(
+            "old_failed_run_artifacts_invalid_for_next_success_attempt"
+        ),
         "formal_training_still_requires": _strings(req.get("formal_training_still_requires")),
         "paper_result_still_requires": _strings(req.get("paper_result_still_requires")),
     }
@@ -345,6 +477,8 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- training_authorization: `{state['training_authorization']}`",
         f"- remote_training_allowed_now: `{state['remote_training_allowed_now']}`",
         f"- formal_claim_allowed_now: `{state['formal_claim_allowed_now']}`",
+        f"- next_success_attempt_artifact_count: `{state['next_success_attempt_artifact_count']}`",
+        f"- old_failed_run_artifacts_invalid_for_next_success_attempt: `{state['old_failed_run_artifacts_invalid_for_next_success_attempt']}`",
         "",
         "## Decision Note Audit",
         "",
@@ -379,6 +513,9 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- new_or_revised_contract_required: `{requirements['new_or_revised_contract_required']}`",
             f"- contract_status_required_before_training: `{', '.join(requirements['contract_status_required_before_training'])}`",
             f"- draft_contract_allows_training: `{requirements['draft_contract_allows_training']}`",
+            f"- next_success_attempt_artifact_count: `{requirements['next_success_attempt_artifact_count']}`",
+            f"- next_success_attempt_artifact_category_counts: `{requirements['next_success_attempt_artifact_category_counts']}`",
+            f"- old_failed_run_artifacts_invalid_for_next_success_attempt: `{requirements['old_failed_run_artifacts_invalid_for_next_success_attempt']}`",
             "- formal_training_still_requires:",
         ]
     )
