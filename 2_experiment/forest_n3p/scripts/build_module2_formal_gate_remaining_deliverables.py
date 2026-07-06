@@ -168,6 +168,7 @@ def build_manifest(config: FormalGateRemainingDeliverablesConfig) -> dict[str, A
         deliverable_acceptance_matrix=deliverable_acceptance_matrix,
         post_f02_6_plan=post_f02_6_plan,
         remote_packet=remote_packet,
+        protocol_lane_status=protocol_lane_status,
     )
     deliverable_unlock_chain = _deliverable_unlock_chain(deliverable_acceptance_matrix)
     category_counts = _category_counts(deliverable_groups)
@@ -435,8 +436,10 @@ def _deliverable_production_plan(
     deliverable_acceptance_matrix: Sequence[dict[str, Any]],
     post_f02_6_plan: dict[str, Any],
     remote_packet: dict[str, Any],
+    protocol_lane_status: dict[str, Any],
 ) -> dict[str, Any]:
     stage_by_id = _post_plan_stage_by_id(post_f02_6_plan)
+    protocol_lane_pending = _protocol_lane_pending(protocol_lane_status)
     rows: list[dict[str, Any]] = []
     for item in deliverable_acceptance_matrix:
         artifact_id = str(item.get("artifact_id") or "")
@@ -455,8 +458,14 @@ def _deliverable_production_plan(
                 "current_missing": item.get("missing"),
                 "remote_generation_stage_id": remote_stage_id,
                 "local_materialization_stage_id": materialization_stage_id,
-                "remote_generation_stage": _stage_summary(remote_stage),
-                "local_materialization_stage": _stage_summary(materialization_stage),
+                "remote_generation_stage": _stage_summary(
+                    remote_stage,
+                    protocol_lane_pending=protocol_lane_pending,
+                ),
+                "local_materialization_stage": _stage_summary(
+                    materialization_stage,
+                    protocol_lane_pending=protocol_lane_pending,
+                ),
                 "expected_path_listed_in_remote_generation_stage": _stage_lists_expected_path(
                     stage=remote_stage,
                     expected_path=expected_path,
@@ -478,7 +487,12 @@ def _deliverable_production_plan(
     return {
         "plan_id": "module2_formal_gate_deliverable_production_plan",
         "source_plan": "post_f02_6_regeneration_plan",
-        "post_plan_status": post_f02_6_plan.get("status"),
+        "post_plan_status": "blocked_until_protocol_lane_decision"
+        if protocol_lane_pending
+        else post_f02_6_plan.get("status"),
+        "post_plan_status_raw": post_f02_6_plan.get("status"),
+        "protocol_lane_pending": protocol_lane_pending,
+        "protocol_lane_status": protocol_lane_status.get("status"),
         "execution_boundary": "reference_only_no_execution",
         "not_paper_result_material": True,
         "runs_training": False,
@@ -516,23 +530,41 @@ def _post_plan_stage_by_id(post_f02_6_plan: dict[str, Any]) -> dict[str, dict[st
     return out
 
 
-def _stage_summary(stage: dict[str, Any]) -> dict[str, Any]:
+def _stage_summary(stage: dict[str, Any], *, protocol_lane_pending: bool = False) -> dict[str, Any]:
     if not stage:
         return {}
     command_templates = stage.get("command_templates")
     evidence_paths = stage.get("evidence_paths")
-    return {
+    status = stage.get("status")
+    allowed_now = stage.get("allowed_now")
+    blocked_by = _strings(stage.get("blocked_by"))
+    summary: dict[str, Any] = {
         "stage_id": stage.get("stage_id"),
         "phase": stage.get("phase"),
-        "status": stage.get("status"),
-        "allowed_now": stage.get("allowed_now"),
-        "blocked_by": _strings(stage.get("blocked_by")),
+        "status": status,
+        "allowed_now": allowed_now,
+        "blocked_by": blocked_by,
         "runs_training": stage.get("runs_training"),
         "runs_remote_preflight": stage.get("runs_remote_preflight"),
         "host": stage.get("host"),
         "command_template_count": len(command_templates) if isinstance(command_templates, list) else 0,
         "evidence_path_count": len(evidence_paths) if isinstance(evidence_paths, list) else 0,
     }
+    if protocol_lane_pending:
+        blocked_by = list(blocked_by)
+        if "protocol_lane_decision_pending" not in blocked_by:
+            blocked_by.insert(0, "protocol_lane_decision_pending")
+        summary.update(
+            {
+                "status": "blocked",
+                "allowed_now": False,
+                "blocked_by": blocked_by,
+                "original_status_before_protocol_override": status,
+                "original_allowed_now_before_protocol_override": allowed_now,
+                "protocol_lane_override_applied": True,
+            }
+        )
+    return summary
 
 
 def _stage_lists_expected_path(*, stage: dict[str, Any], expected_path: str) -> bool:
