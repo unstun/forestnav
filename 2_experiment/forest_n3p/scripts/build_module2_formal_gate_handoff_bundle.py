@@ -612,6 +612,16 @@ def _protocol_lane_status_issues(protocol_lane_status: dict[str, Any]) -> list[d
                 )
             )
         if (
+            protocol_lane_status["next_success_attempt_artifact_invalid_substitutes_by_id"]
+            != EXPECTED_NEXT_SUCCESS_INVALID_SUBSTITUTES_BY_ID
+        ):
+            issues.append(
+                _issue(
+                    "protocol_lane_status_next_artifact_invalid_substitutes_drift",
+                    "protocol-lane handoff must preserve invalid substitutes for every next success-attempt artifact",
+                )
+            )
+        if (
             protocol_lane_status["post_decision_contract_plan_shared_artifact_category_counts"]
             != EXPECTED_NEXT_SUCCESS_ARTIFACT_CATEGORY_COUNTS
         ):
