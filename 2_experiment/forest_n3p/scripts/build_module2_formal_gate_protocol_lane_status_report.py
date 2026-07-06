@@ -301,6 +301,7 @@ def _current_status(
         "next_success_attempt_artifact_ids_by_category": artifact_summary["artifact_ids_by_category"],
         "next_success_attempt_artifact_expected_paths_by_id": artifact_summary["expected_paths_by_id"],
         "next_success_attempt_artifact_proof_requirements_by_id": artifact_summary["proof_requirements_by_id"],
+        "next_success_attempt_artifact_invalid_substitutes_by_id": artifact_summary["invalid_substitutes_by_id"],
         "old_failed_run_artifacts_invalid_for_next_success_attempt": artifact_summary[
             "old_failed_run_artifacts_invalid_for_next_success_attempt"
         ],
@@ -573,6 +574,7 @@ def _next_success_artifact_summary(next_round: dict[str, Any]) -> dict[str, Any]
     category_counts: dict[str, int] = {}
     expected_paths_by_id: dict[str, str] = {}
     proof_requirements_by_id: dict[str, str] = {}
+    invalid_substitutes_by_id: dict[str, list[str]] = {}
     for row in rows:
         if not isinstance(row, dict):
             continue
@@ -584,6 +586,7 @@ def _next_success_artifact_summary(next_round: dict[str, Any]) -> dict[str, Any]
         category_counts[category] = category_counts.get(category, 0) + 1
         expected_paths_by_id[artifact_id] = str(row.get("expected_path") or "")
         proof_requirements_by_id[artifact_id] = str(row.get("proof_requirement") or "")
+        invalid_substitutes_by_id[artifact_id] = _strings(row.get("invalid_substitutes"))
     return {
         "status": index.get("status"),
         "artifact_count": int(index.get("artifact_count") or len(rows)),
@@ -591,6 +594,7 @@ def _next_success_artifact_summary(next_round: dict[str, Any]) -> dict[str, Any]
         "artifact_ids_by_category": ids_by_category,
         "expected_paths_by_id": expected_paths_by_id,
         "proof_requirements_by_id": proof_requirements_by_id,
+        "invalid_substitutes_by_id": invalid_substitutes_by_id,
         "old_failed_run_artifacts_invalid_for_next_success_attempt": reconciliation.get(
             "old_failed_run_artifacts_invalid_for_next_success_attempt"
         ),
