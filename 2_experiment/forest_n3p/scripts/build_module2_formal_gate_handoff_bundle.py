@@ -1576,6 +1576,22 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.append(f"- selected_lane_id: `{protocol_lane['selected_lane_id']}`")
     lines.append(f"- allowed_next_action_ids: `{', '.join(protocol_lane['allowed_next_action_ids'])}`")
     lines.append(f"- blocked_action_ids: `{', '.join(protocol_lane['blocked_action_ids'])}`")
+    lines.append(
+        "- next_success_attempt_artifact_category_counts: "
+        f"`{protocol_lane['next_success_attempt_artifact_category_counts']}`"
+    )
+    lines.append(
+        "- post_decision_contract_plan_shared_artifact_category_counts: "
+        f"`{protocol_lane['post_decision_contract_plan_shared_artifact_category_counts']}`"
+    )
+    lines.append(
+        "- old_failed_run_artifacts_invalid_for_next_success_attempt: "
+        f"`{protocol_lane['old_failed_run_artifacts_invalid_for_next_success_attempt']}`"
+    )
+    lines.append(
+        "- post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt: "
+        f"`{protocol_lane['post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt']}`"
+    )
     lines.extend(["", "## Handoff Stages", ""])
     for stage in manifest["handoff_stages"]:
         blockers = ", ".join(stage["blocked_by"]) or "none"
