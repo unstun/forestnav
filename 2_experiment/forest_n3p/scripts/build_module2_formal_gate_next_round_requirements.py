@@ -986,6 +986,22 @@ def _strings(value: Any) -> list[str]:
     return [str(item) for item in value if item]
 
 
+def _int_dict(value: Any) -> dict[str, int]:
+    if not isinstance(value, dict):
+        return {}
+    return {str(key): int(raw or 0) for key, raw in value.items() if key}
+
+
+def _string_list_dict(value: Any) -> dict[str, list[str]]:
+    if not isinstance(value, dict):
+        return {}
+    return {
+        str(key): [str(item) for item in items if item]
+        for key, items in value.items()
+        if key and isinstance(items, list)
+    }
+
+
 def _nested(payload: dict[str, Any], *keys: str) -> Any:
     current: Any = payload
     for key in keys:
