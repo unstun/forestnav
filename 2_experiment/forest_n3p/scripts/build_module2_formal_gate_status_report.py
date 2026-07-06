@@ -4197,6 +4197,12 @@ def _next_blocked_lane(lanes: Sequence[dict[str, Any]]) -> dict[str, Any] | None
     return None
 
 
+def _int_counts(value: Any) -> dict[str, int]:
+    if not isinstance(value, dict):
+        return {}
+    return {str(key): int(count or 0) for key, count in value.items() if key}
+
+
 def _strings(value: Any) -> list[str]:
     if not isinstance(value, list):
         return []
