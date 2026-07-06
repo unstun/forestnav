@@ -156,7 +156,7 @@ def test_train_rl_rs_ppo_manifest_records_injected_reward_config(tmp_path):
 
 
 def test_train_rl_rs_ppo_blocks_non_smoke_draft_contract_before_training(tmp_path):
-    with pytest.raises(ValueError, match="requires contract status approved or frozen"):
+    with pytest.raises(ValueError, match="requires contract status approved or approved_by_dr_sun or frozen"):
         train_rl_rs_ppo_main(
             [
                 "--output-dir",

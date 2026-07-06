@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "artifact": "module2_encoder_pilot_config",
+  "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+  "bc_checkpoint": "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt",
+  "dense_reward_config": "2_experiment/configs/module2_encoder_pilot_reward_dense.json",
+  "common_formal_train_args": {
+    "total_timesteps": 500000,
+    "n_envs": 8,
+    "n_steps": 256,
+    "batch_size": 256,
+    "n_epochs": 10,
+    "gamma": 0.98,
+    "gae_lambda": 0.95,
+    "clip_range": 0.2,
+    "ent_coef": 0.01,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.5,
+    "lr_schedule": "linear",
+    "curriculum_preset": "f03",
+    "seed": 20260707,
+    "heldout_seed": 20260707,
+    "checkpoint_freq": 50000,
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "obs_patch_size_m": 6.4,
+    "obs_patch_cells": 64,
+    "max_steps": 32,
+    "device": "cuda"
+  },
+  "common_formal_eval_args": {
+    "evaluator": "eval_rl_rs_gate3.py",
+    "episodes": 64,
+    "min_episodes": 64,
+    "success_threshold": 0.8,
+    "curriculum_preset": "f03",
+    "seed": 20260707,
+    "heldout_seed": 20260707,
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "obs_patch_size_m": 6.4,
+    "obs_patch_cells": 64,
+    "max_steps": 32,
+    "device": "cuda"
+  },
+  "smoke_overrides": {
+    "train_total_timesteps": 512,
+    "train_n_envs": 2,
+    "train_checkpoint_freq": 256,
+    "eval_episodes": 2,
+    "eval_min_episodes": 2,
+    "device": "auto",
+    "warm_start_value_pretrain_timesteps": 8
+  },
+  "variants": [
+    {
+      "id": "R1",
+      "features_extractor": "summary",
+      "warm_start": "obstacle_summary_formal_v2",
+      "value_pretrain_timesteps": 50000,
+      "reward": "sparse",
+      "reward_config": null,
+      "learning_rate": 0.0001
+    },
+    {
+      "id": "R2",
+      "features_extractor": "summary",
+      "warm_start": "obstacle_summary_formal_v2",
+      "value_pretrain_timesteps": 50000,
+      "reward": "dense",
+      "reward_config": "2_experiment/configs/module2_encoder_pilot_reward_dense.json",
+      "learning_rate": 0.0001
+    },
+    {
+      "id": "R3",
+      "features_extractor": "patch_cnn",
+      "warm_start": "none",
+      "value_pretrain_timesteps": 0,
+      "reward": "sparse",
+      "reward_config": null,
+      "learning_rate": 0.0003
+    },
+    {
+      "id": "R4",
+      "features_extractor": "patch_cnn",
+      "warm_start": "none",
+      "value_pretrain_timesteps": 0,
+      "reward": "dense",
+      "reward_config": "2_experiment/configs/module2_encoder_pilot_reward_dense.json",
+      "learning_rate": 0.0003
+    },
+    {
+      "id": "R5",
+      "features_extractor": "transformer",
+      "warm_start": "none",
+      "value_pretrain_timesteps": 0,
+      "reward": "dense",
+      "reward_config": "2_experiment/configs/module2_encoder_pilot_reward_dense.json",
+      "learning_rate": 0.0003
+    },
+    {
+      "id": "R6",
+      "features_extractor": "transformer",
+      "warm_start": "none",
+      "value_pretrain_timesteps": 0,
+      "reward": "sparse",
+      "reward_config": null,
+      "learning_rate": 0.0003
+    }
+  ]
+}

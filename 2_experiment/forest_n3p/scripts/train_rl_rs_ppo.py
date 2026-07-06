@@ -25,6 +25,7 @@ from forest_n3p.scripts._module2_contract_gate import require_contract_ready
 
 
 DEFAULT_CONTRACT_PATH = ".pipeline/contracts/module2-ppo-funnel-expansion.md"
+TRAIN_CONTRACT_STATUSES = ("approved", "approved_by_dr_sun", "frozen")
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -38,6 +39,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         args.contract_path,
         allow_unapproved=bool(args.smoke),
         context="Module2 PPO training",
+        allowed_statuses=TRAIN_CONTRACT_STATUSES,
     )
     reward_config = _load_reward_config(args.reward_config)
     PPO, CallbackList, CheckpointCallback, DummyVecEnv = _load_sb3()
