@@ -447,6 +447,7 @@ def _status(*, issues: Sequence[dict[str, Any]], gate: dict[str, Any]) -> str:
 def _audit_issues(
     *,
     readiness: dict[str, Any],
+    decision_record: dict[str, Any],
     contract_intake: dict[str, Any],
     contract_authoring_gate: dict[str, Any],
     next_round: dict[str, Any],
@@ -457,25 +458,49 @@ def _audit_issues(
     next_round_summary: dict[str, Any],
 ) -> list[dict[str, Any]]:
     issues: list[dict[str, Any]] = []
+    decision_recorded = gate["decision_record_status"] == RECORDED_DECISION_STATUS
     if readiness.get("status") != "protocol_lane_readiness_ready_for_dr_sun_decision":
         issues.append(_issue("readiness_not_ready", "Protocol-lane readiness must be ready for Dr Sun decision."))
     if readiness.get("audit_issue_count") != 0:
         issues.append(_issue("readiness_audit_issues_open", "Protocol-lane readiness must be audit-clean."))
     if contract_intake.get("status") != "formal_gate_contract_intake_ready_for_dr_sun":
         issues.append(_issue("contract_intake_not_ready", "Contract intake must be ready before post-decision planning."))
-    if contract_authoring_gate.get("status") != "contract_authoring_gate_blocked_pending_lane_decision":
-        issues.append(
-            _issue(
-                "contract_authoring_gate_not_pending",
-                "This plan mirrors the pending-lane state and must not pretend contract drafting is open.",
-                observed=contract_authoring_gate.get("status"),
-            )
+    issues.extend(
+        _contract_authoring_gate_status_issues(
+            contract_authoring_gate=contract_authoring_gate,
+            decision_recorded=decision_recorded,
         )
+    )
     if next_round.get("status") != "formal_gate_next_round_requirements_ready":
         issues.append(_issue("next_round_requirements_not_ready", "Next-round requirements must be ready."))
-    if gate["selected_lane_id"] is not None:
+    if decision_record.get("status") not in {PENDING_DECISION_STATUS, RECORDED_DECISION_STATUS}:
+        issues.append(
+            _issue(
+                "decision_record_status_invalid",
+                "Decision record must be pending or recorded before post-decision planning.",
+                observed=decision_record.get("status"),
+            )
+        )
+    if not decision_recorded and gate["selected_lane_id"] is not None:
         issues.append(_issue("selected_lane_present", "Pending contract plan must not select a lane."))
-    if gate["allowed_next_action_ids"] != ["record_protocol_lane_decision"]:
+    if decision_recorded:
+        if gate["selected_lane_id"] not in EXPECTED_LANE_IDS:
+            issues.append(
+                _issue(
+                    "recorded_selected_lane_invalid",
+                    "Recorded contract plan must carry one selected protocol lane.",
+                    observed=gate["selected_lane_id"],
+                )
+            )
+        if gate["allowed_next_action_ids"] != ["draft_new_or_revised_contract_after_lane_decision"]:
+            issues.append(
+                _issue(
+                    "recorded_allowed_next_actions_drift",
+                    "Recorded state may only allow contract draft preparation.",
+                    observed=gate["allowed_next_action_ids"],
+                )
+            )
+    elif gate["allowed_next_action_ids"] != ["record_protocol_lane_decision"]:
         issues.append(
             _issue(
                 "allowed_next_actions_drift",
@@ -486,8 +511,14 @@ def _audit_issues(
     missing_blocked = [action for action in BLOCKED_ACTIONS if action not in gate["blocked_action_ids"]]
     if missing_blocked:
         issues.append(_issue("blocked_actions_incomplete", "Training, preflight, claim, and paper actions must stay blocked.", observed=missing_blocked))
+    if not decision_recorded and gate["contract_drafting_allowed_now"] is True:
+        issues.append(
+            _issue(
+                "contract_drafting_allowed_now_unexpectedly_true",
+                "contract_drafting_allowed_now must remain false.",
+            )
+        )
     for key in (
-        "contract_drafting_allowed_now",
         "contract_approval_allowed_now",
         "draft_contract_allows_training",
         "local_training_allowed_now",
@@ -555,6 +586,43 @@ def _audit_issues(
                 if not row.get(key):
                     issues.append(_issue(f"{lane_id}_{key}_missing", "Success lane must retain training/evaluation/acceptance evidence prompts."))
     return _unique_issues(issues)
+
+
+def _contract_authoring_gate_status_issues(
+    *, contract_authoring_gate: dict[str, Any], decision_recorded: bool
+) -> list[dict[str, Any]]:
+    status = contract_authoring_gate.get("status")
+    if not decision_recorded:
+        if status != PENDING_CONTRACT_AUTHORING_STATUS:
+            return [
+                _issue(
+                    "contract_authoring_gate_not_pending",
+                    "Pending plan must mirror the pending-lane contract authoring gate.",
+                    observed=status,
+                )
+            ]
+        return []
+    if status in {PENDING_CONTRACT_AUTHORING_STATUS, READY_CONTRACT_AUTHORING_STATUS}:
+        return []
+    if status == BOOTSTRAP_CONTRACT_AUTHORING_STATUS and _only_bootstrap_contract_authoring_issue(
+        contract_authoring_gate
+    ):
+        return []
+    return [
+        _issue(
+            "contract_authoring_gate_not_ready_for_recorded_lane",
+            "Recorded plan must consume a clean or bootstrap contract authoring gate.",
+            observed=status,
+        )
+    ]
+
+
+def _only_bootstrap_contract_authoring_issue(contract_authoring_gate: dict[str, Any]) -> bool:
+    issues = contract_authoring_gate.get("audit_issues")
+    if not isinstance(issues, list) or len(issues) != 1:
+        return False
+    issue = issues[0]
+    return isinstance(issue, dict) and issue.get("issue_id") == BOOTSTRAP_CONTRACT_AUTHORING_ISSUE
 
 
 def _markdown(manifest: dict[str, Any]) -> str:
