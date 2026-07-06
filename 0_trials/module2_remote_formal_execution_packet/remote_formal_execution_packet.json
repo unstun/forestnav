@@ -1,13 +1,17 @@
 {
   "schema_version": 1,
   "packet_name": "module2_remote_formal_execution_packet",
-  "status": "ready_for_gpu3070ti_remote_training",
-  "created_at_utc": "2026-07-05T19:50:53.604363+00:00",
-  "source_head": "82cec025c50398dc56df7de4a1ea15b3c5e67287",
-  "ready_to_run_remote_training": true,
+  "status": "blocked_until_protocol_lane_decision",
+  "created_at_utc": "2026-07-06T02:42:11.418764+00:00",
+  "source_head": "74a171c7017ee34962c9e3a3a6044312d29e4b07+dirty",
+  "ready_to_run_remote_training": false,
   "local_training_allowed": false,
   "formal_claim_allowed_before_audit": false,
-  "blockers": [],
+  "blockers": [
+    "protocol_lane_decision_pending",
+    "remote_formal_preflight_not_ready",
+    "warm_start_decision_pending"
+  ],
   "execution_environment": {
     "gpu_alias": "gpu3070ti-relay",
     "remote_workdir": "~/ForestNav",
@@ -25,6 +29,26 @@
     "formal_claim_allowed": false,
     "blockers": []
   },
+  "protocol_lane_status": {
+    "path": "0_trials/module2_formal_gate_protocol_lane_status_report/protocol_lane_status_report.json",
+    "exists": true,
+    "status": "protocol_lane_status_blocked_pending_lane_decision",
+    "next_blocked_lane": "protocol_lane_decision",
+    "selected_lane_id": null,
+    "decision_record_status": "pending_protocol_lane_decision",
+    "allowed_next_action_ids": [
+      "record_protocol_lane_decision"
+    ],
+    "blocked_action_ids": [
+      "local_training",
+      "remote_success_training",
+      "remote_preflight_for_new_success_attempt",
+      "formal_claim",
+      "paper_result_material"
+    ],
+    "pending_lane_decision": true,
+    "blocker": "protocol_lane_decision_pending"
+  },
   "h01_manifest": {
     "path": "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
     "exists": true,
@@ -39,12 +63,14 @@
     }
   },
   "remote_preflight": {
-    "path": "0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_v1/gate3_preflight_manifest.json",
+    "path": "0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_pending_remote_v1/gate3_preflight_manifest.json",
     "exists": true,
-    "preflight_status": "ready",
-    "formal_trial_ready": true,
-    "warm_start_decision": "approved_obstacle_summary",
-    "blocker_codes": [],
+    "preflight_status": "blocked",
+    "formal_trial_ready": false,
+    "warm_start_decision": "pending",
+    "blocker_codes": [
+      "warm_start_decision_pending"
+    ],
     "protocol_present": true,
     "protocol_device": "cuda",
     "protocol_smoke": false,
@@ -62,10 +88,12 @@
       "phase": "decision",
       "status": "satisfied",
       "complete": true,
-      "execution_allowed_now": true,
+      "execution_allowed_now": false,
       "required_before": "run_remote_preflight",
       "missing_artifact_ids": [],
-      "blocked_by": [],
+      "blocked_by": [
+        "protocol_lane_decision_pending"
+      ],
       "acceptable_evidence": [
         "f02_6_decision_record.json with status=approved",
         "decider=Dr Sun and effective_warm_start_decision=approved_obstacle_summary",
@@ -80,12 +108,16 @@
     {
       "requirement_id": "approved_remote_preflight_manifest",
       "phase": "remote_preflight",
-      "status": "satisfied",
-      "complete": true,
-      "execution_allowed_now": true,
+      "status": "blocked_missing_preflight",
+      "complete": false,
+      "execution_allowed_now": false,
       "required_before": "run_remote_training",
-      "missing_artifact_ids": [],
-      "blocked_by": [],
+      "missing_artifact_ids": [
+        "approved_remote_preflight_manifest_ready"
+      ],
+      "blocked_by": [
+        "warm_start_decision_pending"
+      ],
       "acceptable_evidence": [
         "gate3_preflight_manifest.json with preflight_status=ready",
         "formal_trial_ready=true",
@@ -102,7 +134,7 @@
       "phase": "remote_preflight",
       "status": "satisfied",
       "complete": true,
-      "execution_allowed_now": true,
+      "execution_allowed_now": false,
       "required_before": "run_remote_training",
       "missing_artifact_ids": [],
       "blocked_by": [],
@@ -122,10 +154,12 @@
       "phase": "remote_preflight",
       "status": "satisfied",
       "complete": true,
-      "execution_allowed_now": true,
+      "execution_allowed_now": false,
       "required_before": "run_remote_preflight",
       "missing_artifact_ids": [],
-      "blocked_by": [],
+      "blocked_by": [
+        "protocol_lane_decision_pending"
+      ],
       "acceptable_evidence": [
         "run_remote_preflight command is an ssh gpu3070ti-relay command",
         "command runs forest_n3p.scripts.preflight_rl_rs_gate3_formal_trial",
@@ -139,35 +173,48 @@
     }
   ],
   "remote_preflight_requirement_counts": {
-    "satisfied": 4
+    "satisfied": 3,
+    "blocked_missing_preflight": 1
   },
   "execution_steps": {
     "trial_dir": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1",
     "sync_to_remote": {
-      "allowed_now": true,
+      "allowed_now": false,
       "runs_training": false,
       "command": "rsync -az --exclude .git --exclude '.venv*' --exclude __pycache__ --exclude .pytest_cache --exclude 1_survey /Users/sun/tongbu/study/phdproject/ForestNav/ 'gpu3070ti-relay:~/ForestNav/'",
       "note": "No --delete: preserve remote virtualenvs and prior artifacts unless manually reviewed.",
-      "blocked_by": []
+      "blocked_by": [
+        "protocol_lane_decision_pending"
+      ]
     },
     "run_remote_preflight": {
-      "allowed_now": true,
+      "allowed_now": false,
       "runs_training": false,
       "command": "ssh gpu3070ti-relay 'cd ~/ForestNav && PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.preflight_rl_rs_gate3_formal_trial --output-dir 0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1 --manifest-out 0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1/gate3_preflight_manifest.json --warm-start-decision approved_obstacle_summary --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt --device cuda --allow-duplicate-openmp --allow-existing-output-dir'",
-      "blocked_by": []
+      "blocked_by": [
+        "protocol_lane_decision_pending"
+      ]
     },
     "run_remote_training": {
-      "allowed_now": true,
+      "allowed_now": false,
       "runs_training": true,
       "command": "ssh gpu3070ti-relay 'cd ~/ForestNav && PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 --seed 20260704 --device cuda --train-curriculum-preset f03 --eval-curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260704 --train-total-timesteps 100000 --train-n-envs 1 --train-n-steps 128 --train-batch-size 64 --train-n-epochs 4 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --allow-duplicate-openmp --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt'",
-      "blocked_by": []
+      "blocked_by": [
+        "protocol_lane_decision_pending",
+        "remote_formal_preflight_not_ready",
+        "warm_start_decision_pending",
+        "remote_packet_not_ready"
+      ]
     },
     "run_remote_audit": {
       "allowed_now": false,
       "runs_training": false,
       "command": "ssh gpu3070ti-relay 'cd ~/ForestNav && PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.audit_rl_rs_gate3_trial --trial-dir 0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1 --min-formal-episodes 64 --required-success-threshold 0.8 --required-train-curriculum f03 --required-eval-curriculum f03 --warm-start-decision approved_obstacle_summary'",
       "blocked_by": [
-        "remote_training_not_completed"
+        "protocol_lane_decision_pending",
+        "remote_formal_preflight_not_ready",
+        "warm_start_decision_pending",
+        "remote_packet_not_ready"
       ]
     }
   },
@@ -191,7 +238,7 @@
       "phase": "pullback",
       "status": "blocked_until_remote_audit",
       "complete": false,
-      "remote_training_ready_now": true,
+      "remote_training_ready_now": false,
       "execution_allowed_now": false,
       "required_before": "local_gate3_formal_audit_review",
       "missing_artifact_ids": [],
@@ -211,7 +258,7 @@
       "phase": "pullback",
       "status": "blocked_until_remote_audit",
       "complete": false,
-      "remote_training_ready_now": true,
+      "remote_training_ready_now": false,
       "execution_allowed_now": false,
       "required_before": "h01_h02_regeneration",
       "missing_artifact_ids": [],
@@ -230,7 +277,7 @@
       "phase": "acceptance",
       "status": "blocked_until_remote_audit",
       "complete": false,
-      "remote_training_ready_now": true,
+      "remote_training_ready_now": false,
       "execution_allowed_now": false,
       "required_before": "formal_claim_gate",
       "missing_artifact_ids": [
@@ -252,7 +299,7 @@
       "phase": "evaluation_acceptance",
       "status": "blocked_until_remote_audit",
       "complete": false,
-      "remote_training_ready_now": true,
+      "remote_training_ready_now": false,
       "execution_allowed_now": false,
       "required_before": "paper_result_gate",
       "missing_artifact_ids": [],
@@ -287,6 +334,7 @@
     "This packet is an execution protocol, not a training result.",
     "It must not be used to run PPO on the local Mac.",
     "F02.6 approval by Dr Sun is required before warm-start formal training.",
+    "A pending protocol-lane decision vetoes remote sync, preflight, training, and audit execution.",
     "Remote runner completion is still insufficient for a paper claim until formal audit passes and artifacts are pulled back.",
     "H01/H02 must be regenerated with the audited checkpoint before any formal performance table is written."
   ]

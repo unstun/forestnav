@@ -3,7 +3,7 @@
 This ledger is read-only. It lists remaining formal training, evaluation, and acceptance deliverables; it does not execute commands or write paper results.
 
 - status: `formal_gate_deliverables_blocked`
-- source_head: `9fd83d14cc15127411516a781afaa2a413595c33+dirty`
+- source_head: `74a171c7017ee34962c9e3a3a6044312d29e4b07+dirty`
 - missing_deliverable_count: `1`
 - open_category_count: `1`
 - missing_counts_by_formal_category: `{'training': 0, 'evaluation': 0, 'acceptance': 0, 'formal_acceptance': 1}`
@@ -48,7 +48,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - protocol_lane_blocked_action_ids: `['local_training', 'remote_success_training', 'remote_preflight_for_new_success_attempt', 'formal_claim', 'paper_result_material']`
 - protocol_lane_new_success_training_allowed_now: `False`
 - missing_counts_by_category: `{'decision': 0, 'decision_gate': 0, 'regeneration': 22, 'gate_sequence': 4, 'training': 0, 'evaluation': 0, 'acceptance': 0, 'evaluation_acceptance': 1, 'claim_gate': 8}`
-- remote_packet_status: `ready_for_gpu3070ti_remote_training`
+- remote_packet_status: `blocked_until_protocol_lane_decision`
 - ready_to_run_remote_training: `False`
 - h01_status: `ready_for_formal_run`
 - h02_status: `blocked_formal_output_acceptance`

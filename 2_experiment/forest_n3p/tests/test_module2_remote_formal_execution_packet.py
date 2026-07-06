@@ -24,6 +24,8 @@ def test_remote_formal_execution_packet_blocks_pending_decision_and_freezes_pull
             str(_h01_manifest(tmp_path)),
             "--remote-preflight",
             str(_remote_preflight(tmp_path, ready=False)),
+            "--protocol-lane-status-report",
+            str(_protocol_lane_status(tmp_path, pending=False)),
         ]
     )
 
@@ -86,6 +88,7 @@ def test_remote_formal_execution_packet_allows_only_approved_ready_remote_traini
             decision_record_path=_decision_record(tmp_path, status="approved"),
             h01_manifest_path=_h01_manifest(tmp_path, h01_blockers=()),
             remote_preflight_path=_remote_preflight(tmp_path, ready=True),
+            protocol_lane_status_report_path=_protocol_lane_status(tmp_path, pending=False),
         )
     )
 
@@ -123,12 +126,37 @@ def test_remote_formal_execution_packet_blocks_if_h01_schema_guard_is_missing(tm
             decision_record_path=_decision_record(tmp_path, status="approved"),
             h01_manifest_path=_h01_manifest(tmp_path, include_schema=False, h01_blockers=()),
             remote_preflight_path=_remote_preflight(tmp_path, ready=True),
+            protocol_lane_status_report_path=_protocol_lane_status(tmp_path, pending=False),
         )
     )
 
     assert packet["ready_to_run_remote_training"] is False
     assert "h01_required_output_schema_missing" in packet["blockers"]
     assert packet["h01_manifest"]["schema_checks"]["required_output_schema"] == "missing"
+
+
+def test_remote_formal_execution_packet_blocks_protocol_lane_pending_even_after_f02_6_approval(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_remote_formal_execution_packet")
+
+    packet = builder.build_packet(
+        builder.RemoteFormalExecutionPacketConfig(
+            output_dir=tmp_path,
+            decision_record_path=_decision_record(tmp_path, status="approved"),
+            h01_manifest_path=_h01_manifest(tmp_path, h01_blockers=()),
+            remote_preflight_path=_remote_preflight(tmp_path, ready=True),
+            protocol_lane_status_report_path=_protocol_lane_status(tmp_path, pending=True),
+        )
+    )
+
+    assert packet["status"] == "blocked_until_protocol_lane_decision"
+    assert packet["ready_to_run_remote_training"] is False
+    assert "protocol_lane_decision_pending" in packet["blockers"]
+    assert packet["protocol_lane_status"]["pending_lane_decision"] is True
+    assert packet["protocol_lane_status"]["allowed_next_action_ids"] == ["record_protocol_lane_decision"]
+    for step_id in ("sync_to_remote", "run_remote_preflight", "run_remote_training", "run_remote_audit"):
+        step = packet["execution_steps"][step_id]
+        assert step["allowed_now"] is False
+        assert "protocol_lane_decision_pending" in step["blocked_by"]
 
 
 def _decision_record(tmp_path, *, status):
@@ -172,6 +200,40 @@ def _decision_record(tmp_path, *, status):
                             "--warm-start-decision approved_obstacle_summary"
                         ),
                     }
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    return path
+
+
+def _protocol_lane_status(tmp_path, *, pending):
+    path = tmp_path / f"protocol_lane_status_{pending}.json"
+    path.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "artifact_name": "module2_formal_gate_protocol_lane_status_report",
+                "status": (
+                    "protocol_lane_status_blocked_pending_lane_decision"
+                    if pending
+                    else "protocol_lane_status_not_pending_lane_decision"
+                ),
+                "current_status": {
+                    "next_blocked_lane": "protocol_lane_decision" if pending else "source_fresh_preflight",
+                    "selected_lane_id": None if pending else "stronger_obstacle_summary_warm_start",
+                    "decision_record_status": "pending_protocol_lane_decision" if pending else "recorded_protocol_lane_decision",
+                    "allowed_next_action_ids": ["record_protocol_lane_decision"] if pending else [],
+                    "blocked_action_ids": [
+                        "local_training",
+                        "remote_success_training",
+                        "remote_preflight_for_new_success_attempt",
+                        "formal_claim",
+                        "paper_result_material",
+                    ]
+                    if pending
+                    else [],
                 },
             }
         ),

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_claim_safety",
   "status": "blocked_formal_performance_claims",
-  "created_at_utc": "2026-07-06T02:39:05.202600+00:00",
-  "source_head": "9405da7d4ed712452f2de86e5ca9a4629145aab1",
+  "created_at_utc": "2026-07-06T02:45:05.288916+00:00",
+  "source_head": "74a171c7017ee34962c9e3a3a6044312d29e4b07+dirty",
   "formal_performance_claim_allowed": false,
   "formal_performance_blockers": [
     "paper_tables_not_formal",
@@ -24,10 +24,6 @@
     "formal_gate_closure_checklist_open",
     "formal_gate_status_report_blocked",
     "status_report_input_safety_issues_open",
-    "status_report_remote_preflight_requirement_f02_6_decision_closed_for_preflight_allowed_while_status_blocked",
-    "status_report_remote_preflight_requirement_approved_remote_preflight_manifest_allowed_while_status_blocked",
-    "status_report_remote_preflight_requirement_remote_preflight_protocol_contract_allowed_while_status_blocked",
-    "status_report_remote_preflight_requirement_remote_preflight_command_packetized_allowed_while_status_blocked",
     "status_report_remaining_deliverables_gap_rows_missing",
     "status_report_remaining_deliverables_gap_categories_blocked",
     "status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing",
@@ -45,10 +41,7 @@
     "status_report_next_required_formal_deliverables_blocked_categories_mismatch",
     "status_report_mainline_formal_gate_state_audit_failed",
     "status_report_mainline_formal_gate_state_audit_issues_open",
-    "status_report_mainline_proof_summary_issues_open",
-    "status_report_blocked_but_sync_to_remote_allowed",
-    "status_report_blocked_but_run_remote_preflight_allowed",
-    "status_report_blocked_but_run_remote_training_allowed"
+    "status_report_mainline_proof_summary_issues_open"
   ],
   "inputs": {
     "paper_tables": "0_trials/module2_paper_tables/module2_paper_tables.json",
@@ -80,7 +73,7 @@
     "closure_checklist_input_safety_issue_count": 0,
     "status_report_status": "formal_gate_status_blocked",
     "status_report_formal_claim_allowed_now": false,
-    "status_report_input_safety_issue_count": 4,
+    "status_report_input_safety_issue_count": 3,
     "status_report_next_blocked_lane_id": "source_fresh_preflight",
     "status_report_decision_intake_status": "f02_6_decision_intake_closed_clean",
     "status_report_decision_intake_record_status": "approved",
@@ -150,7 +143,7 @@
     "status_report_mainline_audit_present": true,
     "status_report_mainline_audit_status": "mainline_formal_gate_state_audit_failed",
     "status_report_mainline_audit_issue_count": 4,
-    "status_report_mainline_audit_proof_summary_issue_count": 18,
+    "status_report_mainline_audit_proof_summary_issue_count": 15,
     "status_report_mainline_audit_proof_audit_input_safety_issue_count": 0,
     "status_report_handoff_status": "blocked_until_protocol_lane_decision",
     "status_report_transition_gate_status": "f02_6_transition_gate_audit_passed",
@@ -167,10 +160,10 @@
     "status_report_requirement_stage_mismatched_count": 0,
     "status_report_requirement_stage_blocked_stage_count": 4,
     "status_report_closure_remote_training_allowed_now": false,
-    "status_report_remote_packet_training_allowed_now": true,
+    "status_report_remote_packet_training_allowed_now": false,
     "status_report_remote_preflight_requirement_present": true,
-    "status_report_remote_preflight_requirement_satisfied_count": 4,
-    "status_report_remote_preflight_requirement_blocked_count": 0,
+    "status_report_remote_preflight_requirement_satisfied_count": 3,
+    "status_report_remote_preflight_requirement_blocked_count": 1,
     "status_report_post_run_acceptance_requirement_present": true,
     "status_report_post_run_acceptance_requirement_satisfied_count": 0,
     "status_report_post_run_acceptance_requirement_blocked_count": 4,
@@ -195,7 +188,7 @@
     "status_report_remote_packet_safety_proof_evaluation_missing_count": 0,
     "status_report_remote_packet_safety_proof_acceptance_missing_count": 0,
     "status_report_remote_packet_safety_proof_formal_acceptance_missing_count": 1,
-    "status_report_remote_packet_safety_proof_next_blocked_lane": "source_fresh_preflight",
+    "status_report_remote_packet_safety_proof_next_blocked_lane": "protocol_lane_decision",
     "status_report_remote_packet_safety_proof_h02_paper_result_input_allowed": false,
     "status_report_remote_packet_safety_status_report_proof_summary_present": true,
     "status_report_remote_packet_safety_command_index_present": true,
@@ -293,9 +286,10 @@
       "present": true,
       "required_requirement_count": 4,
       "present_requirement_count": 4,
-      "blocked_requirement_count": 0,
+      "blocked_requirement_count": 1,
       "status_counts": {
-        "satisfied": 4
+        "satisfied": 3,
+        "blocked_missing_preflight": 1
       },
       "missing_requirement_ids": [],
       "requirements": {
@@ -304,22 +298,28 @@
           "status": "satisfied",
           "phase": "decision",
           "complete": true,
-          "execution_allowed_now": true,
+          "execution_allowed_now": false,
           "remote_training_ready_now": null,
           "missing_artifact_ids": [],
-          "blocked_by": [],
+          "blocked_by": [
+            "protocol_lane_decision_pending"
+          ],
           "acceptable_evidence_count": 3,
           "invalid_substitute_count": 3
         },
         "approved_remote_preflight_manifest": {
           "present": true,
-          "status": "satisfied",
+          "status": "blocked_missing_preflight",
           "phase": "remote_preflight",
-          "complete": true,
-          "execution_allowed_now": true,
+          "complete": false,
+          "execution_allowed_now": false,
           "remote_training_ready_now": null,
-          "missing_artifact_ids": [],
-          "blocked_by": [],
+          "missing_artifact_ids": [
+            "approved_remote_preflight_manifest_ready"
+          ],
+          "blocked_by": [
+            "warm_start_decision_pending"
+          ],
           "acceptable_evidence_count": 3,
           "invalid_substitute_count": 3
         },
@@ -328,7 +328,7 @@
           "status": "satisfied",
           "phase": "remote_preflight",
           "complete": true,
-          "execution_allowed_now": true,
+          "execution_allowed_now": false,
           "remote_training_ready_now": null,
           "missing_artifact_ids": [],
           "blocked_by": [],
@@ -340,10 +340,12 @@
           "status": "satisfied",
           "phase": "remote_preflight",
           "complete": true,
-          "execution_allowed_now": true,
+          "execution_allowed_now": false,
           "remote_training_ready_now": null,
           "missing_artifact_ids": [],
-          "blocked_by": [],
+          "blocked_by": [
+            "protocol_lane_decision_pending"
+          ],
           "acceptable_evidence_count": 3,
           "invalid_substitute_count": 3
         }
@@ -365,7 +367,7 @@
           "phase": "pullback",
           "complete": false,
           "execution_allowed_now": false,
-          "remote_training_ready_now": true,
+          "remote_training_ready_now": false,
           "missing_artifact_ids": [],
           "blocked_by": [],
           "acceptable_evidence_count": 3,
@@ -377,7 +379,7 @@
           "phase": "pullback",
           "complete": false,
           "execution_allowed_now": false,
-          "remote_training_ready_now": true,
+          "remote_training_ready_now": false,
           "missing_artifact_ids": [],
           "blocked_by": [],
           "acceptable_evidence_count": 2,
@@ -389,7 +391,7 @@
           "phase": "acceptance",
           "complete": false,
           "execution_allowed_now": false,
-          "remote_training_ready_now": true,
+          "remote_training_ready_now": false,
           "missing_artifact_ids": [
             "gate3_formal_audit_formal_decision_pass"
           ],
@@ -403,7 +405,7 @@
           "phase": "evaluation_acceptance",
           "complete": false,
           "execution_allowed_now": false,
-          "remote_training_ready_now": true,
+          "remote_training_ready_now": false,
           "missing_artifact_ids": [],
           "blocked_by": [],
           "acceptable_evidence_count": 3,
@@ -821,7 +823,7 @@
         "formal_acceptance:h02_formal_output_acceptance"
       ]
     },
-    "next_blocked_lane": "source_fresh_preflight",
+    "next_blocked_lane": "protocol_lane_decision",
     "h01_status": "ready_for_formal_run",
     "h02_status": "blocked_formal_output_acceptance",
     "h02_formal_output_accepted": false,
@@ -843,7 +845,7 @@
         "formal_acceptance:h02_formal_output_acceptance"
       ]
     },
-    "next_blocked_lane": "source_fresh_preflight",
+    "next_blocked_lane": "protocol_lane_decision",
     "h01_status": "ready_for_formal_run",
     "h02_status": "blocked_formal_output_acceptance",
     "h02_formal_output_accepted": false,
@@ -1196,7 +1198,7 @@
     "formal_claim_allowed": false,
     "audit_issue_count": 4,
     "proof_summary_chain_status": "formal_gate_proof_summary_chain_audit_failed",
-    "proof_summary_chain_audit_issue_count": 18,
+    "proof_summary_chain_audit_issue_count": 15,
     "proof_summary_chain_proof_audit_input_safety_issue_count": 0,
     "proof_summary_chain_proof_audit_blockers": [
       "failed_formal_h01_h02_acceptance_artifacts"
@@ -1242,29 +1244,38 @@
       "sync_to_remote": {
         "present": true,
         "status": null,
-        "allowed_now": true,
+        "allowed_now": false,
         "runs_training": false,
         "runs_remote_preflight": null,
         "host": null,
-        "blocked_by": []
+        "blocked_by": [
+          "protocol_lane_decision_pending"
+        ]
       },
       "run_remote_preflight": {
         "present": true,
         "status": null,
-        "allowed_now": true,
+        "allowed_now": false,
         "runs_training": false,
         "runs_remote_preflight": null,
         "host": null,
-        "blocked_by": []
+        "blocked_by": [
+          "protocol_lane_decision_pending"
+        ]
       },
       "run_remote_training": {
         "present": true,
         "status": null,
-        "allowed_now": true,
+        "allowed_now": false,
         "runs_training": true,
         "runs_remote_preflight": null,
         "host": null,
-        "blocked_by": []
+        "blocked_by": [
+          "protocol_lane_decision_pending",
+          "remote_formal_preflight_not_ready",
+          "warm_start_decision_pending",
+          "remote_packet_not_ready"
+        ]
       },
       "run_remote_audit": {
         "present": true,
@@ -1274,7 +1285,10 @@
         "runs_remote_preflight": null,
         "host": null,
         "blocked_by": [
-          "remote_training_not_completed"
+          "protocol_lane_decision_pending",
+          "remote_formal_preflight_not_ready",
+          "warm_start_decision_pending",
+          "remote_packet_not_ready"
         ]
       }
     }

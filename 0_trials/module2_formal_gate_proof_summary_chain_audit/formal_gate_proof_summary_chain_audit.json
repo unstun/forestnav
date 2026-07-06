@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_proof_summary_chain_audit",
   "status": "formal_gate_proof_summary_chain_audit_failed",
-  "created_at_utc": "2026-07-06T02:39:16.161510+00:00",
-  "source_head": "9405da7d4ed712452f2de86e5ca9a4629145aab1",
+  "created_at_utc": "2026-07-06T02:45:14.780817+00:00",
+  "source_head": "74a171c7017ee34962c9e3a3a6044312d29e4b07+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -66,9 +66,9 @@
   },
   "proof_open": true,
   "row_count": 14,
-  "consistent_row_count": 4,
+  "consistent_row_count": 14,
   "missing_row_count": 0,
-  "mismatch_row_count": 10,
+  "mismatch_row_count": 0,
   "next_action_guard_row_count": 3,
   "next_action_guard_consistent_row_count": 3,
   "next_required_deliverables_row_count": 3,
@@ -81,488 +81,8 @@
   "proof_audit_blockers": [
     "failed_formal_h01_h02_acceptance_artifacts"
   ],
-  "audit_issue_count": 13,
+  "audit_issue_count": 3,
   "audit_issues": [
-    {
-      "issue_id": "status_report_remote_safety_proof_summary_summary_mismatch",
-      "message": "Downstream proof-deliverables summary does not match the remaining-deliverables baseline.",
-      "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
-      "summary_key_path": "remote_packet_safety_proof_deliverables_summary",
-      "observed_signature": {
-        "missing_counts_by_formal_category": {
-          "training": 0,
-          "evaluation": 0,
-          "acceptance": 0,
-          "formal_acceptance": 1
-        },
-        "missing_matrix_ids_by_formal_category": {
-          "training": [],
-          "evaluation": [],
-          "acceptance": [],
-          "formal_acceptance": [
-            "formal_acceptance:h02_formal_output_acceptance"
-          ]
-        },
-        "next_blocked_lane": "source_fresh_preflight",
-        "h01_status": "ready_for_formal_run",
-        "h02_status": "blocked_formal_output_acceptance",
-        "h02_formal_output_accepted": false,
-        "h02_paper_result_input_allowed": false
-      },
-      "expected_signature": {
-        "missing_counts_by_formal_category": {
-          "training": 0,
-          "evaluation": 0,
-          "acceptance": 0,
-          "formal_acceptance": 1
-        },
-        "missing_matrix_ids_by_formal_category": {
-          "training": [],
-          "evaluation": [],
-          "acceptance": [],
-          "formal_acceptance": [
-            "formal_acceptance:h02_formal_output_acceptance"
-          ]
-        },
-        "next_blocked_lane": "protocol_lane_decision",
-        "h01_status": "ready_for_formal_run",
-        "h02_status": "blocked_formal_output_acceptance",
-        "h02_formal_output_accepted": false,
-        "h02_paper_result_input_allowed": false
-      }
-    },
-    {
-      "issue_id": "status_report_remote_safety_status_report_proof_summary_summary_mismatch",
-      "message": "Downstream proof-deliverables summary does not match the remaining-deliverables baseline.",
-      "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
-      "summary_key_path": "remote_packet_safety_status_report_proof_deliverables_summary",
-      "observed_signature": {
-        "missing_counts_by_formal_category": {
-          "training": 0,
-          "evaluation": 0,
-          "acceptance": 0,
-          "formal_acceptance": 1
-        },
-        "missing_matrix_ids_by_formal_category": {
-          "training": [],
-          "evaluation": [],
-          "acceptance": [],
-          "formal_acceptance": [
-            "formal_acceptance:h02_formal_output_acceptance"
-          ]
-        },
-        "next_blocked_lane": "source_fresh_preflight",
-        "h01_status": "ready_for_formal_run",
-        "h02_status": "blocked_formal_output_acceptance",
-        "h02_formal_output_accepted": false,
-        "h02_paper_result_input_allowed": false
-      },
-      "expected_signature": {
-        "missing_counts_by_formal_category": {
-          "training": 0,
-          "evaluation": 0,
-          "acceptance": 0,
-          "formal_acceptance": 1
-        },
-        "missing_matrix_ids_by_formal_category": {
-          "training": [],
-          "evaluation": [],
-          "acceptance": [],
-          "formal_acceptance": [
-            "formal_acceptance:h02_formal_output_acceptance"
-          ]
-        },
-        "next_blocked_lane": "protocol_lane_decision",
-        "h01_status": "ready_for_formal_run",
-        "h02_status": "blocked_formal_output_acceptance",
-        "h02_formal_output_accepted": false,
-        "h02_paper_result_input_allowed": false
-      }
-    },
-    {
-      "issue_id": "remote_safety_post_plan_proof_summary_summary_mismatch",
-      "message": "Downstream proof-deliverables summary does not match the remaining-deliverables baseline.",
-      "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
-      "summary_key_path": "cross_gate_summary.post_plan_proof_audit_deliverables_summary",
-      "observed_signature": {
-        "missing_counts_by_formal_category": {
-          "training": 0,
-          "evaluation": 0,
-          "acceptance": 0,
-          "formal_acceptance": 1
-        },
-        "missing_matrix_ids_by_formal_category": {
-          "training": [],
-          "evaluation": [],
-          "acceptance": [],
-          "formal_acceptance": [
-            "formal_acceptance:h02_formal_output_acceptance"
-          ]
-        },
-        "next_blocked_lane": "source_fresh_preflight",
-        "h01_status": "ready_for_formal_run",
-        "h02_status": "blocked_formal_output_acceptance",
-        "h02_formal_output_accepted": false,
-        "h02_paper_result_input_allowed": false
-      },
-      "expected_signature": {
-        "missing_counts_by_formal_category": {
-          "training": 0,
-          "evaluation": 0,
-          "acceptance": 0,
-          "formal_acceptance": 1
-        },
-        "missing_matrix_ids_by_formal_category": {
-          "training": [],
-          "evaluation": [],
-          "acceptance": [],
-          "formal_acceptance": [
-            "formal_acceptance:h02_formal_output_acceptance"
-          ]
-        },
-        "next_blocked_lane": "protocol_lane_decision",
-        "h01_status": "ready_for_formal_run",
-        "h02_status": "blocked_formal_output_acceptance",
-        "h02_formal_output_accepted": false,
-        "h02_paper_result_input_allowed": false
-      }
-    },
-    {
-      "issue_id": "remote_safety_post_plan_status_report_proof_summary_summary_mismatch",
-      "message": "Downstream proof-deliverables summary does not match the remaining-deliverables baseline.",
-      "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
-      "summary_key_path": "cross_gate_summary.post_plan_status_report_proof_audit_deliverables_summary",
-      "observed_signature": {
-        "missing_counts_by_formal_category": {
-          "training": 0,
-          "evaluation": 0,
-          "acceptance": 0,
-          "formal_acceptance": 1
-        },
-        "missing_matrix_ids_by_formal_category": {
-          "training": [],
-          "evaluation": [],
-          "acceptance": [],
-          "formal_acceptance": [
-            "formal_acceptance:h02_formal_output_acceptance"
-          ]
-        },
-        "next_blocked_lane": "source_fresh_preflight",
-        "h01_status": "ready_for_formal_run",
-        "h02_status": "blocked_formal_output_acceptance",
-        "h02_formal_output_accepted": false,
-        "h02_paper_result_input_allowed": false
-      },
-      "expected_signature": {
-        "missing_counts_by_formal_category": {
-          "training": 0,
-          "evaluation": 0,
-          "acceptance": 0,
-          "formal_acceptance": 1
-        },
-        "missing_matrix_ids_by_formal_category": {
-          "training": [],
-          "evaluation": [],
-          "acceptance": [],
-          "formal_acceptance": [
-            "formal_acceptance:h02_formal_output_acceptance"
-          ]
-        },
-        "next_blocked_lane": "protocol_lane_decision",
-        "h01_status": "ready_for_formal_run",
-        "h02_status": "blocked_formal_output_acceptance",
-        "h02_formal_output_accepted": false,
-        "h02_paper_result_input_allowed": false
-      }
-    },
-    {
-      "issue_id": "gap_audit_remote_safety_proof_summary_summary_mismatch",
-      "message": "Downstream proof-deliverables summary does not match the remaining-deliverables baseline.",
-      "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
-      "summary_key_path": "remote_packet_safety.proof_deliverables_summary",
-      "observed_signature": {
-        "missing_counts_by_formal_category": {
-          "training": 0,
-          "evaluation": 0,
-          "acceptance": 0,
-          "formal_acceptance": 1
-        },
-        "missing_matrix_ids_by_formal_category": {
-          "training": [],
-          "evaluation": [],
-          "acceptance": [],
-          "formal_acceptance": [
-            "formal_acceptance:h02_formal_output_acceptance"
-          ]
-        },
-        "next_blocked_lane": "source_fresh_preflight",
-        "h01_status": "ready_for_formal_run",
-        "h02_status": "blocked_formal_output_acceptance",
-        "h02_formal_output_accepted": false,
-        "h02_paper_result_input_allowed": false
-      },
-      "expected_signature": {
-        "missing_counts_by_formal_category": {
-          "training": 0,
-          "evaluation": 0,
-          "acceptance": 0,
-          "formal_acceptance": 1
-        },
-        "missing_matrix_ids_by_formal_category": {
-          "training": [],
-          "evaluation": [],
-          "acceptance": [],
-          "formal_acceptance": [
-            "formal_acceptance:h02_formal_output_acceptance"
-          ]
-        },
-        "next_blocked_lane": "protocol_lane_decision",
-        "h01_status": "ready_for_formal_run",
-        "h02_status": "blocked_formal_output_acceptance",
-        "h02_formal_output_accepted": false,
-        "h02_paper_result_input_allowed": false
-      }
-    },
-    {
-      "issue_id": "gap_audit_remote_safety_status_report_proof_summary_summary_mismatch",
-      "message": "Downstream proof-deliverables summary does not match the remaining-deliverables baseline.",
-      "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
-      "summary_key_path": "remote_packet_safety.status_report_proof_deliverables_summary",
-      "observed_signature": {
-        "missing_counts_by_formal_category": {
-          "training": 0,
-          "evaluation": 0,
-          "acceptance": 0,
-          "formal_acceptance": 1
-        },
-        "missing_matrix_ids_by_formal_category": {
-          "training": [],
-          "evaluation": [],
-          "acceptance": [],
-          "formal_acceptance": [
-            "formal_acceptance:h02_formal_output_acceptance"
-          ]
-        },
-        "next_blocked_lane": "source_fresh_preflight",
-        "h01_status": "ready_for_formal_run",
-        "h02_status": "blocked_formal_output_acceptance",
-        "h02_formal_output_accepted": false,
-        "h02_paper_result_input_allowed": false
-      },
-      "expected_signature": {
-        "missing_counts_by_formal_category": {
-          "training": 0,
-          "evaluation": 0,
-          "acceptance": 0,
-          "formal_acceptance": 1
-        },
-        "missing_matrix_ids_by_formal_category": {
-          "training": [],
-          "evaluation": [],
-          "acceptance": [],
-          "formal_acceptance": [
-            "formal_acceptance:h02_formal_output_acceptance"
-          ]
-        },
-        "next_blocked_lane": "protocol_lane_decision",
-        "h01_status": "ready_for_formal_run",
-        "h02_status": "blocked_formal_output_acceptance",
-        "h02_formal_output_accepted": false,
-        "h02_paper_result_input_allowed": false
-      }
-    },
-    {
-      "issue_id": "claim_safety_remote_safety_proof_summary_summary_mismatch",
-      "message": "Downstream proof-deliverables summary does not match the remaining-deliverables baseline.",
-      "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
-      "summary_key_path": "status_report_remote_packet_safety_proof_deliverables_summary",
-      "observed_signature": {
-        "missing_counts_by_formal_category": {
-          "training": 0,
-          "evaluation": 0,
-          "acceptance": 0,
-          "formal_acceptance": 1
-        },
-        "missing_matrix_ids_by_formal_category": {
-          "training": [],
-          "evaluation": [],
-          "acceptance": [],
-          "formal_acceptance": [
-            "formal_acceptance:h02_formal_output_acceptance"
-          ]
-        },
-        "next_blocked_lane": "source_fresh_preflight",
-        "h01_status": "ready_for_formal_run",
-        "h02_status": "blocked_formal_output_acceptance",
-        "h02_formal_output_accepted": false,
-        "h02_paper_result_input_allowed": false
-      },
-      "expected_signature": {
-        "missing_counts_by_formal_category": {
-          "training": 0,
-          "evaluation": 0,
-          "acceptance": 0,
-          "formal_acceptance": 1
-        },
-        "missing_matrix_ids_by_formal_category": {
-          "training": [],
-          "evaluation": [],
-          "acceptance": [],
-          "formal_acceptance": [
-            "formal_acceptance:h02_formal_output_acceptance"
-          ]
-        },
-        "next_blocked_lane": "protocol_lane_decision",
-        "h01_status": "ready_for_formal_run",
-        "h02_status": "blocked_formal_output_acceptance",
-        "h02_formal_output_accepted": false,
-        "h02_paper_result_input_allowed": false
-      }
-    },
-    {
-      "issue_id": "claim_safety_remote_safety_status_report_proof_summary_summary_mismatch",
-      "message": "Downstream proof-deliverables summary does not match the remaining-deliverables baseline.",
-      "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
-      "summary_key_path": "status_report_remote_packet_safety_status_report_proof_deliverables_summary",
-      "observed_signature": {
-        "missing_counts_by_formal_category": {
-          "training": 0,
-          "evaluation": 0,
-          "acceptance": 0,
-          "formal_acceptance": 1
-        },
-        "missing_matrix_ids_by_formal_category": {
-          "training": [],
-          "evaluation": [],
-          "acceptance": [],
-          "formal_acceptance": [
-            "formal_acceptance:h02_formal_output_acceptance"
-          ]
-        },
-        "next_blocked_lane": "source_fresh_preflight",
-        "h01_status": "ready_for_formal_run",
-        "h02_status": "blocked_formal_output_acceptance",
-        "h02_formal_output_accepted": false,
-        "h02_paper_result_input_allowed": false
-      },
-      "expected_signature": {
-        "missing_counts_by_formal_category": {
-          "training": 0,
-          "evaluation": 0,
-          "acceptance": 0,
-          "formal_acceptance": 1
-        },
-        "missing_matrix_ids_by_formal_category": {
-          "training": [],
-          "evaluation": [],
-          "acceptance": [],
-          "formal_acceptance": [
-            "formal_acceptance:h02_formal_output_acceptance"
-          ]
-        },
-        "next_blocked_lane": "protocol_lane_decision",
-        "h01_status": "ready_for_formal_run",
-        "h02_status": "blocked_formal_output_acceptance",
-        "h02_formal_output_accepted": false,
-        "h02_paper_result_input_allowed": false
-      }
-    },
-    {
-      "issue_id": "paper_readiness_remote_safety_proof_summary_summary_mismatch",
-      "message": "Downstream proof-deliverables summary does not match the remaining-deliverables baseline.",
-      "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
-      "summary_key_path": "claim_safety_remote_packet_safety_proof_deliverables_summary",
-      "observed_signature": {
-        "missing_counts_by_formal_category": {
-          "training": 0,
-          "evaluation": 0,
-          "acceptance": 0,
-          "formal_acceptance": 1
-        },
-        "missing_matrix_ids_by_formal_category": {
-          "training": [],
-          "evaluation": [],
-          "acceptance": [],
-          "formal_acceptance": [
-            "formal_acceptance:h02_formal_output_acceptance"
-          ]
-        },
-        "next_blocked_lane": "source_fresh_preflight",
-        "h01_status": "ready_for_formal_run",
-        "h02_status": "blocked_formal_output_acceptance",
-        "h02_formal_output_accepted": false,
-        "h02_paper_result_input_allowed": false
-      },
-      "expected_signature": {
-        "missing_counts_by_formal_category": {
-          "training": 0,
-          "evaluation": 0,
-          "acceptance": 0,
-          "formal_acceptance": 1
-        },
-        "missing_matrix_ids_by_formal_category": {
-          "training": [],
-          "evaluation": [],
-          "acceptance": [],
-          "formal_acceptance": [
-            "formal_acceptance:h02_formal_output_acceptance"
-          ]
-        },
-        "next_blocked_lane": "protocol_lane_decision",
-        "h01_status": "ready_for_formal_run",
-        "h02_status": "blocked_formal_output_acceptance",
-        "h02_formal_output_accepted": false,
-        "h02_paper_result_input_allowed": false
-      }
-    },
-    {
-      "issue_id": "paper_readiness_remote_safety_status_report_proof_summary_summary_mismatch",
-      "message": "Downstream proof-deliverables summary does not match the remaining-deliverables baseline.",
-      "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
-      "summary_key_path": "claim_safety_remote_packet_safety_status_report_proof_deliverables_summary",
-      "observed_signature": {
-        "missing_counts_by_formal_category": {
-          "training": 0,
-          "evaluation": 0,
-          "acceptance": 0,
-          "formal_acceptance": 1
-        },
-        "missing_matrix_ids_by_formal_category": {
-          "training": [],
-          "evaluation": [],
-          "acceptance": [],
-          "formal_acceptance": [
-            "formal_acceptance:h02_formal_output_acceptance"
-          ]
-        },
-        "next_blocked_lane": "source_fresh_preflight",
-        "h01_status": "ready_for_formal_run",
-        "h02_status": "blocked_formal_output_acceptance",
-        "h02_formal_output_accepted": false,
-        "h02_paper_result_input_allowed": false
-      },
-      "expected_signature": {
-        "missing_counts_by_formal_category": {
-          "training": 0,
-          "evaluation": 0,
-          "acceptance": 0,
-          "formal_acceptance": 1
-        },
-        "missing_matrix_ids_by_formal_category": {
-          "training": [],
-          "evaluation": [],
-          "acceptance": [],
-          "formal_acceptance": [
-            "formal_acceptance:h02_formal_output_acceptance"
-          ]
-        },
-        "next_blocked_lane": "protocol_lane_decision",
-        "h01_status": "ready_for_formal_run",
-        "h02_status": "blocked_formal_output_acceptance",
-        "h02_formal_output_accepted": false,
-        "h02_paper_result_input_allowed": false
-      }
-    },
     {
       "issue_id": "handoff_bundle_single_next_action_index_unexpected_status",
       "message": "Single-next-action summary must either wait for F02.6 or follow post-decision handoff stages.",
@@ -729,7 +249,7 @@
       "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
       "summary_key_path": "remote_packet_safety_proof_deliverables_summary",
       "present": true,
-      "signature_matches_baseline": false,
+      "signature_matches_baseline": true,
       "missing_counts_by_formal_category": {
         "training": 0,
         "evaluation": 0,
@@ -744,7 +264,7 @@
           "formal_acceptance:h02_formal_output_acceptance"
         ]
       },
-      "next_blocked_lane": "source_fresh_preflight",
+      "next_blocked_lane": "protocol_lane_decision",
       "h01_status": "ready_for_formal_run",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
@@ -764,7 +284,7 @@
             "formal_acceptance:h02_formal_output_acceptance"
           ]
         },
-        "next_blocked_lane": "source_fresh_preflight",
+        "next_blocked_lane": "protocol_lane_decision",
         "h01_status": "ready_for_formal_run",
         "h02_status": "blocked_formal_output_acceptance",
         "h02_formal_output_accepted": false,
@@ -776,7 +296,7 @@
       "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
       "summary_key_path": "remote_packet_safety_status_report_proof_deliverables_summary",
       "present": true,
-      "signature_matches_baseline": false,
+      "signature_matches_baseline": true,
       "missing_counts_by_formal_category": {
         "training": 0,
         "evaluation": 0,
@@ -791,7 +311,7 @@
           "formal_acceptance:h02_formal_output_acceptance"
         ]
       },
-      "next_blocked_lane": "source_fresh_preflight",
+      "next_blocked_lane": "protocol_lane_decision",
       "h01_status": "ready_for_formal_run",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
@@ -811,7 +331,7 @@
             "formal_acceptance:h02_formal_output_acceptance"
           ]
         },
-        "next_blocked_lane": "source_fresh_preflight",
+        "next_blocked_lane": "protocol_lane_decision",
         "h01_status": "ready_for_formal_run",
         "h02_status": "blocked_formal_output_acceptance",
         "h02_formal_output_accepted": false,
@@ -870,7 +390,7 @@
       "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
       "summary_key_path": "cross_gate_summary.post_plan_proof_audit_deliverables_summary",
       "present": true,
-      "signature_matches_baseline": false,
+      "signature_matches_baseline": true,
       "missing_counts_by_formal_category": {
         "training": 0,
         "evaluation": 0,
@@ -885,7 +405,7 @@
           "formal_acceptance:h02_formal_output_acceptance"
         ]
       },
-      "next_blocked_lane": "source_fresh_preflight",
+      "next_blocked_lane": "protocol_lane_decision",
       "h01_status": "ready_for_formal_run",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
@@ -905,7 +425,7 @@
             "formal_acceptance:h02_formal_output_acceptance"
           ]
         },
-        "next_blocked_lane": "source_fresh_preflight",
+        "next_blocked_lane": "protocol_lane_decision",
         "h01_status": "ready_for_formal_run",
         "h02_status": "blocked_formal_output_acceptance",
         "h02_formal_output_accepted": false,
@@ -917,7 +437,7 @@
       "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
       "summary_key_path": "cross_gate_summary.post_plan_status_report_proof_audit_deliverables_summary",
       "present": true,
-      "signature_matches_baseline": false,
+      "signature_matches_baseline": true,
       "missing_counts_by_formal_category": {
         "training": 0,
         "evaluation": 0,
@@ -932,7 +452,7 @@
           "formal_acceptance:h02_formal_output_acceptance"
         ]
       },
-      "next_blocked_lane": "source_fresh_preflight",
+      "next_blocked_lane": "protocol_lane_decision",
       "h01_status": "ready_for_formal_run",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
@@ -952,7 +472,7 @@
             "formal_acceptance:h02_formal_output_acceptance"
           ]
         },
-        "next_blocked_lane": "source_fresh_preflight",
+        "next_blocked_lane": "protocol_lane_decision",
         "h01_status": "ready_for_formal_run",
         "h02_status": "blocked_formal_output_acceptance",
         "h02_formal_output_accepted": false,
@@ -964,7 +484,7 @@
       "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
       "summary_key_path": "remote_packet_safety.proof_deliverables_summary",
       "present": true,
-      "signature_matches_baseline": false,
+      "signature_matches_baseline": true,
       "missing_counts_by_formal_category": {
         "training": 0,
         "evaluation": 0,
@@ -979,7 +499,7 @@
           "formal_acceptance:h02_formal_output_acceptance"
         ]
       },
-      "next_blocked_lane": "source_fresh_preflight",
+      "next_blocked_lane": "protocol_lane_decision",
       "h01_status": "ready_for_formal_run",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
@@ -999,7 +519,7 @@
             "formal_acceptance:h02_formal_output_acceptance"
           ]
         },
-        "next_blocked_lane": "source_fresh_preflight",
+        "next_blocked_lane": "protocol_lane_decision",
         "h01_status": "ready_for_formal_run",
         "h02_status": "blocked_formal_output_acceptance",
         "h02_formal_output_accepted": false,
@@ -1011,7 +531,7 @@
       "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
       "summary_key_path": "remote_packet_safety.status_report_proof_deliverables_summary",
       "present": true,
-      "signature_matches_baseline": false,
+      "signature_matches_baseline": true,
       "missing_counts_by_formal_category": {
         "training": 0,
         "evaluation": 0,
@@ -1026,7 +546,7 @@
           "formal_acceptance:h02_formal_output_acceptance"
         ]
       },
-      "next_blocked_lane": "source_fresh_preflight",
+      "next_blocked_lane": "protocol_lane_decision",
       "h01_status": "ready_for_formal_run",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
@@ -1046,7 +566,7 @@
             "formal_acceptance:h02_formal_output_acceptance"
           ]
         },
-        "next_blocked_lane": "source_fresh_preflight",
+        "next_blocked_lane": "protocol_lane_decision",
         "h01_status": "ready_for_formal_run",
         "h02_status": "blocked_formal_output_acceptance",
         "h02_formal_output_accepted": false,
@@ -1058,7 +578,7 @@
       "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
       "summary_key_path": "status_report_remote_packet_safety_proof_deliverables_summary",
       "present": true,
-      "signature_matches_baseline": false,
+      "signature_matches_baseline": true,
       "missing_counts_by_formal_category": {
         "training": 0,
         "evaluation": 0,
@@ -1073,7 +593,7 @@
           "formal_acceptance:h02_formal_output_acceptance"
         ]
       },
-      "next_blocked_lane": "source_fresh_preflight",
+      "next_blocked_lane": "protocol_lane_decision",
       "h01_status": "ready_for_formal_run",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
@@ -1093,7 +613,7 @@
             "formal_acceptance:h02_formal_output_acceptance"
           ]
         },
-        "next_blocked_lane": "source_fresh_preflight",
+        "next_blocked_lane": "protocol_lane_decision",
         "h01_status": "ready_for_formal_run",
         "h02_status": "blocked_formal_output_acceptance",
         "h02_formal_output_accepted": false,
@@ -1105,7 +625,7 @@
       "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
       "summary_key_path": "status_report_remote_packet_safety_status_report_proof_deliverables_summary",
       "present": true,
-      "signature_matches_baseline": false,
+      "signature_matches_baseline": true,
       "missing_counts_by_formal_category": {
         "training": 0,
         "evaluation": 0,
@@ -1120,7 +640,7 @@
           "formal_acceptance:h02_formal_output_acceptance"
         ]
       },
-      "next_blocked_lane": "source_fresh_preflight",
+      "next_blocked_lane": "protocol_lane_decision",
       "h01_status": "ready_for_formal_run",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
@@ -1140,7 +660,7 @@
             "formal_acceptance:h02_formal_output_acceptance"
           ]
         },
-        "next_blocked_lane": "source_fresh_preflight",
+        "next_blocked_lane": "protocol_lane_decision",
         "h01_status": "ready_for_formal_run",
         "h02_status": "blocked_formal_output_acceptance",
         "h02_formal_output_accepted": false,
@@ -1152,7 +672,7 @@
       "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
       "summary_key_path": "claim_safety_remote_packet_safety_proof_deliverables_summary",
       "present": true,
-      "signature_matches_baseline": false,
+      "signature_matches_baseline": true,
       "missing_counts_by_formal_category": {
         "training": 0,
         "evaluation": 0,
@@ -1167,7 +687,7 @@
           "formal_acceptance:h02_formal_output_acceptance"
         ]
       },
-      "next_blocked_lane": "source_fresh_preflight",
+      "next_blocked_lane": "protocol_lane_decision",
       "h01_status": "ready_for_formal_run",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
@@ -1187,7 +707,7 @@
             "formal_acceptance:h02_formal_output_acceptance"
           ]
         },
-        "next_blocked_lane": "source_fresh_preflight",
+        "next_blocked_lane": "protocol_lane_decision",
         "h01_status": "ready_for_formal_run",
         "h02_status": "blocked_formal_output_acceptance",
         "h02_formal_output_accepted": false,
@@ -1199,7 +719,7 @@
       "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
       "summary_key_path": "claim_safety_remote_packet_safety_status_report_proof_deliverables_summary",
       "present": true,
-      "signature_matches_baseline": false,
+      "signature_matches_baseline": true,
       "missing_counts_by_formal_category": {
         "training": 0,
         "evaluation": 0,
@@ -1214,7 +734,7 @@
           "formal_acceptance:h02_formal_output_acceptance"
         ]
       },
-      "next_blocked_lane": "source_fresh_preflight",
+      "next_blocked_lane": "protocol_lane_decision",
       "h01_status": "ready_for_formal_run",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
@@ -1234,7 +754,7 @@
             "formal_acceptance:h02_formal_output_acceptance"
           ]
         },
-        "next_blocked_lane": "source_fresh_preflight",
+        "next_blocked_lane": "protocol_lane_decision",
         "h01_status": "ready_for_formal_run",
         "h02_status": "blocked_formal_output_acceptance",
         "h02_formal_output_accepted": false,
@@ -1389,7 +909,7 @@
       "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
       "summary_key_path": "remote_packet_safety_proof_deliverables_summary",
       "present": true,
-      "signature_matches_baseline": false,
+      "signature_matches_baseline": true,
       "missing_counts_by_formal_category": {
         "training": 0,
         "evaluation": 0,
@@ -1404,7 +924,7 @@
           "formal_acceptance:h02_formal_output_acceptance"
         ]
       },
-      "next_blocked_lane": "source_fresh_preflight",
+      "next_blocked_lane": "protocol_lane_decision",
       "h01_status": "ready_for_formal_run",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
@@ -1424,7 +944,7 @@
             "formal_acceptance:h02_formal_output_acceptance"
           ]
         },
-        "next_blocked_lane": "source_fresh_preflight",
+        "next_blocked_lane": "protocol_lane_decision",
         "h01_status": "ready_for_formal_run",
         "h02_status": "blocked_formal_output_acceptance",
         "h02_formal_output_accepted": false,
@@ -1436,7 +956,7 @@
       "path": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
       "summary_key_path": "remote_packet_safety_status_report_proof_deliverables_summary",
       "present": true,
-      "signature_matches_baseline": false,
+      "signature_matches_baseline": true,
       "missing_counts_by_formal_category": {
         "training": 0,
         "evaluation": 0,
@@ -1451,7 +971,7 @@
           "formal_acceptance:h02_formal_output_acceptance"
         ]
       },
-      "next_blocked_lane": "source_fresh_preflight",
+      "next_blocked_lane": "protocol_lane_decision",
       "h01_status": "ready_for_formal_run",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
@@ -1471,7 +991,7 @@
             "formal_acceptance:h02_formal_output_acceptance"
           ]
         },
-        "next_blocked_lane": "source_fresh_preflight",
+        "next_blocked_lane": "protocol_lane_decision",
         "h01_status": "ready_for_formal_run",
         "h02_status": "blocked_formal_output_acceptance",
         "h02_formal_output_accepted": false,
@@ -1530,7 +1050,7 @@
       "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
       "summary_key_path": "cross_gate_summary.post_plan_proof_audit_deliverables_summary",
       "present": true,
-      "signature_matches_baseline": false,
+      "signature_matches_baseline": true,
       "missing_counts_by_formal_category": {
         "training": 0,
         "evaluation": 0,
@@ -1545,7 +1065,7 @@
           "formal_acceptance:h02_formal_output_acceptance"
         ]
       },
-      "next_blocked_lane": "source_fresh_preflight",
+      "next_blocked_lane": "protocol_lane_decision",
       "h01_status": "ready_for_formal_run",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
@@ -1565,7 +1085,7 @@
             "formal_acceptance:h02_formal_output_acceptance"
           ]
         },
-        "next_blocked_lane": "source_fresh_preflight",
+        "next_blocked_lane": "protocol_lane_decision",
         "h01_status": "ready_for_formal_run",
         "h02_status": "blocked_formal_output_acceptance",
         "h02_formal_output_accepted": false,
@@ -1577,7 +1097,7 @@
       "path": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json",
       "summary_key_path": "cross_gate_summary.post_plan_status_report_proof_audit_deliverables_summary",
       "present": true,
-      "signature_matches_baseline": false,
+      "signature_matches_baseline": true,
       "missing_counts_by_formal_category": {
         "training": 0,
         "evaluation": 0,
@@ -1592,7 +1112,7 @@
           "formal_acceptance:h02_formal_output_acceptance"
         ]
       },
-      "next_blocked_lane": "source_fresh_preflight",
+      "next_blocked_lane": "protocol_lane_decision",
       "h01_status": "ready_for_formal_run",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
@@ -1612,7 +1132,7 @@
             "formal_acceptance:h02_formal_output_acceptance"
           ]
         },
-        "next_blocked_lane": "source_fresh_preflight",
+        "next_blocked_lane": "protocol_lane_decision",
         "h01_status": "ready_for_formal_run",
         "h02_status": "blocked_formal_output_acceptance",
         "h02_formal_output_accepted": false,
@@ -1624,7 +1144,7 @@
       "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
       "summary_key_path": "remote_packet_safety.proof_deliverables_summary",
       "present": true,
-      "signature_matches_baseline": false,
+      "signature_matches_baseline": true,
       "missing_counts_by_formal_category": {
         "training": 0,
         "evaluation": 0,
@@ -1639,7 +1159,7 @@
           "formal_acceptance:h02_formal_output_acceptance"
         ]
       },
-      "next_blocked_lane": "source_fresh_preflight",
+      "next_blocked_lane": "protocol_lane_decision",
       "h01_status": "ready_for_formal_run",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
@@ -1659,7 +1179,7 @@
             "formal_acceptance:h02_formal_output_acceptance"
           ]
         },
-        "next_blocked_lane": "source_fresh_preflight",
+        "next_blocked_lane": "protocol_lane_decision",
         "h01_status": "ready_for_formal_run",
         "h02_status": "blocked_formal_output_acceptance",
         "h02_formal_output_accepted": false,
@@ -1671,7 +1191,7 @@
       "path": "0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json",
       "summary_key_path": "remote_packet_safety.status_report_proof_deliverables_summary",
       "present": true,
-      "signature_matches_baseline": false,
+      "signature_matches_baseline": true,
       "missing_counts_by_formal_category": {
         "training": 0,
         "evaluation": 0,
@@ -1686,7 +1206,7 @@
           "formal_acceptance:h02_formal_output_acceptance"
         ]
       },
-      "next_blocked_lane": "source_fresh_preflight",
+      "next_blocked_lane": "protocol_lane_decision",
       "h01_status": "ready_for_formal_run",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
@@ -1706,7 +1226,7 @@
             "formal_acceptance:h02_formal_output_acceptance"
           ]
         },
-        "next_blocked_lane": "source_fresh_preflight",
+        "next_blocked_lane": "protocol_lane_decision",
         "h01_status": "ready_for_formal_run",
         "h02_status": "blocked_formal_output_acceptance",
         "h02_formal_output_accepted": false,
@@ -1718,7 +1238,7 @@
       "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
       "summary_key_path": "status_report_remote_packet_safety_proof_deliverables_summary",
       "present": true,
-      "signature_matches_baseline": false,
+      "signature_matches_baseline": true,
       "missing_counts_by_formal_category": {
         "training": 0,
         "evaluation": 0,
@@ -1733,7 +1253,7 @@
           "formal_acceptance:h02_formal_output_acceptance"
         ]
       },
-      "next_blocked_lane": "source_fresh_preflight",
+      "next_blocked_lane": "protocol_lane_decision",
       "h01_status": "ready_for_formal_run",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
@@ -1753,7 +1273,7 @@
             "formal_acceptance:h02_formal_output_acceptance"
           ]
         },
-        "next_blocked_lane": "source_fresh_preflight",
+        "next_blocked_lane": "protocol_lane_decision",
         "h01_status": "ready_for_formal_run",
         "h02_status": "blocked_formal_output_acceptance",
         "h02_formal_output_accepted": false,
@@ -1765,7 +1285,7 @@
       "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
       "summary_key_path": "status_report_remote_packet_safety_status_report_proof_deliverables_summary",
       "present": true,
-      "signature_matches_baseline": false,
+      "signature_matches_baseline": true,
       "missing_counts_by_formal_category": {
         "training": 0,
         "evaluation": 0,
@@ -1780,7 +1300,7 @@
           "formal_acceptance:h02_formal_output_acceptance"
         ]
       },
-      "next_blocked_lane": "source_fresh_preflight",
+      "next_blocked_lane": "protocol_lane_decision",
       "h01_status": "ready_for_formal_run",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
@@ -1800,7 +1320,7 @@
             "formal_acceptance:h02_formal_output_acceptance"
           ]
         },
-        "next_blocked_lane": "source_fresh_preflight",
+        "next_blocked_lane": "protocol_lane_decision",
         "h01_status": "ready_for_formal_run",
         "h02_status": "blocked_formal_output_acceptance",
         "h02_formal_output_accepted": false,
@@ -1812,7 +1332,7 @@
       "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
       "summary_key_path": "claim_safety_remote_packet_safety_proof_deliverables_summary",
       "present": true,
-      "signature_matches_baseline": false,
+      "signature_matches_baseline": true,
       "missing_counts_by_formal_category": {
         "training": 0,
         "evaluation": 0,
@@ -1827,7 +1347,7 @@
           "formal_acceptance:h02_formal_output_acceptance"
         ]
       },
-      "next_blocked_lane": "source_fresh_preflight",
+      "next_blocked_lane": "protocol_lane_decision",
       "h01_status": "ready_for_formal_run",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
@@ -1847,7 +1367,7 @@
             "formal_acceptance:h02_formal_output_acceptance"
           ]
         },
-        "next_blocked_lane": "source_fresh_preflight",
+        "next_blocked_lane": "protocol_lane_decision",
         "h01_status": "ready_for_formal_run",
         "h02_status": "blocked_formal_output_acceptance",
         "h02_formal_output_accepted": false,
@@ -1859,7 +1379,7 @@
       "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
       "summary_key_path": "claim_safety_remote_packet_safety_status_report_proof_deliverables_summary",
       "present": true,
-      "signature_matches_baseline": false,
+      "signature_matches_baseline": true,
       "missing_counts_by_formal_category": {
         "training": 0,
         "evaluation": 0,
@@ -1874,7 +1394,7 @@
           "formal_acceptance:h02_formal_output_acceptance"
         ]
       },
-      "next_blocked_lane": "source_fresh_preflight",
+      "next_blocked_lane": "protocol_lane_decision",
       "h01_status": "ready_for_formal_run",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
@@ -1894,7 +1414,7 @@
             "formal_acceptance:h02_formal_output_acceptance"
           ]
         },
-        "next_blocked_lane": "source_fresh_preflight",
+        "next_blocked_lane": "protocol_lane_decision",
         "h01_status": "ready_for_formal_run",
         "h02_status": "blocked_formal_output_acceptance",
         "h02_formal_output_accepted": false,

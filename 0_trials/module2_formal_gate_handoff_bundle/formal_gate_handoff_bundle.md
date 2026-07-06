@@ -38,8 +38,8 @@
 
 - `sync_to_remote`: allowed_now=`False`, blocked_by=`protocol_lane_decision_pending`
 - `run_remote_preflight`: allowed_now=`False`, blocked_by=`protocol_lane_decision_pending`
-- `run_remote_training`: allowed_now=`False`, blocked_by=`protocol_lane_decision_pending`
-- `run_remote_audit`: allowed_now=`False`, blocked_by=`remote_training_not_completed, protocol_lane_decision_pending`
+- `run_remote_training`: allowed_now=`False`, blocked_by=`protocol_lane_decision_pending, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
+- `run_remote_audit`: allowed_now=`False`, blocked_by=`protocol_lane_decision_pending, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
 
 ## F02.6 Route Handoff
 
@@ -90,12 +90,12 @@
 
 - 1. `f02_6_decision_record`: allowed_now=`False`, blocked_by=`current_decision_status_approved`
 - 2. `regenerate_preflight_gate_artifacts`: allowed_now=`True`, blocked_by=`none`
-- 3. `approved_remote_preflight`: allowed_now=`False`, blocked_by=`protocol_lane_decision_pending`
-- 4. `regenerate_remote_execution_packet`: allowed_now=`False`, blocked_by=`protocol_lane_decision_pending`
-- 5. `gate3_remote_training`: allowed_now=`False`, blocked_by=`protocol_lane_decision_pending`
-- 6. `gate3_remote_audit_pullback`: allowed_now=`False`, blocked_by=`remote_training_not_completed, protocol_lane_decision_pending`
-- 7. `regenerate_h01_h02_formal_artifacts`: allowed_now=`False`, blocked_by=`missing_remote_audit_pullback, protocol_lane_decision_pending`
-- 8. `regenerate_claim_gate_artifacts`: allowed_now=`False`, blocked_by=`h02_formal_acceptance_not_ready, protocol_lane_decision_pending`
+- 3. `approved_remote_preflight`: allowed_now=`False`, blocked_by=`source_fresh_preflight_targets_open, protocol_lane_decision_pending`
+- 4. `regenerate_remote_execution_packet`: allowed_now=`False`, blocked_by=`source_fresh_preflight_targets_open, protocol_lane_decision_pending`
+- 5. `gate3_remote_training`: allowed_now=`False`, blocked_by=`source_fresh_preflight_targets_open, remote_packet_not_ready, protocol_lane_decision_pending`
+- 6. `gate3_remote_audit_pullback`: allowed_now=`False`, blocked_by=`protocol_lane_decision_pending, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
+- 7. `regenerate_h01_h02_formal_artifacts`: allowed_now=`False`, blocked_by=`missing_remote_audit_pullback, source_fresh_h01_h02_targets_open, protocol_lane_decision_pending`
+- 8. `regenerate_claim_gate_artifacts`: allowed_now=`False`, blocked_by=`h02_formal_acceptance_not_ready, source_fresh_claim_targets_open, protocol_lane_decision_pending`
 
 ## Requirement Summary
 

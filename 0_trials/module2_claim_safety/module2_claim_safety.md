@@ -23,10 +23,6 @@
 - formal_gate_closure_checklist_open
 - formal_gate_status_report_blocked
 - status_report_input_safety_issues_open
-- status_report_remote_preflight_requirement_f02_6_decision_closed_for_preflight_allowed_while_status_blocked
-- status_report_remote_preflight_requirement_approved_remote_preflight_manifest_allowed_while_status_blocked
-- status_report_remote_preflight_requirement_remote_preflight_protocol_contract_allowed_while_status_blocked
-- status_report_remote_preflight_requirement_remote_preflight_command_packetized_allowed_while_status_blocked
 - status_report_remaining_deliverables_gap_rows_missing
 - status_report_remaining_deliverables_gap_categories_blocked
 - status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing
@@ -45,9 +41,6 @@
 - status_report_mainline_formal_gate_state_audit_failed
 - status_report_mainline_formal_gate_state_audit_issues_open
 - status_report_mainline_proof_summary_issues_open
-- status_report_blocked_but_sync_to_remote_allowed
-- status_report_blocked_but_run_remote_preflight_allowed
-- status_report_blocked_but_run_remote_training_allowed
 
 ## Allowed Claims
 
@@ -76,7 +69,7 @@
 
 ## Status Report Mainline Formal Gate State Audit
 
-- present=`True`, status=`mainline_formal_gate_state_audit_failed`, audit_issue_count=`4`, proof_summary_chain_status=`formal_gate_proof_summary_chain_audit_failed`, proof_summary_chain_audit_issue_count=`18`, proof_summary_chain_proof_audit_input_safety_issue_count=`0`
+- present=`True`, status=`mainline_formal_gate_state_audit_failed`, audit_issue_count=`4`, proof_summary_chain_status=`formal_gate_proof_summary_chain_audit_failed`, proof_summary_chain_audit_issue_count=`15`, proof_summary_chain_proof_audit_input_safety_issue_count=`0`
 
 ## Handoff Single Next-Action Index
 
@@ -109,29 +102,29 @@
 - `gate3_remote_training`: allowed_now=`False`, runs_training=`True`, runs_remote_preflight=`False`, host=`gpu3070ti-relay`, blocked_by=`protocol_lane_decision_pending`
 - `gate3_remote_audit_pullback`: allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`False`, host=`gpu3070ti-relay`, blocked_by=`remote_training_not_completed`
 ### remote_execution_step_summary
-- `sync_to_remote`: allowed_now=`True`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`none`
-- `run_remote_preflight`: allowed_now=`True`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`none`
-- `run_remote_training`: allowed_now=`True`, runs_training=`True`, runs_remote_preflight=`None`, host=`None`, blocked_by=`none`
-- `run_remote_audit`: allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`remote_training_not_completed`
+- `sync_to_remote`: allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`protocol_lane_decision_pending`
+- `run_remote_preflight`: allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`protocol_lane_decision_pending`
+- `run_remote_training`: allowed_now=`False`, runs_training=`True`, runs_remote_preflight=`None`, host=`None`, blocked_by=`protocol_lane_decision_pending, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
+- `run_remote_audit`: allowed_now=`False`, runs_training=`False`, runs_remote_preflight=`None`, host=`None`, blocked_by=`protocol_lane_decision_pending, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
 
 ## Status Report Remote Requirement Matrices
 
 ### remote_preflight_requirement_summary
 - present=`True`
-- status_counts=`{'satisfied': 4}`
-- blocked_requirement_count=`0`
-- `f02_6_decision_closed_for_preflight`: status=`satisfied`, complete=`True`, execution_allowed_now=`True`, remote_training_ready_now=`None`
-- `approved_remote_preflight_manifest`: status=`satisfied`, complete=`True`, execution_allowed_now=`True`, remote_training_ready_now=`None`
-- `remote_preflight_protocol_contract`: status=`satisfied`, complete=`True`, execution_allowed_now=`True`, remote_training_ready_now=`None`
-- `remote_preflight_command_packetized`: status=`satisfied`, complete=`True`, execution_allowed_now=`True`, remote_training_ready_now=`None`
+- status_counts=`{'satisfied': 3, 'blocked_missing_preflight': 1}`
+- blocked_requirement_count=`1`
+- `f02_6_decision_closed_for_preflight`: status=`satisfied`, complete=`True`, execution_allowed_now=`False`, remote_training_ready_now=`None`
+- `approved_remote_preflight_manifest`: status=`blocked_missing_preflight`, complete=`False`, execution_allowed_now=`False`, remote_training_ready_now=`None`
+- `remote_preflight_protocol_contract`: status=`satisfied`, complete=`True`, execution_allowed_now=`False`, remote_training_ready_now=`None`
+- `remote_preflight_command_packetized`: status=`satisfied`, complete=`True`, execution_allowed_now=`False`, remote_training_ready_now=`None`
 ### post_run_acceptance_requirement_summary
 - present=`True`
 - status_counts=`{'blocked_until_remote_audit': 4}`
 - blocked_requirement_count=`4`
-- `pullback_expected_artifacts_complete`: status=`blocked_until_remote_audit`, complete=`False`, execution_allowed_now=`False`, remote_training_ready_now=`True`
-- `checkpoint_hash_manifest_recorded`: status=`blocked_until_remote_audit`, complete=`False`, execution_allowed_now=`False`, remote_training_ready_now=`True`
-- `gate3_formal_audit_accepts_remote_run`: status=`blocked_until_remote_audit`, complete=`False`, execution_allowed_now=`False`, remote_training_ready_now=`True`
-- `h01_h02_regenerated_from_audited_checkpoint`: status=`blocked_until_remote_audit`, complete=`False`, execution_allowed_now=`False`, remote_training_ready_now=`True`
+- `pullback_expected_artifacts_complete`: status=`blocked_until_remote_audit`, complete=`False`, execution_allowed_now=`False`, remote_training_ready_now=`False`
+- `checkpoint_hash_manifest_recorded`: status=`blocked_until_remote_audit`, complete=`False`, execution_allowed_now=`False`, remote_training_ready_now=`False`
+- `gate3_formal_audit_accepts_remote_run`: status=`blocked_until_remote_audit`, complete=`False`, execution_allowed_now=`False`, remote_training_ready_now=`False`
+- `h01_h02_regenerated_from_audited_checkpoint`: status=`blocked_until_remote_audit`, complete=`False`, execution_allowed_now=`False`, remote_training_ready_now=`False`
 
 ## Status Report H02 Acceptance Requirement Matrix
 
@@ -204,7 +197,7 @@
 
 - proof_summary_present=`True`
 - proof_missing_counts_by_formal_category=`{'training': 0, 'evaluation': 0, 'acceptance': 0, 'formal_acceptance': 1}`
-- proof_next_blocked_lane=`source_fresh_preflight`
+- proof_next_blocked_lane=`protocol_lane_decision`
 - proof_h01_status=`ready_for_formal_run`
 - proof_h02_status=`blocked_formal_output_acceptance`
 - proof_h02_paper_result_input_allowed=`False`

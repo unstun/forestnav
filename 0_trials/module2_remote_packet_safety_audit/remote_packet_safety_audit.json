@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_remote_packet_safety_audit",
-  "status": "remote_packet_safety_audit_failed",
-  "created_at_utc": "2026-07-06T02:38:40.462191+00:00",
-  "source_head": "9405da7d4ed712452f2de86e5ca9a4629145aab1",
+  "status": "remote_packet_safety_audit_passed",
+  "created_at_utc": "2026-07-06T02:44:46.060738+00:00",
+  "source_head": "74a171c7017ee34962c9e3a3a6044312d29e4b07+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -16,27 +16,40 @@
     "post_f02_6_plan_audit": "0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json"
   },
   "packet_summary": {
-    "status": "ready_for_gpu3070ti_remote_training",
-    "ready_to_run_remote_training": true,
-    "embedded_preflight_status": "ready",
-    "embedded_preflight_ready": true,
-    "embedded_preflight_warm_start_decision": "approved_obstacle_summary",
+    "status": "blocked_until_protocol_lane_decision",
+    "ready_to_run_remote_training": false,
+    "embedded_preflight_status": "blocked",
+    "embedded_preflight_ready": false,
+    "embedded_preflight_warm_start_decision": "pending",
     "gpu_alias": "gpu3070ti-relay",
     "training_host_required": "gpu3070ti-relay",
-    "sync_allowed_now": true,
-    "remote_preflight_allowed_now": true,
-    "remote_training_allowed_now": true,
+    "sync_allowed_now": false,
+    "remote_preflight_allowed_now": false,
+    "remote_training_allowed_now": false,
     "remote_audit_allowed_now": false,
-    "sync_blocked_by": [],
-    "remote_preflight_blocked_by": [],
-    "remote_training_blocked_by": [],
+    "sync_blocked_by": [
+      "protocol_lane_decision_pending"
+    ],
+    "remote_preflight_blocked_by": [
+      "protocol_lane_decision_pending"
+    ],
+    "remote_training_blocked_by": [
+      "protocol_lane_decision_pending",
+      "remote_formal_preflight_not_ready",
+      "warm_start_decision_pending",
+      "remote_packet_not_ready"
+    ],
     "remote_audit_blocked_by": [
-      "remote_training_not_completed"
+      "protocol_lane_decision_pending",
+      "remote_formal_preflight_not_ready",
+      "warm_start_decision_pending",
+      "remote_packet_not_ready"
     ],
     "pullback_artifact_count": 7,
     "hash_manifest_required": true,
     "remote_preflight_requirement_counts": {
-      "satisfied": 4
+      "satisfied": 3,
+      "blocked_missing_preflight": 1
     },
     "post_run_acceptance_requirement_counts": {
       "blocked_until_remote_audit": 4
@@ -47,8 +60,8 @@
     "f02_6_record_status": "approved",
     "decision_training_allowed_now": true,
     "post_plan_audit_status": "post_f02_6_plan_audit_failed",
-    "post_plan_training_allowed_now": true,
-    "post_plan_remote_preflight_allowed_now": true,
+    "post_plan_training_allowed_now": false,
+    "post_plan_remote_preflight_allowed_now": false,
     "post_plan_status_report_status": "formal_gate_status_blocked",
     "post_plan_status_report_formal_claim_allowed_now": false,
     "post_plan_status_report_local_training_allowed_now": false,
@@ -56,28 +69,40 @@
     "post_plan_status_report_remote_execution_step_summary": {
       "sync_to_remote": {
         "present": true,
-        "allowed_now": true,
+        "allowed_now": false,
         "runs_training": false,
-        "blocked_by": []
+        "blocked_by": [
+          "protocol_lane_decision_pending"
+        ]
       },
       "run_remote_preflight": {
         "present": true,
-        "allowed_now": true,
+        "allowed_now": false,
         "runs_training": false,
-        "blocked_by": []
+        "blocked_by": [
+          "protocol_lane_decision_pending"
+        ]
       },
       "run_remote_training": {
         "present": true,
-        "allowed_now": true,
+        "allowed_now": false,
         "runs_training": true,
-        "blocked_by": []
+        "blocked_by": [
+          "protocol_lane_decision_pending",
+          "remote_formal_preflight_not_ready",
+          "warm_start_decision_pending",
+          "remote_packet_not_ready"
+        ]
       },
       "run_remote_audit": {
         "present": true,
         "allowed_now": false,
         "runs_training": false,
         "blocked_by": [
-          "remote_training_not_completed"
+          "protocol_lane_decision_pending",
+          "remote_formal_preflight_not_ready",
+          "warm_start_decision_pending",
+          "remote_packet_not_ready"
         ]
       }
     },
@@ -114,7 +139,10 @@
           "allowed_now": false,
           "runs_training": true,
           "blocked_by": [
-            "protocol_lane_decision_pending"
+            "protocol_lane_decision_pending",
+            "remote_formal_preflight_not_ready",
+            "warm_start_decision_pending",
+            "remote_packet_not_ready"
           ]
         },
         "run_remote_audit": {
@@ -122,8 +150,10 @@
           "allowed_now": false,
           "runs_training": false,
           "blocked_by": [
-            "remote_training_not_completed",
-            "protocol_lane_decision_pending"
+            "protocol_lane_decision_pending",
+            "remote_formal_preflight_not_ready",
+            "warm_start_decision_pending",
+            "remote_packet_not_ready"
           ]
         }
       }
@@ -442,7 +472,7 @@
           "formal_acceptance:h02_formal_output_acceptance"
         ]
       },
-      "next_blocked_lane": "source_fresh_preflight",
+      "next_blocked_lane": "protocol_lane_decision",
       "h01_status": "ready_for_formal_run",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
@@ -464,99 +494,15 @@
           "formal_acceptance:h02_formal_output_acceptance"
         ]
       },
-      "next_blocked_lane": "source_fresh_preflight",
+      "next_blocked_lane": "protocol_lane_decision",
       "h01_status": "ready_for_formal_run",
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
       "h02_paper_result_input_allowed": false
     }
   },
-  "audit_issue_count": 9,
-  "audit_issues": [
-    {
-      "issue_id": "post_plan_handoff_sync_to_remote_allowed_mismatch",
-      "message": "Handoff remote step allowed_now must match the remote packet.",
-      "observed": {
-        "handoff": false,
-        "packet": true
-      }
-    },
-    {
-      "issue_id": "post_plan_handoff_sync_to_remote_blockers_mismatch",
-      "message": "Handoff remote step blocked_by must match the remote packet.",
-      "observed": {
-        "handoff": [
-          "protocol_lane_decision_pending"
-        ],
-        "packet": []
-      }
-    },
-    {
-      "issue_id": "post_plan_handoff_run_remote_preflight_allowed_mismatch",
-      "message": "Handoff remote step allowed_now must match the remote packet.",
-      "observed": {
-        "handoff": false,
-        "packet": true
-      }
-    },
-    {
-      "issue_id": "post_plan_handoff_run_remote_preflight_blockers_mismatch",
-      "message": "Handoff remote step blocked_by must match the remote packet.",
-      "observed": {
-        "handoff": [
-          "protocol_lane_decision_pending"
-        ],
-        "packet": []
-      }
-    },
-    {
-      "issue_id": "post_plan_handoff_run_remote_training_allowed_mismatch",
-      "message": "Handoff remote step allowed_now must match the remote packet.",
-      "observed": {
-        "handoff": false,
-        "packet": true
-      }
-    },
-    {
-      "issue_id": "post_plan_handoff_run_remote_training_blockers_mismatch",
-      "message": "Handoff remote step blocked_by must match the remote packet.",
-      "observed": {
-        "handoff": [
-          "protocol_lane_decision_pending"
-        ],
-        "packet": []
-      }
-    },
-    {
-      "issue_id": "post_plan_handoff_run_remote_audit_blockers_mismatch",
-      "message": "Handoff remote step blocked_by must match the remote packet.",
-      "observed": {
-        "handoff": [
-          "remote_training_not_completed",
-          "protocol_lane_decision_pending"
-        ],
-        "packet": [
-          "remote_training_not_completed"
-        ]
-      }
-    },
-    {
-      "issue_id": "post_plan_execution_veto_remote_preflight_packet_mismatch",
-      "message": "Post-plan execution veto consensus must match the remote packet allowed_now state.",
-      "observed": {
-        "execution_veto": false,
-        "packet": true
-      }
-    },
-    {
-      "issue_id": "post_plan_execution_veto_remote_training_packet_mismatch",
-      "message": "Post-plan execution veto consensus must match the remote packet allowed_now state.",
-      "observed": {
-        "execution_veto": false,
-        "packet": true
-      }
-    }
-  ],
+  "audit_issue_count": 0,
+  "audit_issues": [],
   "expected_pullback_suffixes": [
     "train/final_model.zip",
     "train/summary.json",

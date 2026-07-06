@@ -2,10 +2,10 @@
 
 This file audits the remote formal execution packet. It does not execute any command.
 
-- status: `remote_packet_safety_audit_failed`
-- audit_issue_count: `9`
-- packet_status: `ready_for_gpu3070ti_remote_training`
-- remote_training_allowed_now: `True`
+- status: `remote_packet_safety_audit_passed`
+- audit_issue_count: `0`
+- packet_status: `blocked_until_protocol_lane_decision`
+- remote_training_allowed_now: `False`
 - pullback_artifact_count: `7`
 - post_plan_status_report_status: `formal_gate_status_blocked`
 - post_plan_status_report_next_blocked_lane_id: `source_fresh_preflight`
@@ -28,15 +28,7 @@ This file audits the remote formal execution packet. It does not execute any com
 
 ## Audit Issues
 
-- `post_plan_handoff_sync_to_remote_allowed_mismatch`: Handoff remote step allowed_now must match the remote packet.
-- `post_plan_handoff_sync_to_remote_blockers_mismatch`: Handoff remote step blocked_by must match the remote packet.
-- `post_plan_handoff_run_remote_preflight_allowed_mismatch`: Handoff remote step allowed_now must match the remote packet.
-- `post_plan_handoff_run_remote_preflight_blockers_mismatch`: Handoff remote step blocked_by must match the remote packet.
-- `post_plan_handoff_run_remote_training_allowed_mismatch`: Handoff remote step allowed_now must match the remote packet.
-- `post_plan_handoff_run_remote_training_blockers_mismatch`: Handoff remote step blocked_by must match the remote packet.
-- `post_plan_handoff_run_remote_audit_blockers_mismatch`: Handoff remote step blocked_by must match the remote packet.
-- `post_plan_execution_veto_remote_preflight_packet_mismatch`: Post-plan execution veto consensus must match the remote packet allowed_now state.
-- `post_plan_execution_veto_remote_training_packet_mismatch`: Post-plan execution veto consensus must match the remote packet allowed_now state.
+- none
 
 ## Claim Boundaries
 

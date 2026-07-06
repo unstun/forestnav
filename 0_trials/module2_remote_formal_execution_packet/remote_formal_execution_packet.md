@@ -1,34 +1,40 @@
 # Module2 Remote Formal Execution Packet
 
-- status: `ready_for_gpu3070ti_remote_training`
-- ready to run remote training: `True`
+- status: `blocked_until_protocol_lane_decision`
+- ready to run remote training: `False`
 - local training allowed: `False`
 - GPU alias: `gpu3070ti-relay`
 
 ## Blockers
-- none
+- `protocol_lane_decision_pending`
+- `remote_formal_preflight_not_ready`
+- `warm_start_decision_pending`
 
 ## Remote Preflight Requirements
 
-- `f02_6_decision_closed_for_preflight` (decision): status=`satisfied`, execution_allowed_now=`True`
+- `f02_6_decision_closed_for_preflight` (decision): status=`satisfied`, execution_allowed_now=`False`
+  - blocked_by: `protocol_lane_decision_pending`
   - invalid_substitutes: `decision packet recommendation without Dr Sun decision record; remote smoke output; manual command execution without approved record`
-- `approved_remote_preflight_manifest` (remote_preflight): status=`satisfied`, execution_allowed_now=`True`
+- `approved_remote_preflight_manifest` (remote_preflight): status=`blocked_missing_preflight`, execution_allowed_now=`False`
+  - missing_artifact_ids: `approved_remote_preflight_manifest_ready`
+  - blocked_by: `warm_start_decision_pending`
   - invalid_substitutes: `pending remote preflight manifest; CUDA import smoke not tied to the approved Gate3 command; local preflight output`
-- `remote_preflight_protocol_contract` (remote_preflight): status=`satisfied`, execution_allowed_now=`True`
+- `remote_preflight_protocol_contract` (remote_preflight): status=`satisfied`, execution_allowed_now=`False`
   - invalid_substitutes: `protocol missing eval_min_episodes or success threshold; CPU protocol; smoke protocol`
-- `remote_preflight_command_packetized` (remote_preflight): status=`satisfied`, execution_allowed_now=`True`
+- `remote_preflight_command_packetized` (remote_preflight): status=`satisfied`, execution_allowed_now=`False`
+  - blocked_by: `protocol_lane_decision_pending`
   - invalid_substitutes: `bare local python preflight command; ssh command targeting another host; preflight command without approved warm-start decision`
 
 ## Post-Run Acceptance Requirements
 
-- `pullback_expected_artifacts_complete` (pullback): status=`blocked_until_remote_audit`, remote_training_ready_now=`True`
+- `pullback_expected_artifacts_complete` (pullback): status=`blocked_until_remote_audit`, remote_training_ready_now=`False`
   - invalid_substitutes: `remote stdout saying files exist; partial pullback with only checkpoint or summary; local files copied from a non-gpu3070ti host`
-- `checkpoint_hash_manifest_recorded` (pullback): status=`blocked_until_remote_audit`, remote_training_ready_now=`True`
+- `checkpoint_hash_manifest_recorded` (pullback): status=`blocked_until_remote_audit`, remote_training_ready_now=`False`
   - invalid_substitutes: `checkpoint file without hash; hash written before remote pullback; hash of a smoke or no-warm checkpoint`
-- `gate3_formal_audit_accepts_remote_run` (acceptance): status=`blocked_until_remote_audit`, remote_training_ready_now=`True`
+- `gate3_formal_audit_accepts_remote_run` (acceptance): status=`blocked_until_remote_audit`, remote_training_ready_now=`False`
   - missing_artifact_ids: `gate3_formal_audit_formal_decision_pass`
   - invalid_substitutes: `audit marked not_formal, candidate, smoke, or preview; no-warm Gate3 audit reused as warm-start audit; training completion without audit`
-- `h01_h02_regenerated_from_audited_checkpoint` (evaluation_acceptance): status=`blocked_until_remote_audit`, remote_training_ready_now=`True`
+- `h01_h02_regenerated_from_audited_checkpoint` (evaluation_acceptance): status=`blocked_until_remote_audit`, remote_training_ready_now=`False`
   - invalid_substitutes: `paper table preview generated before H02 acceptance; H01/H02 generated from a smoke checkpoint; claim safety run without regenerated formal evaluation rows`
 
 ## Commands

@@ -3,18 +3,18 @@
 This file audits the ordered post-F02.6 plan. It does not execute the plan.
 
 - status: `post_f02_6_plan_audit_failed`
-- audit_issue_count: `7`
+- audit_issue_count: `1`
 - executes_commands: `False`
 - runs_training: `False`
 - runs_remote_preflight: `False`
 
 ## Current Blocking Summary
 
-- plan_status: `ready_for_remote_training_packet_execution`
-- training_allowed_now: `True`
-- remote_preflight_allowed_now: `True`
-- ready_stage_ids: `['regenerate_preflight_gate_artifacts', 'approved_remote_preflight', 'regenerate_remote_execution_packet', 'gate3_remote_training']`
-- blocked_stage_ids: `['f02_6_decision_record', 'gate3_remote_audit_pullback', 'regenerate_h01_h02_formal_artifacts', 'regenerate_claim_gate_artifacts']`
+- plan_status: `ready_to_execute_post_f02_6_regeneration_plan`
+- training_allowed_now: `False`
+- remote_preflight_allowed_now: `False`
+- ready_stage_ids: `['regenerate_preflight_gate_artifacts']`
+- blocked_stage_ids: `['f02_6_decision_record', 'approved_remote_preflight', 'regenerate_remote_execution_packet', 'gate3_remote_training', 'gate3_remote_audit_pullback', 'regenerate_h01_h02_formal_artifacts', 'regenerate_claim_gate_artifacts']`
 
 ## F02.6 Human Decision Request
 
@@ -25,8 +25,8 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - current_blocked_action_ids: `['remote_preflight', 'remote_training', 'local_training', 'formal_claim', 'paper_result_material']`
 - post_decision_routes_are_current_authorization: `False`
 - all_execution_disabled_now: `False`
-- remote_preflight_allowed_now: `True`
-- remote_training_allowed_now: `True`
+- remote_preflight_allowed_now: `False`
+- remote_training_allowed_now: `False`
 - formal_claim_allowed_now: `False`
 - local_training_allowed_now: `False`
 
@@ -67,7 +67,7 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - runs_remote_preflight: `False`
 - formal_claim_allowed_now: `False`
 - local_training_allowed_now: `False`
-- input_safety_issue_count: `1`
+- input_safety_issue_count: `4`
 - next_blocked_lane_id: `source_fresh_preflight`
 
 ### Remaining Deliverables Gap Summary
@@ -118,20 +118,14 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - `remote_audit`: consensus_allowed_now=`False`
 - `formal_claim`: consensus_allowed_now=`False`
 
-- `sync_to_remote`: allowed_now=`True`, runs_training=`False`, blocked_by=`none`
-- `run_remote_preflight`: allowed_now=`True`, runs_training=`False`, blocked_by=`none`
-- `run_remote_training`: allowed_now=`True`, runs_training=`True`, blocked_by=`none`
-- `run_remote_audit`: allowed_now=`False`, runs_training=`False`, blocked_by=`remote_training_not_completed`
+- `sync_to_remote`: allowed_now=`False`, runs_training=`False`, blocked_by=`protocol_lane_decision_pending`
+- `run_remote_preflight`: allowed_now=`False`, runs_training=`False`, blocked_by=`protocol_lane_decision_pending`
+- `run_remote_training`: allowed_now=`False`, runs_training=`True`, blocked_by=`protocol_lane_decision_pending, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
+- `run_remote_audit`: allowed_now=`False`, runs_training=`False`, blocked_by=`protocol_lane_decision_pending, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
 
 ## Audit Issues
 
-- `plan_source_freshness_requirement_mismatch`: Plan source freshness flag does not match source freshness audit.
-- `plan_source_regeneration_target_counts_mismatch`: Plan target counts by gate do not match source freshness audit.
 - `formal_gate_status_report_has_input_safety_issues`: Status report reports open input safety issues.
-- `formal_gate_status_report_sync_allowed_without_remote_permission`: Status report may surface remote sync only when a remote preflight/training lane is allowed.
-- `formal_gate_status_report_preflight_step_permission_mismatch`: Status report remote preflight step must match remote_preflight_allowed_now.
-- `formal_gate_status_report_training_step_permission_mismatch`: Status report remote training step must match remote_training_allowed_now.
-- `plan_remaining_deliverables_unlock_chain_summary_mismatch`: Plan unlock-chain summary must match the remaining-deliverables ledger.
 
 ## Claim Boundaries
 

@@ -3,12 +3,12 @@
 This file checks that formal-gate proof-deliverables summaries remain consistent across downstream gate artifacts. It is not a training run, evaluation, remote preflight, paper table, or paper result.
 
 - status: `formal_gate_proof_summary_chain_audit_failed`
-- audit_issue_count: `13`
+- audit_issue_count: `3`
 - proof_open: `True`
 - row_count: `14`
-- consistent_row_count: `4`
+- consistent_row_count: `14`
 - missing_row_count: `0`
-- mismatch_row_count: `10`
+- mismatch_row_count: `0`
 - next_action_guard_row_count: `3`
 - next_action_guard_consistent_row_count: `3`
 - next_required_deliverables_row_count: `3`
@@ -31,16 +31,6 @@ This file checks that formal-gate proof-deliverables summaries remain consistent
 
 ## Audit Issues
 
-- `status_report_remote_safety_proof_summary_summary_mismatch`: Downstream proof-deliverables summary does not match the remaining-deliverables baseline.
-- `status_report_remote_safety_status_report_proof_summary_summary_mismatch`: Downstream proof-deliverables summary does not match the remaining-deliverables baseline.
-- `remote_safety_post_plan_proof_summary_summary_mismatch`: Downstream proof-deliverables summary does not match the remaining-deliverables baseline.
-- `remote_safety_post_plan_status_report_proof_summary_summary_mismatch`: Downstream proof-deliverables summary does not match the remaining-deliverables baseline.
-- `gap_audit_remote_safety_proof_summary_summary_mismatch`: Downstream proof-deliverables summary does not match the remaining-deliverables baseline.
-- `gap_audit_remote_safety_status_report_proof_summary_summary_mismatch`: Downstream proof-deliverables summary does not match the remaining-deliverables baseline.
-- `claim_safety_remote_safety_proof_summary_summary_mismatch`: Downstream proof-deliverables summary does not match the remaining-deliverables baseline.
-- `claim_safety_remote_safety_status_report_proof_summary_summary_mismatch`: Downstream proof-deliverables summary does not match the remaining-deliverables baseline.
-- `paper_readiness_remote_safety_proof_summary_summary_mismatch`: Downstream proof-deliverables summary does not match the remaining-deliverables baseline.
-- `paper_readiness_remote_safety_status_report_proof_summary_summary_mismatch`: Downstream proof-deliverables summary does not match the remaining-deliverables baseline.
 - `handoff_bundle_single_next_action_index_unexpected_status`: Single-next-action summary must either wait for F02.6 or follow post-decision handoff stages.
 - `claim_safety_handoff_single_next_action_index_unexpected_status`: Single-next-action summary must either wait for F02.6 or follow post-decision handoff stages.
 - `paper_readiness_claim_safety_handoff_single_next_action_index_unexpected_status`: Single-next-action summary must either wait for F02.6 or follow post-decision handoff stages.
@@ -50,17 +40,17 @@ This file checks that formal-gate proof-deliverables summaries remain consistent
 - `remaining_deliverables_top_level`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json`, key=`top_level`
 - `formal_gate_proof_audit_remaining_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_proof_audit/formal_gate_proof_audit.json`, key=`remaining_deliverables_top_level_summary`
 - `formal_gate_status_report_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`, key=`formal_gate_proof_audit_remaining_deliverables_top_level_summary`
-- `status_report_remote_safety_proof_summary`: present=`True`, matches=`False`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`, key=`remote_packet_safety_proof_deliverables_summary`
-- `status_report_remote_safety_status_report_proof_summary`: present=`True`, matches=`False`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`, key=`remote_packet_safety_status_report_proof_deliverables_summary`
+- `status_report_remote_safety_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`, key=`remote_packet_safety_proof_deliverables_summary`
+- `status_report_remote_safety_status_report_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_status_report/formal_gate_status_report.json`, key=`remote_packet_safety_status_report_proof_deliverables_summary`
 - `post_plan_status_report_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json`, key=`status_report_proof_audit_deliverables_summary`
-- `remote_safety_post_plan_proof_summary`: present=`True`, matches=`False`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`, key=`cross_gate_summary.post_plan_proof_audit_deliverables_summary`
-- `remote_safety_post_plan_status_report_proof_summary`: present=`True`, matches=`False`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`, key=`cross_gate_summary.post_plan_status_report_proof_audit_deliverables_summary`
-- `gap_audit_remote_safety_proof_summary`: present=`True`, matches=`False`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json`, key=`remote_packet_safety.proof_deliverables_summary`
-- `gap_audit_remote_safety_status_report_proof_summary`: present=`True`, matches=`False`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json`, key=`remote_packet_safety.status_report_proof_deliverables_summary`
-- `claim_safety_remote_safety_proof_summary`: present=`True`, matches=`False`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_claim_safety/module2_claim_safety.json`, key=`status_report_remote_packet_safety_proof_deliverables_summary`
-- `claim_safety_remote_safety_status_report_proof_summary`: present=`True`, matches=`False`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_claim_safety/module2_claim_safety.json`, key=`status_report_remote_packet_safety_status_report_proof_deliverables_summary`
-- `paper_readiness_remote_safety_proof_summary`: present=`True`, matches=`False`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_paper_readiness/module2_paper_readiness.json`, key=`claim_safety_remote_packet_safety_proof_deliverables_summary`
-- `paper_readiness_remote_safety_status_report_proof_summary`: present=`True`, matches=`False`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_paper_readiness/module2_paper_readiness.json`, key=`claim_safety_remote_packet_safety_status_report_proof_deliverables_summary`
+- `remote_safety_post_plan_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`, key=`cross_gate_summary.post_plan_proof_audit_deliverables_summary`
+- `remote_safety_post_plan_status_report_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json`, key=`cross_gate_summary.post_plan_status_report_proof_audit_deliverables_summary`
+- `gap_audit_remote_safety_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json`, key=`remote_packet_safety.proof_deliverables_summary`
+- `gap_audit_remote_safety_status_report_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json`, key=`remote_packet_safety.status_report_proof_deliverables_summary`
+- `claim_safety_remote_safety_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_claim_safety/module2_claim_safety.json`, key=`status_report_remote_packet_safety_proof_deliverables_summary`
+- `claim_safety_remote_safety_status_report_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_claim_safety/module2_claim_safety.json`, key=`status_report_remote_packet_safety_status_report_proof_deliverables_summary`
+- `paper_readiness_remote_safety_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_paper_readiness/module2_paper_readiness.json`, key=`claim_safety_remote_packet_safety_proof_deliverables_summary`
+- `paper_readiness_remote_safety_status_report_proof_summary`: present=`True`, matches=`True`, h02_paper_result_input_allowed=`False`, path=`0_trials/module2_paper_readiness/module2_paper_readiness.json`, key=`claim_safety_remote_packet_safety_status_report_proof_deliverables_summary`
 
 ## Next-Action Guard Chain Rows
 
