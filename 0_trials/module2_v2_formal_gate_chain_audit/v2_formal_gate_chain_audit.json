@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "artifact_name": "module2_v2_formal_gate_chain_audit",
+  "status": "blocked_until_v2_contract_promotion",
+  "created_at_utc": "2026-07-06T08:18:10.252020+00:00",
+  "source_head": "961026bb5058904eff9e4c80d9f28b74a554c4a2",
+  "not_paper_result_material": true,
+  "executes_commands": false,
+  "runs_training": false,
+  "runs_remote_preflight": false,
+  "runs_remote_audit": false,
+  "local_training_allowed_now": false,
+  "remote_preflight_allowed_now": false,
+  "remote_training_allowed_now": false,
+  "formal_claim_allowed_now": false,
+  "paper_result_material_allowed_now": false,
+  "inputs": {
+    "contract": ".pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md",
+    "decision_record": "0_trials/module2_formal_gate_protocol_lane_decision_record/protocol_lane_decision_record.json",
+    "promotion_packet": "0_trials/module2_v2_contract_promotion_packet/v2_contract_promotion_packet.json",
+    "promotion_dry_run": "0_trials/module2_v2_contract_promotion_dry_run/promotion_apply_dry_run.json",
+    "readiness_gate": "0_trials/module2_v2_contract_readiness_gate/v2_contract_readiness_gate.json",
+    "source_freshness": "0_trials/module2_source_freshness_audit/source_freshness_audit.json",
+    "remote_packet": "0_trials/module2_v2_remote_execution_packet/v2_remote_execution_packet.json",
+    "preflight_manifest": "0_trials/module2_remote_preflight/gate3_stronger_obstacle_summary_warm_start_v2_seed20260706/gate3_preflight_manifest.json",
+    "remaining_evidence": "0_trials/module2_v2_formal_gate_remaining_evidence/v2_formal_gate_remaining_evidence.json",
+    "h02_acceptance": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
+  },
+  "current_blocking_stage_id": "v2_contract_promoted",
+  "current_blocking_stage_label": "V2 contract approved or frozen",
+  "next_allowed_action": "await_dr_sun_explicit_contract_promotion_then_apply_promotion",
+  "strict_stage_order": [
+    "v2_contract_promoted",
+    "v2_contract_readiness_ready",
+    "source_freshness_ready",
+    "v2_remote_packet_ready",
+    "v2_remote_preflight_ready",
+    "v2_training_artifacts_ready",
+    "v2_evaluation_artifacts_ready",
+    "v2_acceptance_artifacts_ready",
+    "h02_formal_acceptance_ready"
+  ],
+  "stage_count": 12,
+  "satisfied_stage_count": 3,
+  "audit_issue_count": 0,
+  "audit_issues": [],
+  "stages": [
+    {
+      "stage_id": "protocol_lane_decision_recorded",
+      "label": "Protocol lane decision recorded",
+      "satisfied": true,
+      "observed": {
+        "status": "protocol_lane_decision_recorded",
+        "selected_lane_id": "stronger_obstacle_summary_warm_start",
+        "contract_action": "draft_new_contract"
+      },
+      "expected": {
+        "selected_lane_id": "stronger_obstacle_summary_warm_start",
+        "contract_action": "draft_new_contract"
+      },
+      "strict_order_index": null
+    },
+    {
+      "stage_id": "promotion_packet_ready",
+      "label": "Promotion packet ready for Dr Sun",
+      "satisfied": true,
+      "observed": "v2_contract_promotion_packet_ready_awaiting_dr_sun",
+      "expected": "v2_contract_promotion_packet_ready_awaiting_dr_sun",
+      "strict_order_index": null
+    },
+    {
+      "stage_id": "promotion_dry_run_ready",
+      "label": "Promotion apply dry-run ready",
+      "satisfied": true,
+      "observed": "promotion_apply_ready",
+      "expected": "promotion_apply_ready",
+      "strict_order_index": null
+    },
+    {
+      "stage_id": "v2_contract_promoted",
+      "label": "V2 contract approved or frozen",
+      "satisfied": false,
+      "observed": "draft",
+      "expected": [
+        "approved",
+        "frozen"
+      ],
+      "strict_order_index": 0
+    },
+    {
+      "stage_id": "v2_contract_readiness_ready",
+      "label": "V2 contract readiness gate ready",
+      "satisfied": false,
+      "observed": "v2_contract_readiness_blocked",
+      "expected": "v2_contract_ready_for_source_freshness",
+      "strict_order_index": 1
+    },
+    {
+      "stage_id": "source_freshness_ready",
+      "label": "Source freshness ready for remote preflight",
+      "satisfied": false,
+      "observed": "source_freshness_risks_recorded_gate_still_blocked",
+      "expected": [
+        "source_freshness_clean_current",
+        "source_freshness_tracked_artifact_lag_only_gate_ready"
+      ],
+      "strict_order_index": 2
+    },
+    {
+      "stage_id": "v2_remote_packet_ready",
+      "label": "V2 remote execution packet ready for preflight",
+      "satisfied": false,
+      "observed": {
+        "status": "blocked_until_v2_contract_promotion",
+        "remote_preflight_allowed_now": false
+      },
+      "expected": {
+        "status": "ready_for_v2_remote_preflight",
+        "remote_preflight_allowed_now": true
+      },
+      "strict_order_index": 3
+    },
+    {
+      "stage_id": "v2_remote_preflight_ready",
+      "label": "V2 remote preflight manifest ready",
+      "satisfied": false,
+      "observed": {
+        "preflight_status": "missing",
+        "formal_trial_ready": null
+      },
+      "expected": {
+        "preflight_status": "ready",
+        "formal_trial_ready": true
+      },
+      "strict_order_index": 4
+    },
+    {
+      "stage_id": "v2_training_artifacts_ready",
+      "label": "Fresh v2 training artifacts pulled back",
+      "satisfied": false,
+      "observed": 3,
+      "expected": 0,
+      "strict_order_index": 5
+    },
+    {
+      "stage_id": "v2_evaluation_artifacts_ready",
+      "label": "Fresh v2 evaluation artifacts pulled back",
+      "satisfied": false,
+      "observed": 2,
+      "expected": 0,
+      "strict_order_index": 6
+    },
+    {
+      "stage_id": "v2_acceptance_artifacts_ready",
+      "label": "Fresh v2 Gate3 audit and hash acceptance ready",
+      "satisfied": false,
+      "observed": 3,
+      "expected": 0,
+      "strict_order_index": 7
+    },
+    {
+      "stage_id": "h02_formal_acceptance_ready",
+      "label": "H02 formal output acceptance ready",
+      "satisfied": false,
+      "observed": {
+        "status": "blocked_formal_output_acceptance",
+        "formal_output_accepted": false,
+        "paper_result_input_allowed": false
+      },
+      "expected": {
+        "formal_output_accepted": true,
+        "paper_result_input_allowed": true
+      },
+      "strict_order_index": 8
+    }
+  ],
+  "invalid_substitutes": [
+    "draft contract",
+    "promotion dry-run treated as approval",
+    "old v1 remote packet",
+    "remote smoke without formal preflight ready",
+    "failed warm-start PPO checkpoint",
+    "local PPO output",
+    "paper prose or table before H02 acceptance"
+  ]
+}
