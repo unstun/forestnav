@@ -462,6 +462,19 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- version: `{manifest['existing_contract_summary']['version']}`",
             f"- usable_for_new_success_attempt: `{manifest['existing_contract_summary']['usable_for_new_success_attempt']}`",
             "",
+            "## Post-Decision Contract Plan",
+            "",
+            f"- status: `{manifest['post_decision_contract_plan_summary']['status']}`",
+            f"- audit_issue_count: `{manifest['post_decision_contract_plan_summary']['audit_issue_count']}`",
+            "- required_contract_section_count: "
+            f"`{manifest['post_decision_contract_plan_summary']['required_contract_section_count']}`",
+            "- shared_next_success_attempt_artifact_count: "
+            f"`{manifest['post_decision_contract_plan_summary']['shared_next_success_attempt_artifact_count']}`",
+            f"- lane_count: `{manifest['post_decision_contract_plan_summary']['lane_count']}`",
+            f"- gate_selected_lane_id: `{manifest['post_decision_contract_plan_summary']['gate_selected_lane_id']}`",
+            "- gate_contract_drafting_allowed_now: "
+            f"`{manifest['post_decision_contract_plan_summary']['gate_contract_drafting_allowed_now']}`",
+            "",
             "## Required Contract Sections",
         ]
     )
