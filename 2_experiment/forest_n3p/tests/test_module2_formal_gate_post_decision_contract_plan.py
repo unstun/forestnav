@@ -73,6 +73,34 @@ def test_post_decision_contract_plan_prepares_contract_without_authorization(tmp
     assert manifest["audit_issues"] == []
 
 
+def test_post_decision_contract_plan_records_selected_lane_without_training_authorization(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_post_decision_contract_plan")
+
+    manifest = builder.build_manifest(_config(builder, tmp_path, recorded=True))
+
+    assert manifest["status"] == "post_decision_contract_plan_ready_for_contract_draft"
+    assert manifest["writes_contract"] is False
+    assert manifest["approves_contract"] is False
+    assert manifest["runs_training"] is False
+    assert manifest["runs_remote_preflight"] is False
+    assert manifest["remote_training_allowed_now"] is False
+    assert manifest["formal_claim_allowed"] is False
+    assert manifest["paper_result_material_allowed"] is False
+
+    gate = manifest["gate_state"]
+    assert gate["next_blocked_lane"] == "new_or_revised_contract"
+    assert gate["selected_lane_id"] == "stronger_obstacle_summary_warm_start"
+    assert gate["decision_record_status"] == "protocol_lane_decision_recorded"
+    assert gate["contract_action"] == "draft_new_contract"
+    assert gate["allowed_next_action_ids"] == ["draft_new_or_revised_contract_after_lane_decision"]
+    assert gate["contract_drafting_allowed_now"] is True
+    assert gate["remote_training_allowed_now"] is False
+    assert gate["formal_claim_allowed_now"] is False
+    assert gate["paper_result_material_allowed_now"] is False
+    assert manifest["audit_issue_count"] == 0
+    assert manifest["audit_issues"] == []
+
+
 def test_post_decision_contract_plan_catches_training_authorization_leak(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_post_decision_contract_plan")
     config = _config(builder, tmp_path)
@@ -151,6 +179,8 @@ def test_post_decision_contract_plan_cli_writes_json_and_markdown(tmp_path):
             str(markdown_path),
             "--protocol-lane-readiness",
             str(config.protocol_lane_readiness_path),
+            "--decision-record",
+            str(config.decision_record_path),
             "--contract-intake",
             str(config.contract_intake_path),
             "--contract-authoring-gate",
@@ -177,12 +207,13 @@ def test_post_decision_contract_plan_cli_writes_json_and_markdown(tmp_path):
     assert "old_failed_run_artifacts_invalid_for_next_success_attempt: `True`" in markdown
 
 
-def _config(builder, tmp_path):
+def _config(builder, tmp_path, *, recorded=False):
     return builder.FormalGatePostDecisionContractPlanConfig(
         output_dir=tmp_path,
         protocol_lane_readiness_path=_write_json(tmp_path / "readiness.json", _readiness()),
+        decision_record_path=_write_json(tmp_path / "decision_record.json", _decision_record(recorded=recorded)),
         contract_intake_path=_write_json(tmp_path / "contract_intake.json", _contract_intake()),
-        contract_authoring_gate_path=_write_json(tmp_path / "contract_gate.json", _contract_gate()),
+        contract_authoring_gate_path=_write_json(tmp_path / "contract_gate.json", _contract_gate(recorded=recorded)),
         next_round_requirements_path=_write_json(tmp_path / "next_round.json", _next_round()),
     )
 
@@ -319,12 +350,26 @@ def _contract_intake():
     }
 
 
-def _contract_gate():
+def _decision_record(*, recorded):
     return {
-        "status": "contract_authoring_gate_blocked_pending_lane_decision",
+        "status": "protocol_lane_decision_recorded" if recorded else "pending_protocol_lane_decision",
+        "selected_lane_id": "stronger_obstacle_summary_warm_start" if recorded else None,
+        "contract_action": "draft_new_contract" if recorded else "none",
+    }
+
+
+def _contract_gate(*, recorded=False):
+    return {
+        "status": (
+            "contract_authoring_gate_ready_for_contract_draft"
+            if recorded
+            else "contract_authoring_gate_blocked_pending_lane_decision"
+        ),
         "contract_gate": {
-            "decision_record_status": "pending_protocol_lane_decision",
-            "contract_drafting_allowed_now": False,
+            "decision_record_status": "protocol_lane_decision_recorded" if recorded else "pending_protocol_lane_decision",
+            "selected_lane_id": "stronger_obstacle_summary_warm_start" if recorded else None,
+            "contract_action": "draft_new_contract" if recorded else "none",
+            "contract_drafting_allowed_now": recorded,
             "contract_approval_allowed_now": False,
             "draft_contract_allows_training": False,
         },

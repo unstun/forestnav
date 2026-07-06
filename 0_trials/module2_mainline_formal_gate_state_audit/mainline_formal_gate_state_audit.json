@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_mainline_formal_gate_state_audit",
-  "status": "mainline_formal_gate_state_consistent_blocked",
-  "created_at_utc": "2026-07-06T06:48:09.844018+00:00",
-  "source_head": "10083401624ccb4cf1fc977bfc98faf6a4015f0b",
+  "status": "mainline_formal_gate_state_audit_failed",
+  "created_at_utc": "2026-07-06T06:53:24.936964+00:00",
+  "source_head": "210a3ad5308da88cd274338ffc306357a55c36f6+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -72,20 +72,20 @@
   ],
   "protocol_lane_status_summary": {
     "present": true,
-    "status": "protocol_lane_status_blocked_pending_lane_decision",
+    "status": "protocol_lane_status_ready_for_contract_draft",
     "audit_issue_count": 0,
-    "next_blocked_lane": "protocol_lane_decision",
+    "next_blocked_lane": "new_or_revised_contract",
     "decision_packet_status": "formal_gate_protocol_lane_decision_packet_ready_for_dr_sun",
-    "decision_record_status": "pending_protocol_lane_decision",
-    "decision_gate_status": "protocol_lane_decision_gate_pending_clean",
-    "contract_authoring_gate_status": "contract_authoring_gate_blocked_pending_lane_decision",
+    "decision_record_status": "protocol_lane_decision_recorded",
+    "decision_gate_status": "protocol_lane_decision_gate_recorded_clean",
+    "contract_authoring_gate_status": "contract_authoring_gate_ready_for_contract_draft",
     "lane_matrix_status": "formal_gate_protocol_lane_matrix_ready",
     "lane_count": 4,
     "next_round_requirements_status": "formal_gate_next_round_requirements_ready",
-    "selected_lane_id": null,
-    "contract_action": "none",
+    "selected_lane_id": "stronger_obstacle_summary_warm_start",
+    "contract_action": "draft_new_contract",
     "allowed_next_action_ids": [
-      "record_protocol_lane_decision"
+      "draft_new_or_revised_contract_after_lane_decision"
     ],
     "blocked_action_ids": [
       "local_training",
@@ -95,7 +95,7 @@
       "paper_result_material"
     ],
     "post_decision_contract_plan_summary_present": true,
-    "post_decision_contract_plan_status": "post_decision_contract_plan_ready_blocked_pending_lane_decision",
+    "post_decision_contract_plan_status": "post_decision_contract_plan_ready_for_contract_draft",
     "post_decision_contract_plan_audit_issue_count": 0,
     "post_decision_contract_plan_required_section_count": 8,
     "post_decision_contract_plan_shared_artifact_count": 10,
@@ -108,7 +108,7 @@
     },
     "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt": true,
     "post_decision_contract_plan_lane_count": 4,
-    "post_decision_contract_plan_selected_lane_id": null,
+    "post_decision_contract_plan_selected_lane_id": "stronger_obstacle_summary_warm_start",
     "post_decision_contract_plan_writes_contract": false,
     "post_decision_contract_plan_approves_contract": false,
     "post_decision_contract_plan_runs_training": false,
@@ -116,7 +116,7 @@
     "post_decision_contract_plan_remote_training_allowed_now": false,
     "post_decision_contract_plan_formal_claim_allowed": false,
     "post_decision_contract_plan_paper_result_material_allowed": false,
-    "post_decision_contract_plan_gate_contract_drafting_allowed_now": false,
+    "post_decision_contract_plan_gate_contract_drafting_allowed_now": true,
     "next_success_attempt_artifact_status": "blocked_until_protocol_lane_decision_and_contract",
     "next_success_attempt_artifact_count": 10,
     "next_success_attempt_artifact_category_counts": {
@@ -149,7 +149,7 @@
       ]
     },
     "old_failed_run_artifacts_invalid_for_next_success_attempt": true,
-    "contract_drafting_allowed_now": false,
+    "contract_drafting_allowed_now": true,
     "contract_approval_allowed_now": false,
     "draft_contract_allows_training": false,
     "local_training_allowed_now": false,
@@ -158,10 +158,10 @@
     "paper_result_material_allowed_now": false,
     "new_success_training_allowed_now": false
   },
-  "protocol_lane_status_mentioned": true,
-  "protocol_lane_next_blocked_mentioned": true,
+  "protocol_lane_status_mentioned": false,
+  "protocol_lane_next_blocked_mentioned": false,
   "protocol_lane_next_action_mentioned": true,
-  "protocol_lane_decision_record_status_mentioned": true,
+  "protocol_lane_decision_record_status_mentioned": false,
   "protocol_lane_lane_mentions": [
     {
       "lane_id": "stronger_obstacle_summary_warm_start",
@@ -232,7 +232,7 @@
   "post_decision_contract_plan_summary": {
     "present": true,
     "artifact_name": "module2_formal_gate_post_decision_contract_plan",
-    "status": "post_decision_contract_plan_ready_blocked_pending_lane_decision",
+    "status": "post_decision_contract_plan_ready_for_contract_draft",
     "audit_issue_count": 0,
     "required_contract_section_count": 8,
     "shared_next_success_attempt_artifact_count": 10,
@@ -254,17 +254,17 @@
     "remote_training_allowed_now": false,
     "formal_claim_allowed": false,
     "paper_result_material_allowed": false,
-    "gate_next_blocked_lane": "protocol_lane_decision",
-    "gate_selected_lane_id": null,
-    "gate_contract_drafting_allowed_now": false,
+    "gate_next_blocked_lane": "new_or_revised_contract",
+    "gate_selected_lane_id": "stronger_obstacle_summary_warm_start",
+    "gate_contract_drafting_allowed_now": true,
     "gate_remote_training_allowed_now": false,
     "gate_formal_claim_allowed_now": false
   },
   "post_decision_contract_plan_artifact_mentioned": true,
-  "post_decision_contract_plan_status_mentioned": true,
-  "post_decision_contract_plan_required_section_count_mentioned": true,
-  "post_decision_contract_plan_shared_artifact_count_mentioned": true,
-  "post_decision_contract_plan_lane_count_mentioned": true,
+  "post_decision_contract_plan_status_mentioned": false,
+  "post_decision_contract_plan_required_section_count_mentioned": false,
+  "post_decision_contract_plan_shared_artifact_count_mentioned": false,
+  "post_decision_contract_plan_lane_count_mentioned": false,
   "post_decision_contract_plan_old_failed_invalid_mentioned": true,
   "mainline_missing_deliverable_mention_count": 0,
   "deliverable_rows": [
@@ -361,8 +361,132 @@
       "mentioned": false
     }
   ],
-  "audit_issue_count": 0,
-  "audit_issues": [],
+  "audit_issue_count": 23,
+  "audit_issues": [
+    {
+      "issue_id": "mainline_current_section_missing_protocol_lane_status",
+      "message": "Current formal-gate section must mention the protocol-lane status report state.",
+      "protocol_lane_status": "protocol_lane_status_ready_for_contract_draft"
+    },
+    {
+      "issue_id": "mainline_current_section_missing_protocol_lane_next_blocked",
+      "message": "Current formal-gate section must mention protocol_lane_decision as the current blocked lane.",
+      "next_blocked_lane": "new_or_revised_contract"
+    },
+    {
+      "issue_id": "mainline_current_section_missing_protocol_lane_decision_record_status",
+      "message": "Current formal-gate section must mention the pending protocol-lane decision record.",
+      "decision_record_status": "protocol_lane_decision_recorded"
+    },
+    {
+      "issue_id": "mainline_current_section_missing_protocol_status_post_plan_section_count",
+      "message": "Current formal-gate section must mention the protocol status report's inherited post-plan count.",
+      "post_decision_contract_plan_required_section_count": 8
+    },
+    {
+      "issue_id": "mainline_current_section_missing_protocol_status_post_plan_artifact_count",
+      "message": "Current formal-gate section must mention the protocol status report's inherited post-plan count.",
+      "post_decision_contract_plan_shared_artifact_count": 10
+    },
+    {
+      "issue_id": "mainline_current_section_missing_protocol_status_post_plan_lane_count",
+      "message": "Current formal-gate section must mention the protocol status report's inherited post-plan count.",
+      "post_decision_contract_plan_lane_count": 4
+    },
+    {
+      "issue_id": "mainline_current_section_missing_post_decision_contract_plan_status",
+      "message": "Current formal-gate section must mention the post-decision contract plan status.",
+      "plan_status": "post_decision_contract_plan_ready_for_contract_draft"
+    },
+    {
+      "issue_id": "mainline_current_section_missing_post_decision_contract_section_count",
+      "message": "Current formal-gate section must mention this post-decision contract plan count.",
+      "required_contract_section_count": 8
+    },
+    {
+      "issue_id": "mainline_current_section_missing_post_decision_contract_shared_artifact_count",
+      "message": "Current formal-gate section must mention this post-decision contract plan count.",
+      "shared_next_success_attempt_artifact_count": 10
+    },
+    {
+      "issue_id": "mainline_current_section_missing_post_decision_contract_lane_count",
+      "message": "Current formal-gate section must mention this post-decision contract plan count.",
+      "lane_count": 4
+    },
+    {
+      "issue_id": "status_report_next_action_guard_invalid_after_f02_6",
+      "message": "After F02.6 closes, next-action guard should be not-applicable or passed.",
+      "observed_status": "next_action_guard_failed"
+    },
+    {
+      "issue_id": "protocol_lane_status_drift",
+      "message": "Protocol-lane status must remain blocked pending Dr Sun's lane decision.",
+      "observed_status": "protocol_lane_status_ready_for_contract_draft"
+    },
+    {
+      "issue_id": "protocol_lane_status_next_blocked_lane_drift",
+      "message": "Current blocked lane must remain protocol_lane_decision.",
+      "observed_next_blocked_lane": "new_or_revised_contract"
+    },
+    {
+      "issue_id": "protocol_lane_status_decision_record_not_pending",
+      "message": "Mainline audit currently mirrors the pending protocol-lane decision state.",
+      "observed_decision_record_status": "protocol_lane_decision_recorded"
+    },
+    {
+      "issue_id": "protocol_lane_status_selected_lane_present",
+      "message": "Pending protocol-lane state must not already have a selected lane.",
+      "selected_lane_id": "stronger_obstacle_summary_warm_start"
+    },
+    {
+      "issue_id": "protocol_lane_status_allowed_actions_drift",
+      "message": "Pending protocol-lane state may only allow record_protocol_lane_decision.",
+      "allowed_next_action_ids": [
+        "draft_new_or_revised_contract_after_lane_decision"
+      ]
+    },
+    {
+      "issue_id": "protocol_lane_status_authorization_leak",
+      "message": "Protocol-lane status must not authorize contract approval, training, preflight, claims, or paper-result material.",
+      "true_flags": [
+        "contract_drafting_allowed_now"
+      ]
+    },
+    {
+      "issue_id": "protocol_lane_status_post_plan_status_drift",
+      "message": "Protocol-lane status report must mirror the pending post-decision contract plan status.",
+      "status": "post_decision_contract_plan_ready_for_contract_draft"
+    },
+    {
+      "issue_id": "protocol_lane_status_post_plan_authorization_leak",
+      "message": "Protocol-lane status report's inherited post-plan summary must not authorize contract drafting, training, preflight, claims, or paper-result material while pending.",
+      "true_flags": [
+        "post_decision_contract_plan_gate_contract_drafting_allowed_now"
+      ]
+    },
+    {
+      "issue_id": "protocol_lane_status_post_plan_selected_lane_present",
+      "message": "Protocol-lane status report must not expose a selected post-plan lane while the decision is pending.",
+      "selected_lane_id": "stronger_obstacle_summary_warm_start"
+    },
+    {
+      "issue_id": "post_decision_contract_plan_status_drift",
+      "message": "Post-decision contract plan must remain blocked pending protocol-lane decision.",
+      "status": "post_decision_contract_plan_ready_for_contract_draft"
+    },
+    {
+      "issue_id": "post_decision_contract_plan_authorization_leak",
+      "message": "Post-decision contract plan must not authorize contract writing, training, or claims.",
+      "true_flags": [
+        "gate_contract_drafting_allowed_now"
+      ]
+    },
+    {
+      "issue_id": "post_decision_contract_plan_selected_lane_present",
+      "message": "Post-decision plan mirrored by mainline must not select a lane while protocol decision is pending.",
+      "selected_lane_id": "stronger_obstacle_summary_warm_start"
+    }
+  ],
   "claim_boundaries": [
     "This audit only checks that the long-term mainline task book mirrors the current formal-gate state.",
     "It does not execute commands, run local training, run remote preflight, run remote PPO training, evaluate PPO, pull back artifacts, or write paper results.",

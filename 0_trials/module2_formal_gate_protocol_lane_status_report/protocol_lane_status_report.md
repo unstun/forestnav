@@ -7,7 +7,7 @@ This file summarizes protocol-lane gates; it is not paper result material.
 - next_blocked_lane: `new_or_revised_contract`
 - decision_record_status: `protocol_lane_decision_recorded`
 - selected_lane_id: `stronger_obstacle_summary_warm_start`
-- contract_drafting_allowed_now: `False`
+- contract_drafting_allowed_now: `True`
 - remote_training_allowed_now: `False`
 - formal_claim_allowed_now: `False`
 - next_success_attempt_artifact_count: `10`
@@ -19,14 +19,14 @@ This file summarizes protocol-lane gates; it is not paper result material.
 
 ## Post-Decision Contract Plan
 
-- status: `post_decision_contract_plan_ready_blocked_pending_lane_decision`
+- status: `post_decision_contract_plan_ready_for_contract_draft`
 - audit_issue_count: `0`
 - required_contract_section_count: `8`
 - shared_next_success_attempt_artifact_count: `10`
 - shared_next_success_attempt_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
 - old_failed_run_artifacts_invalid_for_next_success_attempt: `True`
 - lane_count: `4`
-- selected_lane_id: `None`
+- selected_lane_id: `stronger_obstacle_summary_warm_start`
 - writes_contract: `False`
 - approves_contract: `False`
 - runs_training: `False`
@@ -54,7 +54,7 @@ This file summarizes protocol-lane gates; it is not paper result material.
 - draft_contract_allows_training: `False`
 
 ## Allowed Next Actions
-- `record_protocol_lane_decision`
+- `draft_new_or_revised_contract_after_lane_decision`
 
 ## Blocked Actions
 - `local_training`
@@ -71,5 +71,5 @@ This file summarizes protocol-lane gates; it is not paper result material.
 
 ## Audit
 
-- status: `protocol_lane_status_report_audit_failed`
-- audit_issue_count: `3`
+- status: `protocol_lane_status_ready_for_contract_draft`
+- audit_issue_count: `0`

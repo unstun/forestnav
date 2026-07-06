@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_post_decision_contract_plan",
-  "status": "post_decision_contract_plan_audit_failed",
-  "created_at_utc": "2026-07-06T06:49:02.378637+00:00",
-  "source_head": "10083401624ccb4cf1fc977bfc98faf6a4015f0b+dirty",
+  "status": "post_decision_contract_plan_ready_for_contract_draft",
+  "created_at_utc": "2026-07-06T06:52:59.719157+00:00",
+  "source_head": "210a3ad5308da88cd274338ffc306357a55c36f6+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "writes_contract": false,
@@ -17,16 +17,18 @@
   "paper_result_material_allowed": false,
   "inputs": {
     "protocol_lane_readiness": "0_trials/module2_formal_gate_protocol_lane_readiness/protocol_lane_readiness.json",
+    "decision_record": "0_trials/module2_formal_gate_protocol_lane_decision_record/protocol_lane_decision_record.json",
     "contract_intake": "0_trials/module2_formal_gate_contract_intake/formal_gate_contract_intake.json",
     "contract_authoring_gate": "0_trials/module2_formal_gate_contract_authoring_gate_audit/contract_authoring_gate_audit.json",
     "next_round_requirements": "0_trials/module2_formal_gate_next_round_requirements/formal_gate_next_round_requirements.json"
   },
   "gate_state": {
-    "next_blocked_lane": "protocol_lane_decision",
-    "selected_lane_id": null,
+    "next_blocked_lane": "new_or_revised_contract",
+    "selected_lane_id": "stronger_obstacle_summary_warm_start",
     "decision_owner_required": "Dr Sun",
     "decision_record_status": "protocol_lane_decision_recorded",
-    "contract_authoring_gate_status": "contract_authoring_gate_audit_failed",
+    "contract_action": "draft_new_contract",
+    "contract_authoring_gate_status": "contract_authoring_gate_ready_for_contract_draft",
     "contract_drafting_allowed_now": true,
     "contract_approval_allowed_now": false,
     "draft_contract_allows_training": false,
@@ -37,7 +39,7 @@
     "formal_claim_allowed_now": false,
     "paper_result_material_allowed_now": false,
     "allowed_next_action_ids": [
-      "record_protocol_lane_decision"
+      "draft_new_or_revised_contract_after_lane_decision"
     ],
     "blocked_action_ids": [
       "local_training",
@@ -703,21 +705,11 @@
       "next_success_attempt_artifact_ids": []
     }
   ],
-  "audit_issue_count": 2,
-  "audit_issues": [
-    {
-      "issue_id": "contract_authoring_gate_not_pending",
-      "message": "This plan mirrors the pending-lane state and must not pretend contract drafting is open.",
-      "observed": "contract_authoring_gate_audit_failed"
-    },
-    {
-      "issue_id": "contract_drafting_allowed_now_unexpectedly_true",
-      "message": "contract_drafting_allowed_now must remain false."
-    }
-  ],
+  "audit_issue_count": 0,
+  "audit_issues": [],
   "claim_boundaries": [
     "This artifact is a post-decision contract planning index, not a contract draft.",
-    "It does not select a protocol lane and does not authorize contract authoring while selected_lane_id is None.",
+    "It may carry the recorded protocol lane context, but it does not write or approve a contract.",
     "It does not authorize local training, remote preflight, remote training, formal claims, or paper result material.",
     "Any success lane still needs a selected lane, an approved/frozen new or revised contract, remote training artifacts, formal Gate3 pass, checkpoint hash, and H02 acceptance."
   ]

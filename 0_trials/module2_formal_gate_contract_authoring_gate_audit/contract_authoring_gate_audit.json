@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_contract_authoring_gate_audit",
-  "status": "contract_authoring_gate_audit_failed",
-  "created_at_utc": "2026-07-06T06:48:51.234930+00:00",
-  "source_head": "10083401624ccb4cf1fc977bfc98faf6a4015f0b+dirty",
+  "status": "contract_authoring_gate_ready_for_contract_draft",
+  "created_at_utc": "2026-07-06T06:52:50.993773+00:00",
+  "source_head": "210a3ad5308da88cd274338ffc306357a55c36f6+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -28,8 +28,8 @@
     "contract_action": "draft_new_contract",
     "contract_intake_status": "formal_gate_contract_intake_ready_for_dr_sun",
     "next_round_requirements_status": "formal_gate_next_round_requirements_ready",
-    "post_decision_contract_plan_status": "post_decision_contract_plan_ready_blocked_pending_lane_decision",
-    "post_decision_contract_plan_selected_lane_id": null,
+    "post_decision_contract_plan_status": "post_decision_contract_plan_ready_for_contract_draft",
+    "post_decision_contract_plan_selected_lane_id": "stronger_obstacle_summary_warm_start",
     "post_decision_contract_plan_required_section_count": 8,
     "post_decision_contract_plan_lane_count": 4,
     "post_decision_contract_plan_shared_artifact_count": 10,
@@ -62,7 +62,7 @@
   "post_decision_contract_plan_summary": {
     "present": true,
     "artifact_name": "module2_formal_gate_post_decision_contract_plan",
-    "status": "post_decision_contract_plan_ready_blocked_pending_lane_decision",
+    "status": "post_decision_contract_plan_ready_for_contract_draft",
     "audit_issue_count": 0,
     "required_contract_section_count": 8,
     "shared_next_success_attempt_artifact_count": 10,
@@ -82,8 +82,8 @@
     "remote_training_allowed_now": false,
     "formal_claim_allowed": false,
     "paper_result_material_allowed": false,
-    "gate_selected_lane_id": null,
-    "gate_contract_drafting_allowed_now": false,
+    "gate_selected_lane_id": "stronger_obstacle_summary_warm_start",
+    "gate_contract_drafting_allowed_now": true,
     "gate_remote_training_allowed_now": false,
     "gate_formal_claim_allowed_now": false
   },
@@ -109,13 +109,8 @@
     "evaluation_and_acceptance_plan",
     "paper_claim_boundary"
   ],
-  "audit_issue_count": 1,
-  "audit_issues": [
-    {
-      "issue_id": "post_decision_contract_plan_missing_selected_lane_after_record",
-      "message": "Recorded contract authoring gate must consume a plan with selected lane context."
-    }
-  ],
+  "audit_issue_count": 0,
+  "audit_issues": [],
   "claim_boundaries": [
     "This audit gates contract authoring after the protocol-lane decision; it does not draft or approve a contract.",
     "The approved v1 contract is historical input only and cannot authorize a new success attempt after the failed warm-start Gate3 run.",

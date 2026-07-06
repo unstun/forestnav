@@ -4,11 +4,11 @@ This file is a read-only planning index. It is not a contract draft, training ru
 
 ## Gate State
 
-- status: `post_decision_contract_plan_audit_failed`
-- next_blocked_lane: `protocol_lane_decision`
-- selected_lane_id: `None`
+- status: `post_decision_contract_plan_ready_for_contract_draft`
+- next_blocked_lane: `new_or_revised_contract`
+- selected_lane_id: `stronger_obstacle_summary_warm_start`
 - decision_owner_required: `Dr Sun`
-- allowed_next_action_ids: `['record_protocol_lane_decision']`
+- allowed_next_action_ids: `['draft_new_or_revised_contract_after_lane_decision']`
 - contract_drafting_allowed_now: `True`
 - remote_training_allowed_now: `False`
 - formal_claim_allowed_now: `False`
@@ -114,12 +114,11 @@ This file is a read-only planning index. It is not a contract draft, training ru
 
 ## Audit
 
-- audit_issue_count: `2`
-- `contract_authoring_gate_not_pending`: This plan mirrors the pending-lane state and must not pretend contract drafting is open.
-- `contract_drafting_allowed_now_unexpectedly_true`: contract_drafting_allowed_now must remain false.
+- audit_issue_count: `0`
+- no audit issues
 
 ## Claim Boundaries
 - This artifact is a post-decision contract planning index, not a contract draft.
-- It does not select a protocol lane and does not authorize contract authoring while selected_lane_id is None.
+- It may carry the recorded protocol lane context, but it does not write or approve a contract.
 - It does not authorize local training, remote preflight, remote training, formal claims, or paper result material.
 - Any success lane still needs a selected lane, an approved/frozen new or revised contract, remote training artifacts, formal Gate3 pass, checkpoint hash, and H02 acceptance.

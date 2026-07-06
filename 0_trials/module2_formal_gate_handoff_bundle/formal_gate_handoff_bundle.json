@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_handoff_bundle",
-  "status": "blocked_until_protocol_lane_decision",
-  "created_at_utc": "2026-07-06T06:48:09.825257+00:00",
-  "source_head": "10083401624ccb4cf1fc977bfc98faf6a4015f0b",
+  "status": "blocked_formal_gate_handoff",
+  "created_at_utc": "2026-07-06T06:53:13.209444+00:00",
+  "source_head": "210a3ad5308da88cd274338ffc306357a55c36f6+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -25,9 +25,9 @@
   "current_state": {
     "decision_status": "approved",
     "decision_decider": "Dr Sun",
-    "protocol_lane_status": "protocol_lane_status_blocked_pending_lane_decision",
-    "protocol_lane_decision_record_status": "pending_protocol_lane_decision",
-    "protocol_lane_selected_lane_id": null,
+    "protocol_lane_status": "protocol_lane_status_ready_for_contract_draft",
+    "protocol_lane_decision_record_status": "protocol_lane_decision_recorded",
+    "protocol_lane_selected_lane_id": "stronger_obstacle_summary_warm_start",
     "transition_gate_status": "f02_6_transition_gate_audit_passed",
     "transition_gate_audit_issue_count": 0,
     "post_plan_status": "ready_to_execute_post_f02_6_regeneration_plan",
@@ -38,13 +38,13 @@
     "h02_status": "blocked_formal_output_acceptance",
     "h02_formal_output_accepted": false,
     "h02_paper_result_input_allowed": false,
-    "next_blocked_lane": "protocol_lane_decision",
-    "effective_next_action_id": "record_protocol_lane_decision",
-    "effective_next_action_requires_dr_sun": true,
+    "next_blocked_lane": "source_fresh_preflight",
+    "effective_next_action_id": "resolve_source_fresh_preflight",
+    "effective_next_action_requires_dr_sun": false,
     "legacy_f02_6_decision_action_ids": [
       "record_f02_6_decision"
     ],
-    "legacy_f02_6_decision_superseded_by_protocol_lane": true,
+    "legacy_f02_6_decision_superseded_by_protocol_lane": false,
     "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
     "source_freshness_regeneration_required": true,
     "source_freshness_blocking_regeneration_required": true,
@@ -60,52 +60,45 @@
     "formal_h02_acceptance_allowed_now": false,
     "formal_claim_allowed_now": false,
     "local_training_allowed_now": false,
-    "source_freshness_ready_for_remote_preflight": false,
-    "paper_result_material_allowed_now": false,
-    "new_success_training_allowed_now": false
+    "source_freshness_ready_for_remote_preflight": false
   },
   "next_handoff_action": {
-    "action_id": "record_protocol_lane_decision",
-    "requires_dr_sun": true,
+    "action_id": "resolve_source_fresh_preflight",
+    "requires_dr_sun": false,
     "allowed_for_agent_now": false,
-    "description": "Dr Sun must select the next protocol lane before contract drafting, remote preflight, training, or result material can proceed."
+    "description": "Use the handoff stages as an audit checklist; this artifact does not execute commands."
   },
   "single_next_action_index": {
     "index_id": "module2_formal_gate_single_next_action_index",
-    "status": "awaiting_dr_sun_protocol_lane_decision",
-    "single_current_human_entry": true,
-    "next_action_id": "record_protocol_lane_decision",
+    "status": "follow_handoff_stages",
+    "single_current_human_entry": false,
+    "next_action_id": "manual_handoff_stage_review",
     "decision_owner_required": "Dr Sun",
     "valid_decisions": [
-      "stronger_obstacle_summary_warm_start",
-      "full_patch_cnn_policy",
-      "hybrid_ppo_analytic_fallback",
-      "stop_or_reframe_module2_claim"
+      "approve_obstacle_summary_warm_start",
+      "reject_obstacle_summary_warm_start"
     ],
     "required_record_fields": [
-      "selected_lane_id",
-      "decision_note",
-      "failed_gate3_basis",
-      "contract_action",
-      "rejected_lane_rationales",
-      "evidence_artifact_basis"
+      "decision",
+      "decider",
+      "decision_note"
     ],
     "current_allowed_action_ids": [
-      "record_protocol_lane_decision"
+      "record_f02_6_decision"
     ],
     "current_blocked_action_ids": [
+      "remote_preflight",
+      "remote_training",
       "local_training",
-      "remote_success_training",
-      "remote_preflight_for_new_success_attempt",
       "formal_claim",
       "paper_result_material"
     ],
     "legacy_f02_6_decision_action_ids": [
       "record_f02_6_decision"
     ],
-    "legacy_f02_6_decision_superseded_by_protocol_lane": true,
+    "legacy_f02_6_decision_superseded_by_protocol_lane": false,
     "post_decision_routes_are_current_authorization": false,
-    "all_execution_disabled_now": true,
+    "all_execution_disabled_now": false,
     "record_command_templates": [],
     "record_command_template_count": 0,
     "local_training_allowed_now": false,
@@ -126,22 +119,22 @@
     "approved_route_next_lane": "source_fresh_regeneration",
     "rejected_route_next_lane": "protocol_redesign",
     "after_approval_still_requires": [
-      "record_protocol_lane_decision",
-      "approved_or_frozen_new_or_revised_contract",
       "source_freshness_audit",
+      "post_f02_6_regeneration_plan",
+      "post_f02_6_plan_audit",
       "remote_formal_execution_packet_ready",
       "approved_remote_preflight"
     ],
     "claim_boundaries": [
-      "This index is a read-only handoff pointer, not a protocol-lane decision record.",
-      "record_protocol_lane_decision does not run preflight, training, audit, sync, pullback, or paper-result generation.",
-      "A protocol-lane decision only opens contract drafting; it does not authorize remote training.",
+      "This index is a read-only handoff pointer, not a decision record.",
+      "The listed command templates only record Dr Sun's F02.6 decision; they do not run preflight, training, audit, sync, pullback, or paper-result generation.",
+      "Approval does not directly authorize remote preflight or remote training.",
       "Local PPO training remains prohibited."
     ]
   },
   "protocol_lane_status_summary": {
     "present": true,
-    "status": "protocol_lane_status_blocked_pending_lane_decision",
+    "status": "protocol_lane_status_ready_for_contract_draft",
     "audit_issue_count": 0,
     "not_paper_result_material": true,
     "executes_commands": false,
@@ -150,9 +143,9 @@
     "local_training_allowed": false,
     "formal_claim_allowed": false,
     "paper_result_material_allowed": false,
-    "next_blocked_lane": "protocol_lane_decision",
-    "decision_record_status": "pending_protocol_lane_decision",
-    "selected_lane_id": null,
+    "next_blocked_lane": "new_or_revised_contract",
+    "decision_record_status": "protocol_lane_decision_recorded",
+    "selected_lane_id": "stronger_obstacle_summary_warm_start",
     "lane_count": 4,
     "next_success_attempt_artifact_count": 10,
     "next_success_attempt_artifact_category_counts": {
@@ -270,11 +263,11 @@
     },
     "old_failed_run_artifacts_invalid_for_next_success_attempt": true,
     "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt": true,
-    "contract_drafting_allowed_now": false,
+    "contract_drafting_allowed_now": true,
     "contract_approval_allowed_now": false,
     "draft_contract_allows_training": false,
     "allowed_next_action_ids": [
-      "record_protocol_lane_decision"
+      "draft_new_or_revised_contract_after_lane_decision"
     ],
     "blocked_action_ids": [
       "local_training",
@@ -815,8 +808,7 @@
       "runs_remote_preflight": true,
       "host": "gpu3070ti-relay",
       "blocked_by": [
-        "source_fresh_preflight_targets_open",
-        "protocol_lane_decision_pending"
+        "source_fresh_preflight_targets_open"
       ],
       "evidence_paths": [
         "0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_approved_remote_v1/gate3_preflight_manifest.json"
@@ -835,8 +827,7 @@
       "runs_remote_preflight": false,
       "host": null,
       "blocked_by": [
-        "source_fresh_preflight_targets_open",
-        "protocol_lane_decision_pending"
+        "source_fresh_preflight_targets_open"
       ],
       "evidence_paths": [
         "0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json"
@@ -856,8 +847,7 @@
       "host": "gpu3070ti-relay",
       "blocked_by": [
         "source_fresh_preflight_targets_open",
-        "remote_packet_not_ready",
-        "protocol_lane_decision_pending"
+        "remote_packet_not_ready"
       ],
       "evidence_paths": [
         "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/train/final_model.zip",
@@ -912,8 +902,7 @@
       "host": null,
       "blocked_by": [
         "missing_remote_audit_pullback",
-        "source_fresh_h01_h02_targets_open",
-        "protocol_lane_decision_pending"
+        "source_fresh_h01_h02_targets_open"
       ],
       "evidence_paths": [
         "0_trials/module2_v1_evaluation_manifest/module2_v1_evaluation_manifest.json",
@@ -936,8 +925,7 @@
       "host": null,
       "blocked_by": [
         "h02_formal_acceptance_not_ready",
-        "source_fresh_claim_targets_open",
-        "protocol_lane_decision_pending"
+        "source_fresh_claim_targets_open"
       ],
       "evidence_paths": [
         "0_trials/module2_claim_safety/module2_claim_safety.json",
