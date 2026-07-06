@@ -837,15 +837,21 @@ def _permissions(
     closure_ready = closure_checklist.get("status") == "formal_gate_closure_ready_for_result_audit"
     formal_gate_ready = formal_gate.get("status") == "formal_gate_ready_for_result_audit"
     source_fresh_ready = _source_freshness_ready_for_remote_preflight(source_freshness)
+    veto_remote_preflight = _execution_veto_consensus_allowed(formal_gate, "remote_preflight")
+    if veto_remote_preflight is None:
+        veto_remote_preflight = remote_preflight_ready
     veto_remote_training = _execution_veto_consensus_allowed(formal_gate, "remote_training")
     if veto_remote_training is None:
         veto_remote_training = remote_training_ready
+    veto_formal_claim = _execution_veto_consensus_allowed(formal_gate, "formal_claim")
+    if veto_formal_claim is None:
+        veto_formal_claim = formal_gate_ready
     safe = not input_safety_issues
     return {
         "f02_6_decision_closed": decision_closed,
         "warm_start_formal_chain_approved": approved,
-        "remote_preflight_allowed_now": approved and source_fresh_ready and remote_preflight_ready and safe,
-        "remote_training_allowed_now": approved and source_fresh_ready and remote_ready and remote_training_ready and safe,
+        "remote_preflight_allowed_now": approved and source_fresh_ready and remote_preflight_ready and veto_remote_preflight and safe,
+        "remote_training_allowed_now": approved and source_fresh_ready and remote_ready and remote_training_ready and veto_remote_training and safe,
         "formal_h01_evaluation_allowed_now": h01_ready and remote_ready and source_fresh_ready and veto_remote_training and safe,
         "formal_h02_acceptance_allowed_now": h01_ready and h02_accepted and source_fresh_ready and veto_remote_training and safe,
         "formal_claim_allowed_now": (
@@ -855,6 +861,7 @@ def _permissions(
             and h02_accepted
             and claim_ready
             and readiness_ready
+            and veto_formal_claim
             and safe
         ),
         "local_training_allowed_now": False,
