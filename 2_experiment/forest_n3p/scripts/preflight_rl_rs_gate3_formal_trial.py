@@ -53,6 +53,16 @@ def _parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser.add_argument("--train-n-steps", type=int, default=128)
     parser.add_argument("--train-batch-size", type=int, default=64)
     parser.add_argument("--train-n-epochs", type=int, default=4)
+    parser.add_argument("--train-learning-rate", type=float, default=3e-4)
+    parser.add_argument("--train-gamma", type=float, default=0.99)
+    parser.add_argument("--train-gae-lambda", type=float, default=0.95)
+    parser.add_argument("--train-clip-range", type=float, default=0.2)
+    parser.add_argument("--train-ent-coef", type=float, default=0.0)
+    parser.add_argument("--train-vf-coef", type=float, default=0.5)
+    parser.add_argument("--train-max-grad-norm", type=float, default=0.5)
+    parser.add_argument("--train-policy-net-arch", default="128,128,64")
+    parser.add_argument("--train-value-net-arch", default="128,128,64")
+    parser.add_argument("--train-checkpoint-freq", type=int, default=10_000)
     parser.add_argument("--eval-episodes", type=int, default=64)
     parser.add_argument("--eval-min-episodes", type=int, default=64)
     parser.add_argument("--eval-success-threshold", type=float, default=0.8)
@@ -115,6 +125,16 @@ def _protocol_record(*, args: argparse.Namespace, output_dir: Path) -> dict[str,
         "train_n_steps": int(args.train_n_steps),
         "train_batch_size": int(args.train_batch_size),
         "train_n_epochs": int(args.train_n_epochs),
+        "train_learning_rate": float(args.train_learning_rate),
+        "train_gamma": float(args.train_gamma),
+        "train_gae_lambda": float(args.train_gae_lambda),
+        "train_clip_range": float(args.train_clip_range),
+        "train_ent_coef": float(args.train_ent_coef),
+        "train_vf_coef": float(args.train_vf_coef),
+        "train_max_grad_norm": float(args.train_max_grad_norm),
+        "train_policy_net_arch": str(args.train_policy_net_arch),
+        "train_value_net_arch": str(args.train_value_net_arch),
+        "train_checkpoint_freq": int(args.train_checkpoint_freq),
         "eval_episodes": int(args.eval_episodes),
         "eval_min_episodes": int(args.eval_min_episodes),
         "eval_success_threshold": float(args.eval_success_threshold),
@@ -235,6 +255,26 @@ def _runner_argv(*, args: argparse.Namespace, output_dir: Path) -> list[str]:
         str(args.train_batch_size),
         "--train-n-epochs",
         str(args.train_n_epochs),
+        "--train-learning-rate",
+        str(args.train_learning_rate),
+        "--train-gamma",
+        str(args.train_gamma),
+        "--train-gae-lambda",
+        str(args.train_gae_lambda),
+        "--train-clip-range",
+        str(args.train_clip_range),
+        "--train-ent-coef",
+        str(args.train_ent_coef),
+        "--train-vf-coef",
+        str(args.train_vf_coef),
+        "--train-max-grad-norm",
+        str(args.train_max_grad_norm),
+        "--train-policy-net-arch",
+        str(args.train_policy_net_arch),
+        "--train-value-net-arch",
+        str(args.train_value_net_arch),
+        "--train-checkpoint-freq",
+        str(args.train_checkpoint_freq),
         "--eval-episodes",
         str(args.eval_episodes),
         "--eval-min-episodes",
