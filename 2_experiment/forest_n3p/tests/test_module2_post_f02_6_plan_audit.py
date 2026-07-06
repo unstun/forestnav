@@ -99,6 +99,16 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
     assert protocol["post_decision_contract_plan_status"] == "post_decision_contract_plan_ready_blocked_pending_lane_decision"
     assert protocol["post_decision_contract_plan_required_section_count"] == 8
     assert protocol["post_decision_contract_plan_shared_artifact_count"] == 10
+    assert protocol["post_decision_contract_plan_shared_artifact_category_counts"] == {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1,
+    }
+    assert protocol[
+        "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"
+    ] is True
     assert protocol["post_decision_contract_plan_lane_count"] == 4
     assert protocol["next_success_attempt_artifact_count"] == 10
     assert protocol["next_success_attempt_artifact_category_counts"] == {
@@ -113,6 +123,7 @@ def test_post_f02_6_plan_audit_passes_current_pending_blocked_plan(tmp_path):
         "train_summary_json",
         "train_training_manifest_json",
     ]
+    assert protocol["old_failed_run_artifacts_invalid_for_next_success_attempt"] is True
     assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
     assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 4
     unlock_chain = manifest["remaining_deliverables_unlock_chain_summary"]
@@ -839,9 +850,12 @@ def test_post_f02_6_plan_audit_rejects_protocol_lane_status_post_plan_drift(tmp_
         "remote_success_training",
     ]
     current["post_decision_contract_plan_required_section_count"] = 7
+    current["post_decision_contract_plan_shared_artifact_category_counts"]["training"] = 2
+    current["post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"] = False
     current["post_decision_contract_plan_runs_training"] = True
     current["next_success_attempt_artifact_count"] = 9
     current["next_success_attempt_artifact_category_counts"]["evaluation"] = 1
+    current["old_failed_run_artifacts_invalid_for_next_success_attempt"] = False
     current["next_success_attempt_artifact_ids_by_category"]["evaluation"] = [
         "eval_gate3_eval_episodes_csv"
     ]
@@ -1368,6 +1382,14 @@ def _protocol_lane_status_payload():
             "post_decision_contract_plan_audit_issue_count": 0,
             "post_decision_contract_plan_required_section_count": 8,
             "post_decision_contract_plan_shared_artifact_count": 10,
+            "post_decision_contract_plan_shared_artifact_category_counts": {
+                "contract": 1,
+                "training": 3,
+                "evaluation": 2,
+                "acceptance": 3,
+                "formal_acceptance": 1,
+            },
+            "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt": True,
             "post_decision_contract_plan_lane_count": 4,
             "post_decision_contract_plan_writes_contract": False,
             "post_decision_contract_plan_approves_contract": False,
@@ -1401,6 +1423,7 @@ def _protocol_lane_status_payload():
                 ],
                 "formal_acceptance": ["h02_formal_output_acceptance"],
             },
+            "old_failed_run_artifacts_invalid_for_next_success_attempt": True,
             "contract_drafting_allowed_now": False,
             "contract_approval_allowed_now": False,
             "draft_contract_allows_training": False,
