@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_contract_authoring_gate_audit",
-  "status": "contract_authoring_gate_blocked_pending_lane_decision",
-  "created_at_utc": "2026-07-06T04:42:58.783634+00:00",
-  "source_head": "7d19c3a0f3dcff57260e31b2a943d3100199871b+dirty",
+  "status": "contract_authoring_gate_audit_failed",
+  "created_at_utc": "2026-07-06T06:48:51.234930+00:00",
+  "source_head": "10083401624ccb4cf1fc977bfc98faf6a4015f0b+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -22,10 +22,10 @@
     "existing_contract": ".pipeline/contracts/module2-ppo-funnel-expansion.md"
   },
   "contract_gate": {
-    "decision_gate_status": "protocol_lane_decision_gate_pending_clean",
-    "decision_record_status": "pending_protocol_lane_decision",
-    "selected_lane_id": null,
-    "contract_action": "none",
+    "decision_gate_status": "protocol_lane_decision_gate_recorded_clean",
+    "decision_record_status": "protocol_lane_decision_recorded",
+    "selected_lane_id": "stronger_obstacle_summary_warm_start",
+    "contract_action": "draft_new_contract",
     "contract_intake_status": "formal_gate_contract_intake_ready_for_dr_sun",
     "next_round_requirements_status": "formal_gate_next_round_requirements_ready",
     "post_decision_contract_plan_status": "post_decision_contract_plan_ready_blocked_pending_lane_decision",
@@ -44,12 +44,12 @@
     "existing_contract_status": "approved",
     "existing_contract_version": "v1",
     "existing_contract_usable_for_new_success_attempt": false,
-    "contract_drafting_allowed_now": false,
+    "contract_drafting_allowed_now": true,
     "contract_approval_allowed_now": false,
     "draft_contract_allows_training": false,
     "new_or_revised_contract_required_before_training": true,
     "allowed_next_action_ids": [
-      "record_protocol_lane_decision"
+      "draft_new_or_revised_contract_after_lane_decision"
     ],
     "blocked_action_ids": [
       "local_training",
@@ -109,8 +109,13 @@
     "evaluation_and_acceptance_plan",
     "paper_claim_boundary"
   ],
-  "audit_issue_count": 0,
-  "audit_issues": [],
+  "audit_issue_count": 1,
+  "audit_issues": [
+    {
+      "issue_id": "post_decision_contract_plan_missing_selected_lane_after_record",
+      "message": "Recorded contract authoring gate must consume a plan with selected lane context."
+    }
+  ],
   "claim_boundaries": [
     "This audit gates contract authoring after the protocol-lane decision; it does not draft or approve a contract.",
     "The approved v1 contract is historical input only and cannot authorize a new success attempt after the failed warm-start Gate3 run.",

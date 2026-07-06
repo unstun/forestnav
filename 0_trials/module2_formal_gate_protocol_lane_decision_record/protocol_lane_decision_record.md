@@ -4,11 +4,11 @@ This file records the lane-decision state; it is not paper result material.
 
 ## Decision State
 
-- status: `pending_protocol_lane_decision`
-- requested_selected_lane: `pending`
-- selected_lane_id: `None`
-- decider: `None`
-- contract_action: `none`
+- status: `protocol_lane_decision_recorded`
+- requested_selected_lane: `stronger_obstacle_summary_warm_start`
+- selected_lane_id: `stronger_obstacle_summary_warm_start`
+- decider: `Dr Sun`
+- contract_action: `draft_new_contract`
 - training_authorization: `not_authorized_by_this_decision_record`
 - decision_record_is_not_training_authorization: `True`
 - decision_record_is_not_paper_result_material: `True`
@@ -58,7 +58,7 @@ This file records the lane-decision state; it is not paper result material.
 
 ## Post-Decision Requirements
 
-- new_or_revised_contract_required: `False`
+- new_or_revised_contract_required: `True`
 - contract_status_required_before_training: `approved, frozen`
 - draft_contract_allows_training: `False`
 - next_success_attempt_artifact_count: `10`

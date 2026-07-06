@@ -5,8 +5,8 @@ This file audits the protocol-lane decision gate; it is not paper result materia
 ## Decision State
 
 - packet_status: `formal_gate_protocol_lane_decision_packet_ready_for_dr_sun`
-- record_status: `pending_protocol_lane_decision`
-- selected_lane_id: `None`
+- record_status: `protocol_lane_decision_recorded`
+- selected_lane_id: `stronger_obstacle_summary_warm_start`
 - training_authorization: `not_authorized_by_this_decision_record`
 - remote_training_allowed_now: `False`
 - formal_claim_allowed_now: `False`
@@ -15,9 +15,9 @@ This file audits the protocol-lane decision gate; it is not paper result materia
 
 ## Decision Note Audit
 
-- gate_review_status: `not_required_while_pending`
-- gate_requires_note_quality: `False`
-- decision_note_present: `False`
+- gate_review_status: `recorded_decision_note_audit_clean`
+- gate_requires_note_quality: `True`
+- decision_note_present: `True`
 - mentions_selected_lane: `True`
 - mentions_failed_gate3: `True`
 - mentions_contract_action: `True`
@@ -26,19 +26,15 @@ This file audits the protocol-lane decision gate; it is not paper result materia
 - quality_warning: `None`
 
 ## Allowed Next Human Actions
-- `record_protocol_lane_decision`
-  - requires_dr_sun: `True`
+- `draft_new_or_revised_contract_after_lane_decision`
+  - requires_dr_sun: `False`
   - runs_training: `False`
   - runs_remote_preflight: `False`
-  - valid_lane_ids:
-    - `stronger_obstacle_summary_warm_start`
-    - `full_patch_cnn_policy`
-    - `hybrid_ppo_analytic_fallback`
-    - `stop_or_reframe_module2_claim`
+  - selected_lane_id: `stronger_obstacle_summary_warm_start`
 
 ## Post-Decision Gate Requirements
 
-- new_or_revised_contract_required: `False`
+- new_or_revised_contract_required: `True`
 - contract_status_required_before_training: `approved, frozen`
 - draft_contract_allows_training: `False`
 - next_success_attempt_artifact_count: `10`
@@ -62,5 +58,5 @@ This file audits the protocol-lane decision gate; it is not paper result materia
 
 ## Audit
 
-- status: `protocol_lane_decision_gate_pending_clean`
+- status: `protocol_lane_decision_gate_recorded_clean`
 - audit_issue_count: `0`

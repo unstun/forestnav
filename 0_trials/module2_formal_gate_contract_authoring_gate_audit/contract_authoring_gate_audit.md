@@ -4,17 +4,17 @@ This file audits whether contract authoring may proceed; it is not paper result 
 
 ## Contract Gate
 
-- decision_record_status: `pending_protocol_lane_decision`
-- selected_lane_id: `None`
-- contract_action: `none`
-- contract_drafting_allowed_now: `False`
+- decision_record_status: `protocol_lane_decision_recorded`
+- selected_lane_id: `stronger_obstacle_summary_warm_start`
+- contract_action: `draft_new_contract`
+- contract_drafting_allowed_now: `True`
 - contract_approval_allowed_now: `False`
 - draft_contract_allows_training: `False`
 
 ## Allowed Next Actions
 
 - allowed_next_action_ids:
-  - `record_protocol_lane_decision`
+  - `draft_new_or_revised_contract_after_lane_decision`
 
 ## Blocked Actions
 
@@ -61,5 +61,5 @@ This file audits whether contract authoring may proceed; it is not paper result 
 
 ## Audit
 
-- status: `contract_authoring_gate_blocked_pending_lane_decision`
-- audit_issue_count: `0`
+- status: `contract_authoring_gate_audit_failed`
+- audit_issue_count: `1`

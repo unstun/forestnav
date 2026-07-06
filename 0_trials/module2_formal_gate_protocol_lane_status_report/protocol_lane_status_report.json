@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_protocol_lane_status_report",
-  "status": "protocol_lane_status_blocked_pending_lane_decision",
-  "created_at_utc": "2026-07-06T05:47:51.365176+00:00",
-  "source_head": "0e911032f373045cbd2ed7db23589cc91f120263+dirty",
+  "status": "protocol_lane_status_report_audit_failed",
+  "created_at_utc": "2026-07-06T06:48:09.801795+00:00",
+  "source_head": "10083401624ccb4cf1fc977bfc98faf6a4015f0b",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -22,10 +22,10 @@
     "next_round_requirements": "0_trials/module2_formal_gate_next_round_requirements/formal_gate_next_round_requirements.json"
   },
   "current_status": {
-    "next_blocked_lane": "protocol_lane_decision",
+    "next_blocked_lane": "new_or_revised_contract",
     "decision_packet_status": "formal_gate_protocol_lane_decision_packet_ready_for_dr_sun",
     "decision_packet_audit_issue_count": 0,
-    "decision_record_status": "pending_protocol_lane_decision",
+    "decision_record_status": "protocol_lane_decision_recorded",
     "decision_record_audit_issue_count": 0,
     "decision_gate_status": "protocol_lane_decision_gate_pending_clean",
     "decision_gate_audit_issue_count": 0,
@@ -34,8 +34,8 @@
     "lane_matrix_status": "formal_gate_protocol_lane_matrix_ready",
     "lane_count": 4,
     "next_round_requirements_status": "formal_gate_next_round_requirements_ready",
-    "selected_lane_id": null,
-    "contract_action": "none",
+    "selected_lane_id": "stronger_obstacle_summary_warm_start",
+    "contract_action": "draft_new_contract",
     "contract_drafting_allowed_now": false,
     "contract_approval_allowed_now": false,
     "draft_contract_allows_training": false,
@@ -187,8 +187,25 @@
     "paper_result_material_allowed_now": false,
     "new_success_training_allowed_now": false
   },
-  "audit_issue_count": 0,
-  "audit_issues": [],
+  "audit_issue_count": 3,
+  "audit_issues": [
+    {
+      "issue_id": "post_decision_contract_plan_status_drift",
+      "message": "Post-decision contract plan status does not match the protocol-lane state.",
+      "observed": "post_decision_contract_plan_ready_blocked_pending_lane_decision"
+    },
+    {
+      "issue_id": "post_decision_contract_plan_missing_selected_lane_after_record",
+      "message": "Recorded protocol-lane status must consume a post-plan with selected lane context."
+    },
+    {
+      "issue_id": "recorded_allowed_actions_not_contract_draft_only",
+      "message": "Recorded lane state may only allow contract drafting before any new success attempt.",
+      "observed": [
+        "record_protocol_lane_decision"
+      ]
+    }
+  ],
   "claim_boundaries": [
     "This report summarizes protocol-lane gates; it does not record a lane decision.",
     "The old remote execution packet may remain ready, but it is not authorization for a new success attempt.",

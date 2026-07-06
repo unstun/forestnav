@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "record_name": "module2_formal_gate_protocol_lane_decision_record",
-  "status": "pending_protocol_lane_decision",
-  "created_at_utc": "2026-07-06T04:37:24.178268+00:00",
-  "source_head": "02c33d22dc699ecf70eac9a76048ad7982dcc63b+dirty",
+  "status": "protocol_lane_decision_recorded",
+  "created_at_utc": "2026-07-06T06:47:57.076071+00:00",
+  "source_head": "10083401624ccb4cf1fc977bfc98faf6a4015f0b",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -16,22 +16,26 @@
   "formal_claim_allowed_now": false,
   "paper_result_material_allowed_now": false,
   "decision_owner_required": "Dr Sun",
-  "requested_selected_lane": "pending",
-  "selected_lane_id": null,
+  "requested_selected_lane": "stronger_obstacle_summary_warm_start",
+  "selected_lane_id": "stronger_obstacle_summary_warm_start",
   "valid_lane_ids": [
     "stronger_obstacle_summary_warm_start",
     "full_patch_cnn_policy",
     "hybrid_ppo_analytic_fallback",
     "stop_or_reframe_module2_claim"
   ],
-  "decider": null,
-  "decision_note": null,
+  "decider": "Dr Sun",
+  "decision_note": "Select stronger_obstacle_summary_warm_start as the next protocol lane because Gate3 failed at 0.53125 vs the 0.8 threshold, so the previous run cannot be reused as success evidence. Contract action is draft_new_contract. Reject full_patch_cnn_policy for now because it changes observation and model scope and needs a larger architecture reset; reject hybrid_ppo_analytic_fallback because it would reframe the claim away from direct PPO replacement of RS; reject stop_or_reframe_module2_claim because Dr Sun selected one more direct-replacement success attempt before stopping. Evidence artifacts: formal_gate_protocol_lane_matrix, formal_gate_next_round_requirements, protocol_lane_status_report, gate3_formal_audit, and h02_formal_acceptance. This record does not authorize local training, remote preflight, remote training, formal claim, or paper result material.",
   "decision_note_audit": {
-    "required_for_non_pending_decision": false,
-    "present": false,
-    "character_count": 0,
-    "word_count": 0,
-    "rejected_lane_ids_required": [],
+    "required_for_non_pending_decision": true,
+    "present": true,
+    "character_count": 865,
+    "word_count": 100,
+    "rejected_lane_ids_required": [
+      "full_patch_cnn_policy",
+      "hybrid_ppo_analytic_fallback",
+      "stop_or_reframe_module2_claim"
+    ],
     "mentions_selected_lane": true,
     "mentions_failed_gate3": true,
     "mentions_contract_action": true,
@@ -39,7 +43,7 @@
     "mentions_evidence_artifacts": true,
     "quality_warning": null
   },
-  "contract_action": "none",
+  "contract_action": "draft_new_contract",
   "training_authorization": "not_authorized_by_this_decision_record",
   "decision_record_is_not_training_authorization": true,
   "decision_record_is_not_paper_result_material": true,
@@ -126,11 +130,50 @@
     "old_failed_run_artifacts_invalid_for_next_success_attempt": true,
     "next_success_attempt_requires_protocol_lane_decision": true
   },
-  "selected_lane_summary": null,
+  "selected_lane_summary": {
+    "lane_id": "stronger_obstacle_summary_warm_start",
+    "claim_scope": "direct PPO replacement attempt remains possible only if the new contract preserves the replacement claim boundary",
+    "requires_new_or_revised_contract": true,
+    "training_allowed_now": false,
+    "required_decision_justification": [
+      "why this lane is justified after observing the failed warm-start Gate3 run",
+      "which claim wording remains allowed if this lane is selected",
+      "which prior failed artifacts are only negative evidence and cannot be reused as success evidence",
+      "why direct PPO replacement is still plausible under compact obstacle-summary features"
+    ],
+    "must_carry_into_contract": {
+      "required_contract_deltas": [
+        "warm-start dataset source and acceptance checks",
+        "PPO stabilization changes",
+        "curriculum and reward deltas",
+        "budget and seed policy"
+      ],
+      "required_training_evidence": [
+        "new remote checkpoint bundle under a new attempt directory",
+        "new train/summary.json with protocol label and terminal-RS training signals",
+        "new training_manifest.json with source head, remote host, command, seed, and warm-start provenance"
+      ],
+      "required_evaluation_evidence": [
+        "new formal Gate3 eval CSV with at least 64 episodes",
+        "new gate3_summary.json with terminal-RS success, collision, truncation, and timing fields"
+      ],
+      "required_acceptance_evidence": [
+        "formal_decision=pass in the new gate3_formal_audit.json",
+        "checkpoint hash tied to the evaluated checkpoint",
+        "H02 formal_output_accepted=true with PPO rows and checkpoint hash"
+      ],
+      "invalid_substitutes": [
+        "the failed warm-start checkpoint",
+        "more prose explaining the failed result",
+        "local PPO training output",
+        "H02 smoke rows without formal PPO rows"
+      ]
+    }
+  },
   "current_authorization": {
-    "authorization_status": "blocked_until_dr_sun_lane_decision",
+    "authorization_status": "decision_recorded_not_execution_authorization",
     "current_allowed_action_ids": [
-      "record_protocol_lane_decision"
+      "draft_new_or_revised_contract_after_lane_decision"
     ],
     "current_blocked_action_ids": [
       "local_training",
@@ -145,8 +188,8 @@
     "paper_result_material_allowed_now": false
   },
   "post_decision_requirements": {
-    "selected_lane": "pending",
-    "new_or_revised_contract_required": false,
+    "selected_lane": "stronger_obstacle_summary_warm_start",
+    "new_or_revised_contract_required": true,
     "contract_status_required_before_training": [
       "approved",
       "frozen"

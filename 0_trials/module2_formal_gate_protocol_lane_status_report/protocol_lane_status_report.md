@@ -4,9 +4,9 @@ This file summarizes protocol-lane gates; it is not paper result material.
 
 ## Current Status
 
-- next_blocked_lane: `protocol_lane_decision`
-- decision_record_status: `pending_protocol_lane_decision`
-- selected_lane_id: `None`
+- next_blocked_lane: `new_or_revised_contract`
+- decision_record_status: `protocol_lane_decision_recorded`
+- selected_lane_id: `stronger_obstacle_summary_warm_start`
 - contract_drafting_allowed_now: `False`
 - remote_training_allowed_now: `False`
 - formal_claim_allowed_now: `False`
@@ -71,5 +71,5 @@ This file summarizes protocol-lane gates; it is not paper result material.
 
 ## Audit
 
-- status: `protocol_lane_status_blocked_pending_lane_decision`
-- audit_issue_count: `0`
+- status: `protocol_lane_status_report_audit_failed`
+- audit_issue_count: `3`

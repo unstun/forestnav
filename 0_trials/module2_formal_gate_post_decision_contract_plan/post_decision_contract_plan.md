@@ -4,12 +4,12 @@ This file is a read-only planning index. It is not a contract draft, training ru
 
 ## Gate State
 
-- status: `post_decision_contract_plan_ready_blocked_pending_lane_decision`
+- status: `post_decision_contract_plan_audit_failed`
 - next_blocked_lane: `protocol_lane_decision`
 - selected_lane_id: `None`
 - decision_owner_required: `Dr Sun`
 - allowed_next_action_ids: `['record_protocol_lane_decision']`
-- contract_drafting_allowed_now: `False`
+- contract_drafting_allowed_now: `True`
 - remote_training_allowed_now: `False`
 - formal_claim_allowed_now: `False`
 
@@ -114,8 +114,9 @@ This file is a read-only planning index. It is not a contract draft, training ru
 
 ## Audit
 
-- audit_issue_count: `0`
-- no audit issues
+- audit_issue_count: `2`
+- `contract_authoring_gate_not_pending`: This plan mirrors the pending-lane state and must not pretend contract drafting is open.
+- `contract_drafting_allowed_now_unexpectedly_true`: contract_drafting_allowed_now must remain false.
 
 ## Claim Boundaries
 - This artifact is a post-decision contract planning index, not a contract draft.
