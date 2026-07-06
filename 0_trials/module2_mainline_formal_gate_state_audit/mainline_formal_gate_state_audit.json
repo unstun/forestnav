@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_mainline_formal_gate_state_audit",
-  "status": "mainline_formal_gate_state_consistent_blocked",
-  "created_at_utc": "2026-07-06T03:19:51.381236+00:00",
-  "source_head": "7b0f7264de6f5dfa35498fbc1e420fc121637ee1+dirty",
+  "status": "mainline_formal_gate_state_audit_failed",
+  "created_at_utc": "2026-07-06T03:21:08.128641+00:00",
+  "source_head": "d4da654d981a70c9e0884485d83a893e2aeedb4b+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -283,7 +283,7 @@
     },
     {
       "token": "formal_claim_allowed=true",
-      "mentioned": false
+      "mentioned": true
     },
     {
       "token": "paper_result_material_allowed=true",
@@ -294,8 +294,14 @@
       "mentioned": false
     }
   ],
-  "audit_issue_count": 0,
-  "audit_issues": [],
+  "audit_issue_count": 1,
+  "audit_issues": [
+    {
+      "issue_id": "mainline_current_section_forbidden_allowed_token_formal_claim_allowed_true",
+      "message": "Current formal-gate section must not mark a blocked execution or claim surface as allowed.",
+      "token": "formal_claim_allowed=true"
+    }
+  ],
   "claim_boundaries": [
     "This audit only checks that the long-term mainline task book mirrors the current formal-gate state.",
     "It does not execute commands, run local training, run remote preflight, run remote PPO training, evaluate PPO, pull back artifacts, or write paper results.",
