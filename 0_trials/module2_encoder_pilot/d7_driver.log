@@ -1,0 +1,1009 @@
+=== 2026-07-06T14:53:00Z START R1 extractor=summary reward=sparse lr=0.0001 warm=bc value_pretrain=50000 ===
+{
+  "status": "complete",
+  "created_at_utc": "2026-07-06T15:30:07.952419+00:00",
+  "execution_host": "ubuntu-OMEN-by-HP-Laptop-17-ck1xxx",
+  "source_head": "09259640169962f54af37bfa0cac9bd0b57d7270",
+  "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+  "contract_status": "approved_by_dr_sun",
+  "output_dir": "0_trials/module2_encoder_pilot/R1/train",
+  "manifest": "0_trials/module2_encoder_pilot/R1/train/training_manifest.json",
+  "final_model": "final_model.zip",
+  "checkpoint_count": 11,
+  "warm_start_status": "applied_obstacle_summary_bc",
+  "config": {
+    "command": "python -m forest_n3p.scripts.train_rl_rs_ppo --allow-duplicate-openmp --contract-path .pipeline/contracts/module2-encoder-pilot-v3.md --seed 20260707 --device cuda --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260707 --n-envs 8 --total-timesteps 500000 --n-steps 256 --batch-size 256 --n-epochs 10 --gamma 0.98 --gae-lambda 0.95 --clip-range 0.2 --ent-coef 0.01 --max-grad-norm 0.5 --lr-schedule linear --checkpoint-freq 50000 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --output-dir 0_trials/module2_encoder_pilot/R1/train --features-extractor summary --learning-rate 0.0001 --value-pretrain-timesteps 50000 --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt",
+    "smoke": false,
+    "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+    "contract_status": "approved_by_dr_sun",
+    "seed": 20260707,
+    "policy": "RlRsMultiInputPolicy",
+    "features_extractor": "RlRsObstacleSummaryExtractor",
+    "cnn_output_dim": null,
+    "scalar_scale": null,
+    "lr_schedule": "linear",
+    "value_pretrain_timesteps": 50000,
+    "warm_start_status": "applied_obstacle_summary_bc",
+    "bc_checkpoint": "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt",
+    "reward_config_path": null,
+    "reward_config": {
+      "enabled_terms": {
+        "success": true,
+        "terminal": true,
+        "collision": true,
+        "progress": true,
+        "rs_progress": true,
+        "clearance": true,
+        "curvature": true,
+        "path_length": true,
+        "step": true
+      },
+      "terminal_rs_success": 1.0,
+      "collision_penalty": -1.0,
+      "terminal_rs_failure_penalty": -0.25,
+      "no_progress_penalty": -0.25,
+      "oscillation_penalty": -0.25,
+      "distance_progress_scale": 0.0,
+      "rs_distance_progress_scale": 0.0,
+      "clearance_scale": 0.0,
+      "clearance_target_m": 0.5,
+      "curvature_rate_penalty_scale": 0.0,
+      "path_length_penalty_scale": 0.0,
+      "step_penalty": 0.0
+    },
+    "curriculum_preset": "f03",
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "heldout_seed": 20260707,
+    "n_envs": 8,
+    "total_timesteps": 500000,
+    "n_steps": 256,
+    "batch_size": 256,
+    "n_epochs": 10,
+    "learning_rate": 0.0001,
+    "gamma": 0.98,
+    "gae_lambda": 0.95,
+    "clip_range": 0.2,
+    "ent_coef": 0.01,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.5,
+    "policy_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "value_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "tensorboard_log": null,
+    "checkpoint_freq": 50000,
+    "device": "cuda",
+    "allow_duplicate_openmp": true,
+    "observation_config": {
+      "patch_size_m": 6.4,
+      "patch_cells": 64,
+      "include_edt": true,
+      "edt_clip_m": 2.0
+    },
+    "env_config": {
+      "max_steps": 32,
+      "action_step_m": 0.3,
+      "collision_sample_step_m": 0.1,
+      "terminal_check_every": 1,
+      "theta_bins": 72
+    },
+    "warm_start": {
+      "status": "applied_obstacle_summary_bc",
+      "checkpoint": "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt",
+      "checkpoint_sha256": "3156df44ca7f26da7f2e635707554bb1cd486164638b3a2d11075c3787670683",
+      "feature_mode": "obstacle_summary",
+      "model_type": "obstacle_summary_steering_mlp",
+      "hidden_dims": [
+        128,
+        128,
+        64
+      ],
+      "max_steer": 0.5404195002705842,
+      "action_head": "TanhLinearActionHead"
+    }
+  }
+}
+real 2228.35
+user 2225.49
+sys 10.72
+{
+  "schema_version": 1,
+  "gate_name": "module2_f03_gate3",
+  "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+  "contract_status": "approved_by_dr_sun",
+  "decision": "fail",
+  "decision_rule": "pass iff episodes >= min_episodes and terminal_rs_success_rate >= success_threshold",
+  "success_threshold": 0.8,
+  "min_episodes": 64,
+  "episodes": 64,
+  "terminal_rs_success": 48,
+  "terminal_rs_success_rate": 0.75,
+  "collision": 12,
+  "collision_rate": 0.1875,
+  "truncated": 4,
+  "truncation_rate": 0.0625,
+  "nn_forward_time_s": 0.518352773389779,
+  "mean_nn_forward_time_s": 0.008099262084215297,
+  "model": "0_trials/module2_encoder_pilot/R1/train/final_model.zip",
+  "model_sha256": "0af81966effd32d06846ea3774f52030ae4dc33031f46ff598ec3211241417bc",
+  "episodes_csv": "0_trials/module2_encoder_pilot/R1/eval/gate3_eval_episodes.csv",
+  "created_at_utc": "2026-07-06T15:31:00.178365+00:00",
+  "execution_host": "ubuntu-OMEN-by-HP-Laptop-17-ck1xxx",
+  "source_head": "09259640169962f54af37bfa0cac9bd0b57d7270",
+  "config": {
+    "command": "python -m forest_n3p.scripts.eval_rl_rs_gate3 --allow-duplicate-openmp --contract-path .pipeline/contracts/module2-encoder-pilot-v3.md --seed 20260707 --device cuda --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260707 --episodes 64 --min-episodes 64 --success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --model 0_trials/module2_encoder_pilot/R1/train/final_model.zip --output-dir 0_trials/module2_encoder_pilot/R1/eval",
+    "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+    "contract_status": "approved_by_dr_sun",
+    "allow_unapproved_contract_for_smoke": false,
+    "seed": 20260707,
+    "device": "cuda",
+    "curriculum_preset": "f03",
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "heldout_seed": 20260707,
+    "episodes": 64,
+    "observation_config": {
+      "patch_size_m": 6.4,
+      "patch_cells": 64,
+      "include_edt": true,
+      "edt_clip_m": 2.0
+    },
+    "env_config": {
+      "max_steps": 32,
+      "action_step_m": 0.3,
+      "collision_sample_step_m": 0.1,
+      "terminal_check_every": 1,
+      "theta_bins": 72
+    }
+  }
+}
+real 52.20
+user 58.15
+sys 2.59
+=== 2026-07-06T15:31:00Z END R1 ===
+=== 2026-07-06T15:31:00Z START R2 extractor=summary reward=dense lr=0.0001 warm=bc value_pretrain=50000 ===
+{
+  "status": "complete",
+  "created_at_utc": "2026-07-06T16:08:01.085402+00:00",
+  "execution_host": "ubuntu-OMEN-by-HP-Laptop-17-ck1xxx",
+  "source_head": "09259640169962f54af37bfa0cac9bd0b57d7270",
+  "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+  "contract_status": "approved_by_dr_sun",
+  "output_dir": "0_trials/module2_encoder_pilot/R2/train",
+  "manifest": "0_trials/module2_encoder_pilot/R2/train/training_manifest.json",
+  "final_model": "final_model.zip",
+  "checkpoint_count": 11,
+  "warm_start_status": "applied_obstacle_summary_bc",
+  "config": {
+    "command": "python -m forest_n3p.scripts.train_rl_rs_ppo --allow-duplicate-openmp --contract-path .pipeline/contracts/module2-encoder-pilot-v3.md --seed 20260707 --device cuda --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260707 --n-envs 8 --total-timesteps 500000 --n-steps 256 --batch-size 256 --n-epochs 10 --gamma 0.98 --gae-lambda 0.95 --clip-range 0.2 --ent-coef 0.01 --max-grad-norm 0.5 --lr-schedule linear --checkpoint-freq 50000 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --output-dir 0_trials/module2_encoder_pilot/R2/train --features-extractor summary --learning-rate 0.0001 --value-pretrain-timesteps 50000 --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt --reward-config 2_experiment/configs/module2_encoder_pilot_reward_dense.json",
+    "smoke": false,
+    "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+    "contract_status": "approved_by_dr_sun",
+    "seed": 20260707,
+    "policy": "RlRsMultiInputPolicy",
+    "features_extractor": "RlRsObstacleSummaryExtractor",
+    "cnn_output_dim": null,
+    "scalar_scale": null,
+    "lr_schedule": "linear",
+    "value_pretrain_timesteps": 50000,
+    "warm_start_status": "applied_obstacle_summary_bc",
+    "bc_checkpoint": "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt",
+    "reward_config_path": "2_experiment/configs/module2_encoder_pilot_reward_dense.json",
+    "reward_config": {
+      "enabled_terms": {
+        "success": true,
+        "terminal": true,
+        "collision": true,
+        "progress": true,
+        "rs_progress": true,
+        "clearance": true,
+        "curvature": true,
+        "path_length": true,
+        "step": true
+      },
+      "terminal_rs_success": 1.0,
+      "collision_penalty": -1.0,
+      "terminal_rs_failure_penalty": -0.25,
+      "no_progress_penalty": -0.25,
+      "oscillation_penalty": -0.25,
+      "distance_progress_scale": 0.2,
+      "rs_distance_progress_scale": 0.0,
+      "clearance_scale": 0.1,
+      "clearance_target_m": 0.5,
+      "curvature_rate_penalty_scale": 0.0,
+      "path_length_penalty_scale": 0.0,
+      "step_penalty": -0.01
+    },
+    "curriculum_preset": "f03",
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "heldout_seed": 20260707,
+    "n_envs": 8,
+    "total_timesteps": 500000,
+    "n_steps": 256,
+    "batch_size": 256,
+    "n_epochs": 10,
+    "learning_rate": 0.0001,
+    "gamma": 0.98,
+    "gae_lambda": 0.95,
+    "clip_range": 0.2,
+    "ent_coef": 0.01,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.5,
+    "policy_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "value_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "tensorboard_log": null,
+    "checkpoint_freq": 50000,
+    "device": "cuda",
+    "allow_duplicate_openmp": true,
+    "observation_config": {
+      "patch_size_m": 6.4,
+      "patch_cells": 64,
+      "include_edt": true,
+      "edt_clip_m": 2.0
+    },
+    "env_config": {
+      "max_steps": 32,
+      "action_step_m": 0.3,
+      "collision_sample_step_m": 0.1,
+      "terminal_check_every": 1,
+      "theta_bins": 72
+    },
+    "warm_start": {
+      "status": "applied_obstacle_summary_bc",
+      "checkpoint": "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt",
+      "checkpoint_sha256": "3156df44ca7f26da7f2e635707554bb1cd486164638b3a2d11075c3787670683",
+      "feature_mode": "obstacle_summary",
+      "model_type": "obstacle_summary_steering_mlp",
+      "hidden_dims": [
+        128,
+        128,
+        64
+      ],
+      "max_steer": 0.5404195002705842,
+      "action_head": "TanhLinearActionHead"
+    }
+  }
+}
+real 2220.85
+user 2218.36
+sys 10.67
+{
+  "schema_version": 1,
+  "gate_name": "module2_f03_gate3",
+  "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+  "contract_status": "approved_by_dr_sun",
+  "decision": "fail",
+  "decision_rule": "pass iff episodes >= min_episodes and terminal_rs_success_rate >= success_threshold",
+  "success_threshold": 0.8,
+  "min_episodes": 64,
+  "episodes": 64,
+  "terminal_rs_success": 40,
+  "terminal_rs_success_rate": 0.625,
+  "collision": 13,
+  "collision_rate": 0.203125,
+  "truncated": 11,
+  "truncation_rate": 0.171875,
+  "nn_forward_time_s": 0.5644231032347307,
+  "mean_nn_forward_time_s": 0.008819110988042667,
+  "model": "0_trials/module2_encoder_pilot/R2/train/final_model.zip",
+  "model_sha256": "7c71e45c7f2ccfbebc7e4c633ba9a62706de6e907dd5c583dfada02eea385ff6",
+  "episodes_csv": "0_trials/module2_encoder_pilot/R2/eval/gate3_eval_episodes.csv",
+  "created_at_utc": "2026-07-06T16:08:53.562438+00:00",
+  "execution_host": "ubuntu-OMEN-by-HP-Laptop-17-ck1xxx",
+  "source_head": "09259640169962f54af37bfa0cac9bd0b57d7270",
+  "config": {
+    "command": "python -m forest_n3p.scripts.eval_rl_rs_gate3 --allow-duplicate-openmp --contract-path .pipeline/contracts/module2-encoder-pilot-v3.md --seed 20260707 --device cuda --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260707 --episodes 64 --min-episodes 64 --success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --model 0_trials/module2_encoder_pilot/R2/train/final_model.zip --output-dir 0_trials/module2_encoder_pilot/R2/eval",
+    "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+    "contract_status": "approved_by_dr_sun",
+    "allow_unapproved_contract_for_smoke": false,
+    "seed": 20260707,
+    "device": "cuda",
+    "curriculum_preset": "f03",
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "heldout_seed": 20260707,
+    "episodes": 64,
+    "observation_config": {
+      "patch_size_m": 6.4,
+      "patch_cells": 64,
+      "include_edt": true,
+      "edt_clip_m": 2.0
+    },
+    "env_config": {
+      "max_steps": 32,
+      "action_step_m": 0.3,
+      "collision_sample_step_m": 0.1,
+      "terminal_check_every": 1,
+      "theta_bins": 72
+    }
+  }
+}
+real 52.45
+user 58.24
+sys 2.64
+=== 2026-07-06T16:08:54Z END R2 ===
+=== 2026-07-06T16:08:54Z START R3 extractor=patch_cnn reward=sparse lr=0.0003 warm=none value_pretrain=0 ===
+{
+  "status": "complete",
+  "created_at_utc": "2026-07-06T16:43:43.615160+00:00",
+  "execution_host": "ubuntu-OMEN-by-HP-Laptop-17-ck1xxx",
+  "source_head": "09259640169962f54af37bfa0cac9bd0b57d7270",
+  "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+  "contract_status": "approved_by_dr_sun",
+  "output_dir": "0_trials/module2_encoder_pilot/R3/train",
+  "manifest": "0_trials/module2_encoder_pilot/R3/train/training_manifest.json",
+  "final_model": "final_model.zip",
+  "checkpoint_count": 11,
+  "warm_start_status": "not_applied_f02_6_pending",
+  "config": {
+    "command": "python -m forest_n3p.scripts.train_rl_rs_ppo --allow-duplicate-openmp --contract-path .pipeline/contracts/module2-encoder-pilot-v3.md --seed 20260707 --device cuda --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260707 --n-envs 8 --total-timesteps 500000 --n-steps 256 --batch-size 256 --n-epochs 10 --gamma 0.98 --gae-lambda 0.95 --clip-range 0.2 --ent-coef 0.01 --max-grad-norm 0.5 --lr-schedule linear --checkpoint-freq 50000 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --output-dir 0_trials/module2_encoder_pilot/R3/train --features-extractor patch_cnn --learning-rate 0.0003 --value-pretrain-timesteps 0",
+    "smoke": false,
+    "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+    "contract_status": "approved_by_dr_sun",
+    "seed": 20260707,
+    "policy": "MultiInputPolicy",
+    "features_extractor": "RlRsPatchCnnExtractor",
+    "cnn_output_dim": 256,
+    "scalar_scale": [
+      0.15625,
+      0.15625,
+      0.15625,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      0.03125
+    ],
+    "lr_schedule": "linear",
+    "value_pretrain_timesteps": 0,
+    "warm_start_status": "not_applied_f02_6_pending",
+    "bc_checkpoint": null,
+    "reward_config_path": null,
+    "reward_config": {
+      "enabled_terms": {
+        "success": true,
+        "terminal": true,
+        "collision": true,
+        "progress": true,
+        "rs_progress": true,
+        "clearance": true,
+        "curvature": true,
+        "path_length": true,
+        "step": true
+      },
+      "terminal_rs_success": 1.0,
+      "collision_penalty": -1.0,
+      "terminal_rs_failure_penalty": -0.25,
+      "no_progress_penalty": -0.25,
+      "oscillation_penalty": -0.25,
+      "distance_progress_scale": 0.0,
+      "rs_distance_progress_scale": 0.0,
+      "clearance_scale": 0.0,
+      "clearance_target_m": 0.5,
+      "curvature_rate_penalty_scale": 0.0,
+      "path_length_penalty_scale": 0.0,
+      "step_penalty": 0.0
+    },
+    "curriculum_preset": "f03",
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "heldout_seed": 20260707,
+    "n_envs": 8,
+    "total_timesteps": 500000,
+    "n_steps": 256,
+    "batch_size": 256,
+    "n_epochs": 10,
+    "learning_rate": 0.0003,
+    "gamma": 0.98,
+    "gae_lambda": 0.95,
+    "clip_range": 0.2,
+    "ent_coef": 0.01,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.5,
+    "policy_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "value_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "tensorboard_log": null,
+    "checkpoint_freq": 50000,
+    "device": "cuda",
+    "allow_duplicate_openmp": true,
+    "observation_config": {
+      "patch_size_m": 6.4,
+      "patch_cells": 64,
+      "include_edt": true,
+      "edt_clip_m": 2.0
+    },
+    "env_config": {
+      "max_steps": 32,
+      "action_step_m": 0.3,
+      "collision_sample_step_m": 0.1,
+      "terminal_check_every": 1,
+      "theta_bins": 72
+    },
+    "warm_start": {
+      "status": "not_applied_f02_6_pending"
+    }
+  }
+}
+real 2090.12
+user 2088.43
+sys 10.49
+{
+  "schema_version": 1,
+  "gate_name": "module2_f03_gate3",
+  "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+  "contract_status": "approved_by_dr_sun",
+  "decision": "pass",
+  "decision_rule": "pass iff episodes >= min_episodes and terminal_rs_success_rate >= success_threshold",
+  "success_threshold": 0.8,
+  "min_episodes": 64,
+  "episodes": 64,
+  "terminal_rs_success": 52,
+  "terminal_rs_success_rate": 0.8125,
+  "collision": 9,
+  "collision_rate": 0.140625,
+  "truncated": 3,
+  "truncation_rate": 0.046875,
+  "nn_forward_time_s": 0.4732175732497126,
+  "mean_nn_forward_time_s": 0.007394024582026759,
+  "model": "0_trials/module2_encoder_pilot/R3/train/final_model.zip",
+  "model_sha256": "97abcf8fd28beeb5ba9e4a64eb2641058aa400368681a3880905ec9095d01d11",
+  "episodes_csv": "0_trials/module2_encoder_pilot/R3/eval/gate3_eval_episodes.csv",
+  "created_at_utc": "2026-07-06T16:44:33.522218+00:00",
+  "execution_host": "ubuntu-OMEN-by-HP-Laptop-17-ck1xxx",
+  "source_head": "09259640169962f54af37bfa0cac9bd0b57d7270",
+  "config": {
+    "command": "python -m forest_n3p.scripts.eval_rl_rs_gate3 --allow-duplicate-openmp --contract-path .pipeline/contracts/module2-encoder-pilot-v3.md --seed 20260707 --device cuda --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260707 --episodes 64 --min-episodes 64 --success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --model 0_trials/module2_encoder_pilot/R3/train/final_model.zip --output-dir 0_trials/module2_encoder_pilot/R3/eval",
+    "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+    "contract_status": "approved_by_dr_sun",
+    "allow_unapproved_contract_for_smoke": false,
+    "seed": 20260707,
+    "device": "cuda",
+    "curriculum_preset": "f03",
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "heldout_seed": 20260707,
+    "episodes": 64,
+    "observation_config": {
+      "patch_size_m": 6.4,
+      "patch_cells": 64,
+      "include_edt": true,
+      "edt_clip_m": 2.0
+    },
+    "env_config": {
+      "max_steps": 32,
+      "action_step_m": 0.3,
+      "collision_sample_step_m": 0.1,
+      "terminal_check_every": 1,
+      "theta_bins": 72
+    }
+  }
+}
+real 49.82
+user 55.91
+sys 2.70
+=== 2026-07-06T16:44:33Z END R3 ===
+=== 2026-07-06T16:44:33Z START R4 extractor=patch_cnn reward=dense lr=0.0003 warm=none value_pretrain=0 ===
+{
+  "status": "complete",
+  "created_at_utc": "2026-07-06T17:18:46.894171+00:00",
+  "execution_host": "ubuntu-OMEN-by-HP-Laptop-17-ck1xxx",
+  "source_head": "09259640169962f54af37bfa0cac9bd0b57d7270",
+  "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+  "contract_status": "approved_by_dr_sun",
+  "output_dir": "0_trials/module2_encoder_pilot/R4/train",
+  "manifest": "0_trials/module2_encoder_pilot/R4/train/training_manifest.json",
+  "final_model": "final_model.zip",
+  "checkpoint_count": 11,
+  "warm_start_status": "not_applied_f02_6_pending",
+  "config": {
+    "command": "python -m forest_n3p.scripts.train_rl_rs_ppo --allow-duplicate-openmp --contract-path .pipeline/contracts/module2-encoder-pilot-v3.md --seed 20260707 --device cuda --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260707 --n-envs 8 --total-timesteps 500000 --n-steps 256 --batch-size 256 --n-epochs 10 --gamma 0.98 --gae-lambda 0.95 --clip-range 0.2 --ent-coef 0.01 --max-grad-norm 0.5 --lr-schedule linear --checkpoint-freq 50000 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --output-dir 0_trials/module2_encoder_pilot/R4/train --features-extractor patch_cnn --learning-rate 0.0003 --value-pretrain-timesteps 0 --reward-config 2_experiment/configs/module2_encoder_pilot_reward_dense.json",
+    "smoke": false,
+    "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+    "contract_status": "approved_by_dr_sun",
+    "seed": 20260707,
+    "policy": "MultiInputPolicy",
+    "features_extractor": "RlRsPatchCnnExtractor",
+    "cnn_output_dim": 256,
+    "scalar_scale": [
+      0.15625,
+      0.15625,
+      0.15625,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      0.03125
+    ],
+    "lr_schedule": "linear",
+    "value_pretrain_timesteps": 0,
+    "warm_start_status": "not_applied_f02_6_pending",
+    "bc_checkpoint": null,
+    "reward_config_path": "2_experiment/configs/module2_encoder_pilot_reward_dense.json",
+    "reward_config": {
+      "enabled_terms": {
+        "success": true,
+        "terminal": true,
+        "collision": true,
+        "progress": true,
+        "rs_progress": true,
+        "clearance": true,
+        "curvature": true,
+        "path_length": true,
+        "step": true
+      },
+      "terminal_rs_success": 1.0,
+      "collision_penalty": -1.0,
+      "terminal_rs_failure_penalty": -0.25,
+      "no_progress_penalty": -0.25,
+      "oscillation_penalty": -0.25,
+      "distance_progress_scale": 0.2,
+      "rs_distance_progress_scale": 0.0,
+      "clearance_scale": 0.1,
+      "clearance_target_m": 0.5,
+      "curvature_rate_penalty_scale": 0.0,
+      "path_length_penalty_scale": 0.0,
+      "step_penalty": -0.01
+    },
+    "curriculum_preset": "f03",
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "heldout_seed": 20260707,
+    "n_envs": 8,
+    "total_timesteps": 500000,
+    "n_steps": 256,
+    "batch_size": 256,
+    "n_epochs": 10,
+    "learning_rate": 0.0003,
+    "gamma": 0.98,
+    "gae_lambda": 0.95,
+    "clip_range": 0.2,
+    "ent_coef": 0.01,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.5,
+    "policy_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "value_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "tensorboard_log": null,
+    "checkpoint_freq": 50000,
+    "device": "cuda",
+    "allow_duplicate_openmp": true,
+    "observation_config": {
+      "patch_size_m": 6.4,
+      "patch_cells": 64,
+      "include_edt": true,
+      "edt_clip_m": 2.0
+    },
+    "env_config": {
+      "max_steps": 32,
+      "action_step_m": 0.3,
+      "collision_sample_step_m": 0.1,
+      "terminal_check_every": 1,
+      "theta_bins": 72
+    },
+    "warm_start": {
+      "status": "not_applied_f02_6_pending"
+    }
+  }
+}
+real 2053.40
+user 2052.13
+sys 10.30
+{
+  "schema_version": 1,
+  "gate_name": "module2_f03_gate3",
+  "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+  "contract_status": "approved_by_dr_sun",
+  "decision": "fail",
+  "decision_rule": "pass iff episodes >= min_episodes and terminal_rs_success_rate >= success_threshold",
+  "success_threshold": 0.8,
+  "min_episodes": 64,
+  "episodes": 64,
+  "terminal_rs_success": 45,
+  "terminal_rs_success_rate": 0.703125,
+  "collision": 9,
+  "collision_rate": 0.140625,
+  "truncated": 10,
+  "truncation_rate": 0.15625,
+  "nn_forward_time_s": 0.5554746128618717,
+  "mean_nn_forward_time_s": 0.008679290825966746,
+  "model": "0_trials/module2_encoder_pilot/R4/train/final_model.zip",
+  "model_sha256": "6fbd00117c2900237a977fbe6530c4a33ba3d327fd3b4195e35fd1539ac4c1d6",
+  "episodes_csv": "0_trials/module2_encoder_pilot/R4/eval/gate3_eval_episodes.csv",
+  "created_at_utc": "2026-07-06T17:19:36.495487+00:00",
+  "execution_host": "ubuntu-OMEN-by-HP-Laptop-17-ck1xxx",
+  "source_head": "09259640169962f54af37bfa0cac9bd0b57d7270",
+  "config": {
+    "command": "python -m forest_n3p.scripts.eval_rl_rs_gate3 --allow-duplicate-openmp --contract-path .pipeline/contracts/module2-encoder-pilot-v3.md --seed 20260707 --device cuda --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260707 --episodes 64 --min-episodes 64 --success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --model 0_trials/module2_encoder_pilot/R4/train/final_model.zip --output-dir 0_trials/module2_encoder_pilot/R4/eval",
+    "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+    "contract_status": "approved_by_dr_sun",
+    "allow_unapproved_contract_for_smoke": false,
+    "seed": 20260707,
+    "device": "cuda",
+    "curriculum_preset": "f03",
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "heldout_seed": 20260707,
+    "episodes": 64,
+    "observation_config": {
+      "patch_size_m": 6.4,
+      "patch_cells": 64,
+      "include_edt": true,
+      "edt_clip_m": 2.0
+    },
+    "env_config": {
+      "max_steps": 32,
+      "action_step_m": 0.3,
+      "collision_sample_step_m": 0.1,
+      "terminal_check_every": 1,
+      "theta_bins": 72
+    }
+  }
+}
+real 49.65
+user 55.98
+sys 2.57
+=== 2026-07-06T17:19:37Z END R4 ===
+=== 2026-07-06T17:19:37Z START R5 extractor=transformer reward=dense lr=0.0003 warm=none value_pretrain=0 ===
+/home/ubuntu/ForestNav/2_experiment/forest_n3p/rl_rs/sb3_policy.py:190: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = torch.nn.TransformerEncoder(encoder_layer, num_layers=2)
+{
+  "status": "complete",
+  "created_at_utc": "2026-07-06T17:59:29.174628+00:00",
+  "execution_host": "ubuntu-OMEN-by-HP-Laptop-17-ck1xxx",
+  "source_head": "09259640169962f54af37bfa0cac9bd0b57d7270",
+  "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+  "contract_status": "approved_by_dr_sun",
+  "output_dir": "0_trials/module2_encoder_pilot/R5/train",
+  "manifest": "0_trials/module2_encoder_pilot/R5/train/training_manifest.json",
+  "final_model": "final_model.zip",
+  "checkpoint_count": 11,
+  "warm_start_status": "not_applied_f02_6_pending",
+  "config": {
+    "command": "python -m forest_n3p.scripts.train_rl_rs_ppo --allow-duplicate-openmp --contract-path .pipeline/contracts/module2-encoder-pilot-v3.md --seed 20260707 --device cuda --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260707 --n-envs 8 --total-timesteps 500000 --n-steps 256 --batch-size 256 --n-epochs 10 --gamma 0.98 --gae-lambda 0.95 --clip-range 0.2 --ent-coef 0.01 --max-grad-norm 0.5 --lr-schedule linear --checkpoint-freq 50000 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --output-dir 0_trials/module2_encoder_pilot/R5/train --features-extractor transformer --learning-rate 0.0003 --value-pretrain-timesteps 0 --reward-config 2_experiment/configs/module2_encoder_pilot_reward_dense.json",
+    "smoke": false,
+    "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+    "contract_status": "approved_by_dr_sun",
+    "seed": 20260707,
+    "policy": "MultiInputPolicy",
+    "features_extractor": "RlRsPatchTransformerExtractor",
+    "cnn_output_dim": null,
+    "scalar_scale": [
+      0.15625,
+      0.15625,
+      0.15625,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      0.03125
+    ],
+    "lr_schedule": "linear",
+    "value_pretrain_timesteps": 0,
+    "warm_start_status": "not_applied_f02_6_pending",
+    "bc_checkpoint": null,
+    "reward_config_path": "2_experiment/configs/module2_encoder_pilot_reward_dense.json",
+    "reward_config": {
+      "enabled_terms": {
+        "success": true,
+        "terminal": true,
+        "collision": true,
+        "progress": true,
+        "rs_progress": true,
+        "clearance": true,
+        "curvature": true,
+        "path_length": true,
+        "step": true
+      },
+      "terminal_rs_success": 1.0,
+      "collision_penalty": -1.0,
+      "terminal_rs_failure_penalty": -0.25,
+      "no_progress_penalty": -0.25,
+      "oscillation_penalty": -0.25,
+      "distance_progress_scale": 0.2,
+      "rs_distance_progress_scale": 0.0,
+      "clearance_scale": 0.1,
+      "clearance_target_m": 0.5,
+      "curvature_rate_penalty_scale": 0.0,
+      "path_length_penalty_scale": 0.0,
+      "step_penalty": -0.01
+    },
+    "curriculum_preset": "f03",
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "heldout_seed": 20260707,
+    "n_envs": 8,
+    "total_timesteps": 500000,
+    "n_steps": 256,
+    "batch_size": 256,
+    "n_epochs": 10,
+    "learning_rate": 0.0003,
+    "gamma": 0.98,
+    "gae_lambda": 0.95,
+    "clip_range": 0.2,
+    "ent_coef": 0.01,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.5,
+    "policy_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "value_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "tensorboard_log": null,
+    "checkpoint_freq": 50000,
+    "device": "cuda",
+    "allow_duplicate_openmp": true,
+    "observation_config": {
+      "patch_size_m": 6.4,
+      "patch_cells": 64,
+      "include_edt": true,
+      "edt_clip_m": 2.0
+    },
+    "env_config": {
+      "max_steps": 32,
+      "action_step_m": 0.3,
+      "collision_sample_step_m": 0.1,
+      "terminal_check_every": 1,
+      "theta_bins": 72
+    },
+    "warm_start": {
+      "status": "not_applied_f02_6_pending"
+    }
+  }
+}
+real 2392.59
+user 2388.99
+sys 11.16
+/home/ubuntu/ForestNav/2_experiment/forest_n3p/rl_rs/sb3_policy.py:190: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = torch.nn.TransformerEncoder(encoder_layer, num_layers=2)
+{
+  "schema_version": 1,
+  "gate_name": "module2_f03_gate3",
+  "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+  "contract_status": "approved_by_dr_sun",
+  "decision": "fail",
+  "decision_rule": "pass iff episodes >= min_episodes and terminal_rs_success_rate >= success_threshold",
+  "success_threshold": 0.8,
+  "min_episodes": 64,
+  "episodes": 64,
+  "terminal_rs_success": 24,
+  "terminal_rs_success_rate": 0.375,
+  "collision": 30,
+  "collision_rate": 0.46875,
+  "truncated": 10,
+  "truncation_rate": 0.15625,
+  "nn_forward_time_s": 0.34070524584967643,
+  "mean_nn_forward_time_s": 0.005323519466401194,
+  "model": "0_trials/module2_encoder_pilot/R5/train/final_model.zip",
+  "model_sha256": "8fa28a42ad42b4050861bc5bd4dd9929aaef8c84289fba0300a26651bf3f301b",
+  "episodes_csv": "0_trials/module2_encoder_pilot/R5/eval/gate3_eval_episodes.csv",
+  "created_at_utc": "2026-07-06T18:00:22.036063+00:00",
+  "execution_host": "ubuntu-OMEN-by-HP-Laptop-17-ck1xxx",
+  "source_head": "09259640169962f54af37bfa0cac9bd0b57d7270",
+  "config": {
+    "command": "python -m forest_n3p.scripts.eval_rl_rs_gate3 --allow-duplicate-openmp --contract-path .pipeline/contracts/module2-encoder-pilot-v3.md --seed 20260707 --device cuda --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260707 --episodes 64 --min-episodes 64 --success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --model 0_trials/module2_encoder_pilot/R5/train/final_model.zip --output-dir 0_trials/module2_encoder_pilot/R5/eval",
+    "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+    "contract_status": "approved_by_dr_sun",
+    "allow_unapproved_contract_for_smoke": false,
+    "seed": 20260707,
+    "device": "cuda",
+    "curriculum_preset": "f03",
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "heldout_seed": 20260707,
+    "episodes": 64,
+    "observation_config": {
+      "patch_size_m": 6.4,
+      "patch_cells": 64,
+      "include_edt": true,
+      "edt_clip_m": 2.0
+    },
+    "env_config": {
+      "max_steps": 32,
+      "action_step_m": 0.3,
+      "collision_sample_step_m": 0.1,
+      "terminal_check_every": 1,
+      "theta_bins": 72
+    }
+  }
+}
+real 52.92
+user 58.86
+sys 2.75
+=== 2026-07-06T18:00:22Z END R5 ===
+=== 2026-07-06T18:00:22Z START R6 extractor=transformer reward=sparse lr=0.0003 warm=none value_pretrain=0 ===
+/home/ubuntu/ForestNav/2_experiment/forest_n3p/rl_rs/sb3_policy.py:190: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = torch.nn.TransformerEncoder(encoder_layer, num_layers=2)
+{
+  "status": "complete",
+  "created_at_utc": "2026-07-06T18:40:47.950022+00:00",
+  "execution_host": "ubuntu-OMEN-by-HP-Laptop-17-ck1xxx",
+  "source_head": "09259640169962f54af37bfa0cac9bd0b57d7270",
+  "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+  "contract_status": "approved_by_dr_sun",
+  "output_dir": "0_trials/module2_encoder_pilot/R6/train",
+  "manifest": "0_trials/module2_encoder_pilot/R6/train/training_manifest.json",
+  "final_model": "final_model.zip",
+  "checkpoint_count": 11,
+  "warm_start_status": "not_applied_f02_6_pending",
+  "config": {
+    "command": "python -m forest_n3p.scripts.train_rl_rs_ppo --allow-duplicate-openmp --contract-path .pipeline/contracts/module2-encoder-pilot-v3.md --seed 20260707 --device cuda --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260707 --n-envs 8 --total-timesteps 500000 --n-steps 256 --batch-size 256 --n-epochs 10 --gamma 0.98 --gae-lambda 0.95 --clip-range 0.2 --ent-coef 0.01 --max-grad-norm 0.5 --lr-schedule linear --checkpoint-freq 50000 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --output-dir 0_trials/module2_encoder_pilot/R6/train --features-extractor transformer --learning-rate 0.0003 --value-pretrain-timesteps 0",
+    "smoke": false,
+    "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+    "contract_status": "approved_by_dr_sun",
+    "seed": 20260707,
+    "policy": "MultiInputPolicy",
+    "features_extractor": "RlRsPatchTransformerExtractor",
+    "cnn_output_dim": null,
+    "scalar_scale": [
+      0.15625,
+      0.15625,
+      0.15625,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      0.03125
+    ],
+    "lr_schedule": "linear",
+    "value_pretrain_timesteps": 0,
+    "warm_start_status": "not_applied_f02_6_pending",
+    "bc_checkpoint": null,
+    "reward_config_path": null,
+    "reward_config": {
+      "enabled_terms": {
+        "success": true,
+        "terminal": true,
+        "collision": true,
+        "progress": true,
+        "rs_progress": true,
+        "clearance": true,
+        "curvature": true,
+        "path_length": true,
+        "step": true
+      },
+      "terminal_rs_success": 1.0,
+      "collision_penalty": -1.0,
+      "terminal_rs_failure_penalty": -0.25,
+      "no_progress_penalty": -0.25,
+      "oscillation_penalty": -0.25,
+      "distance_progress_scale": 0.0,
+      "rs_distance_progress_scale": 0.0,
+      "clearance_scale": 0.0,
+      "clearance_target_m": 0.5,
+      "curvature_rate_penalty_scale": 0.0,
+      "path_length_penalty_scale": 0.0,
+      "step_penalty": 0.0
+    },
+    "curriculum_preset": "f03",
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "heldout_seed": 20260707,
+    "n_envs": 8,
+    "total_timesteps": 500000,
+    "n_steps": 256,
+    "batch_size": 256,
+    "n_epochs": 10,
+    "learning_rate": 0.0003,
+    "gamma": 0.98,
+    "gae_lambda": 0.95,
+    "clip_range": 0.2,
+    "ent_coef": 0.01,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.5,
+    "policy_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "value_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "tensorboard_log": null,
+    "checkpoint_freq": 50000,
+    "device": "cuda",
+    "allow_duplicate_openmp": true,
+    "observation_config": {
+      "patch_size_m": 6.4,
+      "patch_cells": 64,
+      "include_edt": true,
+      "edt_clip_m": 2.0
+    },
+    "env_config": {
+      "max_steps": 32,
+      "action_step_m": 0.3,
+      "collision_sample_step_m": 0.1,
+      "terminal_check_every": 1,
+      "theta_bins": 72
+    },
+    "warm_start": {
+      "status": "not_applied_f02_6_pending"
+    }
+  }
+}
+real 2425.94
+user 2421.98
+sys 11.14
+/home/ubuntu/ForestNav/2_experiment/forest_n3p/rl_rs/sb3_policy.py:190: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = torch.nn.TransformerEncoder(encoder_layer, num_layers=2)
+{
+  "schema_version": 1,
+  "gate_name": "module2_f03_gate3",
+  "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+  "contract_status": "approved_by_dr_sun",
+  "decision": "fail",
+  "decision_rule": "pass iff episodes >= min_episodes and terminal_rs_success_rate >= success_threshold",
+  "success_threshold": 0.8,
+  "min_episodes": 64,
+  "episodes": 64,
+  "terminal_rs_success": 26,
+  "terminal_rs_success_rate": 0.40625,
+  "collision": 21,
+  "collision_rate": 0.328125,
+  "truncated": 17,
+  "truncation_rate": 0.265625,
+  "nn_forward_time_s": 0.3569489102810621,
+  "mean_nn_forward_time_s": 0.005577326723141596,
+  "model": "0_trials/module2_encoder_pilot/R6/train/final_model.zip",
+  "model_sha256": "4708b7c088b0785d56db2c30aec9508f52d7d813aac59b2f5d6ab7d9e870ea7b",
+  "episodes_csv": "0_trials/module2_encoder_pilot/R6/eval/gate3_eval_episodes.csv",
+  "created_at_utc": "2026-07-06T18:41:35.591157+00:00",
+  "execution_host": "ubuntu-OMEN-by-HP-Laptop-17-ck1xxx",
+  "source_head": "09259640169962f54af37bfa0cac9bd0b57d7270",
+  "config": {
+    "command": "python -m forest_n3p.scripts.eval_rl_rs_gate3 --allow-duplicate-openmp --contract-path .pipeline/contracts/module2-encoder-pilot-v3.md --seed 20260707 --device cuda --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260707 --episodes 64 --min-episodes 64 --success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --model 0_trials/module2_encoder_pilot/R6/train/final_model.zip --output-dir 0_trials/module2_encoder_pilot/R6/eval",
+    "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+    "contract_status": "approved_by_dr_sun",
+    "allow_unapproved_contract_for_smoke": false,
+    "seed": 20260707,
+    "device": "cuda",
+    "curriculum_preset": "f03",
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "heldout_seed": 20260707,
+    "episodes": 64,
+    "observation_config": {
+      "patch_size_m": 6.4,
+      "patch_cells": 64,
+      "include_edt": true,
+      "edt_clip_m": 2.0
+    },
+    "env_config": {
+      "max_steps": 32,
+      "action_step_m": 0.3,
+      "collision_sample_step_m": 0.1,
+      "terminal_check_every": 1,
+      "theta_bins": 72
+    }
+  }
+}
+real 47.57
+user 53.41
+sys 2.72
+=== 2026-07-06T18:41:36Z END R6 ===
+=== 2026-07-06T18:41:36Z D7 DRIVER COMPLETE ===

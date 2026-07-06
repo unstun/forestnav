@@ -1,0 +1,113 @@
+/home/ubuntu/ForestNav/2_experiment/forest_n3p/rl_rs/sb3_policy.py:190: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = torch.nn.TransformerEncoder(encoder_layer, num_layers=2)
+{
+  "status": "complete",
+  "created_at_utc": "2026-07-06T17:59:29.174628+00:00",
+  "execution_host": "ubuntu-OMEN-by-HP-Laptop-17-ck1xxx",
+  "source_head": "09259640169962f54af37bfa0cac9bd0b57d7270",
+  "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+  "contract_status": "approved_by_dr_sun",
+  "output_dir": "0_trials/module2_encoder_pilot/R5/train",
+  "manifest": "0_trials/module2_encoder_pilot/R5/train/training_manifest.json",
+  "final_model": "final_model.zip",
+  "checkpoint_count": 11,
+  "warm_start_status": "not_applied_f02_6_pending",
+  "config": {
+    "command": "python -m forest_n3p.scripts.train_rl_rs_ppo --allow-duplicate-openmp --contract-path .pipeline/contracts/module2-encoder-pilot-v3.md --seed 20260707 --device cuda --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260707 --n-envs 8 --total-timesteps 500000 --n-steps 256 --batch-size 256 --n-epochs 10 --gamma 0.98 --gae-lambda 0.95 --clip-range 0.2 --ent-coef 0.01 --max-grad-norm 0.5 --lr-schedule linear --checkpoint-freq 50000 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --output-dir 0_trials/module2_encoder_pilot/R5/train --features-extractor transformer --learning-rate 0.0003 --value-pretrain-timesteps 0 --reward-config 2_experiment/configs/module2_encoder_pilot_reward_dense.json",
+    "smoke": false,
+    "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+    "contract_status": "approved_by_dr_sun",
+    "seed": 20260707,
+    "policy": "MultiInputPolicy",
+    "features_extractor": "RlRsPatchTransformerExtractor",
+    "cnn_output_dim": null,
+    "scalar_scale": [
+      0.15625,
+      0.15625,
+      0.15625,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      0.03125
+    ],
+    "lr_schedule": "linear",
+    "value_pretrain_timesteps": 0,
+    "warm_start_status": "not_applied_f02_6_pending",
+    "bc_checkpoint": null,
+    "reward_config_path": "2_experiment/configs/module2_encoder_pilot_reward_dense.json",
+    "reward_config": {
+      "enabled_terms": {
+        "success": true,
+        "terminal": true,
+        "collision": true,
+        "progress": true,
+        "rs_progress": true,
+        "clearance": true,
+        "curvature": true,
+        "path_length": true,
+        "step": true
+      },
+      "terminal_rs_success": 1.0,
+      "collision_penalty": -1.0,
+      "terminal_rs_failure_penalty": -0.25,
+      "no_progress_penalty": -0.25,
+      "oscillation_penalty": -0.25,
+      "distance_progress_scale": 0.2,
+      "rs_distance_progress_scale": 0.0,
+      "clearance_scale": 0.1,
+      "clearance_target_m": 0.5,
+      "curvature_rate_penalty_scale": 0.0,
+      "path_length_penalty_scale": 0.0,
+      "step_penalty": -0.01
+    },
+    "curriculum_preset": "f03",
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "heldout_seed": 20260707,
+    "n_envs": 8,
+    "total_timesteps": 500000,
+    "n_steps": 256,
+    "batch_size": 256,
+    "n_epochs": 10,
+    "learning_rate": 0.0003,
+    "gamma": 0.98,
+    "gae_lambda": 0.95,
+    "clip_range": 0.2,
+    "ent_coef": 0.01,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.5,
+    "policy_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "value_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "tensorboard_log": null,
+    "checkpoint_freq": 50000,
+    "device": "cuda",
+    "allow_duplicate_openmp": true,
+    "observation_config": {
+      "patch_size_m": 6.4,
+      "patch_cells": 64,
+      "include_edt": true,
+      "edt_clip_m": 2.0
+    },
+    "env_config": {
+      "max_steps": 32,
+      "action_step_m": 0.3,
+      "collision_sample_step_m": 0.1,
+      "terminal_check_every": 1,
+      "theta_bins": 72
+    },
+    "warm_start": {
+      "status": "not_applied_f02_6_pending"
+    }
+  }
+}
+real 2392.59
+user 2388.99
+sys 11.16
