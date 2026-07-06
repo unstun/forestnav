@@ -40,6 +40,7 @@ EXPECTED_NEXT_SUCCESS_CATEGORY_COUNTS = {
     "acceptance": 3,
     "formal_acceptance": 1,
 }
+EXPECTED_OLD_FAILED_RUN_INVALID_FOR_NEXT_SUCCESS_ATTEMPT = True
 
 
 @dataclass(frozen=True)
@@ -163,6 +164,11 @@ def _current_status(
         else {}
     )
     artifact_summary = _next_success_artifact_summary(next_round)
+    post_plan_category_counts = _int_counts(
+        post_plan.get("shared_next_success_attempt_artifact_category_counts")
+        if isinstance(post_plan, dict)
+        else {}
+    )
     allowed_actions = _strings(contract_gate_state.get("allowed_next_action_ids"))
     blocked_actions = _strings(contract_gate_state.get("blocked_action_ids"))
     selected_lane = decision_record.get("selected_lane_id")
@@ -199,6 +205,12 @@ def _current_status(
             or contract_gate_state.get("post_decision_contract_plan_shared_artifact_count")
             or 0
         ),
+        "post_decision_contract_plan_shared_artifact_category_counts": post_plan_category_counts,
+        "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt": (
+            post_plan.get("old_failed_run_artifacts_invalid_for_next_success_attempt")
+            if isinstance(post_plan.get("old_failed_run_artifacts_invalid_for_next_success_attempt"), bool)
+            else None
+        ),
         "post_decision_contract_plan_lane_count": int(
             post_plan.get("lane_count") or contract_gate_state.get("post_decision_contract_plan_lane_count") or 0
         ),
@@ -221,6 +233,9 @@ def _current_status(
         "next_success_attempt_artifact_count": artifact_summary["artifact_count"],
         "next_success_attempt_artifact_category_counts": artifact_summary["category_counts"],
         "next_success_attempt_artifact_ids_by_category": artifact_summary["artifact_ids_by_category"],
+        "old_failed_run_artifacts_invalid_for_next_success_attempt": artifact_summary[
+            "old_failed_run_artifacts_invalid_for_next_success_attempt"
+        ],
         "allowed_next_action_ids": allowed_actions,
         "blocked_action_ids": blocked_actions,
         "local_training_allowed_now": bool(decision_record.get("local_training_allowed_now")),
@@ -286,6 +301,17 @@ def _audit_issues(current: dict[str, Any]) -> list[dict[str, Any]]:
                 "next_success_attempt_artifact_category_counts_drift",
                 "Next success-attempt artifact counts must stay at contract/training/evaluation/acceptance/formal_acceptance = 1/3/2/3/1.",
                 observed=current["next_success_attempt_artifact_category_counts"],
+            )
+        )
+    if (
+        current["old_failed_run_artifacts_invalid_for_next_success_attempt"]
+        is not EXPECTED_OLD_FAILED_RUN_INVALID_FOR_NEXT_SUCCESS_ATTEMPT
+    ):
+        issues.append(
+            _issue(
+                "old_failed_run_artifacts_invalid_flag_drift",
+                "Old failed-run artifacts must stay invalid substitutes for the next success attempt.",
+                observed=current["old_failed_run_artifacts_invalid_for_next_success_attempt"],
             )
         )
     if current["next_blocked_lane"] == "protocol_lane_decision":
@@ -375,6 +401,25 @@ def _post_decision_plan_issues(current: dict[str, Any]) -> list[dict[str, Any]]:
                     observed=current[key],
                 )
             )
+    if current["post_decision_contract_plan_shared_artifact_category_counts"] != EXPECTED_NEXT_SUCCESS_CATEGORY_COUNTS:
+        issues.append(
+            _issue(
+                "post_decision_contract_plan_shared_artifact_category_counts_drift",
+                "Post-decision contract plan must preserve the next-attempt artifact category split.",
+                observed=current["post_decision_contract_plan_shared_artifact_category_counts"],
+            )
+        )
+    if (
+        current["post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"]
+        is not EXPECTED_OLD_FAILED_RUN_INVALID_FOR_NEXT_SUCCESS_ATTEMPT
+    ):
+        issues.append(
+            _issue(
+                "post_decision_contract_plan_old_failed_invalid_flag_drift",
+                "Post-decision contract plan must preserve that old failed-run artifacts are invalid substitutes.",
+                observed=current["post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"],
+            )
+        )
     leaked_flags = [
         key
         for key in (
@@ -426,6 +471,9 @@ def _next_success_artifact_summary(next_round: dict[str, Any]) -> dict[str, Any]
     index = next_round.get("next_success_attempt_artifact_index")
     if not isinstance(index, dict):
         index = {}
+    reconciliation = next_round.get("current_vs_next_attempt_reconciliation")
+    if not isinstance(reconciliation, dict):
+        reconciliation = {}
     rows = index.get("rows")
     rows = rows if isinstance(rows, list) else []
     ids_by_category: dict[str, list[str]] = {}
@@ -444,7 +492,16 @@ def _next_success_artifact_summary(next_round: dict[str, Any]) -> dict[str, Any]
         "artifact_count": int(index.get("artifact_count") or len(rows)),
         "category_counts": category_counts,
         "artifact_ids_by_category": ids_by_category,
+        "old_failed_run_artifacts_invalid_for_next_success_attempt": reconciliation.get(
+            "old_failed_run_artifacts_invalid_for_next_success_attempt"
+        ),
     }
+
+
+def _int_counts(value: Any) -> dict[str, int]:
+    if not isinstance(value, dict):
+        return {}
+    return {str(key): int(count or 0) for key, count in value.items() if key}
 
 
 def _markdown(manifest: dict[str, Any]) -> str:
@@ -464,6 +521,8 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- formal_claim_allowed_now: `{state['formal_claim_allowed_now']}`",
         f"- next_success_attempt_artifact_count: `{state['next_success_attempt_artifact_count']}`",
         f"- next_success_attempt_artifact_category_counts: `{state['next_success_attempt_artifact_category_counts']}`",
+        "- old_failed_run_artifacts_invalid_for_next_success_attempt: "
+        f"`{state['old_failed_run_artifacts_invalid_for_next_success_attempt']}`",
         "",
         "## Post-Decision Contract Plan",
         "",
@@ -471,6 +530,10 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- audit_issue_count: `{state['post_decision_contract_plan_audit_issue_count']}`",
         f"- required_contract_section_count: `{state['post_decision_contract_plan_required_section_count']}`",
         f"- shared_next_success_attempt_artifact_count: `{state['post_decision_contract_plan_shared_artifact_count']}`",
+        "- shared_next_success_attempt_artifact_category_counts: "
+        f"`{state['post_decision_contract_plan_shared_artifact_category_counts']}`",
+        "- old_failed_run_artifacts_invalid_for_next_success_attempt: "
+        f"`{state['post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt']}`",
         f"- lane_count: `{state['post_decision_contract_plan_lane_count']}`",
         f"- selected_lane_id: `{state['post_decision_contract_plan_selected_lane_id']}`",
         f"- writes_contract: `{state['post_decision_contract_plan_writes_contract']}`",
