@@ -4,6 +4,7 @@ from typing import Any
 
 import gymnasium as gym
 import torch
+import torch.nn.functional as F
 from stable_baselines3.common.policies import MultiInputActorCriticPolicy
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 
@@ -151,6 +152,61 @@ class RlRsPatchCnnExtractor(BaseFeaturesExtractor):
         if patch.ndim != 4:
             raise ValueError("batched patch observation must have shape (batch, channels, cells, cells)")
         return torch.cat((scalar * scale, self.linear(self.cnn(patch))), dim=1)
+
+
+class RlRsPatchTransformerExtractor(BaseFeaturesExtractor):
+    """Patch-transformer extractor consuming the raw occupancy/EDT patch."""
+
+    def __init__(
+        self,
+        observation_space: gym.Space,
+        *,
+        scalar_scale: list[float] | tuple[float, ...] | None = None,
+    ) -> None:
+        if not isinstance(observation_space, gym.spaces.Dict):
+            raise TypeError("RlRsPatchTransformerExtractor requires a Dict observation space")
+        scalar_space = observation_space.spaces.get("scalar")
+        patch_space = observation_space.spaces.get("patch")
+        if scalar_space is None or patch_space is None:
+            raise ValueError("observation space must contain scalar and patch entries")
+        scalar_dim = int(scalar_space.shape[0])
+        patch_shape = tuple(int(value) for value in patch_space.shape)
+        if len(patch_shape) != 3:
+            raise ValueError("patch observation must have shape (channels, cells, cells)")
+        output_dim = 256
+        super().__init__(observation_space, features_dim=scalar_dim + output_dim)
+
+        channels = patch_shape[0]
+        embed_dim = 128
+        self.patchify = torch.nn.Conv2d(channels, embed_dim, kernel_size=8, stride=8)
+        self.pos_embedding = torch.nn.Parameter(torch.zeros(1, 64, embed_dim))
+        encoder_layer = torch.nn.TransformerEncoderLayer(
+            d_model=embed_dim,
+            nhead=4,
+            dim_feedforward=256,
+            batch_first=True,
+            norm_first=True,
+        )
+        self.transformer = torch.nn.TransformerEncoder(encoder_layer, num_layers=2)
+        self.projection = torch.nn.Sequential(
+            torch.nn.Linear(embed_dim, output_dim),
+            torch.nn.ReLU(),
+        )
+        scale = _feature_vector(scalar_scale, features_dim=scalar_dim, fill=1.0)
+        self.register_buffer("_scalar_scale", scale, persistent=False)
+
+    def forward(self, observations: dict[str, torch.Tensor]) -> torch.Tensor:
+        scalar = observations["scalar"].float().reshape(observations["scalar"].shape[0], -1)
+        scale = self._scalar_scale.to(device=scalar.device, dtype=scalar.dtype)
+        patch = observations["patch"].float()
+        if patch.ndim != 4:
+            raise ValueError("batched patch observation must have shape (batch, channels, cells, cells)")
+        if tuple(patch.shape[-2:]) != (64, 64):
+            patch = F.interpolate(patch, size=(64, 64), mode="bilinear", align_corners=False)
+        tokens = self.patchify(patch).flatten(2).transpose(1, 2)
+        tokens = tokens + self.pos_embedding.to(device=tokens.device, dtype=tokens.dtype)
+        patch_features = self.projection(self.transformer(tokens).mean(dim=1))
+        return torch.cat((scalar * scale, patch_features), dim=1)
 
 
 def _region_masks(cells_y: int, cells_x: int) -> torch.Tensor:

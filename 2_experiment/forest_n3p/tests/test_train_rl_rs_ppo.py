@@ -13,7 +13,11 @@ from gymnasium import spaces
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv
 
-from forest_n3p.rl_rs.sb3_policy import RlRsObstacleSummaryExtractor, RlRsPatchCnnExtractor
+from forest_n3p.rl_rs.sb3_policy import (
+    RlRsObstacleSummaryExtractor,
+    RlRsPatchCnnExtractor,
+    RlRsPatchTransformerExtractor,
+)
 from forest_n3p.scripts.train_bc_policy import _build_scalar_steering_mlp, _policy_features_from_scalar_and_patch
 from forest_n3p.scripts.train_rl_rs_ppo import (
     DEFAULT_CONTRACT_PATH,
@@ -257,9 +261,68 @@ def test_train_rl_rs_ppo_patch_cnn_smoke_roundtrip(tmp_path):
     assert type(loaded.policy.features_extractor).__name__ == "RlRsPatchCnnExtractor"
 
 
+def test_patch_transformer_extractor_forward_shape():
+    observation_space = spaces.Dict(
+        {
+            "scalar": spaces.Box(low=-np.inf, high=np.inf, shape=(8,), dtype=np.float32),
+            "patch": spaces.Box(low=0.0, high=1.0, shape=(2, 64, 64), dtype=np.float32),
+        }
+    )
+    extractor = RlRsPatchTransformerExtractor(observation_space, scalar_scale=[0.5] * 8)
+
+    with torch.no_grad():
+        features = extractor(
+            {
+                "scalar": torch.ones((3, 8), dtype=torch.float32),
+                "patch": torch.rand((3, 2, 64, 64), dtype=torch.float32),
+            }
+        )
+
+    assert tuple(features.shape) == (3, 264)
+    assert torch.allclose(features[:, :8], torch.full((3, 8), 0.5))
+
+
+def test_patch_transformer_extractor_handles_tiny_patch():
+    observation_space = spaces.Dict(
+        {
+            "scalar": spaces.Box(low=-np.inf, high=np.inf, shape=(8,), dtype=np.float32),
+            "patch": spaces.Box(low=0.0, high=1.0, shape=(2, 5, 5), dtype=np.float32),
+        }
+    )
+    extractor = RlRsPatchTransformerExtractor(observation_space)
+
+    with torch.no_grad():
+        features = extractor(
+            {
+                "scalar": torch.ones((3, 8), dtype=torch.float32),
+                "patch": torch.rand((3, 2, 5, 5), dtype=torch.float32),
+            }
+        )
+
+    assert tuple(features.shape) == (3, 264)
+
+
+def test_patch_transformer_param_count_below_two_million():
+    observation_space = spaces.Dict(
+        {
+            "scalar": spaces.Box(low=-np.inf, high=np.inf, shape=(8,), dtype=np.float32),
+            "patch": spaces.Box(low=0.0, high=1.0, shape=(2, 64, 64), dtype=np.float32),
+        }
+    )
+    extractor = RlRsPatchTransformerExtractor(observation_space)
+
+    assert sum(parameter.numel() for parameter in extractor.parameters()) < 2_000_000
+
+
 def test_patch_cnn_rejects_obstacle_summary_bc_checkpoint():
     args = _parse_args(["--features-extractor", "patch_cnn", "--bc-checkpoint", str(BC_CHECKPOINT)])
     with pytest.raises(ValueError, match="incompatible with --bc-checkpoint"):
+        _validate_arg_combination(args)
+
+
+def test_patch_transformer_rejects_obstacle_summary_bc_checkpoint():
+    args = _parse_args(["--features-extractor", "transformer", "--bc-checkpoint", str(BC_CHECKPOINT)])
+    with pytest.raises(ValueError, match="transformer is incompatible with --bc-checkpoint"):
         _validate_arg_combination(args)
 
 

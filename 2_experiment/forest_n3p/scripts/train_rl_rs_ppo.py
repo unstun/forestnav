@@ -120,9 +120,9 @@ def _parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser.add_argument("--reward-config", type=Path, default=None, help="Optional JSON RewardConfig override; omitted keeps sparse defaults.")
     parser.add_argument(
         "--features-extractor",
-        choices=("summary", "patch_cnn"),
+        choices=("summary", "patch_cnn", "transformer"),
         default="summary",
-        help="summary: 21-dim hand-pooled region statistics (F02 legacy); patch_cnn: full-patch CNN encoder.",
+        help="summary: 21-dim hand-pooled region statistics (F02 legacy); patch_cnn: full-patch CNN encoder; transformer: patch transformer encoder.",
     )
     parser.add_argument("--cnn-output-dim", type=int, default=256, help="CNN feature dimension for --features-extractor patch_cnn.")
     parser.add_argument(
@@ -186,10 +186,10 @@ def _apply_smoke_overrides(args: argparse.Namespace) -> None:
 
 
 def _validate_arg_combination(args: argparse.Namespace) -> None:
-    if str(args.features_extractor) == "patch_cnn" and args.bc_checkpoint is not None:
+    if str(args.features_extractor) in {"patch_cnn", "transformer"} and args.bc_checkpoint is not None:
         raise ValueError(
-            "--features-extractor patch_cnn is incompatible with --bc-checkpoint: "
-            "the F02 BC checkpoint encodes obstacle-summary features, not CNN features."
+            f"--features-extractor {args.features_extractor} is incompatible with --bc-checkpoint: "
+            "the F02 BC checkpoint encodes obstacle-summary features, not patch features."
         )
     if int(args.value_pretrain_timesteps) > 0 and args.bc_checkpoint is None:
         raise ValueError("--value-pretrain-timesteps requires --bc-checkpoint (it exists to protect a warm-started actor).")
@@ -299,7 +299,11 @@ def _sampler(args: argparse.Namespace, *, cfg: CurriculumContextConfig):
 
 def _policy_kwargs(args: argparse.Namespace) -> dict[str, Any]:
     import torch
-    from forest_n3p.rl_rs.sb3_policy import RlRsObstacleSummaryExtractor, RlRsPatchCnnExtractor
+    from forest_n3p.rl_rs.sb3_policy import (
+        RlRsObstacleSummaryExtractor,
+        RlRsPatchCnnExtractor,
+        RlRsPatchTransformerExtractor,
+    )
 
     kwargs = {
         "activation_fn": torch.nn.ReLU,
@@ -312,6 +316,11 @@ def _policy_kwargs(args: argparse.Namespace) -> dict[str, Any]:
         kwargs["features_extractor_class"] = RlRsPatchCnnExtractor
         kwargs["features_extractor_kwargs"] = {
             "cnn_output_dim": int(args.cnn_output_dim),
+            "scalar_scale": _scalar_scale(args),
+        }
+    elif str(args.features_extractor) == "transformer":
+        kwargs["features_extractor_class"] = RlRsPatchTransformerExtractor
+        kwargs["features_extractor_kwargs"] = {
             "scalar_scale": _scalar_scale(args),
         }
     else:
@@ -483,9 +492,9 @@ def _config_record(*, args: argparse.Namespace, raw_argv: Sequence[str], contrac
         "contract_status": str(contract_status),
         "seed": int(args.seed),
         "policy": "MultiInputPolicy" if args.bc_checkpoint is None else "RlRsMultiInputPolicy",
-        "features_extractor": "RlRsPatchCnnExtractor" if str(args.features_extractor) == "patch_cnn" else "RlRsObstacleSummaryExtractor",
+        "features_extractor": _features_extractor_record(args),
         "cnn_output_dim": int(args.cnn_output_dim) if str(args.features_extractor) == "patch_cnn" else None,
-        "scalar_scale": _scalar_scale(args) if str(args.features_extractor) == "patch_cnn" else None,
+        "scalar_scale": _scalar_scale(args) if str(args.features_extractor) in {"patch_cnn", "transformer"} else None,
         "lr_schedule": str(args.lr_schedule),
         "value_pretrain_timesteps": int(args.value_pretrain_timesteps),
         "warm_start_status": "not_applied_f02_6_pending",
@@ -527,6 +536,14 @@ def _config_record(*, args: argparse.Namespace, raw_argv: Sequence[str], contrac
             "theta_bins": int(args.theta_bins),
         },
     }
+
+
+def _features_extractor_record(args: argparse.Namespace) -> str:
+    if str(args.features_extractor) == "patch_cnn":
+        return "RlRsPatchCnnExtractor"
+    if str(args.features_extractor) == "transformer":
+        return "RlRsPatchTransformerExtractor"
+    return "RlRsObstacleSummaryExtractor"
 
 
 def _parse_ints(raw: str) -> tuple[int, ...]:
