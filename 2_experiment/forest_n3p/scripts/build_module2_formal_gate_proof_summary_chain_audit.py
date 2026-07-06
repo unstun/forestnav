@@ -662,6 +662,13 @@ def _handoff_single_next_action_issues(*, rows: Sequence[dict[str, Any]]) -> lis
         "formal_claim",
         "paper_result_material",
     }
+    protocol_required_blocked = {
+        "local_training",
+        "remote_success_training",
+        "remote_preflight_for_new_success_attempt",
+        "formal_claim",
+        "paper_result_material",
+    }
     for row in rows:
         row_id = row["row_id"]
         if not row["present"]:
@@ -686,17 +693,18 @@ def _handoff_single_next_action_issues(*, rows: Sequence[dict[str, Any]]) -> lis
                 }
             )
         pending_f02_6 = row["status"] == "awaiting_dr_sun_f02_6_decision"
+        pending_protocol_lane = row["status"] == "awaiting_dr_sun_protocol_lane_decision"
         following_stages = row["status"] == "follow_handoff_stages"
-        if not pending_f02_6 and not following_stages:
+        if not pending_f02_6 and not pending_protocol_lane and not following_stages:
             issues.append(
                 {
                     "issue_id": f"{row_id}_unexpected_status",
-                    "message": "Single-next-action summary must either wait for F02.6 or follow post-decision handoff stages.",
+                    "message": "Single-next-action summary must wait for F02.6, wait for protocol lane, or follow post-decision handoff stages.",
                     "path": row["path"],
                     "observed_status": row["status"],
                 }
             )
-        if pending_f02_6 and row["single_current_human_entry"] is not True:
+        if (pending_f02_6 or pending_protocol_lane) and row["single_current_human_entry"] is not True:
             issues.append(
                 {
                     "issue_id": f"{row_id}_not_single_human_entry",
@@ -721,6 +729,15 @@ def _handoff_single_next_action_issues(*, rows: Sequence[dict[str, Any]]) -> lis
                     "observed_next_action_id": row["next_action_id"],
                 }
             )
+        if pending_protocol_lane and row["next_action_id"] != "record_protocol_lane_decision":
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_unexpected_protocol_lane_next_action",
+                    "message": "Protocol-lane handoff must keep the next action at the protocol-lane decision record.",
+                    "path": row["path"],
+                    "observed_next_action_id": row["next_action_id"],
+                }
+            )
         if following_stages and row["next_action_id"] != "manual_handoff_stage_review":
             issues.append(
                 {
@@ -730,7 +747,7 @@ def _handoff_single_next_action_issues(*, rows: Sequence[dict[str, Any]]) -> lis
                     "observed_next_action_id": row["next_action_id"],
                 }
             )
-        if pending_f02_6 and row["decision_owner_required"] != "Dr Sun":
+        if (pending_f02_6 or pending_protocol_lane) and row["decision_owner_required"] != "Dr Sun":
             issues.append(
                 {
                     "issue_id": f"{row_id}_unexpected_decision_owner",
@@ -748,11 +765,29 @@ def _handoff_single_next_action_issues(*, rows: Sequence[dict[str, Any]]) -> lis
                     "observed_current_allowed_action_ids": row["current_allowed_action_ids"],
                 }
             )
+        if pending_protocol_lane and row["current_allowed_action_ids"] != ["record_protocol_lane_decision"]:
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_unexpected_protocol_lane_allowed_actions",
+                    "message": "Only the local protocol-lane decision-record action may be allowed.",
+                    "path": row["path"],
+                    "observed_current_allowed_action_ids": row["current_allowed_action_ids"],
+                }
+            )
         if pending_f02_6 and not required_blocked.issubset(set(row["current_blocked_action_ids"])):
             issues.append(
                 {
                     "issue_id": f"{row_id}_missing_blocked_actions",
                     "message": "Execution and result surfaces must remain blocked while F02.6 is pending.",
+                    "path": row["path"],
+                    "observed_current_blocked_action_ids": row["current_blocked_action_ids"],
+                }
+            )
+        if pending_protocol_lane and not protocol_required_blocked.issubset(set(row["current_blocked_action_ids"])):
+            issues.append(
+                {
+                    "issue_id": f"{row_id}_missing_protocol_lane_blocked_actions",
+                    "message": "Execution and result surfaces must remain blocked while protocol lane is pending.",
                     "path": row["path"],
                     "observed_current_blocked_action_ids": row["current_blocked_action_ids"],
                 }
@@ -765,7 +800,7 @@ def _handoff_single_next_action_issues(*, rows: Sequence[dict[str, Any]]) -> lis
                     "path": row["path"],
                 }
             )
-        if pending_f02_6 and row["all_execution_disabled_now"] is not True:
+        if (pending_f02_6 or pending_protocol_lane) and row["all_execution_disabled_now"] is not True:
             issues.append(
                 {
                     "issue_id": f"{row_id}_execution_not_disabled",
@@ -778,7 +813,7 @@ def _handoff_single_next_action_issues(*, rows: Sequence[dict[str, Any]]) -> lis
             "formal_claim_allowed_now",
             "paper_result_material_allowed_now",
         ]
-        if pending_f02_6:
+        if pending_f02_6 or pending_protocol_lane:
             blocked_flags.extend(["remote_preflight_allowed_now", "remote_training_allowed_now"])
         for flag in blocked_flags:
             if row[flag] is True:

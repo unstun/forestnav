@@ -3,8 +3,8 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `74a171c7017ee34962c9e3a3a6044312d29e4b07+dirty`
-- input_safety_issue_count: `3`
+- source_head: `8d94b15602ece2611f05b72c62685425d2948c5d+dirty`
+- input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
 - remote_training_allowed_now: `False`
@@ -129,10 +129,10 @@ This file is a read-only formal-gate status report. It does not execute commands
 - formal_gate_proof_audit_evaluation_missing_artifact_count: `0`
 - formal_gate_proof_audit_acceptance_missing_artifact_count: `0`
 - formal_gate_proof_audit_formal_acceptance_failed_artifact_count: `1`
-- mainline_formal_gate_state_audit_status: `mainline_formal_gate_state_audit_failed`
-- mainline_formal_gate_state_audit_issue_count: `4`
-- mainline_formal_gate_state_audit_proof_summary_chain_status: `formal_gate_proof_summary_chain_audit_failed`
-- mainline_formal_gate_state_audit_proof_summary_chain_issue_count: `15`
+- mainline_formal_gate_state_audit_status: `mainline_formal_gate_state_consistent_blocked`
+- mainline_formal_gate_state_audit_issue_count: `0`
+- mainline_formal_gate_state_audit_proof_summary_chain_status: `formal_gate_proof_summary_chain_consistent_blocked`
+- mainline_formal_gate_state_audit_proof_summary_chain_issue_count: `0`
 - mainline_formal_gate_state_audit_proof_audit_input_safety_issue_count: `0`
 - handoff_bundle_next_action: `record_protocol_lane_decision`
 - handoff_bundle_safety_issue_count: `0`
@@ -458,10 +458,10 @@ This file is a read-only formal-gate status report. It does not execute commands
 ## Mainline Formal Gate State Audit
 
 - present: `True`
-- status: `mainline_formal_gate_state_audit_failed`
-- audit_issue_count: `4`
-- proof_summary_chain_status: `formal_gate_proof_summary_chain_audit_failed`
-- proof_summary_chain_audit_issue_count: `15`
+- status: `mainline_formal_gate_state_consistent_blocked`
+- audit_issue_count: `0`
+- proof_summary_chain_status: `formal_gate_proof_summary_chain_consistent_blocked`
+- proof_summary_chain_audit_issue_count: `0`
 - proof_summary_chain_proof_audit_input_safety_issue_count: `0`
 - proof_summary_chain_proof_audit_blockers: `failed_formal_h01_h02_acceptance_artifacts`
 
@@ -571,9 +571,7 @@ This file is a read-only formal-gate status report. It does not execute commands
 
 ## Input Safety Issues
 
-- `mainline_formal_gate_state_audit_failed`: mainline formal gate state audit must not be failed.
-- `mainline_formal_gate_state_audit_issues_open`: mainline formal gate state audit issues must be resolved before status reporting.
-- `mainline_formal_gate_state_audit_proof_summary_issues_open`: mainline audit must not inherit open proof-summary audit issues.
+- none
 
 ## Safe Work Without F02.6 Decision
 

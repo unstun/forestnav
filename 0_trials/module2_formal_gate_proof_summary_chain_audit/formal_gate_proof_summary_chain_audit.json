@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_proof_summary_chain_audit",
-  "status": "formal_gate_proof_summary_chain_audit_failed",
-  "created_at_utc": "2026-07-06T02:45:14.780817+00:00",
-  "source_head": "74a171c7017ee34962c9e3a3a6044312d29e4b07+dirty",
+  "status": "formal_gate_proof_summary_chain_consistent_blocked",
+  "created_at_utc": "2026-07-06T02:47:12.585258+00:00",
+  "source_head": "8d94b15602ece2611f05b72c62685425d2948c5d+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -81,27 +81,8 @@
   "proof_audit_blockers": [
     "failed_formal_h01_h02_acceptance_artifacts"
   ],
-  "audit_issue_count": 3,
-  "audit_issues": [
-    {
-      "issue_id": "handoff_bundle_single_next_action_index_unexpected_status",
-      "message": "Single-next-action summary must either wait for F02.6 or follow post-decision handoff stages.",
-      "path": "0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json",
-      "observed_status": "awaiting_dr_sun_protocol_lane_decision"
-    },
-    {
-      "issue_id": "claim_safety_handoff_single_next_action_index_unexpected_status",
-      "message": "Single-next-action summary must either wait for F02.6 or follow post-decision handoff stages.",
-      "path": "0_trials/module2_claim_safety/module2_claim_safety.json",
-      "observed_status": "awaiting_dr_sun_protocol_lane_decision"
-    },
-    {
-      "issue_id": "paper_readiness_claim_safety_handoff_single_next_action_index_unexpected_status",
-      "message": "Single-next-action summary must either wait for F02.6 or follow post-decision handoff stages.",
-      "path": "0_trials/module2_paper_readiness/module2_paper_readiness.json",
-      "observed_status": "awaiting_dr_sun_protocol_lane_decision"
-    }
-  ],
+  "audit_issue_count": 0,
+  "audit_issues": [],
   "chain_rows": [
     {
       "row_id": "remaining_deliverables_top_level",

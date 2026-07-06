@@ -2,8 +2,8 @@
 
 This file checks that formal-gate proof-deliverables summaries remain consistent across downstream gate artifacts. It is not a training run, evaluation, remote preflight, paper table, or paper result.
 
-- status: `formal_gate_proof_summary_chain_audit_failed`
-- audit_issue_count: `3`
+- status: `formal_gate_proof_summary_chain_consistent_blocked`
+- audit_issue_count: `0`
 - proof_open: `True`
 - row_count: `14`
 - consistent_row_count: `14`
@@ -31,9 +31,7 @@ This file checks that formal-gate proof-deliverables summaries remain consistent
 
 ## Audit Issues
 
-- `handoff_bundle_single_next_action_index_unexpected_status`: Single-next-action summary must either wait for F02.6 or follow post-decision handoff stages.
-- `claim_safety_handoff_single_next_action_index_unexpected_status`: Single-next-action summary must either wait for F02.6 or follow post-decision handoff stages.
-- `paper_readiness_claim_safety_handoff_single_next_action_index_unexpected_status`: Single-next-action summary must either wait for F02.6 or follow post-decision handoff stages.
+- none
 
 ## Chain Rows
 

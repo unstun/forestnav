@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_mainline_formal_gate_state_audit",
-  "status": "mainline_formal_gate_state_audit_failed",
-  "created_at_utc": "2026-07-06T02:45:14.790813+00:00",
-  "source_head": "74a171c7017ee34962c9e3a3a6044312d29e4b07+dirty",
+  "status": "mainline_formal_gate_state_consistent_blocked",
+  "created_at_utc": "2026-07-06T02:47:16.278887+00:00",
+  "source_head": "8d94b15602ece2611f05b72c62685425d2948c5d+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -170,8 +170,8 @@
       "responsible_stage_allowed_now": false
     }
   },
-  "proof_summary_chain_status": "formal_gate_proof_summary_chain_audit_failed",
-  "proof_summary_chain_audit_issue_count": 13,
+  "proof_summary_chain_status": "formal_gate_proof_summary_chain_consistent_blocked",
+  "proof_summary_chain_audit_issue_count": 0,
   "proof_summary_chain_proof_audit_input_safety_issue_count": 0,
   "proof_summary_chain_proof_audit_blockers": [
     "failed_formal_h01_h02_acceptance_artifacts"
@@ -240,19 +240,8 @@
       "mentioned": false
     }
   ],
-  "audit_issue_count": 2,
-  "audit_issues": [
-    {
-      "issue_id": "mainline_missing_proof_chain_status",
-      "message": "Mainline task book must mention the current proof-summary chain status.",
-      "proof_summary_chain_status": "formal_gate_proof_summary_chain_audit_failed"
-    },
-    {
-      "issue_id": "proof_summary_chain_has_audit_issues",
-      "message": "Mainline task-book state should only mirror a clean proof-summary chain.",
-      "audit_issue_count": 13
-    }
-  ],
+  "audit_issue_count": 0,
+  "audit_issues": [],
   "claim_boundaries": [
     "This audit only checks that the long-term mainline task book mirrors the current formal-gate state.",
     "It does not execute commands, run local training, run remote preflight, run remote PPO training, evaluate PPO, pull back artifacts, or write paper results.",

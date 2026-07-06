@@ -22,7 +22,6 @@
 - f02_6_pending
 - formal_gate_closure_checklist_open
 - formal_gate_status_report_blocked
-- status_report_input_safety_issues_open
 - status_report_remaining_deliverables_gap_rows_missing
 - status_report_remaining_deliverables_gap_categories_blocked
 - status_report_formal_gate_gap_audit_remaining_deliverables_gap_rows_missing
@@ -38,9 +37,6 @@
 - status_report_next_required_formal_deliverables_missing_acceptance_pulled_back_checkpoint_hash_record
 - status_report_next_required_formal_deliverables_missing_formal_acceptance_h01_ready_for_formal_run
 - status_report_next_required_formal_deliverables_blocked_categories_mismatch
-- status_report_mainline_formal_gate_state_audit_failed
-- status_report_mainline_formal_gate_state_audit_issues_open
-- status_report_mainline_proof_summary_issues_open
 
 ## Allowed Claims
 
@@ -69,7 +65,7 @@
 
 ## Status Report Mainline Formal Gate State Audit
 
-- present=`True`, status=`mainline_formal_gate_state_audit_failed`, audit_issue_count=`4`, proof_summary_chain_status=`formal_gate_proof_summary_chain_audit_failed`, proof_summary_chain_audit_issue_count=`15`, proof_summary_chain_proof_audit_input_safety_issue_count=`0`
+- present=`True`, status=`mainline_formal_gate_state_consistent_blocked`, audit_issue_count=`0`, proof_summary_chain_status=`formal_gate_proof_summary_chain_consistent_blocked`, proof_summary_chain_audit_issue_count=`0`, proof_summary_chain_proof_audit_input_safety_issue_count=`0`
 
 ## Handoff Single Next-Action Index
 
