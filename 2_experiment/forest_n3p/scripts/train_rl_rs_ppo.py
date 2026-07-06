@@ -22,6 +22,9 @@ from forest_n3p.rl_rs.obs import ObservationConfig
 from forest_n3p.rl_rs.training_logging import RlRsEpisodeLoggingWrapper, file_sha256, write_training_manifest
 
 
+DEFAULT_CONTRACT_PATH = ".pipeline/contracts/module2-ppo-funnel-expansion.md"
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     raw_argv = list(sys.argv[1:] if argv is None else argv)
     args = _parse_args(raw_argv)
@@ -77,6 +80,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "created_at_utc": datetime.now(UTC).isoformat(),
         "execution_host": socket.gethostname(),
         "source_head": _source_head(),
+        "contract": str(args.contract_path),
         "output_dir": str(output_dir),
         "manifest": str(manifest_path),
         "final_model": "final_model.zip",
@@ -92,6 +96,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 def _parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Train a Module2 RL-RS PPO analytic-expansion policy.")
     parser.add_argument("--output-dir", type=Path, default=Path("2_experiment/forest_n3p/models/module2_rl_rs_ppo_f03"))
+    parser.add_argument("--contract-path", default=DEFAULT_CONTRACT_PATH)
     parser.add_argument("--seed", type=int, default=20260704)
     parser.add_argument("--device", default="auto")
     parser.add_argument("--allow-duplicate-openmp", action="store_true")
@@ -361,6 +366,7 @@ def _config_record(*, args: argparse.Namespace, raw_argv: Sequence[str]) -> dict
     return {
         "command": " ".join(["python -m forest_n3p.scripts.train_rl_rs_ppo", *raw_argv]),
         "smoke": bool(args.smoke),
+        "contract": str(args.contract_path),
         "seed": int(args.seed),
         "policy": "MultiInputPolicy" if args.bc_checkpoint is None else "RlRsMultiInputPolicy",
         "features_extractor": "RlRsObstacleSummaryExtractor",
