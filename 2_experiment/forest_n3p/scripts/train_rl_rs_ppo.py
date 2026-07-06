@@ -359,6 +359,7 @@ def _checkpoint_records(output_dir: Path) -> list[dict[str, Any]]:
 def _source_hashes() -> dict[str, str]:
     paths = (
         "2_experiment/forest_n3p/scripts/train_rl_rs_ppo.py",
+        "2_experiment/forest_n3p/scripts/_module2_contract_gate.py",
         "2_experiment/forest_n3p/rl_rs/sb3_policy.py",
         "2_experiment/forest_n3p/rl_rs/gym_env.py",
         "2_experiment/forest_n3p/rl_rs/curriculum.py",
