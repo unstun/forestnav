@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import socket
 import subprocess
@@ -218,6 +219,7 @@ def _value_pretrain(model: Any, *, timesteps: int) -> None:
     is fitted first under the frozen actor's own state distribution.
     """
     frozen = _actor_parameters(model.policy)
+    initial_lr = _initial_optimizer_lr(model)
     for parameter in frozen:
         parameter.requires_grad_(False)
     try:
@@ -225,7 +227,7 @@ def _value_pretrain(model: Any, *, timesteps: int) -> None:
     finally:
         for parameter in frozen:
             parameter.requires_grad_(True)
-        _rebuild_policy_optimizer(model.policy)
+        _rebuild_policy_optimizer(model.policy, lr=initial_lr)
 
 
 def _actor_parameters(policy: Any) -> list[Any]:
@@ -430,11 +432,37 @@ def _persist_feature_normalization(model: Any, feature_mean: Sequence[float], fe
         model.policy.features_extractor_kwargs = dict(kwargs["features_extractor_kwargs"])
 
 
-def _rebuild_policy_optimizer(policy: Any) -> None:
-    lr = float(policy.optimizer.param_groups[0]["lr"]) if getattr(policy, "optimizer", None) is not None else 3e-4
+def _initial_optimizer_lr(model: Any) -> float:
+    schedule = getattr(model, "lr_schedule", None)
+    if callable(schedule):
+        lr = float(schedule(1.0))
+        if math.isfinite(lr) and lr > 0.0:
+            return lr
+    configured = getattr(model, "learning_rate", None)
+    if not callable(configured):
+        try:
+            lr = float(configured)
+        except (TypeError, ValueError):
+            lr = 0.0
+        if math.isfinite(lr) and lr > 0.0:
+            return lr
+    optimizer = getattr(getattr(model, "policy", None), "optimizer", None)
+    if optimizer is not None:
+        lr = float(optimizer.param_groups[0]["lr"])
+        if math.isfinite(lr) and lr > 0.0:
+            return lr
+    return 3e-4
+
+
+def _rebuild_policy_optimizer(policy: Any, *, lr: float | None = None) -> None:
+    optimizer_lr = float(lr) if lr is not None else (
+        float(policy.optimizer.param_groups[0]["lr"]) if getattr(policy, "optimizer", None) is not None else 3e-4
+    )
+    if not (math.isfinite(optimizer_lr) and optimizer_lr > 0.0):
+        raise ValueError(f"optimizer lr must be finite and positive; got {optimizer_lr}")
     policy.optimizer = policy.optimizer_class(
         policy.parameters(),
-        lr=lr,
+        lr=optimizer_lr,
         **policy.optimizer_kwargs,
     )
 

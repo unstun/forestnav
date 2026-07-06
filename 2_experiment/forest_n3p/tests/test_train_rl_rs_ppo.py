@@ -24,6 +24,7 @@ from forest_n3p.scripts.train_rl_rs_ppo import (
     _apply_obstacle_summary_bc_warm_start,
     _apply_smoke_overrides,
     _load_reward_config,
+    _learning_rate,
     _make_env_factory,
     _parse_args,
     _policy_spec,
@@ -370,6 +371,43 @@ def test_value_pretrain_freezes_actor_and_updates_critic(tmp_path):
         for name, param in model.policy.value_net.named_parameters()
     ), "critic parameters did not update during value pretrain"
     assert all(param.requires_grad for param in model.policy.parameters())
+
+
+def test_value_pretrain_rebuilds_positive_optimizer_lr_after_linear_schedule(tmp_path):
+    args = _parse_args(
+        [
+            "--smoke",
+            "--bc-checkpoint",
+            str(BC_CHECKPOINT),
+            "--lr-schedule",
+            "linear",
+            "--learning-rate",
+            "0.0001",
+            "--output-dir",
+            str(tmp_path),
+            "--seed",
+            "20260704",
+        ]
+    )
+    _apply_smoke_overrides(args)
+    env = DummyVecEnv([_make_env_factory(args=args, output_dir=tmp_path, rank=0)])
+    model = PPO(
+        _policy_spec(args),
+        env,
+        learning_rate=_learning_rate(args),
+        n_steps=8,
+        batch_size=8,
+        n_epochs=1,
+        policy_kwargs=_policy_kwargs(args),
+        seed=20260704,
+        verbose=0,
+    )
+    _apply_obstacle_summary_bc_warm_start(model, BC_CHECKPOINT)
+
+    _value_pretrain(model, timesteps=8)
+    env.close()
+
+    assert model.policy.optimizer.param_groups[0]["lr"] == pytest.approx(0.0001)
 
 
 def _bc_normalized_action(obs) -> float:
