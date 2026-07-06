@@ -1559,6 +1559,7 @@ def _normalize_protocol_lane_status_report(raw: Any) -> dict[str, Any]:
         )
         if isinstance(current.get("old_failed_run_artifacts_invalid_for_next_success_attempt"), bool)
         else None,
+        "contract_drafting_allowed_now": bool(current.get("contract_drafting_allowed_now")),
     }
     for key in PROTOCOL_LANE_FALSE_FLAGS:
         normalized[key] = bool(current.get(key))
