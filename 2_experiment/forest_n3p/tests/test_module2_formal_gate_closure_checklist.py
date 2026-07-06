@@ -20,7 +20,7 @@ def test_formal_gate_closure_checklist_blocks_pending_chain(tmp_path):
     assert manifest["runs_remote_preflight"] is False
     assert manifest["local_training_allowed"] is False
     assert manifest["formal_claim_allowed"] is False
-    assert manifest["open_item_count"] == 8
+    assert manifest["open_item_count"] == 9
     assert manifest["remaining_deliverables_gap_summary"]["total_missing_deliverables"] == 10
     assert manifest["remaining_deliverables_gap_summary"]["open_category_count"] == 4
     assert manifest["remaining_deliverables_gap_summary"]["categories"]["training"]["missing_count"] == 3
