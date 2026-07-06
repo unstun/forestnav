@@ -938,6 +938,65 @@ def _single_next_action_index(
                 "Local PPO training remains prohibited.",
             ],
         }
+    if _protocol_lane_contract_draft_ready(protocol_lane_status):
+        missing_by_category = {
+            str(category): int(payload.get("missing_count") or 0)
+            for category, payload in remaining_gap.get("categories", {}).items()
+            if isinstance(payload, dict)
+        }
+        return {
+            "index_id": "module2_formal_gate_single_next_action_index",
+            "status": "awaiting_selected_lane_contract_draft",
+            "single_current_human_entry": False,
+            "next_action_id": EXPECTED_PROTOCOL_LANE_CONTRACT_DRAFT_ACTION,
+            "decision_owner_required": "Dr Sun",
+            "selected_lane_id": protocol_lane_status["selected_lane_id"],
+            "valid_decisions": [protocol_lane_status["selected_lane_id"]],
+            "required_record_fields": [
+                "protocol_lane",
+                "hypothesis",
+                "success_signal",
+                "failure_signal",
+                "protocol_delta_from_failed_run",
+                "training_budget_and_seed_policy",
+                "evaluation_and_acceptance_plan",
+                "paper_claim_boundary",
+            ],
+            "current_allowed_action_ids": [EXPECTED_PROTOCOL_LANE_CONTRACT_DRAFT_ACTION],
+            "current_blocked_action_ids": list(EXPECTED_PROTOCOL_LANE_BLOCKED_ACTIONS),
+            "legacy_f02_6_decision_action_ids": _legacy_f02_6_decision_action_ids(decision_intake),
+            "legacy_f02_6_decision_superseded_by_protocol_lane": True,
+            "post_decision_routes_are_current_authorization": False,
+            "all_execution_disabled_now": True,
+            "record_command_templates": [],
+            "record_command_template_count": 0,
+            "local_training_allowed_now": False,
+            "remote_preflight_allowed_now": False,
+            "remote_training_allowed_now": False,
+            "formal_claim_allowed_now": False,
+            "paper_result_material_allowed_now": False,
+            "missing_deliverable_count": int(remaining_gap.get("total_missing_deliverables") or 0),
+            "open_category_count": int(remaining_gap.get("open_category_count") or 0),
+            "missing_by_category": missing_by_category,
+            "source_freshness_status": source_freshness_summary.get("source_freshness_status"),
+            "source_freshness_blocking_regeneration_required": source_freshness_summary.get(
+                "source_freshness_blocking_regeneration_required"
+            ),
+            "approved_route_next_lane": route_summary.get("approved_route_next_lane"),
+            "rejected_route_next_lane": route_summary.get("rejected_route_next_lane"),
+            "after_approval_still_requires": [
+                "approved_or_frozen_new_or_revised_contract",
+                "source_freshness_audit_after_contract",
+                "remote_execution_packet_for_selected_lane",
+                "approved_remote_preflight_for_selected_lane",
+            ],
+            "claim_boundaries": [
+                "This index is a read-only handoff pointer, not a contract draft.",
+                "Contract drafting does not authorize local training, remote preflight, remote training, formal claim, or paper-result material.",
+                "A draft contract is not training authorization; the contract must become approved or frozen first.",
+                "Local PPO training remains prohibited.",
+            ],
+        }
     pending = decision.get("status") == "pending_human_decision"
     intake_contract = (
         decision_intake.get("decision_intake_contract")
@@ -1044,6 +1103,7 @@ def _single_next_action_index_issues(index: dict[str, Any]) -> list[dict[str, st
         issues.append(_issue("single_next_action_index_id_invalid", "single next-action index id is invalid"))
     pending = index.get("status") == "awaiting_dr_sun_f02_6_decision"
     protocol_pending = index.get("status") == "awaiting_dr_sun_protocol_lane_decision"
+    protocol_contract_draft = index.get("status") == "awaiting_selected_lane_contract_draft"
     if protocol_pending:
         if index.get("single_current_human_entry") is not True:
             issues.append(_issue("single_next_action_not_marked_protocol_human_entry", "pending protocol lane must be a single human-entry gate"))
@@ -1064,6 +1124,26 @@ def _single_next_action_index_issues(index: dict[str, Any]) -> list[dict[str, st
             issues.append(_issue("single_next_action_protocol_command_template_count", "protocol-lane handoff should not expose executable command templates"))
         if index.get("legacy_f02_6_decision_superseded_by_protocol_lane") is not True:
             issues.append(_issue("single_next_action_protocol_legacy_f02_6_not_superseded", "protocol-lane pending handoff must mark legacy F02.6 actions as superseded"))
+    if protocol_contract_draft:
+        if index.get("single_current_human_entry") is not False:
+            issues.append(_issue("single_next_action_contract_draft_marked_human_entry", "contract draft handoff must not be a decision-record gate"))
+        if index.get("next_action_id") != EXPECTED_PROTOCOL_LANE_CONTRACT_DRAFT_ACTION:
+            issues.append(_issue("single_next_action_wrong_contract_draft_action", "recorded protocol lane must hand off to contract drafting"))
+        if index.get("selected_lane_id") not in EXPECTED_PROTOCOL_LANE_IDS:
+            issues.append(_issue("single_next_action_contract_draft_missing_lane", "contract draft handoff must carry the selected lane"))
+        if index.get("current_allowed_action_ids") != [EXPECTED_PROTOCOL_LANE_CONTRACT_DRAFT_ACTION]:
+            issues.append(_issue("single_next_action_contract_draft_allowed_actions_drift", "contract draft must be the only allowed post-lane action"))
+        for blocked in EXPECTED_PROTOCOL_LANE_BLOCKED_ACTIONS:
+            if blocked not in index.get("current_blocked_action_ids", []):
+                issues.append(_issue(f"single_next_action_contract_draft_missing_blocked_{blocked}", f"{blocked} must remain blocked"))
+        if index.get("all_execution_disabled_now") is not True:
+            issues.append(_issue("single_next_action_contract_draft_execution_not_disabled", "execution must remain disabled before an approved/frozen contract"))
+        if index.get("remote_training_allowed_now") is True or index.get("remote_preflight_allowed_now") is True:
+            issues.append(_issue("single_next_action_contract_draft_remote_allowed", "contract drafting must not authorize remote preflight or training"))
+        if index.get("formal_claim_allowed_now") is True or index.get("paper_result_material_allowed_now") is True:
+            issues.append(_issue("single_next_action_contract_draft_claim_allowed", "contract drafting must not authorize claims or paper-result material"))
+        if index.get("legacy_f02_6_decision_superseded_by_protocol_lane") is not True:
+            issues.append(_issue("single_next_action_contract_draft_legacy_f02_6_not_superseded", "recorded protocol lane handoff must mark legacy F02.6 actions as superseded"))
     if pending:
         if index.get("single_current_human_entry") is not True:
             issues.append(_issue("single_next_action_not_marked_human_entry", "pending F02.6 must be a single human-entry gate"))
@@ -1363,6 +1443,13 @@ def _next_handoff_action(
             "requires_dr_sun": True,
             "allowed_for_agent_now": False,
             "description": "Dr Sun must select the next protocol lane before contract drafting, remote preflight, training, or result material can proceed.",
+        }
+    if _protocol_lane_contract_draft_ready(protocol_lane_status):
+        return {
+            "action_id": EXPECTED_PROTOCOL_LANE_CONTRACT_DRAFT_ACTION,
+            "requires_dr_sun": False,
+            "allowed_for_agent_now": False,
+            "description": "Draft the selected-lane research contract; this does not authorize training, remote preflight, formal claims, or paper-result material.",
         }
     if decision.get("status") == "pending_human_decision":
         return {
