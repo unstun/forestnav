@@ -783,6 +783,8 @@ def _markdown(manifest: dict[str, Any]) -> str:
     artifacts = manifest["current_run_artifacts"]
     h02 = manifest["blocked_formal_acceptance"]
     permissions = manifest["permissions_now"]
+    protocol = manifest["protocol_gate_summary"]
+    reconciliation = manifest["current_vs_next_attempt_reconciliation"]
     lines = [
         "# Module2 Formal Gate Next-Round Requirements",
         "",
@@ -828,6 +830,34 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"  - remote_training_allowed_by_status_report: `{permissions['legacy_remote_packet_readiness']['remote_training_allowed_by_status_report']}`",
         f"  - formal_h01_evaluation_allowed_by_status_report: `{permissions['legacy_remote_packet_readiness']['formal_h01_evaluation_allowed_by_status_report']}`",
         f"  - superseded_by_next_gate: `{permissions['legacy_remote_packet_readiness']['superseded_by_next_gate']}`",
+        "",
+        "## Protocol Gate Summary",
+        "",
+        f"- protocol_status: `{protocol['protocol_status']}`",
+        f"- next_blocked_lane: `{protocol['next_blocked_lane']}`",
+        f"- decision_record_status: `{protocol['decision_record_status']}`",
+        f"- selected_lane_id: `{protocol['selected_lane_id']}`",
+        f"- allowed_next_action_ids: `{protocol['allowed_next_action_ids']}`",
+        f"- blocked_action_ids: `{protocol['blocked_action_ids']}`",
+        f"- new_success_training_allowed_now: `{protocol['new_success_training_allowed_now']}`",
+        f"- post_decision_contract_plan_required_section_count: `{protocol['post_decision_contract_plan_required_section_count']}`",
+        f"- post_decision_contract_plan_shared_artifact_count: `{protocol['post_decision_contract_plan_shared_artifact_count']}`",
+        f"- post_decision_contract_plan_lane_count: `{protocol['post_decision_contract_plan_lane_count']}`",
+        f"- next_success_attempt_artifact_count: `{protocol['next_success_attempt_artifact_count']}`",
+        f"- next_success_attempt_artifact_category_counts: `{protocol['next_success_attempt_artifact_category_counts']}`",
+        f"- remote_safety_protocol_summary_present: `{protocol['remote_safety_protocol_summary_present']}`",
+        f"- remote_safety_category_counts: `{protocol['remote_safety_category_counts']}`",
+        "",
+        "## Current Vs Next Attempt Reconciliation",
+        "",
+        f"- current_failed_run_missing_counts: `{reconciliation['current_failed_run_missing_counts']}`",
+        f"- current_failed_run_training_eval_acceptance_closed: `{reconciliation['current_failed_run_training_eval_acceptance_closed']}`",
+        f"- current_failed_run_formal_acceptance_open: `{reconciliation['current_failed_run_formal_acceptance_open']}`",
+        f"- next_success_attempt_artifact_count: `{reconciliation['next_success_attempt_artifact_count']}`",
+        f"- next_success_attempt_category_counts: `{reconciliation['next_success_attempt_category_counts']}`",
+        f"- protocol_lane_artifact_counts_match_index: `{reconciliation['protocol_lane_artifact_counts_match_index']}`",
+        f"- old_failed_run_artifacts_invalid_for_next_success_attempt: `{reconciliation['old_failed_run_artifacts_invalid_for_next_success_attempt']}`",
+        f"- explanation: {reconciliation['explanation']}",
         "",
         "## Missing Current Formal Acceptance Artifacts",
         "",
