@@ -566,6 +566,18 @@ def test_remaining_deliverables_protocol_lane_pending_overrides_complete_trainin
     gap_categories = {category["category"]: category for category in manifest["deliverable_gap_summary"]["categories"]}
     assert gap_categories["training"]["responsible_stage_allowed_now"] is False
     assert "protocol_lane_decision_pending" in gap_categories["training"]["responsible_stage_blocked_by"]
+    production_plan = manifest["deliverable_production_plan"]
+    assert production_plan["post_plan_status"] == "blocked_until_protocol_lane_decision"
+    assert production_plan["post_plan_status_raw"] == "ready_for_claim_gate"
+    assert production_plan["protocol_lane_pending"] is True
+    assert production_plan["rows_allowed_while_missing"] == 0
+    production_rows = {row["matrix_id"]: row for row in production_plan["rows"]}
+    train_stage = production_rows["training:train_final_model_zip"]["remote_generation_stage"]
+    assert train_stage["allowed_now"] is False
+    assert train_stage["original_allowed_now_before_protocol_override"] is True
+    assert train_stage["original_status_before_protocol_override"] == "ready"
+    assert train_stage["protocol_lane_override_applied"] is True
+    assert "protocol_lane_decision_pending" in train_stage["blocked_by"]
     groups = {group["category"]: group for group in manifest["deliverable_groups"]}
     assert groups["training"]["responsible_stage_allowed_now"] is False
     assert "protocol_lane_decision_pending" in groups["training"]["responsible_stage_blocked_by"]
