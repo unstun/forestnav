@@ -1234,6 +1234,11 @@ def test_formal_gate_status_report_protocol_lane_vetoes_legacy_execution_surface
         "allowed_for_agent_now": False,
     }
     config.missing_artifacts_path.write_text(json.dumps(missing), encoding="utf-8")
+    intake = json.loads(config.decision_intake_path.read_text(encoding="utf-8"))
+    intake["next_human_decision_request"]["current_allowed_action_ids"] = [
+        "record_f02_6_decision"
+    ]
+    config.decision_intake_path.write_text(json.dumps(intake), encoding="utf-8")
 
     manifest = builder.build_manifest(config)
 

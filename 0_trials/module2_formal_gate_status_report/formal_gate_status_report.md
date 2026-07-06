@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `86bfcf2278a49a9530a29d8c1ddce539e25dd1c8`
+- source_head: `f56a7699d13e26897d6e2d19d13e0828edc4f839+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -163,6 +163,11 @@ This file is a read-only formal-gate status report. It does not execute commands
 - remote_packet_safety_command_index_source_target_count: `23`
 - remote_packet_safety_command_index_missing_target_count: `0`
 - next_action_guard_status: `next_action_guard_passed`
+- effective_next_blocked_lane: `protocol_lane_decision`
+- effective_next_action_id: `record_protocol_lane_decision`
+- effective_next_action_requires_dr_sun: `True`
+- legacy_decision_intake_action_ids: `['record_f02_6_decision']`
+- legacy_decision_intake_superseded_by_protocol_lane: `True`
 
 ## Next Blocked Lane
 
@@ -578,7 +583,7 @@ This file is a read-only formal-gate status report. It does not execute commands
 
 - This status report is an execution-orientation artifact, not a result table or paper appendix.
 - It does not execute commands, remote preflight, training, evaluation, sync, audit, or pullback.
-- It must not be used to approve F02.6; only Dr Sun's decision record can do that.
-- Formal PPO training remains gpu3070ti-relay-only and blocked until F02.6, source freshness, and remote packet gates close.
+- It must not be used to record a protocol-lane or F02.6 decision; only Dr Sun's decision record can do that.
+- Formal PPO training remains gpu3070ti-relay-only and blocked until protocol-lane, contract, source freshness, and remote packet gates close.
 - Formal result writing remains blocked until H02 acceptance, claim safety, paper readiness, and the closure checklist all pass after audited pullback hashes.
 - The formal gate execution veto matrix must agree across status, handoff, remote packet, and remote packet safety before this report can become claim-ready.
