@@ -29,6 +29,7 @@ from forest_n3p.scripts.train_rl_rs_ppo import (
     _parse_args,
     _policy_spec,
     _policy_kwargs,
+    _source_head as train_source_head,
     _validate_arg_combination,
     _value_pretrain,
     main as train_rl_rs_ppo_main,
@@ -154,6 +155,12 @@ def test_train_rl_rs_ppo_manifest_records_injected_reward_config(tmp_path):
     assert reward_config["distance_progress_scale"] == 0.2
     assert reward_config["clearance_scale"] == 0.1
     assert reward_config["step_penalty"] == -0.01
+
+
+def test_train_rl_rs_ppo_source_head_can_use_env_override(monkeypatch):
+    monkeypatch.setenv("FORESTNAV_SOURCE_HEAD", "abc123-pilot")
+
+    assert train_source_head() == "abc123-pilot"
 
 
 def test_train_rl_rs_ppo_blocks_non_smoke_draft_contract_before_training(tmp_path):

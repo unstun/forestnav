@@ -8,6 +8,7 @@ os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
 
 from forest_n3p.scripts.eval_rl_rs_gate3 import main as eval_gate3_main
 from forest_n3p.scripts.eval_rl_rs_gate3 import DEFAULT_CONTRACT_PATH
+from forest_n3p.scripts.eval_rl_rs_gate3 import _source_head as eval_source_head
 from forest_n3p.scripts.train_rl_rs_ppo import main as train_rl_rs_ppo_main
 
 
@@ -88,3 +89,9 @@ def test_eval_rl_rs_gate3_blocks_draft_contract_before_loading_model(tmp_path):
         )
 
     assert not (tmp_path / "eval").exists()
+
+
+def test_eval_rl_rs_gate3_source_head_can_use_env_override(monkeypatch):
+    monkeypatch.setenv("FORESTNAV_SOURCE_HEAD", "abc123-pilot")
+
+    assert eval_source_head() == "abc123-pilot"

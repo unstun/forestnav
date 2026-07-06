@@ -584,6 +584,9 @@ def _parse_ints(raw: str) -> tuple[int, ...]:
 
 
 def _source_head() -> str:
+    env_head = os.environ.get("FORESTNAV_SOURCE_HEAD")
+    if env_head and env_head.strip():
+        return env_head.strip()
     try:
         head = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL).strip()
         dirty = subprocess.check_output(["git", "status", "--short"], text=True, stderr=subprocess.DEVNULL).strip()
