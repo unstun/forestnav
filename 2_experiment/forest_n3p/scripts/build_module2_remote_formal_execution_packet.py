@@ -18,6 +18,9 @@ DEFAULT_H01_MANIFEST = Path("0_trials/module2_v1_evaluation_manifest/module2_v1_
 DEFAULT_REMOTE_PREFLIGHT = Path(
     "0_trials/module2_remote_preflight/gate3_obstacle_summary_warm_pending_remote_v1/gate3_preflight_manifest.json"
 )
+DEFAULT_PROTOCOL_LANE_STATUS_REPORT = Path(
+    "0_trials/module2_formal_gate_protocol_lane_status_report/protocol_lane_status_report.json"
+)
 DEFAULT_GPU_ALIAS = "gpu3070ti-relay"
 DEFAULT_REMOTE_WORKDIR = "~/ForestNav"
 DEFAULT_REMOTE_PYTHON = ".venv/bin/python"
@@ -27,6 +30,8 @@ H01_DOWNSTREAM_OUTPUT_BLOCKERS = {
     "missing_module2_rl_rs_checkpoint",
     "realmap_query_generation_not_frozen",
 }
+PROTOCOL_LANE_PENDING_STATUS = "protocol_lane_status_blocked_pending_lane_decision"
+PROTOCOL_LANE_PENDING_BLOCKER = "protocol_lane_decision_pending"
 
 
 @dataclass(frozen=True)
@@ -37,6 +42,7 @@ class RemoteFormalExecutionPacketConfig:
     decision_record_path: Path = DEFAULT_DECISION_RECORD
     h01_manifest_path: Path = DEFAULT_H01_MANIFEST
     remote_preflight_path: Path = DEFAULT_REMOTE_PREFLIGHT
+    protocol_lane_status_report_path: Path = DEFAULT_PROTOCOL_LANE_STATUS_REPORT
     gpu_alias: str = DEFAULT_GPU_ALIAS
     remote_workdir: str = DEFAULT_REMOTE_WORKDIR
     remote_python: str = DEFAULT_REMOTE_PYTHON
@@ -52,6 +58,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         decision_record_path=args.decision_record,
         h01_manifest_path=args.h01_manifest,
         remote_preflight_path=args.remote_preflight,
+        protocol_lane_status_report_path=args.protocol_lane_status_report,
         gpu_alias=args.gpu_alias,
         remote_workdir=args.remote_workdir,
         remote_python=args.remote_python,
@@ -80,20 +87,23 @@ def build_packet(config: RemoteFormalExecutionPacketConfig) -> dict[str, Any]:
     decision_record = _read_json(config.decision_record_path)
     h01_manifest = _read_json(config.h01_manifest_path)
     remote_preflight = _read_json(config.remote_preflight_path)
+    protocol_lane_status_report = _read_json(config.protocol_lane_status_report_path)
 
     h01 = _h01_record(config.h01_manifest_path, h01_manifest)
     preflight = _preflight_record(config.remote_preflight_path, remote_preflight)
     decision = _decision_record(config.decision_record_path, decision_record)
+    protocol_lane = _protocol_lane_status_record(config.protocol_lane_status_report_path, protocol_lane_status_report)
     commands = _commands(config=config, decision_record=decision_record, remote_preflight=remote_preflight)
-    blockers = _blockers(decision=decision, h01=h01, preflight=preflight)
-    status = _status(decision=decision, blockers=blockers, preflight=preflight)
+    blockers = _blockers(decision=decision, h01=h01, preflight=preflight, protocol_lane=protocol_lane)
+    status = _status(decision=decision, blockers=blockers, preflight=preflight, protocol_lane=protocol_lane)
     ready = status == "ready_for_gpu3070ti_remote_training"
 
-    commands["sync_to_remote"]["allowed_now"] = decision["status"] == "approved"
-    commands["run_remote_preflight"]["allowed_now"] = decision["status"] == "approved"
+    remote_execution_allowed_by_decision = decision["status"] == "approved" and not protocol_lane["pending_lane_decision"]
+    commands["sync_to_remote"]["allowed_now"] = remote_execution_allowed_by_decision
+    commands["run_remote_preflight"]["allowed_now"] = remote_execution_allowed_by_decision
     commands["run_remote_training"]["allowed_now"] = ready
     commands["run_remote_audit"]["allowed_now"] = False
-    _annotate_step_blockers(commands=commands, decision=decision, blockers=blockers, ready=ready)
+    _annotate_step_blockers(commands=commands, decision=decision, blockers=blockers, ready=ready, protocol_lane=protocol_lane)
     preflight_requirements = _remote_preflight_requirements(decision=decision, preflight=preflight, commands=commands)
     post_run_pullback = _post_run_pullback(config=config, trial_dir=commands["trial_dir"])
     downstream = _downstream_after_successful_audit(commands["trial_dir"])
@@ -121,6 +131,7 @@ def build_packet(config: RemoteFormalExecutionPacketConfig) -> dict[str, Any]:
             "training_host_required": config.gpu_alias,
         },
         "decision_record": decision,
+        "protocol_lane_status": protocol_lane,
         "h01_manifest": h01,
         "remote_preflight": preflight,
         "remote_preflight_requirements": preflight_requirements,
@@ -134,6 +145,7 @@ def build_packet(config: RemoteFormalExecutionPacketConfig) -> dict[str, Any]:
             "This packet is an execution protocol, not a training result.",
             "It must not be used to run PPO on the local Mac.",
             "F02.6 approval by Dr Sun is required before warm-start formal training.",
+            "A pending protocol-lane decision vetoes remote sync, preflight, training, and audit execution.",
             "Remote runner completion is still insufficient for a paper claim until formal audit passes and artifacts are pulled back.",
             "H01/H02 must be regenerated with the audited checkpoint before any formal performance table is written.",
         ],
@@ -148,6 +160,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--decision-record", type=Path, default=DEFAULT_DECISION_RECORD)
     parser.add_argument("--h01-manifest", type=Path, default=DEFAULT_H01_MANIFEST)
     parser.add_argument("--remote-preflight", type=Path, default=DEFAULT_REMOTE_PREFLIGHT)
+    parser.add_argument("--protocol-lane-status-report", type=Path, default=DEFAULT_PROTOCOL_LANE_STATUS_REPORT)
     parser.add_argument("--gpu-alias", default=DEFAULT_GPU_ALIAS)
     parser.add_argument("--remote-workdir", default=DEFAULT_REMOTE_WORKDIR)
     parser.add_argument("--remote-python", default=DEFAULT_REMOTE_PYTHON)
@@ -165,6 +178,28 @@ def _decision_record(path: Path, record: dict[str, Any]) -> dict[str, Any]:
         "local_training_allowed": bool(record.get("local_training_allowed")),
         "formal_claim_allowed": bool(record.get("formal_claim_allowed")),
         "blockers": [str(item) for item in record.get("blockers", ()) if item],
+    }
+
+
+def _protocol_lane_status_record(path: Path, report: dict[str, Any]) -> dict[str, Any]:
+    current = report.get("current_status") if isinstance(report.get("current_status"), dict) else {}
+    selected_lane_id = current.get("selected_lane_id")
+    pending_lane_decision = (
+        report.get("status") == PROTOCOL_LANE_PENDING_STATUS
+        and current.get("next_blocked_lane") == "protocol_lane_decision"
+        and selected_lane_id is None
+    )
+    return {
+        "path": str(path),
+        "exists": Path(path).is_file(),
+        "status": str(report.get("status")),
+        "next_blocked_lane": current.get("next_blocked_lane"),
+        "selected_lane_id": selected_lane_id,
+        "decision_record_status": current.get("decision_record_status"),
+        "allowed_next_action_ids": _strings(current.get("allowed_next_action_ids")),
+        "blocked_action_ids": _strings(current.get("blocked_action_ids")),
+        "pending_lane_decision": pending_lane_decision,
+        "blocker": PROTOCOL_LANE_PENDING_BLOCKER if pending_lane_decision else None,
     }
 
 
@@ -212,8 +247,12 @@ def _preflight_record(path: Path, preflight: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _blockers(*, decision: dict[str, Any], h01: dict[str, Any], preflight: dict[str, Any]) -> list[str]:
+def _blockers(
+    *, decision: dict[str, Any], h01: dict[str, Any], preflight: dict[str, Any], protocol_lane: dict[str, Any]
+) -> list[str]:
     blockers: list[str] = []
+    if protocol_lane["pending_lane_decision"]:
+        blockers.append(PROTOCOL_LANE_PENDING_BLOCKER)
     if decision["local_training_allowed"]:
         blockers.append("decision_record_allows_local_training")
     if decision["status"] == "pending_human_decision":
@@ -236,7 +275,11 @@ def _blockers(*, decision: dict[str, Any], h01: dict[str, Any], preflight: dict[
     return _unique(blockers)
 
 
-def _status(*, decision: dict[str, Any], blockers: Sequence[str], preflight: dict[str, Any]) -> str:
+def _status(
+    *, decision: dict[str, Any], blockers: Sequence[str], preflight: dict[str, Any], protocol_lane: dict[str, Any]
+) -> str:
+    if protocol_lane["pending_lane_decision"]:
+        return "blocked_until_protocol_lane_decision"
     if decision["status"] == "pending_human_decision":
         return "blocked_until_f02_6_decision"
     if decision["status"] != "approved":
@@ -291,8 +334,9 @@ def _annotate_step_blockers(
     decision: dict[str, Any],
     blockers: Sequence[str],
     ready: bool,
+    protocol_lane: dict[str, Any],
 ) -> None:
-    decision_blockers = _decision_step_blockers(decision)
+    decision_blockers = _decision_step_blockers(decision, protocol_lane=protocol_lane)
     commands["sync_to_remote"]["blocked_by"] = [] if commands["sync_to_remote"]["allowed_now"] else decision_blockers
     commands["run_remote_preflight"]["blocked_by"] = [] if commands["run_remote_preflight"]["allowed_now"] else decision_blockers
     training_blockers = _unique(list(blockers) + ([] if ready else ["remote_packet_not_ready"]))
@@ -301,7 +345,9 @@ def _annotate_step_blockers(
     commands["run_remote_audit"]["blocked_by"] = [] if commands["run_remote_audit"]["allowed_now"] else audit_blockers
 
 
-def _decision_step_blockers(decision: dict[str, Any]) -> list[str]:
+def _decision_step_blockers(decision: dict[str, Any], *, protocol_lane: dict[str, Any]) -> list[str]:
+    if protocol_lane["pending_lane_decision"]:
+        return [PROTOCOL_LANE_PENDING_BLOCKER]
     if decision["status"] == "approved":
         return []
     if decision["blockers"]:
