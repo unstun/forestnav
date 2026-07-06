@@ -319,6 +319,31 @@ def _audit_issues(current: dict[str, Any]) -> list[dict[str, Any]]:
                 observed=current["next_success_attempt_artifact_category_counts"],
             )
         )
+    if current["next_success_attempt_artifact_expected_paths_by_id"] != EXPECTED_NEXT_SUCCESS_EXPECTED_PATHS_BY_ID:
+        issues.append(
+            _issue(
+                "next_success_attempt_artifact_expected_paths_drift",
+                "Next success-attempt expected paths must stay tied to the formal-gate artifact contract.",
+                observed=current["next_success_attempt_artifact_expected_paths_by_id"],
+            )
+        )
+    proof_requirements = current["next_success_attempt_artifact_proof_requirements_by_id"]
+    if set(proof_requirements) != set(EXPECTED_NEXT_SUCCESS_EXPECTED_PATHS_BY_ID):
+        issues.append(
+            _issue(
+                "next_success_attempt_artifact_proof_requirements_missing",
+                "Every next success-attempt artifact must retain a proof requirement.",
+                observed=sorted(proof_requirements),
+            )
+        )
+    elif any(not str(proof_requirements.get(artifact_id) or "").strip() for artifact_id in proof_requirements):
+        issues.append(
+            _issue(
+                "next_success_attempt_artifact_proof_requirement_empty",
+                "Next success-attempt proof requirements must be non-empty.",
+                observed=proof_requirements,
+            )
+        )
     if (
         current["old_failed_run_artifacts_invalid_for_next_success_attempt"]
         is not EXPECTED_OLD_FAILED_RUN_INVALID_FOR_NEXT_SUCCESS_ATTEMPT
