@@ -4,8 +4,8 @@ This is a formal-gate evidence ledger. It does not run local training, remote pr
 
 ## Status
 
-- status: `blocked_until_v2_contract_promotion`
-- source_head: `1817f1d369fff0caf05e86211a56d75071d4e046`
+- status: `blocked_until_source_freshness`
+- source_head: `840721f8954515ef1aa443a6cf2d4ceda679b0f3`
 - remote_preflight_allowed_now: `False`
 - remote_training_allowed_now: `False`
 - paper_result_material_allowed_now: `False`
@@ -19,16 +19,14 @@ This is a formal-gate evidence ledger. It does not run local training, remote pr
 
 ## Gate Blockers
 
-- `v2_contract_not_promoted`: observed=`draft`, expected=`['approved', 'frozen']`
-- `v2_contract_readiness_not_ready`: observed=`v2_contract_readiness_blocked`, expected=`v2_contract_ready_for_source_freshness`
 - `source_freshness_not_ready`: observed=`source_freshness_risks_recorded_gate_still_blocked`, expected=`['source_freshness_clean_current', 'source_freshness_tracked_artifact_lag_only_gate_ready']`
-- `v2_remote_execution_packet_not_ready`: observed=`blocked_until_v2_contract_promotion`, expected=`ready_for_v2_remote_preflight`
+- `v2_remote_execution_packet_not_ready`: observed=`blocked_until_source_freshness`, expected=`ready_for_v2_remote_preflight`
 - `v2_remote_preflight_manifest_not_ready`: observed=`missing`, expected=`ready + formal_trial_ready=true`
 
 ## Remaining Evidence Summary
 
 - `acceptance`: missing_or_unsatisfied=`3` / total=`3`
-- `contract`: missing_or_unsatisfied=`1` / total=`1`
+- `contract`: missing_or_unsatisfied=`0` / total=`1`
 - `evaluation`: missing_or_unsatisfied=`2` / total=`2`
 - `formal_acceptance`: missing_or_unsatisfied=`1` / total=`1`
 - `gate_precondition`: missing_or_unsatisfied=`2` / total=`2`
@@ -38,8 +36,8 @@ This is a formal-gate evidence ledger. It does not run local training, remote pr
 
 ### `contract:v2_contract_promoted`
 - expected_path: `.pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md`
-- state: `contract_status_draft`
-- satisfied_for_v2_success_attempt: `False`
+- state: `contract_status_approved`
+- satisfied_for_v2_success_attempt: `True`
 - required_before: `new_success_training`
 - proof_requirement: approved_or_frozen_contract_before_any_new_training
 
@@ -122,10 +120,8 @@ This is a formal-gate evidence ledger. It does not run local training, remote pr
 
 ## Next Ordered Actions
 
-- Dr Sun explicitly promotes the v2 contract to approved or frozen
-- Apply the promotion dry-run for real and commit the contract status change
-- Re-run the v2 contract readiness gate
-- Re-run source freshness and regenerate the v2 remote execution packet
+- Regenerate blocking source-freshness targets
+- Rebuild the v2 remote execution packet
 
 ## Invalid Substitutes
 

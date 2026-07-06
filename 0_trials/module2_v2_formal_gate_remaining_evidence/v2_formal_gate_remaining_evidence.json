@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_v2_formal_gate_remaining_evidence",
-  "status": "blocked_until_v2_contract_promotion",
-  "created_at_utc": "2026-07-06T08:11:32.207889+00:00",
-  "source_head": "1817f1d369fff0caf05e86211a56d75071d4e046",
+  "status": "blocked_until_source_freshness",
+  "created_at_utc": "2026-07-06T09:43:06.586796+00:00",
+  "source_head": "840721f8954515ef1aa443a6cf2d4ceda679b0f3",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -37,14 +37,14 @@
     "selected_lane_id": "stronger_obstacle_summary_warm_start",
     "contract_action": "draft_new_contract",
     "contract_path": ".pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md",
-    "contract_status": "draft"
+    "contract_status": "approved"
   },
   "gate_state": {
-    "readiness_status": "v2_contract_readiness_blocked",
+    "readiness_status": "v2_contract_ready_for_source_freshness",
     "promotion_packet_status": "v2_contract_promotion_packet_ready_awaiting_dr_sun",
     "promotion_dry_run_status": "promotion_apply_ready",
     "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
-    "remote_packet_status": "blocked_until_v2_contract_promotion",
+    "remote_packet_status": "blocked_until_source_freshness",
     "preflight_status": null,
     "preflight_formal_trial_ready": false
   },
@@ -56,21 +56,8 @@
     "formal_claim_allowed_now": false,
     "paper_result_material_allowed_now": false
   },
-  "gate_blocker_count": 5,
+  "gate_blocker_count": 3,
   "gate_blockers": [
-    {
-      "issue_id": "v2_contract_not_promoted",
-      "observed": "draft",
-      "expected": [
-        "approved",
-        "frozen"
-      ]
-    },
-    {
-      "issue_id": "v2_contract_readiness_not_ready",
-      "observed": "v2_contract_readiness_blocked",
-      "expected": "v2_contract_ready_for_source_freshness"
-    },
     {
       "issue_id": "source_freshness_not_ready",
       "observed": "source_freshness_risks_recorded_gate_still_blocked",
@@ -81,7 +68,7 @@
     },
     {
       "issue_id": "v2_remote_execution_packet_not_ready",
-      "observed": "blocked_until_v2_contract_promotion",
+      "observed": "blocked_until_source_freshness",
       "expected": "ready_for_v2_remote_preflight"
     },
     {
@@ -92,7 +79,7 @@
   ],
   "remaining_evidence_summary": {
     "total_required_evidence_items": 12,
-    "total_missing_or_unsatisfied": 12,
+    "total_missing_or_unsatisfied": 11,
     "by_category": {
       "acceptance": {
         "total": 3,
@@ -101,8 +88,8 @@
       },
       "contract": {
         "total": 1,
-        "satisfied": 0,
-        "missing_or_unsatisfied": 1
+        "satisfied": 1,
+        "missing_or_unsatisfied": 0
       },
       "evaluation": {
         "total": 2,
@@ -147,8 +134,8 @@
         "editing thresholds after training"
       ],
       "exists": true,
-      "satisfied_for_v2_success_attempt": false,
-      "state": "contract_status_draft"
+      "satisfied_for_v2_success_attempt": true,
+      "state": "contract_status_approved"
     },
     {
       "category": "gate_precondition",
@@ -376,10 +363,8 @@
     }
   ],
   "next_ordered_actions": [
-    "Dr Sun explicitly promotes the v2 contract to approved or frozen",
-    "Apply the promotion dry-run for real and commit the contract status change",
-    "Re-run the v2 contract readiness gate",
-    "Re-run source freshness and regenerate the v2 remote execution packet"
+    "Regenerate blocking source-freshness targets",
+    "Rebuild the v2 remote execution packet"
   ],
   "invalid_substitutes": [
     "local PPO training output",

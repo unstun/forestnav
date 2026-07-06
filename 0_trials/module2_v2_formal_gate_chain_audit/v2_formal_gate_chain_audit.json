@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_v2_formal_gate_chain_audit",
-  "status": "blocked_until_v2_contract_promotion",
-  "created_at_utc": "2026-07-06T08:18:10.252020+00:00",
-  "source_head": "961026bb5058904eff9e4c80d9f28b74a554c4a2",
+  "status": "blocked_until_source_freshness",
+  "created_at_utc": "2026-07-06T09:43:06.742569+00:00",
+  "source_head": "840721f8954515ef1aa443a6cf2d4ceda679b0f3",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -26,9 +26,9 @@
     "remaining_evidence": "0_trials/module2_v2_formal_gate_remaining_evidence/v2_formal_gate_remaining_evidence.json",
     "h02_acceptance": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
   },
-  "current_blocking_stage_id": "v2_contract_promoted",
-  "current_blocking_stage_label": "V2 contract approved or frozen",
-  "next_allowed_action": "await_dr_sun_explicit_contract_promotion_then_apply_promotion",
+  "current_blocking_stage_id": "source_freshness_ready",
+  "current_blocking_stage_label": "Source freshness ready for remote preflight",
+  "next_allowed_action": "rerun_source_freshness_for_v2_contract",
   "strict_stage_order": [
     "v2_contract_promoted",
     "v2_contract_readiness_ready",
@@ -41,7 +41,7 @@
     "h02_formal_acceptance_ready"
   ],
   "stage_count": 12,
-  "satisfied_stage_count": 3,
+  "satisfied_stage_count": 5,
   "audit_issue_count": 0,
   "audit_issues": [],
   "stages": [
@@ -79,8 +79,8 @@
     {
       "stage_id": "v2_contract_promoted",
       "label": "V2 contract approved or frozen",
-      "satisfied": false,
-      "observed": "draft",
+      "satisfied": true,
+      "observed": "approved",
       "expected": [
         "approved",
         "frozen"
@@ -90,8 +90,8 @@
     {
       "stage_id": "v2_contract_readiness_ready",
       "label": "V2 contract readiness gate ready",
-      "satisfied": false,
-      "observed": "v2_contract_readiness_blocked",
+      "satisfied": true,
+      "observed": "v2_contract_ready_for_source_freshness",
       "expected": "v2_contract_ready_for_source_freshness",
       "strict_order_index": 1
     },
@@ -111,7 +111,7 @@
       "label": "V2 remote execution packet ready for preflight",
       "satisfied": false,
       "observed": {
-        "status": "blocked_until_v2_contract_promotion",
+        "status": "blocked_until_source_freshness",
         "remote_preflight_allowed_now": false
       },
       "expected": {

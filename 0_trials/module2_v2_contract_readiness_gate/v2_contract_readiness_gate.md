@@ -4,15 +4,15 @@ This file is a pre-execution gate artifact, not paper result material.
 
 ## Status
 
-- status: `v2_contract_readiness_blocked`
-- next_action: `promote_or_edit_v2_contract_before_source_freshness`
-- source_freshness_regeneration_allowed_after_contract: `False`
+- status: `v2_contract_ready_for_source_freshness`
+- next_action: `regenerate_source_freshness_then_remote_packet`
+- source_freshness_regeneration_allowed_after_contract: `True`
 - remote_training_allowed_now: `False`
-- blocker_count: `1`
+- blocker_count: `0`
 
 ## Contract Summary
 
-- status: `draft`
+- status: `approved`
 - selected_protocol_lane: `stronger_obstacle_summary_warm_start`
 - contract_action: `draft_new_contract`
 - training_allowed: `False`
@@ -24,14 +24,14 @@ This file is a pre-execution gate artifact, not paper result material.
 
 ## Preflight Probe
 
-- preflight_status: `blocked`
-- formal_trial_ready: `False`
-- contract_status: `draft`
+- preflight_status: `ready`
+- formal_trial_ready: `True`
+- contract_status: `approved`
 - runner_command_contains_v2_params: `True`
 
 ## Blockers
 
-- `contract_status_not_approved_or_frozen`: v2 contract cannot enter source-freshness until status is approved or frozen
+- none
 
 ## Invalid Substitutes
 

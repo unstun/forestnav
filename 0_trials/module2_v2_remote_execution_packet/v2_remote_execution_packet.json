@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "packet_name": "module2_v2_remote_execution_packet",
-  "status": "blocked_until_v2_contract_promotion",
-  "created_at_utc": "2026-07-06T07:59:32.206643+00:00",
-  "source_head": "331231f71c06ca1e5dda670bd83d693b7aab8842",
+  "status": "blocked_until_source_freshness",
+  "created_at_utc": "2026-07-06T09:43:06.454160+00:00",
+  "source_head": "840721f8954515ef1aa443a6cf2d4ceda679b0f3",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -25,19 +25,17 @@
     "contract": ".pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md",
     "preflight_manifest": "0_trials/module2_remote_preflight/gate3_stronger_obstacle_summary_warm_start_v2_seed20260706/gate3_preflight_manifest.json"
   },
-  "contract_status": "draft",
+  "contract_status": "approved",
   "gate_summary": {
-    "readiness_status": "v2_contract_readiness_blocked",
+    "readiness_status": "v2_contract_ready_for_source_freshness",
     "promotion_packet_status": "v2_contract_promotion_packet_ready_awaiting_dr_sun",
     "promotion_dry_run_status": "promotion_apply_ready",
     "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
     "preflight_status": null,
     "preflight_formal_trial_ready": false
   },
-  "blocker_count": 3,
+  "blocker_count": 1,
   "blockers": [
-    "v2_contract_not_promoted",
-    "v2_contract_readiness_not_ready",
     "source_freshness_not_ready"
   ],
   "execution_environment": {
@@ -54,8 +52,6 @@
       "command": "rsync -az --exclude .git /Users/sun/tongbu/study/phdproject/ForestNav/ 'gpu3070ti-relay:~/ForestNav/'",
       "note": "No --delete is used; remote artifacts and virtualenvs are preserved.",
       "blocked_by": [
-        "v2_contract_not_promoted",
-        "v2_contract_readiness_not_ready",
         "source_freshness_not_ready"
       ]
     },
@@ -64,8 +60,6 @@
       "runs_training": false,
       "command": "ssh gpu3070ti-relay 'cd '\"'\"'~/ForestNav'\"'\"' && PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.preflight_rl_rs_gate3_formal_trial --output-dir 0_trials/module2_gate3_formal/gate3_stronger_obstacle_summary_warm_start_v2_seed20260706 --manifest-out 0_trials/module2_remote_preflight/gate3_stronger_obstacle_summary_warm_start_v2_seed20260706/gate3_preflight_manifest.json --contract-path .pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md --seed 20260706 --device cuda --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260706 --train-total-timesteps 500000 --train-n-envs 4 --train-n-steps 256 --train-batch-size 256 --train-n-epochs 8 --train-learning-rate 0.0001 --train-ent-coef 0.01 --train-checkpoint-freq 25000 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt --warm-start-decision approved_obstacle_summary --allow-existing-output-dir --allow-duplicate-openmp'",
       "blocked_by": [
-        "v2_contract_not_promoted",
-        "v2_contract_readiness_not_ready",
         "source_freshness_not_ready"
       ]
     },
@@ -74,8 +68,6 @@
       "runs_training": true,
       "command": "ssh gpu3070ti-relay 'cd '\"'\"'~/ForestNav'\"'\"' && PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir 0_trials/module2_gate3_formal/gate3_stronger_obstacle_summary_warm_start_v2_seed20260706 --contract-path .pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md --seed 20260706 --device cuda --train-curriculum-preset f03 --eval-curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260706 --train-total-timesteps 500000 --train-n-envs 4 --train-n-steps 256 --train-batch-size 256 --train-n-epochs 8 --train-learning-rate 0.0001 --train-ent-coef 0.01 --train-checkpoint-freq 25000 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt --allow-duplicate-openmp'",
       "blocked_by": [
-        "v2_contract_not_promoted",
-        "v2_contract_readiness_not_ready",
         "source_freshness_not_ready",
         "v2_remote_preflight_not_ready"
       ]
@@ -85,8 +77,6 @@
       "runs_training": false,
       "command": "ssh gpu3070ti-relay 'cd '\"'\"'~/ForestNav'\"'\"' && PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.audit_rl_rs_gate3_trial --trial-dir 0_trials/module2_gate3_formal/gate3_stronger_obstacle_summary_warm_start_v2_seed20260706 --contract-path .pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md --min-formal-episodes 64 --required-success-threshold 0.8 --required-train-curriculum f03 --required-eval-curriculum f03 --warm-start-decision approved_obstacle_summary'",
       "blocked_by": [
-        "v2_contract_not_promoted",
-        "v2_contract_readiness_not_ready",
         "source_freshness_not_ready",
         "v2_remote_preflight_not_ready",
         "remote_training_not_completed"
@@ -97,8 +87,6 @@
       "runs_training": false,
       "command": "rsync -az 'gpu3070ti-relay:~/ForestNav/0_trials/module2_gate3_formal/gate3_stronger_obstacle_summary_warm_start_v2_seed20260706/' /Users/sun/tongbu/study/phdproject/ForestNav/0_trials/module2_gate3_formal/gate3_stronger_obstacle_summary_warm_start_v2_seed20260706/",
       "blocked_by": [
-        "v2_contract_not_promoted",
-        "v2_contract_readiness_not_ready",
         "source_freshness_not_ready",
         "v2_remote_preflight_not_ready",
         "remote_training_not_completed",

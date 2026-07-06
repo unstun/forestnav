@@ -4,16 +4,14 @@ This file packetizes remote commands only. It does not run preflight, train, aud
 
 ## Status
 
-- status: `blocked_until_v2_contract_promotion`
+- status: `blocked_until_source_freshness`
 - ready_to_run_remote_preflight: `False`
 - ready_to_run_remote_training: `False`
 - remote_training_allowed_now: `False`
-- blocker_count: `3`
+- blocker_count: `1`
 
 ## Blockers
 
-- `v2_contract_not_promoted`
-- `v2_contract_readiness_not_ready`
 - `source_freshness_not_ready`
 
 ## Command Plan
@@ -21,7 +19,7 @@ This file packetizes remote commands only. It does not run preflight, train, aud
 ### `sync_to_remote`
 - allowed_now: `False`
 - runs_training: `False`
-- blocked_by: `v2_contract_not_promoted, v2_contract_readiness_not_ready, source_freshness_not_ready`
+- blocked_by: `source_freshness_not_ready`
 
 ```bash
 rsync -az --exclude .git /Users/sun/tongbu/study/phdproject/ForestNav/ 'gpu3070ti-relay:~/ForestNav/'
@@ -30,7 +28,7 @@ rsync -az --exclude .git /Users/sun/tongbu/study/phdproject/ForestNav/ 'gpu3070t
 ### `run_remote_preflight`
 - allowed_now: `False`
 - runs_training: `False`
-- blocked_by: `v2_contract_not_promoted, v2_contract_readiness_not_ready, source_freshness_not_ready`
+- blocked_by: `source_freshness_not_ready`
 
 ```bash
 ssh gpu3070ti-relay 'cd '"'"'~/ForestNav'"'"' && PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.preflight_rl_rs_gate3_formal_trial --output-dir 0_trials/module2_gate3_formal/gate3_stronger_obstacle_summary_warm_start_v2_seed20260706 --manifest-out 0_trials/module2_remote_preflight/gate3_stronger_obstacle_summary_warm_start_v2_seed20260706/gate3_preflight_manifest.json --contract-path .pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md --seed 20260706 --device cuda --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260706 --train-total-timesteps 500000 --train-n-envs 4 --train-n-steps 256 --train-batch-size 256 --train-n-epochs 8 --train-learning-rate 0.0001 --train-ent-coef 0.01 --train-checkpoint-freq 25000 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt --warm-start-decision approved_obstacle_summary --allow-existing-output-dir --allow-duplicate-openmp'
@@ -39,7 +37,7 @@ ssh gpu3070ti-relay 'cd '"'"'~/ForestNav'"'"' && PYTHONPATH=2_experiment .venv/b
 ### `run_remote_training`
 - allowed_now: `False`
 - runs_training: `True`
-- blocked_by: `v2_contract_not_promoted, v2_contract_readiness_not_ready, source_freshness_not_ready, v2_remote_preflight_not_ready`
+- blocked_by: `source_freshness_not_ready, v2_remote_preflight_not_ready`
 
 ```bash
 ssh gpu3070ti-relay 'cd '"'"'~/ForestNav'"'"' && PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir 0_trials/module2_gate3_formal/gate3_stronger_obstacle_summary_warm_start_v2_seed20260706 --contract-path .pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md --seed 20260706 --device cuda --train-curriculum-preset f03 --eval-curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260706 --train-total-timesteps 500000 --train-n-envs 4 --train-n-steps 256 --train-batch-size 256 --train-n-epochs 8 --train-learning-rate 0.0001 --train-ent-coef 0.01 --train-checkpoint-freq 25000 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt --allow-duplicate-openmp'
@@ -48,7 +46,7 @@ ssh gpu3070ti-relay 'cd '"'"'~/ForestNav'"'"' && PYTHONPATH=2_experiment .venv/b
 ### `run_remote_audit`
 - allowed_now: `False`
 - runs_training: `False`
-- blocked_by: `v2_contract_not_promoted, v2_contract_readiness_not_ready, source_freshness_not_ready, v2_remote_preflight_not_ready, remote_training_not_completed`
+- blocked_by: `source_freshness_not_ready, v2_remote_preflight_not_ready, remote_training_not_completed`
 
 ```bash
 ssh gpu3070ti-relay 'cd '"'"'~/ForestNav'"'"' && PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.audit_rl_rs_gate3_trial --trial-dir 0_trials/module2_gate3_formal/gate3_stronger_obstacle_summary_warm_start_v2_seed20260706 --contract-path .pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md --min-formal-episodes 64 --required-success-threshold 0.8 --required-train-curriculum f03 --required-eval-curriculum f03 --warm-start-decision approved_obstacle_summary'
@@ -57,7 +55,7 @@ ssh gpu3070ti-relay 'cd '"'"'~/ForestNav'"'"' && PYTHONPATH=2_experiment .venv/b
 ### `pullback_after_audit`
 - allowed_now: `False`
 - runs_training: `False`
-- blocked_by: `v2_contract_not_promoted, v2_contract_readiness_not_ready, source_freshness_not_ready, v2_remote_preflight_not_ready, remote_training_not_completed, remote_audit_not_completed`
+- blocked_by: `source_freshness_not_ready, v2_remote_preflight_not_ready, remote_training_not_completed, remote_audit_not_completed`
 
 ```bash
 rsync -az 'gpu3070ti-relay:~/ForestNav/0_trials/module2_gate3_formal/gate3_stronger_obstacle_summary_warm_start_v2_seed20260706/' /Users/sun/tongbu/study/phdproject/ForestNav/0_trials/module2_gate3_formal/gate3_stronger_obstacle_summary_warm_start_v2_seed20260706/

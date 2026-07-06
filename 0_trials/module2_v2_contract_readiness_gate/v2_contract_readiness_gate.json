@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_v2_contract_readiness_gate",
-  "status": "v2_contract_readiness_blocked",
-  "created_at_utc": "2026-07-06T07:41:16.958673+00:00",
-  "source_head": "21a4f99885461c99d3b97ba3c9ad39551ac3803d",
+  "status": "v2_contract_ready_for_source_freshness",
+  "created_at_utc": "2026-07-06T09:43:05.360485+00:00",
+  "source_head": "840721f8954515ef1aa443a6cf2d4ceda679b0f3",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -14,8 +14,8 @@
   "remote_training_allowed_now": false,
   "formal_claim_allowed_now": false,
   "paper_result_material_allowed_now": false,
-  "source_freshness_regeneration_allowed_after_contract": false,
-  "remote_packet_generation_allowed_after_source_freshness": false,
+  "source_freshness_regeneration_allowed_after_contract": true,
+  "remote_packet_generation_allowed_after_source_freshness": true,
   "inputs": {
     "contract": ".pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md",
     "gap_ledger": ".pipeline/experiments/20260706_module2_v2_formal_gate_gap_ledger.md",
@@ -24,7 +24,7 @@
     "bc_checkpoint": "2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt"
   },
   "contract_summary": {
-    "status": "draft",
+    "status": "approved",
     "selected_protocol_lane": "stronger_obstacle_summary_warm_start",
     "contract_action": "draft_new_contract",
     "training_allowed": false,
@@ -48,18 +48,11 @@
     "train_checkpoint_freq": 25000
   },
   "preflight_probe": {
-    "preflight_status": "blocked",
-    "formal_trial_ready": false,
+    "preflight_status": "ready",
+    "formal_trial_ready": true,
     "contract": ".pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md",
-    "contract_status": "draft",
-    "formal_blockers": [
-      {
-        "code": "contract_not_approved",
-        "message": "contract status is 'draft'",
-        "observed": "draft",
-        "expected": "approved or frozen"
-      }
-    ],
+    "contract_status": "approved",
+    "formal_blockers": [],
     "protocol": {
       "contract": ".pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md",
       "train_total_timesteps": 500000,
@@ -75,19 +68,9 @@
     "audit_command": "python -m forest_n3p.scripts.audit_rl_rs_gate3_trial --trial-dir 0_trials/module2_gate3_formal/gate3_stronger_obstacle_summary_warm_start_v2_seed20260706 --contract-path .pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md --min-formal-episodes 64 --required-success-threshold 0.8 --required-train-curriculum f03 --required-eval-curriculum f03 --warm-start-decision approved_obstacle_summary"
   },
   "runner_command_contains_v2_params": true,
-  "next_action": "promote_or_edit_v2_contract_before_source_freshness",
-  "blocker_count": 1,
-  "blockers": [
-    {
-      "issue_id": "contract_status_not_approved_or_frozen",
-      "message": "v2 contract cannot enter source-freshness until status is approved or frozen",
-      "observed": "draft",
-      "expected": [
-        "approved",
-        "frozen"
-      ]
-    }
-  ],
+  "next_action": "regenerate_source_freshness_then_remote_packet",
+  "blocker_count": 0,
+  "blockers": [],
   "invalid_substitutes": [
     "local PPO training output",
     "failed gate3_obstacle_summary_warm_approved_v1 checkpoint",

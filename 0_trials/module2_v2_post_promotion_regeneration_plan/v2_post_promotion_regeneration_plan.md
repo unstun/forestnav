@@ -4,9 +4,9 @@ This artifact plans the local gate regeneration sequence after v2 contract promo
 
 ## Status
 
-- status: `blocked_until_v2_contract_promotion`
-- contract_status: `draft`
-- next_action: `await_dr_sun_before_apply_v2_contract_promotion`
+- status: `ready_for_rerun_source_freshness_audit`
+- contract_status: `approved`
+- next_action: `rerun_source_freshness_audit`
 - remote_preflight_allowed_now: `False`
 - remote_training_allowed_now: `False`
 
@@ -14,7 +14,7 @@ This artifact plans the local gate regeneration sequence after v2 contract promo
 
 ### `apply_v2_contract_promotion`
 - category: `contract`
-- satisfied_now: `False`
+- satisfied_now: `True`
 - allowed_now: `False`
 - blocked_by: ``
 - runs_remote_preflight: `False`
@@ -26,9 +26,9 @@ PYTHONPATH=2_experiment python -m forest_n3p.scripts.apply_module2_v2_contract_p
 
 ### `rerun_v2_contract_readiness_gate`
 - category: `local_gate`
-- satisfied_now: `False`
-- allowed_now: `False`
-- blocked_by: `v2_contract_not_promoted`
+- satisfied_now: `True`
+- allowed_now: `True`
+- blocked_by: ``
 - runs_remote_preflight: `False`
 - runs_training: `False`
 
@@ -39,8 +39,8 @@ PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_v2_contract_r
 ### `rerun_source_freshness_audit`
 - category: `local_gate`
 - satisfied_now: `False`
-- allowed_now: `False`
-- blocked_by: `v2_contract_not_promoted, v2_contract_readiness_not_ready`
+- allowed_now: `True`
+- blocked_by: ``
 - runs_remote_preflight: `False`
 - runs_training: `False`
 
@@ -52,7 +52,7 @@ PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_source_freshn
 - category: `local_gate`
 - satisfied_now: `False`
 - allowed_now: `False`
-- blocked_by: `v2_contract_not_promoted, v2_contract_readiness_not_ready, source_freshness_not_ready`
+- blocked_by: `source_freshness_not_ready`
 - runs_remote_preflight: `False`
 - runs_training: `False`
 
@@ -76,7 +76,7 @@ PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_v2_formal_gat
 - category: `remote_preflight`
 - satisfied_now: `False`
 - allowed_now: `False`
-- blocked_by: `v2_contract_not_promoted, v2_contract_readiness_not_ready, source_freshness_not_ready, v2_remote_packet_not_ready`
+- blocked_by: `source_freshness_not_ready, v2_remote_packet_not_ready`
 - runs_remote_preflight: `True`
 - runs_training: `False`
 

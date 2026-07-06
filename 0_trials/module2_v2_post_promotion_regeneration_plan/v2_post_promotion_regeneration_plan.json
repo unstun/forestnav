@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_v2_post_promotion_regeneration_plan",
-  "status": "blocked_until_v2_contract_promotion",
-  "created_at_utc": "2026-07-06T08:24:03.095142+00:00",
-  "source_head": "4bc2a3affa6d1bff8130d67ec472b9e6dda07120",
+  "status": "ready_for_rerun_source_freshness_audit",
+  "created_at_utc": "2026-07-06T09:43:06.862798+00:00",
+  "source_head": "840721f8954515ef1aa443a6cf2d4ceda679b0f3",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -23,29 +23,29 @@
     "remaining_evidence": "0_trials/module2_v2_formal_gate_remaining_evidence/v2_formal_gate_remaining_evidence.json",
     "promotion_dry_run": "0_trials/module2_v2_contract_promotion_dry_run/promotion_apply_dry_run.json"
   },
-  "contract_status": "draft",
+  "contract_status": "approved",
   "chain_audit_summary": {
-    "status": "blocked_until_v2_contract_promotion",
-    "current_blocking_stage_id": "v2_contract_promoted",
-    "next_allowed_action": "await_dr_sun_explicit_contract_promotion_then_apply_promotion",
+    "status": "blocked_until_source_freshness",
+    "current_blocking_stage_id": "source_freshness_ready",
+    "next_allowed_action": "rerun_source_freshness_for_v2_contract",
     "audit_issue_count": 0
   },
   "source_state_summary": {
-    "readiness_status": "v2_contract_readiness_blocked",
+    "readiness_status": "v2_contract_ready_for_source_freshness",
     "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
-    "remote_packet_status": "blocked_until_v2_contract_promotion",
-    "remaining_evidence_status": "blocked_until_v2_contract_promotion",
+    "remote_packet_status": "blocked_until_source_freshness",
+    "remaining_evidence_status": "blocked_until_source_freshness",
     "promotion_dry_run_status": "promotion_apply_ready"
   },
   "target_count": 8,
-  "ready_target_count": 1,
-  "blocked_target_count": 7,
+  "ready_target_count": 3,
+  "blocked_target_count": 5,
   "ordered_targets": [
     {
       "target_id": "apply_v2_contract_promotion",
       "category": "contract",
       "purpose": "Apply Dr Sun's explicit approved/frozen promotion to the v2 contract.",
-      "satisfied_now": false,
+      "satisfied_now": true,
       "allowed_now": false,
       "blocked_by": [],
       "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.apply_module2_v2_contract_promotion --status approved --decider 'Dr Sun' --remote-alias gpu3070ti-relay --confirm-training-budget --confirm-unsafe-failure-thresholds",
@@ -59,11 +59,9 @@
       "target_id": "rerun_v2_contract_readiness_gate",
       "category": "local_gate",
       "purpose": "Regenerate v2 contract readiness after promotion.",
-      "satisfied_now": false,
-      "allowed_now": false,
-      "blocked_by": [
-        "v2_contract_not_promoted"
-      ],
+      "satisfied_now": true,
+      "allowed_now": true,
+      "blocked_by": [],
       "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_v2_contract_readiness_gate",
       "executes_now": false,
       "writes_files": false,
@@ -76,11 +74,8 @@
       "category": "local_gate",
       "purpose": "Regenerate source freshness before any remote preflight.",
       "satisfied_now": false,
-      "allowed_now": false,
-      "blocked_by": [
-        "v2_contract_not_promoted",
-        "v2_contract_readiness_not_ready"
-      ],
+      "allowed_now": true,
+      "blocked_by": [],
       "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_source_freshness_audit",
       "executes_now": false,
       "writes_files": false,
@@ -95,8 +90,6 @@
       "satisfied_now": false,
       "allowed_now": false,
       "blocked_by": [
-        "v2_contract_not_promoted",
-        "v2_contract_readiness_not_ready",
         "source_freshness_not_ready"
       ],
       "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_v2_remote_execution_packet",
@@ -127,8 +120,6 @@
       "satisfied_now": false,
       "allowed_now": false,
       "blocked_by": [
-        "v2_contract_not_promoted",
-        "v2_contract_readiness_not_ready",
         "source_freshness_not_ready",
         "v2_remote_packet_not_ready"
       ],
@@ -172,7 +163,7 @@
       "runs_training": false
     }
   ],
-  "next_action": "await_dr_sun_before_apply_v2_contract_promotion",
+  "next_action": "rerun_source_freshness_audit",
   "invalid_substitutes": [
     "promotion dry-run treated as approval",
     "running source freshness before contract is approved or frozen",
