@@ -59,8 +59,23 @@ def test_protocol_lane_decision_packet_requires_lane_choice_without_authorizing_
     assert schema["valid_selected_lane_ids"] == manifest["valid_lane_ids"]
     assert schema["training_authorization_must_be"] == "not_authorized_by_this_decision_packet"
     assert "rejected_lanes" in schema["decision_note_must_cover"]
+    assert "failed_gate3_basis_0.53125_vs_0.8" in schema["decision_note_must_cover"]
     assert "evidence_artifact_basis" in schema["decision_note_must_cover"]
+    assert "0.53125" in schema["decision_note_template"]
+    assert "0.8" in schema["decision_note_template"]
+    assert "protocol_lane_matrix" in schema["decision_note_template"]
+    assert "h02_formal_acceptance" in schema["decision_note_template"]
     assert "training_authorization that starts local or remote training directly" in schema["invalid_records"]
+    templates = {template["selected_lane"]: template for template in manifest["record_command_templates"]}
+    assert set(templates) == set(manifest["valid_lane_ids"])
+    hybrid_template = templates["hybrid_ppo_analytic_fallback"]
+    assert hybrid_template["allowed_for_agent_now"] is False
+    assert hybrid_template["runs_training"] is False
+    assert hybrid_template["runs_remote_preflight"] is False
+    assert "0.53125" in hybrid_template["decision_note_template"]
+    assert "0.8" in hybrid_template["decision_note_template"]
+    assert "does not authorize local training" in hybrid_template["decision_note_template"]
+    assert "build_module2_formal_gate_protocol_lane_decision_record" in hybrid_template["template"]
 
     assert manifest["current_allowed_actions"] == [
         "record_protocol_lane_decision",
@@ -168,6 +183,10 @@ def test_protocol_lane_decision_packet_cli_writes_json_and_markdown(tmp_path):
     assert "evidence_artifact_basis" in markdown
     assert "decision_note_must_cover" in markdown
     assert "rejected_lanes" in markdown
+    assert "failed_gate3_basis_0.53125_vs_0.8" in markdown
+    assert "Record Command Templates" in markdown
+    assert "0.53125" in markdown
+    assert "0.8" in markdown
     assert "training evidence" in markdown
     assert "acceptance evidence" in markdown
 
