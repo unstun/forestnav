@@ -42,6 +42,14 @@ def test_post_decision_contract_plan_prepares_contract_without_authorization(tmp
         "paper_claim_boundary",
     }
     assert manifest["shared_next_success_attempt_artifact_count"] == 10
+    assert manifest["shared_next_success_attempt_artifact_category_counts"] == {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1,
+    }
+    assert manifest["old_failed_run_artifacts_invalid_for_next_success_attempt"] is True
     lanes = {row["lane_id"]: row for row in manifest["lane_contract_plans"]}
     assert set(lanes) == {
         "stronger_obstacle_summary_warm_start",
@@ -93,6 +101,24 @@ def test_post_decision_contract_plan_catches_missing_lane_evidence(tmp_path):
     issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
     assert "stronger_obstacle_summary_warm_start_missing_invalid_substitutes" in issue_ids
     assert "full_patch_cnn_policy_required_training_evidence_missing" in issue_ids
+
+
+def test_post_decision_contract_plan_catches_next_success_summary_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_post_decision_contract_plan")
+    config = _config(builder, tmp_path)
+    next_round = json.loads(config.next_round_requirements_path.read_text(encoding="utf-8"))
+    next_round["protocol_gate_summary"]["next_success_attempt_artifact_category_counts"]["training"] = 2
+    next_round["current_vs_next_attempt_reconciliation"][
+        "old_failed_run_artifacts_invalid_for_next_success_attempt"
+    ] = False
+    config.next_round_requirements_path.write_text(json.dumps(next_round), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    assert manifest["status"] == "post_decision_contract_plan_audit_failed"
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "shared_artifact_category_counts_invalid" in issue_ids
+    assert "old_failed_run_artifacts_not_marked_invalid" in issue_ids
 
 
 def test_post_decision_contract_plan_catches_missing_contract_section(tmp_path):
@@ -147,6 +173,8 @@ def test_post_decision_contract_plan_cli_writes_json_and_markdown(tmp_path):
     assert "stop_or_reframe_module2_claim" in markdown
     assert "train_final_model_zip" in markdown
     assert "h02_formal_output_acceptance" in markdown
+    assert "shared_next_success_attempt_artifact_category_counts" in markdown
+    assert "old_failed_run_artifacts_invalid_for_next_success_attempt: `True`" in markdown
 
 
 def _config(builder, tmp_path):
@@ -312,6 +340,19 @@ def _next_round():
             "remote_training_allowed_now_for_existing_packet": False,
             "formal_claim_allowed_now": False,
             "new_or_revised_contract_required_before_new_success_training": True,
+        },
+        "protocol_gate_summary": {
+            "next_success_attempt_artifact_count": 10,
+            "next_success_attempt_artifact_category_counts": {
+                "contract": 1,
+                "training": 3,
+                "evaluation": 2,
+                "acceptance": 3,
+                "formal_acceptance": 1,
+            },
+        },
+        "current_vs_next_attempt_reconciliation": {
+            "old_failed_run_artifacts_invalid_for_next_success_attempt": True,
         },
         "next_success_attempt_artifact_index": {"rows": _shared_artifacts()},
     }
