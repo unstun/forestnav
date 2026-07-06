@@ -29,6 +29,16 @@ def test_mainline_formal_gate_state_audit_accepts_current_blocked_state(tmp_path
     assert protocol["post_decision_contract_plan_status"] == "post_decision_contract_plan_ready_blocked_pending_lane_decision"
     assert protocol["post_decision_contract_plan_required_section_count"] == 8
     assert protocol["post_decision_contract_plan_shared_artifact_count"] == 10
+    assert protocol["post_decision_contract_plan_shared_artifact_category_counts"] == {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1,
+    }
+    assert protocol[
+        "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"
+    ] is True
     assert protocol["post_decision_contract_plan_lane_count"] == 4
     assert protocol["next_success_attempt_artifact_count"] == 10
     assert protocol["next_success_attempt_artifact_category_counts"] == {
@@ -41,6 +51,7 @@ def test_mainline_formal_gate_state_audit_accepts_current_blocked_state(tmp_path
     assert protocol["next_success_attempt_artifact_ids_by_category"]["formal_acceptance"] == [
         "h02_formal_output_acceptance"
     ]
+    assert protocol["old_failed_run_artifacts_invalid_for_next_success_attempt"] is True
     assert protocol["allowed_next_action_ids"] == ["record_protocol_lane_decision"]
     assert protocol["blocked_action_ids"] == [
         "local_training",
@@ -68,6 +79,7 @@ def test_mainline_formal_gate_state_audit_accepts_current_blocked_state(tmp_path
     ]
     assert manifest["protocol_lane_status_post_plan_summary_mentioned"] is True
     assert manifest["protocol_lane_status_next_artifact_category_counts_mentioned"] is True
+    assert manifest["protocol_lane_status_old_failed_invalid_mentioned"] is True
     readiness = manifest["protocol_lane_readiness_summary"]
     assert readiness["artifact_name"] == "module2_formal_gate_protocol_lane_readiness"
     assert readiness["status"] == "protocol_lane_readiness_ready_for_dr_sun_decision"
@@ -85,6 +97,14 @@ def test_mainline_formal_gate_state_audit_accepts_current_blocked_state(tmp_path
     assert post_plan["audit_issue_count"] == 0
     assert post_plan["required_contract_section_count"] == 8
     assert post_plan["shared_next_success_attempt_artifact_count"] == 10
+    assert post_plan["shared_next_success_attempt_artifact_category_counts"] == {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1,
+    }
+    assert post_plan["old_failed_run_artifacts_invalid_for_next_success_attempt"] is True
     assert post_plan["lane_count"] == 4
     assert post_plan["gate_selected_lane_id"] is None
     assert post_plan["gate_contract_drafting_allowed_now"] is False
@@ -94,6 +114,7 @@ def test_mainline_formal_gate_state_audit_accepts_current_blocked_state(tmp_path
     assert manifest["post_decision_contract_plan_required_section_count_mentioned"] is True
     assert manifest["post_decision_contract_plan_shared_artifact_count_mentioned"] is True
     assert manifest["post_decision_contract_plan_lane_count_mentioned"] is True
+    assert manifest["post_decision_contract_plan_old_failed_invalid_mentioned"] is True
     assert manifest["total_missing_deliverables"] == 10
     assert manifest["mainline_missing_deliverable_mention_count"] == 0
     matrix = manifest["f02_6_decision_evidence_matrix_summary"]
@@ -221,6 +242,8 @@ def test_mainline_formal_gate_state_audit_fails_protocol_status_post_plan_drift(
     protocol = json.loads(paths["protocol"].read_text(encoding="utf-8"))
     current = protocol["current_status"]
     current["post_decision_contract_plan_required_section_count"] = 7
+    current["post_decision_contract_plan_shared_artifact_category_counts"]["training"] = 2
+    current["post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"] = False
     current["post_decision_contract_plan_runs_training"] = True
     current["post_decision_contract_plan_selected_lane_id"] = "full_patch_cnn_policy"
     current["next_success_attempt_artifact_ids_by_category"]["evaluation"] = [
@@ -228,6 +251,7 @@ def test_mainline_formal_gate_state_audit_fails_protocol_status_post_plan_drift(
     ]
     current["next_success_attempt_artifact_count"] = 9
     current["next_success_attempt_artifact_category_counts"]["evaluation"] = 1
+    current["old_failed_run_artifacts_invalid_for_next_success_attempt"] = False
     paths["protocol"].write_text(json.dumps(protocol), encoding="utf-8")
 
     manifest = builder.build_manifest(_config(builder, tmp_path, paths))
@@ -235,10 +259,13 @@ def test_mainline_formal_gate_state_audit_fails_protocol_status_post_plan_drift(
     assert manifest["status"] == "mainline_formal_gate_state_audit_failed"
     issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
     assert "protocol_lane_status_post_decision_contract_plan_required_section_count_drift" in issue_ids
+    assert "protocol_lane_status_post_plan_shared_artifact_category_counts_drift" in issue_ids
+    assert "protocol_lane_status_post_plan_old_failed_invalid_flag_drift" in issue_ids
     assert "protocol_lane_status_post_plan_authorization_leak" in issue_ids
     assert "protocol_lane_status_post_plan_selected_lane_present" in issue_ids
     assert "protocol_lane_status_next_artifact_count_drift" in issue_ids
     assert "protocol_lane_status_next_artifact_category_counts_drift" in issue_ids
+    assert "protocol_lane_status_old_failed_invalid_flag_drift" in issue_ids
     assert "protocol_lane_status_next_artifact_ids_missing" in issue_ids
 
 
@@ -251,11 +278,13 @@ def test_mainline_formal_gate_state_audit_fails_missing_protocol_status_post_pla
     assert manifest["status"] == "mainline_formal_gate_state_audit_failed"
     assert manifest["protocol_lane_status_post_plan_summary_mentioned"] is False
     assert manifest["protocol_lane_status_next_artifact_category_counts_mentioned"] is False
+    assert manifest["protocol_lane_status_old_failed_invalid_mentioned"] is False
     issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
     assert "mainline_current_section_missing_protocol_status_post_plan_section_count" in issue_ids
     assert "mainline_current_section_missing_protocol_status_post_plan_artifact_count" in issue_ids
     assert "mainline_current_section_missing_protocol_status_post_plan_lane_count" in issue_ids
     assert "mainline_current_section_missing_protocol_status_next_artifact_category_counts" in issue_ids
+    assert "mainline_current_section_missing_old_failed_invalid_boundary" in issue_ids
 
 
 def test_mainline_formal_gate_state_audit_fails_missing_protocol_lane_readiness_boundary(tmp_path):
@@ -302,6 +331,7 @@ def test_mainline_formal_gate_state_audit_fails_missing_post_decision_contract_p
     assert "mainline_current_section_missing_post_decision_contract_section_count" in issue_ids
     assert "mainline_current_section_missing_post_decision_contract_shared_artifact_count" in issue_ids
     assert "mainline_current_section_missing_post_decision_contract_lane_count" in issue_ids
+    assert "mainline_current_section_missing_old_failed_invalid_boundary" in issue_ids
 
 
 def test_mainline_formal_gate_state_audit_fails_post_decision_contract_plan_authorization_leak(tmp_path):
@@ -472,7 +502,8 @@ def _write_inputs(
                     "`protocol_lane_status_report` 继承 post-decision contract plan summary, "
                     "required_contract_section_count=8, shared_next_success_attempt_artifact_count=10, "
                     "lane_count=4, 下一轮 artifact 类别分布 "
-                    "`contract/training/evaluation/acceptance/formal_acceptance=1/3/2/3/1`。"
+                    "`contract/training/evaluation/acceptance/formal_acceptance=1/3/2/3/1`, "
+                    "`old_failed_run_artifacts_invalid_for_next_success_attempt=true`。"
                 )
             )
         )
@@ -494,6 +525,7 @@ def _write_inputs(
             "Post-decision contract plan `module2_formal_gate_post_decision_contract_plan` 当前为 "
             "`post_decision_contract_plan_ready_blocked_pending_lane_decision`, audit_issue_count=0, "
             "required_contract_section_count=8, shared_next_success_attempt_artifact_count=10, lane_count=4; "
+            "`old_failed_run_artifacts_invalid_for_next_success_attempt=true`; "
             "plan 不写 contract、不批准 contract、不训练、不远端预检、不写 formal claim 或论文结果授权。"
         )
     )
@@ -661,6 +693,14 @@ def _protocol_lane_status():
             "post_decision_contract_plan_audit_issue_count": 0,
             "post_decision_contract_plan_required_section_count": 8,
             "post_decision_contract_plan_shared_artifact_count": 10,
+            "post_decision_contract_plan_shared_artifact_category_counts": {
+                "contract": 1,
+                "training": 3,
+                "evaluation": 2,
+                "acceptance": 3,
+                "formal_acceptance": 1,
+            },
+            "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt": True,
             "post_decision_contract_plan_lane_count": 4,
             "post_decision_contract_plan_selected_lane_id": None,
             "post_decision_contract_plan_writes_contract": False,
@@ -695,6 +735,7 @@ def _protocol_lane_status():
                 ],
                 "formal_acceptance": ["h02_formal_output_acceptance"],
             },
+            "old_failed_run_artifacts_invalid_for_next_success_attempt": True,
         },
     }
 
@@ -731,6 +772,14 @@ def _post_decision_contract_plan():
         "audit_issue_count": 0,
         "required_contract_section_count": 8,
         "shared_next_success_attempt_artifact_count": 10,
+        "shared_next_success_attempt_artifact_category_counts": {
+            "contract": 1,
+            "training": 3,
+            "evaluation": 2,
+            "acceptance": 3,
+            "formal_acceptance": 1,
+        },
+        "old_failed_run_artifacts_invalid_for_next_success_attempt": True,
         "lane_count": 4,
         "not_paper_result_material": True,
         "executes_commands": False,
