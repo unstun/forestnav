@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "artifact_name": "module2_v2_post_promotion_regeneration_plan",
+  "status": "blocked_until_v2_contract_promotion",
+  "created_at_utc": "2026-07-06T08:24:03.095142+00:00",
+  "source_head": "4bc2a3affa6d1bff8130d67ec472b9e6dda07120",
+  "not_paper_result_material": true,
+  "executes_commands": false,
+  "runs_training": false,
+  "runs_remote_preflight": false,
+  "runs_remote_audit": false,
+  "local_training_allowed_now": false,
+  "remote_preflight_allowed_now": false,
+  "remote_training_allowed_now": false,
+  "formal_claim_allowed_now": false,
+  "paper_result_material_allowed_now": false,
+  "inputs": {
+    "contract": ".pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md",
+    "chain_audit": "0_trials/module2_v2_formal_gate_chain_audit/v2_formal_gate_chain_audit.json",
+    "readiness_gate": "0_trials/module2_v2_contract_readiness_gate/v2_contract_readiness_gate.json",
+    "source_freshness": "0_trials/module2_source_freshness_audit/source_freshness_audit.json",
+    "remote_packet": "0_trials/module2_v2_remote_execution_packet/v2_remote_execution_packet.json",
+    "remaining_evidence": "0_trials/module2_v2_formal_gate_remaining_evidence/v2_formal_gate_remaining_evidence.json",
+    "promotion_dry_run": "0_trials/module2_v2_contract_promotion_dry_run/promotion_apply_dry_run.json"
+  },
+  "contract_status": "draft",
+  "chain_audit_summary": {
+    "status": "blocked_until_v2_contract_promotion",
+    "current_blocking_stage_id": "v2_contract_promoted",
+    "next_allowed_action": "await_dr_sun_explicit_contract_promotion_then_apply_promotion",
+    "audit_issue_count": 0
+  },
+  "source_state_summary": {
+    "readiness_status": "v2_contract_readiness_blocked",
+    "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
+    "remote_packet_status": "blocked_until_v2_contract_promotion",
+    "remaining_evidence_status": "blocked_until_v2_contract_promotion",
+    "promotion_dry_run_status": "promotion_apply_ready"
+  },
+  "target_count": 8,
+  "ready_target_count": 1,
+  "blocked_target_count": 7,
+  "ordered_targets": [
+    {
+      "target_id": "apply_v2_contract_promotion",
+      "category": "contract",
+      "purpose": "Apply Dr Sun's explicit approved/frozen promotion to the v2 contract.",
+      "satisfied_now": false,
+      "allowed_now": false,
+      "blocked_by": [],
+      "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.apply_module2_v2_contract_promotion --status approved --decider 'Dr Sun' --remote-alias gpu3070ti-relay --confirm-training-budget --confirm-unsafe-failure-thresholds",
+      "executes_now": false,
+      "writes_files": true,
+      "requires_dr_sun": true,
+      "runs_remote_preflight": false,
+      "runs_training": false
+    },
+    {
+      "target_id": "rerun_v2_contract_readiness_gate",
+      "category": "local_gate",
+      "purpose": "Regenerate v2 contract readiness after promotion.",
+      "satisfied_now": false,
+      "allowed_now": false,
+      "blocked_by": [
+        "v2_contract_not_promoted"
+      ],
+      "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_v2_contract_readiness_gate",
+      "executes_now": false,
+      "writes_files": false,
+      "requires_dr_sun": false,
+      "runs_remote_preflight": false,
+      "runs_training": false
+    },
+    {
+      "target_id": "rerun_source_freshness_audit",
+      "category": "local_gate",
+      "purpose": "Regenerate source freshness before any remote preflight.",
+      "satisfied_now": false,
+      "allowed_now": false,
+      "blocked_by": [
+        "v2_contract_not_promoted",
+        "v2_contract_readiness_not_ready"
+      ],
+      "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_source_freshness_audit",
+      "executes_now": false,
+      "writes_files": false,
+      "requires_dr_sun": false,
+      "runs_remote_preflight": false,
+      "runs_training": false
+    },
+    {
+      "target_id": "regenerate_v2_remote_execution_packet",
+      "category": "local_gate",
+      "purpose": "Regenerate v2 remote command packet after source freshness is ready.",
+      "satisfied_now": false,
+      "allowed_now": false,
+      "blocked_by": [
+        "v2_contract_not_promoted",
+        "v2_contract_readiness_not_ready",
+        "source_freshness_not_ready"
+      ],
+      "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_v2_remote_execution_packet",
+      "executes_now": false,
+      "writes_files": false,
+      "requires_dr_sun": false,
+      "runs_remote_preflight": false,
+      "runs_training": false
+    },
+    {
+      "target_id": "rerun_v2_formal_gate_chain_audit",
+      "category": "local_gate",
+      "purpose": "Refresh the chain audit after each gate regeneration.",
+      "satisfied_now": true,
+      "allowed_now": true,
+      "blocked_by": [],
+      "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_v2_formal_gate_chain_audit",
+      "executes_now": false,
+      "writes_files": false,
+      "requires_dr_sun": false,
+      "runs_remote_preflight": false,
+      "runs_training": false
+    },
+    {
+      "target_id": "run_remote_preflight_only",
+      "category": "remote_preflight",
+      "purpose": "Run remote preflight only after the regenerated packet allows preflight.",
+      "satisfied_now": false,
+      "allowed_now": false,
+      "blocked_by": [
+        "v2_contract_not_promoted",
+        "v2_contract_readiness_not_ready",
+        "source_freshness_not_ready",
+        "v2_remote_packet_not_ready"
+      ],
+      "command": "ssh gpu3070ti-relay 'cd '\"'\"'~/ForestNav'\"'\"' && PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.preflight_rl_rs_gate3_formal_trial --output-dir 0_trials/module2_gate3_formal/gate3_stronger_obstacle_summary_warm_start_v2_seed20260706 --manifest-out 0_trials/module2_remote_preflight/gate3_stronger_obstacle_summary_warm_start_v2_seed20260706/gate3_preflight_manifest.json --contract-path .pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md --seed 20260706 --device cuda --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260706 --train-total-timesteps 500000 --train-n-envs 4 --train-n-steps 256 --train-batch-size 256 --train-n-epochs 8 --train-learning-rate 0.0001 --train-ent-coef 0.01 --train-checkpoint-freq 25000 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt --warm-start-decision approved_obstacle_summary --allow-existing-output-dir --allow-duplicate-openmp'",
+      "executes_now": false,
+      "writes_files": false,
+      "requires_dr_sun": false,
+      "runs_remote_preflight": true,
+      "runs_training": false
+    },
+    {
+      "target_id": "run_remote_training_after_preflight",
+      "category": "remote_training",
+      "purpose": "Run remote training only after the preflight manifest is ready.",
+      "satisfied_now": false,
+      "allowed_now": false,
+      "blocked_by": [
+        "v2_remote_preflight_not_ready"
+      ],
+      "command": "ssh gpu3070ti-relay 'cd '\"'\"'~/ForestNav'\"'\"' && PYTHONPATH=2_experiment .venv/bin/python -m forest_n3p.scripts.run_rl_rs_gate3_trial --output-dir 0_trials/module2_gate3_formal/gate3_stronger_obstacle_summary_warm_start_v2_seed20260706 --contract-path .pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md --seed 20260706 --device cuda --train-curriculum-preset f03 --eval-curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260706 --train-total-timesteps 500000 --train-n-envs 4 --train-n-steps 256 --train-batch-size 256 --train-n-epochs 8 --train-learning-rate 0.0001 --train-ent-coef 0.01 --train-checkpoint-freq 25000 --eval-episodes 64 --eval-min-episodes 64 --eval-success-threshold 0.8 --bc-checkpoint 2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt --allow-duplicate-openmp'",
+      "executes_now": false,
+      "writes_files": false,
+      "requires_dr_sun": false,
+      "runs_remote_preflight": false,
+      "runs_training": true
+    },
+    {
+      "target_id": "pullback_eval_audit_hash_artifacts",
+      "category": "acceptance",
+      "purpose": "Pull back eval/audit/hash evidence and refresh remaining-evidence ledger.",
+      "satisfied_now": false,
+      "allowed_now": false,
+      "blocked_by": [
+        "remote_training_not_completed"
+      ],
+      "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_v2_formal_gate_remaining_evidence",
+      "executes_now": false,
+      "writes_files": false,
+      "requires_dr_sun": false,
+      "runs_remote_preflight": false,
+      "runs_training": false
+    }
+  ],
+  "next_action": "await_dr_sun_before_apply_v2_contract_promotion",
+  "invalid_substitutes": [
+    "promotion dry-run treated as approval",
+    "running source freshness before contract is approved or frozen",
+    "old v1 remote execution packet",
+    "remote preflight smoke",
+    "remote training before ready preflight manifest",
+    "paper result prose before H02 formal acceptance"
+  ]
+}
