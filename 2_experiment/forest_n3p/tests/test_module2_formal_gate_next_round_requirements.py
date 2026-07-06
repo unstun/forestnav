@@ -75,6 +75,55 @@ def test_next_round_requirements_blocks_new_success_attempt_until_contract(tmp_p
         "superseded_by_next_gate": True,
     }
 
+    protocol = manifest["protocol_gate_summary"]
+    assert protocol["protocol_status"] == "protocol_lane_status_blocked_pending_lane_decision"
+    assert protocol["protocol_audit_issue_count"] == 0
+    assert protocol["next_blocked_lane"] == "protocol_lane_decision"
+    assert protocol["decision_record_status"] == "pending_protocol_lane_decision"
+    assert protocol["selected_lane_id"] is None
+    assert protocol["allowed_next_action_ids"] == ["record_protocol_lane_decision"]
+    assert protocol["blocked_action_ids"] == [
+        "local_training",
+        "remote_success_training",
+        "remote_preflight_for_new_success_attempt",
+        "formal_claim",
+        "paper_result_material",
+    ]
+    assert protocol["new_success_training_allowed_now"] is False
+    assert protocol["contract_drafting_allowed_now"] is False
+    assert protocol["contract_approval_allowed_now"] is False
+    assert protocol["post_decision_contract_plan_required_section_count"] == 8
+    assert protocol["post_decision_contract_plan_shared_artifact_count"] == 10
+    assert protocol["post_decision_contract_plan_lane_count"] == 4
+    assert protocol["next_success_attempt_artifact_count"] == 10
+    assert protocol["next_success_attempt_artifact_category_counts"] == {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1,
+    }
+    assert protocol["remote_safety_protocol_summary_present"] is True
+    assert protocol["remote_safety_protocol_status"] == protocol["protocol_status"]
+    assert protocol["remote_safety_protocol_next_blocked"] == "protocol_lane_decision"
+    assert protocol["remote_safety_allowed_next_action_ids"] == ["record_protocol_lane_decision"]
+    assert protocol["remote_safety_new_success_training_allowed_now"] is False
+    assert protocol["remote_safety_category_counts"] == protocol["next_success_attempt_artifact_category_counts"]
+
+    reconciliation = manifest["current_vs_next_attempt_reconciliation"]
+    assert reconciliation["current_failed_run_missing_counts"] == {
+        "training": 0,
+        "evaluation": 0,
+        "acceptance": 0,
+        "formal_acceptance": 1,
+    }
+    assert reconciliation["current_failed_run_training_eval_acceptance_closed"] is True
+    assert reconciliation["current_failed_run_formal_acceptance_open"] is True
+    assert reconciliation["next_success_attempt_artifact_count"] == 10
+    assert reconciliation["next_success_attempt_category_counts"] == protocol["next_success_attempt_artifact_category_counts"]
+    assert reconciliation["protocol_lane_artifact_counts_match_index"] is True
+    assert reconciliation["old_failed_run_artifacts_invalid_for_next_success_attempt"] is True
+
     next_round = manifest["next_round_requirements"]
     assert next_round["status"] == "new_or_revised_contract_required_before_any_new_success_attempt"
     assert next_round["not_paper_result_material"] is True
@@ -189,9 +238,13 @@ def test_next_round_requirements_cli_writes_json_and_markdown(tmp_path):
             str(config.h02_acceptance_path),
             "--status-report",
             str(config.status_report_path),
-            "--gate3-audit",
-            str(config.gate3_audit_path),
-        ]
+        "--gate3-audit",
+        str(config.gate3_audit_path),
+        "--protocol-lane-status-report",
+        str(config.protocol_lane_status_report_path),
+        "--remote-packet-safety-audit",
+        str(config.remote_packet_safety_path),
+    ]
     )
 
     assert rc == 0
@@ -212,6 +265,13 @@ def test_next_round_requirements_cli_writes_json_and_markdown(tmp_path):
     assert "new_success_training_allowed_now: `False`" in markdown
     assert "execution_veto_reason: `protocol_lane_or_contract_gate_blocks_execution`" in markdown
     assert "legacy_remote_packet_readiness" in markdown
+    assert "## Protocol Gate Summary" in markdown
+    assert "protocol_status: `protocol_lane_status_blocked_pending_lane_decision`" in markdown
+    assert "allowed_next_action_ids: `['record_protocol_lane_decision']`" in markdown
+    assert "next_success_attempt_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`" in markdown
+    assert "## Current Vs Next Attempt Reconciliation" in markdown
+    assert "current_failed_run_training_eval_acceptance_closed: `True`" in markdown
+    assert "old_failed_run_artifacts_invalid_for_next_success_attempt: `True`" in markdown
     assert "## Missing Current Formal Acceptance Artifacts" in markdown
     assert "h02_verdict_not_formal, gate3_formal_audit_not_passed" in markdown
     assert "## Missing Next-Round Deliverables" in markdown
@@ -245,6 +305,8 @@ def _config(tmp_path):
         h02_acceptance_path=_write_json(tmp_path / "h02.json", _h02_acceptance()),
         status_report_path=_write_json(tmp_path / "status_report.json", _status_report()),
         gate3_audit_path=_write_json(tmp_path / "gate3_audit.json", _gate3_audit()),
+        protocol_lane_status_report_path=_write_json(tmp_path / "protocol_lane_status.json", _protocol_lane_status()),
+        remote_packet_safety_path=_write_json(tmp_path / "remote_packet_safety.json", _remote_packet_safety()),
     )
 
 
