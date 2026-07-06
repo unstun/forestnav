@@ -1205,6 +1205,51 @@ def test_formal_gate_status_report_next_action_guard_rejects_execution_handoff(t
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
 
 
+def test_formal_gate_status_report_protocol_lane_vetoes_legacy_execution_surfaces(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=True)
+    formal_gate = json.loads(config.formal_gate_path.read_text(encoding="utf-8"))
+    formal_gate["execution_veto_matrix"] = _execution_veto_matrix(complete=False)
+    config.formal_gate_path.write_text(json.dumps(formal_gate), encoding="utf-8")
+    handoff = json.loads(config.handoff_bundle_path.read_text(encoding="utf-8"))
+    handoff["status"] = "blocked_until_protocol_lane_decision"
+    handoff["next_handoff_action"] = {
+        "action_id": "record_protocol_lane_decision",
+        "requires_dr_sun": True,
+        "allowed_for_agent_now": False,
+    }
+    config.handoff_bundle_path.write_text(json.dumps(handoff), encoding="utf-8")
+    missing = json.loads(config.missing_artifacts_path.read_text(encoding="utf-8"))
+    missing["formal_gate_handoff_index"]["status"] = "blocked_until_protocol_lane_decision"
+    missing["formal_gate_handoff_index"]["next_action"] = {
+        "action_id": "record_protocol_lane_decision",
+        "requires_dr_sun": True,
+        "allowed_for_agent_now": False,
+    }
+    config.missing_artifacts_path.write_text(json.dumps(missing), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    guard = manifest["next_action_guard_summary"]
+    assert "next_action_guard_execution_leak" not in issue_ids
+    assert guard["status"] == "next_action_guard_passed"
+    assert guard["pending_f02_6_decision"] is False
+    assert guard["pending_protocol_lane_decision"] is True
+    assert guard["next_blocked_lane_id"] == "protocol_lane_decision"
+    assert guard["expected_next_action_id"] == "record_protocol_lane_decision"
+    assert guard["execution_veto_applied"] is True
+    assert guard["all_execution_disabled_now"] is True
+    assert guard["execution_leak_count"] == 0
+    assert guard["remote_execution_allowed_count"] == 0
+    assert guard["remote_stage_allowed_count"] == 0
+    assert guard["raw_execution_leak_count"] > 0
+    assert "remote_execution_step:run_remote_training" in guard["raw_execution_leak_surface_ids"]
+    assert manifest["permissions_now"]["remote_preflight_allowed_now"] is False
+    assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+    assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
+
+
 def test_formal_gate_status_report_requires_handoff_requirement_stage_mapping(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
     config = _config(tmp_path, complete=False)
