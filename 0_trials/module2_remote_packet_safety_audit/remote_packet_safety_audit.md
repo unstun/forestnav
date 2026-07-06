@@ -25,6 +25,12 @@ This file audits the remote formal execution packet. It does not execute any com
 - post_plan_proof_deliverables_present: `True`
 - post_plan_proof_deliverables_missing_counts: `{'training': 0, 'evaluation': 0, 'acceptance': 0, 'formal_acceptance': 1}`
 - post_plan_proof_deliverables_h02_paper_result_input_allowed: `False`
+- post_plan_protocol_lane_status_present: `True`
+- post_plan_protocol_lane_status: `protocol_lane_status_blocked_pending_lane_decision`
+- post_plan_protocol_lane_next_blocked: `protocol_lane_decision`
+- post_plan_protocol_lane_allowed_next_actions: `['record_protocol_lane_decision']`
+- post_plan_protocol_lane_new_success_training_allowed_now: `False`
+- post_plan_protocol_lane_next_attempt_artifact_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
 
 ## Audit Issues
 
@@ -33,6 +39,6 @@ This file audits the remote formal execution packet. It does not execute any com
 ## Claim Boundaries
 
 - This audit validates the remote execution packet; it does not execute sync, preflight, training, audit, or pullback commands.
-- A passing audit is not permission to train while F02.6 remains pending.
+- A passing audit is not permission to train while protocol_lane_decision remains pending.
 - A passing audit is not a paper result or formal performance claim.
-- Remote training must remain gpu3070ti-relay-only and must still be followed by audit, pullback, H01/H02 regeneration, and claim gates.
+- Remote training must remain gpu3070ti-relay-only and must still be preceded by protocol-lane decision, approved/frozen contract, audit, pullback, H01/H02 regeneration, and claim gates.

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_remote_packet_safety_audit",
   "status": "remote_packet_safety_audit_passed",
-  "created_at_utc": "2026-07-06T02:46:56.391590+00:00",
-  "source_head": "8d94b15602ece2611f05b72c62685425d2948c5d+dirty",
+  "created_at_utc": "2026-07-06T04:11:33.840276+00:00",
+  "source_head": "c1482761e10aca0013f08fddc043b4b506f47ce8+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -499,6 +499,69 @@
       "h02_status": "blocked_formal_output_acceptance",
       "h02_formal_output_accepted": false,
       "h02_paper_result_input_allowed": false
+    },
+    "post_plan_protocol_lane_status_summary": {
+      "present": true,
+      "status": "protocol_lane_status_blocked_pending_lane_decision",
+      "audit_issue_count": 0,
+      "next_blocked_lane": "protocol_lane_decision",
+      "selected_lane_id": null,
+      "allowed_next_action_ids": [
+        "record_protocol_lane_decision"
+      ],
+      "blocked_action_ids": [
+        "local_training",
+        "remote_success_training",
+        "remote_preflight_for_new_success_attempt",
+        "formal_claim",
+        "paper_result_material"
+      ],
+      "remote_training_allowed_now": false,
+      "local_training_allowed_now": false,
+      "formal_claim_allowed_now": false,
+      "paper_result_material_allowed_now": false,
+      "new_success_training_allowed_now": false,
+      "post_decision_contract_plan_summary_present": true,
+      "post_decision_contract_plan_status": "post_decision_contract_plan_ready_blocked_pending_lane_decision",
+      "post_decision_contract_plan_audit_issue_count": 0,
+      "post_decision_contract_plan_required_section_count": 8,
+      "post_decision_contract_plan_shared_artifact_count": 10,
+      "post_decision_contract_plan_lane_count": 4,
+      "post_decision_contract_plan_runs_training": false,
+      "post_decision_contract_plan_runs_remote_preflight": false,
+      "post_decision_contract_plan_formal_claim_allowed": false,
+      "post_decision_contract_plan_paper_result_material_allowed": false,
+      "next_success_attempt_artifact_status": "blocked_until_protocol_lane_decision_and_contract",
+      "next_success_attempt_artifact_count": 10,
+      "next_success_attempt_artifact_category_counts": {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1
+      },
+      "next_success_attempt_artifact_ids_by_category": {
+        "contract": [
+          "new_or_revised_research_contract"
+        ],
+        "training": [
+          "train_final_model_zip",
+          "train_summary_json",
+          "train_training_manifest_json"
+        ],
+        "evaluation": [
+          "eval_gate3_eval_episodes_csv",
+          "eval_gate3_summary_json"
+        ],
+        "acceptance": [
+          "gate3_trial_manifest_json",
+          "gate3_formal_audit_json",
+          "pulled_back_checkpoint_hash_record"
+        ],
+        "formal_acceptance": [
+          "h02_formal_output_acceptance"
+        ]
+      }
     }
   },
   "audit_issue_count": 0,
@@ -514,8 +577,8 @@
   ],
   "claim_boundaries": [
     "This audit validates the remote execution packet; it does not execute sync, preflight, training, audit, or pullback commands.",
-    "A passing audit is not permission to train while F02.6 remains pending.",
+    "A passing audit is not permission to train while protocol_lane_decision remains pending.",
     "A passing audit is not a paper result or formal performance claim.",
-    "Remote training must remain gpu3070ti-relay-only and must still be followed by audit, pullback, H01/H02 regeneration, and claim gates."
+    "Remote training must remain gpu3070ti-relay-only and must still be preceded by protocol-lane decision, approved/frozen contract, audit, pullback, H01/H02 regeneration, and claim gates."
   ]
 }
