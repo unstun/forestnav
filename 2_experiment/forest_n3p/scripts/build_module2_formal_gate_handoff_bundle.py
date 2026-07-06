@@ -354,6 +354,8 @@ def _protocol_lane_status_summary(protocol_lane_status: dict[str, Any]) -> dict[
         if isinstance(protocol_lane_status.get("current_status"), dict)
         else {}
     )
+    next_category_counts = current.get("next_success_attempt_artifact_category_counts")
+    post_plan_category_counts = current.get("post_decision_contract_plan_shared_artifact_category_counts")
     return {
         "present": bool(protocol_lane_status),
         "status": str(protocol_lane_status.get("status") or ""),
@@ -369,6 +371,25 @@ def _protocol_lane_status_summary(protocol_lane_status: dict[str, Any]) -> dict[
         "decision_record_status": str(current.get("decision_record_status") or ""),
         "selected_lane_id": current.get("selected_lane_id"),
         "lane_count": int(current.get("lane_count") or 0),
+        "next_success_attempt_artifact_count": int(current.get("next_success_attempt_artifact_count") or 0),
+        "next_success_attempt_artifact_category_counts": _int_counts(next_category_counts),
+        "post_decision_contract_plan_shared_artifact_count": int(
+            current.get("post_decision_contract_plan_shared_artifact_count") or 0
+        ),
+        "post_decision_contract_plan_shared_artifact_category_counts": _int_counts(post_plan_category_counts),
+        "old_failed_run_artifacts_invalid_for_next_success_attempt": current.get(
+            "old_failed_run_artifacts_invalid_for_next_success_attempt"
+        )
+        if isinstance(current.get("old_failed_run_artifacts_invalid_for_next_success_attempt"), bool)
+        else None,
+        "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt": current.get(
+            "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"
+        )
+        if isinstance(
+            current.get("post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"),
+            bool,
+        )
+        else None,
         "contract_drafting_allowed_now": bool(current.get("contract_drafting_allowed_now")),
         "contract_approval_allowed_now": bool(current.get("contract_approval_allowed_now")),
         "draft_contract_allows_training": bool(current.get("draft_contract_allows_training")),
