@@ -17,6 +17,8 @@ def test_run_rl_rs_gate3_trial_smoke_trains_evaluates_and_writes_manifest(tmp_pa
             "--smoke",
             "--output-dir",
             str(tmp_path),
+            "--contract-path",
+            "0_trials/custom_contract.md",
             "--seed",
             "20260704",
         ]
