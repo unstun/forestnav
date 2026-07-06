@@ -29,6 +29,14 @@ def test_protocol_lane_status_report_blocks_pending_lane_decision(tmp_path):
     assert state["post_decision_contract_plan_status"] == "post_decision_contract_plan_ready_blocked_pending_lane_decision"
     assert state["post_decision_contract_plan_required_section_count"] == 8
     assert state["post_decision_contract_plan_shared_artifact_count"] == 10
+    assert state["post_decision_contract_plan_shared_artifact_category_counts"] == {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1,
+    }
+    assert state["post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"] is True
     assert state["post_decision_contract_plan_lane_count"] == 4
     assert state["post_decision_contract_plan_selected_lane_id"] is None
     assert state["post_decision_contract_plan_runs_training"] is False
@@ -45,6 +53,7 @@ def test_protocol_lane_status_report_blocks_pending_lane_decision(tmp_path):
         "train_summary_json",
         "train_training_manifest_json",
     ]
+    assert state["old_failed_run_artifacts_invalid_for_next_success_attempt"] is True
     assert state["allowed_next_action_ids"] == ["record_protocol_lane_decision"]
     assert "remote_success_training" in state["blocked_action_ids"]
     assert state["new_success_training_allowed_now"] is False
@@ -111,6 +120,12 @@ def test_protocol_lane_status_report_catches_post_plan_count_and_authorization_d
     config = _config(tmp_path, recorded=False)
     contract_gate = json.loads(config.contract_authoring_gate_audit_path.read_text(encoding="utf-8"))
     contract_gate["post_decision_contract_plan_summary"]["required_contract_section_count"] = 7
+    contract_gate["post_decision_contract_plan_summary"]["shared_next_success_attempt_artifact_category_counts"][
+        "training"
+    ] = 2
+    contract_gate["post_decision_contract_plan_summary"][
+        "old_failed_run_artifacts_invalid_for_next_success_attempt"
+    ] = False
     contract_gate["post_decision_contract_plan_summary"]["runs_training"] = True
     contract_gate["post_decision_contract_plan_summary"]["gate_selected_lane_id"] = "full_patch_cnn_policy"
     config.contract_authoring_gate_audit_path.write_text(json.dumps(contract_gate), encoding="utf-8")
@@ -121,6 +136,9 @@ def test_protocol_lane_status_report_catches_post_plan_count_and_authorization_d
         if row["artifact_id"] != "eval_gate3_summary_json"
     ]
     next_round["next_success_attempt_artifact_index"]["artifact_count"] = 9
+    next_round["current_vs_next_attempt_reconciliation"][
+        "old_failed_run_artifacts_invalid_for_next_success_attempt"
+    ] = False
     config.next_round_requirements_path.write_text(json.dumps(next_round), encoding="utf-8")
 
     manifest = builder.build_manifest(config)
@@ -128,10 +146,13 @@ def test_protocol_lane_status_report_catches_post_plan_count_and_authorization_d
     issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
     assert manifest["status"] == "protocol_lane_status_report_audit_failed"
     assert "post_decision_contract_plan_required_section_count_drift" in issue_ids
+    assert "post_decision_contract_plan_shared_artifact_category_counts_drift" in issue_ids
+    assert "post_decision_contract_plan_old_failed_invalid_flag_drift" in issue_ids
     assert "post_decision_contract_plan_authorization_leak" in issue_ids
     assert "post_decision_contract_plan_selected_lane_while_pending" in issue_ids
     assert "next_success_attempt_artifact_count_drift" in issue_ids
     assert "next_success_attempt_artifact_category_counts_drift" in issue_ids
+    assert "old_failed_run_artifacts_invalid_flag_drift" in issue_ids
 
 
 def test_protocol_lane_status_report_cli_writes_json_and_markdown(tmp_path):
@@ -177,6 +198,8 @@ def test_protocol_lane_status_report_cli_writes_json_and_markdown(tmp_path):
     assert "Post-Decision Contract Plan" in markdown
     assert "required_contract_section_count: `8`" in markdown
     assert "shared_next_success_attempt_artifact_count: `10`" in markdown
+    assert "shared_next_success_attempt_artifact_category_counts" in markdown
+    assert "old_failed_run_artifacts_invalid_for_next_success_attempt: `True`" in markdown
     assert "Missing Next-Attempt Artifacts" in markdown
     assert "training: `train_final_model_zip`, `train_summary_json`, `train_training_manifest_json`" in markdown
     assert "evaluation: `eval_gate3_eval_episodes_csv`, `eval_gate3_summary_json`" in markdown
@@ -264,6 +287,14 @@ def _contract_gate(*, recorded):
             "audit_issue_count": 0,
             "required_contract_section_count": 8,
             "shared_next_success_attempt_artifact_count": 10,
+            "shared_next_success_attempt_artifact_category_counts": {
+                "contract": 1,
+                "training": 3,
+                "evaluation": 2,
+                "acceptance": 3,
+                "formal_acceptance": 1,
+            },
+            "old_failed_run_artifacts_invalid_for_next_success_attempt": True,
             "lane_count": 4,
             "writes_contract": False,
             "approves_contract": False,
@@ -302,5 +333,8 @@ def _next_round():
                 {"category": "acceptance", "artifact_id": "pulled_back_checkpoint_hash_record"},
                 {"category": "formal_acceptance", "artifact_id": "h02_formal_output_acceptance"},
             ],
+        },
+        "current_vs_next_attempt_reconciliation": {
+            "old_failed_run_artifacts_invalid_for_next_success_attempt": True,
         },
     }
