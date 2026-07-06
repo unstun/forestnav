@@ -40,6 +40,14 @@ EXPECTED_PROTOCOL_LANE_BLOCKED_ACTIONS = (
     "formal_claim",
     "paper_result_material",
 )
+EXPECTED_NEXT_SUCCESS_ARTIFACT_CATEGORY_COUNTS = {
+    "contract": 1,
+    "training": 3,
+    "evaluation": 2,
+    "acceptance": 3,
+    "formal_acceptance": 1,
+}
+EXPECTED_OLD_FAILED_RUN_INVALID_FOR_NEXT_SUCCESS_ATTEMPT = True
 EXPECTED_DECISION_EVIDENCE_MATRIX_ID = "module2_f02_6_decision_evidence_matrix"
 EXPECTED_DECISION_EVIDENCE_MATRIX_STATUS = "ready_for_dr_sun_decision_not_authorization"
 EXPECTED_DECISION_EVIDENCE_ROUTES = (
