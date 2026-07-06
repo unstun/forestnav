@@ -216,6 +216,48 @@ def test_next_round_requirements_rejects_incomplete_failed_run_artifacts(tmp_pat
     assert manifest["current_run_artifacts"]["evaluation_complete_for_failed_run"] is False
 
 
+def test_next_round_requirements_rejects_protocol_lane_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_next_round_requirements")
+    config = _config(tmp_path)
+    protocol = json.loads(config.protocol_lane_status_report_path.read_text(encoding="utf-8"))
+    current = protocol["current_status"]
+    current["next_blocked_lane"] = "remote_training"
+    current["decision_record_status"] = "approved"
+    current["selected_lane_id"] = "stronger_obstacle_summary_warm_start"
+    current["allowed_next_action_ids"] = ["run_remote_training"]
+    current["new_success_training_allowed_now"] = True
+    current["contract_drafting_allowed_now"] = True
+    current["next_success_attempt_artifact_category_counts"]["training"] = 1
+    config.protocol_lane_status_report_path.write_text(json.dumps(protocol), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "formal_gate_next_round_requirements_blocked"
+    assert "protocol_lane_next_blocked_drift" in issue_ids
+    assert "protocol_lane_decision_record_not_pending" in issue_ids
+    assert "protocol_lane_selected_before_decision" in issue_ids
+    assert "protocol_lane_allowed_action_drift" in issue_ids
+    assert "protocol_lane_allows_new_success_training" in issue_ids
+    assert "protocol_lane_allows_contract_drafting" in issue_ids
+    assert "protocol_next_attempt_category_counts_drift" in issue_ids
+    assert "protocol_artifact_counts_do_not_match_index" in issue_ids
+
+
+def test_next_round_requirements_requires_remote_safety_protocol_echo(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_next_round_requirements")
+    config = _config(tmp_path)
+    remote_safety = json.loads(config.remote_packet_safety_path.read_text(encoding="utf-8"))
+    remote_safety["cross_gate_summary"].pop("post_plan_protocol_lane_status_summary")
+    config.remote_packet_safety_path.write_text(json.dumps(remote_safety), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "formal_gate_next_round_requirements_blocked"
+    assert "remote_safety_missing_protocol_summary" in issue_ids
+
+
 def test_next_round_requirements_cli_writes_json_and_markdown(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_next_round_requirements")
     config = _config(tmp_path)
