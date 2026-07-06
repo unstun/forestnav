@@ -310,6 +310,38 @@ def test_formal_gate_handoff_bundle_blocks_remote_when_protocol_lane_pending(tmp
     assert manifest["safety_issue_count"] == 0
 
 
+def test_formal_gate_handoff_bundle_points_to_contract_draft_after_protocol_lane_recorded(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_handoff_bundle")
+    config = _config(tmp_path, complete=True, protocol_pending=False)
+
+    manifest = builder.build_manifest(config)
+
+    assert manifest["status"] == "blocked_formal_gate_handoff"
+    assert manifest["current_state"]["protocol_lane_status"] == "protocol_lane_status_ready_for_contract_draft"
+    assert manifest["current_state"]["next_blocked_lane"] == "new_or_revised_contract"
+    assert manifest["current_state"]["protocol_lane_selected_lane_id"] == "hybrid_ppo_analytic_fallback"
+    assert manifest["next_handoff_action"]["action_id"] == "draft_new_or_revised_contract_after_lane_decision"
+    assert manifest["next_handoff_action"]["requires_dr_sun"] is False
+    assert manifest["current_state"]["effective_next_action_id"] == "draft_new_or_revised_contract_after_lane_decision"
+    assert manifest["current_state"]["legacy_f02_6_decision_superseded_by_protocol_lane"] is True
+
+    single = manifest["single_next_action_index"]
+    assert single["status"] == "awaiting_selected_lane_contract_draft"
+    assert single["single_current_human_entry"] is False
+    assert single["next_action_id"] == "draft_new_or_revised_contract_after_lane_decision"
+    assert single["selected_lane_id"] == "hybrid_ppo_analytic_fallback"
+    assert single["current_allowed_action_ids"] == ["draft_new_or_revised_contract_after_lane_decision"]
+    assert single["all_execution_disabled_now"] is True
+    assert single["remote_preflight_allowed_now"] is False
+    assert single["remote_training_allowed_now"] is False
+    assert single["formal_claim_allowed_now"] is False
+    assert single["paper_result_material_allowed_now"] is False
+    assert manifest["permissions_now"]["remote_preflight_allowed_now"] is False
+    assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+    assert manifest["permissions_now"]["formal_claim_allowed_now"] is False
+    assert manifest["safety_issue_count"] == 0
+
+
 def test_formal_gate_handoff_bundle_rejects_protocol_lane_next_artifact_drift(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_handoff_bundle")
     config = _config(tmp_path, complete=True, protocol_pending=True)
