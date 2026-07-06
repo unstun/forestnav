@@ -14,6 +14,12 @@ from forest_n3p.scripts._module2_source_head import source_head as module2_sourc
 
 DEFAULT_OUTPUT_DIR = Path("0_trials/module2_source_freshness_audit")
 CHANGED_PATH_SAMPLE_LIMIT = 12
+REMOTE_PREFLIGHT_REQUIRED_BEFORE = "approved_remote_preflight"
+SOURCE_FRESHNESS_READY_STATUSES = {
+    "source_freshness_clean_current",
+    "source_freshness_tracked_artifact_lag_only_gate_ready",
+    "source_freshness_remote_preflight_scope_ready_with_later_risks",
+}
 
 
 @dataclass(frozen=True)
@@ -29,37 +35,43 @@ DEFAULT_ARTIFACTS = (
         "f02_6_warm_start_decision_packet",
         "decision",
         Path("0_trials/module2_f02_6_warm_start_decision_packet/f02_6_warm_start_decision_packet.json"),
-        "approved_remote_preflight",
+        "legacy_context_only",
     ),
     ArtifactTarget(
         "f02_6_decision_record",
         "decision",
         Path("0_trials/module2_f02_6_decision_record/f02_6_decision_record.json"),
-        "approved_remote_preflight",
+        "legacy_context_only",
     ),
     ArtifactTarget(
         "f02_6_decision_intake",
         "decision",
         Path("0_trials/module2_f02_6_decision_intake/f02_6_decision_intake.json"),
-        "approved_remote_preflight",
+        "legacy_context_only",
     ),
     ArtifactTarget(
         "f02_6_decision_gate_audit",
         "decision",
         Path("0_trials/module2_f02_6_decision_gate_audit/f02_6_decision_gate_audit.json"),
-        "approved_remote_preflight",
+        "legacy_context_only",
     ),
     ArtifactTarget(
         "f02_6_transition_gate_audit",
         "decision",
         Path("0_trials/module2_f02_6_transition_gate_audit/f02_6_transition_gate_audit.json"),
-        "approved_remote_preflight",
+        "legacy_context_only",
     ),
     ArtifactTarget(
         "remote_formal_execution_packet",
         "remote_execution",
         Path("0_trials/module2_remote_formal_execution_packet/remote_formal_execution_packet.json"),
-        "approved_remote_preflight",
+        "legacy_context_only",
+    ),
+    ArtifactTarget(
+        "v2_contract_readiness_gate",
+        "v2_remote_preflight_gate",
+        Path("0_trials/module2_v2_contract_readiness_gate/v2_contract_readiness_gate.json"),
+        REMOTE_PREFLIGHT_REQUIRED_BEFORE,
     ),
     ArtifactTarget(
         "h01_evaluation_manifest",
@@ -89,37 +101,37 @@ DEFAULT_ARTIFACTS = (
         "formal_gate_gap_audit",
         "formal_gate",
         Path("0_trials/module2_formal_gate_gap_audit/formal_gate_gap_audit.json"),
-        "approved_remote_preflight",
+        "legacy_context_only",
     ),
     ArtifactTarget(
         "post_f02_6_regeneration_plan",
         "formal_gate",
         Path("0_trials/module2_post_f02_6_regeneration_plan/post_f02_6_regeneration_plan.json"),
-        "approved_remote_preflight",
+        "legacy_context_only",
     ),
     ArtifactTarget(
         "post_f02_6_plan_audit",
         "formal_gate",
         Path("0_trials/module2_post_f02_6_plan_audit/post_f02_6_plan_audit.json"),
-        "approved_remote_preflight",
+        "legacy_context_only",
     ),
     ArtifactTarget(
         "remote_packet_safety_audit",
         "formal_gate",
         Path("0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json"),
-        "approved_remote_preflight",
+        "legacy_context_only",
     ),
     ArtifactTarget(
         "formal_gate_closure_checklist",
         "formal_gate",
         Path("0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json"),
-        "approved_remote_preflight",
+        "legacy_context_only",
     ),
     ArtifactTarget(
         "gpu3070ti_readiness_refresh",
         "remote_readiness",
         Path("0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.json"),
-        "approved_remote_preflight",
+        "legacy_context_only",
     ),
     ArtifactTarget(
         "formal_gate_missing_artifacts",
@@ -161,7 +173,7 @@ DEFAULT_ARTIFACTS = (
         "formal_gate_handoff_bundle",
         "formal_gate",
         Path("0_trials/module2_formal_gate_handoff_bundle/formal_gate_handoff_bundle.json"),
-        "approved_remote_preflight",
+        "legacy_context_only",
     ),
 )
 
@@ -217,8 +229,10 @@ def build_manifest(config: SourceFreshnessAuditConfig) -> dict[str, Any]:
     blocking_regeneration_records = [record for record in records if _blocks_remote_formal_execution(record)]
     if not freshness_risks:
         status = "source_freshness_clean_current"
-    elif not blocking_regeneration_records:
+    elif not blocking_regeneration_records and all(record["tracked_artifact_only_lag"] is True for record in freshness_risks):
         status = "source_freshness_tracked_artifact_lag_only_gate_ready"
+    elif not blocking_regeneration_records:
+        status = "source_freshness_remote_preflight_scope_ready_with_later_risks"
     else:
         status = "source_freshness_risks_recorded_gate_still_blocked"
     return {
@@ -237,6 +251,7 @@ def build_manifest(config: SourceFreshnessAuditConfig) -> dict[str, Any]:
         "risk_counts": risk_counts,
         "commit_lag_summary": commit_lag_summary,
         "audit_self_reference_policy": _audit_self_reference_policy(config),
+        "ready_statuses": sorted(SOURCE_FRESHNESS_READY_STATUSES),
         "regeneration_required_before_remote_formal_execution": bool(freshness_risks),
         "blocking_regeneration_required_before_remote_formal_execution": bool(blocking_regeneration_records),
         "blocking_regeneration_target_count": len(blocking_regeneration_records),
@@ -251,8 +266,9 @@ def build_manifest(config: SourceFreshnessAuditConfig) -> dict[str, Any]:
             "This audit records source-head freshness only; it is not a training run or paper result.",
             "Historical or dirty source_head values are regeneration risks, not formal experimental failures.",
             "The audit artifact's own post-commit source_head lag is expected and is not a formal gate blocker by itself.",
-            "F02.6 remains the human approval gate before approved remote preflight or formal PPO training.",
-            "Regenerate stale/dirty gate artifacts after F02.6 closes and before H01/H02 formal evaluation or formal claims.",
+            "V2 remote preflight source freshness is scoped to artifacts marked approved_remote_preflight.",
+            "Legacy, H01/H02, claim, and handoff artifacts are recorded as later risks; they do not block remote preflight.",
+            "Regenerate stale/dirty H01/H02 and claim artifacts only before their own acceptance or claim gates.",
         ],
     }
 
@@ -305,6 +321,7 @@ def _artifact_record(target: ArtifactTarget, *, current_head: str, tracked_artif
         "required_before": target.required_before,
         "regenerate_before_formal_execution": source_info["freshness_state"] != "current_clean",
         "blocking_regeneration_required_before_remote_formal_execution": _blocks_remote_formal_execution_from_parts(
+            required_before=target.required_before,
             source_info=source_info,
             lag_info=lag_info,
         ),
@@ -495,6 +512,7 @@ def _audit_self_reference_policy(config: SourceFreshnessAuditConfig) -> dict[str
 
 def _blocks_remote_formal_execution(record: dict[str, Any]) -> bool:
     return _blocks_remote_formal_execution_from_parts(
+        required_before=str(record.get("required_before", "")),
         source_info={
             "freshness_state": record.get("freshness_state"),
             "source_head_dirty": record.get("source_head_dirty"),
@@ -509,7 +527,14 @@ def _blocks_remote_formal_execution(record: dict[str, Any]) -> bool:
     )
 
 
-def _blocks_remote_formal_execution_from_parts(*, source_info: dict[str, Any], lag_info: dict[str, Any]) -> bool:
+def _blocks_remote_formal_execution_from_parts(
+    *,
+    required_before: str,
+    source_info: dict[str, Any],
+    lag_info: dict[str, Any],
+) -> bool:
+    if required_before != REMOTE_PREFLIGHT_REQUIRED_BEFORE:
+        return False
     state = source_info.get("freshness_state")
     if state == "current_clean":
         return False
@@ -530,7 +555,7 @@ def _positive_int(value: Any) -> bool:
 
 
 def _ordered_regeneration_targets(records: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
-    order = {"approved_remote_preflight": 0, "formal_h01_h02": 1, "formal_claim_gate": 2}
+    order = {REMOTE_PREFLIGHT_REQUIRED_BEFORE: 0, "formal_h01_h02": 1, "formal_claim_gate": 2, "legacy_context_only": 3}
     targets = [
         {
             "artifact_id": record["artifact_id"],
