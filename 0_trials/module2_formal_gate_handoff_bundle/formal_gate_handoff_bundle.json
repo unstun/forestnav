@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_handoff_bundle",
   "status": "blocked_until_protocol_lane_decision",
-  "created_at_utc": "2026-07-06T00:27:14.789361+00:00",
-  "source_head": "1b8c9014b8c1a3aee76ba87f96e0142eb7a69847",
+  "created_at_utc": "2026-07-06T00:34:27.774484+00:00",
+  "source_head": "1fe82ef84faf9e4db93a54d901da4a38338efeee+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -39,6 +39,12 @@
     "h02_formal_output_accepted": false,
     "h02_paper_result_input_allowed": false,
     "next_blocked_lane": "protocol_lane_decision",
+    "effective_next_action_id": "record_protocol_lane_decision",
+    "effective_next_action_requires_dr_sun": true,
+    "legacy_f02_6_decision_action_ids": [
+      "record_f02_6_decision"
+    ],
+    "legacy_f02_6_decision_superseded_by_protocol_lane": true,
     "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
     "source_freshness_regeneration_required": true,
     "source_freshness_blocking_regeneration_required": true,
@@ -94,6 +100,10 @@
       "formal_claim",
       "paper_result_material"
     ],
+    "legacy_f02_6_decision_action_ids": [
+      "record_f02_6_decision"
+    ],
+    "legacy_f02_6_decision_superseded_by_protocol_lane": true,
     "post_decision_routes_are_current_authorization": false,
     "all_execution_disabled_now": true,
     "record_command_templates": [],

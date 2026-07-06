@@ -17,6 +17,8 @@
 - required_record_fields: `selected_lane_id, decision_note, failed_gate3_basis, contract_action, rejected_lane_rationales, evidence_artifact_basis`
 - current_allowed_action_ids: `record_protocol_lane_decision`
 - current_blocked_action_ids: `local_training, remote_success_training, remote_preflight_for_new_success_attempt, formal_claim, paper_result_material`
+- legacy_f02_6_decision_action_ids: `record_f02_6_decision`
+- legacy_f02_6_decision_superseded_by_protocol_lane: `True`
 - all_execution_disabled_now: `True`
 - record_command_template_count: `0`
 - missing_deliverable_count: `1`

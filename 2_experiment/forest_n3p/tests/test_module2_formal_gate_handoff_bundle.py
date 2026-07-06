@@ -23,6 +23,10 @@ def test_formal_gate_handoff_bundle_blocks_pending_decision_without_execution(tm
     assert manifest["next_handoff_action"]["action_id"] == "record_f02_6_decision"
     assert manifest["next_handoff_action"]["requires_dr_sun"] is True
     assert manifest["next_handoff_action"]["allowed_for_agent_now"] is False
+    assert manifest["current_state"]["effective_next_action_id"] == "record_f02_6_decision"
+    assert manifest["current_state"]["effective_next_action_requires_dr_sun"] is True
+    assert manifest["current_state"]["legacy_f02_6_decision_action_ids"] == ["record_f02_6_decision"]
+    assert manifest["current_state"]["legacy_f02_6_decision_superseded_by_protocol_lane"] is False
     single = manifest["single_next_action_index"]
     assert single["index_id"] == "module2_formal_gate_single_next_action_index"
     assert single["status"] == "awaiting_dr_sun_f02_6_decision"
@@ -42,6 +46,8 @@ def test_formal_gate_handoff_bundle_blocks_pending_decision_without_execution(tm
         "formal_claim",
         "paper_result_material",
     ]
+    assert single["legacy_f02_6_decision_action_ids"] == ["record_f02_6_decision"]
+    assert single["legacy_f02_6_decision_superseded_by_protocol_lane"] is False
     assert single["post_decision_routes_are_current_authorization"] is False
     assert single["all_execution_disabled_now"] is True
     assert single["record_command_template_count"] == 2
@@ -195,8 +201,12 @@ def test_formal_gate_handoff_bundle_marks_manual_review_when_sources_allow_remot
 
 def test_formal_gate_handoff_bundle_blocks_remote_when_protocol_lane_pending(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_handoff_bundle")
+    config = _config(tmp_path, complete=True, protocol_pending=True)
+    decision_intake = json.loads(config.decision_intake_path.read_text(encoding="utf-8"))
+    decision_intake["next_human_decision_request"]["current_allowed_action_ids"] = ["record_f02_6_decision"]
+    config.decision_intake_path.write_text(json.dumps(decision_intake), encoding="utf-8")
 
-    manifest = builder.build_manifest(_config(tmp_path, complete=True, protocol_pending=True))
+    manifest = builder.build_manifest(config)
 
     assert manifest["status"] == "blocked_until_protocol_lane_decision"
     assert manifest["current_state"]["protocol_lane_status"] == "protocol_lane_status_blocked_pending_lane_decision"
@@ -206,6 +216,10 @@ def test_formal_gate_handoff_bundle_blocks_remote_when_protocol_lane_pending(tmp
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
     assert manifest["next_handoff_action"]["action_id"] == "record_protocol_lane_decision"
     assert manifest["next_handoff_action"]["requires_dr_sun"] is True
+    assert manifest["current_state"]["effective_next_action_id"] == "record_protocol_lane_decision"
+    assert manifest["current_state"]["effective_next_action_requires_dr_sun"] is True
+    assert manifest["current_state"]["legacy_f02_6_decision_action_ids"] == ["record_f02_6_decision"]
+    assert manifest["current_state"]["legacy_f02_6_decision_superseded_by_protocol_lane"] is True
     single = manifest["single_next_action_index"]
     assert single["status"] == "awaiting_dr_sun_protocol_lane_decision"
     assert single["single_current_human_entry"] is True
@@ -224,6 +238,8 @@ def test_formal_gate_handoff_bundle_blocks_remote_when_protocol_lane_pending(tmp
         "formal_claim",
         "paper_result_material",
     ]
+    assert single["legacy_f02_6_decision_action_ids"] == ["record_f02_6_decision"]
+    assert single["legacy_f02_6_decision_superseded_by_protocol_lane"] is True
     assert single["all_execution_disabled_now"] is True
     assert single["remote_preflight_allowed_now"] is False
     assert single["remote_training_allowed_now"] is False
