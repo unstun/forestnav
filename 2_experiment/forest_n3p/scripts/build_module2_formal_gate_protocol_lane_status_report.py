@@ -568,6 +568,9 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- formal_claim_allowed_now: `{state['formal_claim_allowed_now']}`",
         f"- next_success_attempt_artifact_count: `{state['next_success_attempt_artifact_count']}`",
         f"- next_success_attempt_artifact_category_counts: `{state['next_success_attempt_artifact_category_counts']}`",
+        f"- next_success_attempt_artifact_expected_paths_by_id: `{state['next_success_attempt_artifact_expected_paths_by_id']}`",
+        "- next_success_attempt_artifact_proof_requirement_count: "
+        f"`{len(state['next_success_attempt_artifact_proof_requirements_by_id'])}`",
         "- old_failed_run_artifacts_invalid_for_next_success_attempt: "
         f"`{state['old_failed_run_artifacts_invalid_for_next_success_attempt']}`",
         "",
