@@ -885,9 +885,12 @@ def test_post_f02_6_plan_audit_rejects_protocol_lane_status_post_plan_drift(tmp_
     assert "protocol_lane_status_allowed_actions_drift" in issue_ids
     assert "protocol_lane_status_authorization_leak" in issue_ids
     assert "protocol_lane_status_post_decision_contract_plan_required_section_count_drift" in issue_ids
+    assert "protocol_lane_status_post_plan_shared_artifact_category_counts_drift" in issue_ids
+    assert "protocol_lane_status_post_plan_old_failed_invalid_flag_drift" in issue_ids
     assert "protocol_lane_status_post_plan_authorization_leak" in issue_ids
     assert "protocol_lane_status_next_artifact_count_drift" in issue_ids
     assert "protocol_lane_status_next_artifact_category_counts_drift" in issue_ids
+    assert "protocol_lane_status_old_failed_invalid_flag_drift" in issue_ids
     assert "protocol_lane_status_next_artifact_ids_missing" in issue_ids
 
 

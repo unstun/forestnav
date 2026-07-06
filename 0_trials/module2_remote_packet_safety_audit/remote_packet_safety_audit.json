@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_remote_packet_safety_audit",
-  "status": "remote_packet_safety_audit_failed",
-  "created_at_utc": "2026-07-06T04:56:54.072014+00:00",
-  "source_head": "c99a726130b0e9c5e4067fac6c068fdc736b456c+dirty",
+  "status": "remote_packet_safety_audit_passed",
+  "created_at_utc": "2026-07-06T04:58:46.916436+00:00",
+  "source_head": "fad161979da3fecd21dc3722f9cb22abddab89b4+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -526,8 +526,14 @@
       "post_decision_contract_plan_audit_issue_count": 0,
       "post_decision_contract_plan_required_section_count": 8,
       "post_decision_contract_plan_shared_artifact_count": 10,
-      "post_decision_contract_plan_shared_artifact_category_counts": {},
-      "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt": null,
+      "post_decision_contract_plan_shared_artifact_category_counts": {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1
+      },
+      "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt": true,
       "post_decision_contract_plan_lane_count": 4,
       "post_decision_contract_plan_runs_training": false,
       "post_decision_contract_plan_runs_remote_preflight": false,
@@ -564,25 +570,11 @@
           "h02_formal_output_acceptance"
         ]
       },
-      "old_failed_run_artifacts_invalid_for_next_success_attempt": null
+      "old_failed_run_artifacts_invalid_for_next_success_attempt": true
     }
   },
-  "audit_issue_count": 3,
-  "audit_issues": [
-    {
-      "issue_id": "protocol_lane_shared_artifact_category_counts_drift",
-      "message": "Protocol contract plan must keep the contract/training/evaluation/acceptance/formal_acceptance split.",
-      "observed": {}
-    },
-    {
-      "issue_id": "protocol_lane_post_plan_old_failed_invalid_flag_drift",
-      "message": "Protocol contract plan must preserve that old failed-run artifacts are invalid substitutes."
-    },
-    {
-      "issue_id": "protocol_lane_old_failed_invalid_flag_drift",
-      "message": "Protocol lane status must preserve that old failed-run artifacts are invalid substitutes."
-    }
-  ],
+  "audit_issue_count": 0,
+  "audit_issues": [],
   "expected_pullback_suffixes": [
     "train/final_model.zip",
     "train/summary.json",

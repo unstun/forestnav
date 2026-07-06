@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_post_f02_6_plan_audit",
   "status": "post_f02_6_plan_audit_passed",
-  "created_at_utc": "2026-07-06T04:56:49.873980+00:00",
-  "source_head": "c99a726130b0e9c5e4067fac6c068fdc736b456c+dirty",
+  "created_at_utc": "2026-07-06T04:58:38.531357+00:00",
+  "source_head": "fad161979da3fecd21dc3722f9cb22abddab89b4+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -560,6 +560,14 @@
     "post_decision_contract_plan_audit_issue_count": 0,
     "post_decision_contract_plan_required_section_count": 8,
     "post_decision_contract_plan_shared_artifact_count": 10,
+    "post_decision_contract_plan_shared_artifact_category_counts": {
+      "contract": 1,
+      "training": 3,
+      "evaluation": 2,
+      "acceptance": 3,
+      "formal_acceptance": 1
+    },
+    "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt": true,
     "post_decision_contract_plan_lane_count": 4,
     "post_decision_contract_plan_writes_contract": false,
     "post_decision_contract_plan_approves_contract": false,
@@ -600,6 +608,7 @@
         "h02_formal_output_acceptance"
       ]
     },
+    "old_failed_run_artifacts_invalid_for_next_success_attempt": true,
     "contract_drafting_allowed_now": false,
     "contract_approval_allowed_now": false,
     "draft_contract_allows_training": false,
