@@ -280,13 +280,13 @@ def test_next_round_requirements_cli_writes_json_and_markdown(tmp_path):
             str(config.h02_acceptance_path),
             "--status-report",
             str(config.status_report_path),
-        "--gate3-audit",
-        str(config.gate3_audit_path),
-        "--protocol-lane-status-report",
-        str(config.protocol_lane_status_report_path),
-        "--remote-packet-safety-audit",
-        str(config.remote_packet_safety_path),
-    ]
+            "--gate3-audit",
+            str(config.gate3_audit_path),
+            "--protocol-lane-status-report",
+            str(config.protocol_lane_status_report_path),
+            "--remote-packet-safety-audit",
+            str(config.remote_packet_safety_path),
+        ]
     )
 
     assert rc == 0
@@ -467,4 +467,66 @@ def _gate3_audit():
         "required_success_threshold": 0.8,
         "warm_start_status": "applied_obstacle_summary_bc",
         "warm_start_decision": "approved_obstacle_summary",
+    }
+
+
+def _protocol_lane_status():
+    return {
+        "status": "protocol_lane_status_blocked_pending_lane_decision",
+        "audit_issue_count": 0,
+        "current_status": {
+            "next_blocked_lane": "protocol_lane_decision",
+            "decision_record_status": "pending_protocol_lane_decision",
+            "selected_lane_id": None,
+            "allowed_next_action_ids": ["record_protocol_lane_decision"],
+            "blocked_action_ids": [
+                "local_training",
+                "remote_success_training",
+                "remote_preflight_for_new_success_attempt",
+                "formal_claim",
+                "paper_result_material",
+            ],
+            "new_success_training_allowed_now": False,
+            "contract_drafting_allowed_now": False,
+            "contract_approval_allowed_now": False,
+            "post_decision_contract_plan_status": "post_decision_contract_plan_ready_blocked_pending_lane_decision",
+            "post_decision_contract_plan_required_section_count": 8,
+            "post_decision_contract_plan_shared_artifact_count": 10,
+            "post_decision_contract_plan_lane_count": 4,
+            "next_success_attempt_artifact_status": "blocked_until_protocol_lane_decision_and_contract",
+            "next_success_attempt_artifact_count": 10,
+            "next_success_attempt_artifact_category_counts": {
+                "contract": 1,
+                "training": 3,
+                "evaluation": 2,
+                "acceptance": 3,
+                "formal_acceptance": 1,
+            },
+            "next_success_attempt_artifact_ids_by_category": {
+                "contract": ["new_or_revised_research_contract"],
+                "training": ["train_final_model_zip", "train_summary_json", "train_training_manifest_json"],
+                "evaluation": ["eval_gate3_eval_episodes_csv", "eval_gate3_summary_json"],
+                "acceptance": ["gate3_trial_manifest_json", "gate3_formal_audit_json", "pulled_back_checkpoint_hash_record"],
+                "formal_acceptance": ["h02_formal_output_acceptance"],
+            },
+        },
+    }
+
+
+def _remote_packet_safety():
+    protocol = _protocol_lane_status()["current_status"]
+    return {
+        "status": "remote_packet_safety_audit_passed",
+        "audit_issue_count": 0,
+        "cross_gate_summary": {
+            "post_plan_protocol_lane_status_summary": {
+                "status": "protocol_lane_status_blocked_pending_lane_decision",
+                "next_blocked_lane": protocol["next_blocked_lane"],
+                "allowed_next_action_ids": protocol["allowed_next_action_ids"],
+                "new_success_training_allowed_now": protocol["new_success_training_allowed_now"],
+                "next_success_attempt_artifact_category_counts": protocol[
+                    "next_success_attempt_artifact_category_counts"
+                ],
+            }
+        },
     }

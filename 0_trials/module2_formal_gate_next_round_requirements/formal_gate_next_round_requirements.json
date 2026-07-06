@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_next_round_requirements",
   "status": "formal_gate_next_round_requirements_ready",
-  "created_at_utc": "2026-07-06T01:10:39.805201+00:00",
-  "source_head": "0fcff412b091d3d73b796463fb3ae98e4579cea5+dirty",
+  "created_at_utc": "2026-07-06T04:19:34.528523+00:00",
+  "source_head": "441df70c109baf9944bc5c5634baa8878f43c9e2+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -17,7 +17,9 @@
     "remaining_deliverables": "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json",
     "h02_formal_acceptance": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json",
     "formal_gate_status_report": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
-    "gate3_formal_audit": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json"
+    "gate3_formal_audit": "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json",
+    "protocol_lane_status_report": "0_trials/module2_formal_gate_protocol_lane_status_report/protocol_lane_status_report.json",
+    "remote_packet_safety_audit": "0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json"
   },
   "current_failed_run": {
     "failure_triage_status": "formal_gate_failure_triage_ready",
@@ -97,6 +99,109 @@
       "formal_h01_evaluation_allowed_by_status_report": false,
       "superseded_by_next_gate": true
     }
+  },
+  "protocol_gate_summary": {
+    "protocol_status": "protocol_lane_status_blocked_pending_lane_decision",
+    "protocol_audit_issue_count": 0,
+    "next_blocked_lane": "protocol_lane_decision",
+    "decision_record_status": "pending_protocol_lane_decision",
+    "selected_lane_id": null,
+    "allowed_next_action_ids": [
+      "record_protocol_lane_decision"
+    ],
+    "blocked_action_ids": [
+      "local_training",
+      "remote_success_training",
+      "remote_preflight_for_new_success_attempt",
+      "formal_claim",
+      "paper_result_material"
+    ],
+    "new_success_training_allowed_now": false,
+    "contract_drafting_allowed_now": false,
+    "contract_approval_allowed_now": false,
+    "post_decision_contract_plan_status": "post_decision_contract_plan_ready_blocked_pending_lane_decision",
+    "post_decision_contract_plan_required_section_count": 8,
+    "post_decision_contract_plan_shared_artifact_count": 10,
+    "post_decision_contract_plan_lane_count": 4,
+    "next_success_attempt_artifact_status": "blocked_until_protocol_lane_decision_and_contract",
+    "next_success_attempt_artifact_count": 10,
+    "next_success_attempt_artifact_category_counts": {
+      "contract": 1,
+      "training": 3,
+      "evaluation": 2,
+      "acceptance": 3,
+      "formal_acceptance": 1
+    },
+    "next_success_attempt_artifact_ids_by_category": {
+      "contract": [
+        "new_or_revised_research_contract"
+      ],
+      "training": [
+        "train_final_model_zip",
+        "train_summary_json",
+        "train_training_manifest_json"
+      ],
+      "evaluation": [
+        "eval_gate3_eval_episodes_csv",
+        "eval_gate3_summary_json"
+      ],
+      "acceptance": [
+        "gate3_trial_manifest_json",
+        "gate3_formal_audit_json",
+        "pulled_back_checkpoint_hash_record"
+      ],
+      "formal_acceptance": [
+        "h02_formal_output_acceptance"
+      ]
+    },
+    "artifact_index_category_counts": {
+      "contract": 1,
+      "training": 3,
+      "evaluation": 2,
+      "acceptance": 3,
+      "formal_acceptance": 1
+    },
+    "artifact_index_count": 10,
+    "remote_safety_protocol_summary_present": true,
+    "remote_safety_protocol_status": "protocol_lane_status_blocked_pending_lane_decision",
+    "remote_safety_protocol_next_blocked": "protocol_lane_decision",
+    "remote_safety_allowed_next_action_ids": [
+      "record_protocol_lane_decision"
+    ],
+    "remote_safety_new_success_training_allowed_now": false,
+    "remote_safety_category_counts": {
+      "contract": 1,
+      "training": 3,
+      "evaluation": 2,
+      "acceptance": 3,
+      "formal_acceptance": 1
+    }
+  },
+  "current_vs_next_attempt_reconciliation": {
+    "current_failed_run_missing_counts": {
+      "training": 0,
+      "evaluation": 0,
+      "acceptance": 0,
+      "formal_acceptance": 1
+    },
+    "current_failed_run_training_eval_acceptance_closed": true,
+    "current_failed_run_formal_acceptance_open": true,
+    "next_success_attempt_status": "blocked_until_protocol_lane_decision_and_contract",
+    "next_success_attempt_artifact_count": 10,
+    "next_success_attempt_category_counts": {
+      "contract": 1,
+      "training": 3,
+      "evaluation": 2,
+      "acceptance": 3,
+      "formal_acceptance": 1
+    },
+    "protocol_lane_artifact_counts_match_index": true,
+    "old_failed_run_artifacts_invalid_for_next_success_attempt": true,
+    "next_success_attempt_requires_protocol_lane_decision": true,
+    "next_success_attempt_allowed_action": [
+      "record_protocol_lane_decision"
+    ],
+    "explanation": "The current failed-run ledger may show training/evaluation/acceptance present, but a new success attempt still requires a new/revised contract plus fresh training, evaluation, acceptance, and H02 formal acceptance artifacts under the selected protocol lane."
   },
   "next_round_requirements": {
     "status": "new_or_revised_contract_required_before_any_new_success_attempt",

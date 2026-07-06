@@ -43,6 +43,34 @@ This file is a formal-gate planning artifact, not paper result material.
   - formal_h01_evaluation_allowed_by_status_report: `False`
   - superseded_by_next_gate: `True`
 
+## Protocol Gate Summary
+
+- protocol_status: `protocol_lane_status_blocked_pending_lane_decision`
+- next_blocked_lane: `protocol_lane_decision`
+- decision_record_status: `pending_protocol_lane_decision`
+- selected_lane_id: `None`
+- allowed_next_action_ids: `['record_protocol_lane_decision']`
+- blocked_action_ids: `['local_training', 'remote_success_training', 'remote_preflight_for_new_success_attempt', 'formal_claim', 'paper_result_material']`
+- new_success_training_allowed_now: `False`
+- post_decision_contract_plan_required_section_count: `8`
+- post_decision_contract_plan_shared_artifact_count: `10`
+- post_decision_contract_plan_lane_count: `4`
+- next_success_attempt_artifact_count: `10`
+- next_success_attempt_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
+- remote_safety_protocol_summary_present: `True`
+- remote_safety_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
+
+## Current Vs Next Attempt Reconciliation
+
+- current_failed_run_missing_counts: `{'training': 0, 'evaluation': 0, 'acceptance': 0, 'formal_acceptance': 1}`
+- current_failed_run_training_eval_acceptance_closed: `True`
+- current_failed_run_formal_acceptance_open: `True`
+- next_success_attempt_artifact_count: `10`
+- next_success_attempt_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
+- protocol_lane_artifact_counts_match_index: `True`
+- old_failed_run_artifacts_invalid_for_next_success_attempt: `True`
+- explanation: The current failed-run ledger may show training/evaluation/acceptance present, but a new success attempt still requires a new/revised contract plus fresh training, evaluation, acceptance, and H02 formal acceptance artifacts under the selected protocol lane.
+
 ## Missing Current Formal Acceptance Artifacts
 
 - `formal_acceptance:h02_formal_output_acceptance`: artifact_id=`h02_formal_output_acceptance`, expected_path=`0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json`, missing_reason=`h02_verdict_not_formal, gate3_formal_audit_not_passed, h02_scale_below_h01_manifest, missing_ppo_result_rows`
