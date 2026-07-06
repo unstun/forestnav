@@ -104,7 +104,12 @@ def build_packet(config: RemoteFormalExecutionPacketConfig) -> dict[str, Any]:
     commands["run_remote_training"]["allowed_now"] = ready
     commands["run_remote_audit"]["allowed_now"] = False
     _annotate_step_blockers(commands=commands, decision=decision, blockers=blockers, ready=ready, protocol_lane=protocol_lane)
-    preflight_requirements = _remote_preflight_requirements(decision=decision, preflight=preflight, commands=commands)
+    preflight_requirements = _remote_preflight_requirements(
+        decision=decision,
+        preflight=preflight,
+        commands=commands,
+        protocol_lane=protocol_lane,
+    )
     post_run_pullback = _post_run_pullback(config=config, trial_dir=commands["trial_dir"])
     downstream = _downstream_after_successful_audit(commands["trial_dir"])
     post_run_requirements = _post_run_acceptance_requirements(
@@ -360,6 +365,7 @@ def _remote_preflight_requirements(
     decision: dict[str, Any],
     preflight: dict[str, Any],
     commands: dict[str, Any],
+    protocol_lane: dict[str, Any],
 ) -> list[dict[str, Any]]:
     run_preflight = commands.get("run_remote_preflight") if isinstance(commands.get("run_remote_preflight"), dict) else {}
     command = str(run_preflight.get("command") or "")
@@ -374,7 +380,7 @@ def _remote_preflight_requirements(
             execution_allowed_now=execution_allowed,
             required_before="run_remote_preflight",
             missing_artifact_ids=[] if decision["status"] == "approved" else ["f02_6_decision_record_approved_by_dr_sun"],
-            blocked_by=[] if decision["status"] == "approved" else _decision_step_blockers(decision),
+            blocked_by=[] if decision["status"] == "approved" and not protocol_lane["pending_lane_decision"] else _decision_step_blockers(decision, protocol_lane=protocol_lane),
             acceptable_evidence=[
                 "f02_6_decision_record.json with status=approved",
                 "decider=Dr Sun and effective_warm_start_decision=approved_obstacle_summary",
