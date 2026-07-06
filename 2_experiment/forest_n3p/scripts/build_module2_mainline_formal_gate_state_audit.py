@@ -506,6 +506,41 @@ def _mainline_issues(
                     "action_id": action_id,
                 }
             )
+    protocol_status_context_present = (
+        "protocol_lane_status_report" in current_section
+        and protocol_lane_status["status"] in current_section
+    )
+    for key, issue_id in (
+        (
+            "post_decision_contract_plan_required_section_count",
+            "mainline_current_section_missing_protocol_status_post_plan_section_count",
+        ),
+        (
+            "post_decision_contract_plan_shared_artifact_count",
+            "mainline_current_section_missing_protocol_status_post_plan_artifact_count",
+        ),
+        (
+            "post_decision_contract_plan_lane_count",
+            "mainline_current_section_missing_protocol_status_post_plan_lane_count",
+        ),
+    ):
+        token = str(protocol_lane_status[key])
+        if token and (not protocol_status_context_present or token not in current_section):
+            issues.append(
+                {
+                    "issue_id": issue_id,
+                    "message": "Current formal-gate section must mention the protocol status report's inherited post-plan count.",
+                    key: protocol_lane_status[key],
+                }
+            )
+    if "contract/training/evaluation/acceptance/formal_acceptance=1/3/2/3/1" not in current_section:
+        issues.append(
+            {
+                "issue_id": "mainline_current_section_missing_protocol_status_next_artifact_category_counts",
+                "message": "Current formal-gate section must mention the protocol status report's next-attempt artifact category counts.",
+                "expected_counts": EXPECTED_NEXT_SUCCESS_ARTIFACT_CATEGORY_COUNTS,
+            }
+        )
     if protocol_lane_readiness["artifact_name"] and protocol_lane_readiness["artifact_name"] not in current_section:
         issues.append(
             {
