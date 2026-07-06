@@ -477,6 +477,43 @@ def _protocol_lane_status_issues(protocol_lane_status: dict[str, Any]) -> list[d
             issues.append(_issue("protocol_lane_status_pending_has_selected_lane", "pending protocol lane must not have a selected lane"))
         if protocol_lane_status["lane_count"] != len(EXPECTED_PROTOCOL_LANE_IDS):
             issues.append(_issue("protocol_lane_status_lane_count_invalid", "protocol-lane matrix must expose four lanes"))
+        if protocol_lane_status["next_success_attempt_artifact_category_counts"] != EXPECTED_NEXT_SUCCESS_ARTIFACT_CATEGORY_COUNTS:
+            issues.append(
+                _issue(
+                    "protocol_lane_status_next_artifact_category_counts_drift",
+                    "protocol-lane handoff must preserve next success-attempt artifact category counts",
+                )
+            )
+        if (
+            protocol_lane_status["post_decision_contract_plan_shared_artifact_category_counts"]
+            != EXPECTED_NEXT_SUCCESS_ARTIFACT_CATEGORY_COUNTS
+        ):
+            issues.append(
+                _issue(
+                    "protocol_lane_status_post_plan_category_counts_drift",
+                    "protocol-lane handoff must preserve post-plan artifact category counts",
+                )
+            )
+        if (
+            protocol_lane_status["old_failed_run_artifacts_invalid_for_next_success_attempt"]
+            is not EXPECTED_OLD_FAILED_RUN_INVALID_FOR_NEXT_SUCCESS_ATTEMPT
+        ):
+            issues.append(
+                _issue(
+                    "protocol_lane_status_old_failed_invalid_flag_drift",
+                    "old failed-run artifacts must remain invalid substitutes in the handoff",
+                )
+            )
+        if (
+            protocol_lane_status["post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"]
+            is not EXPECTED_OLD_FAILED_RUN_INVALID_FOR_NEXT_SUCCESS_ATTEMPT
+        ):
+            issues.append(
+                _issue(
+                    "protocol_lane_status_post_plan_old_failed_invalid_flag_drift",
+                    "post-plan summary must preserve that old failed-run artifacts are invalid substitutes",
+                )
+            )
         if protocol_lane_status["allowed_next_action_ids"] != [EXPECTED_PROTOCOL_LANE_NEXT_ACTION]:
             issues.append(_issue("protocol_lane_status_allowed_actions_drift", "pending protocol lane may only allow record_protocol_lane_decision"))
         for action in EXPECTED_PROTOCOL_LANE_BLOCKED_ACTIONS:
