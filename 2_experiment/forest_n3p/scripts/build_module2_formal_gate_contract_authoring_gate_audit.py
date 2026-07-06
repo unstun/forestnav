@@ -299,6 +299,128 @@ def _required_contract_sections(contract_intake: dict[str, Any]) -> list[str]:
     return _strings(output.get("required_sections"))
 
 
+def _post_decision_plan_summary(raw: dict[str, Any]) -> dict[str, Any]:
+    raw = raw if isinstance(raw, dict) else {}
+    gate = raw.get("gate_state") if isinstance(raw.get("gate_state"), dict) else {}
+    return {
+        "present": bool(raw),
+        "artifact_name": str(raw.get("artifact_name") or ""),
+        "status": str(raw.get("status") or ""),
+        "audit_issue_count": int(raw.get("audit_issue_count") or 0),
+        "required_contract_section_count": int(raw.get("required_contract_section_count") or 0),
+        "shared_next_success_attempt_artifact_count": int(
+            raw.get("shared_next_success_attempt_artifact_count") or 0
+        ),
+        "lane_count": int(raw.get("lane_count") or 0),
+        "writes_contract": raw.get("writes_contract"),
+        "approves_contract": raw.get("approves_contract"),
+        "runs_training": raw.get("runs_training"),
+        "runs_remote_preflight": raw.get("runs_remote_preflight"),
+        "remote_training_allowed_now": raw.get("remote_training_allowed_now"),
+        "formal_claim_allowed": raw.get("formal_claim_allowed"),
+        "paper_result_material_allowed": raw.get("paper_result_material_allowed"),
+        "gate_selected_lane_id": gate.get("selected_lane_id"),
+        "gate_contract_drafting_allowed_now": gate.get("contract_drafting_allowed_now"),
+        "gate_remote_training_allowed_now": gate.get("remote_training_allowed_now"),
+        "gate_formal_claim_allowed_now": gate.get("formal_claim_allowed_now"),
+    }
+
+
+def _post_decision_plan_issues(
+    post_decision_plan: dict[str, Any], *, contract_gate: dict[str, Any]
+) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    if not post_decision_plan["present"]:
+        return [_issue("post_decision_contract_plan_missing", "Contract authoring gate must consume the post-decision contract plan.")]
+    if post_decision_plan["artifact_name"] != EXPECTED_POST_DECISION_CONTRACT_PLAN_ARTIFACT:
+        issues.append(
+            _issue(
+                "post_decision_contract_plan_artifact_drift",
+                "Post-decision contract plan artifact name drifted.",
+                observed=post_decision_plan["artifact_name"],
+            )
+        )
+    if post_decision_plan["status"] not in EXPECTED_POST_DECISION_CONTRACT_PLAN_STATUSES:
+        issues.append(
+            _issue(
+                "post_decision_contract_plan_status_drift",
+                "Post-decision contract plan status is not recognized by contract authoring gate.",
+                observed=post_decision_plan["status"],
+            )
+        )
+    if post_decision_plan["audit_issue_count"] != 0:
+        issues.append(
+            _issue(
+                "post_decision_contract_plan_audit_issues_open",
+                "Post-decision contract plan must be audit-clean before contract authoring gate consumes it.",
+                observed=post_decision_plan["audit_issue_count"],
+            )
+        )
+    expected_counts = {
+        "required_contract_section_count": EXPECTED_POST_DECISION_CONTRACT_SECTION_COUNT,
+        "shared_next_success_attempt_artifact_count": EXPECTED_POST_DECISION_CONTRACT_SHARED_ARTIFACT_COUNT,
+        "lane_count": EXPECTED_POST_DECISION_CONTRACT_LANE_COUNT,
+    }
+    for key, expected in expected_counts.items():
+        if post_decision_plan[key] != expected:
+            issues.append(
+                _issue(
+                    f"post_decision_contract_plan_{key}_drift",
+                    "Post-decision contract plan count drifted.",
+                    observed=post_decision_plan[key],
+                )
+            )
+    true_flags = [
+        key
+        for key in (
+            "writes_contract",
+            "approves_contract",
+            "runs_training",
+            "runs_remote_preflight",
+            "remote_training_allowed_now",
+            "formal_claim_allowed",
+            "paper_result_material_allowed",
+            "gate_remote_training_allowed_now",
+            "gate_formal_claim_allowed_now",
+        )
+        if post_decision_plan.get(key) is True
+    ]
+    if true_flags:
+        issues.append(
+            _issue(
+                "post_decision_contract_plan_authorization_leak",
+                "Post-decision contract plan must not authorize contract writing, training, remote preflight, claims, or paper-result material.",
+                observed=true_flags,
+            )
+        )
+    pending = contract_gate["decision_record_status"] == PENDING_DECISION_STATUS
+    recorded = contract_gate["decision_record_status"] == RECORDED_DECISION_STATUS
+    if pending:
+        if post_decision_plan["gate_selected_lane_id"] is not None:
+            issues.append(
+                _issue(
+                    "post_decision_contract_plan_selected_lane_while_pending",
+                    "Pending contract authoring gate must consume a plan without a selected lane.",
+                    observed=post_decision_plan["gate_selected_lane_id"],
+                )
+            )
+        if post_decision_plan["gate_contract_drafting_allowed_now"] is True:
+            issues.append(
+                _issue(
+                    "post_decision_contract_plan_contract_drafting_leak_while_pending",
+                    "Post-decision plan must not open contract drafting while lane decision is pending.",
+                )
+            )
+    if recorded and not post_decision_plan["gate_selected_lane_id"]:
+        issues.append(
+            _issue(
+                "post_decision_contract_plan_missing_selected_lane_after_record",
+                "Recorded contract authoring gate must consume a plan with selected lane context.",
+            )
+        )
+    return issues
+
+
 def _markdown(manifest: dict[str, Any]) -> str:
     gate = manifest["contract_gate"]
     lines = [
