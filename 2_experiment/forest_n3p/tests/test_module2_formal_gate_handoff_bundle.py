@@ -575,8 +575,9 @@ def test_formal_gate_handoff_bundle_cli_writes_json_and_markdown(tmp_path):
     assert "does not execute commands" in markdown
 
 
-def _config(tmp_path, *, complete, protocol_pending=False):
+def _config(tmp_path, *, complete, protocol_pending=None):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_handoff_bundle")
+    protocol_status = {} if protocol_pending is None else _protocol_lane_status(pending=protocol_pending)
     return builder.FormalGateHandoffBundleConfig(
         output_dir=tmp_path,
         decision_record_path=_json(tmp_path, "decision.json", _decision(complete=complete)),
@@ -591,7 +592,7 @@ def _config(tmp_path, *, complete, protocol_pending=False):
         protocol_lane_status_report_path=_json(
             tmp_path,
             "protocol_lane_status.json",
-            _protocol_lane_status(pending=protocol_pending),
+            protocol_status,
         ),
     )
 
