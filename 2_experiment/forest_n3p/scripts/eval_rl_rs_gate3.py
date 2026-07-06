@@ -22,6 +22,7 @@ from forest_n3p.rl_rs.curriculum import (
 from forest_n3p.rl_rs.gym_env import GymAnalyticExpansionEnv
 from forest_n3p.rl_rs.obs import ObservationConfig
 from forest_n3p.rl_rs.training_logging import RlRsEpisodeLoggingWrapper, file_sha256
+from forest_n3p.scripts._module2_contract_gate import require_contract_ready
 
 
 DEFAULT_CONTRACT_PATH = ".pipeline/contracts/module2-ppo-funnel-expansion.md"
@@ -32,6 +33,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = _parse_args(raw_argv)
     if bool(args.allow_duplicate_openmp):
         os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
+    contract_status = require_contract_ready(
+        args.contract_path,
+        allow_unapproved=bool(args.allow_unapproved_contract_for_smoke),
+        context="Module2 Gate3 evaluation",
+    )
     PPO = _load_ppo()
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -52,7 +58,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         env.close()
 
     episode_rows = _read_episode_rows(episodes_csv)
-    summary = _gate_summary(args=args, raw_argv=raw_argv, rows=episode_rows, episodes_csv=episodes_csv)
+    summary = _gate_summary(
+        args=args,
+        raw_argv=raw_argv,
+        rows=episode_rows,
+        episodes_csv=episodes_csv,
+        contract_status=contract_status,
+    )
     (output_dir / "gate3_summary.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(json.dumps(summary, indent=2, ensure_ascii=False))
     return 0
@@ -63,6 +75,11 @@ def _parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser.add_argument("--model", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--contract-path", default=DEFAULT_CONTRACT_PATH)
+    parser.add_argument(
+        "--allow-unapproved-contract-for-smoke",
+        action="store_true",
+        help="Allow a missing/draft contract only for smoke evidence that cannot be formal.",
+    )
     parser.add_argument("--seed", type=int, default=20260704)
     parser.add_argument("--device", default="auto")
     parser.add_argument("--allow-duplicate-openmp", action="store_true")
@@ -129,7 +146,14 @@ def _read_episode_rows(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(handle))
 
 
-def _gate_summary(*, args: argparse.Namespace, raw_argv: Sequence[str], rows: list[dict[str, str]], episodes_csv: Path) -> dict[str, Any]:
+def _gate_summary(
+    *,
+    args: argparse.Namespace,
+    raw_argv: Sequence[str],
+    rows: list[dict[str, str]],
+    episodes_csv: Path,
+    contract_status: str,
+) -> dict[str, Any]:
     episodes = len(rows)
     successes = sum(1 for row in rows if _csv_bool(row.get("terminal_rs_success")))
     collisions = sum(1 for row in rows if _csv_bool(row.get("collision")))
@@ -143,6 +167,7 @@ def _gate_summary(*, args: argparse.Namespace, raw_argv: Sequence[str], rows: li
         "schema_version": 1,
         "gate_name": "module2_f03_gate3",
         "contract": str(args.contract_path),
+        "contract_status": str(contract_status),
         "decision": decision,
         "decision_rule": "pass iff episodes >= min_episodes and terminal_rs_success_rate >= success_threshold",
         "success_threshold": threshold,
@@ -165,6 +190,8 @@ def _gate_summary(*, args: argparse.Namespace, raw_argv: Sequence[str], rows: li
         "config": {
             "command": " ".join(["python -m forest_n3p.scripts.eval_rl_rs_gate3", *raw_argv]),
             "contract": str(args.contract_path),
+            "contract_status": str(contract_status),
+            "allow_unapproved_contract_for_smoke": bool(args.allow_unapproved_contract_for_smoke),
             "seed": int(args.seed),
             "device": str(args.device),
             "curriculum_preset": str(args.curriculum_preset),
