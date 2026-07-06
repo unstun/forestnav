@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "artifact_name": "module2_v2_contract_promotion_handoff_bundle",
+  "status": "ready_for_dr_sun_v2_contract_promotion_handoff",
+  "created_at_utc": "2026-07-06T08:39:29.960903+00:00",
+  "source_head": "c7e20692ae961be5c0eac98f457304202ce3942d",
+  "not_paper_result_material": true,
+  "executes_commands": false,
+  "writes_contract": false,
+  "approves_contract": false,
+  "runs_training": false,
+  "runs_remote_preflight": false,
+  "runs_remote_audit": false,
+  "local_training_allowed_now": false,
+  "remote_preflight_allowed_now": false,
+  "remote_training_allowed_now": false,
+  "formal_claim_allowed_now": false,
+  "paper_result_material_allowed_now": false,
+  "inputs": {
+    "contract": ".pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md",
+    "promotion_readiness": "0_trials/module2_v2_contract_promotion_readiness_audit/v2_contract_promotion_readiness_audit.json",
+    "promotion_packet": "0_trials/module2_v2_contract_promotion_packet/v2_contract_promotion_packet.json",
+    "promotion_dry_run": "0_trials/module2_v2_contract_promotion_dry_run/promotion_apply_dry_run.json",
+    "chain_audit": "0_trials/module2_v2_formal_gate_chain_audit/v2_formal_gate_chain_audit.json",
+    "post_promotion_plan": "0_trials/module2_v2_post_promotion_regeneration_plan/v2_post_promotion_regeneration_plan.json",
+    "remaining_evidence": "0_trials/module2_v2_formal_gate_remaining_evidence/v2_formal_gate_remaining_evidence.json"
+  },
+  "handoff_intent": {
+    "selected_lane_id": "stronger_obstacle_summary_warm_start",
+    "contract_action": "draft_new_contract",
+    "contract_status_now": "draft",
+    "decision_required_from_dr_sun": true,
+    "recommended_apply_command_for_future_explicit_approval": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.apply_module2_v2_contract_promotion --status approved --decider 'Dr Sun' --remote-alias gpu3070ti-relay --confirm-training-budget --confirm-unsafe-failure-thresholds",
+    "recommended_apply_command_must_not_run_now": true,
+    "why_not_run_now": "This bundle is a handoff checklist; applying promotion still requires Dr Sun's explicit approval in the current turn."
+  },
+  "handoff_checks": [
+    {
+      "check_id": "contract_remains_draft",
+      "passed": true,
+      "observed": "draft",
+      "expected": "draft"
+    },
+    {
+      "check_id": "promotion_readiness_ready",
+      "passed": true,
+      "observed": "ready_for_dr_sun_v2_contract_promotion_decision",
+      "expected": "ready_for_dr_sun_v2_contract_promotion_decision"
+    },
+    {
+      "check_id": "promotion_packet_ready",
+      "passed": true,
+      "observed": "v2_contract_promotion_packet_ready_awaiting_dr_sun",
+      "expected": "v2_contract_promotion_packet_ready_awaiting_dr_sun"
+    },
+    {
+      "check_id": "promotion_packet_has_four_approval_items",
+      "passed": true,
+      "observed": [
+        "contract_status_action",
+        "remote_alias",
+        "training_budget",
+        "unsafe_failure_thresholds"
+      ],
+      "expected": [
+        "contract_status_action",
+        "remote_alias",
+        "training_budget",
+        "unsafe_failure_thresholds"
+      ]
+    },
+    {
+      "check_id": "promotion_dry_run_ready_and_read_only",
+      "passed": true,
+      "observed": {
+        "status": "promotion_apply_ready",
+        "dry_run": true,
+        "writes_contract": false
+      },
+      "expected": {
+        "status": "promotion_apply_ready",
+        "dry_run": true,
+        "writes_contract": false
+      }
+    },
+    {
+      "check_id": "chain_waits_at_contract_promotion",
+      "passed": true,
+      "observed": "v2_contract_promoted",
+      "expected": "v2_contract_promoted"
+    },
+    {
+      "check_id": "post_promotion_plan_waits_for_dr_sun",
+      "passed": true,
+      "observed": "await_dr_sun_before_apply_v2_contract_promotion",
+      "expected": "await_dr_sun_before_apply_v2_contract_promotion"
+    },
+    {
+      "check_id": "remaining_evidence_still_missing_before_training",
+      "passed": true,
+      "observed": 12,
+      "expected": "> 0"
+    }
+  ],
+  "post_apply_required_commands": [
+    {
+      "step_id": "rerun_v2_contract_readiness_gate",
+      "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_v2_contract_readiness_gate",
+      "runs_training": false,
+      "runs_remote_preflight": false
+    },
+    {
+      "step_id": "rerun_source_freshness_audit",
+      "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_source_freshness_audit",
+      "runs_training": false,
+      "runs_remote_preflight": false
+    },
+    {
+      "step_id": "regenerate_v2_remote_execution_packet",
+      "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_v2_remote_execution_packet",
+      "runs_training": false,
+      "runs_remote_preflight": false
+    },
+    {
+      "step_id": "refresh_v2_remaining_evidence",
+      "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_v2_formal_gate_remaining_evidence",
+      "runs_training": false,
+      "runs_remote_preflight": false
+    },
+    {
+      "step_id": "refresh_v2_formal_gate_chain_audit",
+      "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_v2_formal_gate_chain_audit",
+      "runs_training": false,
+      "runs_remote_preflight": false
+    },
+    {
+      "step_id": "refresh_post_promotion_regeneration_plan",
+      "command": "PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_v2_post_promotion_regeneration_plan",
+      "runs_training": false,
+      "runs_remote_preflight": false
+    }
+  ],
+  "remaining_evidence_summary": {
+    "total_required_evidence_items": 12,
+    "total_missing_or_unsatisfied": 12,
+    "training_missing_or_unsatisfied": 3,
+    "evaluation_missing_or_unsatisfied": 2,
+    "acceptance_missing_or_unsatisfied": 3,
+    "formal_acceptance_missing_or_unsatisfied": 1
+  },
+  "invalid_substitutes": [
+    "chat-only approval without committed contract frontmatter",
+    "promotion packet alone as approval",
+    "promotion dry-run alone as approval",
+    "old v1 contract or old v1 remote packet",
+    "failed gate3_obstacle_summary_warm_approved_v1 checkpoint",
+    "remote preflight smoke before regenerated source-freshness and v2 packet gates",
+    "local PPO training output",
+    "paper prose, result table, or appendix text before H02 formal acceptance"
+  ],
+  "audit_issue_count": 0,
+  "audit_issues": []
+}
