@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "artifact_name": "module2_v2_contract_promotion_packet",
+  "status": "v2_contract_promotion_packet_ready_awaiting_dr_sun",
+  "created_at_utc": "2026-07-06T07:47:27.525214+00:00",
+  "source_head": "d29e2d84c68e04cd9b680adcfeba186ac82f93f7",
+  "not_paper_result_material": true,
+  "executes_commands": false,
+  "writes_contract": false,
+  "approves_contract": false,
+  "runs_training": false,
+  "runs_remote_preflight": false,
+  "runs_remote_audit": false,
+  "local_training_allowed_now": false,
+  "remote_preflight_allowed_now": false,
+  "remote_training_allowed_now": false,
+  "formal_claim_allowed_now": false,
+  "paper_result_material_allowed_now": false,
+  "contract_promotion_allowed_by_packet": false,
+  "inputs": {
+    "contract": ".pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md",
+    "readiness_gate": "0_trials/module2_v2_contract_readiness_gate/v2_contract_readiness_gate.json",
+    "gap_ledger": ".pipeline/experiments/20260706_module2_v2_formal_gate_gap_ledger.md",
+    "remote_readiness": "0_trials/module2_gpu3070ti_readiness_refresh/readiness_refresh.md",
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet"
+  },
+  "current_gate": {
+    "status": "v2_contract_readiness_blocked",
+    "source_head": "21a4f99885461c99d3b97ba3c9ad39551ac3803d",
+    "next_action": "promote_or_edit_v2_contract_before_source_freshness",
+    "blocker_count": 1,
+    "blockers": [
+      "contract_status_not_approved_or_frozen"
+    ],
+    "runner_command_contains_v2_params": true,
+    "remote_training_allowed_now": false
+  },
+  "remote_alias_evidence": {
+    "recommended_alias": "gpu3070ti-relay",
+    "ssh_config_records": {
+      "gpu3070ti-relay": {
+        "alias": "gpu3070ti-relay",
+        "user": "ubuntu",
+        "hostname": "127.0.0.1",
+        "port": "23070",
+        "proxyjump": "ubuntu-obgx"
+      },
+      "gpu3070ti-reply": {
+        "alias": "gpu3070ti-reply",
+        "user": "sun",
+        "hostname": "gpu3070ti-reply",
+        "port": "22"
+      }
+    },
+    "readiness_artifact_mentions_gpu3070ti_relay": true,
+    "readiness_artifact_mentions_rtx_3070_ti": true
+  },
+  "approval_item_count": 4,
+  "approval_items": [
+    {
+      "item_id": "remote_alias",
+      "status": "awaiting_dr_sun_confirmation",
+      "recommended_value": "gpu3070ti-relay",
+      "options": [
+        "gpu3070ti-relay",
+        "gpu3070ti-reply"
+      ],
+      "evidence": "local ssh -G shows gpu3070ti-relay has ProxyJump/localhost:23070, while gpu3070ti-reply resolves as a direct hostname unless Dr Sun provides another route",
+      "promotion_effect": "sets the remote route used by source-freshness and remote packet generation"
+    },
+    {
+      "item_id": "training_budget",
+      "status": "awaiting_dr_sun_approval",
+      "recommended_value": {
+        "seed": 20260706,
+        "train_total_timesteps": 500000,
+        "train_n_envs": 4,
+        "train_n_steps": 256,
+        "train_batch_size": 256,
+        "train_n_epochs": 8,
+        "train_learning_rate": 0.0001,
+        "train_ent_coef": 0.01,
+        "train_checkpoint_freq": 25000
+      },
+      "promotion_effect": "locks the stronger PPO budget before any remote run"
+    },
+    {
+      "item_id": "unsafe_failure_thresholds",
+      "status": "awaiting_dr_sun_approval",
+      "recommended_value": {
+        "collision_rate_gte": 0.3,
+        "truncation_rate_gte": 0.2
+      },
+      "promotion_effect": "locks independent failure criteria before seeing new rollout results"
+    },
+    {
+      "item_id": "contract_status_action",
+      "status": "awaiting_dr_sun_approval",
+      "options": [
+        "approved",
+        "frozen"
+      ],
+      "recommended_value": "approved",
+      "promotion_effect": "allows only the next source-freshness gate, not immediate remote training"
+    }
+  ],
+  "post_approval_next_steps": [
+    "commit the contract status promotion to approved or frozen",
+    "re-run v2 contract readiness gate and require v2_contract_ready_for_source_freshness",
+    "regenerate source-freshness artifacts from the post-promotion commit",
+    "generate the v2 remote execution packet",
+    "run remote preflight only after the regenerated packet allows it"
+  ],
+  "audit_issue_count": 0,
+  "audit_issues": []
+}
