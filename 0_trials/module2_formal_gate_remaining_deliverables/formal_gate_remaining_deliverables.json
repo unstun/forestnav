@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_remaining_deliverables",
   "status": "formal_gate_deliverables_blocked",
-  "created_at_utc": "2026-07-05T23:56:25.037202+00:00",
-  "source_head": "488cada04d7bb64474dd98033b8e16f000f9c777",
+  "created_at_utc": "2026-07-06T01:13:34.243717+00:00",
+  "source_head": "fba358edd30e030635161a566fd24aa1b2820fe3+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -1035,7 +1035,8 @@
         ],
         "missing_required_current_blockers": [],
         "unlock_sequence_before_stage_allowed": [
-          "record_f02_6_decision",
+          "record_protocol_lane_decision",
+          "approved_or_frozen_new_or_revised_contract",
           "source_freshness_ready_for_remote_preflight",
           "remote_formal_execution_packet_ready",
           "approved_remote_preflight",
@@ -1062,7 +1063,8 @@
         ],
         "missing_required_current_blockers": [],
         "unlock_sequence_before_stage_allowed": [
-          "record_f02_6_decision",
+          "record_protocol_lane_decision",
+          "approved_or_frozen_new_or_revised_contract",
           "source_freshness_ready_for_remote_preflight",
           "remote_formal_execution_packet_ready",
           "approved_remote_preflight",
@@ -1089,7 +1091,8 @@
         ],
         "missing_required_current_blockers": [],
         "unlock_sequence_before_stage_allowed": [
-          "record_f02_6_decision",
+          "record_protocol_lane_decision",
+          "approved_or_frozen_new_or_revised_contract",
           "source_freshness_ready_for_remote_preflight",
           "remote_formal_execution_packet_ready",
           "approved_remote_preflight",
@@ -1114,7 +1117,8 @@
         ],
         "missing_required_current_blockers": [],
         "unlock_sequence_before_stage_allowed": [
-          "record_f02_6_decision",
+          "record_protocol_lane_decision",
+          "approved_or_frozen_new_or_revised_contract",
           "source_freshness_ready_for_remote_preflight",
           "remote_formal_execution_packet_ready",
           "approved_remote_preflight",
@@ -1140,7 +1144,8 @@
         ],
         "missing_required_current_blockers": [],
         "unlock_sequence_before_stage_allowed": [
-          "record_f02_6_decision",
+          "record_protocol_lane_decision",
+          "approved_or_frozen_new_or_revised_contract",
           "source_freshness_ready_for_remote_preflight",
           "remote_formal_execution_packet_ready",
           "approved_remote_preflight",
@@ -1166,7 +1171,8 @@
         ],
         "missing_required_current_blockers": [],
         "unlock_sequence_before_stage_allowed": [
-          "record_f02_6_decision",
+          "record_protocol_lane_decision",
+          "approved_or_frozen_new_or_revised_contract",
           "source_freshness_ready_for_remote_preflight",
           "remote_formal_execution_packet_ready",
           "approved_remote_preflight",
@@ -1192,7 +1198,8 @@
         ],
         "missing_required_current_blockers": [],
         "unlock_sequence_before_stage_allowed": [
-          "record_f02_6_decision",
+          "record_protocol_lane_decision",
+          "approved_or_frozen_new_or_revised_contract",
           "source_freshness_ready_for_remote_preflight",
           "remote_formal_execution_packet_ready",
           "approved_remote_preflight",
@@ -1218,7 +1225,8 @@
         ],
         "missing_required_current_blockers": [],
         "unlock_sequence_before_stage_allowed": [
-          "record_f02_6_decision",
+          "record_protocol_lane_decision",
+          "approved_or_frozen_new_or_revised_contract",
           "source_freshness_ready_for_remote_preflight",
           "remote_formal_execution_packet_ready",
           "approved_remote_preflight",
@@ -1564,7 +1572,7 @@
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
         "artifact state is not missing, blocked, smoke, preview, or candidate",
-        "artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure",
+        "artifact provenance traces to the approved gpu3070ti-relay formal run after protocol lane decision and approved/frozen contract",
         "final_model.zip is non-empty and paired with summary.json plus training_manifest.json from the same run",
         "checkpoint is later referenced by the pulled-back SHA-256 record"
       ],
@@ -1618,7 +1626,7 @@
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
         "artifact state is not missing, blocked, smoke, preview, or candidate",
-        "artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure",
+        "artifact provenance traces to the approved gpu3070ti-relay formal run after protocol lane decision and approved/frozen contract",
         "summary.json parses as JSON and records formal PPO run metadata plus terminal-RS training signals",
         "summary protocol label matches the approved obstacle-summary warm-start formal Gate3 run"
       ],
@@ -1672,7 +1680,7 @@
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
         "artifact state is not missing, blocked, smoke, preview, or candidate",
-        "artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure",
+        "artifact provenance traces to the approved gpu3070ti-relay formal run after protocol lane decision and approved/frozen contract",
         "training_manifest.json parses as JSON and records command provenance, source head, seed, and run host",
         "training host is gpu3070ti-relay and local_training_allowed remains false"
       ],
@@ -1725,7 +1733,7 @@
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
         "artifact state is not missing, blocked, smoke, preview, or candidate",
-        "artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure",
+        "artifact provenance traces to the approved gpu3070ti-relay formal run after protocol lane decision and approved/frozen contract",
         "gate3_eval_episodes.csv contains formal episode rows for the approved PPO/RL-RS method",
         "episode rows satisfy the H01 output schema including success, collision, truncation, and timing fields"
       ],
@@ -1776,7 +1784,7 @@
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
         "artifact state is not missing, blocked, smoke, preview, or candidate",
-        "artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure",
+        "artifact provenance traces to the approved gpu3070ti-relay formal run after protocol lane decision and approved/frozen contract",
         "gate3_summary.json parses as JSON and summarizes the pulled-back formal evaluation CSV",
         "summary scope and row counts match the H01 formal evaluation manifest"
       ],
@@ -1827,7 +1835,7 @@
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
         "artifact state is not missing, blocked, smoke, preview, or candidate",
-        "artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure",
+        "artifact provenance traces to the approved gpu3070ti-relay formal run after protocol lane decision and approved/frozen contract",
         "gate3_trial_manifest.json records a formal non-smoke, non-preview, non-candidate trial",
         "manifest records source head, protocol label, host, seed, command provenance, and pullback paths"
       ],
@@ -1879,7 +1887,7 @@
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
         "artifact state is not missing, blocked, smoke, preview, or candidate",
-        "artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure",
+        "artifact provenance traces to the approved gpu3070ti-relay formal run after protocol lane decision and approved/frozen contract",
         "gate3_formal_audit.json accepts the pulled-back run as formal and scoped to the approved protocol",
         "audit is generated after checkpoint, eval CSV, summary, manifest, and hash records are present"
       ],
@@ -1931,7 +1939,7 @@
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
         "artifact state is not missing, blocked, smoke, preview, or candidate",
-        "artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure",
+        "artifact provenance traces to the approved gpu3070ti-relay formal run after protocol lane decision and approved/frozen contract",
         "SHA-256 file or JSON exists for train/final_model.zip",
         "recorded digest matches the locally pulled-back final_model.zip"
       ],
@@ -1983,7 +1991,7 @@
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
         "artifact state is not missing, blocked, smoke, preview, or candidate",
-        "artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure",
+        "artifact provenance traces to the approved gpu3070ti-relay formal run after protocol lane decision and approved/frozen contract",
         "module2_v1_evaluation_manifest status is ready_for_formal_run or ready_for_formal_evaluation",
         "manifest references the audited PPO checkpoint and requires formal PPO result rows"
       ],
@@ -2035,7 +2043,7 @@
       "acceptance_predicates": [
         "expected_path exists in the local pulled-back formal Gate3 artifact tree",
         "artifact state is not missing, blocked, smoke, preview, or candidate",
-        "artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure",
+        "artifact provenance traces to the approved gpu3070ti-relay formal run after protocol lane decision and approved/frozen contract",
         "h02_formal_acceptance has formal_output_accepted=true and paper_result_input_allowed=true",
         "acceptance is regenerated from audited remote artifacts and rejects smoke or preview substitutes"
       ],

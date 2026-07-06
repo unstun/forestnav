@@ -3,7 +3,7 @@
 This ledger is read-only. It lists remaining formal training, evaluation, and acceptance deliverables; it does not execute commands or write paper results.
 
 - status: `formal_gate_deliverables_blocked`
-- source_head: `488cada04d7bb64474dd98033b8e16f000f9c777`
+- source_head: `fba358edd30e030635161a566fd24aa1b2820fe3+dirty`
 - missing_deliverable_count: `1`
 - open_category_count: `1`
 - missing_counts_by_formal_category: `{'training': 0, 'evaluation': 0, 'acceptance': 0, 'formal_acceptance': 1}`
@@ -170,14 +170,14 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - blocked_row_count: `1`
 - rows_with_missing_required_blockers: `0`
 - rows_allowed_while_missing: `0`
-- `training:train_final_model_zip`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`f02_6_decision_not_approved, remote_packet_not_ready`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training`
-- `training:train_summary_json`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`f02_6_decision_not_approved, remote_packet_not_ready`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training`
-- `training:train_training_manifest_json`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`f02_6_decision_not_approved, remote_packet_not_ready`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training`
-- `evaluation:eval_gate3_eval_episodes_csv`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`remote_training_not_completed`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
-- `evaluation:eval_gate3_summary_json`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`remote_training_not_completed`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
-- `acceptance:gate3_trial_manifest_json`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`remote_training_not_completed`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
-- `acceptance:gate3_formal_audit_json`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`remote_training_not_completed`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
-- `acceptance:pulled_back_checkpoint_hash_record`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`remote_training_not_completed`, missing_required_current_blockers=`none`, unlock_sequence=`record_f02_6_decision -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
+- `training:train_final_model_zip`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`f02_6_decision_not_approved, remote_packet_not_ready`, missing_required_current_blockers=`none`, unlock_sequence=`record_protocol_lane_decision -> approved_or_frozen_new_or_revised_contract -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training`
+- `training:train_summary_json`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`f02_6_decision_not_approved, remote_packet_not_ready`, missing_required_current_blockers=`none`, unlock_sequence=`record_protocol_lane_decision -> approved_or_frozen_new_or_revised_contract -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training`
+- `training:train_training_manifest_json`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`f02_6_decision_not_approved, remote_packet_not_ready`, missing_required_current_blockers=`none`, unlock_sequence=`record_protocol_lane_decision -> approved_or_frozen_new_or_revised_contract -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training`
+- `evaluation:eval_gate3_eval_episodes_csv`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`remote_training_not_completed`, missing_required_current_blockers=`none`, unlock_sequence=`record_protocol_lane_decision -> approved_or_frozen_new_or_revised_contract -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
+- `evaluation:eval_gate3_summary_json`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`remote_training_not_completed`, missing_required_current_blockers=`none`, unlock_sequence=`record_protocol_lane_decision -> approved_or_frozen_new_or_revised_contract -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
+- `acceptance:gate3_trial_manifest_json`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`remote_training_not_completed`, missing_required_current_blockers=`none`, unlock_sequence=`record_protocol_lane_decision -> approved_or_frozen_new_or_revised_contract -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
+- `acceptance:gate3_formal_audit_json`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`remote_training_not_completed`, missing_required_current_blockers=`none`, unlock_sequence=`record_protocol_lane_decision -> approved_or_frozen_new_or_revised_contract -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
+- `acceptance:pulled_back_checkpoint_hash_record`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`remote_training_not_completed`, missing_required_current_blockers=`none`, unlock_sequence=`record_protocol_lane_decision -> approved_or_frozen_new_or_revised_contract -> source_freshness_ready_for_remote_preflight -> remote_formal_execution_packet_ready -> approved_remote_preflight -> gate3_remote_training_complete -> gate3_remote_audit_pullback`
 - `formal_acceptance:h01_ready_for_formal_run`: missing=`False`, stage_allowed_now=`False`, required_current_blockers=`missing_remote_audit_pullback`, missing_required_current_blockers=`none`, unlock_sequence=`gate3_remote_audit_pullback_complete -> regenerate_h01_h02_formal_artifacts -> h01_h02_formal_acceptance_audit`
 - `formal_acceptance:h02_formal_output_acceptance`: missing=`True`, stage_allowed_now=`False`, required_current_blockers=`missing_remote_audit_pullback`, missing_required_current_blockers=`none`, unlock_sequence=`gate3_remote_audit_pullback_complete -> regenerate_h01_h02_formal_artifacts -> h01_h02_formal_acceptance_audit`
 
@@ -266,7 +266,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - acceptance_predicates:
   - expected_path exists in the local pulled-back formal Gate3 artifact tree
   - artifact state is not missing, blocked, smoke, preview, or candidate
-  - artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure
+  - artifact provenance traces to the approved gpu3070ti-relay formal run after protocol lane decision and approved/frozen contract
   - final_model.zip is non-empty and paired with summary.json plus training_manifest.json from the same run
   - checkpoint is later referenced by the pulled-back SHA-256 record
 - proof_commands:
@@ -289,7 +289,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - acceptance_predicates:
   - expected_path exists in the local pulled-back formal Gate3 artifact tree
   - artifact state is not missing, blocked, smoke, preview, or candidate
-  - artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure
+  - artifact provenance traces to the approved gpu3070ti-relay formal run after protocol lane decision and approved/frozen contract
   - summary.json parses as JSON and records formal PPO run metadata plus terminal-RS training signals
   - summary protocol label matches the approved obstacle-summary warm-start formal Gate3 run
 - proof_commands:
@@ -312,7 +312,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - acceptance_predicates:
   - expected_path exists in the local pulled-back formal Gate3 artifact tree
   - artifact state is not missing, blocked, smoke, preview, or candidate
-  - artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure
+  - artifact provenance traces to the approved gpu3070ti-relay formal run after protocol lane decision and approved/frozen contract
   - training_manifest.json parses as JSON and records command provenance, source head, seed, and run host
   - training host is gpu3070ti-relay and local_training_allowed remains false
 - proof_commands:
@@ -335,7 +335,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - acceptance_predicates:
   - expected_path exists in the local pulled-back formal Gate3 artifact tree
   - artifact state is not missing, blocked, smoke, preview, or candidate
-  - artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure
+  - artifact provenance traces to the approved gpu3070ti-relay formal run after protocol lane decision and approved/frozen contract
   - gate3_eval_episodes.csv contains formal episode rows for the approved PPO/RL-RS method
   - episode rows satisfy the H01 output schema including success, collision, truncation, and timing fields
 - proof_commands:
@@ -357,7 +357,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - acceptance_predicates:
   - expected_path exists in the local pulled-back formal Gate3 artifact tree
   - artifact state is not missing, blocked, smoke, preview, or candidate
-  - artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure
+  - artifact provenance traces to the approved gpu3070ti-relay formal run after protocol lane decision and approved/frozen contract
   - gate3_summary.json parses as JSON and summarizes the pulled-back formal evaluation CSV
   - summary scope and row counts match the H01 formal evaluation manifest
 - proof_commands:
@@ -379,7 +379,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - acceptance_predicates:
   - expected_path exists in the local pulled-back formal Gate3 artifact tree
   - artifact state is not missing, blocked, smoke, preview, or candidate
-  - artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure
+  - artifact provenance traces to the approved gpu3070ti-relay formal run after protocol lane decision and approved/frozen contract
   - gate3_trial_manifest.json records a formal non-smoke, non-preview, non-candidate trial
   - manifest records source head, protocol label, host, seed, command provenance, and pullback paths
 - proof_commands:
@@ -401,7 +401,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - acceptance_predicates:
   - expected_path exists in the local pulled-back formal Gate3 artifact tree
   - artifact state is not missing, blocked, smoke, preview, or candidate
-  - artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure
+  - artifact provenance traces to the approved gpu3070ti-relay formal run after protocol lane decision and approved/frozen contract
   - gate3_formal_audit.json accepts the pulled-back run as formal and scoped to the approved protocol
   - audit is generated after checkpoint, eval CSV, summary, manifest, and hash records are present
 - proof_commands:
@@ -423,7 +423,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - acceptance_predicates:
   - expected_path exists in the local pulled-back formal Gate3 artifact tree
   - artifact state is not missing, blocked, smoke, preview, or candidate
-  - artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure
+  - artifact provenance traces to the approved gpu3070ti-relay formal run after protocol lane decision and approved/frozen contract
   - SHA-256 file or JSON exists for train/final_model.zip
   - recorded digest matches the locally pulled-back final_model.zip
 - proof_commands:
@@ -445,7 +445,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - acceptance_predicates:
   - expected_path exists in the local pulled-back formal Gate3 artifact tree
   - artifact state is not missing, blocked, smoke, preview, or candidate
-  - artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure
+  - artifact provenance traces to the approved gpu3070ti-relay formal run after protocol lane decision and approved/frozen contract
   - module2_v1_evaluation_manifest status is ready_for_formal_run or ready_for_formal_evaluation
   - manifest references the audited PPO checkpoint and requires formal PPO result rows
 - proof_commands:
@@ -467,7 +467,7 @@ This ledger is read-only. It lists remaining formal training, evaluation, and ac
 - acceptance_predicates:
   - expected_path exists in the local pulled-back formal Gate3 artifact tree
   - artifact state is not missing, blocked, smoke, preview, or candidate
-  - artifact provenance traces to the approved gpu3070ti-relay formal run after F02.6 closure
+  - artifact provenance traces to the approved gpu3070ti-relay formal run after protocol lane decision and approved/frozen contract
   - h02_formal_acceptance has formal_output_accepted=true and paper_result_input_allowed=true
   - acceptance is regenerated from audited remote artifacts and rejects smoke or preview substitutes
 - proof_commands:

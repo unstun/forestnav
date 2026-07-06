@@ -215,7 +215,8 @@ def test_remaining_deliverables_blocks_pending_formal_gate(tmp_path):
     ]
     assert unlock_rows["training:train_final_model_zip"]["missing_required_current_blockers"] == []
     assert unlock_rows["training:train_final_model_zip"]["unlock_sequence_before_stage_allowed"] == [
-        "record_f02_6_decision",
+        "record_protocol_lane_decision",
+        "approved_or_frozen_new_or_revised_contract",
         "source_freshness_ready_for_remote_preflight",
         "remote_formal_execution_packet_ready",
         "approved_remote_preflight",
@@ -532,7 +533,7 @@ def test_remaining_deliverables_cli_writes_json_and_markdown(tmp_path):
     assert "Deliverable Production Plan" in markdown
     assert "Deliverable Unlock Chain" in markdown
     assert "required_current_blockers" in markdown
-    assert "record_f02_6_decision -> source_freshness_ready_for_remote_preflight" in markdown
+    assert "record_protocol_lane_decision -> approved_or_frozen_new_or_revised_contract" in markdown
     assert "total_missing_deliverables" in markdown
     assert "total_proof_command_count" in markdown
     assert "production_plan_row_count" in markdown
@@ -547,7 +548,7 @@ def test_remaining_deliverables_cli_writes_json_and_markdown(tmp_path):
     assert "acceptance_predicates" in markdown
     assert "zipfile.is_zipfile" in markdown
     assert "eval_gate3_eval_episodes_csv_schema" in markdown
-    assert "gpu3070ti-relay formal run" in markdown
+    assert "after protocol lane decision and approved/frozen contract" in markdown
     assert "invalid_substitutes" in markdown
 
 
