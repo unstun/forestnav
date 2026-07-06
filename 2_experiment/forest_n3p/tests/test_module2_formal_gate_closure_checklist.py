@@ -419,6 +419,78 @@ def _source_freshness(*, complete, drift=False):
     return payload
 
 
+def _protocol_lane_status(*, pending):
+    return {
+        "status": "protocol_lane_status_blocked_pending_lane_decision"
+        if pending
+        else "protocol_lane_status_ready_after_lane_decision",
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+        "current_status": {
+            "next_blocked_lane": "protocol_lane_decision" if pending else "contract_authoring",
+            "decision_record_status": "pending_protocol_lane_decision" if pending else "recorded",
+            "selected_lane_id": None if pending else "stronger_obstacle_summary_warm_start",
+            "contract_drafting_allowed_now": False if pending else True,
+            "remote_training_allowed_now": False,
+            "allowed_next_action_ids": ["record_protocol_lane_decision"] if pending else ["draft_revised_contract"],
+            "blocked_action_ids": [
+                "local_training",
+                "remote_success_training",
+                "remote_preflight_for_new_success_attempt",
+                "formal_claim",
+                "paper_result_material",
+            ]
+            if pending
+            else ["remote_success_training", "formal_claim", "paper_result_material"],
+        },
+    }
+
+
+def _next_round_requirements(*, complete, protocol_pending):
+    rows = [
+        ("contract", "new_or_revised_research_contract", "missing_required_before_new_training"),
+        ("training", "new_remote_ppo_checkpoint_bundle", "blocked_until_contract"),
+        ("evaluation", "new_formal_gate3_eval_bundle", "blocked_until_new_checkpoint"),
+        ("acceptance", "new_gate3_audit_and_hash_acceptance", "blocked_until_new_eval"),
+        ("formal_acceptance", "h02_formal_output_acceptance", "blocked_until_new_gate3_pass"),
+    ]
+    return {
+        "status": "formal_gate_next_round_requirements_ready",
+        "executes_commands": False,
+        "runs_training": False,
+        "runs_remote_preflight": False,
+        "local_training_allowed": False,
+        "formal_claim_allowed": False,
+        "permissions_now": {
+            "local_training_allowed_now": False,
+            "remote_preflight_allowed_now": False if protocol_pending else complete,
+            "new_success_training_allowed_now": False if protocol_pending else complete,
+            "new_or_revised_contract_required_before_new_success_training": protocol_pending,
+            "execution_veto_reason": "protocol_lane_or_contract_gate_blocks_execution"
+            if protocol_pending
+            else None,
+        },
+        "next_round_requirements": {
+            "status": "new_or_revised_contract_required_before_any_new_success_attempt"
+            if protocol_pending
+            else "ready_after_contract_gate",
+            "requirement_count": len(rows),
+            "rows": [
+                {
+                    "category": category,
+                    "requirement_id": requirement_id,
+                    "status": "complete" if complete and not protocol_pending else status,
+                    "required_before": "new_success_training" if category == "contract" else "paper_result_material",
+                }
+                for category, requirement_id, status in rows
+            ],
+        },
+    }
+
+
 def _json(tmp_path, name, payload):
     path = tmp_path / name
     path.write_text(json.dumps(payload), encoding="utf-8")
