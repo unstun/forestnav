@@ -303,6 +303,22 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert handoff["transition_gate_audit_issue_count"] == 0
     assert handoff["next_handoff_action_id"] == "record_f02_6_decision"
     assert handoff["remote_training_allowed_now"] is False
+    assert handoff["protocol_lane_next_success_attempt_artifact_category_counts"] == {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1,
+    }
+    assert handoff["protocol_lane_post_plan_artifact_category_counts"] == {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1,
+    }
+    assert handoff["protocol_lane_old_failed_run_artifacts_invalid_for_next_success_attempt"] is True
+    assert handoff["protocol_lane_post_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"] is True
     assert handoff["remote_execution_steps"]["run_remote_training"]["allowed_now"] is False
     assert "remote_packet_not_ready" in handoff["remote_execution_steps"]["run_remote_training"]["blocked_by"]
     requirement_stage_summary = manifest["formal_gate_requirement_stage_summary"]
@@ -1193,6 +1209,27 @@ def test_formal_gate_status_report_consumes_handoff_bundle_safety(tmp_path):
     assert manifest["status"] == "formal_gate_status_blocked"
     assert "handoff_bundle_pending_allows_run_remote_training" in issue_ids
     assert manifest["permissions_now"]["remote_training_allowed_now"] is False
+
+
+def test_formal_gate_status_report_rejects_handoff_protocol_lane_artifact_drift(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_status_report")
+    config = _config(tmp_path, complete=False)
+    handoff = json.loads(config.handoff_bundle_path.read_text(encoding="utf-8"))
+    protocol = handoff["protocol_lane_status_summary"]
+    protocol["next_success_attempt_artifact_category_counts"]["training"] = 2
+    protocol["post_decision_contract_plan_shared_artifact_category_counts"]["evaluation"] = 1
+    protocol["old_failed_run_artifacts_invalid_for_next_success_attempt"] = False
+    protocol["post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"] = False
+    config.handoff_bundle_path.write_text(json.dumps(handoff), encoding="utf-8")
+
+    manifest = builder.build_manifest(config)
+
+    issue_ids = {issue["issue_id"] for issue in manifest["input_safety_issues"]}
+    assert manifest["status"] == "formal_gate_status_blocked"
+    assert "handoff_bundle_protocol_lane_next_artifact_category_counts_drift" in issue_ids
+    assert "handoff_bundle_protocol_lane_post_plan_category_counts_drift" in issue_ids
+    assert "handoff_bundle_protocol_lane_old_failed_invalid_flag_drift" in issue_ids
+    assert "handoff_bundle_protocol_lane_post_plan_old_failed_invalid_flag_drift" in issue_ids
 
 
 def test_formal_gate_status_report_next_action_guard_rejects_execution_handoff(tmp_path):
@@ -2844,6 +2881,25 @@ def _handoff_bundle(*, complete, drift=False):
             "action_id": "manual_execution_review" if complete else "record_f02_6_decision",
             "requires_dr_sun": not complete,
             "allowed_for_agent_now": False,
+        },
+        "protocol_lane_status_summary": {
+            "status": "protocol_lane_status_blocked_pending_lane_decision",
+            "next_success_attempt_artifact_category_counts": {
+                "contract": 1,
+                "training": 3,
+                "evaluation": 2,
+                "acceptance": 3,
+                "formal_acceptance": 1,
+            },
+            "post_decision_contract_plan_shared_artifact_category_counts": {
+                "contract": 1,
+                "training": 3,
+                "evaluation": 2,
+                "acceptance": 3,
+                "formal_acceptance": 1,
+            },
+            "old_failed_run_artifacts_invalid_for_next_success_attempt": True,
+            "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt": True,
         },
         "remote_execution_steps": {
             "sync_to_remote": _handoff_step(complete, False, step_blockers),

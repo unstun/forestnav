@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `8d94b15602ece2611f05b72c62685425d2948c5d+dirty`
+- source_head: `f7e5516acee90c0b3487f058fd48d7b8ddaca009+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -526,6 +526,10 @@ This file is a read-only formal-gate status report. It does not execute commands
 - next_handoff_action: `record_protocol_lane_decision`
 - safety_issue_count: `0`
 - remote_training_allowed_now: `False`
+- protocol_lane_next_success_attempt_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
+- protocol_lane_post_plan_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
+- protocol_lane_old_failed_run_artifacts_invalid_for_next_success_attempt: `True`
+- protocol_lane_post_plan_old_failed_run_artifacts_invalid_for_next_success_attempt: `True`
 - `sync_to_remote`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`protocol_lane_decision_pending`
 - `run_remote_preflight`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`protocol_lane_decision_pending`
 - `run_remote_training`: present=`True`, allowed_now=`False`, runs_training=`True`, blocked_by=`protocol_lane_decision_pending, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`

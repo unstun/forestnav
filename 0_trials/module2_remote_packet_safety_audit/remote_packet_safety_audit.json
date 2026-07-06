@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_remote_packet_safety_audit",
   "status": "remote_packet_safety_audit_passed",
-  "created_at_utc": "2026-07-06T04:58:46.916436+00:00",
-  "source_head": "fad161979da3fecd21dc3722f9cb22abddab89b4+dirty",
+  "created_at_utc": "2026-07-06T05:08:22.714570+00:00",
+  "source_head": "f7e5516acee90c0b3487f058fd48d7b8ddaca009+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -117,6 +117,23 @@
       "remote_training_allowed_now": false,
       "remote_preflight_allowed_now": false,
       "formal_claim_allowed_now": false,
+      "protocol_lane_status": "protocol_lane_status_blocked_pending_lane_decision",
+      "protocol_lane_next_success_attempt_artifact_category_counts": {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1
+      },
+      "protocol_lane_post_plan_artifact_category_counts": {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1
+      },
+      "protocol_lane_old_failed_run_artifacts_invalid_for_next_success_attempt": true,
+      "protocol_lane_post_plan_old_failed_run_artifacts_invalid_for_next_success_attempt": true,
       "remote_execution_steps": {
         "sync_to_remote": {
           "present": true,
