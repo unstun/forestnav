@@ -872,6 +872,102 @@ def _protocol_lane_status_issues(protocol_lane_status: dict[str, Any]) -> list[d
                 "true_flags": true_flags,
             }
         )
+    if protocol_lane_status["post_decision_contract_plan_summary_present"] is not True:
+        issues.append(
+            {
+                "issue_id": "protocol_lane_status_post_plan_summary_missing",
+                "message": "Protocol-lane status report must expose the inherited post-decision contract plan summary.",
+            }
+        )
+    if (
+        protocol_lane_status["post_decision_contract_plan_status"]
+        != EXPECTED_POST_DECISION_CONTRACT_PLAN_STATUS
+    ):
+        issues.append(
+            {
+                "issue_id": "protocol_lane_status_post_plan_status_drift",
+                "message": "Protocol-lane status report must mirror the pending post-decision contract plan status.",
+                "status": protocol_lane_status["post_decision_contract_plan_status"],
+            }
+        )
+    expected_counts = {
+        "post_decision_contract_plan_required_section_count": EXPECTED_POST_DECISION_CONTRACT_SECTION_COUNT,
+        "post_decision_contract_plan_shared_artifact_count": EXPECTED_POST_DECISION_CONTRACT_SHARED_ARTIFACT_COUNT,
+        "post_decision_contract_plan_lane_count": EXPECTED_POST_DECISION_CONTRACT_LANE_COUNT,
+    }
+    for key, expected in expected_counts.items():
+        if protocol_lane_status[key] != expected:
+            issues.append(
+                {
+                    "issue_id": f"protocol_lane_status_{key}_drift",
+                    "message": "Protocol-lane status report post-plan count drifted.",
+                    "expected": expected,
+                    "observed": protocol_lane_status[key],
+                }
+            )
+    post_plan_true_flags = [
+        key
+        for key in (
+            "post_decision_contract_plan_writes_contract",
+            "post_decision_contract_plan_approves_contract",
+            "post_decision_contract_plan_runs_training",
+            "post_decision_contract_plan_runs_remote_preflight",
+            "post_decision_contract_plan_remote_training_allowed_now",
+            "post_decision_contract_plan_formal_claim_allowed",
+            "post_decision_contract_plan_paper_result_material_allowed",
+            "post_decision_contract_plan_gate_contract_drafting_allowed_now",
+        )
+        if protocol_lane_status.get(key) is True
+    ]
+    if post_plan_true_flags:
+        issues.append(
+            {
+                "issue_id": "protocol_lane_status_post_plan_authorization_leak",
+                "message": "Protocol-lane status report's inherited post-plan summary must not authorize contract drafting, training, preflight, claims, or paper-result material while pending.",
+                "true_flags": post_plan_true_flags,
+            }
+        )
+    if protocol_lane_status["post_decision_contract_plan_selected_lane_id"] is not None:
+        issues.append(
+            {
+                "issue_id": "protocol_lane_status_post_plan_selected_lane_present",
+                "message": "Protocol-lane status report must not expose a selected post-plan lane while the decision is pending.",
+                "selected_lane_id": protocol_lane_status["post_decision_contract_plan_selected_lane_id"],
+            }
+        )
+    if protocol_lane_status["next_success_attempt_artifact_count"] != EXPECTED_POST_DECISION_CONTRACT_SHARED_ARTIFACT_COUNT:
+        issues.append(
+            {
+                "issue_id": "protocol_lane_status_next_artifact_count_drift",
+                "message": "Protocol-lane status report must expose the 10 next-attempt formal artifacts.",
+                "artifact_count": protocol_lane_status["next_success_attempt_artifact_count"],
+            }
+        )
+    if protocol_lane_status["next_success_attempt_artifact_category_counts"] != (
+        EXPECTED_NEXT_SUCCESS_ARTIFACT_CATEGORY_COUNTS
+    ):
+        issues.append(
+            {
+                "issue_id": "protocol_lane_status_next_artifact_category_counts_drift",
+                "message": "Protocol-lane status report next-attempt artifact category counts drifted.",
+                "category_counts": protocol_lane_status["next_success_attempt_artifact_category_counts"],
+            }
+        )
+    missing_artifact_ids: list[str] = []
+    ids_by_category = protocol_lane_status["next_success_attempt_artifact_ids_by_category"]
+    for category, expected_ids in EXPECTED_NEXT_SUCCESS_ARTIFACT_IDS_BY_CATEGORY.items():
+        observed_ids = ids_by_category.get(category, [])
+        for artifact_id in expected_ids:
+            if artifact_id not in observed_ids:
+                missing_artifact_ids.append(f"{category}:{artifact_id}")
+    if missing_artifact_ids:
+        issues.append(
+            {
+                "issue_id": "protocol_lane_status_next_artifact_ids_missing",
+                "message": "Protocol-lane status report must list every next-attempt artifact id by category.",
+                "missing_artifact_ids": missing_artifact_ids,
+            }
+        )
     return issues
 
 
