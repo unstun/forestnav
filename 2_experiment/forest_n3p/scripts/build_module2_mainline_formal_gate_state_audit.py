@@ -1391,6 +1391,9 @@ def _normalize_protocol_lane_status_report(raw: Any) -> dict[str, Any]:
     category_counts = current.get("next_success_attempt_artifact_category_counts")
     if not isinstance(category_counts, dict):
         category_counts = {}
+    post_plan_category_counts = current.get("post_decision_contract_plan_shared_artifact_category_counts")
+    if not isinstance(post_plan_category_counts, dict):
+        post_plan_category_counts = {}
     normalized = {
         "present": bool(raw),
         "status": str(raw.get("status") or ""),
@@ -1420,6 +1423,17 @@ def _normalize_protocol_lane_status_report(raw: Any) -> dict[str, Any]:
         "post_decision_contract_plan_shared_artifact_count": int(
             current.get("post_decision_contract_plan_shared_artifact_count") or 0
         ),
+        "post_decision_contract_plan_shared_artifact_category_counts": {
+            str(key): int(value or 0) for key, value in post_plan_category_counts.items()
+        },
+        "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt": current.get(
+            "post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"
+        )
+        if isinstance(
+            current.get("post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"),
+            bool,
+        )
+        else None,
         "post_decision_contract_plan_lane_count": int(
             current.get("post_decision_contract_plan_lane_count") or 0
         ),
@@ -1458,6 +1472,11 @@ def _normalize_protocol_lane_status_report(raw: Any) -> dict[str, Any]:
         "next_success_attempt_artifact_ids_by_category": {
             str(key): _strings(value) for key, value in artifact_ids_by_category.items()
         },
+        "old_failed_run_artifacts_invalid_for_next_success_attempt": current.get(
+            "old_failed_run_artifacts_invalid_for_next_success_attempt"
+        )
+        if isinstance(current.get("old_failed_run_artifacts_invalid_for_next_success_attempt"), bool)
+        else None,
     }
     for key in PROTOCOL_LANE_FALSE_FLAGS:
         normalized[key] = bool(current.get(key))
