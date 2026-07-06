@@ -19,6 +19,7 @@ from forest_n3p.rl_rs.curriculum import (
 )
 from forest_n3p.rl_rs.gym_env import GymAnalyticExpansionEnv
 from forest_n3p.rl_rs.obs import ObservationConfig
+from forest_n3p.rl_rs.reward import RewardConfig, reward_config_from_mapping, reward_config_to_record
 from forest_n3p.rl_rs.training_logging import RlRsEpisodeLoggingWrapper, file_sha256, write_training_manifest
 from forest_n3p.scripts._module2_contract_gate import require_contract_ready
 
@@ -38,12 +39,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         allow_unapproved=bool(args.smoke),
         context="Module2 PPO training",
     )
+    reward_config = _load_reward_config(args.reward_config)
     PPO, CallbackList, CheckpointCallback, DummyVecEnv = _load_sb3()
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    config = _config_record(args=args, raw_argv=raw_argv, contract_status=contract_status)
-    env = DummyVecEnv([_make_env_factory(args=args, output_dir=output_dir, rank=rank) for rank in range(int(args.n_envs))])
+    config = _config_record(args=args, raw_argv=raw_argv, contract_status=contract_status, reward_config=reward_config)
+    env = DummyVecEnv([
+        _make_env_factory(args=args, output_dir=output_dir, rank=rank, reward_config=reward_config)
+        for rank in range(int(args.n_envs))
+    ])
     callbacks = _callbacks(args=args, output_dir=output_dir, n_envs=int(args.n_envs), CallbackList=CallbackList, CheckpointCallback=CheckpointCallback)
     model = PPO(
         _policy_spec(args),
@@ -112,6 +117,7 @@ def _parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser.add_argument("--allow-duplicate-openmp", action="store_true")
     parser.add_argument("--smoke", action="store_true", help="Run a tiny open-connector training smoke.")
     parser.add_argument("--bc-checkpoint", type=Path, default=None, help="Optional F02 obstacle-summary BC checkpoint for PPO actor initialization.")
+    parser.add_argument("--reward-config", type=Path, default=None, help="Optional JSON RewardConfig override; omitted keeps sparse defaults.")
     parser.add_argument(
         "--features-extractor",
         choices=("summary", "patch_cnn"),
@@ -245,9 +251,18 @@ def _policy_spec(args: argparse.Namespace):
     return RlRsMultiInputPolicy
 
 
-def _make_env_factory(*, args: argparse.Namespace, output_dir: Path, rank: int):
+def _load_reward_config(path: Path | None) -> RewardConfig:
+    if path is None:
+        return RewardConfig()
+    raw = json.loads(Path(path).read_text(encoding="utf-8"))
+    if not isinstance(raw, dict):
+        raise ValueError("--reward-config must point to a JSON object")
+    return reward_config_from_mapping(raw)
+
+
+def _make_env_factory(*, args: argparse.Namespace, output_dir: Path, rank: int, reward_config: RewardConfig | None = None):
     def _factory():
-        cfg = _curriculum_config(args)
+        cfg = _curriculum_config(args, reward_config=reward_config)
         sampler = _sampler(args, cfg=cfg)
         env = GymAnalyticExpansionEnv(sampler, observation_config=cfg.observation_config)
         csv_path = output_dir / f"episodes_env{int(rank)}.csv"
@@ -256,7 +271,7 @@ def _make_env_factory(*, args: argparse.Namespace, output_dir: Path, rank: int):
     return _factory
 
 
-def _curriculum_config(args: argparse.Namespace) -> CurriculumContextConfig:
+def _curriculum_config(args: argparse.Namespace, *, reward_config: RewardConfig | None = None) -> CurriculumContextConfig:
     obs_config = ObservationConfig(
         patch_size_m=float(args.obs_patch_size_m),
         patch_cells=int(args.obs_patch_cells),
@@ -270,6 +285,7 @@ def _curriculum_config(args: argparse.Namespace) -> CurriculumContextConfig:
         terminal_check_every=int(args.terminal_check_every),
         theta_bins=int(args.theta_bins),
         observation_config=obs_config,
+        reward_config=reward_config or RewardConfig(),
     )
 
 
@@ -458,7 +474,8 @@ def _source_hashes() -> dict[str, str]:
     return {path: file_sha256(path) for path in paths if Path(path).exists()}
 
 
-def _config_record(*, args: argparse.Namespace, raw_argv: Sequence[str], contract_status: str) -> dict[str, Any]:
+def _config_record(*, args: argparse.Namespace, raw_argv: Sequence[str], contract_status: str, reward_config: RewardConfig | None = None) -> dict[str, Any]:
+    effective_reward_config = reward_config or RewardConfig()
     return {
         "command": " ".join(["python -m forest_n3p.scripts.train_rl_rs_ppo", *raw_argv]),
         "smoke": bool(args.smoke),
@@ -473,6 +490,8 @@ def _config_record(*, args: argparse.Namespace, raw_argv: Sequence[str], contrac
         "value_pretrain_timesteps": int(args.value_pretrain_timesteps),
         "warm_start_status": "not_applied_f02_6_pending",
         "bc_checkpoint": None if args.bc_checkpoint is None else str(args.bc_checkpoint),
+        "reward_config_path": None if args.reward_config is None else str(args.reward_config),
+        "reward_config": reward_config_to_record(effective_reward_config),
         "curriculum_preset": str(args.curriculum_preset),
         "oracle_path": str(args.oracle_path),
         "heldout_seed": int(args.heldout_seed),

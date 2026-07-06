@@ -190,6 +190,11 @@ def test_post_f02_6_plan_audit_uses_artifact_records_for_full_command_index(tmp_
             missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
             closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
             status_report_path=_json(tmp_path, "status_report.json", _status_report_payload(ready=False)),
+            protocol_lane_status_report_path=_json(
+                tmp_path,
+                "protocol_lane_status.json",
+                _protocol_lane_status_payload(),
+            ),
             remaining_deliverables_path=_json(
                 tmp_path,
                 "remaining_deliverables.json",
@@ -227,6 +232,11 @@ def test_post_f02_6_plan_audit_catches_training_allowed_while_f02_6_pending(tmp_
             missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
             closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
             status_report_path=_json(tmp_path, "status_report.json", _status_report_payload(ready=False)),
+            protocol_lane_status_report_path=_json(
+                tmp_path,
+                "protocol_lane_status.json",
+                _protocol_lane_status_payload(),
+            ),
         )
     )
 
@@ -262,6 +272,11 @@ def test_post_f02_6_plan_audit_catches_f02_6_human_decision_request_drift(tmp_pa
             missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
             closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
             status_report_path=_json(tmp_path, "status_report.json", _status_report_payload(ready=False)),
+            protocol_lane_status_report_path=_json(
+                tmp_path,
+                "protocol_lane_status.json",
+                _protocol_lane_status_payload(),
+            ),
         )
     )
 
@@ -421,6 +436,11 @@ def test_post_f02_6_plan_audit_consumes_open_missing_artifacts_inventory_without
             missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
             closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
             status_report_path=_json(tmp_path, "status_report.json", _status_report_payload(ready=False)),
+            protocol_lane_status_report_path=_json(
+                tmp_path,
+                "protocol_lane_status.json",
+                _protocol_lane_status_payload(),
+            ),
         )
     )
 
@@ -589,6 +609,11 @@ def test_post_f02_6_plan_audit_ignores_downstream_feedback_loop_issues(tmp_path)
                 _closure_checklist_payload(open_checklist=True),
             ),
             status_report_path=_json(tmp_path, "status_report.json", status_report),
+            protocol_lane_status_report_path=_json(
+                tmp_path,
+                "protocol_lane_status.json",
+                _protocol_lane_status_payload(),
+            ),
         )
     )
 

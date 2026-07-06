@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from typing import Any
 
 import numpy as np
@@ -78,6 +78,42 @@ class RewardConfig:
         _validate_non_negative("curvature_rate_penalty_scale", self.curvature_rate_penalty_scale)
         _validate_non_negative("path_length_penalty_scale", self.path_length_penalty_scale)
         _validate_non_positive("step_penalty", self.step_penalty)
+
+
+def reward_config_from_mapping(raw: dict[str, Any]) -> RewardConfig:
+    config_fields = {field.name for field in fields(RewardConfig)}
+    unknown = sorted(set(raw).difference(config_fields))
+    if unknown:
+        raise ValueError(f"Unknown reward config keys: {unknown}")
+    values = dict(raw)
+    switches = values.get("enabled_terms")
+    if switches is not None:
+        if not isinstance(switches, dict):
+            raise ValueError("enabled_terms must be an object when provided")
+        switch_fields = {field.name for field in fields(RewardTermSwitches)}
+        unknown_switches = sorted(set(switches).difference(switch_fields))
+        if unknown_switches:
+            raise ValueError(f"Unknown reward term switches: {unknown_switches}")
+        values["enabled_terms"] = RewardTermSwitches(**switches)
+    return RewardConfig(**values)
+
+
+def reward_config_to_record(config: RewardConfig) -> dict[str, Any]:
+    return {
+        "enabled_terms": config.enabled_terms.to_record(),
+        "terminal_rs_success": float(config.terminal_rs_success),
+        "collision_penalty": float(config.collision_penalty),
+        "terminal_rs_failure_penalty": float(config.terminal_rs_failure_penalty),
+        "no_progress_penalty": float(config.no_progress_penalty),
+        "oscillation_penalty": float(config.oscillation_penalty),
+        "distance_progress_scale": float(config.distance_progress_scale),
+        "rs_distance_progress_scale": float(config.rs_distance_progress_scale),
+        "clearance_scale": float(config.clearance_scale),
+        "clearance_target_m": float(config.clearance_target_m),
+        "curvature_rate_penalty_scale": float(config.curvature_rate_penalty_scale),
+        "path_length_penalty_scale": float(config.path_length_penalty_scale),
+        "step_penalty": float(config.step_penalty),
+    }
 
 
 @dataclass(frozen=True)

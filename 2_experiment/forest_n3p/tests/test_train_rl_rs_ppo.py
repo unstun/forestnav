@@ -19,6 +19,7 @@ from forest_n3p.scripts.train_rl_rs_ppo import (
     DEFAULT_CONTRACT_PATH,
     _apply_obstacle_summary_bc_warm_start,
     _apply_smoke_overrides,
+    _load_reward_config,
     _make_env_factory,
     _parse_args,
     _policy_spec,
@@ -31,6 +32,7 @@ from forest_n3p.scripts.train_rl_rs_ppo import (
 
 BC_CHECKPOINT = Path("2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt")
 V2_DRAFT_CONTRACT = Path(".pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md")
+DENSE_REWARD_CONFIG = Path("2_experiment/configs/module2_encoder_pilot_reward_dense.json")
 
 
 def test_obstacle_summary_extractor_matches_bc_feature_semantics():
@@ -82,6 +84,10 @@ def test_train_rl_rs_ppo_smoke_writes_model_manifest_and_episode_csv(tmp_path):
     assert manifest["config"]["smoke"] is True
     assert manifest["config"]["contract"] == DEFAULT_CONTRACT_PATH
     assert manifest["config"]["policy"] == "MultiInputPolicy"
+    assert manifest["config"]["reward_config_path"] is None
+    assert manifest["config"]["reward_config"]["distance_progress_scale"] == 0.0
+    assert manifest["config"]["reward_config"]["clearance_scale"] == 0.0
+    assert manifest["config"]["reward_config"]["step_penalty"] == 0.0
     assert "2_experiment/forest_n3p/scripts/train_rl_rs_ppo.py" in manifest["source_hashes"]
     assert any(checkpoint["path"] == "final_model.zip" for checkpoint in manifest["checkpoints"])
     summary = json.loads((tmp_path / "summary.json").read_text(encoding="utf-8"))
@@ -91,6 +97,58 @@ def test_train_rl_rs_ppo_smoke_writes_model_manifest_and_episode_csv(tmp_path):
     rows = list(csv.DictReader(episode_csv.open(newline="", encoding="utf-8")))
     assert rows
     assert {"reward_total", "terminal_rs_success", "rollout_length_m"}.issubset(rows[0])
+
+
+def test_train_rl_rs_ppo_injects_reward_config_into_step_info(tmp_path):
+    args = _parse_args(
+        [
+            "--smoke",
+            "--reward-config",
+            str(DENSE_REWARD_CONFIG),
+            "--output-dir",
+            str(tmp_path),
+            "--seed",
+            "20260707",
+        ]
+    )
+    _apply_smoke_overrides(args)
+    reward_config = _load_reward_config(args.reward_config)
+    env = _make_env_factory(args=args, output_dir=tmp_path, rank=0, reward_config=reward_config)()
+    env.reset(seed=20260707)
+
+    _, _reward, _terminated, _truncated, info = env.step(np.asarray([0.0], dtype=np.float32))
+    env.close()
+
+    terms = info["reward_terms"]
+    assert terms["progress"] > 0.0
+    assert terms["clearance"] > 0.0
+    assert terms["step"] == pytest.approx(-0.01)
+
+
+def test_train_rl_rs_ppo_manifest_records_injected_reward_config(tmp_path):
+    rc = train_rl_rs_ppo_main(
+        [
+            "--allow-duplicate-openmp",
+            "--smoke",
+            "--reward-config",
+            str(DENSE_REWARD_CONFIG),
+            "--output-dir",
+            str(tmp_path),
+            "--seed",
+            "20260707",
+        ]
+    )
+
+    assert rc == 0
+    manifest = json.loads((tmp_path / "training_manifest.json").read_text(encoding="utf-8"))
+    reward_config = manifest["config"]["reward_config"]
+    assert manifest["config"]["reward_config_path"] == str(DENSE_REWARD_CONFIG)
+    assert reward_config["terminal_rs_success"] == 1.0
+    assert reward_config["collision_penalty"] == -1.0
+    assert reward_config["terminal_rs_failure_penalty"] == -0.25
+    assert reward_config["distance_progress_scale"] == 0.2
+    assert reward_config["clearance_scale"] == 0.1
+    assert reward_config["step_penalty"] == -0.01
 
 
 def test_train_rl_rs_ppo_blocks_non_smoke_draft_contract_before_training(tmp_path):

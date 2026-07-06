@@ -17,6 +17,7 @@ from forest_n3p.main_evaluation import (
 )
 from forest_n3p.rl_rs.env import AnalyticExpansionContext
 from forest_n3p.rl_rs.obs import ObservationConfig
+from forest_n3p.rl_rs.reward import RewardConfig
 from forest_n3p.third_party.pathplan import AckermannParams, AckermannState, GridMap, TwoCircleFootprint
 from forest_n3p.third_party.pathplan.geometry import GridFootprintChecker
 
@@ -33,6 +34,7 @@ class CurriculumContextConfig:
     terminal_check_every: int = 1
     theta_bins: int = 72
     observation_config: ObservationConfig = field(default_factory=ObservationConfig)
+    reward_config: RewardConfig = field(default_factory=RewardConfig)
 
 
 @dataclass(frozen=True)
@@ -324,6 +326,7 @@ def _build_context(
         terminal_check_every=int(config.terminal_check_every),
         theta_bins=int(config.theta_bins),
         observation_config=config.observation_config,
+        reward_config=config.reward_config,
     )
 
 
