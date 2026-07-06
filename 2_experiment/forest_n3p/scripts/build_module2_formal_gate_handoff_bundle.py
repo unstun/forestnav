@@ -442,6 +442,7 @@ def _protocol_lane_status_summary(protocol_lane_status: dict[str, Any]) -> dict[
     next_artifact_ids = current.get("next_success_attempt_artifact_ids_by_category")
     next_expected_paths = current.get("next_success_attempt_artifact_expected_paths_by_id")
     next_proof_requirements = current.get("next_success_attempt_artifact_proof_requirements_by_id")
+    next_invalid_substitutes = current.get("next_success_attempt_artifact_invalid_substitutes_by_id")
     post_plan_category_counts = current.get("post_decision_contract_plan_shared_artifact_category_counts")
     return {
         "present": bool(protocol_lane_status),
@@ -463,6 +464,7 @@ def _protocol_lane_status_summary(protocol_lane_status: dict[str, Any]) -> dict[
         "next_success_attempt_artifact_ids_by_category": _string_lists_by_key(next_artifact_ids),
         "next_success_attempt_artifact_expected_paths_by_id": _string_dict(next_expected_paths),
         "next_success_attempt_artifact_proof_requirements_by_id": _string_dict(next_proof_requirements),
+        "next_success_attempt_artifact_invalid_substitutes_by_id": _string_lists_by_key(next_invalid_substitutes),
         "post_decision_contract_plan_shared_artifact_count": int(
             current.get("post_decision_contract_plan_shared_artifact_count") or 0
         ),
