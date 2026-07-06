@@ -18,6 +18,9 @@ DEFAULT_SOURCE_FRESHNESS = Path("0_trials/module2_source_freshness_audit/source_
 DEFAULT_MISSING_ARTIFACTS = Path("0_trials/module2_formal_gate_missing_artifacts/formal_gate_missing_artifacts.json")
 DEFAULT_CLOSURE_CHECKLIST = Path("0_trials/module2_formal_gate_closure_checklist/formal_gate_closure_checklist.json")
 DEFAULT_STATUS_REPORT = Path("0_trials/module2_formal_gate_status_report/formal_gate_status_report.json")
+DEFAULT_PROTOCOL_LANE_STATUS_REPORT = Path(
+    "0_trials/module2_formal_gate_protocol_lane_status_report/protocol_lane_status_report.json"
+)
 DEFAULT_REMAINING_DELIVERABLES = Path(
     "0_trials/module2_formal_gate_remaining_deliverables/formal_gate_remaining_deliverables.json"
 )
@@ -64,6 +67,56 @@ DOWNSTREAM_STATUS_REPORT_INPUT_SAFETY_ISSUE_IDS = {
     "mainline_formal_gate_state_audit_proof_audit_input_safety_issues_open",
     "mainline_formal_gate_state_audit_proof_audit_input_safety_blocker_open",
 }
+EXPECTED_PROTOCOL_LANE_STATUS = "protocol_lane_status_blocked_pending_lane_decision"
+EXPECTED_PROTOCOL_LANE_NEXT_BLOCKED = "protocol_lane_decision"
+EXPECTED_PROTOCOL_LANE_ALLOWED_NEXT_ACTIONS = ("record_protocol_lane_decision",)
+EXPECTED_PROTOCOL_LANE_BLOCKED_ACTIONS = (
+    "local_training",
+    "remote_success_training",
+    "remote_preflight_for_new_success_attempt",
+    "formal_claim",
+    "paper_result_material",
+)
+EXPECTED_POST_DECISION_CONTRACT_PLAN_STATUS = "post_decision_contract_plan_ready_blocked_pending_lane_decision"
+EXPECTED_POST_DECISION_CONTRACT_SECTION_COUNT = 8
+EXPECTED_POST_DECISION_CONTRACT_SHARED_ARTIFACT_COUNT = 10
+EXPECTED_POST_DECISION_CONTRACT_LANE_COUNT = 4
+EXPECTED_NEXT_SUCCESS_ARTIFACT_COUNT = 10
+EXPECTED_NEXT_SUCCESS_ARTIFACT_CATEGORY_COUNTS = {
+    "contract": 1,
+    "training": 3,
+    "evaluation": 2,
+    "acceptance": 3,
+    "formal_acceptance": 1,
+}
+EXPECTED_NEXT_SUCCESS_ARTIFACT_IDS_BY_CATEGORY = {
+    "contract": ("new_or_revised_research_contract",),
+    "training": ("train_final_model_zip", "train_summary_json", "train_training_manifest_json"),
+    "evaluation": ("eval_gate3_eval_episodes_csv", "eval_gate3_summary_json"),
+    "acceptance": (
+        "gate3_trial_manifest_json",
+        "gate3_formal_audit_json",
+        "pulled_back_checkpoint_hash_record",
+    ),
+    "formal_acceptance": ("h02_formal_output_acceptance",),
+}
+PROTOCOL_LANE_FALSE_FIELDS = (
+    "local_training_allowed_now",
+    "remote_training_allowed_now",
+    "formal_claim_allowed_now",
+    "paper_result_material_allowed_now",
+    "new_success_training_allowed_now",
+)
+PROTOCOL_POST_PLAN_FALSE_FIELDS = (
+    "post_decision_contract_plan_writes_contract",
+    "post_decision_contract_plan_approves_contract",
+    "post_decision_contract_plan_runs_training",
+    "post_decision_contract_plan_runs_remote_preflight",
+    "post_decision_contract_plan_remote_training_allowed_now",
+    "post_decision_contract_plan_formal_claim_allowed",
+    "post_decision_contract_plan_paper_result_material_allowed",
+    "post_decision_contract_plan_gate_contract_drafting_allowed_now",
+)
 
 
 @dataclass(frozen=True)
@@ -77,6 +130,7 @@ class PostF026PlanAuditConfig:
     missing_artifacts_path: Path = DEFAULT_MISSING_ARTIFACTS
     closure_checklist_path: Path = DEFAULT_CLOSURE_CHECKLIST
     status_report_path: Path = DEFAULT_STATUS_REPORT
+    protocol_lane_status_report_path: Path = DEFAULT_PROTOCOL_LANE_STATUS_REPORT
     remaining_deliverables_path: Path | None = None
 
 
@@ -92,6 +146,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         missing_artifacts_path=args.missing_artifacts_audit,
         closure_checklist_path=args.closure_checklist,
         status_report_path=args.status_report,
+        protocol_lane_status_report_path=args.protocol_lane_status_report,
         remaining_deliverables_path=args.remaining_deliverables,
     )
     manifest = build_manifest(config)
@@ -114,6 +169,7 @@ def build_manifest(config: PostF026PlanAuditConfig) -> dict[str, Any]:
     missing_artifacts = _read_json(config.missing_artifacts_path)
     closure_checklist = _read_json(config.closure_checklist_path)
     status_report = _read_json(config.status_report_path)
+    protocol_lane_status = _read_json(config.protocol_lane_status_report_path)
     remaining_deliverables = _read_json(config.remaining_deliverables_path) if config.remaining_deliverables_path else {}
     issues = _audit_issues(
         plan=plan,
@@ -125,6 +181,8 @@ def build_manifest(config: PostF026PlanAuditConfig) -> dict[str, Any]:
         closure_checklist_path=config.closure_checklist_path,
         status_report=status_report,
         status_report_path=config.status_report_path,
+        protocol_lane_status=protocol_lane_status,
+        protocol_lane_status_path=config.protocol_lane_status_report_path,
         remaining_deliverables=remaining_deliverables,
         remaining_deliverables_path=config.remaining_deliverables_path,
     )
@@ -147,6 +205,7 @@ def build_manifest(config: PostF026PlanAuditConfig) -> dict[str, Any]:
             "formal_gate_missing_artifacts_audit": str(config.missing_artifacts_path),
             "formal_gate_closure_checklist": str(config.closure_checklist_path),
             "formal_gate_status_report": str(config.status_report_path),
+            "protocol_lane_status_report": str(config.protocol_lane_status_report_path),
         "formal_gate_remaining_deliverables": str(config.remaining_deliverables_path)
         if config.remaining_deliverables_path
         else None,
@@ -156,6 +215,10 @@ def build_manifest(config: PostF026PlanAuditConfig) -> dict[str, Any]:
         "missing_artifacts_summary": _missing_artifacts_summary(config.missing_artifacts_path, missing_artifacts),
         "closure_checklist_summary": _closure_checklist_summary(config.closure_checklist_path, closure_checklist),
         "status_report_summary": _status_report_summary(config.status_report_path, status_report),
+        "protocol_lane_status_summary": _protocol_lane_status_summary(
+            config.protocol_lane_status_report_path,
+            protocol_lane_status,
+        ),
         "status_report_proof_audit_deliverables_summary": _status_report_proof_audit_deliverables_summary(status_report),
         "f02_6_human_decision_request_summary": _f02_6_human_decision_request_summary(plan),
         "remaining_deliverables_gap_summary": _remaining_deliverables_gap_summary(
@@ -190,6 +253,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--missing-artifacts-audit", type=Path, default=DEFAULT_MISSING_ARTIFACTS)
     parser.add_argument("--closure-checklist", type=Path, default=DEFAULT_CLOSURE_CHECKLIST)
     parser.add_argument("--status-report", type=Path, default=DEFAULT_STATUS_REPORT)
+    parser.add_argument("--protocol-lane-status-report", type=Path, default=DEFAULT_PROTOCOL_LANE_STATUS_REPORT)
     parser.add_argument("--remaining-deliverables", type=Path, default=DEFAULT_REMAINING_DELIVERABLES)
     return parser.parse_args(list(argv) if argv is not None else None)
 
@@ -205,6 +269,8 @@ def _audit_issues(
     closure_checklist_path: Path,
     status_report: dict[str, Any],
     status_report_path: Path,
+    protocol_lane_status: dict[str, Any],
+    protocol_lane_status_path: Path,
     remaining_deliverables: dict[str, Any],
     remaining_deliverables_path: Path | None,
 ) -> list[dict[str, Any]]:
@@ -218,6 +284,12 @@ def _audit_issues(
     issues.extend(_missing_artifacts_issues(plan=plan, missing_artifacts=missing_artifacts, missing_artifacts_path=missing_artifacts_path))
     issues.extend(_closure_checklist_issues(plan=plan, closure_checklist=closure_checklist, closure_checklist_path=closure_checklist_path))
     issues.extend(_status_report_issues(plan=plan, status_report=status_report, status_report_path=status_report_path))
+    issues.extend(
+        _protocol_lane_status_issues(
+            protocol_lane_status=protocol_lane_status,
+            protocol_lane_status_path=protocol_lane_status_path,
+        )
+    )
     issues.extend(
         _remaining_deliverables_gap_issues(
             plan=plan,
