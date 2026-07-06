@@ -483,6 +483,12 @@ def _markdown(manifest: dict[str, Any]) -> str:
         "## Missing Next-Attempt Artifacts",
         "",
         f"- index_status: `{state['next_success_attempt_artifact_status']}`",
+    ]
+    for category, artifact_ids in state["next_success_attempt_artifact_ids_by_category"].items():
+        joined = ", ".join(f"`{artifact_id}`" for artifact_id in artifact_ids)
+        lines.append(f"- {category}: {joined}")
+    lines.extend(
+        [
         "",
         "## Safety Flags",
         "",
@@ -495,10 +501,8 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- draft_contract_allows_training: `{state['draft_contract_allows_training']}`",
         "",
         "## Allowed Next Actions",
-    ]
-    for category, artifact_ids in state["next_success_attempt_artifact_ids_by_category"].items():
-        joined = ", ".join(f"`{artifact_id}`" for artifact_id in artifact_ids)
-        lines.append(f"- {category}: {joined}")
+        ]
+    )
     for action in state["allowed_next_action_ids"]:
         lines.append(f"- `{action}`")
     lines.extend(["", "## Blocked Actions"])
