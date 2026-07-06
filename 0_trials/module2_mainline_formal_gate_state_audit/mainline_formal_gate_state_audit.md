@@ -15,6 +15,9 @@ This file checks that the long-term Module2 mainline task book mirrors the curre
 - protocol_lane_status_mentioned: `True`
 - protocol_lane_next_blocked_mentioned: `True`
 - protocol_lane_next_action_mentioned: `True`
+- protocol_lane_readiness_summary: `{'present': True, 'artifact_name': 'module2_formal_gate_protocol_lane_readiness', 'status': 'protocol_lane_readiness_ready_for_dr_sun_decision', 'audit_issue_count': 0, 'lane_count': 4, 'shared_next_success_attempt_artifact_count': 10, 'not_paper_result_material': True, 'executes_commands': False, 'runs_training': False, 'runs_remote_preflight': False, 'remote_training_allowed_now': False, 'formal_claim_allowed': False, 'paper_result_material_allowed': False, 'gate_next_blocked_lane': 'protocol_lane_decision', 'gate_selected_lane_id': None, 'gate_decision_owner_required': 'Dr Sun', 'gate_remote_training_allowed_now': False, 'gate_formal_claim_allowed_now': False, 'gate_paper_result_material_allowed_now': False}`
+- protocol_lane_readiness_artifact_mentioned: `True`
+- protocol_lane_readiness_status_mentioned: `True`
 - proof_summary_chain_status: `formal_gate_proof_summary_chain_consistent_blocked`
 - proof_summary_handoff_single_next_action_consistency: `{'row_count': 3, 'consistent_row_count': 3}`
 - executes_commands: `False`
@@ -57,6 +60,17 @@ This file checks that the long-term Module2 mainline task book mirrors the curre
 - blocked action `remote_preflight_for_new_success_attempt`: mentioned=`True`
 - blocked action `formal_claim`: mentioned=`True`
 - blocked action `paper_result_material`: mentioned=`True`
+
+## Protocol Lane Readiness
+
+- artifact_name: `module2_formal_gate_protocol_lane_readiness`
+- status: `protocol_lane_readiness_ready_for_dr_sun_decision`
+- audit_issue_count: `0`
+- lane_count: `4`
+- shared_next_success_attempt_artifact_count: `10`
+- gate_next_blocked_lane: `protocol_lane_decision`
+- gate_selected_lane_id: `None`
+- gate_remote_training_allowed_now: `False`
 
 ## Current Boundary Tokens
 

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_mainline_formal_gate_state_audit",
   "status": "mainline_formal_gate_state_consistent_blocked",
-  "created_at_utc": "2026-07-06T02:47:16.278887+00:00",
-  "source_head": "8d94b15602ece2611f05b72c62685425d2948c5d+dirty",
+  "created_at_utc": "2026-07-06T03:06:47.302523+00:00",
+  "source_head": "df4e911aa45902d069ef981047403ecd0b93d2cb+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -14,7 +14,8 @@
     "mainline": ".pipeline/mainline_module2_rl_rs_replacement.md",
     "formal_gate_status_report": "0_trials/module2_formal_gate_status_report/formal_gate_status_report.json",
     "proof_summary_chain_audit": "0_trials/module2_formal_gate_proof_summary_chain_audit/formal_gate_proof_summary_chain_audit.json",
-    "protocol_lane_status_report": "0_trials/module2_formal_gate_protocol_lane_status_report/protocol_lane_status_report.json"
+    "protocol_lane_status_report": "0_trials/module2_formal_gate_protocol_lane_status_report/protocol_lane_status_report.json",
+    "protocol_lane_readiness": "0_trials/module2_formal_gate_protocol_lane_readiness/protocol_lane_readiness.json"
   },
   "mainline_current_state_section_present": true,
   "expected_next_action_id": "record_protocol_lane_decision",
@@ -145,6 +146,30 @@
       "mentioned": true
     }
   ],
+  "protocol_lane_readiness_summary": {
+    "present": true,
+    "artifact_name": "module2_formal_gate_protocol_lane_readiness",
+    "status": "protocol_lane_readiness_ready_for_dr_sun_decision",
+    "audit_issue_count": 0,
+    "lane_count": 4,
+    "shared_next_success_attempt_artifact_count": 10,
+    "not_paper_result_material": true,
+    "executes_commands": false,
+    "runs_training": false,
+    "runs_remote_preflight": false,
+    "remote_training_allowed_now": false,
+    "formal_claim_allowed": false,
+    "paper_result_material_allowed": false,
+    "gate_next_blocked_lane": "protocol_lane_decision",
+    "gate_selected_lane_id": null,
+    "gate_decision_owner_required": "Dr Sun",
+    "gate_remote_training_allowed_now": false,
+    "gate_formal_claim_allowed_now": false,
+    "gate_paper_result_material_allowed_now": false
+  },
+  "protocol_lane_readiness_artifact_mentioned": true,
+  "protocol_lane_readiness_status_mentioned": true,
+  "protocol_lane_readiness_shared_artifact_count_mentioned": true,
   "mainline_missing_deliverable_mention_count": 0,
   "deliverable_rows": [
     {
