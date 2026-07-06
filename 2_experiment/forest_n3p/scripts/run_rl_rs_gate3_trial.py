@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from forest_n3p.rl_rs.training_logging import file_sha256
+from forest_n3p.scripts._module2_contract_gate import require_contract_ready
 from forest_n3p.scripts.eval_rl_rs_gate3 import main as eval_gate3_main
 from forest_n3p.scripts.train_rl_rs_ppo import main as train_rl_rs_ppo_main
 
@@ -25,6 +26,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     if bool(args.allow_duplicate_openmp):
         os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
     _apply_smoke_overrides(args)
+    contract_status = require_contract_ready(
+        args.contract_path,
+        allow_unapproved=bool(args.smoke),
+        context="Module2 Gate3 trial",
+    )
 
     output_dir = Path(args.output_dir)
     train_dir = output_dir / "train"
@@ -42,7 +48,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         _write_incomplete_manifest(args=args, raw_argv=raw_argv, output_dir=output_dir, status="eval_failed", train_rc=train_rc, eval_rc=eval_rc)
         return int(eval_rc)
 
-    manifest = _trial_manifest(args=args, raw_argv=raw_argv, output_dir=output_dir, train_dir=train_dir, eval_dir=eval_dir)
+    manifest = _trial_manifest(
+        args=args,
+        raw_argv=raw_argv,
+        output_dir=output_dir,
+        train_dir=train_dir,
+        eval_dir=eval_dir,
+        contract_status=contract_status,
+    )
     manifest_path = output_dir / "gate3_trial_manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(json.dumps(manifest, indent=2, ensure_ascii=False))
@@ -238,12 +251,22 @@ def _eval_argv(*, args: argparse.Namespace, model_path: Path, eval_dir: Path) ->
     ]
     if bool(args.allow_duplicate_openmp):
         argv.append("--allow-duplicate-openmp")
+    if bool(args.smoke):
+        argv.append("--allow-unapproved-contract-for-smoke")
     if not bool(args.obs_include_edt):
         argv.append("--no-obs-include-edt")
     return argv
 
 
-def _trial_manifest(*, args: argparse.Namespace, raw_argv: Sequence[str], output_dir: Path, train_dir: Path, eval_dir: Path) -> dict[str, Any]:
+def _trial_manifest(
+    *,
+    args: argparse.Namespace,
+    raw_argv: Sequence[str],
+    output_dir: Path,
+    train_dir: Path,
+    eval_dir: Path,
+    contract_status: str,
+) -> dict[str, Any]:
     train_summary = _read_json(train_dir / "summary.json")
     eval_summary = _read_json(eval_dir / "gate3_summary.json")
     train_manifest = train_dir / "training_manifest.json"
@@ -258,6 +281,7 @@ def _trial_manifest(*, args: argparse.Namespace, raw_argv: Sequence[str], output
         "source_head": _source_head(),
         "command": " ".join(["python -m forest_n3p.scripts.run_rl_rs_gate3_trial", *raw_argv]),
         "contract": str(args.contract_path),
+        "contract_status": str(contract_status),
         "smoke": bool(args.smoke),
         "formal_gate_claim": False,
         "formal_gate_boundary": "runner produces auditable train/eval evidence only; formal Gate #3 judgment requires protocol review",
