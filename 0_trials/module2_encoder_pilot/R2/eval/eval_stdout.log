@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "gate_name": "module2_f03_gate3",
+  "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+  "contract_status": "approved_by_dr_sun",
+  "decision": "fail",
+  "decision_rule": "pass iff episodes >= min_episodes and terminal_rs_success_rate >= success_threshold",
+  "success_threshold": 0.8,
+  "min_episodes": 64,
+  "episodes": 64,
+  "terminal_rs_success": 40,
+  "terminal_rs_success_rate": 0.625,
+  "collision": 13,
+  "collision_rate": 0.203125,
+  "truncated": 11,
+  "truncation_rate": 0.171875,
+  "nn_forward_time_s": 0.5644231032347307,
+  "mean_nn_forward_time_s": 0.008819110988042667,
+  "model": "0_trials/module2_encoder_pilot/R2/train/final_model.zip",
+  "model_sha256": "7c71e45c7f2ccfbebc7e4c633ba9a62706de6e907dd5c583dfada02eea385ff6",
+  "episodes_csv": "0_trials/module2_encoder_pilot/R2/eval/gate3_eval_episodes.csv",
+  "created_at_utc": "2026-07-06T16:08:53.562438+00:00",
+  "execution_host": "ubuntu-OMEN-by-HP-Laptop-17-ck1xxx",
+  "source_head": "09259640169962f54af37bfa0cac9bd0b57d7270",
+  "config": {
+    "command": "python -m forest_n3p.scripts.eval_rl_rs_gate3 --allow-duplicate-openmp --contract-path .pipeline/contracts/module2-encoder-pilot-v3.md --seed 20260707 --device cuda --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260707 --episodes 64 --min-episodes 64 --success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --model 0_trials/module2_encoder_pilot/R2/train/final_model.zip --output-dir 0_trials/module2_encoder_pilot/R2/eval",
+    "contract": ".pipeline/contracts/module2-encoder-pilot-v3.md",
+    "contract_status": "approved_by_dr_sun",
+    "allow_unapproved_contract_for_smoke": false,
+    "seed": 20260707,
+    "device": "cuda",
+    "curriculum_preset": "f03",
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "heldout_seed": 20260707,
+    "episodes": 64,
+    "observation_config": {
+      "patch_size_m": 6.4,
+      "patch_cells": 64,
+      "include_edt": true,
+      "edt_clip_m": 2.0
+    },
+    "env_config": {
+      "max_steps": 32,
+      "action_step_m": 0.3,
+      "collision_sample_step_m": 0.1,
+      "terminal_check_every": 1,
+      "theta_bins": 72
+    }
+  }
+}
+real 52.45
+user 58.24
+sys 2.64
