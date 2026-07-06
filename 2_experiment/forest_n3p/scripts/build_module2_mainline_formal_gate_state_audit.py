@@ -549,6 +549,13 @@ def _mainline_issues(
                 "expected_counts": EXPECTED_NEXT_SUCCESS_ARTIFACT_CATEGORY_COUNTS,
             }
         )
+    if "old_failed_run_artifacts_invalid_for_next_success_attempt=true" not in current_section:
+        issues.append(
+            {
+                "issue_id": "mainline_current_section_missing_old_failed_invalid_boundary",
+                "message": "Current formal-gate section must mention that old failed-run artifacts are invalid substitutes for the next success attempt.",
+            }
+        )
     if protocol_lane_readiness["artifact_name"] and protocol_lane_readiness["artifact_name"] not in current_section:
         issues.append(
             {
