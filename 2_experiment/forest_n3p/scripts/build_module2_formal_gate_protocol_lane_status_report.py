@@ -247,6 +247,8 @@ def _current_status(
         "next_success_attempt_artifact_count": artifact_summary["artifact_count"],
         "next_success_attempt_artifact_category_counts": artifact_summary["category_counts"],
         "next_success_attempt_artifact_ids_by_category": artifact_summary["artifact_ids_by_category"],
+        "next_success_attempt_artifact_expected_paths_by_id": artifact_summary["expected_paths_by_id"],
+        "next_success_attempt_artifact_proof_requirements_by_id": artifact_summary["proof_requirements_by_id"],
         "old_failed_run_artifacts_invalid_for_next_success_attempt": artifact_summary[
             "old_failed_run_artifacts_invalid_for_next_success_attempt"
         ],
