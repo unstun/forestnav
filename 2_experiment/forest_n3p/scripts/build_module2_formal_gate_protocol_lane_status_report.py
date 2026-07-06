@@ -462,6 +462,27 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- contract_drafting_allowed_now: `{state['contract_drafting_allowed_now']}`",
         f"- remote_training_allowed_now: `{state['remote_training_allowed_now']}`",
         f"- formal_claim_allowed_now: `{state['formal_claim_allowed_now']}`",
+        f"- next_success_attempt_artifact_count: `{state['next_success_attempt_artifact_count']}`",
+        f"- next_success_attempt_artifact_category_counts: `{state['next_success_attempt_artifact_category_counts']}`",
+        "",
+        "## Post-Decision Contract Plan",
+        "",
+        f"- status: `{state['post_decision_contract_plan_status']}`",
+        f"- audit_issue_count: `{state['post_decision_contract_plan_audit_issue_count']}`",
+        f"- required_contract_section_count: `{state['post_decision_contract_plan_required_section_count']}`",
+        f"- shared_next_success_attempt_artifact_count: `{state['post_decision_contract_plan_shared_artifact_count']}`",
+        f"- lane_count: `{state['post_decision_contract_plan_lane_count']}`",
+        f"- selected_lane_id: `{state['post_decision_contract_plan_selected_lane_id']}`",
+        f"- writes_contract: `{state['post_decision_contract_plan_writes_contract']}`",
+        f"- approves_contract: `{state['post_decision_contract_plan_approves_contract']}`",
+        f"- runs_training: `{state['post_decision_contract_plan_runs_training']}`",
+        f"- runs_remote_preflight: `{state['post_decision_contract_plan_runs_remote_preflight']}`",
+        f"- formal_claim_allowed: `{state['post_decision_contract_plan_formal_claim_allowed']}`",
+        f"- paper_result_material_allowed: `{state['post_decision_contract_plan_paper_result_material_allowed']}`",
+        "",
+        "## Missing Next-Attempt Artifacts",
+        "",
+        f"- index_status: `{state['next_success_attempt_artifact_status']}`",
         "",
         "## Safety Flags",
         "",
@@ -475,6 +496,9 @@ def _markdown(manifest: dict[str, Any]) -> str:
         "",
         "## Allowed Next Actions",
     ]
+    for category, artifact_ids in state["next_success_attempt_artifact_ids_by_category"].items():
+        joined = ", ".join(f"`{artifact_id}`" for artifact_id in artifact_ids)
+        lines.append(f"- {category}: {joined}")
     for action in state["allowed_next_action_ids"]:
         lines.append(f"- `{action}`")
     lines.extend(["", "## Blocked Actions"])
