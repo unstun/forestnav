@@ -85,6 +85,32 @@ def test_remote_packet_safety_audit_passes_current_blocked_packet(tmp_path):
         ]
         == proof_deliverables["missing_counts_by_formal_category"]
     )
+    protocol_summary = manifest["cross_gate_summary"]["post_plan_protocol_lane_status_summary"]
+    assert protocol_summary["present"] is True
+    assert protocol_summary["status"] == "protocol_lane_status_blocked_pending_lane_decision"
+    assert protocol_summary["next_blocked_lane"] == "protocol_lane_decision"
+    assert protocol_summary["selected_lane_id"] is None
+    assert protocol_summary["allowed_next_action_ids"] == ["record_protocol_lane_decision"]
+    assert protocol_summary["blocked_action_ids"] == [
+        "local_training",
+        "remote_success_training",
+        "remote_preflight_for_new_success_attempt",
+        "formal_claim",
+        "paper_result_material",
+    ]
+    assert protocol_summary["remote_training_allowed_now"] is False
+    assert protocol_summary["new_success_training_allowed_now"] is False
+    assert protocol_summary["post_decision_contract_plan_status"] == "post_decision_contract_plan_ready_blocked_pending_lane_decision"
+    assert protocol_summary["post_decision_contract_plan_shared_artifact_count"] == 10
+    assert protocol_summary["post_decision_contract_plan_lane_count"] == 4
+    assert protocol_summary["next_success_attempt_artifact_count"] == 10
+    assert protocol_summary["next_success_attempt_artifact_category_counts"] == {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1,
+    }
     status_steps = manifest["cross_gate_summary"]["post_plan_status_report_remote_execution_step_summary"]
     assert status_steps["sync_to_remote"]["blocked_by"] == ["requires_dr_sun_approval"]
     assert status_steps["run_remote_training"]["blocked_by"] == ["requires_dr_sun_approval", "remote_packet_not_ready"]
