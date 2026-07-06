@@ -718,6 +718,155 @@ def _status_report_issues(
     return issues
 
 
+def _protocol_lane_status_issues(
+    *,
+    protocol_lane_status: dict[str, Any],
+    protocol_lane_status_path: Path,
+) -> list[dict[str, Any]]:
+    if not Path(protocol_lane_status_path).is_file():
+        return [
+            _issue(
+                "protocol_lane_status_report_absent",
+                "Post-F02.6 plan audit requires the protocol-lane status report for next-attempt artifact cross-check.",
+                observed=str(protocol_lane_status_path),
+            )
+        ]
+
+    summary = _protocol_lane_status_summary(protocol_lane_status_path, protocol_lane_status)
+    issues: list[dict[str, Any]] = []
+    if summary["status"] != EXPECTED_PROTOCOL_LANE_STATUS:
+        issues.append(
+            _issue(
+                "protocol_lane_status_report_status_drift",
+                "Protocol-lane status must remain blocked pending Dr Sun's lane decision.",
+                observed=summary["status"],
+            )
+        )
+    if summary["audit_issue_count"] != 0:
+        issues.append(
+            _issue(
+                "protocol_lane_status_report_audit_issues_open",
+                "Protocol-lane status report must have zero audit issues before downstream gates consume it.",
+                observed=summary["audit_issue_count"],
+            )
+        )
+    if summary["next_blocked_lane"] != EXPECTED_PROTOCOL_LANE_NEXT_BLOCKED:
+        issues.append(
+            _issue(
+                "protocol_lane_status_next_blocked_lane_drift",
+                "Protocol-lane status must keep protocol_lane_decision as the current blocked lane.",
+                observed=summary["next_blocked_lane"],
+            )
+        )
+    if summary["selected_lane_id"] is not None:
+        issues.append(
+            _issue(
+                "protocol_lane_status_selected_lane_present",
+                "No protocol lane may be selected while the lane decision is pending.",
+                observed=summary["selected_lane_id"],
+            )
+        )
+    if summary["allowed_next_action_ids"] != list(EXPECTED_PROTOCOL_LANE_ALLOWED_NEXT_ACTIONS):
+        issues.append(
+            _issue(
+                "protocol_lane_status_allowed_actions_drift",
+                "Protocol-lane status must allow only record_protocol_lane_decision.",
+                observed=summary["allowed_next_action_ids"],
+            )
+        )
+    missing_blocked = [
+        action_id
+        for action_id in EXPECTED_PROTOCOL_LANE_BLOCKED_ACTIONS
+        if action_id not in set(summary["blocked_action_ids"])
+    ]
+    if missing_blocked:
+        issues.append(
+            _issue(
+                "protocol_lane_status_missing_blocked_actions",
+                "Protocol-lane status must explicitly block execution, claim, and paper-result actions.",
+                observed=missing_blocked,
+            )
+        )
+    if any(summary.get(field) is True for field in PROTOCOL_LANE_FALSE_FIELDS):
+        issues.append(
+            _issue(
+                "protocol_lane_status_authorization_leak",
+                "Protocol-lane status must not authorize training, claims, or paper result material while pending.",
+                observed={field: summary.get(field) for field in PROTOCOL_LANE_FALSE_FIELDS},
+            )
+        )
+
+    if summary["post_decision_contract_plan_summary_present"] is not True:
+        issues.append(
+            _issue(
+                "protocol_lane_status_missing_post_plan_summary",
+                "Protocol-lane status must expose the inherited post-decision contract plan summary.",
+            )
+        )
+    if summary["post_decision_contract_plan_status"] != EXPECTED_POST_DECISION_CONTRACT_PLAN_STATUS:
+        issues.append(
+            _issue(
+                "protocol_lane_status_post_plan_status_drift",
+                "Protocol-lane status must inherit the blocked post-decision contract plan status.",
+                observed=summary["post_decision_contract_plan_status"],
+            )
+        )
+    expected_counts = {
+        "post_decision_contract_plan_required_section_count": EXPECTED_POST_DECISION_CONTRACT_SECTION_COUNT,
+        "post_decision_contract_plan_shared_artifact_count": EXPECTED_POST_DECISION_CONTRACT_SHARED_ARTIFACT_COUNT,
+        "post_decision_contract_plan_lane_count": EXPECTED_POST_DECISION_CONTRACT_LANE_COUNT,
+    }
+    for field, expected in expected_counts.items():
+        if summary[field] != expected:
+            issues.append(
+                _issue(
+                    f"protocol_lane_status_{field}_drift",
+                    "Protocol-lane status post-plan counts must match the contract plan.",
+                    observed={field: summary[field], "expected": expected},
+                )
+            )
+    if any(summary.get(field) is True for field in PROTOCOL_POST_PLAN_FALSE_FIELDS):
+        issues.append(
+            _issue(
+                "protocol_lane_status_post_plan_authorization_leak",
+                "Inherited post-plan fields must not write contracts, approve contracts, run training, or authorize claims.",
+                observed={field: summary.get(field) for field in PROTOCOL_POST_PLAN_FALSE_FIELDS},
+            )
+        )
+
+    if summary["next_success_attempt_artifact_count"] != EXPECTED_NEXT_SUCCESS_ARTIFACT_COUNT:
+        issues.append(
+            _issue(
+                "protocol_lane_status_next_artifact_count_drift",
+                "Protocol-lane status must expose all next-attempt contract/training/evaluation/acceptance artifacts.",
+                observed=summary["next_success_attempt_artifact_count"],
+            )
+        )
+    if summary["next_success_attempt_artifact_category_counts"] != EXPECTED_NEXT_SUCCESS_ARTIFACT_CATEGORY_COUNTS:
+        issues.append(
+            _issue(
+                "protocol_lane_status_next_artifact_category_counts_drift",
+                "Protocol-lane status next-attempt artifact category counts must stay at 1/3/2/3/1.",
+                observed=summary["next_success_attempt_artifact_category_counts"],
+            )
+        )
+    missing_artifact_ids: dict[str, list[str]] = {}
+    for category, expected_ids in EXPECTED_NEXT_SUCCESS_ARTIFACT_IDS_BY_CATEGORY.items():
+        actual_ids = set(summary["next_success_attempt_artifact_ids_by_category"].get(category, []))
+        missing = [artifact_id for artifact_id in expected_ids if artifact_id not in actual_ids]
+        if missing:
+            missing_artifact_ids[category] = missing
+    if missing_artifact_ids:
+        issues.append(
+            _issue(
+                "protocol_lane_status_next_artifact_ids_missing",
+                "Protocol-lane status must list every required next-attempt artifact id.",
+                observed=missing_artifact_ids,
+            )
+        )
+    return issues
+
+
 def _remaining_deliverables_gap_issues(
     *,
     plan: dict[str, Any],
