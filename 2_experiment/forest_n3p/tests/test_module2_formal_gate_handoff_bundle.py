@@ -255,6 +255,16 @@ def test_formal_gate_handoff_bundle_blocks_remote_when_protocol_lane_pending(tmp
     assert "remote-produced PPO checkpoint" in protocol[
         "next_success_attempt_artifact_proof_requirements_by_id"
     ]["train_final_model_zip"]
+    assert protocol["next_success_attempt_artifact_invalid_substitutes_by_id"]["train_final_model_zip"] == [
+        "local PPO training output",
+        "failed warm-start checkpoint",
+        "checkpoint without manifest or hash provenance",
+    ]
+    assert protocol["next_success_attempt_artifact_invalid_substitutes_by_id"]["h02_formal_output_acceptance"] == [
+        "blocked H02 acceptance",
+        "formal-looking smoke table",
+        "PPO rows without checkpoint hash",
+    ]
     assert protocol["post_decision_contract_plan_shared_artifact_category_counts"] == {
         "contract": 1,
         "training": 3,
@@ -311,6 +321,9 @@ def test_formal_gate_handoff_bundle_rejects_protocol_lane_next_artifact_drift(tm
         "0_trials/wrong/final_model.zip"
     )
     current["next_success_attempt_artifact_proof_requirements_by_id"]["train_summary_json"] = ""
+    current["next_success_attempt_artifact_invalid_substitutes_by_id"]["train_final_model_zip"] = [
+        "local PPO training output"
+    ]
     current["post_decision_contract_plan_shared_artifact_category_counts"]["evaluation"] = 1
     current["old_failed_run_artifacts_invalid_for_next_success_attempt"] = False
     current["post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt"] = False
@@ -324,6 +337,7 @@ def test_formal_gate_handoff_bundle_rejects_protocol_lane_next_artifact_drift(tm
     assert "protocol_lane_status_next_artifact_ids_drift" in issue_ids
     assert "protocol_lane_status_next_artifact_expected_paths_drift" in issue_ids
     assert "protocol_lane_status_next_artifact_proof_requirement_empty" in issue_ids
+    assert "protocol_lane_status_next_artifact_invalid_substitutes_drift" in issue_ids
     assert "protocol_lane_status_post_plan_category_counts_drift" in issue_ids
     assert "protocol_lane_status_old_failed_invalid_flag_drift" in issue_ids
     assert "protocol_lane_status_post_plan_old_failed_invalid_flag_drift" in issue_ids
@@ -919,6 +933,7 @@ def _protocol_lane_status(*, pending):
             },
             "next_success_attempt_artifact_expected_paths_by_id": _next_success_expected_paths_by_id(),
             "next_success_attempt_artifact_proof_requirements_by_id": _next_success_proof_requirements_by_id(),
+            "next_success_attempt_artifact_invalid_substitutes_by_id": _next_success_invalid_substitutes_by_id(),
             "post_decision_contract_plan_shared_artifact_count": 10,
             "post_decision_contract_plan_shared_artifact_category_counts": {
                 "contract": 1,
