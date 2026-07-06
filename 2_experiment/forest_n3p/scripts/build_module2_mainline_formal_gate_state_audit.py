@@ -1333,6 +1333,12 @@ def _normalize_decision_evidence_matrix_summary(raw: Any) -> dict[str, Any]:
 def _normalize_protocol_lane_status_report(raw: Any) -> dict[str, Any]:
     raw = raw if isinstance(raw, dict) else {}
     current = raw.get("current_status") if isinstance(raw.get("current_status"), dict) else {}
+    artifact_ids_by_category = current.get("next_success_attempt_artifact_ids_by_category")
+    if not isinstance(artifact_ids_by_category, dict):
+        artifact_ids_by_category = {}
+    category_counts = current.get("next_success_attempt_artifact_category_counts")
+    if not isinstance(category_counts, dict):
+        category_counts = {}
     normalized = {
         "present": bool(raw),
         "status": str(raw.get("status") or ""),
@@ -1349,6 +1355,57 @@ def _normalize_protocol_lane_status_report(raw: Any) -> dict[str, Any]:
         "contract_action": str(current.get("contract_action") or ""),
         "allowed_next_action_ids": _strings(current.get("allowed_next_action_ids")),
         "blocked_action_ids": _strings(current.get("blocked_action_ids")),
+        "post_decision_contract_plan_summary_present": bool(
+            current.get("post_decision_contract_plan_summary_present")
+        ),
+        "post_decision_contract_plan_status": str(current.get("post_decision_contract_plan_status") or ""),
+        "post_decision_contract_plan_audit_issue_count": int(
+            current.get("post_decision_contract_plan_audit_issue_count") or 0
+        ),
+        "post_decision_contract_plan_required_section_count": int(
+            current.get("post_decision_contract_plan_required_section_count") or 0
+        ),
+        "post_decision_contract_plan_shared_artifact_count": int(
+            current.get("post_decision_contract_plan_shared_artifact_count") or 0
+        ),
+        "post_decision_contract_plan_lane_count": int(
+            current.get("post_decision_contract_plan_lane_count") or 0
+        ),
+        "post_decision_contract_plan_selected_lane_id": current.get(
+            "post_decision_contract_plan_selected_lane_id"
+        ),
+        "post_decision_contract_plan_writes_contract": current.get(
+            "post_decision_contract_plan_writes_contract"
+        ),
+        "post_decision_contract_plan_approves_contract": current.get(
+            "post_decision_contract_plan_approves_contract"
+        ),
+        "post_decision_contract_plan_runs_training": current.get(
+            "post_decision_contract_plan_runs_training"
+        ),
+        "post_decision_contract_plan_runs_remote_preflight": current.get(
+            "post_decision_contract_plan_runs_remote_preflight"
+        ),
+        "post_decision_contract_plan_remote_training_allowed_now": current.get(
+            "post_decision_contract_plan_remote_training_allowed_now"
+        ),
+        "post_decision_contract_plan_formal_claim_allowed": current.get(
+            "post_decision_contract_plan_formal_claim_allowed"
+        ),
+        "post_decision_contract_plan_paper_result_material_allowed": current.get(
+            "post_decision_contract_plan_paper_result_material_allowed"
+        ),
+        "post_decision_contract_plan_gate_contract_drafting_allowed_now": current.get(
+            "post_decision_contract_plan_gate_contract_drafting_allowed_now"
+        ),
+        "next_success_attempt_artifact_status": str(current.get("next_success_attempt_artifact_status") or ""),
+        "next_success_attempt_artifact_count": int(current.get("next_success_attempt_artifact_count") or 0),
+        "next_success_attempt_artifact_category_counts": {
+            str(key): int(value or 0) for key, value in category_counts.items()
+        },
+        "next_success_attempt_artifact_ids_by_category": {
+            str(key): _strings(value) for key, value in artifact_ids_by_category.items()
+        },
     }
     for key in PROTOCOL_LANE_FALSE_FLAGS:
         normalized[key] = bool(current.get(key))
