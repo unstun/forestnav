@@ -4,8 +4,8 @@ This is a formal-gate evidence ledger. It does not run local training, remote pr
 
 ## Status
 
-- status: `blocked_until_source_freshness`
-- source_head: `840721f8954515ef1aa443a6cf2d4ceda679b0f3`
+- status: `blocked_until_v2_remote_preflight`
+- source_head: `07e66420a4f86c58a8172fb8cbc74438b5d3b33e`
 - remote_preflight_allowed_now: `False`
 - remote_training_allowed_now: `False`
 - paper_result_material_allowed_now: `False`
@@ -19,8 +19,6 @@ This is a formal-gate evidence ledger. It does not run local training, remote pr
 
 ## Gate Blockers
 
-- `source_freshness_not_ready`: observed=`source_freshness_risks_recorded_gate_still_blocked`, expected=`['source_freshness_clean_current', 'source_freshness_tracked_artifact_lag_only_gate_ready']`
-- `v2_remote_execution_packet_not_ready`: observed=`blocked_until_source_freshness`, expected=`ready_for_v2_remote_preflight`
 - `v2_remote_preflight_manifest_not_ready`: observed=`missing`, expected=`ready + formal_trial_ready=true`
 
 ## Remaining Evidence Summary
@@ -29,7 +27,7 @@ This is a formal-gate evidence ledger. It does not run local training, remote pr
 - `contract`: missing_or_unsatisfied=`0` / total=`1`
 - `evaluation`: missing_or_unsatisfied=`2` / total=`2`
 - `formal_acceptance`: missing_or_unsatisfied=`1` / total=`1`
-- `gate_precondition`: missing_or_unsatisfied=`2` / total=`2`
+- `gate_precondition`: missing_or_unsatisfied=`1` / total=`2`
 - `training`: missing_or_unsatisfied=`3` / total=`3`
 
 ## Deliverables
@@ -43,8 +41,8 @@ This is a formal-gate evidence ledger. It does not run local training, remote pr
 
 ### `gate_precondition:source_freshness_ready`
 - expected_path: `0_trials/module2_source_freshness_audit/source_freshness_audit.json`
-- state: `source_freshness_risks_recorded_gate_still_blocked`
-- satisfied_for_v2_success_attempt: `False`
+- state: `source_freshness_remote_preflight_scope_ready_with_later_risks`
+- satisfied_for_v2_success_attempt: `True`
 - required_before: `remote_preflight`
 - proof_requirement: source freshness gate ready for the v2 contract/source head
 
@@ -120,8 +118,8 @@ This is a formal-gate evidence ledger. It does not run local training, remote pr
 
 ## Next Ordered Actions
 
-- Regenerate blocking source-freshness targets
-- Rebuild the v2 remote execution packet
+- Run the allowed remote preflight only
+- Commit/pull back the preflight manifest before any training
 
 ## Invalid Substitutes
 

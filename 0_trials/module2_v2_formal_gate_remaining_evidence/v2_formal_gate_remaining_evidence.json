@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_v2_formal_gate_remaining_evidence",
-  "status": "blocked_until_source_freshness",
-  "created_at_utc": "2026-07-06T09:43:06.586796+00:00",
-  "source_head": "840721f8954515ef1aa443a6cf2d4ceda679b0f3",
+  "status": "blocked_until_v2_remote_preflight",
+  "created_at_utc": "2026-07-06T09:47:31.631046+00:00",
+  "source_head": "07e66420a4f86c58a8172fb8cbc74438b5d3b33e",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
@@ -43,8 +43,8 @@
     "readiness_status": "v2_contract_ready_for_source_freshness",
     "promotion_packet_status": "v2_contract_promotion_packet_ready_awaiting_dr_sun",
     "promotion_dry_run_status": "promotion_apply_ready",
-    "source_freshness_status": "source_freshness_risks_recorded_gate_still_blocked",
-    "remote_packet_status": "blocked_until_source_freshness",
+    "source_freshness_status": "source_freshness_remote_preflight_scope_ready_with_later_risks",
+    "remote_packet_status": "ready_for_v2_remote_preflight",
     "preflight_status": null,
     "preflight_formal_trial_ready": false
   },
@@ -56,21 +56,8 @@
     "formal_claim_allowed_now": false,
     "paper_result_material_allowed_now": false
   },
-  "gate_blocker_count": 3,
+  "gate_blocker_count": 1,
   "gate_blockers": [
-    {
-      "issue_id": "source_freshness_not_ready",
-      "observed": "source_freshness_risks_recorded_gate_still_blocked",
-      "expected": [
-        "source_freshness_clean_current",
-        "source_freshness_tracked_artifact_lag_only_gate_ready"
-      ]
-    },
-    {
-      "issue_id": "v2_remote_execution_packet_not_ready",
-      "observed": "blocked_until_source_freshness",
-      "expected": "ready_for_v2_remote_preflight"
-    },
     {
       "issue_id": "v2_remote_preflight_manifest_not_ready",
       "observed": "missing",
@@ -79,7 +66,7 @@
   ],
   "remaining_evidence_summary": {
     "total_required_evidence_items": 12,
-    "total_missing_or_unsatisfied": 11,
+    "total_missing_or_unsatisfied": 10,
     "by_category": {
       "acceptance": {
         "total": 3,
@@ -103,8 +90,8 @@
       },
       "gate_precondition": {
         "total": 2,
-        "satisfied": 0,
-        "missing_or_unsatisfied": 2
+        "satisfied": 1,
+        "missing_or_unsatisfied": 1
       },
       "training": {
         "total": 3,
@@ -152,8 +139,8 @@
         "packet generated against stale source head"
       ],
       "exists": true,
-      "satisfied_for_v2_success_attempt": false,
-      "state": "source_freshness_risks_recorded_gate_still_blocked"
+      "satisfied_for_v2_success_attempt": true,
+      "state": "source_freshness_remote_preflight_scope_ready_with_later_risks"
     },
     {
       "category": "gate_precondition",
@@ -363,8 +350,8 @@
     }
   ],
   "next_ordered_actions": [
-    "Regenerate blocking source-freshness targets",
-    "Rebuild the v2 remote execution packet"
+    "Run the allowed remote preflight only",
+    "Commit/pull back the preflight manifest before any training"
   ],
   "invalid_substitutes": [
     "local PPO training output",

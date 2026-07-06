@@ -4,9 +4,9 @@ This artifact plans the local gate regeneration sequence after v2 contract promo
 
 ## Status
 
-- status: `ready_for_rerun_source_freshness_audit`
+- status: `ready_for_run_remote_preflight_only`
 - contract_status: `approved`
-- next_action: `rerun_source_freshness_audit`
+- next_action: `run_remote_preflight_only`
 - remote_preflight_allowed_now: `False`
 - remote_training_allowed_now: `False`
 
@@ -38,7 +38,7 @@ PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_v2_contract_r
 
 ### `rerun_source_freshness_audit`
 - category: `local_gate`
-- satisfied_now: `False`
+- satisfied_now: `True`
 - allowed_now: `True`
 - blocked_by: ``
 - runs_remote_preflight: `False`
@@ -50,9 +50,9 @@ PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_source_freshn
 
 ### `regenerate_v2_remote_execution_packet`
 - category: `local_gate`
-- satisfied_now: `False`
-- allowed_now: `False`
-- blocked_by: `source_freshness_not_ready`
+- satisfied_now: `True`
+- allowed_now: `True`
+- blocked_by: ``
 - runs_remote_preflight: `False`
 - runs_training: `False`
 
@@ -75,8 +75,8 @@ PYTHONPATH=2_experiment python -m forest_n3p.scripts.build_module2_v2_formal_gat
 ### `run_remote_preflight_only`
 - category: `remote_preflight`
 - satisfied_now: `False`
-- allowed_now: `False`
-- blocked_by: `source_freshness_not_ready, v2_remote_packet_not_ready`
+- allowed_now: `True`
+- blocked_by: ``
 - runs_remote_preflight: `True`
 - runs_training: `False`
 

@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
   "artifact_name": "module2_v2_formal_gate_chain_audit",
-  "status": "blocked_until_source_freshness",
-  "created_at_utc": "2026-07-06T09:43:06.742569+00:00",
-  "source_head": "840721f8954515ef1aa443a6cf2d4ceda679b0f3",
+  "status": "blocked_until_v2_remote_preflight",
+  "created_at_utc": "2026-07-06T09:47:31.755264+00:00",
+  "source_head": "07e66420a4f86c58a8172fb8cbc74438b5d3b33e",
   "not_paper_result_material": true,
   "executes_commands": false,
   "runs_training": false,
   "runs_remote_preflight": false,
   "runs_remote_audit": false,
   "local_training_allowed_now": false,
-  "remote_preflight_allowed_now": false,
+  "remote_preflight_allowed_now": true,
   "remote_training_allowed_now": false,
   "formal_claim_allowed_now": false,
   "paper_result_material_allowed_now": false,
@@ -26,9 +26,9 @@
     "remaining_evidence": "0_trials/module2_v2_formal_gate_remaining_evidence/v2_formal_gate_remaining_evidence.json",
     "h02_acceptance": "0_trials/module2_h02_formal_acceptance/h02_formal_acceptance.json"
   },
-  "current_blocking_stage_id": "source_freshness_ready",
-  "current_blocking_stage_label": "Source freshness ready for remote preflight",
-  "next_allowed_action": "rerun_source_freshness_for_v2_contract",
+  "current_blocking_stage_id": "v2_remote_preflight_ready",
+  "current_blocking_stage_label": "V2 remote preflight manifest ready",
+  "next_allowed_action": "run_remote_preflight_only",
   "strict_stage_order": [
     "v2_contract_promoted",
     "v2_contract_readiness_ready",
@@ -41,7 +41,7 @@
     "h02_formal_acceptance_ready"
   ],
   "stage_count": 12,
-  "satisfied_stage_count": 5,
+  "satisfied_stage_count": 7,
   "audit_issue_count": 0,
   "audit_issues": [],
   "stages": [
@@ -98,10 +98,11 @@
     {
       "stage_id": "source_freshness_ready",
       "label": "Source freshness ready for remote preflight",
-      "satisfied": false,
-      "observed": "source_freshness_risks_recorded_gate_still_blocked",
+      "satisfied": true,
+      "observed": "source_freshness_remote_preflight_scope_ready_with_later_risks",
       "expected": [
         "source_freshness_clean_current",
+        "source_freshness_remote_preflight_scope_ready_with_later_risks",
         "source_freshness_tracked_artifact_lag_only_gate_ready"
       ],
       "strict_order_index": 2
@@ -109,10 +110,10 @@
     {
       "stage_id": "v2_remote_packet_ready",
       "label": "V2 remote execution packet ready for preflight",
-      "satisfied": false,
+      "satisfied": true,
       "observed": {
-        "status": "blocked_until_source_freshness",
-        "remote_preflight_allowed_now": false
+        "status": "ready_for_v2_remote_preflight",
+        "remote_preflight_allowed_now": true
       },
       "expected": {
         "status": "ready_for_v2_remote_preflight",
