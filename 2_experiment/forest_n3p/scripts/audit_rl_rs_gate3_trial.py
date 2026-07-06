@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 
-CONTRACT_PATH = ".pipeline/contracts/module2-ppo-funnel-expansion.md"
+DEFAULT_CONTRACT_PATH = ".pipeline/contracts/module2-ppo-funnel-expansion.md"
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -28,6 +28,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         required_train_curriculum=str(args.required_train_curriculum),
         required_eval_curriculum=str(args.required_eval_curriculum),
         warm_start_decision=str(args.warm_start_decision),
+        expected_contract_path=str(args.contract_path),
         raw_argv=raw_argv,
     )
     output_path.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -43,6 +44,7 @@ def _parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser.add_argument("--required-success-threshold", type=float, default=0.8)
     parser.add_argument("--required-train-curriculum", default="f03")
     parser.add_argument("--required-eval-curriculum", default="f03")
+    parser.add_argument("--contract-path", default=DEFAULT_CONTRACT_PATH)
     parser.add_argument(
         "--warm-start-decision",
         choices=("pending", "approved_obstacle_summary", "not_used"),
@@ -60,6 +62,7 @@ def audit_trial(
     required_train_curriculum: str,
     required_eval_curriculum: str,
     warm_start_decision: str,
+    expected_contract_path: str = DEFAULT_CONTRACT_PATH,
     raw_argv: Sequence[str],
 ) -> dict[str, Any]:
     manifest_path = trial_dir / "gate3_trial_manifest.json"
@@ -79,6 +82,13 @@ def audit_trial(
 
     train_cfg = _config_from(manifest, train_summary, "train_config")
     eval_cfg = _config_from(manifest, eval_summary, "eval_config")
+    _check_contract_path(
+        manifest=manifest,
+        train_cfg=train_cfg,
+        eval_summary=eval_summary,
+        expected_contract_path=str(expected_contract_path),
+        blockers=blockers,
+    )
     train_curriculum = str(train_cfg.get("curriculum_preset", "unknown"))
     eval_curriculum = str(eval_cfg.get("curriculum_preset", "unknown"))
     if train_curriculum != str(required_train_curriculum):
@@ -133,16 +143,6 @@ def audit_trial(
                 expected="approved_obstacle_summary or not_used",
             )
         )
-    if eval_summary.get("contract") not in {CONTRACT_PATH, None}:
-        blockers.append(
-            _reason(
-                "unexpected_contract",
-                f"eval contract is {eval_summary.get('contract')!r}",
-                observed=eval_summary.get("contract"),
-                expected=CONTRACT_PATH,
-            )
-        )
-
     evaluator_decision = str(manifest.get("gate3_decision", eval_summary.get("decision", "unknown")))
     formal_decision = "not_formal"
     if not blockers:
@@ -155,7 +155,7 @@ def audit_trial(
         "source_head": _source_head(),
         "command": " ".join(["python -m forest_n3p.scripts.audit_rl_rs_gate3_trial", *raw_argv]),
         "trial_dir": str(trial_dir),
-        "contract": CONTRACT_PATH,
+        "contract": str(expected_contract_path),
         "formal_decision": formal_decision,
         "formal_claim_allowed": formal_decision in {"pass", "fail"},
         "formal_blockers": blockers,
@@ -172,6 +172,33 @@ def audit_trial(
         "warm_start_decision": warm_start_decision,
         "artifact_manifest": str(manifest_path),
     }
+
+
+def _check_contract_path(
+    *,
+    manifest: dict[str, Any],
+    train_cfg: dict[str, Any],
+    eval_summary: dict[str, Any],
+    expected_contract_path: str,
+    blockers: list[dict[str, Any]],
+) -> None:
+    contract_fields = {
+        "trial_manifest_contract": manifest.get("contract"),
+        "train_config_contract": train_cfg.get("contract"),
+        "eval_summary_contract": eval_summary.get("contract"),
+    }
+    for field_id, observed in contract_fields.items():
+        if observed is None and expected_contract_path == DEFAULT_CONTRACT_PATH:
+            continue
+        if observed != expected_contract_path:
+            blockers.append(
+                _reason(
+                    "contract_path_mismatch",
+                    f"{field_id} is {observed!r}, expected {expected_contract_path!r}",
+                    observed={field_id: observed},
+                    expected=expected_contract_path,
+                )
+            )
 
 
 def _check_artifacts(*, trial_dir: Path, manifest: dict[str, Any], blockers: list[dict[str, Any]]) -> None:
