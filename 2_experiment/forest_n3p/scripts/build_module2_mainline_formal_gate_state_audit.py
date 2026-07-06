@@ -481,7 +481,7 @@ def _mainline_issues(
                 "next_blocked_lane": protocol_lane_status["next_blocked_lane"],
             }
         )
-    for action_id in EXPECTED_PROTOCOL_LANE_ALLOWED_NEXT_ACTIONS:
+    for action_id in protocol_lane_status["allowed_next_action_ids"]:
         if action_id not in current_section:
             issues.append(
                 {
