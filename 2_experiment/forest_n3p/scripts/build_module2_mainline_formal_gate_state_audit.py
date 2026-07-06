@@ -94,6 +94,7 @@ EXPECTED_NEXT_SUCCESS_ARTIFACT_CATEGORY_COUNTS = {
     "acceptance": 3,
     "formal_acceptance": 1,
 }
+EXPECTED_OLD_FAILED_RUN_INVALID_FOR_NEXT_SUCCESS_ATTEMPT = True
 EXPECTED_NEXT_SUCCESS_ARTIFACT_IDS_BY_CATEGORY = {
     "contract": ("new_or_revised_research_contract",),
     "training": ("train_final_model_zip", "train_summary_json", "train_training_manifest_json"),
