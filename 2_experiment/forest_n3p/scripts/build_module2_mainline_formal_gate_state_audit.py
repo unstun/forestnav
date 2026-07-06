@@ -319,6 +319,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--proof-summary-chain-audit", type=Path, default=DEFAULT_PROOF_SUMMARY_CHAIN_AUDIT)
     parser.add_argument("--protocol-lane-status-report", type=Path, default=DEFAULT_PROTOCOL_LANE_STATUS_REPORT)
     parser.add_argument("--protocol-lane-readiness", type=Path, default=DEFAULT_PROTOCOL_LANE_READINESS)
+    parser.add_argument("--post-decision-contract-plan", type=Path, default=DEFAULT_POST_DECISION_CONTRACT_PLAN)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
@@ -331,6 +332,7 @@ def _mainline_issues(
     decision_matrix: dict[str, Any],
     protocol_lane_status: dict[str, Any],
     protocol_lane_readiness: dict[str, Any],
+    post_decision_contract_plan: dict[str, Any],
     deliverable_rows: Sequence[dict[str, Any]],
     proof_chain: dict[str, Any],
 ) -> list[dict[str, Any]]:
@@ -492,6 +494,39 @@ def _mainline_issues(
                 ],
             }
         )
+    if post_decision_contract_plan["artifact_name"] and post_decision_contract_plan["artifact_name"] not in current_section:
+        issues.append(
+            {
+                "issue_id": "mainline_current_section_missing_post_decision_contract_plan_artifact",
+                "message": "Current formal-gate section must mention the post-decision contract plan artifact name.",
+                "artifact_name": post_decision_contract_plan["artifact_name"],
+            }
+        )
+    if post_decision_contract_plan["status"] and post_decision_contract_plan["status"] not in current_section:
+        issues.append(
+            {
+                "issue_id": "mainline_current_section_missing_post_decision_contract_plan_status",
+                "message": "Current formal-gate section must mention the post-decision contract plan status.",
+                "plan_status": post_decision_contract_plan["status"],
+            }
+        )
+    for key, issue_id in (
+        ("required_contract_section_count", "mainline_current_section_missing_post_decision_contract_section_count"),
+        (
+            "shared_next_success_attempt_artifact_count",
+            "mainline_current_section_missing_post_decision_contract_shared_artifact_count",
+        ),
+        ("lane_count", "mainline_current_section_missing_post_decision_contract_lane_count"),
+    ):
+        token = str(post_decision_contract_plan[key])
+        if token and token not in current_section:
+            issues.append(
+                {
+                    "issue_id": issue_id,
+                    "message": "Current formal-gate section must mention this post-decision contract plan count.",
+                    key: post_decision_contract_plan[key],
+                }
+            )
     proof_status = str(proof_chain.get("status", ""))
     if proof_status and proof_status not in mainline_text:
         issues.append(
@@ -508,6 +543,90 @@ def _mainline_issues(
                 "message": "Normalized deliverable row count must match total missing deliverables.",
                 "total_missing_deliverables": next_required["total_missing_deliverables"],
                 "row_count": len(deliverable_rows),
+            }
+        )
+    return issues
+
+
+def _post_decision_contract_plan_issues(plan: dict[str, Any]) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    if not plan["present"]:
+        issues.append(
+            {
+                "issue_id": "post_decision_contract_plan_missing",
+                "message": "Mainline audit must consume the post-decision contract plan.",
+            }
+        )
+        return issues
+    if plan["artifact_name"] != EXPECTED_POST_DECISION_CONTRACT_PLAN_ARTIFACT:
+        issues.append(
+            {
+                "issue_id": "post_decision_contract_plan_artifact_drift",
+                "message": "Post-decision contract plan artifact name drifted.",
+                "artifact_name": plan["artifact_name"],
+            }
+        )
+    if plan["status"] != EXPECTED_POST_DECISION_CONTRACT_PLAN_STATUS:
+        issues.append(
+            {
+                "issue_id": "post_decision_contract_plan_status_drift",
+                "message": "Post-decision contract plan must remain blocked pending protocol-lane decision.",
+                "status": plan["status"],
+            }
+        )
+    if plan["audit_issue_count"] != 0:
+        issues.append(
+            {
+                "issue_id": "post_decision_contract_plan_audit_issues_open",
+                "message": "Post-decision contract plan must be audit-clean before mainline mirrors it.",
+                "audit_issue_count": plan["audit_issue_count"],
+            }
+        )
+    expected_counts = {
+        "required_contract_section_count": EXPECTED_POST_DECISION_CONTRACT_SECTION_COUNT,
+        "shared_next_success_attempt_artifact_count": EXPECTED_POST_DECISION_CONTRACT_SHARED_ARTIFACT_COUNT,
+        "lane_count": EXPECTED_POST_DECISION_CONTRACT_LANE_COUNT,
+    }
+    for key, expected in expected_counts.items():
+        if plan[key] != expected:
+            issues.append(
+                {
+                    "issue_id": f"post_decision_contract_plan_{key}_drift",
+                    "message": "Post-decision contract plan count drifted.",
+                    "expected": expected,
+                    "observed": plan[key],
+                }
+            )
+    true_flags = [
+        key
+        for key in (
+            "writes_contract",
+            "approves_contract",
+            "runs_training",
+            "runs_remote_preflight",
+            "remote_training_allowed_now",
+            "formal_claim_allowed",
+            "paper_result_material_allowed",
+            "gate_contract_drafting_allowed_now",
+            "gate_remote_training_allowed_now",
+            "gate_formal_claim_allowed_now",
+        )
+        if plan.get(key) is True
+    ]
+    if true_flags:
+        issues.append(
+            {
+                "issue_id": "post_decision_contract_plan_authorization_leak",
+                "message": "Post-decision contract plan must not authorize contract writing, training, or claims.",
+                "true_flags": true_flags,
+            }
+        )
+    if plan["gate_selected_lane_id"] is not None:
+        issues.append(
+            {
+                "issue_id": "post_decision_contract_plan_selected_lane_present",
+                "message": "Post-decision plan mirrored by mainline must not select a lane while protocol decision is pending.",
+                "selected_lane_id": plan["gate_selected_lane_id"],
             }
         )
     return issues
