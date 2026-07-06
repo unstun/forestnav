@@ -1742,6 +1742,10 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"`{len(protocol_lane['next_success_attempt_artifact_proof_requirements_by_id'])}`"
     )
     lines.append(
+        "- next_success_attempt_artifact_invalid_substitutes_by_id: "
+        f"`{protocol_lane['next_success_attempt_artifact_invalid_substitutes_by_id']}`"
+    )
+    lines.append(
         "- post_decision_contract_plan_shared_artifact_category_counts: "
         f"`{protocol_lane['post_decision_contract_plan_shared_artifact_category_counts']}`"
     )
