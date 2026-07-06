@@ -63,9 +63,13 @@ DECISION_EVIDENCE_MATRIX_ALLOWED_KEYS = (
     "paper_result_material_allowed_now",
 )
 EXPECTED_PROTOCOL_LANE_STATUS = "protocol_lane_status_blocked_pending_lane_decision"
+EXPECTED_PROTOCOL_LANE_RECORDED_STATUS = "protocol_lane_status_ready_for_contract_draft"
 EXPECTED_PROTOCOL_LANE_NEXT_BLOCKED = "protocol_lane_decision"
+EXPECTED_PROTOCOL_LANE_RECORDED_NEXT_BLOCKED = "new_or_revised_contract"
 EXPECTED_PROTOCOL_LANE_DECISION_RECORD_STATUS = "pending_protocol_lane_decision"
+EXPECTED_PROTOCOL_LANE_RECORDED_DECISION_RECORD_STATUS = "protocol_lane_decision_recorded"
 EXPECTED_PROTOCOL_LANE_ALLOWED_NEXT_ACTIONS = ("record_protocol_lane_decision",)
+EXPECTED_PROTOCOL_LANE_RECORDED_ALLOWED_NEXT_ACTIONS = ("draft_new_or_revised_contract_after_lane_decision",)
 EXPECTED_PROTOCOL_LANE_IDS = (
     "stronger_obstacle_summary_warm_start",
     "full_patch_cnn_policy",
@@ -83,6 +87,7 @@ EXPECTED_PROTOCOL_LANE_READINESS_STATUS = "protocol_lane_readiness_ready_for_dr_
 EXPECTED_PROTOCOL_LANE_READINESS_ARTIFACT = "module2_formal_gate_protocol_lane_readiness"
 EXPECTED_PROTOCOL_LANE_READINESS_SHARED_ARTIFACT_COUNT = 10
 EXPECTED_POST_DECISION_CONTRACT_PLAN_STATUS = "post_decision_contract_plan_ready_blocked_pending_lane_decision"
+EXPECTED_POST_DECISION_CONTRACT_PLAN_RECORDED_STATUS = "post_decision_contract_plan_ready_for_contract_draft"
 EXPECTED_POST_DECISION_CONTRACT_PLAN_ARTIFACT = "module2_formal_gate_post_decision_contract_plan"
 EXPECTED_POST_DECISION_CONTRACT_SECTION_COUNT = 8
 EXPECTED_POST_DECISION_CONTRACT_LANE_COUNT = 4
@@ -107,7 +112,6 @@ EXPECTED_NEXT_SUCCESS_ARTIFACT_IDS_BY_CATEGORY = {
     "formal_acceptance": ("h02_formal_output_acceptance",),
 }
 PROTOCOL_LANE_FALSE_FLAGS = (
-    "contract_drafting_allowed_now",
     "contract_approval_allowed_now",
     "draft_contract_allows_training",
     "local_training_allowed_now",
