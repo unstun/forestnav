@@ -27,6 +27,19 @@ DEFAULT_LANE_MATRIX = Path("0_trials/module2_formal_gate_protocol_lane_matrix/fo
 DEFAULT_NEXT_ROUND_REQUIREMENTS = Path(
     "0_trials/module2_formal_gate_next_round_requirements/formal_gate_next_round_requirements.json"
 )
+EXPECTED_POST_DECISION_CONTRACT_PLAN_ARTIFACT = "module2_formal_gate_post_decision_contract_plan"
+EXPECTED_POST_DECISION_CONTRACT_SECTION_COUNT = 8
+EXPECTED_POST_DECISION_SHARED_ARTIFACT_COUNT = 10
+EXPECTED_POST_DECISION_LANE_COUNT = 4
+EXPECTED_PENDING_POST_DECISION_CONTRACT_PLAN_STATUS = "post_decision_contract_plan_ready_blocked_pending_lane_decision"
+EXPECTED_RECORDED_POST_DECISION_CONTRACT_PLAN_STATUS = "post_decision_contract_plan_ready_for_contract_draft"
+EXPECTED_NEXT_SUCCESS_CATEGORY_COUNTS = {
+    "contract": 1,
+    "training": 3,
+    "evaluation": 2,
+    "acceptance": 3,
+    "formal_acceptance": 1,
+}
 
 
 @dataclass(frozen=True)
