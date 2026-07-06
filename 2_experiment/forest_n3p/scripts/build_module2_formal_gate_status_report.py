@@ -214,6 +214,7 @@ def build_manifest(config: FormalGateStatusReportConfig) -> dict[str, Any]:
         remote_packet=remote_packet,
         remote_execution_steps=remote_execution_steps,
         closure_remote_stages=closure_remote_stages,
+        formal_gate_execution_veto=formal_gate_execution_veto,
     )
     formal_gate_gap_audit_remaining_deliverables_gap_summary = (
         _formal_gate_gap_audit_remaining_deliverables_gap_summary(formal_gate)
@@ -1781,13 +1782,42 @@ def _next_action_guard_summary(
     remote_packet: dict[str, Any],
     remote_execution_steps: dict[str, dict[str, Any]],
     closure_remote_stages: dict[str, dict[str, Any]],
+    formal_gate_execution_veto: dict[str, Any],
 ) -> dict[str, Any]:
-    pending = decision.get("status") == "pending_human_decision" or decision_intake_summary["record_status"] == "pending_human_decision"
-    expected_action = "record_f02_6_decision" if pending else None
-    execution_surfaces: list[dict[str, Any]] = []
+    handoff_action = handoff_summary["next_handoff_action_id"]
+    missing_action = missing_artifacts_handoff_summary["next_action_id"]
+    pending_f02_6_decision = (
+        decision.get("status") == "pending_human_decision"
+        or decision_intake_summary["record_status"] == "pending_human_decision"
+    )
+    pending_protocol_lane_decision = (
+        handoff_action == "record_protocol_lane_decision"
+        or missing_action == "record_protocol_lane_decision"
+    )
+    pending = pending_f02_6_decision or pending_protocol_lane_decision
+    if pending_protocol_lane_decision:
+        expected_action = "record_protocol_lane_decision"
+        expected_lane = "protocol_lane_decision"
+    elif pending_f02_6_decision:
+        expected_action = "record_f02_6_decision"
+        expected_lane = "decision"
+    else:
+        expected_action = None
+        expected_lane = decision_intake_summary["next_blocked_lane"]
+    veto_blocks_execution = _formal_gate_veto_blocks_execution(formal_gate_execution_veto)
+    raw_execution_surfaces: list[dict[str, Any]] = []
 
     def add_surface(surface_id: str, allowed: Any) -> None:
-        execution_surfaces.append({"surface_id": surface_id, "allowed_now": allowed if isinstance(allowed, bool) else None})
+        raw_allowed = allowed if isinstance(allowed, bool) else None
+        effective_allowed = False if raw_allowed is True and veto_blocks_execution else raw_allowed
+        raw_execution_surfaces.append(
+            {
+                "surface_id": surface_id,
+                "raw_allowed_now": raw_allowed,
+                "allowed_now": effective_allowed,
+                "vetoed_by": "formal_gate_execution_veto" if raw_allowed is True and veto_blocks_execution else None,
+            }
+        )
 
     add_surface("decision_remote_preflight_allowed_now", decision.get("remote_preflight_allowed_now"))
     add_surface("decision_remote_training_allowed_now", decision.get("remote_training_allowed_now"))
@@ -1808,38 +1838,54 @@ def _next_action_guard_summary(
     for stage_id, stage in closure_remote_stages.items():
         add_surface(f"closure_remote_stage:{stage_id}", stage["allowed_now"])
 
-    execution_leaks = [surface for surface in execution_surfaces if surface["allowed_now"] is True]
+    raw_execution_leaks = [surface for surface in raw_execution_surfaces if surface["raw_allowed_now"] is True]
+    execution_leaks = [surface for surface in raw_execution_surfaces if surface["allowed_now"] is True]
     remote_execution_allowed_count = sum(
-        1 for step in remote_execution_steps.values() if step["allowed_now"] is True
+        1
+        for surface in raw_execution_surfaces
+        if surface["surface_id"].startswith("remote_execution_step:")
+        and surface["allowed_now"] is True
     )
-    remote_stage_allowed_count = sum(1 for stage in closure_remote_stages.values() if stage["allowed_now"] is True)
+    remote_stage_allowed_count = sum(
+        1
+        for surface in raw_execution_surfaces
+        if surface["surface_id"].startswith("closure_remote_stage:")
+        and surface["allowed_now"] is True
+    )
     violations: list[dict[str, str]] = []
     if pending and handoff_summary["next_handoff_action_id"] != expected_action:
         violations.append(
             _issue(
                 "next_action_guard_unexpected_handoff_action",
-                "Pending F02.6 must hand off only to record_f02_6_decision.",
+                "Pending formal gate decision must hand off only to the current decision record action.",
             )
         )
     if pending and handoff_summary["next_action_requires_dr_sun"] is not True:
         violations.append(
             _issue(
                 "next_action_guard_handoff_action_not_dr_sun_gated",
-                "Pending F02.6 handoff must remain gated by Dr Sun.",
+                "Pending formal gate decision handoff must remain gated by Dr Sun.",
             )
         )
     if pending and missing_artifacts_handoff_summary["next_action_id"] != expected_action:
         violations.append(
             _issue(
                 "next_action_guard_unexpected_missing_artifacts_action",
-                "Missing-artifacts handoff must point to record_f02_6_decision while F02.6 is pending.",
+                "Missing-artifacts handoff must point to the current decision record action while a formal gate decision is pending.",
             )
         )
-    if pending and decision_intake_summary["next_blocked_lane"] != "decision":
+    if pending_f02_6_decision and decision_intake_summary["next_blocked_lane"] != "decision":
         violations.append(
             _issue(
                 "next_action_guard_decision_intake_lane_not_decision",
                 "Decision intake must keep next_blocked_lane=decision while F02.6 is pending.",
+            )
+        )
+    if pending_protocol_lane_decision and handoff_summary["next_action_requires_dr_sun"] is not True:
+        violations.append(
+            _issue(
+                "next_action_guard_protocol_lane_not_dr_sun_gated",
+                "Protocol-lane decision handoff must require Dr Sun.",
             )
         )
     if pending and execution_leaks:
@@ -1855,22 +1901,38 @@ def _next_action_guard_summary(
     return {
         "present": True,
         "status": status,
-        "pending_f02_6_decision": pending,
-        "next_blocked_lane_id": decision_intake_summary["next_blocked_lane"],
+        "pending_f02_6_decision": pending_f02_6_decision,
+        "pending_protocol_lane_decision": pending_protocol_lane_decision,
+        "next_blocked_lane_id": expected_lane,
         "expected_next_action_id": expected_action,
         "handoff_next_action_id": handoff_summary["next_handoff_action_id"],
         "handoff_next_action_requires_dr_sun": handoff_summary["next_action_requires_dr_sun"],
         "missing_artifacts_next_action_id": missing_artifacts_handoff_summary["next_action_id"],
         "decision_intake_next_blocked_lane": decision_intake_summary["next_blocked_lane"],
+        "execution_veto_applied": veto_blocks_execution,
         "all_execution_disabled_now": not execution_leaks,
         "execution_leak_count": len(execution_leaks),
+        "raw_execution_leak_count": len(raw_execution_leaks),
         "remote_execution_allowed_count": remote_execution_allowed_count,
         "remote_stage_allowed_count": remote_stage_allowed_count,
         "execution_leak_surface_ids": [surface["surface_id"] for surface in execution_leaks],
-        "execution_surfaces": execution_surfaces,
+        "raw_execution_leak_surface_ids": [surface["surface_id"] for surface in raw_execution_leaks],
+        "execution_surfaces": raw_execution_surfaces,
         "violation_count": len(violations),
         "violations": violations,
     }
+
+
+def _formal_gate_veto_blocks_execution(summary: dict[str, Any]) -> bool:
+    if not summary.get("present") or summary.get("all_rows_consistent") is not True:
+        return False
+    consensus = summary.get("row_consensus")
+    if not isinstance(consensus, dict):
+        return False
+    return all(
+        consensus.get(row_id) is False
+        for row_id in ("local_training", "remote_preflight", "remote_training", "remote_audit", "formal_claim")
+    )
 
 
 def _next_action_guard_issues(summary: dict[str, Any]) -> list[dict[str, str]]:
