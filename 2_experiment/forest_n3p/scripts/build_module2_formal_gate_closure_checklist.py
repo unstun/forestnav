@@ -727,6 +727,34 @@ def _markdown(manifest: dict[str, Any]) -> str:
             f"- `{category}`: missing=`{item.get('missing_count')}`, "
             f"responsible_stage=`{item.get('responsible_stage_id')}`"
         )
+    next_round = manifest["next_round_requirements_summary"]
+    lines.extend(
+        [
+            "",
+            "## Protocol Lane And Next-Round Gate",
+            "",
+            f"- protocol_lane_status: `{manifest['current_gate_summary'].get('protocol_lane_status')}`",
+            f"- protocol_lane_pending: `{manifest['current_gate_summary'].get('protocol_lane_pending')}`",
+            f"- protocol_lane_selected_lane_id: `{manifest['current_gate_summary'].get('protocol_lane_selected_lane_id')}`",
+            "- protocol_lane_allowed_next_action_ids: "
+            f"`{', '.join(manifest['current_gate_summary'].get('protocol_lane_allowed_next_action_ids', []))}`",
+            "- protocol_lane_blocked_action_ids: "
+            f"`{', '.join(manifest['current_gate_summary'].get('protocol_lane_blocked_action_ids', []))}`",
+            f"- next_round_requirements_status: `{next_round['requirements_status']}`",
+            f"- new_success_training_allowed_now: `{next_round['new_success_training_allowed_now']}`",
+            "- new_or_revised_contract_required_before_new_success_training: "
+            f"`{next_round['new_or_revised_contract_required_before_new_success_training']}`",
+            f"- execution_veto_reason: `{next_round['execution_veto_reason']}`",
+            "",
+            "### Next-Round Requirement Rows",
+            "",
+        ]
+    )
+    for row in next_round["rows"]:
+        lines.append(
+            f"- `{row['category']}:{row['requirement_id']}`: status=`{row['status']}`, "
+            f"required_before=`{row['required_before']}`"
+        )
     lines.extend(["", "## Closure Checklist", ""])
     for item in manifest["closure_checklist"]:
         host = f", host=`{item['host']}`" if item.get("host") else ""
@@ -748,7 +776,8 @@ def _markdown(manifest: dict[str, Any]) -> str:
     for stage_id, stage in manifest["post_plan_remote_stage_summary"].items():
         blocked_by = ", ".join(stage["blocked_by"]) if stage["blocked_by"] else "none"
         lines.append(
-            f"- `{stage_id}`: present=`{stage['present']}`, allowed_now=`{stage['allowed_now']}`, "
+            f"- `{stage_id}`: present=`{stage['present']}`, raw_allowed_now=`{stage['raw_allowed_now']}`, "
+            f"allowed_now=`{stage['allowed_now']}`, vetoed_by_protocol_lane=`{stage['vetoed_by_protocol_lane']}`, "
             f"runs_training=`{stage['runs_training']}`, runs_remote_preflight=`{stage['runs_remote_preflight']}`, "
             f"host=`{stage['host']}`, blocked_by=`{blocked_by}`"
         )
