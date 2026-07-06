@@ -282,7 +282,8 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
             in current_section
         ),
         "protocol_lane_status_old_failed_invalid_mentioned": (
-            "old_failed_run_artifacts_invalid_for_next_success_attempt=true" in current_section
+            "protocol_lane_status_report" in current_section
+            and "old_failed_run_artifacts_invalid_for_next_success_attempt=true" in current_section
         ),
         "protocol_lane_readiness_summary": protocol_lane_readiness,
         "protocol_lane_readiness_artifact_mentioned": protocol_lane_readiness["artifact_name"] in current_section,
