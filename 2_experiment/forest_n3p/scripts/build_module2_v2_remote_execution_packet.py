@@ -41,6 +41,7 @@ READY_DRY_RUN_STATUS = "promotion_apply_ready"
 SOURCE_FRESHNESS_READY_STATUSES = {
     "source_freshness_clean_current",
     "source_freshness_tracked_artifact_lag_only_gate_ready",
+    "source_freshness_remote_preflight_scope_ready_with_later_risks",
 }
 V2_TRAINING_ARGS = {
     "--seed": "20260706",

@@ -40,6 +40,7 @@ READY_REMOTE_PACKET_STATUS = "ready_for_v2_remote_preflight"
 SOURCE_FRESHNESS_READY_STATUSES = {
     "source_freshness_clean_current",
     "source_freshness_tracked_artifact_lag_only_gate_ready",
+    "source_freshness_remote_preflight_scope_ready_with_later_risks",
 }
 
 

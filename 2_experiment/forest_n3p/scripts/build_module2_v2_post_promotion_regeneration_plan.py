@@ -166,6 +166,7 @@ def _ordered_targets(
     source_ready = source_freshness.get("status") in {
         "source_freshness_clean_current",
         "source_freshness_tracked_artifact_lag_only_gate_ready",
+        "source_freshness_remote_preflight_scope_ready_with_later_risks",
     }
     packet_ready = remote_packet.get("status") == "ready_for_v2_remote_preflight"
     preflight_ready = chain.get("current_blocking_stage_id") not in {
