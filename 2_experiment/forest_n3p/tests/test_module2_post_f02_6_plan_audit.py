@@ -829,6 +829,54 @@ def test_post_f02_6_plan_audit_requires_proof_audit_deliverables_summary(tmp_pat
     assert "status_report_missing_proof_audit_deliverables_summary" in issue_ids
 
 
+def test_post_f02_6_plan_audit_rejects_protocol_lane_status_post_plan_drift(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
+    protocol = _protocol_lane_status_payload()
+    current = protocol["current_status"]
+    current["selected_lane_id"] = "full_patch_cnn_policy"
+    current["allowed_next_action_ids"] = [
+        "record_protocol_lane_decision",
+        "remote_success_training",
+    ]
+    current["post_decision_contract_plan_required_section_count"] = 7
+    current["post_decision_contract_plan_runs_training"] = True
+    current["next_success_attempt_artifact_count"] = 9
+    current["next_success_attempt_artifact_category_counts"]["evaluation"] = 1
+    current["next_success_attempt_artifact_ids_by_category"]["evaluation"] = [
+        "eval_gate3_eval_episodes_csv"
+    ]
+    current["remote_training_allowed_now"] = True
+
+    manifest = auditor.build_manifest(
+        auditor.PostF026PlanAuditConfig(
+            output_dir=tmp_path,
+            plan_path=_json(tmp_path, "plan.json", _plan_payload()),
+            formal_gate_path=_json(tmp_path, "formal_gate.json", _formal_gate_payload()),
+            source_freshness_path=_json(tmp_path, "source_freshness.json", _source_freshness_payload()),
+            missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", _missing_artifacts_payload(open_inventory=True)),
+            closure_checklist_path=_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True)),
+            status_report_path=_json(tmp_path, "status_report.json", _status_report_payload(ready=False)),
+            protocol_lane_status_report_path=_json(tmp_path, "protocol_lane_status.json", protocol),
+            remaining_deliverables_path=_json(
+                tmp_path,
+                "remaining_deliverables.json",
+                _remaining_deliverables_payload(open_gaps=True),
+            ),
+        )
+    )
+
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert manifest["status"] == "post_f02_6_plan_audit_failed"
+    assert "protocol_lane_status_selected_lane_present" in issue_ids
+    assert "protocol_lane_status_allowed_actions_drift" in issue_ids
+    assert "protocol_lane_status_authorization_leak" in issue_ids
+    assert "protocol_lane_status_post_decision_contract_plan_required_section_count_drift" in issue_ids
+    assert "protocol_lane_status_post_plan_authorization_leak" in issue_ids
+    assert "protocol_lane_status_next_artifact_count_drift" in issue_ids
+    assert "protocol_lane_status_next_artifact_category_counts_drift" in issue_ids
+    assert "protocol_lane_status_next_artifact_ids_missing" in issue_ids
+
+
 def test_post_f02_6_plan_audit_cli_writes_json_and_markdown(tmp_path):
     auditor = import_module("forest_n3p.scripts.build_module2_post_f02_6_plan_audit")
     manifest_path = tmp_path / "audit.json"
@@ -854,6 +902,8 @@ def test_post_f02_6_plan_audit_cli_writes_json_and_markdown(tmp_path):
             str(_json(tmp_path, "closure_checklist.json", _closure_checklist_payload(open_checklist=True))),
             "--status-report",
             str(_json(tmp_path, "status_report.json", _status_report_payload(ready=False))),
+            "--protocol-lane-status-report",
+            str(_json(tmp_path, "protocol_lane_status.json", _protocol_lane_status_payload())),
             "--remaining-deliverables",
             str(_json(tmp_path, "remaining_deliverables.json", _remaining_deliverables_payload(open_gaps=True))),
         ]
@@ -869,6 +919,10 @@ def test_post_f02_6_plan_audit_cli_writes_json_and_markdown(tmp_path):
     assert "Source Regeneration Command Index" in markdown
     assert "Remaining Deliverables Gap Summary" in markdown
     assert "Remaining Deliverables Unlock Chain" in markdown
+    assert "Protocol Lane Status Report" in markdown
+    assert "protocol_lane_status_blocked_pending_lane_decision" in markdown
+    assert "record_protocol_lane_decision" in markdown
+    assert "train_final_model_zip" in markdown
     assert "Status Report Remote Execution Steps" in markdown
     assert "Status Report Execution Veto Matrix" in markdown
     assert "does not execute the plan" in markdown
