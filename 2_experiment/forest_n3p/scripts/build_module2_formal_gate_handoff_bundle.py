@@ -229,14 +229,15 @@ def build_manifest(config: FormalGateHandoffBundleConfig) -> dict[str, Any]:
 
     stages = _handoff_stages(post_plan)
     remote_steps = _remote_steps(remote_packet)
-    if _protocol_lane_pending(protocol_lane_status):
-        stages = _block_remote_stages_for_protocol_lane(stages)
-        remote_steps = _block_remote_steps_for_protocol_lane(remote_steps)
+    protocol_lane_execution_blocker = _protocol_lane_execution_blocker(protocol_lane_status)
+    if protocol_lane_execution_blocker:
+        stages = _block_remote_stages_for_protocol_lane(stages, blocker=protocol_lane_execution_blocker)
+        remote_steps = _block_remote_steps_for_protocol_lane(remote_steps, blocker=protocol_lane_execution_blocker)
     route_summary = _f02_6_route_handoff_summary(status_report)
     decision_matrix_summary = _f02_6_decision_evidence_matrix_handoff_summary(status_report)
     source_freshness_summary = _source_freshness_summary(source_freshness)
     permissions = _permissions(status_report, source_freshness=source_freshness)
-    if _protocol_lane_pending(protocol_lane_status):
+    if _protocol_lane_active(protocol_lane_status):
         permissions = _block_permissions_for_protocol_lane(permissions)
     remaining_gap = _remaining_deliverables_gap_summary(status_report)
     single_next_action_index = _single_next_action_index(
@@ -386,6 +387,8 @@ def _status(
         return "blocked_handoff_input_safety_issues"
     if _protocol_lane_pending(protocol_lane_status):
         return "blocked_until_protocol_lane_decision"
+    if _protocol_lane_contract_draft_ready(protocol_lane_status):
+        return "blocked_formal_gate_handoff"
     if decision.get("status") == "pending_human_decision":
         return "blocked_until_f02_6_decision"
     if permissions.get("remote_training_allowed_now") is True and remote_packet.get("ready_to_run_remote_training") is True:
@@ -520,20 +523,30 @@ def _protocol_lane_active(protocol_lane_status: dict[str, Any]) -> bool:
     return _protocol_lane_pending(protocol_lane_status) or _protocol_lane_contract_draft_ready(protocol_lane_status)
 
 
+def _protocol_lane_execution_blocker(protocol_lane_status: dict[str, Any]) -> str | None:
+    if _protocol_lane_pending(protocol_lane_status):
+        return "protocol_lane_decision_pending"
+    if _protocol_lane_contract_draft_ready(protocol_lane_status):
+        return "approved_or_frozen_contract_missing"
+    return None
+
+
 def _block_remote_steps_for_protocol_lane(
     remote_steps: dict[str, dict[str, Any]],
+    *,
+    blocker: str,
 ) -> dict[str, dict[str, Any]]:
     out = {step_id: dict(step) for step_id, step in remote_steps.items()}
     for step in out.values():
         step["allowed_now"] = False
         blockers = _strings(step.get("blocked_by"))
-        if "protocol_lane_decision_pending" not in blockers:
-            blockers.append("protocol_lane_decision_pending")
+        if blocker not in blockers:
+            blockers.append(blocker)
         step["blocked_by"] = blockers
     return out
 
 
-def _block_remote_stages_for_protocol_lane(stages: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+def _block_remote_stages_for_protocol_lane(stages: Sequence[dict[str, Any]], *, blocker: str) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     for stage in stages:
         row = dict(stage)
@@ -547,8 +560,8 @@ def _block_remote_stages_for_protocol_lane(stages: Sequence[dict[str, Any]]) -> 
         }:
             row["source_allowed_now"] = False
             blockers = _strings(row.get("blocked_by"))
-            if "protocol_lane_decision_pending" not in blockers:
-                blockers.append("protocol_lane_decision_pending")
+            if blocker not in blockers:
+                blockers.append(blocker)
             row["blocked_by"] = blockers
         out.append(row)
     return out

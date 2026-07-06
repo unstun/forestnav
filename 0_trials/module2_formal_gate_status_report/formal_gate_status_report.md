@@ -3,8 +3,8 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `210a3ad5308da88cd274338ffc306357a55c36f6+dirty`
-- input_safety_issue_count: `3`
+- source_head: `907967a2916991fb90dda398f9499ef7c622960c+dirty`
+- input_safety_issue_count: `5`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
 - remote_training_allowed_now: `False`
@@ -129,12 +129,12 @@ This file is a read-only formal-gate status report. It does not execute commands
 - formal_gate_proof_audit_evaluation_missing_artifact_count: `0`
 - formal_gate_proof_audit_acceptance_missing_artifact_count: `0`
 - formal_gate_proof_audit_formal_acceptance_failed_artifact_count: `1`
-- mainline_formal_gate_state_audit_status: `mainline_formal_gate_state_consistent_blocked`
-- mainline_formal_gate_state_audit_issue_count: `0`
+- mainline_formal_gate_state_audit_status: `mainline_formal_gate_state_audit_failed`
+- mainline_formal_gate_state_audit_issue_count: `23`
 - mainline_formal_gate_state_audit_proof_summary_chain_status: `formal_gate_proof_summary_chain_consistent_blocked`
 - mainline_formal_gate_state_audit_proof_summary_chain_issue_count: `0`
 - mainline_formal_gate_state_audit_proof_audit_input_safety_issue_count: `0`
-- handoff_bundle_next_action: `resolve_source_fresh_preflight`
+- handoff_bundle_next_action: `draft_new_or_revised_contract_after_lane_decision`
 - handoff_bundle_safety_issue_count: `0`
 - handoff_bundle_remote_training_allowed_now: `False`
 - handoff_requirement_stage_mapped_count: `4`
@@ -224,7 +224,7 @@ This file is a read-only formal-gate status report. It does not execute commands
 - status: `next_action_guard_failed`
 - pending_f02_6_decision: `False`
 - expected_next_action_id: `record_protocol_lane_decision`
-- handoff_next_action_id: `resolve_source_fresh_preflight`
+- handoff_next_action_id: `draft_new_or_revised_contract_after_lane_decision`
 - missing_artifacts_next_action_id: `record_protocol_lane_decision`
 - all_execution_disabled_now: `True`
 - execution_leak_count: `0`
@@ -460,8 +460,8 @@ This file is a read-only formal-gate status report. It does not execute commands
 ## Mainline Formal Gate State Audit
 
 - present: `True`
-- status: `mainline_formal_gate_state_consistent_blocked`
-- audit_issue_count: `0`
+- status: `mainline_formal_gate_state_audit_failed`
+- audit_issue_count: `23`
 - proof_summary_chain_status: `formal_gate_proof_summary_chain_consistent_blocked`
 - proof_summary_chain_audit_issue_count: `0`
 - proof_summary_chain_proof_audit_input_safety_issue_count: `0`
@@ -525,7 +525,7 @@ This file is a read-only formal-gate status report. It does not execute commands
 
 - present: `True`
 - status: `blocked_formal_gate_handoff`
-- next_handoff_action: `resolve_source_fresh_preflight`
+- next_handoff_action: `draft_new_or_revised_contract_after_lane_decision`
 - safety_issue_count: `0`
 - remote_training_allowed_now: `False`
 - protocol_lane_next_success_attempt_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
@@ -536,10 +536,10 @@ This file is a read-only formal-gate status report. It does not execute commands
 - protocol_lane_post_plan_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
 - protocol_lane_old_failed_run_artifacts_invalid_for_next_success_attempt: `True`
 - protocol_lane_post_plan_old_failed_run_artifacts_invalid_for_next_success_attempt: `True`
-- `sync_to_remote`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`protocol_lane_decision_pending`
-- `run_remote_preflight`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`protocol_lane_decision_pending`
-- `run_remote_training`: present=`True`, allowed_now=`False`, runs_training=`True`, blocked_by=`protocol_lane_decision_pending, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
-- `run_remote_audit`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`protocol_lane_decision_pending, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready`
+- `sync_to_remote`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`protocol_lane_decision_pending, approved_or_frozen_contract_missing`
+- `run_remote_preflight`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`protocol_lane_decision_pending, approved_or_frozen_contract_missing`
+- `run_remote_training`: present=`True`, allowed_now=`False`, runs_training=`True`, blocked_by=`protocol_lane_decision_pending, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready, approved_or_frozen_contract_missing`
+- `run_remote_audit`: present=`True`, allowed_now=`False`, runs_training=`False`, blocked_by=`protocol_lane_decision_pending, remote_formal_preflight_not_ready, warm_start_decision_pending, remote_packet_not_ready, approved_or_frozen_contract_missing`
 
 ## Formal Gate Requirement Stage Summary
 
@@ -581,6 +581,8 @@ This file is a read-only formal-gate status report. It does not execute commands
 
 ## Input Safety Issues
 
+- `mainline_formal_gate_state_audit_failed`: mainline formal gate state audit must not be failed.
+- `mainline_formal_gate_state_audit_issues_open`: mainline formal gate state audit issues must be resolved before status reporting.
 - `next_action_guard_unexpected_handoff_action`: Pending formal gate decision must hand off only to the current decision record action.
 - `next_action_guard_handoff_action_not_dr_sun_gated`: Pending formal gate decision handoff must remain gated by Dr Sun.
 - `next_action_guard_protocol_lane_not_dr_sun_gated`: Protocol-lane decision handoff must require Dr Sun.
