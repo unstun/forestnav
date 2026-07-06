@@ -1523,6 +1523,17 @@ def _normalize_post_decision_contract_plan(raw: Any) -> dict[str, Any]:
         "shared_next_success_attempt_artifact_count": int(
             raw.get("shared_next_success_attempt_artifact_count") or 0
         ),
+        "shared_next_success_attempt_artifact_category_counts": {
+            str(key): int(value or 0)
+            for key, value in raw.get("shared_next_success_attempt_artifact_category_counts", {}).items()
+        }
+        if isinstance(raw.get("shared_next_success_attempt_artifact_category_counts"), dict)
+        else {},
+        "old_failed_run_artifacts_invalid_for_next_success_attempt": raw.get(
+            "old_failed_run_artifacts_invalid_for_next_success_attempt"
+        )
+        if isinstance(raw.get("old_failed_run_artifacts_invalid_for_next_success_attempt"), bool)
+        else None,
         "lane_count": int(raw.get("lane_count") or 0),
         "not_paper_result_material": raw.get("not_paper_result_material"),
         "executes_commands": raw.get("executes_commands"),
