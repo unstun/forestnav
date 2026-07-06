@@ -2,7 +2,12 @@ import json
 import os
 from importlib import import_module
 
+import pytest
+
 os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
+
+
+V2_DRAFT_CONTRACT = ".pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md"
 
 
 def test_run_rl_rs_gate3_trial_smoke_trains_evaluates_and_writes_manifest(tmp_path):
@@ -35,6 +40,7 @@ def test_run_rl_rs_gate3_trial_smoke_trains_evaluates_and_writes_manifest(tmp_pa
     assert manifest["smoke"] is True
     assert manifest["formal_gate_claim"] is False
     assert manifest["contract"] == "0_trials/custom_contract.md"
+    assert manifest["contract_status"] == "missing"
     assert manifest["warm_start_status"] == "not_applied_f02_6_pending"
     assert manifest["train_output_dir"] == "train"
     assert manifest["eval_output_dir"] == "eval"
@@ -43,4 +49,24 @@ def test_run_rl_rs_gate3_trial_smoke_trains_evaluates_and_writes_manifest(tmp_pa
     assert manifest["gate3_decision"] == "pass"
     assert manifest["terminal_rs_success_rate"] >= 0.8
     assert manifest["train_config"]["contract"] == "0_trials/custom_contract.md"
+    assert manifest["train_config"]["contract_status"] == "missing"
+    assert manifest["eval_config"]["contract_status"] == "missing"
     assert manifest["eval_config"]["contract"] == "0_trials/custom_contract.md"
+
+
+def test_run_rl_rs_gate3_trial_blocks_non_smoke_draft_contract_before_training(tmp_path):
+    runner = import_module("forest_n3p.scripts.run_rl_rs_gate3_trial")
+
+    with pytest.raises(ValueError, match="requires contract status approved or frozen"):
+        runner.main(
+            [
+                "--output-dir",
+                str(tmp_path),
+                "--contract-path",
+                V2_DRAFT_CONTRACT,
+                "--train-total-timesteps",
+                "16",
+            ]
+        )
+
+    assert not (tmp_path / "gate3_trial_manifest.json").exists()

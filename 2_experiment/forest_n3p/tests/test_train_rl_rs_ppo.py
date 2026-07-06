@@ -28,6 +28,7 @@ from forest_n3p.scripts.train_rl_rs_ppo import (
 
 
 BC_CHECKPOINT = Path("2_experiment/forest_n3p/models/module2_rl_rs_bc_obstacle_summary_formal_v2/checkpoint.pt")
+V2_DRAFT_CONTRACT = Path(".pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md")
 
 
 def test_obstacle_summary_extractor_matches_bc_feature_semantics():
@@ -88,6 +89,22 @@ def test_train_rl_rs_ppo_smoke_writes_model_manifest_and_episode_csv(tmp_path):
     rows = list(csv.DictReader(episode_csv.open(newline="", encoding="utf-8")))
     assert rows
     assert {"reward_total", "terminal_rs_success", "rollout_length_m"}.issubset(rows[0])
+
+
+def test_train_rl_rs_ppo_blocks_non_smoke_draft_contract_before_training(tmp_path):
+    with pytest.raises(ValueError, match="requires contract status approved or frozen"):
+        train_rl_rs_ppo_main(
+            [
+                "--output-dir",
+                str(tmp_path),
+                "--contract-path",
+                str(V2_DRAFT_CONTRACT),
+                "--total-timesteps",
+                "16",
+            ]
+        )
+
+    assert not (tmp_path / "summary.json").exists()
 
 
 def test_obstacle_summary_bc_warm_start_matches_bc_normalized_action(tmp_path):

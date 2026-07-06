@@ -65,6 +65,24 @@ def test_gate3_audit_requires_expected_v2_contract_path_when_overridden(tmp_path
     audit = import_module("forest_n3p.scripts.audit_rl_rs_gate3_trial")
 
     trial_dir = tmp_path / "formal_trial_v2"
+    contract_path = str(_write_contract(tmp_path / "v2_approved_contract.md", "approved"))
+    _write_formal_trial_fixture(trial_dir, success_rate=0.8125, contract_path=contract_path)
+    output_path = trial_dir / "gate3_formal_audit.json"
+
+    rc = audit.main(["--trial-dir", str(trial_dir), "--output", str(output_path), "--contract-path", contract_path])
+
+    assert rc == 0
+    result = json.loads(output_path.read_text(encoding="utf-8"))
+    assert result["contract"] == contract_path
+    assert result["contract_status"] == "approved"
+    assert result["formal_decision"] == "pass"
+    assert result["formal_blockers"] == []
+
+
+def test_gate3_audit_blocks_draft_v2_contract_status(tmp_path):
+    audit = import_module("forest_n3p.scripts.audit_rl_rs_gate3_trial")
+
+    trial_dir = tmp_path / "formal_trial_v2_draft"
     _write_formal_trial_fixture(trial_dir, success_rate=0.8125, contract_path=V2_CONTRACT)
     output_path = trial_dir / "gate3_formal_audit.json"
 
@@ -72,9 +90,12 @@ def test_gate3_audit_requires_expected_v2_contract_path_when_overridden(tmp_path
 
     assert rc == 0
     result = json.loads(output_path.read_text(encoding="utf-8"))
+    reason_codes = {reason["code"] for reason in result["formal_blockers"]}
     assert result["contract"] == V2_CONTRACT
-    assert result["formal_decision"] == "pass"
-    assert result["formal_blockers"] == []
+    assert result["contract_status"] == "draft"
+    assert result["formal_decision"] == "not_formal"
+    assert result["formal_claim_allowed"] is False
+    assert "contract_status_not_approved_or_frozen" in reason_codes
 
 
 def test_gate3_audit_blocks_v1_artifacts_when_v2_contract_is_expected(tmp_path):
@@ -179,3 +200,8 @@ def _write_formal_trial_fixture(
         ),
         encoding="utf-8",
     )
+
+
+def _write_contract(path: Path, status: str) -> Path:
+    path.write_text(f"---\nstatus: {status}\n---\n", encoding="utf-8")
+    return path
