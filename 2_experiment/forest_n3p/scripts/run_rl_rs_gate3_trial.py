@@ -350,6 +350,7 @@ def _source_hashes() -> dict[str, str]:
         "2_experiment/forest_n3p/scripts/run_rl_rs_gate3_trial.py",
         "2_experiment/forest_n3p/scripts/train_rl_rs_ppo.py",
         "2_experiment/forest_n3p/scripts/eval_rl_rs_gate3.py",
+        "2_experiment/forest_n3p/scripts/_module2_contract_gate.py",
         "2_experiment/forest_n3p/rl_rs/sb3_policy.py",
         "2_experiment/forest_n3p/rl_rs/gym_env.py",
         "2_experiment/forest_n3p/rl_rs/curriculum.py",
