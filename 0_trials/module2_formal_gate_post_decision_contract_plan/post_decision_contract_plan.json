@@ -2,8 +2,8 @@
   "schema_version": 1,
   "artifact_name": "module2_formal_gate_post_decision_contract_plan",
   "status": "post_decision_contract_plan_ready_blocked_pending_lane_decision",
-  "created_at_utc": "2026-07-06T03:13:13.935434+00:00",
-  "source_head": "78c03ea2e889cd92141fdea55d24e6da2a22025a+dirty",
+  "created_at_utc": "2026-07-06T04:42:58.680155+00:00",
+  "source_head": "7d19c3a0f3dcff57260e31b2a943d3100199871b+dirty",
   "not_paper_result_material": true,
   "executes_commands": false,
   "writes_contract": false,
@@ -102,6 +102,14 @@
     }
   ],
   "shared_next_success_attempt_artifact_count": 10,
+  "shared_next_success_attempt_artifact_category_counts": {
+    "contract": 1,
+    "training": 3,
+    "evaluation": 2,
+    "acceptance": 3,
+    "formal_acceptance": 1
+  },
+  "old_failed_run_artifacts_invalid_for_next_success_attempt": true,
   "shared_next_success_attempt_artifacts": [
     {
       "category": "contract",

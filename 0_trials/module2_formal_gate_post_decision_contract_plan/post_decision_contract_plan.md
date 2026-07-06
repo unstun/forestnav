@@ -99,6 +99,8 @@ This file is a read-only planning index. It is not a contract draft, training ru
 
 ## Shared Next Success Attempt Artifacts
 
+- shared_next_success_attempt_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
+- old_failed_run_artifacts_invalid_for_next_success_attempt: `True`
 - `new_or_revised_research_contract` (contract): status=`missing_required_before_new_success_training`, blocked_until=`record_protocol_lane_decision`
 - `train_final_model_zip` (training): status=`not_created_for_next_success_attempt`, blocked_until=`approved_or_frozen_new_or_revised_contract`
 - `train_summary_json` (training): status=`not_created_for_next_success_attempt`, blocked_until=`approved_or_frozen_new_or_revised_contract`

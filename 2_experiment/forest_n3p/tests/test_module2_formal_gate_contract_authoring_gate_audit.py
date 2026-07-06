@@ -33,11 +33,27 @@ def test_contract_authoring_gate_blocks_while_protocol_lane_pending(tmp_path):
     assert gate["post_decision_contract_plan_required_section_count"] == 8
     assert gate["post_decision_contract_plan_lane_count"] == 4
     assert gate["post_decision_contract_plan_shared_artifact_count"] == 10
+    assert gate["post_decision_contract_plan_shared_artifact_category_counts"] == {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1,
+    }
+    assert gate["post_decision_contract_plan_old_failed_run_artifacts_invalid"] is True
     post_plan = manifest["post_decision_contract_plan_summary"]
     assert post_plan["artifact_name"] == "module2_formal_gate_post_decision_contract_plan"
     assert post_plan["audit_issue_count"] == 0
     assert post_plan["writes_contract"] is False
     assert post_plan["runs_training"] is False
+    assert post_plan["shared_next_success_attempt_artifact_category_counts"] == {
+        "contract": 1,
+        "training": 3,
+        "evaluation": 2,
+        "acceptance": 3,
+        "formal_acceptance": 1,
+    }
+    assert post_plan["old_failed_run_artifacts_invalid_for_next_success_attempt"] is True
     existing = manifest["existing_contract_summary"]
     assert existing["status"] == "approved"
     assert existing["version"] == "v1"
@@ -123,6 +139,22 @@ def test_contract_authoring_gate_catches_post_decision_plan_count_drift(tmp_path
     assert "post_decision_contract_plan_lane_count_drift" in issue_ids
 
 
+def test_contract_authoring_gate_catches_post_decision_plan_next_success_summary_drift(tmp_path):
+    auditor = import_module("forest_n3p.scripts.build_module2_formal_gate_contract_authoring_gate_audit")
+    config = _config(tmp_path, recorded=False)
+    plan = json.loads(config.post_decision_contract_plan_path.read_text(encoding="utf-8"))
+    plan["shared_next_success_attempt_artifact_category_counts"]["training"] = 2
+    plan["old_failed_run_artifacts_invalid_for_next_success_attempt"] = False
+    config.post_decision_contract_plan_path.write_text(json.dumps(plan), encoding="utf-8")
+
+    manifest = auditor.build_manifest(config)
+
+    assert manifest["status"] == "contract_authoring_gate_audit_failed"
+    issue_ids = {issue["issue_id"] for issue in manifest["audit_issues"]}
+    assert "post_decision_contract_plan_shared_artifact_category_counts_drift" in issue_ids
+    assert "post_decision_contract_plan_old_failed_run_invalid_missing" in issue_ids
+
+
 def test_contract_authoring_gate_catches_post_decision_plan_missing_selected_lane_after_record(tmp_path):
     auditor = import_module("forest_n3p.scripts.build_module2_formal_gate_contract_authoring_gate_audit")
     config = _config(tmp_path, recorded=True)
@@ -180,6 +212,8 @@ def test_contract_authoring_gate_cli_writes_json_and_markdown(tmp_path):
     assert "Post-Decision Contract Plan" in markdown
     assert "post_decision_contract_plan_ready_blocked_pending_lane_decision" in markdown
     assert "required_contract_section_count: `8`" in markdown
+    assert "shared_next_success_attempt_artifact_category_counts" in markdown
+    assert "old_failed_run_artifacts_invalid_for_next_success_attempt: `True`" in markdown
     assert "Required Contract Sections" in markdown
     assert "failure_signal" in markdown
     assert "Claim Boundaries" in markdown
@@ -264,6 +298,14 @@ def _post_decision_contract_plan(*, recorded):
         "audit_issue_count": 0,
         "required_contract_section_count": 8,
         "shared_next_success_attempt_artifact_count": 10,
+        "shared_next_success_attempt_artifact_category_counts": {
+            "contract": 1,
+            "training": 3,
+            "evaluation": 2,
+            "acceptance": 3,
+            "formal_acceptance": 1,
+        },
+        "old_failed_run_artifacts_invalid_for_next_success_attempt": True,
         "lane_count": 4,
         "writes_contract": False,
         "approves_contract": False,

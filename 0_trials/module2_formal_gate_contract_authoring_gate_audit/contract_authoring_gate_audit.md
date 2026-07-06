@@ -37,6 +37,8 @@ This file audits whether contract authoring may proceed; it is not paper result 
 - audit_issue_count: `0`
 - required_contract_section_count: `8`
 - shared_next_success_attempt_artifact_count: `10`
+- shared_next_success_attempt_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
+- old_failed_run_artifacts_invalid_for_next_success_attempt: `True`
 - lane_count: `4`
 - gate_selected_lane_id: `None`
 - gate_contract_drafting_allowed_now: `False`
