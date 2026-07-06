@@ -86,6 +86,7 @@
 - allowed_next_action_ids: `record_protocol_lane_decision`
 - blocked_action_ids: `local_training, remote_success_training, remote_preflight_for_new_success_attempt, formal_claim, paper_result_material`
 - next_success_attempt_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
+- next_success_attempt_artifact_ids_by_category: `{'contract': ['new_or_revised_research_contract'], 'training': ['train_final_model_zip', 'train_summary_json', 'train_training_manifest_json'], 'evaluation': ['eval_gate3_eval_episodes_csv', 'eval_gate3_summary_json'], 'acceptance': ['gate3_trial_manifest_json', 'gate3_formal_audit_json', 'pulled_back_checkpoint_hash_record'], 'formal_acceptance': ['h02_formal_output_acceptance']}`
 - post_decision_contract_plan_shared_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
 - old_failed_run_artifacts_invalid_for_next_success_attempt: `True`
 - post_decision_contract_plan_old_failed_run_artifacts_invalid_for_next_success_attempt: `True`

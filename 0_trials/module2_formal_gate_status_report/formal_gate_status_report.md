@@ -3,7 +3,7 @@
 This file is a read-only formal-gate status report. It does not execute commands, run remote preflight, train, evaluate, sync, audit, pull back artifacts, or write paper results.
 
 - status: `formal_gate_status_blocked`
-- source_head: `f7e5516acee90c0b3487f058fd48d7b8ddaca009+dirty`
+- source_head: `f4e830ef40348e8a2003d63e0997328ab37b914f+dirty`
 - input_safety_issue_count: `0`
 - local_training_allowed_now: `False`
 - remote_preflight_allowed_now: `False`
@@ -527,6 +527,7 @@ This file is a read-only formal-gate status report. It does not execute commands
 - safety_issue_count: `0`
 - remote_training_allowed_now: `False`
 - protocol_lane_next_success_attempt_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
+- protocol_lane_next_success_attempt_artifact_ids_by_category: `{'contract': ['new_or_revised_research_contract'], 'training': ['train_final_model_zip', 'train_summary_json', 'train_training_manifest_json'], 'evaluation': ['eval_gate3_eval_episodes_csv', 'eval_gate3_summary_json'], 'acceptance': ['gate3_trial_manifest_json', 'gate3_formal_audit_json', 'pulled_back_checkpoint_hash_record'], 'formal_acceptance': ['h02_formal_output_acceptance']}`
 - protocol_lane_post_plan_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
 - protocol_lane_old_failed_run_artifacts_invalid_for_next_success_attempt: `True`
 - protocol_lane_post_plan_old_failed_run_artifacts_invalid_for_next_success_attempt: `True`
