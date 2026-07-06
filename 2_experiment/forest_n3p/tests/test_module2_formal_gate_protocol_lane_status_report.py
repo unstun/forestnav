@@ -62,6 +62,16 @@ def test_protocol_lane_status_report_blocks_pending_lane_decision(tmp_path):
     assert "remote-produced PPO checkpoint" in state[
         "next_success_attempt_artifact_proof_requirements_by_id"
     ]["train_final_model_zip"]
+    assert state["next_success_attempt_artifact_invalid_substitutes_by_id"]["train_final_model_zip"] == [
+        "local PPO training output",
+        "failed warm-start checkpoint",
+        "checkpoint without manifest or hash provenance",
+    ]
+    assert state["next_success_attempt_artifact_invalid_substitutes_by_id"]["h02_formal_output_acceptance"] == [
+        "blocked H02 acceptance",
+        "formal-looking smoke table",
+        "PPO rows without checkpoint hash",
+    ]
     assert state["old_failed_run_artifacts_invalid_for_next_success_attempt"] is True
     assert state["allowed_next_action_ids"] == ["record_protocol_lane_decision"]
     assert "remote_success_training" in state["blocked_action_ids"]
@@ -149,6 +159,9 @@ def test_protocol_lane_status_report_catches_post_plan_count_and_authorization_d
         "0_trials/wrong_contract.md"
     )
     next_round["next_success_attempt_artifact_index"]["rows"][1]["proof_requirement"] = ""
+    next_round["next_success_attempt_artifact_index"]["rows"][1]["invalid_substitutes"] = [
+        "local PPO training output"
+    ]
     next_round["current_vs_next_attempt_reconciliation"][
         "old_failed_run_artifacts_invalid_for_next_success_attempt"
     ] = False
@@ -167,6 +180,7 @@ def test_protocol_lane_status_report_catches_post_plan_count_and_authorization_d
     assert "next_success_attempt_artifact_category_counts_drift" in issue_ids
     assert "next_success_attempt_artifact_expected_paths_drift" in issue_ids
     assert "next_success_attempt_artifact_proof_requirements_missing" in issue_ids
+    assert "next_success_attempt_artifact_invalid_substitutes_drift" in issue_ids
     assert "old_failed_run_artifacts_invalid_flag_drift" in issue_ids
 
 
@@ -411,4 +425,60 @@ def _next_round_row(category, artifact_id, expected_path, proof_requirement):
         "artifact_id": artifact_id,
         "expected_path": expected_path,
         "proof_requirement": proof_requirement,
+        "invalid_substitutes": _next_success_invalid_substitutes_by_id()[artifact_id],
+    }
+
+
+def _next_success_invalid_substitutes_by_id():
+    return {
+        "new_or_revised_research_contract": [
+            "chat-only approval",
+            "draft contract",
+            "editing the failed Gate3 result after seeing failure",
+        ],
+        "train_final_model_zip": [
+            "local PPO training output",
+            "failed warm-start checkpoint",
+            "checkpoint without manifest or hash provenance",
+        ],
+        "train_summary_json": [
+            "stdout-only training summary",
+            "summary from the failed Gate3 attempt",
+            "summary without protocol label",
+        ],
+        "train_training_manifest_json": [
+            "manifest without source head",
+            "manifest from a different protocol lane",
+            "uncommitted chat note",
+        ],
+        "eval_gate3_eval_episodes_csv": [
+            "H02 available-subset smoke CSV",
+            "no-warm failure rows reused for a warm-start claim",
+            "aggregate summary without per-episode rows",
+        ],
+        "eval_gate3_summary_json": [
+            "summary from failed run",
+            "summary without timing fields",
+            "paper table preview",
+        ],
+        "gate3_trial_manifest_json": [
+            "trial manifest from failed run",
+            "manifest without contract reference",
+            "manifest without evaluated checkpoint identity",
+        ],
+        "gate3_formal_audit_json": [
+            "formal_decision=fail reinterpreted as success",
+            "audit marked smoke, preview, or candidate",
+            "audit from a different protocol lane",
+        ],
+        "pulled_back_checkpoint_hash_record": [
+            "checkpoint without hash record",
+            "hash for a different checkpoint",
+            "remote stdout without local pullback",
+        ],
+        "h02_formal_output_acceptance": [
+            "blocked H02 acceptance",
+            "formal-looking smoke table",
+            "PPO rows without checkpoint hash",
+        ],
     }
