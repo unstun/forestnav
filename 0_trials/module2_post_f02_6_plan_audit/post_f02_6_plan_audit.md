@@ -67,8 +67,28 @@ This file audits the ordered post-F02.6 plan. It does not execute the plan.
 - runs_remote_preflight: `False`
 - formal_claim_allowed_now: `False`
 - local_training_allowed_now: `False`
-- input_safety_issue_count: `3`
+- input_safety_issue_count: `0`
 - next_blocked_lane_id: `source_fresh_preflight`
+
+## Protocol Lane Status Report
+
+- path: `0_trials/module2_formal_gate_protocol_lane_status_report/protocol_lane_status_report.json`
+- status: `protocol_lane_status_blocked_pending_lane_decision`
+- audit_issue_count: `0`
+- next_blocked_lane: `protocol_lane_decision`
+- selected_lane_id: `None`
+- allowed_next_action_ids: `['record_protocol_lane_decision']`
+- blocked_action_ids: `['local_training', 'remote_success_training', 'remote_preflight_for_new_success_attempt', 'formal_claim', 'paper_result_material']`
+- post_decision_contract_plan_status: `post_decision_contract_plan_ready_blocked_pending_lane_decision`
+- post_decision_contract_plan_required_section_count: `8`
+- post_decision_contract_plan_shared_artifact_count: `10`
+- post_decision_contract_plan_lane_count: `4`
+- next_success_attempt_artifact_count: `10`
+- next_success_attempt_artifact_category_counts: `{'contract': 1, 'training': 3, 'evaluation': 2, 'acceptance': 3, 'formal_acceptance': 1}`
+- next_success_attempt_artifact_ids_by_category: `{'contract': ['new_or_revised_research_contract'], 'training': ['train_final_model_zip', 'train_summary_json', 'train_training_manifest_json'], 'evaluation': ['eval_gate3_eval_episodes_csv', 'eval_gate3_summary_json'], 'acceptance': ['gate3_trial_manifest_json', 'gate3_formal_audit_json', 'pulled_back_checkpoint_hash_record'], 'formal_acceptance': ['h02_formal_output_acceptance']}`
+- remote_training_allowed_now: `False`
+- formal_claim_allowed_now: `False`
+- paper_result_material_allowed_now: `False`
 
 ### Remaining Deliverables Gap Summary
 
