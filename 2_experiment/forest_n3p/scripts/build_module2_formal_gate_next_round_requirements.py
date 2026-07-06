@@ -20,6 +20,17 @@ DEFAULT_STATUS_REPORT = Path("0_trials/module2_formal_gate_status_report/formal_
 DEFAULT_GATE3_AUDIT = Path(
     "0_trials/module2_gate3_formal/gate3_obstacle_summary_warm_approved_v1/gate3_formal_audit.json"
 )
+DEFAULT_PROTOCOL_LANE_STATUS_REPORT = Path(
+    "0_trials/module2_formal_gate_protocol_lane_status_report/protocol_lane_status_report.json"
+)
+DEFAULT_REMOTE_PACKET_SAFETY = Path("0_trials/module2_remote_packet_safety_audit/remote_packet_safety_audit.json")
+EXPECTED_NEXT_ATTEMPT_CATEGORY_COUNTS = {
+    "contract": 1,
+    "training": 3,
+    "evaluation": 2,
+    "acceptance": 3,
+    "formal_acceptance": 1,
+}
 
 
 @dataclass(frozen=True)
@@ -32,6 +43,8 @@ class FormalGateNextRoundRequirementsConfig:
     h02_acceptance_path: Path = DEFAULT_H02_ACCEPTANCE
     status_report_path: Path = DEFAULT_STATUS_REPORT
     gate3_audit_path: Path = DEFAULT_GATE3_AUDIT
+    protocol_lane_status_report_path: Path = DEFAULT_PROTOCOL_LANE_STATUS_REPORT
+    remote_packet_safety_path: Path = DEFAULT_REMOTE_PACKET_SAFETY
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -45,6 +58,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         h02_acceptance_path=args.h02_acceptance,
         status_report_path=args.status_report,
         gate3_audit_path=args.gate3_audit,
+        protocol_lane_status_report_path=args.protocol_lane_status_report,
+        remote_packet_safety_path=args.remote_packet_safety_audit,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -65,6 +80,8 @@ def build_manifest(config: FormalGateNextRoundRequirementsConfig) -> dict[str, A
     h02 = _read_json(config.h02_acceptance_path)
     status_report = _read_json(config.status_report_path)
     gate3_audit = _read_json(config.gate3_audit_path)
+    protocol_lane_status = _read_json(config.protocol_lane_status_report_path)
+    remote_packet_safety = _read_json(config.remote_packet_safety_path)
 
     current_failure = _current_failure(failure_triage=failure_triage, gate3_audit=gate3_audit)
     current_artifacts = _current_artifacts(remaining)
@@ -72,12 +89,24 @@ def build_manifest(config: FormalGateNextRoundRequirementsConfig) -> dict[str, A
     permissions = _permissions(status_report=status_report, failure_triage=failure_triage)
     next_round = _next_round_matrix()
     next_artifacts = _next_success_attempt_artifact_index()
+    protocol_gate = _protocol_gate_summary(
+        protocol_lane_status=protocol_lane_status,
+        remote_packet_safety=remote_packet_safety,
+        next_artifacts=next_artifacts,
+    )
+    reconciliation = _current_vs_next_attempt_reconciliation(
+        current_artifacts=current_artifacts,
+        next_artifacts=next_artifacts,
+        protocol_gate=protocol_gate,
+    )
     audit_issues = _audit_issues(
         failure_triage=failure_triage,
         current_failure=current_failure,
         current_artifacts=current_artifacts,
         formal_acceptance=formal_acceptance,
         permissions=permissions,
+        protocol_gate=protocol_gate,
+        reconciliation=reconciliation,
     )
     ready = not audit_issues
     return {
@@ -100,11 +129,15 @@ def build_manifest(config: FormalGateNextRoundRequirementsConfig) -> dict[str, A
             "h02_formal_acceptance": str(config.h02_acceptance_path),
             "formal_gate_status_report": str(config.status_report_path),
             "gate3_formal_audit": str(config.gate3_audit_path),
+            "protocol_lane_status_report": str(config.protocol_lane_status_report_path),
+            "remote_packet_safety_audit": str(config.remote_packet_safety_path),
         },
         "current_failed_run": current_failure,
         "current_run_artifacts": current_artifacts,
         "blocked_formal_acceptance": formal_acceptance,
         "permissions_now": permissions,
+        "protocol_gate_summary": protocol_gate,
+        "current_vs_next_attempt_reconciliation": reconciliation,
         "next_round_requirements": next_round,
         "next_success_attempt_artifact_index": next_artifacts,
         "audit_issue_count": len(audit_issues),
@@ -129,6 +162,8 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--h02-acceptance", type=Path, default=DEFAULT_H02_ACCEPTANCE)
     parser.add_argument("--status-report", type=Path, default=DEFAULT_STATUS_REPORT)
     parser.add_argument("--gate3-audit", type=Path, default=DEFAULT_GATE3_AUDIT)
+    parser.add_argument("--protocol-lane-status-report", type=Path, default=DEFAULT_PROTOCOL_LANE_STATUS_REPORT)
+    parser.add_argument("--remote-packet-safety-audit", type=Path, default=DEFAULT_REMOTE_PACKET_SAFETY)
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
