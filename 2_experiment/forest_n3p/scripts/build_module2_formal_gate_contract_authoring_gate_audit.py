@@ -21,11 +21,22 @@ DEFAULT_CONTRACT_INTAKE = Path("0_trials/module2_formal_gate_contract_intake/for
 DEFAULT_NEXT_ROUND_REQUIREMENTS = Path(
     "0_trials/module2_formal_gate_next_round_requirements/formal_gate_next_round_requirements.json"
 )
+DEFAULT_POST_DECISION_CONTRACT_PLAN = Path(
+    "0_trials/module2_formal_gate_post_decision_contract_plan/post_decision_contract_plan.json"
+)
 DEFAULT_EXISTING_CONTRACT = Path(".pipeline/contracts/module2-ppo-funnel-expansion.md")
 PENDING_DECISION_STATUS = "pending_protocol_lane_decision"
 RECORDED_DECISION_STATUS = "protocol_lane_decision_recorded"
 PENDING_GATE_STATUS = "protocol_lane_decision_gate_pending_clean"
 RECORDED_GATE_STATUS = "protocol_lane_decision_gate_recorded_clean"
+EXPECTED_POST_DECISION_CONTRACT_PLAN_ARTIFACT = "module2_formal_gate_post_decision_contract_plan"
+EXPECTED_POST_DECISION_CONTRACT_PLAN_STATUSES = {
+    "post_decision_contract_plan_ready_blocked_pending_lane_decision",
+    "post_decision_contract_plan_ready_for_contract_draft",
+}
+EXPECTED_POST_DECISION_CONTRACT_SECTION_COUNT = 8
+EXPECTED_POST_DECISION_CONTRACT_LANE_COUNT = 4
+EXPECTED_POST_DECISION_CONTRACT_SHARED_ARTIFACT_COUNT = 10
 
 
 @dataclass(frozen=True)
@@ -37,6 +48,7 @@ class FormalGateContractAuthoringGateAuditConfig:
     decision_record_path: Path = DEFAULT_DECISION_RECORD
     contract_intake_path: Path = DEFAULT_CONTRACT_INTAKE
     next_round_requirements_path: Path = DEFAULT_NEXT_ROUND_REQUIREMENTS
+    post_decision_contract_plan_path: Path = DEFAULT_POST_DECISION_CONTRACT_PLAN
     existing_contract_path: Path = DEFAULT_EXISTING_CONTRACT
 
 
@@ -50,6 +62,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         decision_record_path=args.decision_record,
         contract_intake_path=args.contract_intake,
         next_round_requirements_path=args.next_round_requirements,
+        post_decision_contract_plan_path=args.post_decision_contract_plan,
         existing_contract_path=args.existing_contract,
     )
     manifest = build_manifest(config)
@@ -70,12 +83,14 @@ def build_manifest(config: FormalGateContractAuthoringGateAuditConfig) -> dict[s
     decision_record = _read_json(config.decision_record_path)
     contract_intake = _read_json(config.contract_intake_path)
     next_round = _read_json(config.next_round_requirements_path)
+    post_decision_plan = _post_decision_plan_summary(_read_json(config.post_decision_contract_plan_path))
     existing_contract = _contract_summary(config.existing_contract_path)
     contract_gate = _contract_gate(
         decision_gate=decision_gate,
         decision_record=decision_record,
         contract_intake=contract_intake,
         next_round=next_round,
+        post_decision_plan=post_decision_plan,
         existing_contract=existing_contract,
     )
     issues = _audit_issues(
@@ -83,6 +98,7 @@ def build_manifest(config: FormalGateContractAuthoringGateAuditConfig) -> dict[s
         decision_record=decision_record,
         contract_intake=contract_intake,
         next_round=next_round,
+        post_decision_plan=post_decision_plan,
         existing_contract=existing_contract,
         contract_gate=contract_gate,
     )
@@ -106,9 +122,11 @@ def build_manifest(config: FormalGateContractAuthoringGateAuditConfig) -> dict[s
             "protocol_lane_decision_record": str(config.decision_record_path),
             "contract_intake": str(config.contract_intake_path),
             "next_round_requirements": str(config.next_round_requirements_path),
+            "post_decision_contract_plan": str(config.post_decision_contract_plan_path),
             "existing_contract": str(config.existing_contract_path),
         },
         "contract_gate": contract_gate,
+        "post_decision_contract_plan_summary": post_decision_plan,
         "existing_contract_summary": existing_contract,
         "required_contract_sections": _required_contract_sections(contract_intake),
         "audit_issue_count": len(issues),
