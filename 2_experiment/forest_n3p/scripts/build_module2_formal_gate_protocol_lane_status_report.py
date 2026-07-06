@@ -265,12 +265,29 @@ def _audit_issues(current: dict[str, Any]) -> list[dict[str, Any]]:
         issues.append(_issue("decision_gate_not_clean", "Decision gate audit must be clean.", observed=current["decision_gate_status"]))
     if current["contract_authoring_gate_audit_issue_count"] != 0:
         issues.append(_issue("contract_authoring_gate_has_issues", "Contract authoring gate must have no audit issues.", observed=current["contract_authoring_gate_audit_issue_count"]))
+    issues.extend(_post_decision_plan_issues(current))
     if current["lane_matrix_status"] != "formal_gate_protocol_lane_matrix_ready":
         issues.append(_issue("lane_matrix_not_ready", "Protocol lane matrix must be ready.", observed=current["lane_matrix_status"]))
     if current["next_round_requirements_status"] != "formal_gate_next_round_requirements_ready":
         issues.append(_issue("next_round_requirements_not_ready", "Next-round requirements must be ready.", observed=current["next_round_requirements_status"]))
     if current["lane_count"] != 4:
         issues.append(_issue("lane_count_not_four", "Protocol lane matrix must expose exactly four lanes.", observed=current["lane_count"]))
+    if current["next_success_attempt_artifact_count"] != EXPECTED_POST_DECISION_SHARED_ARTIFACT_COUNT:
+        issues.append(
+            _issue(
+                "next_success_attempt_artifact_count_drift",
+                "Next success-attempt artifact index must expose the full 10-artifact formal gate list.",
+                observed=current["next_success_attempt_artifact_count"],
+            )
+        )
+    if current["next_success_attempt_artifact_category_counts"] != EXPECTED_NEXT_SUCCESS_CATEGORY_COUNTS:
+        issues.append(
+            _issue(
+                "next_success_attempt_artifact_category_counts_drift",
+                "Next success-attempt artifact counts must stay at contract/training/evaluation/acceptance/formal_acceptance = 1/3/2/3/1.",
+                observed=current["next_success_attempt_artifact_category_counts"],
+            )
+        )
     if current["next_blocked_lane"] == "protocol_lane_decision":
         if current["selected_lane_id"] is not None:
             issues.append(_issue("pending_lane_has_selected_lane", "Pending lane state must not have selected_lane_id.", observed=current["selected_lane_id"]))
@@ -304,6 +321,130 @@ def _audit_issues(current: dict[str, Any]) -> list[dict[str, Any]]:
     if current["draft_contract_allows_training"]:
         issues.append(_issue("draft_contract_allows_training", "Draft contract must not authorize training."))
     return _unique_issues(issues)
+
+
+def _post_decision_plan_issues(current: dict[str, Any]) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    if not current["post_decision_contract_plan_summary_present"]:
+        return [
+            _issue(
+                "post_decision_contract_plan_summary_missing",
+                "Protocol-lane status report must consume contract-authoring post-decision plan summary.",
+            )
+        ]
+    if current["post_decision_contract_plan_artifact_name"] != EXPECTED_POST_DECISION_CONTRACT_PLAN_ARTIFACT:
+        issues.append(
+            _issue(
+                "post_decision_contract_plan_artifact_drift",
+                "Post-decision contract plan artifact name drifted.",
+                observed=current["post_decision_contract_plan_artifact_name"],
+            )
+        )
+    expected_status = (
+        EXPECTED_PENDING_POST_DECISION_CONTRACT_PLAN_STATUS
+        if current["next_blocked_lane"] == "protocol_lane_decision"
+        else EXPECTED_RECORDED_POST_DECISION_CONTRACT_PLAN_STATUS
+    )
+    if current["post_decision_contract_plan_status"] != expected_status:
+        issues.append(
+            _issue(
+                "post_decision_contract_plan_status_drift",
+                "Post-decision contract plan status does not match the protocol-lane state.",
+                observed=current["post_decision_contract_plan_status"],
+            )
+        )
+    if current["post_decision_contract_plan_audit_issue_count"] != 0:
+        issues.append(
+            _issue(
+                "post_decision_contract_plan_audit_issues_open",
+                "Post-decision contract plan must be audit-clean before status report consumes it.",
+                observed=current["post_decision_contract_plan_audit_issue_count"],
+            )
+        )
+    expected_counts = {
+        "post_decision_contract_plan_required_section_count": EXPECTED_POST_DECISION_CONTRACT_SECTION_COUNT,
+        "post_decision_contract_plan_shared_artifact_count": EXPECTED_POST_DECISION_SHARED_ARTIFACT_COUNT,
+        "post_decision_contract_plan_lane_count": EXPECTED_POST_DECISION_LANE_COUNT,
+    }
+    for key, expected in expected_counts.items():
+        if current[key] != expected:
+            issues.append(
+                _issue(
+                    f"{key}_drift",
+                    "Post-decision contract plan count drifted.",
+                    observed=current[key],
+                )
+            )
+    leaked_flags = [
+        key
+        for key in (
+            "post_decision_contract_plan_writes_contract",
+            "post_decision_contract_plan_approves_contract",
+            "post_decision_contract_plan_runs_training",
+            "post_decision_contract_plan_runs_remote_preflight",
+            "post_decision_contract_plan_remote_training_allowed_now",
+            "post_decision_contract_plan_formal_claim_allowed",
+            "post_decision_contract_plan_paper_result_material_allowed",
+        )
+        if current[key] is True
+    ]
+    if leaked_flags:
+        issues.append(
+            _issue(
+                "post_decision_contract_plan_authorization_leak",
+                "Post-decision contract plan must not authorize contract writing/approval, training, remote preflight, claims, or paper-result material.",
+                observed=leaked_flags,
+            )
+        )
+    if current["next_blocked_lane"] == "protocol_lane_decision":
+        if current["post_decision_contract_plan_selected_lane_id"] is not None:
+            issues.append(
+                _issue(
+                    "post_decision_contract_plan_selected_lane_while_pending",
+                    "Pending protocol-lane status must consume a post-plan without selected lane.",
+                    observed=current["post_decision_contract_plan_selected_lane_id"],
+                )
+            )
+        if current["post_decision_contract_plan_gate_contract_drafting_allowed_now"] is True:
+            issues.append(
+                _issue(
+                    "post_decision_contract_plan_contract_drafting_leak_while_pending",
+                    "Post-decision plan must not open contract drafting while lane decision is pending.",
+                )
+            )
+    elif not current["post_decision_contract_plan_selected_lane_id"]:
+        issues.append(
+            _issue(
+                "post_decision_contract_plan_missing_selected_lane_after_record",
+                "Recorded protocol-lane status must consume a post-plan with selected lane context.",
+            )
+        )
+    return issues
+
+
+def _next_success_artifact_summary(next_round: dict[str, Any]) -> dict[str, Any]:
+    index = next_round.get("next_success_attempt_artifact_index")
+    if not isinstance(index, dict):
+        index = {}
+    rows = index.get("rows")
+    rows = rows if isinstance(rows, list) else []
+    ids_by_category: dict[str, list[str]] = {}
+    category_counts: dict[str, int] = {}
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        category = str(row.get("category") or "")
+        artifact_id = str(row.get("artifact_id") or row.get("requirement_id") or "")
+        if not category or not artifact_id:
+            continue
+        ids_by_category.setdefault(category, []).append(artifact_id)
+        category_counts[category] = category_counts.get(category, 0) + 1
+    return {
+        "status": index.get("status"),
+        "artifact_count": int(index.get("artifact_count") or len(rows)),
+        "category_counts": category_counts,
+        "artifact_ids_by_category": ids_by_category,
+    }
 
 
 def _markdown(manifest: dict[str, Any]) -> str:
