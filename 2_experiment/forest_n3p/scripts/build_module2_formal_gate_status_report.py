@@ -44,6 +44,24 @@ EXPECTED_NEXT_SUCCESS_ARTIFACT_CATEGORY_COUNTS = {
     "acceptance": 3,
     "formal_acceptance": 1,
 }
+EXPECTED_NEXT_SUCCESS_ARTIFACT_IDS_BY_CATEGORY = {
+    "contract": ["new_or_revised_research_contract"],
+    "training": [
+        "train_final_model_zip",
+        "train_summary_json",
+        "train_training_manifest_json",
+    ],
+    "evaluation": [
+        "eval_gate3_eval_episodes_csv",
+        "eval_gate3_summary_json",
+    ],
+    "acceptance": [
+        "gate3_trial_manifest_json",
+        "gate3_formal_audit_json",
+        "pulled_back_checkpoint_hash_record",
+    ],
+    "formal_acceptance": ["h02_formal_output_acceptance"],
+}
 EXPECTED_OLD_FAILED_RUN_INVALID_FOR_NEXT_SUCCESS_ATTEMPT = True
 REMOTE_PREFLIGHT_REQUIREMENT_IDS = (
     "f02_6_decision_closed_for_preflight",
@@ -1807,6 +1825,9 @@ def _handoff_bundle_summary(handoff_bundle: dict[str, Any]) -> dict[str, Any]:
         "protocol_lane_next_success_attempt_artifact_category_counts": _int_counts(
             protocol_summary.get("next_success_attempt_artifact_category_counts")
         ),
+        "protocol_lane_next_success_attempt_artifact_ids_by_category": _string_lists_by_key(
+            protocol_summary.get("next_success_attempt_artifact_ids_by_category")
+        ),
         "protocol_lane_post_plan_artifact_category_counts": _int_counts(
             protocol_summary.get("post_decision_contract_plan_shared_artifact_category_counts")
         ),
@@ -2011,6 +2032,16 @@ def _handoff_bundle_safety_issues(handoff_bundle: dict[str, Any]) -> list[dict[s
             _issue(
                 "handoff_bundle_protocol_lane_next_artifact_category_counts_drift",
                 "handoff bundle must preserve protocol-lane next-attempt artifact category counts.",
+            )
+        )
+    if (
+        summary["protocol_lane_next_success_attempt_artifact_ids_by_category"]
+        != EXPECTED_NEXT_SUCCESS_ARTIFACT_IDS_BY_CATEGORY
+    ):
+        issues.append(
+            _issue(
+                "handoff_bundle_protocol_lane_next_artifact_ids_drift",
+                "handoff bundle must preserve concrete protocol-lane next-attempt artifact ids.",
             )
         )
     if summary["protocol_lane_post_plan_artifact_category_counts"] != EXPECTED_NEXT_SUCCESS_ARTIFACT_CATEGORY_COUNTS:
@@ -4240,6 +4271,12 @@ def _int_counts(value: Any) -> dict[str, int]:
     return {str(key): int(count or 0) for key, count in value.items() if key}
 
 
+def _string_lists_by_key(value: Any) -> dict[str, list[str]]:
+    if not isinstance(value, dict):
+        return {}
+    return {str(key): _strings(items) for key, items in value.items() if key}
+
+
 def _strings(value: Any) -> list[str]:
     if not isinstance(value, list):
         return []
@@ -4694,6 +4731,10 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.append(
         "- protocol_lane_next_success_attempt_artifact_category_counts: "
         f"`{handoff['protocol_lane_next_success_attempt_artifact_category_counts']}`"
+    )
+    lines.append(
+        "- protocol_lane_next_success_attempt_artifact_ids_by_category: "
+        f"`{handoff['protocol_lane_next_success_attempt_artifact_ids_by_category']}`"
     )
     lines.append(
         "- protocol_lane_post_plan_artifact_category_counts: "
