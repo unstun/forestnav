@@ -4691,6 +4691,22 @@ def _markdown(manifest: dict[str, Any]) -> str:
     lines.append(f"- next_handoff_action: `{handoff['next_handoff_action_id']}`")
     lines.append(f"- safety_issue_count: `{handoff['safety_issue_count']}`")
     lines.append(f"- remote_training_allowed_now: `{handoff['remote_training_allowed_now']}`")
+    lines.append(
+        "- protocol_lane_next_success_attempt_artifact_category_counts: "
+        f"`{handoff['protocol_lane_next_success_attempt_artifact_category_counts']}`"
+    )
+    lines.append(
+        "- protocol_lane_post_plan_artifact_category_counts: "
+        f"`{handoff['protocol_lane_post_plan_artifact_category_counts']}`"
+    )
+    lines.append(
+        "- protocol_lane_old_failed_run_artifacts_invalid_for_next_success_attempt: "
+        f"`{handoff['protocol_lane_old_failed_run_artifacts_invalid_for_next_success_attempt']}`"
+    )
+    lines.append(
+        "- protocol_lane_post_plan_old_failed_run_artifacts_invalid_for_next_success_attempt: "
+        f"`{handoff['protocol_lane_post_plan_old_failed_run_artifacts_invalid_for_next_success_attempt']}`"
+    )
     for step_id, step in handoff["remote_execution_steps"].items():
         blocked_by = ", ".join(step["blocked_by"]) if step["blocked_by"] else "none"
         lines.append(
