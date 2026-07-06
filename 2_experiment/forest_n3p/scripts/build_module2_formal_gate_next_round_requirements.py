@@ -210,17 +210,35 @@ def _permissions(*, status_report: dict[str, Any], failure_triage: dict[str, Any
     raw = status_report.get("permissions_now") if isinstance(status_report.get("permissions_now"), dict) else {}
     next_gate = failure_triage.get("next_gate") if isinstance(failure_triage.get("next_gate"), dict) else {}
     new_contract_required = bool(next_gate.get("new_or_revised_contract_required_before_new_training", True))
+    next_gate_status = next_gate.get("status")
+    gate_blocks_execution = bool(
+        new_contract_required
+        or next_gate_status == "requires_protocol_decision_before_new_success_attempt"
+    )
+    raw_remote_preflight_allowed = bool(raw.get("remote_preflight_allowed_now"))
+    raw_remote_training_allowed = bool(raw.get("remote_training_allowed_now"))
+    raw_formal_h01_allowed = bool(raw.get("formal_h01_evaluation_allowed_now"))
     return {
         "local_training_allowed_now": bool(raw.get("local_training_allowed_now")),
-        "remote_preflight_allowed_now": bool(raw.get("remote_preflight_allowed_now")),
-        "remote_training_allowed_now_for_existing_packet": bool(raw.get("remote_training_allowed_now")),
-        "formal_h01_evaluation_allowed_now": bool(raw.get("formal_h01_evaluation_allowed_now")),
+        "remote_preflight_allowed_now": raw_remote_preflight_allowed and not gate_blocks_execution,
+        "remote_training_allowed_now_for_existing_packet": raw_remote_training_allowed and not gate_blocks_execution,
+        "formal_h01_evaluation_allowed_now": raw_formal_h01_allowed and not gate_blocks_execution,
         "formal_h02_acceptance_allowed_now": bool(raw.get("formal_h02_acceptance_allowed_now")),
         "formal_claim_allowed_now": bool(raw.get("formal_claim_allowed_now")),
-        "source_freshness_ready_for_remote_preflight": bool(raw.get("source_freshness_ready_for_remote_preflight")),
+        "source_freshness_ready_for_remote_preflight": bool(raw.get("source_freshness_ready_for_remote_preflight"))
+        and not gate_blocks_execution,
         "new_success_training_allowed_now": not new_contract_required,
         "new_or_revised_contract_required_before_new_success_training": new_contract_required,
-        "failure_triage_next_gate_status": next_gate.get("status"),
+        "failure_triage_next_gate_status": next_gate_status,
+        "execution_veto_reason": "protocol_lane_or_contract_gate_blocks_execution"
+        if gate_blocks_execution
+        else "none",
+        "legacy_remote_packet_readiness": {
+            "remote_preflight_allowed_by_status_report": raw_remote_preflight_allowed,
+            "remote_training_allowed_by_status_report": raw_remote_training_allowed,
+            "formal_h01_evaluation_allowed_by_status_report": raw_formal_h01_allowed,
+            "superseded_by_next_gate": gate_blocks_execution,
+        },
     }
 
 
@@ -365,6 +383,12 @@ def _audit_issues(
         issues.append(_issue("h02_missing_gate3_failure_blocker", "H02 blockers must include gate3_formal_audit_not_passed."))
     if permissions["local_training_allowed_now"]:
         issues.append(_issue("local_training_allowed", "Local PPO training must remain disallowed."))
+    if permissions["remote_preflight_allowed_now"]:
+        issues.append(_issue("remote_preflight_allowed", "Remote preflight must remain blocked until the protocol lane and contract gates allow it."))
+    if permissions["remote_training_allowed_now_for_existing_packet"]:
+        issues.append(_issue("remote_training_allowed", "Remote training must remain blocked until the protocol lane and contract gates allow it."))
+    if permissions["formal_h01_evaluation_allowed_now"]:
+        issues.append(_issue("formal_h01_evaluation_allowed", "Formal H01 evaluation must remain blocked until the protocol lane and contract gates allow it."))
     if permissions["formal_claim_allowed_now"]:
         issues.append(_issue("formal_claim_allowed", "Formal claim must remain blocked after failed Gate3."))
     if permissions["new_success_training_allowed_now"]:
@@ -416,6 +440,12 @@ def _markdown(manifest: dict[str, Any]) -> str:
         f"- new_success_training_allowed_now: `{permissions['new_success_training_allowed_now']}`",
         f"- new_or_revised_contract_required_before_new_success_training: `{permissions['new_or_revised_contract_required_before_new_success_training']}`",
         f"- failure_triage_next_gate_status: `{permissions['failure_triage_next_gate_status']}`",
+        f"- execution_veto_reason: `{permissions['execution_veto_reason']}`",
+        "- legacy_remote_packet_readiness:",
+        f"  - remote_preflight_allowed_by_status_report: `{permissions['legacy_remote_packet_readiness']['remote_preflight_allowed_by_status_report']}`",
+        f"  - remote_training_allowed_by_status_report: `{permissions['legacy_remote_packet_readiness']['remote_training_allowed_by_status_report']}`",
+        f"  - formal_h01_evaluation_allowed_by_status_report: `{permissions['legacy_remote_packet_readiness']['formal_h01_evaluation_allowed_by_status_report']}`",
+        f"  - superseded_by_next_gate: `{permissions['legacy_remote_packet_readiness']['superseded_by_next_gate']}`",
         "",
         "## Missing Current Formal Acceptance Artifacts",
         "",
