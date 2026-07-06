@@ -531,6 +531,13 @@ def test_formal_gate_status_report_blocks_pending_chain(tmp_path):
     assert manifest["current_state"]["remote_packet_safety_command_index_present"] is True
     assert manifest["current_state"]["remote_packet_safety_command_index_row_count"] == 23
     assert manifest["current_state"]["next_action_guard_status"] == "next_action_guard_passed"
+    assert manifest["current_state"]["effective_next_blocked_lane"] == "decision"
+    assert manifest["current_state"]["effective_next_action_id"] == "record_f02_6_decision"
+    assert manifest["current_state"]["effective_next_action_requires_dr_sun"] is True
+    assert manifest["current_state"]["legacy_decision_intake_action_ids"] == [
+        "record_f02_6_decision"
+    ]
+    assert manifest["current_state"]["legacy_decision_intake_superseded_by_protocol_lane"] is False
     next_guard = manifest["next_action_guard_summary"]
     assert next_guard["present"] is True
     assert next_guard["status"] == "next_action_guard_passed"
@@ -1238,6 +1245,13 @@ def test_formal_gate_status_report_protocol_lane_vetoes_legacy_execution_surface
     assert guard["pending_protocol_lane_decision"] is True
     assert guard["next_blocked_lane_id"] == "protocol_lane_decision"
     assert guard["expected_next_action_id"] == "record_protocol_lane_decision"
+    assert manifest["current_state"]["effective_next_blocked_lane"] == "protocol_lane_decision"
+    assert manifest["current_state"]["effective_next_action_id"] == "record_protocol_lane_decision"
+    assert manifest["current_state"]["effective_next_action_requires_dr_sun"] is True
+    assert manifest["current_state"]["legacy_decision_intake_action_ids"] == [
+        "record_f02_6_decision"
+    ]
+    assert manifest["current_state"]["legacy_decision_intake_superseded_by_protocol_lane"] is True
     assert guard["execution_veto_applied"] is True
     assert guard["all_execution_disabled_now"] is True
     assert guard["execution_leak_count"] == 0
@@ -1542,6 +1556,8 @@ def test_formal_gate_status_report_cli_writes_json_and_markdown(tmp_path):
     assert "Formal Gate Proof Audit" in markdown
     assert "Formal Gate Proof Audit Gap Summary" in markdown
     assert "Mainline Formal Gate State Audit" in markdown
+    assert "effective_next_action_id" in markdown
+    assert "legacy_decision_intake_superseded_by_protocol_lane" in markdown
     assert "source_freshness_status" in markdown
     assert "missing_artifact_count=`8`" in markdown
     assert "formal_gate_proof_audit_blocked" in markdown
