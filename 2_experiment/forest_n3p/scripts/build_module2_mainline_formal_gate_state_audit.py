@@ -281,6 +281,9 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
             "contract/training/evaluation/acceptance/formal_acceptance=1/3/2/3/1"
             in current_section
         ),
+        "protocol_lane_status_old_failed_invalid_mentioned": (
+            "old_failed_run_artifacts_invalid_for_next_success_attempt=true" in current_section
+        ),
         "protocol_lane_readiness_summary": protocol_lane_readiness,
         "protocol_lane_readiness_artifact_mentioned": protocol_lane_readiness["artifact_name"] in current_section,
         "protocol_lane_readiness_status_mentioned": protocol_lane_readiness["status"] in current_section,
@@ -308,6 +311,10 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
             post_decision_contract_plan["artifact_name"] in current_section
             and post_decision_contract_plan["status"] in current_section
             and str(post_decision_contract_plan["lane_count"]) in current_section
+        ),
+        "post_decision_contract_plan_old_failed_invalid_mentioned": (
+            post_decision_contract_plan["artifact_name"] in current_section
+            and "old_failed_run_artifacts_invalid_for_next_success_attempt=true" in current_section
         ),
         "mainline_missing_deliverable_mention_count": sum(1 for row in deliverable_rows if not row["mentioned"]),
         "deliverable_rows": deliverable_rows,
