@@ -59,11 +59,21 @@ def test_next_round_requirements_blocks_new_success_attempt_until_contract(tmp_p
 
     permissions = manifest["permissions_now"]
     assert permissions["local_training_allowed_now"] is False
-    assert permissions["remote_training_allowed_now_for_existing_packet"] is True
+    assert permissions["remote_preflight_allowed_now"] is False
+    assert permissions["remote_training_allowed_now_for_existing_packet"] is False
+    assert permissions["formal_h01_evaluation_allowed_now"] is False
     assert permissions["formal_claim_allowed_now"] is False
+    assert permissions["source_freshness_ready_for_remote_preflight"] is False
     assert permissions["new_success_training_allowed_now"] is False
     assert permissions["new_or_revised_contract_required_before_new_success_training"] is True
     assert permissions["failure_triage_next_gate_status"] == "requires_protocol_decision_before_new_success_attempt"
+    assert permissions["execution_veto_reason"] == "protocol_lane_or_contract_gate_blocks_execution"
+    assert permissions["legacy_remote_packet_readiness"] == {
+        "remote_preflight_allowed_by_status_report": True,
+        "remote_training_allowed_by_status_report": True,
+        "formal_h01_evaluation_allowed_by_status_report": True,
+        "superseded_by_next_gate": True,
+    }
 
     next_round = manifest["next_round_requirements"]
     assert next_round["status"] == "new_or_revised_contract_required_before_any_new_success_attempt"
@@ -157,7 +167,12 @@ def test_next_round_requirements_cli_writes_json_and_markdown(tmp_path):
     assert "new_remote_ppo_checkpoint_bundle" in markdown
     assert "h02_formal_output_acceptance" in markdown
     assert "## Permissions Now" in markdown
+    assert "remote_preflight_allowed_now: `False`" in markdown
+    assert "remote_training_allowed_now_for_existing_packet: `False`" in markdown
+    assert "formal_h01_evaluation_allowed_now: `False`" in markdown
     assert "new_success_training_allowed_now: `False`" in markdown
+    assert "execution_veto_reason: `protocol_lane_or_contract_gate_blocks_execution`" in markdown
+    assert "legacy_remote_packet_readiness" in markdown
     assert "## Missing Current Formal Acceptance Artifacts" in markdown
     assert "h02_verdict_not_formal, gate3_formal_audit_not_passed" in markdown
     assert "## Missing Next-Round Deliverables" in markdown

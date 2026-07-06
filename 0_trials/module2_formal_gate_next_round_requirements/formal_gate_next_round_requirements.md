@@ -28,14 +28,20 @@ This file is a formal-gate planning artifact, not paper result material.
 ## Permissions Now
 
 - local_training_allowed_now: `False`
-- remote_preflight_allowed_now: `True`
-- remote_training_allowed_now_for_existing_packet: `True`
-- formal_h01_evaluation_allowed_now: `True`
+- remote_preflight_allowed_now: `False`
+- remote_training_allowed_now_for_existing_packet: `False`
+- formal_h01_evaluation_allowed_now: `False`
 - formal_h02_acceptance_allowed_now: `False`
 - formal_claim_allowed_now: `False`
 - new_success_training_allowed_now: `False`
 - new_or_revised_contract_required_before_new_success_training: `True`
 - failure_triage_next_gate_status: `requires_protocol_decision_before_new_success_attempt`
+- execution_veto_reason: `protocol_lane_or_contract_gate_blocks_execution`
+- legacy_remote_packet_readiness:
+  - remote_preflight_allowed_by_status_report: `False`
+  - remote_training_allowed_by_status_report: `False`
+  - formal_h01_evaluation_allowed_by_status_report: `False`
+  - superseded_by_next_gate: `True`
 
 ## Missing Current Formal Acceptance Artifacts
 
