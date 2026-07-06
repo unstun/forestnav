@@ -526,6 +526,116 @@ def _next_success_attempt_artifact_index() -> dict[str, Any]:
     }
 
 
+def _protocol_gate_summary(
+    *,
+    protocol_lane_status: dict[str, Any],
+    remote_packet_safety: dict[str, Any],
+    next_artifacts: dict[str, Any],
+) -> dict[str, Any]:
+    current = (
+        protocol_lane_status.get("current_status")
+        if isinstance(protocol_lane_status.get("current_status"), dict)
+        else {}
+    )
+    remote_cross = (
+        remote_packet_safety.get("cross_gate_summary")
+        if isinstance(remote_packet_safety.get("cross_gate_summary"), dict)
+        else {}
+    )
+    remote_protocol = (
+        remote_cross.get("post_plan_protocol_lane_status_summary")
+        if isinstance(remote_cross.get("post_plan_protocol_lane_status_summary"), dict)
+        else {}
+    )
+    protocol_counts = _int_dict(current.get("next_success_attempt_artifact_category_counts"))
+    artifact_counts = _artifact_category_counts(next_artifacts)
+    return {
+        "protocol_status": protocol_lane_status.get("status"),
+        "protocol_audit_issue_count": int(protocol_lane_status.get("audit_issue_count") or 0),
+        "next_blocked_lane": current.get("next_blocked_lane"),
+        "decision_record_status": current.get("decision_record_status"),
+        "selected_lane_id": current.get("selected_lane_id"),
+        "allowed_next_action_ids": _strings(current.get("allowed_next_action_ids")),
+        "blocked_action_ids": _strings(current.get("blocked_action_ids")),
+        "new_success_training_allowed_now": current.get("new_success_training_allowed_now")
+        if isinstance(current.get("new_success_training_allowed_now"), bool)
+        else None,
+        "contract_drafting_allowed_now": current.get("contract_drafting_allowed_now")
+        if isinstance(current.get("contract_drafting_allowed_now"), bool)
+        else None,
+        "contract_approval_allowed_now": current.get("contract_approval_allowed_now")
+        if isinstance(current.get("contract_approval_allowed_now"), bool)
+        else None,
+        "post_decision_contract_plan_status": current.get("post_decision_contract_plan_status"),
+        "post_decision_contract_plan_required_section_count": int(current.get("post_decision_contract_plan_required_section_count") or 0),
+        "post_decision_contract_plan_shared_artifact_count": int(current.get("post_decision_contract_plan_shared_artifact_count") or 0),
+        "post_decision_contract_plan_lane_count": int(current.get("post_decision_contract_plan_lane_count") or 0),
+        "next_success_attempt_artifact_status": current.get("next_success_attempt_artifact_status"),
+        "next_success_attempt_artifact_count": int(current.get("next_success_attempt_artifact_count") or 0),
+        "next_success_attempt_artifact_category_counts": protocol_counts,
+        "next_success_attempt_artifact_ids_by_category": _string_list_dict(
+            current.get("next_success_attempt_artifact_ids_by_category")
+        ),
+        "artifact_index_category_counts": artifact_counts,
+        "artifact_index_count": int(next_artifacts.get("artifact_count") or 0),
+        "remote_safety_protocol_summary_present": bool(remote_protocol),
+        "remote_safety_protocol_status": remote_protocol.get("status"),
+        "remote_safety_protocol_next_blocked": remote_protocol.get("next_blocked_lane"),
+        "remote_safety_allowed_next_action_ids": _strings(remote_protocol.get("allowed_next_action_ids")),
+        "remote_safety_new_success_training_allowed_now": remote_protocol.get("new_success_training_allowed_now")
+        if isinstance(remote_protocol.get("new_success_training_allowed_now"), bool)
+        else None,
+        "remote_safety_category_counts": _int_dict(remote_protocol.get("next_success_attempt_artifact_category_counts")),
+    }
+
+
+def _current_vs_next_attempt_reconciliation(
+    *,
+    current_artifacts: dict[str, Any],
+    next_artifacts: dict[str, Any],
+    protocol_gate: dict[str, Any],
+) -> dict[str, Any]:
+    current_missing = current_artifacts.get("missing_counts_by_formal_category")
+    current_missing = current_missing if isinstance(current_missing, dict) else {}
+    next_counts = _artifact_category_counts(next_artifacts)
+    return {
+        "current_failed_run_missing_counts": {
+            str(category): int(count or 0)
+            for category, count in current_missing.items()
+            if category
+        },
+        "current_failed_run_training_eval_acceptance_closed": all(
+            int(current_missing.get(category) or 0) == 0
+            for category in ("training", "evaluation", "acceptance")
+        ),
+        "current_failed_run_formal_acceptance_open": int(current_missing.get("formal_acceptance") or 0) > 0,
+        "next_success_attempt_status": next_artifacts.get("status"),
+        "next_success_attempt_artifact_count": int(next_artifacts.get("artifact_count") or 0),
+        "next_success_attempt_category_counts": next_counts,
+        "protocol_lane_artifact_counts_match_index": protocol_gate.get("next_success_attempt_artifact_category_counts") == next_counts,
+        "old_failed_run_artifacts_invalid_for_next_success_attempt": True,
+        "next_success_attempt_requires_protocol_lane_decision": protocol_gate.get("next_blocked_lane") == "protocol_lane_decision",
+        "next_success_attempt_allowed_action": protocol_gate.get("allowed_next_action_ids"),
+        "explanation": (
+            "The current failed-run ledger may show training/evaluation/acceptance present, "
+            "but a new success attempt still requires a new/revised contract plus fresh training, "
+            "evaluation, acceptance, and H02 formal acceptance artifacts under the selected protocol lane."
+        ),
+    }
+
+
+def _artifact_category_counts(next_artifacts: dict[str, Any]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for row in next_artifacts.get("rows", []) if isinstance(next_artifacts.get("rows"), list) else []:
+        if not isinstance(row, dict):
+            continue
+        category = row.get("category")
+        if not category:
+            continue
+        counts[str(category)] = counts.get(str(category), 0) + 1
+    return counts
+
+
 def _artifact(
     *,
     category: str,
