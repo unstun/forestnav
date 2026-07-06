@@ -20,6 +20,7 @@ from forest_n3p.rl_rs.curriculum import (
 from forest_n3p.rl_rs.gym_env import GymAnalyticExpansionEnv
 from forest_n3p.rl_rs.obs import ObservationConfig
 from forest_n3p.rl_rs.training_logging import RlRsEpisodeLoggingWrapper, file_sha256, write_training_manifest
+from forest_n3p.scripts._module2_contract_gate import require_contract_ready
 
 
 DEFAULT_CONTRACT_PATH = ".pipeline/contracts/module2-ppo-funnel-expansion.md"
@@ -31,11 +32,16 @@ def main(argv: Sequence[str] | None = None) -> int:
     if bool(args.allow_duplicate_openmp):
         os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
     _apply_smoke_overrides(args)
+    contract_status = require_contract_ready(
+        args.contract_path,
+        allow_unapproved=bool(args.smoke),
+        context="Module2 PPO training",
+    )
     PPO, CallbackList, CheckpointCallback, DummyVecEnv = _load_sb3()
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    config = _config_record(args=args, raw_argv=raw_argv)
+    config = _config_record(args=args, raw_argv=raw_argv, contract_status=contract_status)
     env = DummyVecEnv([_make_env_factory(args=args, output_dir=output_dir, rank=rank) for rank in range(int(args.n_envs))])
     callbacks = _callbacks(args=args, output_dir=output_dir, n_envs=int(args.n_envs), CallbackList=CallbackList, CheckpointCallback=CheckpointCallback)
     model = PPO(
@@ -81,6 +87,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "execution_host": socket.gethostname(),
         "source_head": _source_head(),
         "contract": str(args.contract_path),
+        "contract_status": str(contract_status),
         "output_dir": str(output_dir),
         "manifest": str(manifest_path),
         "final_model": "final_model.zip",
@@ -362,11 +369,12 @@ def _source_hashes() -> dict[str, str]:
     return {path: file_sha256(path) for path in paths if Path(path).exists()}
 
 
-def _config_record(*, args: argparse.Namespace, raw_argv: Sequence[str]) -> dict[str, Any]:
+def _config_record(*, args: argparse.Namespace, raw_argv: Sequence[str], contract_status: str) -> dict[str, Any]:
     return {
         "command": " ".join(["python -m forest_n3p.scripts.train_rl_rs_ppo", *raw_argv]),
         "smoke": bool(args.smoke),
         "contract": str(args.contract_path),
+        "contract_status": str(contract_status),
         "seed": int(args.seed),
         "policy": "MultiInputPolicy" if args.bc_checkpoint is None else "RlRsMultiInputPolicy",
         "features_extractor": "RlRsObstacleSummaryExtractor",
