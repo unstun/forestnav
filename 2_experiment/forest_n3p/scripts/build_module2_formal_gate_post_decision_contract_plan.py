@@ -203,6 +203,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
 def _gate_state(
     *,
     readiness: dict[str, Any],
+    decision_record: dict[str, Any],
     contract_authoring_gate: dict[str, Any],
     next_round: dict[str, Any],
 ) -> dict[str, Any]:
@@ -213,14 +214,24 @@ def _gate_state(
         else {}
     )
     permissions = next_round.get("permissions_now") if isinstance(next_round.get("permissions_now"), dict) else {}
-    selected_lane_id = readiness_gate.get("selected_lane_id")
+    decision_record_status = decision_record.get("status") or contract_gate.get("decision_record_status")
+    decision_recorded = decision_record_status == RECORDED_DECISION_STATUS
+    selected_lane_id = decision_record.get("selected_lane_id") if decision_recorded else readiness_gate.get("selected_lane_id")
+    allowed_next_action_ids = (
+        ["draft_new_or_revised_contract_after_lane_decision"]
+        if decision_recorded
+        else _strings(readiness_gate.get("next_action_ids"))
+    )
     return {
-        "next_blocked_lane": readiness_gate.get("next_blocked_lane"),
+        "next_blocked_lane": "new_or_revised_contract" if decision_recorded else readiness_gate.get("next_blocked_lane"),
         "selected_lane_id": selected_lane_id,
         "decision_owner_required": readiness_gate.get("decision_owner_required"),
-        "decision_record_status": contract_gate.get("decision_record_status"),
+        "decision_record_status": decision_record_status,
+        "contract_action": decision_record.get("contract_action") or contract_gate.get("contract_action"),
         "contract_authoring_gate_status": contract_authoring_gate.get("status"),
-        "contract_drafting_allowed_now": bool(contract_gate.get("contract_drafting_allowed_now")),
+        "contract_drafting_allowed_now": bool(
+            decision_recorded or contract_gate.get("contract_drafting_allowed_now")
+        ),
         "contract_approval_allowed_now": bool(contract_gate.get("contract_approval_allowed_now")),
         "draft_contract_allows_training": bool(contract_gate.get("draft_contract_allows_training")),
         "new_or_revised_contract_required_before_training": permissions.get(
@@ -250,7 +261,7 @@ def _gate_state(
             readiness.get("paper_result_material_allowed"),
             readiness_gate.get("paper_result_material_allowed_now"),
         ),
-        "allowed_next_action_ids": _strings(readiness_gate.get("next_action_ids")),
+        "allowed_next_action_ids": allowed_next_action_ids,
         "blocked_action_ids": _strings(readiness_gate.get("blocked_action_ids")),
         "post_decision_plan_authorizes_lane_selection": False,
         "post_decision_plan_authorizes_contract_write": False,
