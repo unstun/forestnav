@@ -14,6 +14,9 @@ DEFAULT_OUTPUT_DIR = Path("0_trials/module2_formal_gate_post_decision_contract_p
 DEFAULT_PROTOCOL_LANE_READINESS = Path(
     "0_trials/module2_formal_gate_protocol_lane_readiness/protocol_lane_readiness.json"
 )
+DEFAULT_DECISION_RECORD = Path(
+    "0_trials/module2_formal_gate_protocol_lane_decision_record/protocol_lane_decision_record.json"
+)
 DEFAULT_CONTRACT_INTAKE = Path("0_trials/module2_formal_gate_contract_intake/formal_gate_contract_intake.json")
 DEFAULT_CONTRACT_AUTHORING_GATE = Path(
     "0_trials/module2_formal_gate_contract_authoring_gate_audit/contract_authoring_gate_audit.json"
@@ -52,6 +55,12 @@ BLOCKED_ACTIONS = (
     "formal_claim",
     "paper_result_material",
 )
+PENDING_DECISION_STATUS = "pending_protocol_lane_decision"
+RECORDED_DECISION_STATUS = "protocol_lane_decision_recorded"
+PENDING_CONTRACT_AUTHORING_STATUS = "contract_authoring_gate_blocked_pending_lane_decision"
+READY_CONTRACT_AUTHORING_STATUS = "contract_authoring_gate_ready_for_contract_draft"
+BOOTSTRAP_CONTRACT_AUTHORING_STATUS = "contract_authoring_gate_audit_failed"
+BOOTSTRAP_CONTRACT_AUTHORING_ISSUE = "post_decision_contract_plan_missing_selected_lane_after_record"
 
 
 @dataclass(frozen=True)
@@ -60,6 +69,7 @@ class FormalGatePostDecisionContractPlanConfig:
     manifest_out: Path | None = None
     markdown_out: Path | None = None
     protocol_lane_readiness_path: Path = DEFAULT_PROTOCOL_LANE_READINESS
+    decision_record_path: Path = DEFAULT_DECISION_RECORD
     contract_intake_path: Path = DEFAULT_CONTRACT_INTAKE
     contract_authoring_gate_path: Path = DEFAULT_CONTRACT_AUTHORING_GATE
     next_round_requirements_path: Path = DEFAULT_NEXT_ROUND_REQUIREMENTS
@@ -72,6 +82,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         manifest_out=args.manifest_out,
         markdown_out=args.markdown_out,
         protocol_lane_readiness_path=args.protocol_lane_readiness,
+        decision_record_path=args.decision_record,
         contract_intake_path=args.contract_intake,
         contract_authoring_gate_path=args.contract_authoring_gate,
         next_round_requirements_path=args.next_round_requirements,
@@ -97,6 +108,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 def build_manifest(config: FormalGatePostDecisionContractPlanConfig) -> dict[str, Any]:
     readiness = _read_json(config.protocol_lane_readiness_path)
+    decision_record = _read_json(config.decision_record_path)
     contract_intake = _read_json(config.contract_intake_path)
     contract_authoring_gate = _read_json(config.contract_authoring_gate_path)
     next_round = _read_json(config.next_round_requirements_path)
@@ -104,7 +116,12 @@ def build_manifest(config: FormalGatePostDecisionContractPlanConfig) -> dict[str
     required_sections = _required_contract_sections(contract_intake)
     shared_artifacts = _shared_next_success_artifacts(readiness, next_round)
     next_round_summary = _next_round_summary(next_round=next_round, shared_artifacts=shared_artifacts)
-    gate = _gate_state(readiness=readiness, contract_authoring_gate=contract_authoring_gate, next_round=next_round)
+    gate = _gate_state(
+        readiness=readiness,
+        decision_record=decision_record,
+        contract_authoring_gate=contract_authoring_gate,
+        next_round=next_round,
+    )
     lane_rows = _lane_contract_rows(
         readiness=readiness,
         required_sections=required_sections,
@@ -112,6 +129,7 @@ def build_manifest(config: FormalGatePostDecisionContractPlanConfig) -> dict[str
     )
     issues = _audit_issues(
         readiness=readiness,
+        decision_record=decision_record,
         contract_intake=contract_intake,
         contract_authoring_gate=contract_authoring_gate,
         next_round=next_round,
@@ -140,6 +158,7 @@ def build_manifest(config: FormalGatePostDecisionContractPlanConfig) -> dict[str
         "paper_result_material_allowed": False,
         "inputs": {
             "protocol_lane_readiness": str(config.protocol_lane_readiness_path),
+            "decision_record": str(config.decision_record_path),
             "contract_intake": str(config.contract_intake_path),
             "contract_authoring_gate": str(config.contract_authoring_gate_path),
             "next_round_requirements": str(config.next_round_requirements_path),
@@ -174,6 +193,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument("--manifest-out", type=Path, default=None)
     parser.add_argument("--markdown-out", type=Path, default=None)
     parser.add_argument("--protocol-lane-readiness", type=Path, default=DEFAULT_PROTOCOL_LANE_READINESS)
+    parser.add_argument("--decision-record", type=Path, default=DEFAULT_DECISION_RECORD)
     parser.add_argument("--contract-intake", type=Path, default=DEFAULT_CONTRACT_INTAKE)
     parser.add_argument("--contract-authoring-gate", type=Path, default=DEFAULT_CONTRACT_AUTHORING_GATE)
     parser.add_argument("--next-round-requirements", type=Path, default=DEFAULT_NEXT_ROUND_REQUIREMENTS)
