@@ -61,6 +61,40 @@ def test_formal_gate_closure_checklist_accepts_synthetic_complete_chain(tmp_path
     assert manifest["formal_claim_allowed"] is False
 
 
+def test_formal_gate_closure_checklist_consumes_protocol_lane_veto(tmp_path):
+    builder = import_module("forest_n3p.scripts.build_module2_formal_gate_closure_checklist")
+
+    manifest = builder.build_manifest(_config(tmp_path, complete=True, protocol_pending=True))
+
+    assert manifest["status"] == "formal_gate_closure_blocked"
+    assert manifest["current_gate_summary"]["protocol_lane_pending"] is True
+    assert manifest["current_gate_summary"]["protocol_lane_allowed_next_action_ids"] == [
+        "record_protocol_lane_decision"
+    ]
+    assert manifest["next_round_requirements_summary"]["new_success_training_allowed_now"] is False
+    assert (
+        manifest["next_round_requirements_summary"][
+            "new_or_revised_contract_required_before_new_success_training"
+        ]
+        is True
+    )
+    checklist = {item["checklist_id"]: item for item in manifest["closure_checklist"]}
+    assert checklist["protocol_lane_decision"]["status"] == "blocked"
+    assert "protocol_lane_decision_pending" in checklist["protocol_lane_decision"]["blocked_by"]
+    assert checklist["gate3_remote_training_outputs"]["status"] == "blocked"
+    assert "protocol_lane_decision_pending" in checklist["gate3_remote_training_outputs"]["blocked_by"]
+    remote_stages = manifest["post_plan_remote_stage_summary"]
+    assert remote_stages["approved_remote_preflight"]["raw_allowed_now"] is True
+    assert remote_stages["approved_remote_preflight"]["allowed_now"] is False
+    assert remote_stages["approved_remote_preflight"]["vetoed_by_protocol_lane"] is True
+    assert "protocol_lane_decision_pending" in remote_stages["approved_remote_preflight"]["blocked_by"]
+    assert remote_stages["gate3_remote_training"]["raw_allowed_now"] is True
+    assert remote_stages["gate3_remote_training"]["allowed_now"] is False
+    assert remote_stages["gate3_remote_training"]["vetoed_by_protocol_lane"] is True
+    assert "protocol_lane_decision_pending" in remote_stages["gate3_remote_training"]["blocked_by"]
+    assert manifest["input_safety_issue_count"] == 0
+
+
 def test_formal_gate_closure_checklist_catches_read_only_drift(tmp_path):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_closure_checklist")
 
@@ -128,6 +162,10 @@ def test_formal_gate_closure_checklist_cli_writes_json_and_markdown(tmp_path):
             str(config.source_freshness_path),
             "--remaining-deliverables",
             str(config.remaining_deliverables_path),
+            "--protocol-lane-status-report",
+            str(config.protocol_lane_status_path),
+            "--next-round-requirements",
+            str(config.next_round_requirements_path),
         ]
     )
 
@@ -139,16 +177,19 @@ def test_formal_gate_closure_checklist_cli_writes_json_and_markdown(tmp_path):
     assert "gate3_remote_training_outputs" in markdown
     assert "Post-Plan Remote Stages" in markdown
     assert "Remaining Deliverables Gap Summary" in markdown
+    assert "Protocol Lane And Next-Round Gate" in markdown
     assert "does not execute commands" in markdown
 
 
-def _config(tmp_path, *, complete, drift=False):
+def _config(tmp_path, *, complete, drift=False, protocol_pending=False):
     builder = import_module("forest_n3p.scripts.build_module2_formal_gate_closure_checklist")
     missing_artifacts = _missing_artifacts(tmp_path, complete=complete, drift=drift)
     formal_gate = _formal_gate(complete=complete)
     post_plan = _post_plan(complete=complete, drift=drift)
     source_freshness = _source_freshness(complete=complete, drift=drift)
     remaining_deliverables = _remaining_deliverables(complete=complete)
+    protocol_lane_status = _protocol_lane_status(pending=protocol_pending)
+    next_round_requirements = _next_round_requirements(complete=complete, protocol_pending=protocol_pending)
     return builder.FormalGateClosureChecklistConfig(
         output_dir=tmp_path,
         missing_artifacts_path=_json(tmp_path, "missing_artifacts.json", missing_artifacts),
@@ -156,6 +197,8 @@ def _config(tmp_path, *, complete, drift=False):
         post_plan_path=_json(tmp_path, "post_plan.json", post_plan),
         source_freshness_path=_json(tmp_path, "source_freshness.json", source_freshness),
         remaining_deliverables_path=_json(tmp_path, "remaining_deliverables.json", remaining_deliverables),
+        protocol_lane_status_path=_json(tmp_path, "protocol_lane_status.json", protocol_lane_status),
+        next_round_requirements_path=_json(tmp_path, "next_round_requirements.json", next_round_requirements),
     )
 
 
