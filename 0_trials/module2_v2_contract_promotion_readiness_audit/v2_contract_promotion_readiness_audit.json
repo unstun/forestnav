@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "artifact_name": "module2_v2_contract_promotion_readiness_audit",
+  "status": "ready_for_dr_sun_v2_contract_promotion_decision",
+  "created_at_utc": "2026-07-06T08:29:47.170676+00:00",
+  "source_head": "e6a57e42be83006fabb64ab4c72f71b33d17814f",
+  "not_paper_result_material": true,
+  "executes_commands": false,
+  "writes_contract": false,
+  "approves_contract": false,
+  "runs_training": false,
+  "runs_remote_preflight": false,
+  "runs_remote_audit": false,
+  "local_training_allowed_now": false,
+  "remote_preflight_allowed_now": false,
+  "remote_training_allowed_now": false,
+  "formal_claim_allowed_now": false,
+  "paper_result_material_allowed_now": false,
+  "inputs": {
+    "contract": ".pipeline/contracts/module2-stronger_obstacle_summary_warm_start-v2.md",
+    "promotion_packet": "0_trials/module2_v2_contract_promotion_packet/v2_contract_promotion_packet.json",
+    "promotion_dry_run": "0_trials/module2_v2_contract_promotion_dry_run/promotion_apply_dry_run.json",
+    "chain_audit": "0_trials/module2_v2_formal_gate_chain_audit/v2_formal_gate_chain_audit.json",
+    "post_promotion_plan": "0_trials/module2_v2_post_promotion_regeneration_plan/v2_post_promotion_regeneration_plan.json"
+  },
+  "contract_status": "draft",
+  "readiness_summary": {
+    "promotion_packet_status": "v2_contract_promotion_packet_ready_awaiting_dr_sun",
+    "promotion_packet_audit_issue_count": 0,
+    "approval_item_ids": [
+      "remote_alias",
+      "training_budget",
+      "unsafe_failure_thresholds",
+      "contract_status_action"
+    ],
+    "promotion_dry_run_status": "promotion_apply_ready",
+    "promotion_dry_run_writes_contract": false,
+    "promotion_dry_run_target_status": "approved",
+    "chain_audit_status": "blocked_until_v2_contract_promotion",
+    "chain_current_blocking_stage_id": "v2_contract_promoted",
+    "post_promotion_plan_status": "blocked_until_v2_contract_promotion",
+    "post_promotion_next_action": "await_dr_sun_before_apply_v2_contract_promotion"
+  },
+  "decision_required_from_dr_sun": true,
+  "recommended_decision_payload": {
+    "target_status": "approved",
+    "remote_alias": "gpu3070ti-relay",
+    "training_budget": {
+      "seed": 20260706,
+      "train_total_timesteps": 500000,
+      "train_n_envs": 4,
+      "train_n_steps": 256,
+      "train_batch_size": 256,
+      "train_n_epochs": 8,
+      "train_learning_rate": 0.0001,
+      "train_ent_coef": 0.01,
+      "train_checkpoint_freq": 25000
+    },
+    "unsafe_failure_thresholds": {
+      "collision_rate_gte": 0.3,
+      "truncation_rate_gte": 0.2
+    }
+  },
+  "post_decision_required_first_steps": [
+    "apply and commit the v2 contract promotion",
+    "re-run v2 contract readiness gate",
+    "re-run source freshness audit",
+    "regenerate v2 remote execution packet",
+    "refresh v2 formal gate chain audit"
+  ],
+  "audit_issue_count": 0,
+  "audit_issues": [],
+  "invalid_substitutes": [
+    "promotion packet alone as approval",
+    "promotion dry-run alone as approval",
+    "chat-only approval without committed contract frontmatter",
+    "remote preflight before source freshness and v2 packet regeneration",
+    "remote training before ready preflight manifest",
+    "paper result material before H02 formal acceptance"
+  ]
+}
