@@ -25,6 +25,9 @@ DEFAULT_PROTOCOL_LANE_STATUS_REPORT = Path(
 DEFAULT_PROTOCOL_LANE_READINESS = Path(
     "0_trials/module2_formal_gate_protocol_lane_readiness/protocol_lane_readiness.json"
 )
+DEFAULT_POST_DECISION_CONTRACT_PLAN = Path(
+    "0_trials/module2_formal_gate_post_decision_contract_plan/post_decision_contract_plan.json"
+)
 
 CURRENT_STATE_MARKER = "当前 formal gate 下一步清单已同步到主任务书"
 EXPECTED_DECISION_EVIDENCE_MATRIX_ID = "module2_f02_6_decision_evidence_matrix"
@@ -79,6 +82,11 @@ EXPECTED_PROTOCOL_LANE_BLOCKED_ACTIONS = (
 EXPECTED_PROTOCOL_LANE_READINESS_STATUS = "protocol_lane_readiness_ready_for_dr_sun_decision"
 EXPECTED_PROTOCOL_LANE_READINESS_ARTIFACT = "module2_formal_gate_protocol_lane_readiness"
 EXPECTED_PROTOCOL_LANE_READINESS_SHARED_ARTIFACT_COUNT = 10
+EXPECTED_POST_DECISION_CONTRACT_PLAN_STATUS = "post_decision_contract_plan_ready_blocked_pending_lane_decision"
+EXPECTED_POST_DECISION_CONTRACT_PLAN_ARTIFACT = "module2_formal_gate_post_decision_contract_plan"
+EXPECTED_POST_DECISION_CONTRACT_SECTION_COUNT = 8
+EXPECTED_POST_DECISION_CONTRACT_LANE_COUNT = 4
+EXPECTED_POST_DECISION_CONTRACT_SHARED_ARTIFACT_COUNT = 10
 PROTOCOL_LANE_FALSE_FLAGS = (
     "contract_drafting_allowed_now",
     "contract_approval_allowed_now",
@@ -101,6 +109,7 @@ class MainlineFormalGateStateAuditConfig:
     proof_summary_chain_audit_path: Path = DEFAULT_PROOF_SUMMARY_CHAIN_AUDIT
     protocol_lane_status_report_path: Path = DEFAULT_PROTOCOL_LANE_STATUS_REPORT
     protocol_lane_readiness_path: Path = DEFAULT_PROTOCOL_LANE_READINESS
+    post_decision_contract_plan_path: Path = DEFAULT_POST_DECISION_CONTRACT_PLAN
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -114,6 +123,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         proof_summary_chain_audit_path=args.proof_summary_chain_audit,
         protocol_lane_status_report_path=args.protocol_lane_status_report,
         protocol_lane_readiness_path=args.protocol_lane_readiness,
+        post_decision_contract_plan_path=args.post_decision_contract_plan,
     )
     manifest = build_manifest(config)
     output_dir = Path(config.output_dir)
@@ -144,6 +154,9 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
     protocol_lane_readiness = _normalize_protocol_lane_readiness(
         _read_json(config.protocol_lane_readiness_path)
     )
+    post_decision_contract_plan = _normalize_post_decision_contract_plan(
+        _read_json(config.post_decision_contract_plan_path)
+    )
     next_action_guard = _normalize_next_action_guard(status_report.get("next_action_guard_summary"))
     next_required = _normalize_next_required_deliverables(status_report.get("next_required_formal_deliverables"))
     decision_matrix = _normalize_decision_evidence_matrix_summary(
@@ -160,6 +173,7 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
             decision_matrix=decision_matrix,
             protocol_lane_status=protocol_lane_status,
             protocol_lane_readiness=protocol_lane_readiness,
+            post_decision_contract_plan=post_decision_contract_plan,
             deliverable_rows=deliverable_rows,
             proof_chain=proof_chain,
         )
@@ -167,6 +181,7 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
         + _decision_evidence_matrix_issues(decision_matrix)
         + _protocol_lane_status_issues(protocol_lane_status)
         + _protocol_lane_readiness_issues(protocol_lane_readiness)
+        + _post_decision_contract_plan_issues(post_decision_contract_plan)
         + _proof_chain_issues(proof_chain)
     )
     issues = _unique_issues(issues)
@@ -200,6 +215,7 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
             "proof_summary_chain_audit": str(config.proof_summary_chain_audit_path),
             "protocol_lane_status_report": str(config.protocol_lane_status_report_path),
             "protocol_lane_readiness": str(config.protocol_lane_readiness_path),
+            "post_decision_contract_plan": str(config.post_decision_contract_plan_path),
         },
         "mainline_current_state_section_present": bool(current_section),
         "expected_next_action_id": expected_next_action_id,
@@ -238,6 +254,20 @@ def build_manifest(config: MainlineFormalGateStateAuditConfig) -> dict[str, Any]
         "protocol_lane_readiness_status_mentioned": protocol_lane_readiness["status"] in current_section,
         "protocol_lane_readiness_shared_artifact_count_mentioned": (
             str(protocol_lane_readiness["shared_next_success_attempt_artifact_count"]) in current_section
+        ),
+        "post_decision_contract_plan_summary": post_decision_contract_plan,
+        "post_decision_contract_plan_artifact_mentioned": (
+            post_decision_contract_plan["artifact_name"] in current_section
+        ),
+        "post_decision_contract_plan_status_mentioned": post_decision_contract_plan["status"] in current_section,
+        "post_decision_contract_plan_required_section_count_mentioned": (
+            str(post_decision_contract_plan["required_contract_section_count"]) in current_section
+        ),
+        "post_decision_contract_plan_shared_artifact_count_mentioned": (
+            str(post_decision_contract_plan["shared_next_success_attempt_artifact_count"]) in current_section
+        ),
+        "post_decision_contract_plan_lane_count_mentioned": (
+            str(post_decision_contract_plan["lane_count"]) in current_section
         ),
         "mainline_missing_deliverable_mention_count": sum(1 for row in deliverable_rows if not row["mentioned"]),
         "deliverable_rows": deliverable_rows,
