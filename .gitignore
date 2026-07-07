@@ -44,3 +44,6 @@ Thumbs.db
 # iDb-RRT upstream source/build and per-query wrapper scratch files stay local.
 2_experiment/idb_rrt_strict_repro/upstream/
 2_experiment/idb_rrt_strict_repro/runs/
+
+# Gate3 formal model binaries stay local; manifests/checksum CSVs are tracked.
+0_trials/module2_gate3_formal_v3/**/final_model.zip

@@ -45,3 +45,6 @@ performance claim or paper results material.
 - D1 completed 2026-07-07: local ForestNav worktree clean at HEAD 88290120a081c0099ee58890577fb01e011f13f6 before creating this contract.
 - D2 completed 2026-07-07: contract file created verbatim from approved text and committed as 2f324e1baf7ffea809319924792b8cc00df54db6.
 - D3 completed 2026-07-07: remote /home/ubuntu/ForestNav converted to a real git checkout using GitHub plus incremental bundle; final verification is captured in run manifests.
+- D4 completed 2026-07-07: gate seed 20260706 trained/evaluated for 256 episodes at source_head b4b7360634efa82dcf68f3769563e69a01092746 after fixing invalid heldout query sampling; audit artifact recorded blocker contract_status_not_approved_or_frozen and evaluator_decision fail.
+- D5 completed 2026-07-07: robustness-only seeds 20260708 and 20260709 trained/evaluated for 256 episodes each at the same source_head; their manifests mark provenance_verified true and robustness_only_not_gate_evidence.
+- D6 completed 2026-07-07: formal_summary.md and formal_summary.csv generated; gate verdict is FAIL because seed 20260706 terminal_rs_success_rate is 0.6836 < 0.80.

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "gate_name": "module2_f03_gate3",
+  "contract": ".pipeline/contracts/module2-rl-rs-gate3-formal-v3.md",
+  "contract_status": "approved_by_dr_sun",
+  "decision": "fail",
+  "decision_rule": "pass iff episodes >= min_episodes and terminal_rs_success_rate >= success_threshold",
+  "success_threshold": 0.8,
+  "min_episodes": 256,
+  "episodes": 256,
+  "terminal_rs_success": 182,
+  "terminal_rs_success_rate": 0.7109375,
+  "collision": 63,
+  "collision_rate": 0.24609375,
+  "truncated": 11,
+  "truncation_rate": 0.04296875,
+  "nn_forward_time_s": 1.399074693210423,
+  "mean_nn_forward_time_s": 0.005465135520353215,
+  "model": "0_trials/module2_gate3_formal_v3/seed20260709/train/final_model.zip",
+  "model_sha256": "ae97501bd75f4d832bd400c9a6b42e8f73b71ab6a955fa1cb956a155357fc1a2",
+  "episodes_csv": "0_trials/module2_gate3_formal_v3/seed20260709/eval/gate3_eval_episodes.csv",
+  "created_at_utc": "2026-07-07T12:41:06.378581+00:00",
+  "execution_host": "ubuntu-OMEN-by-HP-Laptop-17-ck1xxx",
+  "source_head": "b4b7360634efa82dcf68f3769563e69a01092746",
+  "config": {
+    "command": "python -m forest_n3p.scripts.eval_rl_rs_gate3 --allow-duplicate-openmp --contract-path .pipeline/contracts/module2-rl-rs-gate3-formal-v3.md --model 0_trials/module2_gate3_formal_v3/seed20260709/train/final_model.zip --output-dir 0_trials/module2_gate3_formal_v3/seed20260709/eval --seed 20260709 --device cuda --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260709 --episodes 256 --min-episodes 256 --success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32",
+    "contract": ".pipeline/contracts/module2-rl-rs-gate3-formal-v3.md",
+    "contract_status": "approved_by_dr_sun",
+    "allow_unapproved_contract_for_smoke": false,
+    "seed": 20260709,
+    "device": "cuda",
+    "curriculum_preset": "f03",
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "heldout_seed": 20260709,
+    "episodes": 256,
+    "observation_config": {
+      "patch_size_m": 6.4,
+      "patch_cells": 64,
+      "include_edt": true,
+      "edt_clip_m": 2.0
+    },
+    "env_config": {
+      "max_steps": 32,
+      "action_step_m": 0.3,
+      "collision_sample_step_m": 0.1,
+      "terminal_check_every": 1,
+      "theta_bins": 72
+    }
+  }
+}

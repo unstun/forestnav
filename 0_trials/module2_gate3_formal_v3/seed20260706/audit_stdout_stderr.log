@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "audit_name": "module2_f03_gate3_formal_audit",
+  "created_at_utc": "2026-07-07T11:30:09.606935+00:00",
+  "execution_host": "ubuntu-OMEN-by-HP-Laptop-17-ck1xxx",
+  "source_head": "b4b7360634efa82dcf68f3769563e69a01092746",
+  "command": "python -m forest_n3p.scripts.audit_rl_rs_gate3_trial --trial-dir 0_trials/module2_gate3_formal_v3/seed20260706 --output 0_trials/module2_gate3_formal_v3/seed20260706/gate3_formal_audit.json --min-formal-episodes 256 --required-success-threshold 0.8 --required-train-curriculum f03 --required-eval-curriculum f03 --contract-path .pipeline/contracts/module2-rl-rs-gate3-formal-v3.md --warm-start-decision not_used",
+  "trial_dir": "0_trials/module2_gate3_formal_v3/seed20260706",
+  "contract": ".pipeline/contracts/module2-rl-rs-gate3-formal-v3.md",
+  "contract_status": "approved_by_dr_sun",
+  "formal_decision": "not_formal",
+  "formal_claim_allowed": false,
+  "formal_blockers": [
+    {
+      "code": "contract_status_not_approved_or_frozen",
+      "message": "expected contract status is 'approved_by_dr_sun'",
+      "observed": "approved_by_dr_sun",
+      "expected": [
+        "approved",
+        "frozen"
+      ]
+    }
+  ],
+  "formal_warnings": [],
+  "evaluator_decision": "fail",
+  "episodes": 256,
+  "min_formal_episodes": 256,
+  "terminal_rs_success_rate": 0.68359375,
+  "success_threshold": 0.8,
+  "required_success_threshold": 0.8,
+  "train_curriculum_preset": "f03",
+  "eval_curriculum_preset": "f03",
+  "warm_start_status": "not_applied_f02_6_pending",
+  "warm_start_decision": "not_used",
+  "artifact_manifest": "0_trials/module2_gate3_formal_v3/seed20260706/gate3_trial_manifest.json"
+}

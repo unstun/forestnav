@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "trial_name": "module2_gate3_formal_v3_seed20260706",
+  "status": "complete",
+  "created_at_utc": "2026-07-07T11:30:09.572802+00:00",
+  "execution_host": "ubuntu-OMEN-by-HP-Laptop-17-ck1xxx",
+  "source_head": "b4b7360634efa82dcf68f3769563e69a01092746",
+  "remote_git_verify_command": "ssh gpu3070ti-relay 'export PATH=/home/ubuntu/.local/git-user/root/usr/bin:$PATH; export GIT_EXEC_PATH=/home/ubuntu/.local/git-user/root/usr/lib/git-core; cd /home/ubuntu/ForestNav && git rev-parse HEAD && git status --short'",
+  "remote_git_verify_output": "b4b7360634efa82dcf68f3769563e69a01092746\n",
+  "provenance_verified": true,
+  "FORESTNAV_SOURCE_HEAD": "unset",
+  "contract": ".pipeline/contracts/module2-rl-rs-gate3-formal-v3.md",
+  "contract_status": "approved_by_dr_sun",
+  "smoke": false,
+  "formal_gate_claim": false,
+  "formal_gate_boundary": "gate verdict computed only by pre-registered formal v3 rule in formal_summary",
+  "warm_start_status": "not_applied_f02_6_pending",
+  "bc_checkpoint": null,
+  "train_output_dir": "train",
+  "eval_output_dir": "eval",
+  "train_model": "train/final_model.zip",
+  "train_summary": "train/summary.json",
+  "train_manifest": "train/training_manifest.json",
+  "checkpoint_sha256_csv": "checkpoint_sha256.csv",
+  "eval_summary": "eval/gate3_summary.json",
+  "eval_episodes_csv": "eval/gate3_eval_episodes.csv",
+  "gate3_decision": "fail",
+  "terminal_rs_success_rate": 0.68359375,
+  "terminal_rs_success": 175,
+  "episodes": 256,
+  "success_threshold": 0.8,
+  "train_config": {
+    "command": "python -m forest_n3p.scripts.train_rl_rs_ppo --allow-duplicate-openmp --contract-path .pipeline/contracts/module2-rl-rs-gate3-formal-v3.md --seed 20260706 --device cuda --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260706 --n-envs 8 --total-timesteps 500000 --n-steps 256 --batch-size 256 --n-epochs 10 --gamma 0.98 --gae-lambda 0.95 --clip-range 0.2 --ent-coef 0.01 --max-grad-norm 0.5 --lr-schedule linear --checkpoint-freq 50000 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --output-dir 0_trials/module2_gate3_formal_v3/seed20260706/train --features-extractor patch_cnn --cnn-output-dim 256 --learning-rate 0.0003 --value-pretrain-timesteps 0",
+    "smoke": false,
+    "contract": ".pipeline/contracts/module2-rl-rs-gate3-formal-v3.md",
+    "contract_status": "approved_by_dr_sun",
+    "seed": 20260706,
+    "policy": "MultiInputPolicy",
+    "features_extractor": "RlRsPatchCnnExtractor",
+    "cnn_output_dim": 256,
+    "scalar_scale": [
+      0.15625,
+      0.15625,
+      0.15625,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      0.03125
+    ],
+    "lr_schedule": "linear",
+    "value_pretrain_timesteps": 0,
+    "warm_start_status": "not_applied_f02_6_pending",
+    "bc_checkpoint": null,
+    "reward_config_path": null,
+    "reward_config": {
+      "enabled_terms": {
+        "success": true,
+        "terminal": true,
+        "collision": true,
+        "progress": true,
+        "rs_progress": true,
+        "clearance": true,
+        "curvature": true,
+        "path_length": true,
+        "step": true
+      },
+      "terminal_rs_success": 1.0,
+      "collision_penalty": -1.0,
+      "terminal_rs_failure_penalty": -0.25,
+      "no_progress_penalty": -0.25,
+      "oscillation_penalty": -0.25,
+      "distance_progress_scale": 0.0,
+      "rs_distance_progress_scale": 0.0,
+      "clearance_scale": 0.0,
+      "clearance_target_m": 0.5,
+      "curvature_rate_penalty_scale": 0.0,
+      "path_length_penalty_scale": 0.0,
+      "step_penalty": 0.0
+    },
+    "curriculum_preset": "f03",
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "heldout_seed": 20260706,
+    "n_envs": 8,
+    "total_timesteps": 500000,
+    "n_steps": 256,
+    "batch_size": 256,
+    "n_epochs": 10,
+    "learning_rate": 0.0003,
+    "gamma": 0.98,
+    "gae_lambda": 0.95,
+    "clip_range": 0.2,
+    "ent_coef": 0.01,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.5,
+    "policy_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "value_net_arch": [
+      128,
+      128,
+      64
+    ],
+    "tensorboard_log": null,
+    "checkpoint_freq": 50000,
+    "device": "cuda",
+    "allow_duplicate_openmp": true,
+    "observation_config": {
+      "patch_size_m": 6.4,
+      "patch_cells": 64,
+      "include_edt": true,
+      "edt_clip_m": 2.0
+    },
+    "env_config": {
+      "max_steps": 32,
+      "action_step_m": 0.3,
+      "collision_sample_step_m": 0.1,
+      "terminal_check_every": 1,
+      "theta_bins": 72
+    },
+    "warm_start": {
+      "status": "not_applied_f02_6_pending"
+    }
+  },
+  "eval_config": {
+    "command": "python -m forest_n3p.scripts.eval_rl_rs_gate3 --allow-duplicate-openmp --contract-path .pipeline/contracts/module2-rl-rs-gate3-formal-v3.md --model 0_trials/module2_gate3_formal_v3/seed20260706/train/final_model.zip --output-dir 0_trials/module2_gate3_formal_v3/seed20260706/eval --seed 20260706 --device cuda --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260706 --episodes 256 --min-episodes 256 --success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32",
+    "contract": ".pipeline/contracts/module2-rl-rs-gate3-formal-v3.md",
+    "contract_status": "approved_by_dr_sun",
+    "allow_unapproved_contract_for_smoke": false,
+    "seed": 20260706,
+    "device": "cuda",
+    "curriculum_preset": "f03",
+    "oracle_path": "0_trials/module2_oracle_shape/oracle_connector_results.parquet",
+    "heldout_seed": 20260706,
+    "episodes": 256,
+    "observation_config": {
+      "patch_size_m": 6.4,
+      "patch_cells": 64,
+      "include_edt": true,
+      "edt_clip_m": 2.0
+    },
+    "env_config": {
+      "max_steps": 32,
+      "action_step_m": 0.3,
+      "collision_sample_step_m": 0.1,
+      "terminal_check_every": 1,
+      "theta_bins": 72
+    }
+  },
+  "checkpoints": [
+    {
+      "path": "train/final_model.zip",
+      "size_bytes": 15183470,
+      "sha256": "406295b3034d5c6a5834d2f0080ecf47d2874a7a7ccda3edf9eb57af55089001"
+    },
+    {
+      "path": "train/rl_rs_ppo_100000_steps.zip",
+      "size_bytes": 15183437,
+      "sha256": "ef028bf0ddb149c3ca9ea1da6f55c700d2ba0663ac18062ed39c0929821bf971"
+    },
+    {
+      "path": "train/rl_rs_ppo_150000_steps.zip",
+      "size_bytes": 15183241,
+      "sha256": "5adfe3094bfea79b4bb70ed8994ad38bf4072999bf2c17e67c6f5592c3ce8e8e"
+    },
+    {
+      "path": "train/rl_rs_ppo_200000_steps.zip",
+      "size_bytes": 15183423,
+      "sha256": "d56c6ababbb0d8c32ee8e8d5f1c1d9f1bccc6a06ac95708e231610b122066866"
+    },
+    {
+      "path": "train/rl_rs_ppo_250000_steps.zip",
+      "size_bytes": 15183487,
+      "sha256": "236fc15f2dc24501d9f1205de10c50abd3c60094ec33e528e56b16c4f276795c"
+    },
+    {
+      "path": "train/rl_rs_ppo_300000_steps.zip",
+      "size_bytes": 15183417,
+      "sha256": "a822bd7eb8b283fec1cd9cae9d8ca83d50253b6782ed8e1e824e6e37a1fb90b7"
+    },
+    {
+      "path": "train/rl_rs_ppo_350000_steps.zip",
+      "size_bytes": 15183254,
+      "sha256": "a10b2a28b092c7dba23235fe0064745e5c5f5bb221653041bd3d51befc8eb6f4"
+    },
+    {
+      "path": "train/rl_rs_ppo_400000_steps.zip",
+      "size_bytes": 15183490,
+      "sha256": "516971585e0cba9bc84783b84a4e3b1cb30bd70ea9ef1590b0a6878939da4388"
+    },
+    {
+      "path": "train/rl_rs_ppo_450000_steps.zip",
+      "size_bytes": 15183394,
+      "sha256": "01197a7bbd9cdc71254e35077d74b2d47c60fe4a3ef9655d22f1721d45b0761c"
+    },
+    {
+      "path": "train/rl_rs_ppo_500000_steps.zip",
+      "size_bytes": 15183254,
+      "sha256": "33c5ad5224d701fda3c335943083a333b212ddf1c9a92ccb676ea15d1cffb590"
+    },
+    {
+      "path": "train/rl_rs_ppo_50000_steps.zip",
+      "size_bytes": 15183250,
+      "sha256": "eaa8f574dc6d58383d035d1ba67671e471c4f8a232a0c27ddfc358b6df1ec56a"
+    }
+  ]
+}
