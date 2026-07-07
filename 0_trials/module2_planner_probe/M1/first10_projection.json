@@ -1,0 +1,9 @@
+{
+  "method_label": "M1",
+  "method": "ha_single_rs",
+  "elapsed_first10_s": 12.289196567959152,
+  "previous_elapsed_s": 0.0,
+  "projected_total_probe_wall_clock_s": 294.94071763101965,
+  "hard_cap_s": 21600,
+  "decision": "continue"
+}

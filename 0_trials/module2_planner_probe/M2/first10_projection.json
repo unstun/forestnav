@@ -1,0 +1,9 @@
+{
+  "method_label": "M2",
+  "method": "ha_dang_multi_rs",
+  "elapsed_first10_s": 12.209671729011461,
+  "previous_elapsed_s": 117.7670694119297,
+  "projected_total_probe_wall_clock_s": 313.1218170761131,
+  "hard_cap_s": 21600,
+  "decision": "continue"
+}

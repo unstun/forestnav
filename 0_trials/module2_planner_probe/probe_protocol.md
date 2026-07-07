@@ -378,3 +378,299 @@ Output:
   "has_easy": false
 }
 ```
+
+### D4 remote HEAD and preflight verification
+
+Command:
+
+```text
+git push origin main
+```
+
+Output:
+
+```text
+To https://github.com/unstun/forestnav.git
+   95a6e80a..f2043f60  main -> main
+```
+
+Command:
+
+```text
+ssh -o BatchMode=yes -o ConnectTimeout=20 gpu3070ti-relay 'export PATH=/home/ubuntu/.local/git-user/root/usr/bin:$PATH; export GIT_EXEC_PATH=/home/ubuntu/.local/git-user/root/usr/lib/git-core; cd /home/ubuntu/ForestNav && git pull --ff-only origin main && printf "HEAD=" && git rev-parse HEAD && printf "STATUS_START\n" && git status --short && printf "STATUS_END\n"'
+```
+
+Output excerpt:
+
+```text
+Updating b4b73606..f2043f60
+Fast-forward
+HEAD=f2043f60b0c46bea3d90ac27b0afc59e7af80ffa
+STATUS_START
+STATUS_END
+```
+
+Command:
+
+```text
+ssh -o BatchMode=yes -o ConnectTimeout=20 gpu3070ti-relay 'cd /home/ubuntu/ForestNav && PYTHONPATH=2_experiment python3 -m forest_n3p.scripts.run_main_evaluation --output-dir 0_trials/module2_planner_probe/preflight_check --preflight-only --methods ha_single_rs,ha_dang_multi_rs,ha_rl_rs_ppo --module2-rl-rs-checkpoint 0_trials/module2_gate3_formal_v3/seed20260709/train/final_model.zip --module2-rl-rs-device cuda --queries-per-bucket 40 --seed-count 5 --queries-per-map 5 --seed 20260710 --density-profile-buckets validation_t06 --allow-unresolved-human-review --no-enforce-t14-scale'
+```
+
+Output:
+
+```text
+{
+  "ok_to_run": true,
+  "blocking_issues": [],
+  "warnings": [
+    "T14 formal scale is not satisfied: queries_per_bucket=40, seed_count=5"
+  ],
+  "available_methods": [
+    "ha_single_rs",
+    "ha_dang_multi_rs",
+    "ha_rl_rs_ppo"
+  ],
+  "unavailable_methods": {},
+  "cutpoint_supplement_reviewed": true,
+  "human_review_satisfied": true,
+  "human_review_decisions": {
+    "D-T14-09": "revise_to_validation_cutpoints",
+    "D-T14-10": "approve",
+    "D-T14-11": "formal_baseline",
+    "D-T14-12": "approve_after_rerun_passes"
+  },
+  "profile_bucket_satisfied": true,
+  "profile_bucket_issues": [],
+  "t14_scale_satisfied": false
+}
+```
+
+### D4 method runs
+
+Initial runner guard attempts stopped before producing any query result rows:
+
+```text
+preflight failed: T14 formal scale is not satisfied: queries_per_bucket=40, seed_count=5
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+remote worktree is dirty before M2: ?? 0_trials/module2_planner_probe/M1/
+```
+
+The final method runner kept the frozen query/method protocol, set the
+non-formal preflight flags, parsed tuple-form poses with `ast.literal_eval`,
+and allowed existing probe artifacts under `0_trials/module2_planner_probe/`.
+
+M1 output:
+
+```text
+{
+  "event": "first10_projection",
+  "method_label": "M1",
+  "elapsed_first10_s": 12.289196567959152,
+  "projected_total_probe_wall_clock_s": 294.94071763101965,
+  "hard_cap_s": 21600,
+  "decision": "continue"
+}
+{
+  "event": "method_complete",
+  "method_label": "M1",
+  "method": "ha_single_rs",
+  "record_count": 80,
+  "elapsed_s": 117.7670694119297,
+  "records_csv": "0_trials/module2_planner_probe/M1/records.csv",
+  "summary_csv": "0_trials/module2_planner_probe/M1/summary_by_method_bucket.csv"
+}
+```
+
+M2 output:
+
+```text
+{
+  "event": "first10_projection",
+  "method_label": "M2",
+  "elapsed_first10_s": 12.209671729011461,
+  "projected_total_probe_wall_clock_s": 313.1218170761131,
+  "hard_cap_s": 21600,
+  "decision": "continue"
+}
+{
+  "event": "method_complete",
+  "method_label": "M2",
+  "method": "ha_dang_multi_rs",
+  "record_count": 80,
+  "elapsed_s": 110.61274681705981,
+  "records_csv": "0_trials/module2_planner_probe/M2/records.csv",
+  "summary_csv": "0_trials/module2_planner_probe/M2/summary_by_method_bucket.csv"
+}
+```
+
+M3 output:
+
+```text
+{
+  "event": "first10_projection",
+  "method_label": "M3",
+  "elapsed_first10_s": 3.0660314100096002,
+  "projected_total_probe_wall_clock_s": 252.9080675090663,
+  "hard_cap_s": 21600,
+  "decision": "continue"
+}
+{
+  "event": "method_complete",
+  "method_label": "M3",
+  "method": "ha_rl_rs_ppo",
+  "record_count": 80,
+  "elapsed_s": 27.378519446006976,
+  "records_csv": "0_trials/module2_planner_probe/M3/records.csv",
+  "summary_csv": "0_trials/module2_planner_probe/M3/summary_by_method_bucket.csv"
+}
+```
+
+Artifact row-count and summary check:
+
+```text
+===M1===
+81 0_trials/module2_planner_probe/M1/records.csv
+method,difficulty_bucket,count,success_count,success_rate,feasible_count,feasible_rate,median_time_s,p95_time_s,min_time_s,mean_time_s,median_expansions,p95_expansions,median_path_inflation_ratio,p95_path_inflation_ratio,mean_direction_switches,median_min_clearance_m,collision_violation_total,timeout_failure_count,timeout_failure_rate,mean_nn_forward_time_s,p95_nn_forward_time_s,rl_attempts_total,rl_successes_total,rs_attempts_total,fallback_to_primitives_total,fallback_trigger_rate,fallback_f1_rate,fallback_f2_rate,fallback_f3_rate,subgoal_reachability_rate
+ha_single_rs,Complex,40,27,0.675,27,0.675,0.5061970949172974,2.500512087345123,0.14861249923706055,1.1294766902923583,737.5,6537.9,,,0.075,0.07471674501239656,0,13,0.325,,,0,0,15895,15868,0.0,0.0,0.0,0.0,
+ha_single_rs,Extreme,40,29,0.725,29,0.725,0.5843369960784912,2.5004774808883665,0.14948225021362305,1.1290342509746552,870.0,6195.599999999997,,,0.05,0.0740610045356227,0,11,0.275,,,0,0,15040,15011,0.0,0.0,0.0,0.0,
+===M2===
+81 0_trials/module2_planner_probe/M2/records.csv
+method,difficulty_bucket,count,success_count,success_rate,feasible_count,feasible_rate,median_time_s,p95_time_s,min_time_s,mean_time_s,median_expansions,p95_expansions,median_path_inflation_ratio,p95_path_inflation_ratio,mean_direction_switches,median_min_clearance_m,collision_violation_total,timeout_failure_count,timeout_failure_rate,mean_nn_forward_time_s,p95_nn_forward_time_s,rl_attempts_total,rl_successes_total,rs_attempts_total,fallback_to_primitives_total,fallback_trigger_rate,fallback_f1_rate,fallback_f2_rate,fallback_f3_rate,subgoal_reachability_rate
+ha_dang_multi_rs,Complex,40,30,0.75,30,0.75,0.3686326742172241,2.5014402508735656,0.14766359329223633,1.0043807864189147,355.5,3977.4,0.0008847975238512884,0.010603501449517981,0.225,0.07612920516718086,0,10,0.25,,,0,0,94622,8572,0.0,0.0,0.0,0.0,
+ha_dang_multi_rs,Extreme,40,27,0.675,27,0.675,0.49147212505340576,2.5012007355690002,0.14449572563171387,1.1186229050159455,562.5,4613.249999999997,0.0021408187306177773,0.0130081350906569,0.05,0.07392835269278875,0,13,0.325,,,0,0,113421,10284,0.0,0.0,0.0,0.0,
+===M3===
+81 0_trials/module2_planner_probe/M3/records.csv
+method,difficulty_bucket,count,success_count,success_rate,feasible_count,feasible_rate,median_time_s,p95_time_s,min_time_s,mean_time_s,median_expansions,p95_expansions,median_path_inflation_ratio,p95_path_inflation_ratio,mean_direction_switches,median_min_clearance_m,collision_violation_total,timeout_failure_count,timeout_failure_rate,mean_nn_forward_time_s,p95_nn_forward_time_s,rl_attempts_total,rl_successes_total,rs_attempts_total,fallback_to_primitives_total,fallback_trigger_rate,fallback_f1_rate,fallback_f2_rate,fallback_f3_rate,subgoal_reachability_rate
+ha_rl_rs_ppo,Complex,40,0,0.0,0,0.0,7.185591232031584,10.730790820019319,0.3090991040226072,5.927807051729178,0.0,0.0,,,0.0,,0,0,0.0,,,0,0,0,0,0.0,0.0,0.0,0.0,
+ha_rl_rs_ppo,Extreme,40,0,0.0,0,0.0,20.34174762101611,27.373118291120043,11.613336240989156,20.071489422384182,0.0,0.0,,,0.0,,0,0,0.0,,,0,0,0,0,0.0,0.0,0.0,0.0,
+```
+
+Failure-reason check:
+
+```text
+{
+  "label": "M1",
+  "rows": 80,
+  "failure_reasons": {
+    "": 56,
+    "timeout": 24
+  }
+}
+{
+  "label": "M2",
+  "rows": 80,
+  "failure_reasons": {
+    "": 57,
+    "timeout": 23
+  }
+}
+{
+  "label": "M3",
+  "rows": 80,
+  "failure_reasons": {
+    "m3_exception:ModuleNotFoundError": 80
+  }
+}
+```
+
+### D5 probe summary generation
+
+Command:
+
+```text
+PYTHONPATH=2_experiment python3 - <<'PY'
+# Aggregate M1/M2/M3 records into probe_summary.md, probe_summary.csv,
+# paired_m3_vs_m1.csv, and probe_band_verdict.json.
+PY
+```
+
+Output:
+
+```text
+{
+  "reported_band": "no_signal",
+  "raw_numeric_band": "weak_signal",
+  "success_delta_pp_m3_minus_m1_extreme": -72.5,
+  "time_ratio_m3_over_m1_extreme": 34.811671616773175,
+  "expansions_ratio_m3_over_m1_extreme": 0.0,
+  "m3_exception_count": 80,
+  "probe_summary_md": "0_trials/module2_planner_probe/probe_summary.md",
+  "probe_summary_csv": "0_trials/module2_planner_probe/probe_summary.csv",
+  "paired_csv": "0_trials/module2_planner_probe/paired_m3_vs_m1.csv"
+}
+```
+
+Artifact/schema verification command:
+
+```text
+PYTHONPATH=2_experiment python3 - <<'PY'
+# Check 80 records per method, two summary rows per method, required A02.3
+# telemetry columns, zero collision violations, summary files, and band JSON.
+PY
+```
+
+Output:
+
+```text
+{
+  "M1": {
+    "collision_violation_total": 0,
+    "failure_reasons": {
+      "": 56,
+      "timeout": 24
+    },
+    "missing_record_cols": [],
+    "missing_summary_cols": [],
+    "records_rows": 80,
+    "summary_rows": 2
+  },
+  "M2": {
+    "collision_violation_total": 0,
+    "failure_reasons": {
+      "": 57,
+      "timeout": 23
+    },
+    "missing_record_cols": [],
+    "missing_summary_cols": [],
+    "records_rows": 80,
+    "summary_rows": 2
+  },
+  "M3": {
+    "collision_violation_total": 0,
+    "failure_reasons": {
+      "m3_exception:ModuleNotFoundError": 80
+    },
+    "missing_record_cols": [],
+    "missing_summary_cols": [],
+    "records_rows": 80,
+    "summary_rows": 2
+  },
+  "paired_m3_vs_m1.csv": {
+    "bytes": 11478,
+    "exists": true
+  },
+  "probe_band_verdict.json": {
+    "bytes": 467,
+    "exists": true
+  },
+  "probe_summary.csv": {
+    "bytes": 1577,
+    "exists": true
+  },
+  "probe_summary.md": {
+    "bytes": 3224,
+    "exists": true
+  },
+  "verdict": {
+    "expansions_ratio_m3_over_m1_extreme": 0.0,
+    "m3_exception_count": 80,
+    "paired_csv": "0_trials/module2_planner_probe/paired_m3_vs_m1.csv",
+    "probe_summary_csv": "0_trials/module2_planner_probe/probe_summary.csv",
+    "probe_summary_md": "0_trials/module2_planner_probe/probe_summary.md",
+    "raw_numeric_band": "weak_signal",
+    "reported_band": "no_signal",
+    "success_delta_pp_m3_minus_m1_extreme": -72.5,
+    "time_ratio_m3_over_m1_extreme": 34.811671616773175
+  }
+}
+```

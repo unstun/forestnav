@@ -1,0 +1,9 @@
+{
+  "method_label": "M3",
+  "method": "ha_rl_rs_ppo",
+  "elapsed_first10_s": 3.0660314100096002,
+  "previous_elapsed_s": 228.3798162289895,
+  "projected_total_probe_wall_clock_s": 252.9080675090663,
+  "hard_cap_s": 21600,
+  "decision": "continue"
+}

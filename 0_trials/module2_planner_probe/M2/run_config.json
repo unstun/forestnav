@@ -1,0 +1,43 @@
+{
+  "method_label": "M2",
+  "method": "ha_dang_multi_rs",
+  "source_head": "f2043f60b0c46bea3d90ac27b0afc59e7af80ffa",
+  "start_utc": "2026-07-07T17:32:43.789416+00:00",
+  "end_utc": "2026-07-07T17:34:34.402168+00:00",
+  "elapsed_s": 110.61274681705981,
+  "query_count": 80,
+  "record_count": 80,
+  "bucket_counts": {
+    "Complex": 40,
+    "Extreme": 40
+  },
+  "b2_checked_at_query": 10,
+  "b2_projected_total_probe_wall_clock_s": 313.1218170761131,
+  "preflight": {
+    "ok_to_run": true,
+    "blocking_issues": [],
+    "warnings": [
+      "T14 formal scale is not satisfied: queries_per_bucket=40, seed_count=5"
+    ],
+    "available_methods": [
+      "ha_dang_multi_rs"
+    ],
+    "unavailable_methods": {},
+    "cutpoint_supplement_reviewed": true,
+    "human_review_satisfied": true,
+    "human_review_decisions": {
+      "D-T14-09": "revise_to_validation_cutpoints",
+      "D-T14-10": "approve",
+      "D-T14-11": "formal_baseline",
+      "D-T14-12": "approve_after_rerun_passes"
+    },
+    "profile_bucket_satisfied": true,
+    "profile_bucket_issues": [],
+    "t14_scale_satisfied": false
+  },
+  "outputs": {
+    "records_csv": "0_trials/module2_planner_probe/M2/records.csv",
+    "summary_csv": "0_trials/module2_planner_probe/M2/summary_by_method_bucket.csv",
+    "summary_json": "0_trials/module2_planner_probe/M2/summary.json"
+  }
+}
