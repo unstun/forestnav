@@ -162,6 +162,19 @@ def test_heldout_query_sampler_uses_heldout_seed_and_records_metadata():
     assert sampler.last_metadata.map_seed != 20360620
 
 
+def test_heldout_query_sampler_skips_queries_that_reconstruct_to_colliding_context():
+    sampler = HeldoutQueryContextSampler(seed=20260706, config=CurriculumContextConfig())
+
+    context = sampler(np.random.default_rng(4))
+
+    checker = context.collision_checker()
+    assert not checker.collides_pose(context.start.x, context.start.y, context.start.theta)
+    assert not checker.collides_pose(context.goal.x, context.goal.y, context.goal.theta)
+    assert sampler.last_metadata is not None
+    assert sampler.last_metadata.query_id != "extreme_s00_q0004"
+    assert sampler.skipped_invalid_queries == 1
+
+
 def test_weighted_curriculum_metadata_is_exposed_by_gym_reset():
     sampler = WeightedCurriculumContextSampler(
         stages=(OpenConnectorContextSampler(config=_small_config()),),

@@ -207,26 +207,40 @@ class HeldoutQueryContextSampler:
             raise ValueError("heldout query sampler has no queries after bucket filtering")
         self._map_cache: dict[tuple[str, int], GridMap] = {}
         self.last_metadata: CurriculumSampleMetadata | None = None
+        self.skipped_invalid_queries = 0
+        self.last_invalid_metadata: CurriculumSampleMetadata | None = None
 
     def __call__(self, rng: np.random.Generator) -> AnalyticExpansionContext:
-        query = self.queries[int(rng.integers(0, len(self.queries)))]
-        grid_map = self._grid_for_query(query)
-        self.last_metadata = CurriculumSampleMetadata(
-            stage="heldout_procedural",
-            source="main_evaluation_build_query_set",
-            query_id=query.query_id,
-            difficulty_bucket=query.difficulty_bucket,
-            profile_name=query.profile_name,
-            map_seed=int(query.map_seed),
-            query_seed=int(query.query_seed),
-            distance_bin_key=query.distance_bin_key,
-        )
-        return _build_context(
-            grid_map,
-            AckermannState(*query.start),
-            AckermannState(*query.goal),
-            self.config,
-        )
+        max_attempts = max(32, 2 * len(self.queries))
+        for _ in range(max_attempts):
+            query = self.queries[int(rng.integers(0, len(self.queries)))]
+            grid_map = self._grid_for_query(query)
+            metadata = CurriculumSampleMetadata(
+                stage="heldout_procedural",
+                source="main_evaluation_build_query_set",
+                query_id=query.query_id,
+                difficulty_bucket=query.difficulty_bucket,
+                profile_name=query.profile_name,
+                map_seed=int(query.map_seed),
+                query_seed=int(query.query_seed),
+                distance_bin_key=query.distance_bin_key,
+            )
+            try:
+                context = _build_context(
+                    grid_map,
+                    AckermannState(*query.start),
+                    AckermannState(*query.goal),
+                    self.config,
+                )
+            except ValueError as exc:
+                if "sampled curriculum" not in str(exc):
+                    raise
+                self.skipped_invalid_queries += 1
+                self.last_invalid_metadata = metadata
+                continue
+            self.last_metadata = metadata
+            return context
+        raise RuntimeError(f"failed to sample valid heldout query context after {max_attempts} attempts")
 
     def _grid_for_query(self, query: Any) -> GridMap:
         key = (str(query.profile_name), int(query.map_seed))
