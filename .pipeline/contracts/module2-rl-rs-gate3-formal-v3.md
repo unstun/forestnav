@@ -42,3 +42,6 @@ performance claim or paper results material.
 
 ## Progress
 (appended one line per completed D-item)
+- D1 completed 2026-07-07: local ForestNav worktree clean at HEAD 88290120a081c0099ee58890577fb01e011f13f6 before creating this contract.
+- D2 completed 2026-07-07: contract file created verbatim from approved text and committed as 2f324e1baf7ffea809319924792b8cc00df54db6.
+- D3 completed 2026-07-07: remote /home/ubuntu/ForestNav converted to a real git checkout using GitHub plus incremental bundle; final verification is captured in run manifests.
