@@ -1,0 +1,1702 @@
+{
+  "schema_version": 1,
+  "status": "diagnostic_non_formal_query_manifest",
+  "source": "forest_n3p.main_evaluation.build_query_set with validation_main_evaluation_profiles, filtered to Complex/Extreme",
+  "seed": 20260710,
+  "queries_per_bucket": 40,
+  "seed_count": 5,
+  "queries_per_map": 5,
+  "bucket_counts": {
+    "Complex": 40,
+    "Extreme": 40
+  },
+  "query_count": 80,
+  "method_order": [
+    "ha_single_rs",
+    "ha_dang_multi_rs",
+    "ha_rl_rs_ppo"
+  ],
+  "queries_csv": "0_trials/module2_planner_probe/query_manifest.csv",
+  "queries": [
+    {
+      "query_id": "complex_s00_q0000",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d02",
+      "map_seed": 20360710,
+      "query_seed": 20361710,
+      "seed_index": 0,
+      "map_index": 0,
+      "query_index": 0,
+      "distance_bin_key": "d08_12",
+      "start": [
+        15.4,
+        14.4,
+        0.47177751118075006
+      ],
+      "goal": [
+        25.200000000000003,
+        19.400000000000002,
+        0.47177751118075006
+      ]
+    },
+    {
+      "query_id": "complex_s00_q0001",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d03",
+      "map_seed": 20360710,
+      "query_seed": 20361711,
+      "seed_index": 0,
+      "map_index": 0,
+      "query_index": 1,
+      "distance_bin_key": "d12_16",
+      "start": [
+        19.3,
+        25.6,
+        -2.879133253763517
+      ],
+      "goal": [
+        5.9,
+        22.0,
+        -2.879133253763517
+      ]
+    },
+    {
+      "query_id": "complex_s00_q0002",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d04",
+      "map_seed": 20360710,
+      "query_seed": 20361712,
+      "seed_index": 0,
+      "map_index": 0,
+      "query_index": 2,
+      "distance_bin_key": "d16_20",
+      "start": [
+        11.4,
+        21.5,
+        -0.20812220444420654
+      ],
+      "goal": [
+        27.5,
+        18.1,
+        -0.20812220444420654
+      ]
+    },
+    {
+      "query_id": "complex_s00_q0003",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d02",
+      "map_seed": 20360710,
+      "query_seed": 20361713,
+      "seed_index": 0,
+      "map_index": 0,
+      "query_index": 3,
+      "distance_bin_key": "d20_inf",
+      "start": [
+        13.700000000000001,
+        24.6,
+        -0.8168343447537226
+      ],
+      "goal": [
+        29.1,
+        8.200000000000001,
+        -0.8168343447537226
+      ]
+    },
+    {
+      "query_id": "complex_s00_q0004",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d03",
+      "map_seed": 20360710,
+      "query_seed": 20361714,
+      "seed_index": 0,
+      "map_index": 0,
+      "query_index": 4,
+      "distance_bin_key": "d08_12",
+      "start": [
+        14.3,
+        24.200000000000003,
+        -0.3407184690010689
+      ],
+      "goal": [
+        25.3,
+        20.3,
+        -0.3407184690010689
+      ]
+    },
+    {
+      "query_id": "complex_s00_q0005",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d04",
+      "map_seed": 20360711,
+      "query_seed": 20361711,
+      "seed_index": 0,
+      "map_index": 1,
+      "query_index": 0,
+      "distance_bin_key": "d12_16",
+      "start": [
+        1.8,
+        18.0,
+        0.22527677921405537
+      ],
+      "goal": [
+        16.2,
+        21.3,
+        0.22527677921405537
+      ]
+    },
+    {
+      "query_id": "complex_s00_q0006",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d02",
+      "map_seed": 20360711,
+      "query_seed": 20361712,
+      "seed_index": 0,
+      "map_index": 1,
+      "query_index": 1,
+      "distance_bin_key": "d16_20",
+      "start": [
+        26.900000000000002,
+        20.400000000000002,
+        -2.301703033951614
+      ],
+      "goal": [
+        13.9,
+        5.9,
+        -2.301703033951614
+      ]
+    },
+    {
+      "query_id": "complex_s00_q0007",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d03",
+      "map_seed": 20360711,
+      "query_seed": 20361713,
+      "seed_index": 0,
+      "map_index": 1,
+      "query_index": 2,
+      "distance_bin_key": "d20_inf",
+      "start": [
+        3.1,
+        10.0,
+        -0.25904573048913976
+      ],
+      "goal": [
+        23.1,
+        4.7,
+        -0.25904573048913976
+      ]
+    },
+    {
+      "query_id": "complex_s01_q0008",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d04",
+      "map_seed": 20370710,
+      "query_seed": 20371710,
+      "seed_index": 1,
+      "map_index": 0,
+      "query_index": 0,
+      "distance_bin_key": "d08_12",
+      "start": [
+        12.5,
+        8.200000000000001,
+        -2.4206213296178984
+      ],
+      "goal": [
+        5.9,
+        2.4000000000000004,
+        -2.4206213296178984
+      ]
+    },
+    {
+      "query_id": "complex_s01_q0009",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d02",
+      "map_seed": 20370710,
+      "query_seed": 20371711,
+      "seed_index": 1,
+      "map_index": 0,
+      "query_index": 1,
+      "distance_bin_key": "d12_16",
+      "start": [
+        5.0,
+        10.100000000000001,
+        0.5924273534318786
+      ],
+      "goal": [
+        15.4,
+        17.1,
+        0.5924273534318786
+      ]
+    },
+    {
+      "query_id": "complex_s01_q0010",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d03",
+      "map_seed": 20370710,
+      "query_seed": 20371712,
+      "seed_index": 1,
+      "map_index": 0,
+      "query_index": 2,
+      "distance_bin_key": "d16_20",
+      "start": [
+        16.5,
+        13.5,
+        -2.5716801816979085
+      ],
+      "goal": [
+        2.3000000000000003,
+        4.4,
+        -2.5716801816979085
+      ]
+    },
+    {
+      "query_id": "complex_s01_q0011",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d04",
+      "map_seed": 20370710,
+      "query_seed": 20371713,
+      "seed_index": 1,
+      "map_index": 0,
+      "query_index": 3,
+      "distance_bin_key": "d20_inf",
+      "start": [
+        3.4000000000000004,
+        2.5,
+        0.9955203088387787
+      ],
+      "goal": [
+        20.0,
+        28.1,
+        0.9955203088387787
+      ]
+    },
+    {
+      "query_id": "complex_s01_q0012",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d02",
+      "map_seed": 20370710,
+      "query_seed": 20371714,
+      "seed_index": 1,
+      "map_index": 0,
+      "query_index": 4,
+      "distance_bin_key": "d08_12",
+      "start": [
+        25.700000000000003,
+        17.2,
+        1.5616222722497868
+      ],
+      "goal": [
+        25.8,
+        28.1,
+        1.5616222722497868
+      ]
+    },
+    {
+      "query_id": "complex_s01_q0013",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d03",
+      "map_seed": 20370711,
+      "query_seed": 20371711,
+      "seed_index": 1,
+      "map_index": 1,
+      "query_index": 0,
+      "distance_bin_key": "d12_16",
+      "start": [
+        24.1,
+        3.9000000000000004,
+        1.823762040525465
+      ],
+      "goal": [
+        20.3,
+        18.6,
+        1.823762040525465
+      ]
+    },
+    {
+      "query_id": "complex_s01_q0014",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d04",
+      "map_seed": 20370711,
+      "query_seed": 20371712,
+      "seed_index": 1,
+      "map_index": 1,
+      "query_index": 1,
+      "distance_bin_key": "d16_20",
+      "start": [
+        16.2,
+        3.9000000000000004,
+        2.376434640834135
+      ],
+      "goal": [
+        3.6,
+        16.0,
+        2.376434640834135
+      ]
+    },
+    {
+      "query_id": "complex_s01_q0015",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d02",
+      "map_seed": 20370711,
+      "query_seed": 20371713,
+      "seed_index": 1,
+      "map_index": 1,
+      "query_index": 2,
+      "distance_bin_key": "d20_inf",
+      "start": [
+        6.4,
+        11.700000000000001,
+        -0.4226723390639361
+      ],
+      "goal": [
+        29.3,
+        1.4000000000000001,
+        -0.4226723390639361
+      ]
+    },
+    {
+      "query_id": "complex_s02_q0016",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d03",
+      "map_seed": 20380710,
+      "query_seed": 20381710,
+      "seed_index": 2,
+      "map_index": 0,
+      "query_index": 0,
+      "distance_bin_key": "d08_12",
+      "start": [
+        7.0,
+        3.0,
+        0.3511538426006473
+      ],
+      "goal": [
+        17.1,
+        6.7,
+        0.3511538426006473
+      ]
+    },
+    {
+      "query_id": "complex_s02_q0017",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d04",
+      "map_seed": 20380710,
+      "query_seed": 20381711,
+      "seed_index": 2,
+      "map_index": 0,
+      "query_index": 1,
+      "distance_bin_key": "d12_16",
+      "start": [
+        13.8,
+        16.0,
+        -2.282879802089074
+      ],
+      "goal": [
+        5.6000000000000005,
+        6.5,
+        -2.282879802089074
+      ]
+    },
+    {
+      "query_id": "complex_s02_q0018",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d02",
+      "map_seed": 20380710,
+      "query_seed": 20381712,
+      "seed_index": 2,
+      "map_index": 0,
+      "query_index": 2,
+      "distance_bin_key": "d16_20",
+      "start": [
+        25.700000000000003,
+        16.7,
+        -2.970658119812984
+      ],
+      "goal": [
+        8.9,
+        13.8,
+        -2.970658119812984
+      ]
+    },
+    {
+      "query_id": "complex_s02_q0019",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d03",
+      "map_seed": 20380710,
+      "query_seed": 20381713,
+      "seed_index": 2,
+      "map_index": 0,
+      "query_index": 3,
+      "distance_bin_key": "d20_inf",
+      "start": [
+        24.400000000000002,
+        12.200000000000001,
+        2.9012328952599855
+      ],
+      "goal": [
+        4.0,
+        17.2,
+        2.9012328952599855
+      ]
+    },
+    {
+      "query_id": "complex_s02_q0020",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d04",
+      "map_seed": 20380710,
+      "query_seed": 20381714,
+      "seed_index": 2,
+      "map_index": 0,
+      "query_index": 4,
+      "distance_bin_key": "d08_12",
+      "start": [
+        9.5,
+        15.3,
+        0.6188147667376848
+      ],
+      "goal": [
+        16.1,
+        20.0,
+        0.6188147667376848
+      ]
+    },
+    {
+      "query_id": "complex_s02_q0021",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d02",
+      "map_seed": 20380711,
+      "query_seed": 20381711,
+      "seed_index": 2,
+      "map_index": 1,
+      "query_index": 0,
+      "distance_bin_key": "d12_16",
+      "start": [
+        28.1,
+        1.4000000000000001,
+        1.4890119461769007
+      ],
+      "goal": [
+        29.1,
+        13.600000000000001,
+        1.4890119461769007
+      ]
+    },
+    {
+      "query_id": "complex_s02_q0022",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d03",
+      "map_seed": 20380711,
+      "query_seed": 20381712,
+      "seed_index": 2,
+      "map_index": 1,
+      "query_index": 1,
+      "distance_bin_key": "d16_20",
+      "start": [
+        10.0,
+        19.200000000000003,
+        -0.4450882552963662
+      ],
+      "goal": [
+        27.400000000000002,
+        10.9,
+        -0.4450882552963662
+      ]
+    },
+    {
+      "query_id": "complex_s02_q0023",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d04",
+      "map_seed": 20380711,
+      "query_seed": 20381713,
+      "seed_index": 2,
+      "map_index": 1,
+      "query_index": 2,
+      "distance_bin_key": "d20_inf",
+      "start": [
+        16.6,
+        5.800000000000001,
+        2.3300566533089917
+      ],
+      "goal": [
+        1.7000000000000002,
+        21.5,
+        2.3300566533089917
+      ]
+    },
+    {
+      "query_id": "complex_s03_q0024",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d02",
+      "map_seed": 20390710,
+      "query_seed": 20391710,
+      "seed_index": 3,
+      "map_index": 0,
+      "query_index": 0,
+      "distance_bin_key": "d08_12",
+      "start": [
+        3.8000000000000003,
+        15.600000000000001,
+        0.8999388601941297
+      ],
+      "goal": [
+        8.8,
+        21.900000000000002,
+        0.8999388601941297
+      ]
+    },
+    {
+      "query_id": "complex_s03_q0025",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d03",
+      "map_seed": 20390710,
+      "query_seed": 20391711,
+      "seed_index": 3,
+      "map_index": 0,
+      "query_index": 1,
+      "distance_bin_key": "d12_16",
+      "start": [
+        7.2,
+        3.0,
+        -0.16628246377688244
+      ],
+      "goal": [
+        21.5,
+        0.6000000000000001,
+        -0.16628246377688244
+      ]
+    },
+    {
+      "query_id": "complex_s03_q0026",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d04",
+      "map_seed": 20390710,
+      "query_seed": 20391712,
+      "seed_index": 3,
+      "map_index": 0,
+      "query_index": 2,
+      "distance_bin_key": "d16_20",
+      "start": [
+        17.7,
+        7.4,
+        2.4944374806700735
+      ],
+      "goal": [
+        4.6000000000000005,
+        17.3,
+        2.4944374806700735
+      ]
+    },
+    {
+      "query_id": "complex_s03_q0027",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d02",
+      "map_seed": 20390710,
+      "query_seed": 20391713,
+      "seed_index": 3,
+      "map_index": 0,
+      "query_index": 3,
+      "distance_bin_key": "d20_inf",
+      "start": [
+        21.900000000000002,
+        6.9,
+        2.311179874417818
+      ],
+      "goal": [
+        6.0,
+        24.3,
+        2.311179874417818
+      ]
+    },
+    {
+      "query_id": "complex_s03_q0028",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d03",
+      "map_seed": 20390710,
+      "query_seed": 20391714,
+      "seed_index": 3,
+      "map_index": 0,
+      "query_index": 4,
+      "distance_bin_key": "d08_12",
+      "start": [
+        14.100000000000001,
+        14.600000000000001,
+        1.6361237964182482
+      ],
+      "goal": [
+        13.4,
+        25.3,
+        1.6361237964182482
+      ]
+    },
+    {
+      "query_id": "complex_s03_q0029",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d04",
+      "map_seed": 20390711,
+      "query_seed": 20391711,
+      "seed_index": 3,
+      "map_index": 1,
+      "query_index": 0,
+      "distance_bin_key": "d12_16",
+      "start": [
+        27.3,
+        16.0,
+        -2.9414115856239045
+      ],
+      "goal": [
+        13.5,
+        13.200000000000001,
+        -2.9414115856239045
+      ]
+    },
+    {
+      "query_id": "complex_s03_q0030",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d02",
+      "map_seed": 20390711,
+      "query_seed": 20391712,
+      "seed_index": 3,
+      "map_index": 1,
+      "query_index": 1,
+      "distance_bin_key": "d16_20",
+      "start": [
+        15.0,
+        11.100000000000001,
+        1.5707963267948966
+      ],
+      "goal": [
+        15.0,
+        27.200000000000003,
+        1.5707963267948966
+      ]
+    },
+    {
+      "query_id": "complex_s03_q0031",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d03",
+      "map_seed": 20390711,
+      "query_seed": 20391713,
+      "seed_index": 3,
+      "map_index": 1,
+      "query_index": 2,
+      "distance_bin_key": "d20_inf",
+      "start": [
+        26.3,
+        7.9,
+        2.931852041895688
+      ],
+      "goal": [
+        6.1000000000000005,
+        12.200000000000001,
+        2.931852041895688
+      ]
+    },
+    {
+      "query_id": "complex_s04_q0032",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d04",
+      "map_seed": 20400710,
+      "query_seed": 20401710,
+      "seed_index": 4,
+      "map_index": 0,
+      "query_index": 0,
+      "distance_bin_key": "d08_12",
+      "start": [
+        3.9000000000000004,
+        18.1,
+        -1.644059460534136
+      ],
+      "goal": [
+        3.1,
+        7.2,
+        -1.644059460534136
+      ]
+    },
+    {
+      "query_id": "complex_s04_q0033",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d02",
+      "map_seed": 20400710,
+      "query_seed": 20401711,
+      "seed_index": 4,
+      "map_index": 0,
+      "query_index": 1,
+      "distance_bin_key": "d12_16",
+      "start": [
+        22.6,
+        25.700000000000003,
+        -2.2371429226466604
+      ],
+      "goal": [
+        13.4,
+        14.0,
+        -2.2371429226466604
+      ]
+    },
+    {
+      "query_id": "complex_s04_q0034",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d03",
+      "map_seed": 20400710,
+      "query_seed": 20401712,
+      "seed_index": 4,
+      "map_index": 0,
+      "query_index": 2,
+      "distance_bin_key": "d16_20",
+      "start": [
+        22.700000000000003,
+        21.8,
+        -2.0183163019520665
+      ],
+      "goal": [
+        14.3,
+        4.3,
+        -2.0183163019520665
+      ]
+    },
+    {
+      "query_id": "complex_s04_q0035",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d04",
+      "map_seed": 20400710,
+      "query_seed": 20401713,
+      "seed_index": 4,
+      "map_index": 0,
+      "query_index": 3,
+      "distance_bin_key": "d20_inf",
+      "start": [
+        27.900000000000002,
+        10.3,
+        2.4500653755316812
+      ],
+      "goal": [
+        6.4,
+        28.1,
+        2.4500653755316812
+      ]
+    },
+    {
+      "query_id": "complex_s04_q0036",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d02",
+      "map_seed": 20400710,
+      "query_seed": 20401714,
+      "seed_index": 4,
+      "map_index": 0,
+      "query_index": 4,
+      "distance_bin_key": "d08_12",
+      "start": [
+        28.0,
+        15.8,
+        2.9191453881638516
+      ],
+      "goal": [
+        19.6,
+        17.7,
+        2.9191453881638516
+      ]
+    },
+    {
+      "query_id": "complex_s04_q0037",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d03",
+      "map_seed": 20400711,
+      "query_seed": 20401711,
+      "seed_index": 4,
+      "map_index": 1,
+      "query_index": 0,
+      "distance_bin_key": "d12_16",
+      "start": [
+        6.300000000000001,
+        17.3,
+        -0.3172662795218262
+      ],
+      "goal": [
+        19.700000000000003,
+        12.9,
+        -0.3172662795218262
+      ]
+    },
+    {
+      "query_id": "complex_s04_q0038",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d04",
+      "map_seed": 20400711,
+      "query_seed": 20401712,
+      "seed_index": 4,
+      "map_index": 1,
+      "query_index": 1,
+      "distance_bin_key": "d16_20",
+      "start": [
+        26.900000000000002,
+        3.5,
+        1.6147240938717864
+      ],
+      "goal": [
+        26.1,
+        21.700000000000003,
+        1.6147240938717864
+      ]
+    },
+    {
+      "query_id": "complex_s04_q0039",
+      "difficulty_bucket": "Complex",
+      "profile_name": "complex_d02",
+      "map_seed": 20400711,
+      "query_seed": 20401713,
+      "seed_index": 4,
+      "map_index": 1,
+      "query_index": 2,
+      "distance_bin_key": "d20_inf",
+      "start": [
+        22.5,
+        10.3,
+        2.3361398726080984
+      ],
+      "goal": [
+        5.4,
+        28.1,
+        2.3361398726080984
+      ]
+    },
+    {
+      "query_id": "extreme_s00_q0000",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d05",
+      "map_seed": 20460710,
+      "query_seed": 20461710,
+      "seed_index": 0,
+      "map_index": 0,
+      "query_index": 0,
+      "distance_bin_key": "d08_12",
+      "start": [
+        21.8,
+        19.0,
+        -0.9321613596409115
+      ],
+      "goal": [
+        26.700000000000003,
+        12.4,
+        -0.9321613596409115
+      ]
+    },
+    {
+      "query_id": "extreme_s00_q0001",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d06",
+      "map_seed": 20460710,
+      "query_seed": 20461711,
+      "seed_index": 0,
+      "map_index": 0,
+      "query_index": 1,
+      "distance_bin_key": "d12_16",
+      "start": [
+        17.1,
+        24.5,
+        -2.8949692551039132
+      ],
+      "goal": [
+        2.8000000000000003,
+        20.900000000000002,
+        -2.8949692551039132
+      ]
+    },
+    {
+      "query_id": "extreme_s00_q0002",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d07",
+      "map_seed": 20460710,
+      "query_seed": 20461712,
+      "seed_index": 0,
+      "map_index": 0,
+      "query_index": 2,
+      "distance_bin_key": "d16_20",
+      "start": [
+        21.400000000000002,
+        28.6,
+        -2.5093963047192416
+      ],
+      "goal": [
+        5.7,
+        17.1,
+        -2.5093963047192416
+      ]
+    },
+    {
+      "query_id": "extreme_s00_q0003",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d05",
+      "map_seed": 20460710,
+      "query_seed": 20461713,
+      "seed_index": 0,
+      "map_index": 0,
+      "query_index": 3,
+      "distance_bin_key": "d20_inf",
+      "start": [
+        23.1,
+        4.6000000000000005,
+        1.917463841684838
+      ],
+      "goal": [
+        16.2,
+        23.700000000000003,
+        1.917463841684838
+      ]
+    },
+    {
+      "query_id": "extreme_s00_q0004",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d06",
+      "map_seed": 20460710,
+      "query_seed": 20461714,
+      "seed_index": 0,
+      "map_index": 0,
+      "query_index": 4,
+      "distance_bin_key": "d08_12",
+      "start": [
+        3.3000000000000003,
+        15.600000000000001,
+        1.631944489444198
+      ],
+      "goal": [
+        2.7,
+        25.400000000000002,
+        1.631944489444198
+      ]
+    },
+    {
+      "query_id": "extreme_s00_q0005",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d07",
+      "map_seed": 20460711,
+      "query_seed": 20461711,
+      "seed_index": 0,
+      "map_index": 1,
+      "query_index": 0,
+      "distance_bin_key": "d12_16",
+      "start": [
+        13.600000000000001,
+        22.900000000000002,
+        -0.0624188099959574
+      ],
+      "goal": [
+        26.400000000000002,
+        22.1,
+        -0.0624188099959574
+      ]
+    },
+    {
+      "query_id": "extreme_s00_q0006",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d05",
+      "map_seed": 20460711,
+      "query_seed": 20461712,
+      "seed_index": 0,
+      "map_index": 1,
+      "query_index": 1,
+      "distance_bin_key": "d16_20",
+      "start": [
+        25.900000000000002,
+        1.3,
+        2.1982295972438655
+      ],
+      "goal": [
+        16.400000000000002,
+        14.4,
+        2.1982295972438655
+      ]
+    },
+    {
+      "query_id": "extreme_s00_q0007",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d06",
+      "map_seed": 20460711,
+      "query_seed": 20461713,
+      "seed_index": 0,
+      "map_index": 1,
+      "query_index": 2,
+      "distance_bin_key": "d20_inf",
+      "start": [
+        8.3,
+        0.6000000000000001,
+        0.970136171413277
+      ],
+      "goal": [
+        24.400000000000002,
+        24.1,
+        0.970136171413277
+      ]
+    },
+    {
+      "query_id": "extreme_s01_q0008",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d07",
+      "map_seed": 20470710,
+      "query_seed": 20471710,
+      "seed_index": 1,
+      "map_index": 0,
+      "query_index": 0,
+      "distance_bin_key": "d08_12",
+      "start": [
+        13.3,
+        27.6,
+        -2.2993452428595074
+      ],
+      "goal": [
+        7.5,
+        21.1,
+        -2.2993452428595074
+      ]
+    },
+    {
+      "query_id": "extreme_s01_q0009",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d05",
+      "map_seed": 20470710,
+      "query_seed": 20471711,
+      "seed_index": 1,
+      "map_index": 0,
+      "query_index": 1,
+      "distance_bin_key": "d12_16",
+      "start": [
+        4.9,
+        7.5,
+        1.5564088304059709
+      ],
+      "goal": [
+        5.1000000000000005,
+        21.400000000000002,
+        1.5564088304059709
+      ]
+    },
+    {
+      "query_id": "extreme_s01_q0010",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d06",
+      "map_seed": 20470710,
+      "query_seed": 20471712,
+      "seed_index": 1,
+      "map_index": 0,
+      "query_index": 2,
+      "distance_bin_key": "d16_20",
+      "start": [
+        25.0,
+        11.5,
+        -2.6501100082017346
+      ],
+      "goal": [
+        8.0,
+        2.4000000000000004,
+        -2.6501100082017346
+      ]
+    },
+    {
+      "query_id": "extreme_s01_q0011",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d07",
+      "map_seed": 20470710,
+      "query_seed": 20471713,
+      "seed_index": 1,
+      "map_index": 0,
+      "query_index": 3,
+      "distance_bin_key": "d20_inf",
+      "start": [
+        8.3,
+        18.2,
+        -0.5948596389325237
+      ],
+      "goal": [
+        28.400000000000002,
+        4.6000000000000005,
+        -0.5948596389325237
+      ]
+    },
+    {
+      "query_id": "extreme_s01_q0012",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d05",
+      "map_seed": 20470710,
+      "query_seed": 20471714,
+      "seed_index": 1,
+      "map_index": 0,
+      "query_index": 4,
+      "distance_bin_key": "d08_12",
+      "start": [
+        24.400000000000002,
+        20.900000000000002,
+        -1.855526765317609
+      ],
+      "goal": [
+        22.0,
+        12.700000000000001,
+        -1.855526765317609
+      ]
+    },
+    {
+      "query_id": "extreme_s01_q0013",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d06",
+      "map_seed": 20470711,
+      "query_seed": 20471711,
+      "seed_index": 1,
+      "map_index": 1,
+      "query_index": 0,
+      "distance_bin_key": "d12_16",
+      "start": [
+        12.9,
+        14.9,
+        -1.3083369269686203
+      ],
+      "goal": [
+        16.5,
+        1.5,
+        -1.3083369269686203
+      ]
+    },
+    {
+      "query_id": "extreme_s01_q0014",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d07",
+      "map_seed": 20470711,
+      "query_seed": 20471712,
+      "seed_index": 1,
+      "map_index": 1,
+      "query_index": 1,
+      "distance_bin_key": "d16_20",
+      "start": [
+        28.5,
+        17.7,
+        -2.304003124605241
+      ],
+      "goal": [
+        15.8,
+        3.6,
+        -2.304003124605241
+      ]
+    },
+    {
+      "query_id": "extreme_s01_q0015",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d05",
+      "map_seed": 20470711,
+      "query_seed": 20471713,
+      "seed_index": 1,
+      "map_index": 1,
+      "query_index": 2,
+      "distance_bin_key": "d20_inf",
+      "start": [
+        28.900000000000002,
+        15.9,
+        3.0733228465329656
+      ],
+      "goal": [
+        5.5,
+        17.5,
+        3.0733228465329656
+      ]
+    },
+    {
+      "query_id": "extreme_s02_q0016",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d06",
+      "map_seed": 20480710,
+      "query_seed": 20481710,
+      "seed_index": 2,
+      "map_index": 0,
+      "query_index": 0,
+      "distance_bin_key": "d08_12",
+      "start": [
+        2.1,
+        17.900000000000002,
+        0.7594299761858919
+      ],
+      "goal": [
+        10.0,
+        25.400000000000002,
+        0.7594299761858919
+      ]
+    },
+    {
+      "query_id": "extreme_s02_q0017",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d07",
+      "map_seed": 20480710,
+      "query_seed": 20481711,
+      "seed_index": 2,
+      "map_index": 0,
+      "query_index": 1,
+      "distance_bin_key": "d12_16",
+      "start": [
+        15.5,
+        3.3000000000000003,
+        1.820383252231881
+      ],
+      "goal": [
+        11.600000000000001,
+        18.6,
+        1.820383252231881
+      ]
+    },
+    {
+      "query_id": "extreme_s02_q0018",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d05",
+      "map_seed": 20480710,
+      "query_seed": 20481712,
+      "seed_index": 2,
+      "map_index": 0,
+      "query_index": 2,
+      "distance_bin_key": "d16_20",
+      "start": [
+        7.800000000000001,
+        22.6,
+        0.22768931976865586
+      ],
+      "goal": [
+        24.200000000000003,
+        26.400000000000002,
+        0.22768931976865586
+      ]
+    },
+    {
+      "query_id": "extreme_s02_q0019",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d06",
+      "map_seed": 20480710,
+      "query_seed": 20481713,
+      "seed_index": 2,
+      "map_index": 0,
+      "query_index": 3,
+      "distance_bin_key": "d20_inf",
+      "start": [
+        1.1,
+        22.400000000000002,
+        0.012145151796912175
+      ],
+      "goal": [
+        25.8,
+        22.700000000000003,
+        0.012145151796912175
+      ]
+    },
+    {
+      "query_id": "extreme_s02_q0020",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d07",
+      "map_seed": 20480710,
+      "query_seed": 20481714,
+      "seed_index": 2,
+      "map_index": 0,
+      "query_index": 4,
+      "distance_bin_key": "d08_12",
+      "start": [
+        16.400000000000002,
+        23.900000000000002,
+        2.6635919633151666
+      ],
+      "goal": [
+        8.1,
+        28.200000000000003,
+        2.6635919633151666
+      ]
+    },
+    {
+      "query_id": "extreme_s02_q0021",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d05",
+      "map_seed": 20480711,
+      "query_seed": 20481711,
+      "seed_index": 2,
+      "map_index": 1,
+      "query_index": 0,
+      "distance_bin_key": "d12_16",
+      "start": [
+        10.100000000000001,
+        21.6,
+        -1.5942295366743642
+      ],
+      "goal": [
+        9.8,
+        8.8,
+        -1.5942295366743642
+      ]
+    },
+    {
+      "query_id": "extreme_s02_q0022",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d06",
+      "map_seed": 20480711,
+      "query_seed": 20481712,
+      "seed_index": 2,
+      "map_index": 1,
+      "query_index": 1,
+      "distance_bin_key": "d16_20",
+      "start": [
+        13.700000000000001,
+        26.5,
+        -1.7640078106427026
+      ],
+      "goal": [
+        10.100000000000001,
+        8.1,
+        -1.7640078106427026
+      ]
+    },
+    {
+      "query_id": "extreme_s02_q0023",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d07",
+      "map_seed": 20480711,
+      "query_seed": 20481713,
+      "seed_index": 2,
+      "map_index": 1,
+      "query_index": 2,
+      "distance_bin_key": "d20_inf",
+      "start": [
+        1.8,
+        26.6,
+        -0.6393245221002208
+      ],
+      "goal": [
+        28.700000000000003,
+        6.6000000000000005,
+        -0.6393245221002208
+      ]
+    },
+    {
+      "query_id": "extreme_s03_q0024",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d05",
+      "map_seed": 20490710,
+      "query_seed": 20491710,
+      "seed_index": 3,
+      "map_index": 0,
+      "query_index": 0,
+      "distance_bin_key": "d08_12",
+      "start": [
+        10.600000000000001,
+        12.3,
+        0.6121524969450836
+      ],
+      "goal": [
+        20.0,
+        18.900000000000002,
+        0.6121524969450836
+      ]
+    },
+    {
+      "query_id": "extreme_s03_q0025",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d06",
+      "map_seed": 20490710,
+      "query_seed": 20491711,
+      "seed_index": 3,
+      "map_index": 0,
+      "query_index": 1,
+      "distance_bin_key": "d12_16",
+      "start": [
+        24.200000000000003,
+        23.3,
+        -1.5783719394460922
+      ],
+      "goal": [
+        24.1,
+        10.100000000000001,
+        -1.5783719394460922
+      ]
+    },
+    {
+      "query_id": "extreme_s03_q0026",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d07",
+      "map_seed": 20490710,
+      "query_seed": 20491712,
+      "seed_index": 3,
+      "map_index": 0,
+      "query_index": 2,
+      "distance_bin_key": "d16_20",
+      "start": [
+        16.6,
+        2.8000000000000003,
+        1.250704145670669
+      ],
+      "goal": [
+        22.6,
+        20.900000000000002,
+        1.250704145670669
+      ]
+    },
+    {
+      "query_id": "extreme_s03_q0027",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d05",
+      "map_seed": 20490710,
+      "query_seed": 20491713,
+      "seed_index": 3,
+      "map_index": 0,
+      "query_index": 3,
+      "distance_bin_key": "d20_inf",
+      "start": [
+        10.8,
+        4.4,
+        1.5522799247268875
+      ],
+      "goal": [
+        11.200000000000001,
+        26.0,
+        1.5522799247268875
+      ]
+    },
+    {
+      "query_id": "extreme_s03_q0028",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d06",
+      "map_seed": 20490710,
+      "query_seed": 20491714,
+      "seed_index": 3,
+      "map_index": 0,
+      "query_index": 4,
+      "distance_bin_key": "d08_12",
+      "start": [
+        16.3,
+        12.0,
+        2.733724685615883
+      ],
+      "goal": [
+        8.200000000000001,
+        15.5,
+        2.733724685615883
+      ]
+    },
+    {
+      "query_id": "extreme_s03_q0029",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d07",
+      "map_seed": 20490711,
+      "query_seed": 20491711,
+      "seed_index": 3,
+      "map_index": 1,
+      "query_index": 0,
+      "distance_bin_key": "d12_16",
+      "start": [
+        26.400000000000002,
+        20.0,
+        2.6078844619505315
+      ],
+      "goal": [
+        13.200000000000001,
+        27.8,
+        2.6078844619505315
+      ]
+    },
+    {
+      "query_id": "extreme_s03_q0030",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d05",
+      "map_seed": 20490711,
+      "query_seed": 20491712,
+      "seed_index": 3,
+      "map_index": 1,
+      "query_index": 1,
+      "distance_bin_key": "d16_20",
+      "start": [
+        21.3,
+        6.1000000000000005,
+        1.4366377247688393
+      ],
+      "goal": [
+        23.5,
+        22.400000000000002,
+        1.4366377247688393
+      ]
+    },
+    {
+      "query_id": "extreme_s03_q0031",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d06",
+      "map_seed": 20490711,
+      "query_seed": 20491713,
+      "seed_index": 3,
+      "map_index": 1,
+      "query_index": 2,
+      "distance_bin_key": "d20_inf",
+      "start": [
+        1.0,
+        14.0,
+        0.07640599300582902
+      ],
+      "goal": [
+        21.900000000000002,
+        15.600000000000001,
+        0.07640599300582902
+      ]
+    },
+    {
+      "query_id": "extreme_s04_q0032",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d07",
+      "map_seed": 20500710,
+      "query_seed": 20501710,
+      "seed_index": 4,
+      "map_index": 0,
+      "query_index": 0,
+      "distance_bin_key": "d08_12",
+      "start": [
+        17.5,
+        5.9,
+        2.075894833853894
+      ],
+      "goal": [
+        12.8,
+        14.4,
+        2.075894833853894
+      ]
+    },
+    {
+      "query_id": "extreme_s04_q0033",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d05",
+      "map_seed": 20500710,
+      "query_seed": 20501711,
+      "seed_index": 4,
+      "map_index": 0,
+      "query_index": 1,
+      "distance_bin_key": "d12_16",
+      "start": [
+        11.5,
+        7.5,
+        2.2916078297676727
+      ],
+      "goal": [
+        2.1,
+        18.2,
+        2.2916078297676727
+      ]
+    },
+    {
+      "query_id": "extreme_s04_q0034",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d06",
+      "map_seed": 20500710,
+      "query_seed": 20501712,
+      "seed_index": 4,
+      "map_index": 0,
+      "query_index": 2,
+      "distance_bin_key": "d16_20",
+      "start": [
+        4.1000000000000005,
+        14.600000000000001,
+        -0.2626090780170461
+      ],
+      "goal": [
+        22.700000000000003,
+        9.600000000000001,
+        -0.2626090780170461
+      ]
+    },
+    {
+      "query_id": "extreme_s04_q0035",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d07",
+      "map_seed": 20500710,
+      "query_seed": 20501713,
+      "seed_index": 4,
+      "map_index": 0,
+      "query_index": 3,
+      "distance_bin_key": "d20_inf",
+      "start": [
+        21.1,
+        29.0,
+        -2.194976168732426
+      ],
+      "goal": [
+        9.0,
+        12.200000000000001,
+        -2.194976168732426
+      ]
+    },
+    {
+      "query_id": "extreme_s04_q0036",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d05",
+      "map_seed": 20500710,
+      "query_seed": 20501714,
+      "seed_index": 4,
+      "map_index": 0,
+      "query_index": 4,
+      "distance_bin_key": "d08_12",
+      "start": [
+        12.4,
+        16.0,
+        2.0229501890806723
+      ],
+      "goal": [
+        7.300000000000001,
+        26.5,
+        2.0229501890806723
+      ]
+    },
+    {
+      "query_id": "extreme_s04_q0037",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d06",
+      "map_seed": 20500711,
+      "query_seed": 20501711,
+      "seed_index": 4,
+      "map_index": 1,
+      "query_index": 0,
+      "distance_bin_key": "d12_16",
+      "start": [
+        10.5,
+        25.8,
+        -1.4622502917877087
+      ],
+      "goal": [
+        12.200000000000001,
+        10.200000000000001,
+        -1.4622502917877087
+      ]
+    },
+    {
+      "query_id": "extreme_s04_q0038",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d07",
+      "map_seed": 20500711,
+      "query_seed": 20501712,
+      "seed_index": 4,
+      "map_index": 1,
+      "query_index": 1,
+      "distance_bin_key": "d16_20",
+      "start": [
+        18.1,
+        6.4,
+        2.5887514319972538
+      ],
+      "goal": [
+        4.0,
+        15.100000000000001,
+        2.5887514319972538
+      ]
+    },
+    {
+      "query_id": "extreme_s04_q0039",
+      "difficulty_bucket": "Extreme",
+      "profile_name": "extreme_d05",
+      "map_seed": 20500711,
+      "query_seed": 20501713,
+      "seed_index": 4,
+      "map_index": 1,
+      "query_index": 2,
+      "distance_bin_key": "d20_inf",
+      "start": [
+        18.400000000000002,
+        29.0,
+        -2.2655346029916
+      ],
+      "goal": [
+        4.4,
+        12.200000000000001,
+        -2.2655346029916
+      ]
+    }
+  ]
+}

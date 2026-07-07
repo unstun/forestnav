@@ -186,3 +186,195 @@ train/rl_rs_ppo_450000_steps.zip,15183254,2f26ae20a8631238f703c67c404fe98ff16c95
 train/rl_rs_ppo_500000_steps.zip,15183270,709a781dbe196a79149ae7d77ecb4d075964cff89b340206cdcc7ce403dae237
 train/rl_rs_ppo_50000_steps.zip,15183237,f26b64885074d3d070a4e355c13172c1d223b4c113f525db80e81f8894e1d7bf
 ```
+
+### D2 protocol commit
+
+Command:
+
+```text
+git commit -m "Record module2 planner probe protocol"
+```
+
+Output:
+
+```text
+[main 4ae3cee9] Record module2 planner probe protocol
+ 1 file changed, 188 insertions(+)
+ create mode 100644 0_trials/module2_planner_probe/probe_protocol.md
+```
+
+Command:
+
+```text
+git rev-parse HEAD
+```
+
+Output:
+
+```text
+4ae3cee9ac073b30909455d900b2329d2c886ee8
+```
+
+### D3 query manifest generation
+
+Command:
+
+```text
+PYTHONPATH=2_experiment python3 - <<'PY'
+import csv
+import json
+from dataclasses import asdict
+from pathlib import Path
+
+from forest_n3p.main_evaluation import MainEvaluationConfig, build_query_set, validation_main_evaluation_profiles
+
+out_dir = Path('0_trials/module2_planner_probe')
+out_dir.mkdir(parents=True, exist_ok=True)
+config = MainEvaluationConfig(
+    seed=20260710,
+    queries_per_bucket=40,
+    seed_count=5,
+    queries_per_map=5,
+    profiles=validation_main_evaluation_profiles(),
+    methods=('ha_single_rs', 'ha_dang_multi_rs', 'ha_rl_rs_ppo'),
+    module2_rl_rs_checkpoint=Path('0_trials/module2_gate3_formal_v3/seed20260709/train/final_model.zip'),
+    module2_rl_rs_device='cuda',
+)
+all_queries = build_query_set(config)
+queries = [q for q in all_queries if q.difficulty_bucket in {'Complex', 'Extreme'}]
+if len(queries) != 80:
+    raise SystemExit(f'expected 80 Complex/Extreme queries, got {len(queries)}')
+counts = {}
+for q in queries:
+    counts[q.difficulty_bucket] = counts.get(q.difficulty_bucket, 0) + 1
+if counts != {'Complex': 40, 'Extreme': 40}:
+    raise SystemExit(f'unexpected bucket counts: {counts}')
+fieldnames = list(asdict(queries[0]).keys())
+manifest_csv = out_dir / 'query_manifest.csv'
+with manifest_csv.open('w', newline='', encoding='utf-8') as handle:
+    writer = csv.DictWriter(handle, fieldnames=fieldnames)
+    writer.writeheader()
+    for q in queries:
+        writer.writerow(asdict(q))
+manifest_json = out_dir / 'query_manifest.json'
+payload = {
+    'schema_version': 1,
+    'status': 'diagnostic_non_formal_query_manifest',
+    'source': 'forest_n3p.main_evaluation.build_query_set with validation_main_evaluation_profiles, filtered to Complex/Extreme',
+    'seed': 20260710,
+    'queries_per_bucket': 40,
+    'seed_count': 5,
+    'queries_per_map': 5,
+    'bucket_counts': counts,
+    'query_count': len(queries),
+    'method_order': ['ha_single_rs', 'ha_dang_multi_rs', 'ha_rl_rs_ppo'],
+    'queries_csv': str(manifest_csv),
+    'queries': [asdict(q) for q in queries],
+}
+manifest_json.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding='utf-8')
+print(json.dumps({
+    'query_count': len(queries),
+    'bucket_counts': counts,
+    'first_query': asdict(queries[0]),
+    'last_query': asdict(queries[-1]),
+    'csv': str(manifest_csv),
+    'json': str(manifest_json),
+}, indent=2, ensure_ascii=False))
+PY
+```
+
+Output:
+
+```text
+{
+  "query_count": 80,
+  "bucket_counts": {
+    "Complex": 40,
+    "Extreme": 40
+  },
+  "first_query": {
+    "query_id": "complex_s00_q0000",
+    "difficulty_bucket": "Complex",
+    "profile_name": "complex_d02",
+    "map_seed": 20360710,
+    "query_seed": 20361710,
+    "seed_index": 0,
+    "map_index": 0,
+    "query_index": 0,
+    "distance_bin_key": "d08_12",
+    "start": [
+      15.4,
+      14.4,
+      0.47177751118075006
+    ],
+    "goal": [
+      25.200000000000003,
+      19.400000000000002,
+      0.47177751118075006
+    ]
+  },
+  "last_query": {
+    "query_id": "extreme_s04_q0039",
+    "difficulty_bucket": "Extreme",
+    "profile_name": "extreme_d05",
+    "map_seed": 20500711,
+    "query_seed": 20501713,
+    "seed_index": 4,
+    "map_index": 1,
+    "query_index": 2,
+    "distance_bin_key": "d20_inf",
+    "start": [
+      18.400000000000002,
+      29.0,
+      -2.2655346029916
+    ],
+    "goal": [
+      4.4,
+      12.200000000000001,
+      -2.2655346029916
+    ]
+  },
+  "csv": "0_trials/module2_planner_probe/query_manifest.csv",
+  "json": "0_trials/module2_planner_probe/query_manifest.json"
+}
+```
+
+Command:
+
+```text
+wc -l 0_trials/module2_planner_probe/query_manifest.csv
+```
+
+Output:
+
+```text
+      81 0_trials/module2_planner_probe/query_manifest.csv
+```
+
+Command:
+
+```text
+PYTHONPATH=2_experiment python3 - <<'PY'
+import csv, json
+from pathlib import Path
+path = Path('0_trials/module2_planner_probe/query_manifest.csv')
+rows = list(csv.DictReader(path.open(newline='', encoding='utf-8')))
+counts = {}
+for row in rows:
+    counts[row['difficulty_bucket']] = counts.get(row['difficulty_bucket'], 0) + 1
+print(json.dumps({'rows': len(rows), 'bucket_counts': counts, 'has_easy': 'Easy' in counts}, indent=2))
+PY
+```
+
+Output:
+
+```text
+{
+  "rows": 80,
+  "bucket_counts": {
+    "Complex": 40,
+    "Extreme": 40
+  },
+  "has_easy": false
+}
+```
