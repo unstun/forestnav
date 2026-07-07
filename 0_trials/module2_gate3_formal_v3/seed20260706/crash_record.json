@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "status": "stopped_after_second_identical_training_crash",
+  "contract": ".pipeline/contracts/module2-rl-rs-gate3-formal-v3.md",
+  "contract_stop_condition": "B2",
+  "gate_seed": 20260706,
+  "retry_count_after_first_crash": 1,
+  "source_head": "5db8a07bd25419917f1ed1f35c22dbe2e27931d6",
+  "remote": {
+    "host": "gpu3070ti-relay",
+    "worktree": "/home/ubuntu/ForestNav",
+    "git_verify_command": "ssh gpu3070ti-relay 'export PATH=/home/ubuntu/.local/git-user/root/usr/bin:$PATH; export GIT_EXEC_PATH=/home/ubuntu/.local/git-user/root/usr/lib/git-core; cd /home/ubuntu/ForestNav && git rev-parse HEAD && git status --short'",
+    "git_verify_output": "5db8a07bd25419917f1ed1f35c22dbe2e27931d6\n"
+  },
+  "repro_command_file": "train_command.txt",
+  "stderr_file": "train_stdout_stderr.log",
+  "first_attempt_artifact_dir": "failed_train_attempt_01/train",
+  "second_attempt_artifact_dir": "train",
+  "failure_exception": "ValueError: sampled curriculum start state is in collision",
+  "formal_command_boundary": {
+    "FORESTNAV_SOURCE_HEAD": "unset via env -u FORESTNAV_SOURCE_HEAD",
+    "train_started": true,
+    "train_completed": false,
+    "eval_started": false,
+    "audit_started": false,
+    "supplementary_seeds_started": false,
+    "formal_summary_started": false
+  }
+}
