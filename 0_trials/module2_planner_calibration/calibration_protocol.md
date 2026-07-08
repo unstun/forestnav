@@ -128,4 +128,36 @@ lane-C contract draft, which Dr Sun reviews and approves separately.
 
 ## Progress
 
-(appended as items complete)
+### 2026-07-08 remote sync and environment verification
+
+- Remote worktree initially refused the pull: the probe M3 files were locally
+  modified relative to the old remote HEAD `0de18b9b` (they held the rerun
+  content rsynced during the probe, identical to `origin/main` by SHA256 —
+  verified per file before touching anything). `git checkout -- M3/` then
+  `git pull --ff-only` fast-forwarded cleanly.
+- Remote HEAD after pull: `6b27edeb39b290e0a8045ab8e2895ae89a828f9d` (equals
+  local HEAD at protocol commit); `git status --short` empty.
+- Checkpoint SHA256 on remote: `ae97501b...357fc1a2` — matches the manifest.
+- Training venv import smoke: `env_ok cuda= True`; GPU idle (31 MiB used).
+
+### 2026-07-08 set 1 (base seed 20260810)
+
+- Launched 10:40 remote time via nohup; completed in ~20 minutes:
+  900 records (300 queries x 3 methods), `status: candidate_or_smoke`,
+  `formal_acceptance: false` (expected: not the official T14 method list),
+  `collision_violation_total: 0`, `method_exception_total: 0`.
+- Budget check (first-set projection): 3 sets x ~20 min ≈ 1 h total, far
+  below the 6 h cap — continue.
+- Artifacts rsynced to the local Mac; success rates independently recomputed
+  from `records.csv` and match `summary_by_method_bucket.csv` exactly
+  (M1 0.910/0.850/0.670, M2 0.890/0.870/0.680, M3 0.990/0.920/0.810 for
+  Easy/Complex/Extreme).
+- Known cosmetic defect, recorded not fixed (frozen protocol): remote
+  `run_config.json` has `source_head: unknown` because the harness's git
+  lookup does not see the relay's non-PATH git install. Provenance is covered
+  by the ssh-verified HEAD match above; the same applies to sets 2-3.
+
+### 2026-07-08 sets 2-3 driver
+
+- Sets 20260910 and 20261010 launched sequentially via a nohup'd driver loop
+  on the relay; per-set exit codes append to `sets23_driver.log`.
