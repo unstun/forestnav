@@ -564,6 +564,79 @@ Output:
 m1_m2_diff_after_m3=clean
 ```
 
+### 2026-07-08 D6 combined summary and mechanical band regeneration
+
+Command:
+
+```text
+PYTHONPATH=2_experiment python3 - <<'PY'
+# Regenerate probe_summary.md, probe_summary.csv, paired_m3_vs_m1.csv,
+# and probe_band_verdict.json from unchanged M1/M2 artifacts and rerun M3.
+PY
+```
+
+Output:
+
+```text
+{
+  "reported_band": "no_signal",
+  "success_delta_pp_m3_minus_m1_extreme": 5.000000000000004,
+  "time_ratio_m3_over_m1_extreme": 0.7927760439383782,
+  "expansions_ratio_m3_over_m1_extreme": 0.04252873563218391,
+  "m3_failure_reasons": {
+    "": 67,
+    "timeout": 13
+  },
+  "outputs": {
+    "probe_summary_md": "0_trials/module2_planner_probe/probe_summary.md",
+    "probe_summary_csv": "0_trials/module2_planner_probe/probe_summary.csv",
+    "paired_csv": "0_trials/module2_planner_probe/paired_m3_vs_m1.csv",
+    "probe_band_verdict_json": "0_trials/module2_planner_probe/probe_band_verdict.json"
+  }
+}
+```
+
+Command:
+
+```text
+python3 - <<'PY'
+import csv, json
+from pathlib import Path
+root=Path('0_trials/module2_planner_probe')
+summary=list(csv.DictReader((root/'probe_summary.csv').open(newline='', encoding='utf-8')))
+paired=list(csv.DictReader((root/'paired_m3_vs_m1.csv').open(newline='', encoding='utf-8')))
+verdict=json.loads((root/'probe_band_verdict.json').read_text())
+required_summary={'method_label','method','method_name','difficulty_bucket','query_count','success_rate','timeout_rate','median_expansions','p95_expansions','median_time_s','p95_time_s','collision_violation_total','rl_attempts_total','rl_successes_total','rs_attempts_total','rl_attempt_success_rate','mean_nn_forward_time_s','fallback_to_primitives_total','failure_reasons'}
+print(json.dumps({
+  'probe_summary_rows': len(summary),
+  'probe_summary_missing_cols': sorted(required_summary-set(summary[0])) if summary else sorted(required_summary),
+  'paired_rows': len(paired),
+  'verdict_reported_band': verdict.get('reported_band'),
+  'verdict_success_delta_pp': verdict.get('success_delta_pp_m3_minus_m1_extreme'),
+  'verdict_time_ratio': verdict.get('time_ratio_m3_over_m1_extreme'),
+  'verdict_expansions_ratio': verdict.get('expansions_ratio_m3_over_m1_extreme'),
+  'm3_exception_count': verdict.get('m3_exception_count'),
+}, indent=2))
+if len(summary)!=6 or len(paired)!=80 or verdict.get('reported_band') not in {'strong_signal','weak_signal','no_signal'} or verdict.get('m3_exception_count') != 0:
+    raise SystemExit(1)
+PY
+```
+
+Output:
+
+```text
+{
+  "probe_summary_rows": 6,
+  "probe_summary_missing_cols": [],
+  "paired_rows": 80,
+  "verdict_reported_band": "no_signal",
+  "verdict_success_delta_pp": 5.000000000000004,
+  "verdict_time_ratio": 0.7927760439383782,
+  "verdict_expansions_ratio": 0.04252873563218391,
+  "m3_exception_count": 0
+}
+```
+
 ### 2026-07-08 D1 rerun-only M1/M2 artifact verification
 
 Command:

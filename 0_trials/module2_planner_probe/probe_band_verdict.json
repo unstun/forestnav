@@ -1,10 +1,14 @@
 {
   "reported_band": "no_signal",
-  "raw_numeric_band": "weak_signal",
-  "success_delta_pp_m3_minus_m1_extreme": -72.5,
-  "time_ratio_m3_over_m1_extreme": 34.811671616773175,
-  "expansions_ratio_m3_over_m1_extreme": 0.0,
-  "m3_exception_count": 80,
+  "raw_numeric_band": "no_signal",
+  "success_delta_pp_m3_minus_m1_extreme": 5.000000000000004,
+  "time_ratio_m3_over_m1_extreme": 0.7927760439383782,
+  "expansions_ratio_m3_over_m1_extreme": 0.04252873563218391,
+  "m3_exception_count": 0,
+  "m3_failure_reasons": {
+    "": 67,
+    "timeout": 13
+  },
   "probe_summary_md": "0_trials/module2_planner_probe/probe_summary.md",
   "probe_summary_csv": "0_trials/module2_planner_probe/probe_summary.csv",
   "paired_csv": "0_trials/module2_planner_probe/paired_m3_vs_m1.csv"
