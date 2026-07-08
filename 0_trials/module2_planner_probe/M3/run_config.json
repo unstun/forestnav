@@ -1,18 +1,18 @@
 {
   "method_label": "M3",
   "method": "ha_rl_rs_ppo",
-  "source_head": "f2043f60b0c46bea3d90ac27b0afc59e7af80ffa",
-  "start_utc": "2026-07-07T17:35:32.895372+00:00",
-  "end_utc": "2026-07-07T17:36:00.273895+00:00",
-  "elapsed_s": 27.378519446006976,
+  "source_head": "0de18b9b3c73a9407fab57876056b49b35b4f79a",
+  "start_utc": "2026-07-08T07:34:14.582986+00:00",
+  "end_utc": "2026-07-08T07:35:50.843524+00:00",
+  "elapsed_s": 96.26055181701668,
   "query_count": 80,
   "record_count": 80,
   "bucket_counts": {
     "Complex": 40,
     "Extreme": 40
   },
-  "b2_checked_at_query": 10,
-  "b2_projected_total_probe_wall_clock_s": 252.9080675090663,
+  "query_manifest_reused": "0_trials/module2_planner_probe/query_manifest.csv",
+  "interpreter": "/home/ubuntu/ForestNav.pre_git_20260707T101154Z/.venv/bin/python",
   "preflight": {
     "ok_to_run": true,
     "blocking_issues": [],

@@ -339,6 +339,231 @@ Output:
 }
 ```
 
+### 2026-07-08 D4/D5 M3-only rerun under training venv
+
+Remote git note: `git` is available on gpu3070ti-relay via
+`/home/ubuntu/.local/git-user/root/usr/bin/git`. The remote worktree was
+fast-forwarded after moving prior untracked probe directories to
+`/home/ubuntu/ForestNav_module2_planner_probe_untracked_backup_20260708T073253Z/`.
+
+Command:
+
+```text
+git push origin main
+```
+
+Output:
+
+```text
+To https://github.com/unstun/forestnav.git
+   9e4ef60b..0de18b9b  main -> main
+```
+
+Remote sync output:
+
+```text
+moved 0_trials/module2_planner_probe/M1 -> /home/ubuntu/ForestNav_module2_planner_probe_untracked_backup_20260708T073253Z/0_trials/module2_planner_probe/M1
+moved 0_trials/module2_planner_probe/M2 -> /home/ubuntu/ForestNav_module2_planner_probe_untracked_backup_20260708T073253Z/0_trials/module2_planner_probe/M2
+moved 0_trials/module2_planner_probe/M3 -> /home/ubuntu/ForestNav_module2_planner_probe_untracked_backup_20260708T073253Z/0_trials/module2_planner_probe/M3
+pull_start
+From https://github.com/unstun/forestnav
+ * branch              main       -> FETCH_HEAD
+   f2043f60..0de18b9b  main       -> origin/main
+Updating f2043f60..0de18b9b
+Fast-forward
+pull_end
+remote_head=0de18b9b3c73a9407fab57876056b49b35b4f79a
+remote_status_start
+remote_status_end
+```
+
+Command:
+
+```text
+LOCAL_HEAD=$(git rev-parse HEAD); ssh -o BatchMode=yes -o ConnectTimeout=20 gpu3070ti-relay "export PATH=/home/ubuntu/.local/git-user/root/usr/bin:\$PATH; export GIT_EXEC_PATH=/home/ubuntu/.local/git-user/root/usr/lib/git-core; cd /home/ubuntu/ForestNav && REMOTE_HEAD=\$(git rev-parse HEAD) && echo local_head=$LOCAL_HEAD && echo remote_head=\$REMOTE_HEAD && test \"\$REMOTE_HEAD\" = \"$LOCAL_HEAD\" && echo head_match=true && printf 'remote_status_start\n' && git status --short && printf 'remote_status_end\n'"
+```
+
+Output:
+
+```text
+local_head=0de18b9b3c73a9407fab57876056b49b35b4f79a
+remote_head=0de18b9b3c73a9407fab57876056b49b35b4f79a
+head_match=true
+remote_status_start
+remote_status_end
+```
+
+Command:
+
+```text
+ssh -o BatchMode=yes -o ConnectTimeout=20 gpu3070ti-relay
+# In /home/ubuntu/ForestNav:
+# env -u FORESTNAV_SOURCE_HEAD PYTHONPATH=2_experiment KMP_DUPLICATE_LIB_OK=TRUE \
+#   /home/ubuntu/ForestNav.pre_git_20260707T101154Z/.venv/bin/python <M3-only manifest runner>
+#
+# The runner reads 0_trials/module2_planner_probe/query_manifest.csv verbatim,
+# uses M1 records only for reference_path_length_m, calls the existing
+# forest_n3p.main_evaluation ha_rl_rs_ppo path, and overwrites only
+# 0_trials/module2_planner_probe/M3/.
+```
+
+Output:
+
+```text
+{
+  "event": "preflight",
+  "ok_to_run": true,
+  "blocking_issues": [],
+  "warnings": [
+    "T14 formal scale is not satisfied: queries_per_bucket=40, seed_count=5"
+  ],
+  "available_methods": [
+    "ha_rl_rs_ppo"
+  ]
+}
+{
+  "event": "first10_projection",
+  "method_label": "M3",
+  "elapsed_first10_s": 11.754736175062135,
+  "projected_total_probe_wall_clock_s": 94.03788940049708,
+  "hard_cap_s": 21600,
+  "decision": "continue"
+}
+{
+  "event": "method_complete",
+  "method_label": "M3",
+  "method": "ha_rl_rs_ppo",
+  "record_count": 80,
+  "elapsed_s": 96.26055181701668,
+  "records_csv": "0_trials/module2_planner_probe/M3/records.csv",
+  "summary_csv": "0_trials/module2_planner_probe/M3/summary_by_method_bucket.csv",
+  "failure_reasons": {
+    "": 67,
+    "timeout": 13
+  }
+}
+```
+
+Command:
+
+```text
+rsync -av --delete gpu3070ti-relay:/home/ubuntu/ForestNav/0_trials/module2_planner_probe/M3/ 0_trials/module2_planner_probe/M3/
+```
+
+Output:
+
+```text
+Transfer starting: 7 files
+./
+first10_projection.json
+queries.csv
+records.csv
+run_config.json
+summary.json
+summary_by_method_bucket.csv
+
+sent 1510 bytes  received 240787 bytes  2422970000 bytes/sec
+total size is 254678  speedup is 1.05
+```
+
+Command:
+
+```text
+python3 - <<'PY'
+import csv, json
+from collections import Counter
+from pathlib import Path
+required=['rl_attempts','rl_successes','rs_attempts','nn_forward_time_s','fallback_to_primitives_count','analytic_attempts']
+records=Path('0_trials/module2_planner_probe/M3/records.csv')
+rows=list(csv.DictReader(records.open(newline='', encoding='utf-8')))
+missing=[c for c in required if c not in (rows[0].keys() if rows else [])]
+fails=Counter(row.get('failure_reason') or '' for row in rows)
+exceptions={k:v for k,v in fails.items() if k.startswith('m3_exception:')}
+buckets=Counter(row['difficulty_bucket'] for row in rows)
+summary=list(csv.DictReader(Path('0_trials/module2_planner_probe/M3/summary_by_method_bucket.csv').open(newline='', encoding='utf-8')))
+print(json.dumps({
+  'records_rows': len(rows),
+  'bucket_counts': dict(buckets),
+  'missing_required_telemetry_columns': missing,
+  'failure_reasons': dict(fails),
+  'exception_failure_reasons': exceptions,
+  'same_exception_over_50pct': any(v > len(rows)/2 for v in exceptions.values()),
+  'summary_rows': len(summary),
+  'summary_success_rates': [{k: row[k] for k in ['method','difficulty_bucket','count','success_count','success_rate','rl_attempts_total','rl_successes_total','rs_attempts_total','fallback_to_primitives_total']} for row in summary],
+}, indent=2))
+if len(rows)!=80 or missing or any(v > len(rows)/2 for v in exceptions.values()) or len(summary)!=2:
+    raise SystemExit(1)
+PY
+```
+
+Output:
+
+```text
+{
+  "records_rows": 80,
+  "bucket_counts": {
+    "Complex": 40,
+    "Extreme": 40
+  },
+  "missing_required_telemetry_columns": [],
+  "failure_reasons": {
+    "": 67,
+    "timeout": 13
+  },
+  "exception_failure_reasons": {},
+  "same_exception_over_50pct": false,
+  "summary_rows": 2,
+  "summary_success_rates": [
+    {
+      "method": "ha_rl_rs_ppo",
+      "difficulty_bucket": "Complex",
+      "count": "40",
+      "success_count": "36",
+      "success_rate": "0.9",
+      "rl_attempts_total": "233",
+      "rl_successes_total": "36",
+      "rs_attempts_total": "5174",
+      "fallback_to_primitives_total": "197"
+    },
+    {
+      "method": "ha_rl_rs_ppo",
+      "difficulty_bucket": "Extreme",
+      "count": "40",
+      "success_count": "31",
+      "success_rate": "0.775",
+      "rl_attempts_total": "555",
+      "rl_successes_total": "31",
+      "rs_attempts_total": "8688",
+      "fallback_to_primitives_total": "524"
+    }
+  ]
+}
+```
+
+Command:
+
+```text
+cmp -s 0_trials/module2_planner_probe/query_manifest.csv 0_trials/module2_planner_probe/M3/queries.csv && echo query_manifest_reused_verbatim=true
+```
+
+Output:
+
+```text
+query_manifest_reused_verbatim=true
+```
+
+Command:
+
+```text
+git diff --exit-code -- 0_trials/module2_planner_probe/M1 0_trials/module2_planner_probe/M2 && echo m1_m2_diff_after_m3=clean
+```
+
+Output:
+
+```text
+m1_m2_diff_after_m3=clean
+```
+
 ### 2026-07-08 D1 rerun-only M1/M2 artifact verification
 
 Command:
