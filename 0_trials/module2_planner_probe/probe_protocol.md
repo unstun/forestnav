@@ -339,6 +339,119 @@ Output:
 }
 ```
 
+### 2026-07-08 D1 rerun-only M1/M2 artifact verification
+
+Command:
+
+```text
+git status --short -- 0_trials/module2_planner_probe/M1 0_trials/module2_planner_probe/M2 && git diff --exit-code --stat -- 0_trials/module2_planner_probe/M1 0_trials/module2_planner_probe/M2
+```
+
+Output:
+
+```text
+
+```
+
+Interpretation: no output and exit status 0; existing M1/M2 tracked artifacts
+are unchanged before the M3-only rerun.
+
+Command:
+
+```text
+python3 - <<'PY'
+from pathlib import Path
+for d in [Path('0_trials/module2_planner_probe/M1'), Path('0_trials/module2_planner_probe/M2')]:
+    print(f'[{d}]')
+    for p in sorted(d.iterdir()):
+        if p.is_file():
+            print(f'{p.name}\t{p.stat().st_size}')
+PY
+```
+
+Output:
+
+```text
+[0_trials/module2_planner_probe/M1]
+first10_projection.json	235
+queries.csv	12931
+records.csv	151937
+run_config.json	1337
+summary.json	2474
+summary_by_method_bucket.csv	985
+[0_trials/module2_planner_probe/M2]
+first10_projection.json	252
+queries.csv	12931
+records.csv	155369
+run_config.json	1345
+summary.json	2546
+summary_by_method_bucket.csv	1073
+```
+
+Command:
+
+```text
+python3 - <<'PY'
+import csv
+from pathlib import Path
+for method_dir in ['M1','M2']:
+    path=Path('0_trials/module2_planner_probe')/method_dir/'summary_by_method_bucket.csv'
+    print(f'[{method_dir}] {path}')
+    with path.open(newline='', encoding='utf-8') as f:
+        reader=csv.DictReader(f)
+        for row in reader:
+            bucket=row.get('difficulty_bucket') or row.get('bucket')
+            method=row.get('method')
+            success=row.get('success_rate')
+            n=row.get('queries') or row.get('n') or row.get('query_count')
+            print(f'{method_dir} method={method} bucket={bucket} n={n} success_rate={success}')
+PY
+```
+
+Output:
+
+```text
+[M1] 0_trials/module2_planner_probe/M1/summary_by_method_bucket.csv
+M1 method=ha_single_rs bucket=Complex n=None success_rate=0.675
+M1 method=ha_single_rs bucket=Extreme n=None success_rate=0.725
+[M2] 0_trials/module2_planner_probe/M2/summary_by_method_bucket.csv
+M2 method=ha_dang_multi_rs bucket=Complex n=None success_rate=0.75
+M2 method=ha_dang_multi_rs bucket=Extreme n=None success_rate=0.675
+```
+
+Command:
+
+```text
+python3 - <<'PY'
+import hashlib
+from pathlib import Path
+for method_dir in ['M1','M2']:
+    print(f'[{method_dir} sha256]')
+    for p in sorted((Path('0_trials/module2_planner_probe')/method_dir).iterdir()):
+        if p.is_file():
+            print(f'{p.name}\t{hashlib.sha256(p.read_bytes()).hexdigest()}')
+PY
+```
+
+Output:
+
+```text
+[M1 sha256]
+first10_projection.json	ef534714615d5b8e4c6820fa35656af42fa4a83c62ea661973662e4f2130190b
+queries.csv	b2ee56574bd10b975c390b14cfaca2ae443b892016b54bc81fded503d9a0c78a
+records.csv	07c4b0384c5faaee0c0f044ffee5f7724eeade82f16bb18c8e14a7fe76847485
+run_config.json	d034fe72350186b0c07fe97db17350a8642c1158bda7dc4eeeb14ba2a1ad2de7
+summary.json	3f7603ce6791d1decfbf8a00709e945e1b9489cea71ffe31a76a605809d4e7f8
+summary_by_method_bucket.csv	bcce11b1f30ace5fe29cf6d05cfc92dc375c821d0c6ba317eef6a2374fa46db4
+[M2 sha256]
+first10_projection.json	5126960aef6d440033a9ee58713eff74b0e95c41fac15e4a51990034163d56c2
+queries.csv	b2ee56574bd10b975c390b14cfaca2ae443b892016b54bc81fded503d9a0c78a
+records.csv	3fc164cb21196df4d22fddc8f57155104fefc6d42af95e97e0d603acf6deb550
+run_config.json	c39b7836362727657b4a7153c8802fe0d2d5d6307c5a115e3292dba67bf1b032
+summary.json	9d7e78efcc338e6fdcc99c571ca6b7506849551eac799225007f5a1518619618
+summary_by_method_bucket.csv	aa3fbc95a39402544e6411acbba3d4a18e7f702764de678a62ef858cc24e0d9b
+```
+
 Command:
 
 ```text
