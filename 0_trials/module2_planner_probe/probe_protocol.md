@@ -504,6 +504,83 @@ cuda_device=NVIDIA GeForce RTX 3070 Ti Laptop GPU
 version_smoke_end
 ```
 
+### 2026-07-08 D3 local checkpoint SHA256 verification
+
+Command:
+
+```text
+ls -l 0_trials/module2_gate3_formal_v3/seed20260709/train/final_model.zip 0_trials/module2_gate3_formal_v3/seed20260709/gate3_trial_manifest.json
+```
+
+Output:
+
+```text
+-rw-r--r--@ 1 sun  staff      7822 Jul  7 05:41 0_trials/module2_gate3_formal_v3/seed20260709/gate3_trial_manifest.json
+-rw-r--r--@ 1 sun  staff  15183390 Jul  7 06:04 0_trials/module2_gate3_formal_v3/seed20260709/train/final_model.zip
+```
+
+Command:
+
+```text
+shasum -a 256 0_trials/module2_gate3_formal_v3/seed20260709/train/final_model.zip
+```
+
+Output:
+
+```text
+ae97501bd75f4d832bd400c9a6b42e8f73b71ab6a955fa1cb956a155357fc1a2  0_trials/module2_gate3_formal_v3/seed20260709/train/final_model.zip
+```
+
+Command:
+
+```text
+python3 - <<'PY'
+import json, hashlib
+from pathlib import Path
+manifest_path=Path('0_trials/module2_gate3_formal_v3/seed20260709/gate3_trial_manifest.json')
+model_path=Path('0_trials/module2_gate3_formal_v3/seed20260709/train/final_model.zip')
+manifest=json.loads(manifest_path.read_text())
+needle='final_model.zip'
+found=[]
+def walk(obj,path=''):
+    if isinstance(obj,dict):
+        for k,v in obj.items():
+            walk(v, f'{path}.{k}' if path else str(k))
+    elif isinstance(obj,list):
+        for i,v in enumerate(obj):
+            walk(v, f'{path}[{i}]')
+    elif isinstance(obj,str) and (needle in obj or 'ae97501bd75f4d832bd400c9a6b42e8f73b71ab6a955fa1cb956a155357fc1a2' in obj):
+        found.append((path,obj))
+walk(manifest)
+actual=hashlib.sha256(model_path.read_bytes()).hexdigest()
+expected=None
+for path,value in found:
+    if value == actual:
+        expected=value
+print(f'manifest={manifest_path}')
+print(f'model={model_path}')
+print(f'actual_sha256={actual}')
+for path,value in found:
+    print(f'manifest_match_candidate {path}={value}')
+print(f'match={expected == actual}')
+if expected != actual:
+    raise SystemExit(1)
+PY
+```
+
+Output:
+
+```text
+manifest=0_trials/module2_gate3_formal_v3/seed20260709/gate3_trial_manifest.json
+model=0_trials/module2_gate3_formal_v3/seed20260709/train/final_model.zip
+actual_sha256=ae97501bd75f4d832bd400c9a6b42e8f73b71ab6a955fa1cb956a155357fc1a2
+manifest_match_candidate train_model=train/final_model.zip
+manifest_match_candidate eval_config.command=python -m forest_n3p.scripts.eval_rl_rs_gate3 --allow-duplicate-openmp --contract-path .pipeline/contracts/module2-rl-rs-gate3-formal-v3.md --model 0_trials/module2_gate3_formal_v3/seed20260709/train/final_model.zip --output-dir 0_trials/module2_gate3_formal_v3/seed20260709/eval --seed 20260709 --device cuda --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260709 --episodes 256 --min-episodes 256 --success-threshold 0.8 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32
+manifest_match_candidate checkpoints[0].path=train/final_model.zip
+manifest_match_candidate checkpoints[0].sha256=ae97501bd75f4d832bd400c9a6b42e8f73b71ab6a955fa1cb956a155357fc1a2
+match=True
+```
+
 Command:
 
 ```text
