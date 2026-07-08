@@ -452,6 +452,58 @@ summary.json	9d7e78efcc338e6fdcc99c571ca6b7506849551eac799225007f5a1518619618
 summary_by_method_bucket.csv	aa3fbc95a39402544e6411acbba3d4a18e7f702764de678a62ef858cc24e0d9b
 ```
 
+### 2026-07-08 D2 gpu3070ti-relay training interpreter verification
+
+Command:
+
+```text
+ssh -o BatchMode=yes gpu3070ti-relay <<'SH'
+set -eu
+PY=/home/ubuntu/ForestNav.pre_git_20260707T101154Z/.venv/bin/python
+cd "$HOME/ForestNav"
+echo "train_command_seed20260709"
+sed -n '1p' 0_trials/module2_gate3_formal_v3/seed20260709/train_command.txt
+echo "python_path=$PY"
+ls -l "$PY"
+"$PY" --version
+echo "exact_import_smoke_start"
+"$PY" -c "import gymnasium, stable_baselines3"
+echo "exact_import_smoke_ok"
+echo "version_smoke_start"
+"$PY" - <<'PY'
+import gymnasium, stable_baselines3, torch, sys
+print(f'executable={sys.executable}')
+print(f'gymnasium={gymnasium.__version__}')
+print(f'stable_baselines3={stable_baselines3.__version__}')
+print(f'torch={torch.__version__}')
+print(f'cuda_available={torch.cuda.is_available()}')
+if torch.cuda.is_available():
+    print(f'cuda_device={torch.cuda.get_device_name(0)}')
+PY
+echo "version_smoke_end"
+SH
+```
+
+Output:
+
+```text
+train_command_seed20260709
+env -u FORESTNAV_SOURCE_HEAD PYTHONPATH=2_experiment KMP_DUPLICATE_LIB_OK=TRUE /home/ubuntu/ForestNav.pre_git_20260707T101154Z/.venv/bin/python -m forest_n3p.scripts.train_rl_rs_ppo --allow-duplicate-openmp --contract-path .pipeline/contracts/module2-rl-rs-gate3-formal-v3.md --seed 20260709 --device cuda --curriculum-preset f03 --oracle-path 0_trials/module2_oracle_shape/oracle_connector_results.parquet --heldout-seed 20260709 --n-envs 8 --total-timesteps 500000 --n-steps 256 --batch-size 256 --n-epochs 10 --gamma 0.98 --gae-lambda 0.95 --clip-range 0.2 --ent-coef 0.01 --max-grad-norm 0.5 --lr-schedule linear --checkpoint-freq 50000 --obs-patch-size-m 6.4 --obs-patch-cells 64 --max-steps 32 --output-dir 0_trials/module2_gate3_formal_v3/seed20260709/train --features-extractor patch_cnn --cnn-output-dim 256 --learning-rate 0.0003 --value-pretrain-timesteps 0
+python_path=/home/ubuntu/ForestNav.pre_git_20260707T101154Z/.venv/bin/python
+lrwxrwxrwx 1 ubuntu ubuntu 7 Jun 20 16:36 /home/ubuntu/ForestNav.pre_git_20260707T101154Z/.venv/bin/python -> python3
+Python 3.12.3
+exact_import_smoke_start
+exact_import_smoke_ok
+version_smoke_start
+executable=/home/ubuntu/ForestNav.pre_git_20260707T101154Z/.venv/bin/python
+gymnasium=1.3.0
+stable_baselines3=2.9.0
+torch=2.12.1+cu130
+cuda_available=True
+cuda_device=NVIDIA GeForce RTX 3070 Ti Laptop GPU
+version_smoke_end
+```
+
 Command:
 
 ```text
